@@ -1,9 +1,7 @@
-import { v4 } from 'uuid'
-
-import { AuthGroup } from '../common/authGroup'
-import { Cycle } from '../common/cycle'
-import { Labels } from '../common/labels'
-import { SRS } from '../common/srs'
+import { AuthGroup } from '../auth'
+import { Cycle } from '../cycle'
+import { Labels } from '../labels'
+import { SRS } from '../srs'
 
 export interface SurveyInfoProps {
   cycles: Cycle
@@ -20,8 +18,8 @@ export interface SurveyInfo {
   dateModified: string
   draft: boolean
   id: string
-  ownerUuid: typeof v4
-  published: boolean
+  ownerUuid: string
   props: SurveyInfoProps
+  published: boolean
   uuid: string
 }
