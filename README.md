@@ -1,2 +1,2 @@
 # arena-core
-Arena core module
+Arena core module includes all the arena type definitions

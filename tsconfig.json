@@ -1,0 +1,16 @@
+{
+  "allowSyntheticDefaults": true,
+  "exclude": ["node_modules"],
+  "include": ["src"],
+
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "noImplicitAny": true,
+    "outDir": "./dist/",
+    "target": "esnext"
+  }
+}
