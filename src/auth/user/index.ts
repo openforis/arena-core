@@ -6,7 +6,7 @@ export enum UserStatus {
   FORCE_CHANGE_PASSWORD = 'FORCE_CHANGE_PASSWORD',
 }
 
-export interface UserSurvey = { cycle: number }
+export interface UserSurvey { cycle: number }
 
 export interface UserSurveys {
   [key: number]: UserSurvey
