@@ -1,15 +1,10 @@
-export interface Permissions {
-  // TODO
-}
-
-export interface RecordSteps {
-  // TODO
-}
+import { RecordStep } from 'src/record';
+import { Permission } from './permission';
 
 export interface AuthGroup {
   uuid: string
   name: string
   surveyUuid?: string
-  permissions: Permissions
-  recordSteps: RecordSteps
+  permissions: Array<Permission>
+  recordSteps: Array<RecordStep>
 }
