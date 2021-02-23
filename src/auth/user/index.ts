@@ -1,6 +1,11 @@
 import { Survey } from 'src/survey'
 import { AuthGroup } from 'src/auth'
-import { UserStatus } from './userStatus'
+
+export enum UserStatus {
+  INVITED = 'INVITED',
+  ACCEPTED = 'ACCEPTED',
+  FORCE_CHANGE_PASSWORD = 'FORCE_CHANGE_PASSWORD',
+}
 
 export interface UserSurveys {
   [key: number]: Survey
