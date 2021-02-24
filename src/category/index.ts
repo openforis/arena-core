@@ -1,12 +1,6 @@
 import { Validation } from 'src/validation'
 
-export enum CategoryPropsItemExtraDefDataType {
-  text = 'text',
-  number = 'number',
-  geometryPoint = 'geometryPoint',
-}
-
-export interface CategoryLevelProp {
+export interface CategoryLevelProps {
   name: string
 }
 
@@ -14,16 +8,16 @@ export interface CategoryLevel {
   id: number
   uuid: string
   index: number
-  props: CategoryLevelProp
+  props: CategoryLevelProps
 }
 
-export interface CategoryPropsItemExtraDef {
-  dataType: CategoryPropsItemExtraDefDataType
+export interface CategoryItemExtraDef {
+  dataType: 'text' | 'number' | 'geometryPoint'
 }
 
 export interface CategoryProps {
   name: string
-  itemExtraDef: CategoryPropsItemExtraDef
+  itemExtraDef: CategoryItemExtraDef
 }
 
 export interface CategoryLevels {
