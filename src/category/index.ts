@@ -1,14 +1,13 @@
+import { ArenaObject } from 'src/common'
 import { Validation } from 'src/validation'
 
 export interface CategoryLevelProps {
   name: string
 }
 
-export interface CategoryLevel {
+export interface CategoryLevel extends ArenaObject<CategoryLevelProps> {
   id: number
-  uuid: string
   index: number
-  props: CategoryLevelProps
 }
 
 export interface CategoryItemExtraDef {
@@ -28,10 +27,8 @@ export interface CategoryLevels {
   [key: number]: CategoryLevel
 }
 
-export interface Category {
+export interface Category extends ArenaObject<CategoryProps> {
   id: number
-  uuid: string
-  props: CategoryProps
   published: boolean
   levels: CategoryLevels
   validation: Validation

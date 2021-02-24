@@ -1,15 +1,15 @@
+import { ArenaObject } from 'src/common'
+
 export interface CategoryItemProps {
   code: string
   labels: { [key: string]: string }
   extra?: { [key: string]: any }
 }
 
-export interface CategoryItem {
+export interface CategoryItem extends ArenaObject<CategoryItemProps> {
   id: number
-  uuid: string
   levelUuid: string
   parentUuid?: string
   published: boolean
   draft: boolean
-  props: CategoryItemProps
 }
