@@ -19,4 +19,4 @@ export type { Validation } from './validation'
 export { UserStatus, UserTitle } from './auth/user'
 
 // Generics
-export { ArenaObject } from './common'
+export type { ArenaObject } from './common'
