@@ -1,7 +1,7 @@
 export interface CategoryItemProps {
   code: string
   labels: { [key: string]: string }
-  extra?: { dataType: string }
+  extra?: { [key: string]: any }
 }
 
 export interface CategoryItem {
