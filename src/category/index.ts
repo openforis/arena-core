@@ -1,10 +1,14 @@
-import { Validation } from "src/validation";
+import { Validation } from 'src/validation'
+
+export interface CategoryLevelProp {
+  name: string
+}
 
 export interface CategoryLevel {
   id: number
   uuid: string
   index: number
-  props: string
+  props: CategoryLevelProp
 }
 
 export interface CategoryProps {
