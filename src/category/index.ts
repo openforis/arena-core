@@ -15,9 +15,13 @@ export interface CategoryItemExtraDef {
   dataType: 'text' | 'number' | 'geometryPoint'
 }
 
+export interface CategoryItemExtraDefs {
+  [key: string]: CategoryItemExtraDef
+}
+
 export interface CategoryProps {
   name: string
-  itemExtraDef: CategoryItemExtraDef
+  itemExtraDef: CategoryItemExtraDefs
 }
 
 export interface CategoryLevels {
