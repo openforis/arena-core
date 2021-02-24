@@ -1,4 +1,6 @@
 export type { AuthGroup } from './auth'
+export type { CategoryLevelProp, CategoryLevel, CategoryProps, CategoryLevels, Category } from './category'
+export type { CategoryItem } from './category/categoryItem'
 export type { Cycle } from './cycle'
 export type { Labels } from './labels'
 export type { SRS } from './srs'
