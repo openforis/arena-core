@@ -10,7 +10,7 @@ export interface CategoryProps {
 }
 
 export interface CategoryLevels {
-  [key: number]: Category
+  [key: number]: CategoryLevel
 }
 
 export interface CategoryValidation {
