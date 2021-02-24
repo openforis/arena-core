@@ -11,4 +11,4 @@ export type { Validation } from './validation'
 
 // Enums
 export { UserStatus, UserTitle } from './auth/user'
-export { CategoryItemPropsExtraDataType } from './category/categoryItem'
+export { CategoryPropsItemExtraDefDataType } from './category'

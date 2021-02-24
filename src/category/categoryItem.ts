@@ -1,17 +1,7 @@
-export enum CategoryItemPropsExtraDataType {
-  text = 'text',
-  number = 'number',
-  geometryPoint = 'geometryPoint',
-}
-
-export interface CategoryItemPropsExtra {
-  dataType: CategoryItemPropsExtraDataType
-}
-
 export interface CategoryItemProps {
   code: string
   labels: { [key: string]: string }
-  extra?: CategoryItemPropsExtra
+  extra?: { [key: string]: string }
 }
 
 export interface CategoryItem {
