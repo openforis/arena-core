@@ -1,3 +1,5 @@
+import { Validation } from "src/validation";
+
 export interface CategoryLevel {
   id: number
   uuid: string
@@ -13,18 +15,11 @@ export interface CategoryLevels {
   [key: number]: CategoryLevel
 }
 
-export interface CategoryValidation {
-  valid: boolean
-  errors: Array<any>
-  fields: { key: any }
-  warnings: Array<any>
-}
-
 export interface Category {
   id: number
   uuid: string
   props: CategoryProps
   published: boolean
   levels: CategoryLevels
-  validation: CategoryValidation
+  validation: Validation
 }
