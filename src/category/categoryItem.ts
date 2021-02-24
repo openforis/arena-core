@@ -1,5 +1,11 @@
+export enum CategoryItemPropsExtraDataType {
+  text = 'text',
+  number = 'number',
+  geometryPoint = 'geometryPoint',
+}
+
 export interface CategoryItemPropsExtra {
-  dataType: string
+  dataType: CategoryItemPropsExtraDataType
 }
 
 export interface CategoryItemProps {
