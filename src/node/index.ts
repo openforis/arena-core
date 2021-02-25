@@ -1,11 +1,8 @@
 import { CategoryItem } from 'src/category/categoryItem'
-
-export interface NodeMetaChildApplicability {
-  [uuid: string]: boolean
-}
+import { Taxon } from 'src/taxonomy/taxon'
 
 export interface NodeMeta {
-  childApplicability: NodeMetaChildApplicability
+  childApplicability: { [uuid: string]: boolean }
   h: string[]
 }
 
@@ -17,7 +14,7 @@ export interface Node {
   nodeDefUuid: string
   parentUuid?: string
   recordUuid: string
-  refData?: CategoryItem
+  refData?: CategoryItem | Taxon
   uuid: string
   value?: any
 }
