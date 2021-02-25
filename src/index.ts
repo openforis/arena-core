@@ -7,9 +7,12 @@ export type {
   Category,
 } from './category'
 export type { CategoryItem } from './category/categoryItem'
+export type { Chain, ChainProps } from './chain'
 export type { Cycle } from './cycle'
 export type { Labels } from './labels'
 export type { NodeMeta, Node } from './node'
+export type { ProcessingStepCalculationProps, ProcessingStepCalculation } from './chain/processingStepCalculation'
+export type { ProcessingStepProps, ProcessingStep } from './chain/processingStep'
 export type { Record } from './record'
 export type { SRS } from './srs'
 export type { Survey } from './survey'
