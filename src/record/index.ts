@@ -1,11 +1,11 @@
+import { Node } from 'src/node'
 import { Validation } from 'src/validation/index'
 
-export interface Node {}
 export interface Record {
   cycle: string
   dateCreated: string
   dateModified: string
-  nodes: Array<Node>
+  nodes: { [uuid: string]: Node }
   ownerName: string
   ownerUuid: string
   preview: boolean
