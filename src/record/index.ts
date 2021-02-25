@@ -1,15 +1,17 @@
 import { Validation } from 'src/validation/index'
 
+export interface Node {}
 export interface Record {
-  uuid: string
-  ownerUuid: string
-  step: string
-  dateCreated: Date
-  surveyUuid: string
-  dateModified: Date
+  cycle: string
+  dateCreated: string
+  dateModified: string
+  nodes: Array<Node>
   ownerName: string
-  clusterId: string
-  measurement: string
+  ownerUuid: string
+  preview: boolean
+  step: string
   surveyId: string
+  surveyUuid: string
+  uuid: string
   validation: Validation
 }
