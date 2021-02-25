@@ -13,6 +13,13 @@ export type { SRS } from './srs'
 export type { Survey } from './survey'
 export type { SurveyInfo } from './survey/info'
 export type { TaxonomyProps, Taxonomy } from './taxonomy'
+export type {
+  VernacularNamesLanguageProps,
+  VernacularNamesLanguage,
+  VernacularNames,
+  TaxonProps,
+  Taxon,
+} from './taxonomy/taxon'
 export type { UserSurvey, UserSurveys, UserPrefs, UserProps, User } from './auth/user'
 export type { Validation } from './validation'
 
