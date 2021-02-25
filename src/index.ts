@@ -25,6 +25,10 @@ export type { VernacularNames, TaxonProps, Taxon } from './taxonomy/taxon'
 
 // Enums
 export { UserStatus, UserTitle } from './auth/user'
+export {
+  ProcessingStepCalculationPropsAggregateFn,
+  ProcessingStepCalculationPropsType,
+} from './chain/processingStepCalculation'
 
 // Generics
 export type { ArenaObject } from './common'
