@@ -12,6 +12,11 @@ export type { Labels } from './labels'
 export type { SRS } from './srs'
 export type { Survey } from './survey'
 export type { SurveyInfo } from './survey/info'
+export type { TaxonomyProps, Taxonomy } from './taxonomy'
+export type { VernacularNames, TaxonProps, Taxon } from './taxonomy/taxon'
+
+export type { VernacularName, VernacularNamesLanguageProps } from './taxonomy/taxonVernacularName'
+
 export type { UserSurvey, UserSurveys, UserPrefs, UserProps, User } from './auth/user'
 export type { Validation } from './validation'
 
