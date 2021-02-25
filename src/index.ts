@@ -9,16 +9,16 @@ export type {
 export type { CategoryItem } from './category/categoryItem'
 export type { Cycle } from './cycle'
 export type { Labels } from './labels'
+export type { NodeMeta, Node } from './node'
+export type { Record } from './record'
 export type { SRS } from './srs'
 export type { Survey } from './survey'
 export type { SurveyInfo } from './survey/info'
 export type { TaxonomyProps, Taxonomy } from './taxonomy'
-export type { VernacularNames, TaxonProps, Taxon } from './taxonomy/taxon'
-
-export type { VernacularName, VernacularNamesLanguageProps } from './taxonomy/taxonVernacularName'
-
 export type { UserSurvey, UserSurveys, UserPrefs, UserProps, User } from './auth/user'
 export type { Validation } from './validation'
+export type { VernacularName, VernacularNamesLanguageProps } from './taxonomy/taxonVernacularName'
+export type { VernacularNames, TaxonProps, Taxon } from './taxonomy/taxon'
 
 // Enums
 export { UserStatus, UserTitle } from './auth/user'
