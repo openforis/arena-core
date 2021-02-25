@@ -9,7 +9,7 @@ export type {
 export type { CategoryItem } from './category/categoryItem'
 export type { Cycle } from './cycle'
 export type { Labels } from './labels'
-export type { NodeMetaChildApplicability, NodeMeta, Node } from './node'
+export type { NodeMeta, Node } from './node'
 export type { Record } from './record'
 export type { SRS } from './srs'
 export type { Survey } from './survey'
