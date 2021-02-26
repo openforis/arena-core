@@ -12,7 +12,7 @@
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "eslint": "^7.20.0",
-    "husky": "^5.1.0",
+    "husky": "^5.1.1",
     "lint-staged": "^10.5.4",
     "prettier": "^2.2.1",
     "typescript": "^4.1.5"
@@ -20,10 +20,11 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "test": "echo not implemented yet"
+    "test": "echo not implemented yet",
+    "postinstall": "husky install"
   },
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": "eslint --cache --fix"
+    "src/**/*.{js,jsx,ts,tsx}": "eslint --cache --fix"
   },
   "husky": {
     "hooks": {
