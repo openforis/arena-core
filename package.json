@@ -12,9 +12,9 @@
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "eslint": "^7.20.0",
-    "husky": "^5.1.0",
+    "husky": "=4",
     "lint-staged": "^10.5.4",
-    "prettier": "^2.2.1",
+    "prettier": "2.2.1",
     "typescript": "^4.1.5"
   },
   "scripts": {
@@ -22,15 +22,16 @@
     "build:watch": "tsc --watch",
     "test": "echo not implemented yet"
   },
-  "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": "eslint --cache --fix"
-  },
+  "files": [
+    "dist/**/*"
+  ],
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
     }
   },
-  "files": [
-    "dist/**/*"
-  ]
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": "eslint --cache --fix",
+    "**/*.{js,ts,json,css,md}": "prettier --write"
+  }
 }
