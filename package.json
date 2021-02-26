@@ -24,7 +24,10 @@
     "postinstall": "husky install"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx}": "eslint --cache --fix"
+    "src/**/*.ts": [
+      "npx prettier --write",
+      "eslint src/**/*.ts --fix-dry-run"
+    ]
   },
   "husky": {
     "hooks": {
