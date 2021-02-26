@@ -1,30 +1,31 @@
 import { ArenaObject } from 'src/common'
+import { Labels } from 'src/labels'
 
-export enum CalculationPropsType {
-  quantitative = 'quantitative',
+export enum CalculationType {
   categorical = 'categorical',
+  quantitative = 'quantitative',
 }
 
 export enum CalculationPropsAggregateFn {
-  sum = 'sum',
   avg = 'avg',
   cnt = 'cnt',
-  min = 'min',
   max = 'max',
   med = 'med',
+  min = 'min',
+  sum = 'sum',
 }
 
 export interface CalculationProps {
-  labels: { [key: string]: string }
-  type: CalculationPropsType
   aggregateFn: CalculationPropsAggregateFn
   formula: string
+  labels: Labels
+  type: CalculationType
 }
 
 export interface Calculation extends ArenaObject<CalculationProps> {
-  processingStepUuid: string
-  nodeDefUuid: string
   index: number
+  nodeDefUuid: string
+  processingStepUuid: string
   script: string
   temporary: boolean
 }

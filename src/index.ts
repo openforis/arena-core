@@ -25,7 +25,7 @@ export type { VernacularNames, TaxonProps, Taxon } from './taxonomy/taxon'
 
 // Enums
 export { UserStatus, UserTitle } from './auth/user'
-export { CalculationPropsAggregateFn, CalculationPropsType } from './chain/calculation'
+export { CalculationPropsAggregateFn, CalculationType } from './chain/calculation'
 export { StatusExec } from './chain'
 
 // Generics
