@@ -31,6 +31,10 @@
     }
   },
   "lint-staged": {
+    "src/**/*.ts": [
+      "npx prettier --write src/**/*.ts",
+      "eslint src/**/*.ts --fix-dry-run"
+    ],
     "*.ts": "eslint --cache --fix",
     "*.{ts,css,md}": "prettier --write"
   }
