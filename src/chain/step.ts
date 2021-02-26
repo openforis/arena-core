@@ -1,5 +1,5 @@
 import { ArenaObject } from 'src/common'
-import { ProcessingStepCalculation } from './processingStepCalculation'
+import { Calculation } from './calculation'
 
 export interface StepProps {
   categoryUuid?: string
@@ -9,7 +9,7 @@ export interface StepProps {
 }
 
 export interface Step extends ArenaObject<StepProps> {
-  calculations: Array<ProcessingStepCalculation>
+  calculations: Array<Calculation>
   calculationUuids: Array<string>
   index: number
   processingChainUuid: string
