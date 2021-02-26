@@ -1,4 +1,4 @@
-import { ArenaObject } from 'src/common';
+import { ArenaObject } from 'src/common'
 import { Validation } from 'src/validation'
 
 export interface CategoryLevelProps {
