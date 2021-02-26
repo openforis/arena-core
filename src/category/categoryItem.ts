@@ -1,5 +1,5 @@
 import { ArenaObject } from 'src/common'
-import { Labels } from 'src/labels';
+import { Labels } from 'src/labels'
 
 export interface CategoryItemProps {
   code: string

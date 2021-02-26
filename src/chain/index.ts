@@ -1,6 +1,6 @@
 import { Validation } from 'src/validation/index'
 import { ArenaObject } from 'src/common'
-import { StepProps } from './step'
+import { Step } from './step'
 import { Labels } from 'src/labels/index'
 
 export enum StatusExec {
@@ -19,7 +19,7 @@ export interface Chain extends ArenaObject<ChainProps> {
   dateCreated: string
   dateExecuted: string
   dateModified: string
-  processingSteps: Array<StepProps>
+  processingSteps: Array<Step>
   scriptCommon: string
   statusExec: string
   temporary: boolean
