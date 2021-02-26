@@ -1,14 +1,14 @@
 import { ArenaObject } from 'src/common'
 import { ProcessingStepCalculation } from './processingStepCalculation'
 
-export interface ProcessingStepProps {
-  entityUuid?: string
+export interface StepProps {
   categoryUuid?: string
-  virtual: boolean
+  entityUuid?: string
   variablesPreviousStep: string
+  virtual: boolean
 }
 
-export interface ProcessingStep extends ArenaObject<ProcessingStepProps> {
+export interface Step extends ArenaObject<StepProps> {
   calculations: Array<ProcessingStepCalculation>
   calculationUuids: Array<string>
   index: number

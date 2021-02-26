@@ -1,11 +1,11 @@
 import { ArenaObject } from 'src/common'
 
-export enum ProcessingStepCalculationPropsType {
+export enum CalculationPropsType {
   quantitative = 'quantitative',
   categorical = 'categorical',
 }
 
-export enum ProcessingStepCalculationPropsAggregateFn {
+export enum CalculationPropsAggregateFn {
   sum = 'sum',
   avg = 'avg',
   cnt = 'cnt',
@@ -14,14 +14,14 @@ export enum ProcessingStepCalculationPropsAggregateFn {
   med = 'med',
 }
 
-export interface ProcessingStepCalculationProps {
+export interface CalculationProps {
   labels: { [key: string]: string }
-  type: ProcessingStepCalculationPropsType
-  aggregateFn: ProcessingStepCalculationPropsAggregateFn
+  type: CalculationPropsType
+  aggregateFn: CalculationPropsAggregateFn
   formula: string
 }
 
-export interface ProcessingStepCalculation extends ArenaObject<ProcessingStepCalculationProps> {
+export interface Calculation extends ArenaObject<CalculationProps> {
   processingStepUuid: string
   nodeDefUuid: string
   index: number

@@ -11,8 +11,8 @@ export type { Chain, ChainProps } from './chain'
 export type { Cycle } from './cycle'
 export type { Labels } from './labels'
 export type { NodeMeta, Node } from './node'
-export type { ProcessingStepCalculationProps, ProcessingStepCalculation } from './chain/processingStepCalculation'
-export type { ProcessingStepProps, ProcessingStep } from './chain/processingStep'
+export type { CalculationProps, Calculation } from './chain/calculation'
+export type { Step, StepProps } from './chain/step'
 export type { Record } from './record'
 export type { SRS } from './srs'
 export type { Survey } from './survey'
@@ -25,10 +25,8 @@ export type { VernacularNames, TaxonProps, Taxon } from './taxonomy/taxon'
 
 // Enums
 export { UserStatus, UserTitle } from './auth/user'
-export {
-  ProcessingStepCalculationPropsAggregateFn,
-  ProcessingStepCalculationPropsType,
-} from './chain/processingStepCalculation'
+export { CalculationPropsAggregateFn, CalculationPropsType } from './chain/calculation'
+export { StatusExec } from './chain'
 
 // Generics
 export type { ArenaObject } from './common'
