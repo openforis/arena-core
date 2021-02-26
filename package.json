@@ -12,8 +12,6 @@
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "eslint": "^7.20.0",
-    "husky": "=4",
-    "lint-staged": ">=10",
     "prettier": "^2.2.1",
     "typescript": "^4.1.5"
   },
@@ -24,18 +22,5 @@
   },
   "files": [
     "dist/**/*"
-  ],
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "src/**/*.ts": [
-      "npx prettier --write src/**/*.ts",
-      "eslint src/**/*.ts --fix-dry-run"
-    ],
-    "*.ts": "eslint --cache --fix",
-    "*.{ts,css,md}": "prettier --write"
-  }
+  ]
 }
