@@ -11,7 +11,7 @@ export enum StatusExec {
 
 export interface ChainProps {
   cycles: Array<string>
-  descriptions: { [key: string]: string }
+  descriptions: Labels
   labels: Labels
 }
 
