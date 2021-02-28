@@ -1,10 +1,16 @@
-import { AuthGroup } from '../auth'
-import { Cycle } from '../cycle'
-import { Labels } from '../labels'
-import { SRS } from '../srs'
+import { AuthGroup } from 'src/auth'
+import { Labels } from 'src/labels'
+import { SRS } from 'src/srs'
+
+export interface SurveyCycle {
+  dateEnd?: string
+  dateStart: string
+}
 
 export interface SurveyInfoProps {
-  cycles: Cycle
+  cycles: {
+    [key: string]: SurveyCycle
+  }
   descriptions: Labels
   languages: Array<string>
   labels: Labels

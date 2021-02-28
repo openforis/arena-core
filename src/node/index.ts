@@ -1,4 +1,4 @@
-import { CategoryItem } from 'src/category/categoryItem'
+import { CategoryItem } from 'src/category/item'
 import { Taxon } from 'src/taxonomy/taxon'
 
 export interface NodeMeta {

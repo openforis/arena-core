@@ -6,7 +6,7 @@ export enum CalculationType {
   quantitative = 'quantitative',
 }
 
-export enum CalculationPropsAggregateFn {
+export enum CalculationAggregateFn {
   avg = 'avg',
   cnt = 'cnt',
   max = 'max',
@@ -16,7 +16,7 @@ export enum CalculationPropsAggregateFn {
 }
 
 export interface CalculationProps {
-  aggregateFn: CalculationPropsAggregateFn
+  aggregateFn: CalculationAggregateFn
   formula: string
   labels: Labels
   type: CalculationType

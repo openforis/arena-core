@@ -1,7 +1,3 @@
-import { SurveyInfo } from './info'
-import { NodeDefs } from '../nodeDef'
+export type { Survey } from './survey'
 
-export interface Survey {
-  info: SurveyInfo
-  nodeDefs: NodeDefs
-}
+export type { SurveyInfo, SurveyCycle, SurveyInfoProps } from './info'

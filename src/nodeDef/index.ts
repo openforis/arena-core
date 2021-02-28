@@ -1,69 +1,32 @@
-import { ArenaObject } from 'src/common'
-import { Labels } from 'src/labels'
+export type {
+  NodeDef,
+  NodeDefProps,
+  NodeDefPropsWithLayout,
+  NodeDefMeta,
+  NodeDefPropsAdvanced,
+  NodeDefExpression,
+  NodeDefValidations,
+} from './nodeDef'
+export { NodeDefType } from './nodeDef'
 
-export enum NodeDefType {
-  boolean = 'boolean',
-  code = 'code',
-  coordinate = 'coordinate',
-  date = 'date',
-  decimal = 'decimal',
-  entity = 'entity',
-  file = 'file',
-  integer = 'integer',
-  taxon = 'taxon',
-  text = 'text',
-  time = 'time',
-}
+export type { NodeDefBoolean, NodeDefBooleanProps } from './boolean'
 
-export interface LayoutChildren {
-  h: number
-  i: string
-  w: number
-  x: number
-  y: number
-}
-export interface LayoutProps {
-  pageUuid: string
-  renderType: string
-  layoutChildren: LayoutChildren[]
-}
+export type { NodeDefCode, NodeDefCodeLayout, NodeDefCodeProps } from './code'
 
-export interface Layout {
-  [key: number]: LayoutProps
-}
+export type { NodeDefCoordinate } from './coordinate'
 
-export interface Meta {
-  h: Array<string>
-}
+export type { NodeDefDate } from './date'
 
-export interface PropsAdvanced {}
+export type { NodeDefDecimal, NodeDefDecimalProps } from './decimal'
 
-export interface PropsAdvancedDraft {}
+export type { NodeDefEntity, NodeDefEntityLayout, NodeDefEntityChildPosition } from './entity'
 
-export interface NodeDefProps {
-  name: string
-  cycles: string[]
-  labels: Labels
-  layout: Layout
-  multiple: boolean
-}
+export type { NodeDefFile, NodeDefFileProps } from './file'
 
-export interface NodeDef extends ArenaObject<NodeDefProps> {
-  analysis: boolean
-  dateCreated: string
-  dateModified: string
-  deleted: boolean
-  draft: boolean
-  id: string
-  meta: Meta
-  parentUuid?: any
-  type: NodeDefType
-  propsAdvanced: PropsAdvanced
-  propsAdvancedDraft: PropsAdvancedDraft
-  published: boolean
-  virtual: boolean
-}
+export type { NodeDefInteger } from './integer'
 
-export interface NodeDefs {
-  [key: string]: NodeDef
-}
+export type { NodeDefTaxon, NodeDefTaxonProps } from './taxon'
+
+export type { NodeDefText, NodeDefTextProps } from './text'
+
+export type { NodeDefTime } from './time'

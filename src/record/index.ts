@@ -1,5 +1,5 @@
 import { Node } from 'src/node'
-import { Validation } from 'src/validation/index'
+import { Validation } from 'src/validation'
 
 export interface Record {
   cycle: string
