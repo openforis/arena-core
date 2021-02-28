@@ -1,4 +1,4 @@
-import { Labels } from '../labels'
+import { Labels } from '../language'
 import { ArenaObject } from '../common'
 import { Validation } from '../validation'
 

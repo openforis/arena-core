@@ -1,6 +1,6 @@
 import { ArenaObject } from 'src/common'
 import { Validation } from 'src/validation'
-import { Labels } from 'src/labels'
+import { Labels } from 'src/language'
 import { Step } from './step'
 
 export enum ChainStatusExec {

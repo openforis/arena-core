@@ -1,5 +1,5 @@
 import { AuthGroup } from 'src/auth'
-import { Labels } from 'src/labels'
+import { Labels, LanguageCode } from 'src/language'
 import { SRS } from 'src/srs'
 
 export interface SurveyCycle {
@@ -12,7 +12,7 @@ export interface SurveyInfoProps {
     [key: string]: SurveyCycle
   }
   descriptions: Labels
-  languages: Array<string>
+  languages: Array<LanguageCode>
   labels: Labels
   name: string
   srs: Array<SRS>

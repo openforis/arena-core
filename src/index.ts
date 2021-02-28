@@ -18,7 +18,7 @@ export type {
 export type { Chain, ChainProps, Step, StepProps, Calculation, CalculationProps } from './chain'
 export { CalculationType, CalculationAggregateFn, ChainStatusExec } from './chain'
 
-export type { Labels } from './labels'
+export type { Labels } from './language'
 
 export type { NodeMeta, Node } from './node'
 
