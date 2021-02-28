@@ -4,14 +4,12 @@ import { Calculation } from './calculation'
 export interface StepProps {
   categoryUuid?: string
   entityUuid?: string
-  variablesPreviousStep: string
-  virtual: boolean
+  variablesPreviousStep?: string
 }
 
 export interface Step extends ArenaObject<StepProps> {
-  calculations: Array<Calculation>
-  calculationUuids: Array<string>
+  calculations?: Array<Calculation>
   index: number
   processingChainUuid: string
-  temporary: boolean
+  temporary?: boolean
 }

@@ -5,10 +5,6 @@ export interface CategoryLevelProps {
 }
 
 export interface CategoryLevel extends ArenaObject<CategoryLevelProps> {
-  id: number
+  id?: number
   index: number
-}
-
-export interface CategoryLevels {
-  [key: number]: CategoryLevel
 }

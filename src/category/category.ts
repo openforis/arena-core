@@ -1,23 +1,21 @@
 import { ArenaObject } from 'src/common'
-import { Validation } from 'src/validation'
-import { CategoryLevels } from './level'
+import { CategoryLevel } from './level'
 
 export interface CategoryItemExtraDef {
   dataType: 'text' | 'number' | 'geometryPoint'
 }
 
-export interface CategoryItemExtraDefs {
-  [key: string]: CategoryItemExtraDef
-}
-
 export interface CategoryProps {
-  itemExtraDefs: CategoryItemExtraDefs
+  itemExtraDefs?: {
+    [name: string]: CategoryItemExtraDef
+  }
   name: string
 }
 
 export interface Category extends ArenaObject<CategoryProps> {
-  id: number
-  levels: CategoryLevels
-  published: boolean
-  validation: Validation
+  id?: number
+  levels?: {
+    [key: number]: CategoryLevel
+  }
+  published?: boolean
 }

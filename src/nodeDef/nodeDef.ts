@@ -55,18 +55,18 @@ export interface NodeDefPropsAdvanced {
 }
 
 export interface NodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDefProps> extends ArenaObject<P> {
-  analysis: boolean
-  dateCreated: string
-  dateModified: string
-  deleted: boolean
-  draft: boolean
-  id: number
-  meta: NodeDefMeta
+  analysis?: boolean
+  dateCreated?: string
+  dateModified?: string
+  deleted?: boolean
+  draft?: boolean
+  id?: number
+  meta?: NodeDefMeta
   parentUuid?: string
-  propsAdvanced: NodeDefPropsAdvanced
-  propsAdvancedDraft: NodeDefPropsAdvanced
-  propsDraft: P
-  published: boolean
+  propsAdvanced?: NodeDefPropsAdvanced
+  propsAdvancedDraft?: NodeDefPropsAdvanced
+  propsDraft?: P
+  published?: boolean
   type: T
-  virtual: boolean
+  virtual?: boolean
 }
