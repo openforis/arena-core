@@ -1,12 +1,12 @@
 import { ArenaObject } from 'src/common'
-import { Labels } from 'src/labels'
+import { Labels } from 'src/language'
 
 export enum CalculationType {
   categorical = 'categorical',
   quantitative = 'quantitative',
 }
 
-export enum CalculationPropsAggregateFn {
+export enum CalculationAggregateFn {
   avg = 'avg',
   cnt = 'cnt',
   max = 'max',
@@ -16,7 +16,7 @@ export enum CalculationPropsAggregateFn {
 }
 
 export interface CalculationProps {
-  aggregateFn: CalculationPropsAggregateFn
+  aggregateFn: CalculationAggregateFn
   formula: string
   labels: Labels
   type: CalculationType

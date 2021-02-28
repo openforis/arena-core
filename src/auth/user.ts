@@ -1,4 +1,4 @@
-import { AuthGroup } from 'src/auth'
+import { AuthGroup } from './authGroup'
 
 export enum UserStatus {
   INVITED = 'INVITED',
@@ -6,20 +6,18 @@ export enum UserStatus {
   FORCE_CHANGE_PASSWORD = 'FORCE_CHANGE_PASSWORD',
 }
 
-export interface UserSurvey { cycle: number }
+export enum UserTitle {
+  mr = 'mr',
+  ms = 'ms',
+}
 
-export interface UserSurveys {
-  [key: number]: UserSurvey
+export interface UserPrefSurveys {
+  [surveyId: number]: { cycle: number }
   current: number
 }
 
 export interface UserPrefs {
-  surveys: UserSurveys
-}
-
-export enum UserTitle {
-  mr = 'mr',
-  ms = 'ms',
+  surveys: UserPrefSurveys
 }
 
 export interface UserProps {
@@ -27,12 +25,12 @@ export interface UserProps {
 }
 
 export interface User {
-  uuid: string
-  name: string
+  authGroups: Array<AuthGroup>
   email: string
+  hasProfilePicture: boolean
+  name: string
   prefs: UserPrefs
   props: UserProps
   status: UserStatus
-  hasProfilePicture: boolean
-  authGroups: AuthGroup[]
+  uuid: string
 }

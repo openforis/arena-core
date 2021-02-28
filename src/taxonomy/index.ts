@@ -1,15 +1,5 @@
-import { ArenaObject } from 'src/common'
-import { Validation } from 'src/validation'
+export type { Taxonomy, TaxonomyProps } from './taxonomy'
 
-export interface TaxonomyProps {
-  name: string
-  vernacularLanguageCodes: Array<string>
-  descriptions?: { [key: string]: string }
-}
+export type { Taxon, TaxonProps } from './taxon'
 
-export interface Taxonomy extends ArenaObject<TaxonomyProps> {
-  id: string
-  published: boolean
-  draft: boolean
-  validation: Validation
-}
+export type { VernacularName, VernacularNameProps } from './taxonVernacularName'
