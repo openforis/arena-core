@@ -1,8 +1,14 @@
 import { ArenaObject } from 'src/common'
 import { CategoryLevel } from './level'
 
+export enum CategoryItemExtraDefDataType {
+  text = 'text',
+  number = 'number',
+  geometryPoint = 'geometryPoint',
+}
+
 export interface CategoryItemExtraDef {
-  dataType: 'text' | 'number' | 'geometryPoint'
+  dataType: CategoryItemExtraDefDataType
 }
 
 export interface CategoryProps {

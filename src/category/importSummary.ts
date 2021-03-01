@@ -1,5 +1,5 @@
 import { LanguageCode } from 'src/language'
-import { CategoryItemExtraDef } from './category'
+import { CategoryItemExtraDefDataType } from './category'
 
 export enum ImportColumnType {
   code = 'code',
@@ -9,7 +9,7 @@ export enum ImportColumnType {
 }
 
 export interface ImportSummaryColumn {
-  dataType: CategoryItemExtraDef
+  dataType: CategoryItemExtraDefDataType
   lang: LanguageCode
   levelIndex: number
   levelName: string
