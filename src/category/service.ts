@@ -14,78 +14,78 @@ export interface CategoryService {
   createImportSummary(filePath: string): Promise<{ [key: string]: any }>
 
   createImportCategory(options: {
-    user: User
-    surveyId: string
     categoryUuid: string
     summary: { [key: string]: any }
+    surveyId: string
+    user: User
   }): Promise<CategoryImportJob>
 
   createLevel(options: {
-    user: User
-    surveyId: string
     level: any
+    surveyId: string
+    user: User
   }): Promise<{ level: CategoryLevel; category: Category }>
 
   createItem(options: {
-    user: User
-    surveyId: string
     categoryUuid: string
     itemReq: CategoryItem
+    surveyId: string
+    user: User
   }): Promise<{ item: CategoryItem; category: Category }>
 
   // ==== READ
-  count(options: { user: User; draft: boolean }): Promise<number>
+  count(options: { draft: boolean; user: User }): Promise<number>
 
   getMany(options: {
-    surveyId: string
     draft: boolean
     includeValidation: boolean
-    offset: number
     limit: number
+    offset: number
     search: string
+    surveyId: string
   }): Promise<Array<Category>>
 
-  get(options: { surveyId: string; categoryUuid: string; draft: boolean; validate: boolean }): Promise<Category>
+  get(options: { validate: boolean; draft: boolean; categoryUuid: string; surveyId: string }): Promise<Category>
 
   getItemsByParentUuid(options: {
-    surveyId: string
     categoryUuid: string
-    parentUuid?: string
     draft?: boolean
+    parentUuid?: string
+    surveyId: string
   }): Promise<Array<CategoryItem>>
 
   // ==== UPDATE
   updateCategoryProp(options: {
-    user: User
-    surveyId: string
     categoryUuid: string
     key: string
-    value: any
+    surveyId: string
     system?: boolean
+    user: User
+    value: any
   }): Promise<Category>
 
   updateLevelProp(options: {
-    user: User
-    surveyId: string
     categoryUuid: string
-    levelUuid: string
     key: string
+    levelUuid: string
+    surveyId: string
+    user: User
     value: any
   }): Promise<{ level: CategoryLevel; category: Category }>
 
   updateItemProp(options: {
-    user: User
-    surveyId: string
     categoryUuid: string
     itemUuid: string
     key: string
+    surveyId: string
+    user: User
     value: any
   }): Promise<{ item: CategoryItem; category: Category }>
 
   // ==== DELETE
-  deleteCategory(options: { user: User; surveyId: string; categoryUuid: string }): Promise<void>
+  deleteCategory(options: { categoryUuid: string; surveyId: string; user: User }): Promise<void>
 
-  deleteLevel(options: { user: User; surveyId: string; categoryUuid: string; levelUuid: string }): Promise<Category>
+  deleteLevel(options: { levelUuid: string; categoryUuid: string; surveyId: string; user: User }): Promise<Category>
 
-  deleteItem(options: { user: User; surveyId: string; categoryUuid: string; itemUuid: string }): Promise<Category>
+  deleteItem(options: { itemUuid: string; categoryUuid: string; surveyId: string; user: User }): Promise<Category>
 }
