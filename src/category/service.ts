@@ -2,6 +2,7 @@ import { User } from 'src/auth'
 import { Category } from './category'
 import { CategoryLevel } from './level'
 import { CategoryItem } from './item'
+import { ImportSummary } from './importSummary'
 
 export interface CategoryImportJob {
   // Todo
@@ -15,7 +16,7 @@ export interface CategoryService {
 
   createImportCategory(options: {
     categoryUuid: string
-    summary: { [key: string]: any }
+    summary: { [key: string]: ImportSummary }
     surveyId: string
     user: User
   }): Promise<CategoryImportJob>
