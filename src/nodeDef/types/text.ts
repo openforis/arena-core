@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefProps, NodeDefType } from './nodeDef'
+import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
 
 export interface NodeDefTextProps extends NodeDefProps {
   textTransform: 'none' | 'capitalize' | 'lowercase' | 'uppercase'

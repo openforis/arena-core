@@ -9,24 +9,27 @@ export type {
 } from './nodeDef'
 export { NodeDefType } from './nodeDef'
 
-export type { NodeDefBoolean, NodeDefBooleanProps } from './boolean'
+export type { NodeDefService } from './service'
 
-export type { NodeDefCode, NodeDefCodeLayout, NodeDefCodeProps } from './code'
+// ==== node def types
+export type { NodeDefBoolean, NodeDefBooleanProps } from './types/boolean'
 
-export type { NodeDefCoordinate } from './coordinate'
+export type { NodeDefCode, NodeDefCodeLayout, NodeDefCodeProps } from './types/code'
 
-export type { NodeDefDate } from './date'
+export type { NodeDefCoordinate } from './types/coordinate'
 
-export type { NodeDefDecimal, NodeDefDecimalProps } from './decimal'
+export type { NodeDefDate } from './types/date'
 
-export type { NodeDefEntity, NodeDefEntityLayout, NodeDefEntityChildPosition } from './entity'
+export type { NodeDefDecimal, NodeDefDecimalProps } from './types/decimal'
 
-export type { NodeDefFile, NodeDefFileProps } from './file'
+export type { NodeDefEntity, NodeDefEntityLayout, NodeDefEntityChildPosition } from './types/entity'
 
-export type { NodeDefInteger } from './integer'
+export type { NodeDefFile, NodeDefFileProps } from './types/file'
 
-export type { NodeDefTaxon, NodeDefTaxonProps } from './taxon'
+export type { NodeDefInteger } from './types/integer'
 
-export type { NodeDefText, NodeDefTextProps } from './text'
+export type { NodeDefTaxon, NodeDefTaxonProps } from './types/taxon'
 
-export type { NodeDefTime } from './time'
+export type { NodeDefText, NodeDefTextProps } from './types/text'
+
+export type { NodeDefTime } from './types/time'

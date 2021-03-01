@@ -1,6 +1,7 @@
 import { AuthGroup } from 'src/auth'
 import { Labels, LanguageCode } from 'src/language'
 import { SRS } from 'src/srs'
+import { ArenaObject } from '../common'
 
 export interface SurveyCycle {
   dateEnd?: string
@@ -11,21 +12,19 @@ export interface SurveyInfoProps {
   cycles: {
     [key: string]: SurveyCycle
   }
-  descriptions: Labels
+  descriptions?: Labels
   languages: Array<LanguageCode>
-  labels: Labels
+  labels?: Labels
   name: string
   srs: Array<SRS>
 }
 
-export interface SurveyInfo {
+export interface SurveyInfo extends ArenaObject<SurveyInfoProps> {
   authGroups: Array<AuthGroup>
   dateCreated: string
   dateModified: string
   draft: boolean
-  id: string
+  readonly id: string
   ownerUuid: string
-  props: SurveyInfoProps
   published: boolean
-  uuid: string
 }

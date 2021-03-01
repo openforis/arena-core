@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefProps, NodeDefType } from './nodeDef'
+import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
 
 export interface NodeDefBooleanProps extends NodeDefProps {
   labelValue: 'yesNo' | 'trueFalse'
