@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefProps, NodeDefType } from './nodeDef'
+import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
 
 export interface NodeDefDecimalProps extends NodeDefProps {
   maxNumberDecimalDigits: number

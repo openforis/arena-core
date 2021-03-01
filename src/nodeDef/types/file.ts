@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefProps, NodeDefType } from './nodeDef'
+import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
 
 export interface NodeDefFileProps extends NodeDefProps {
   fileType?: 'audio' | 'image' | 'video' | 'other'

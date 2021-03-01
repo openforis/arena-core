@@ -1,3 +1,3 @@
-import { NodeDef, NodeDefType } from './nodeDef'
+import { NodeDef, NodeDefType } from '../nodeDef'
 
 export type NodeDefCoordinate = NodeDef<NodeDefType.coordinate>
