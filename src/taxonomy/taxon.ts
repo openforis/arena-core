@@ -8,11 +8,11 @@ export interface TaxonProps {
 }
 
 export interface Taxon extends ArenaObject<TaxonProps> {
-  id: string
-  taxonomyUuid: string
-  vernacularNames: {
+  id?: number
+  taxonomyUuid?: string
+  vernacularNames?: {
     [key: string]: Array<VernacularName>
   }
-  published: boolean
-  draft: boolean
+  published?: boolean
+  draft?: boolean
 }

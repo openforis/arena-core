@@ -24,8 +24,8 @@ export interface CalculationProps {
 
 export interface Calculation extends ArenaObject<CalculationProps> {
   index: number
-  nodeDefUuid: string
-  processingStepUuid: string
-  script: string
-  temporary: boolean
+  nodeDefUuid?: string
+  processingStepUuid?: string
+  script?: string
+  temporary?: boolean
 }

@@ -8,9 +8,9 @@ export interface CategoryItemProps {
 }
 
 export interface CategoryItem extends ArenaObject<CategoryItemProps> {
-  draft: boolean
-  id: number
-  levelUuid: string
+  draft?: boolean
+  id?: number
+  levelUuid?: string
   parentUuid?: string
-  published: boolean
+  published?: boolean
 }
