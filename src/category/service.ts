@@ -47,7 +47,7 @@ export interface CategoryService {
 
   get(surveyId: string, categoryUuid: string, draft: boolean, validate: boolean): Promise<Category>
 
-  fetchItemsByParentUuid(
+  getItemsByParentUuid(
     surveyId: string,
     categoryUuid: string,
     parentUuid?: string,
