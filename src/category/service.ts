@@ -12,11 +12,11 @@ export interface CategoryService {
   // ==== CREATE
   create(options: { surveyId: string; category: Category; user: User }): Promise<Category>
 
-  createImportSummary(filePath: string): Promise<{ [key: string]: any }>
+  createImportSummary(filePath: string): Promise<ImportSummary>
 
   createImportCategory(options: {
     categoryUuid: string
-    summary: { [key: string]: ImportSummary }
+    summary: ImportSummary
     surveyId: string
     user: User
   }): Promise<CategoryImportJob>
@@ -29,7 +29,7 @@ export interface CategoryService {
 
   createItem(options: {
     categoryUuid: string
-    itemReq: CategoryItem
+    item: CategoryItem
     surveyId: string
     user: User
   }): Promise<{ item: CategoryItem; category: Category }>
