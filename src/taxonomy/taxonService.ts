@@ -4,10 +4,10 @@ import { Taxon } from 'src/taxonomy/taxon'
 
 export interface TaxonService {
   // ==== READ
-  count(options: { surveyId: string; taxonomyUuid: string; draft?: boolean }): Promise<number>
+  count(options: { surveyId: number; taxonomyUuid: string; draft?: boolean }): Promise<number>
 
   getByVernacularName(options: {
-    surveyId: string
+    surveyId: number
     taxonomyUuid: string
     filterValue: string
     draft: boolean
@@ -15,7 +15,7 @@ export interface TaxonService {
   }): Promise<Array<Taxon>>
 
   getByCode(options: {
-    surveyId: string
+    surveyId: number
     taxonomyUuid: string
     filterValue: string
     draft: boolean
@@ -23,7 +23,7 @@ export interface TaxonService {
   }): Promise<Array<Taxon>>
 
   getByScientificName(options: {
-    surveyId: string
+    surveyId: number
     taxonomyUuid: string
     filterValue: string
     draft: boolean
@@ -31,7 +31,7 @@ export interface TaxonService {
   }): Promise<Array<Taxon>>
 
   getByVernacularNames(options: {
-    surveyId: string
+    surveyId: number
     taxonomyUuid: string
     draft: boolean
     limit: number
@@ -39,14 +39,14 @@ export interface TaxonService {
   }): Promise<Array<Taxon>>
 
   getTaxonVernacularNameByUuid(options: {
-    surveyId: string
+    surveyId: number
     vernacularNameUuid: string
     draft: boolean
   }): Promise<Taxon>
 
-  getTaxonByUuid(options: { surveyId: string; taxonUuid: string; draft: boolean }): Promise<Taxon>
+  getTaxonByUuid(options: { surveyId: number; taxonUuid: string; draft: boolean }): Promise<Taxon>
 
   // ==== UPDATE
 
-  importTaxa(options: { user: User; surveyId: string; taxonomyUuid: string; filePath: string }): Promise<JobStatus<any>>
+  importTaxa(options: { user: User; surveyId: number; taxonomyUuid: string; filePath: string }): Promise<JobStatus<any>>
 }
