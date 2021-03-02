@@ -5,3 +5,5 @@ export type { Taxon, TaxonProps } from './taxon'
 export type { VernacularName, VernacularNameProps } from './taxonVernacularName'
 
 export type { TaxonomyService } from './service'
+
+export type { TaxonService } from './taxonService'
