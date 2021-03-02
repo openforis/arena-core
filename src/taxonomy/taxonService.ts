@@ -6,6 +6,10 @@ export interface TaxonService {
   // ==== READ
   count(options: { surveyId: number; taxonomyUuid: string; draft?: boolean }): Promise<number>
 
+  get(options: { surveyId: string; taxonomyUuid: string; draft: boolean }): Promise<Taxon>
+
+  getMany(options: { surveyId: string; taxonomyUuid: string; draft: boolean }): Promise<Array<Taxon>>
+
   getByVernacularName(options: {
     surveyId: number
     taxonomyUuid: string
