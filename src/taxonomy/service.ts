@@ -1,4 +1,3 @@
-import { JobStatus } from '../job/status'
 import { User } from '../auth'
 import { Taxonomy, TaxonomyProps } from './taxonomy'
 
