@@ -17,7 +17,7 @@ export interface TaxonService {
     searchValue?: string
     surveyId: string
     taxonomyUuid: string
-    uncludeUnlUnk?: boolean
+    includeUnlUnk?: boolean
   }): Promise<Array<Taxon>>
 
   getManyVernacularNames(options: {
