@@ -33,7 +33,6 @@ export interface CategoryService {
   // ==== UPDATE
   update(options: {
     categoryUuid: string
-    key: string
     surveyId: number
     system?: boolean
     user: User
