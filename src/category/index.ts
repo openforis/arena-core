@@ -4,6 +4,6 @@ export type { CategoryItem, CategoryItemProps } from './item'
 
 export type { CategoryLevel, CategoryLevelProps } from './level'
 
-export type { ImportSummary, ImportSummaryColumn } from './importSummary'
+export type { CategoryImportSummary, CategoryImportSummaryColumn } from './categoryImportSummary'
 
-export { ImportColumnType } from './importSummary'
+export { CategoryImportColumnType } from './categoryImportSummary'

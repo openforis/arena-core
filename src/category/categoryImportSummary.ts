@@ -1,23 +1,23 @@
 import { LanguageCode } from 'src/language'
 import { CategoryItemExtraDefDataType } from './category'
 
-export enum ImportColumnType {
+export enum CategoryImportColumnType {
   code = 'code',
   description = 'description',
   extra = 'extra',
   label = 'label',
 }
 
-export interface ImportSummaryColumn {
+export interface CategoryImportSummaryColumn {
   dataType: CategoryItemExtraDefDataType
   lang: LanguageCode
   levelIndex: number
   levelName: string
   name: string
-  type: ImportColumnType
+  type: CategoryImportColumnType
 }
 
-export interface ImportSummary {
-  columns: { [key: string]: ImportSummaryColumn }
+export interface CategoryImportSummary {
+  columns: { [key: string]: CategoryImportSummaryColumn }
   filePath: string
 }
