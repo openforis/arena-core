@@ -1,5 +1,13 @@
-export type { Category, CategoryItemExtraDef, CategoryItemExtraDefs, CategoryProps } from './category'
+export type { Category, CategoryItemExtraDef, CategoryProps } from './category'
 
 export type { CategoryItem, CategoryItemProps } from './item'
 
-export type { CategoryLevel, CategoryLevelProps, CategoryLevels } from './level'
+export type { CategoryLevel, CategoryLevelProps } from './level'
+
+export type { CategoryImportSummary, CategoryImportSummaryColumn } from './categoryImportSummary'
+
+export type { CategoryService } from './service'
+export type { CategoryItemService } from './itemService'
+export type { CategoryLevelService } from './levelService'
+
+export { CategoryImportColumnType } from './categoryImportSummary'
