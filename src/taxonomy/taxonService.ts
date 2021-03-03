@@ -1,54 +1,30 @@
 import { User } from 'src/auth'
 import { JobStatus } from 'src/job'
 import { Taxon } from 'src/taxonomy/taxon'
+import { VernacularName } from './taxonVernacularName'
 
 export interface TaxonService {
   // ==== READ
   count(options: { surveyId: number; taxonomyUuid: string; draft?: boolean }): Promise<number>
 
-  get(options: { surveyId: string; taxonomyUuid: string; draft: boolean }): Promise<Taxon>
+  get(options: { surveyId: string; taxonomyUuid: string; taxonUuid?: string; draft?: boolean }): Promise<Taxon>
 
-  getMany(options: { surveyId: string; taxonomyUuid: string; draft: boolean }): Promise<Array<Taxon>>
-
-  getByVernacularName(options: {
-    surveyId: number
+  getMany(options: {
+    draft?: boolean
+    limit?: number
+    offset?: number
+    searchField?: 'code' | 'scientificName' | 'vernacularNames'
+    searchValue?: string
+    surveyId: string
     taxonomyUuid: string
-    filterValue: string
-    draft: boolean
-    includeUnlUnk: boolean
+    uncludeUnlUnk?: boolean
   }): Promise<Array<Taxon>>
 
-  getByCode(options: {
-    surveyId: number
-    taxonomyUuid: string
-    filterValue: string
-    draft: boolean
-    includeUnlUnk: boolean
-  }): Promise<Array<Taxon>>
-
-  getByScientificName(options: {
-    surveyId: number
-    taxonomyUuid: string
-    filterValue: string
-    draft: boolean
-    includeUnlUnk: boolean
-  }): Promise<Array<Taxon>>
-
-  getByVernacularNames(options: {
-    surveyId: number
-    taxonomyUuid: string
-    draft: boolean
-    limit: number
-    offset: number
-  }): Promise<Array<Taxon>>
-
-  getTaxonVernacularNameByUuid(options: {
+  getManyVernacularNames(options: {
+    draft?: boolean
     surveyId: number
     vernacularNameUuid: string
-    draft: boolean
-  }): Promise<Taxon>
-
-  getTaxonByUuid(options: { surveyId: number; taxonUuid: string; draft: boolean }): Promise<Taxon>
+  }): Promise<Array<VernacularName>>
 
   // ==== UPDATE
 

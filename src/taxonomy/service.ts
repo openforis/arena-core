@@ -17,7 +17,7 @@ export interface TaxonomyService {
     validate?: boolean
   }): Promise<Array<Taxonomy>>
 
-  get(options: { surveyId: number; taxonomyUuid: string; draft: boolean; validate: boolean }): Promise<Taxonomy>
+  get(options: { surveyId: number; taxonomyUuid: string; draft?: boolean; validate?: boolean }): Promise<Taxonomy>
 
   // ==== UPDATE
 
