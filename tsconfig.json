@@ -4,12 +4,27 @@
   "include": ["src"],
 
   "compilerOptions": {
+    "sourceMap": true,
+    "removeComments": true,
+    "skipLibCheck": true,
+
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "noImplicitAny": true,
     "outDir": "./dist/",
     "target": "esnext"
   }

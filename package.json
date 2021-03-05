@@ -20,7 +20,13 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "test": "echo not implemented yet"
+    "test": "echo not implemented yet",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "npm run lint -- --fix",
+    "prepare": "yarn build",
+    "preversion": "npm run format && npm run lint:fix && yarn build",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "files": [
     "dist/**/*"
