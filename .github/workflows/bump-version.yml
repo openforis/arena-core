@@ -3,7 +3,7 @@ name: Arena Common
 on:
   push:
     branches:
-      - 'infra/release-config'
+      - 'master'
 
 jobs:
   publish-new-version:
