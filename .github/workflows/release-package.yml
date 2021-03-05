@@ -3,7 +3,7 @@
 on:
   push:
     branches:
-      - infra/release-config
+      - "infra/release-config"
   # release:
     # types: [created]
 
