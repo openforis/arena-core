@@ -7,23 +7,22 @@
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "alwaysStrict": true,
+    "baseUrl": "./",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "outDir": "./dist/",
     "removeComments": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
-
-    "baseUrl": "./",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
-    "outDir": "./dist/",
     "target": "esnext"
   }
 }
