@@ -1,0 +1,31 @@
+name: Arena Common
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  publish-new-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          node-version: 14
+
+      - name: 'Automated Version Bump'
+        uses: 'phips28/gh-action-bump-version@master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag-prefix: ''
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          registry-url: https://npm.pkg.github.com/
+          scope: '@openforis'
+      - run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
+      - run: echo "\"@openforis:registry\"" "\"https://npm.pkg.github.com\"" > .yarnrc
+      - run: cat .npmrc
+      - run: cat .yarnrc
+      - run: npm publish
