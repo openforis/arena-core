@@ -1,11 +1,8 @@
- name: Arena Common
+ name: Arena Core
 
 on:
-  push:
-    branches:
-      - "infra/release-config"
-  # release:
-    # types: [created]
+  release:
+    types: [created]
 
 jobs:
   build:
