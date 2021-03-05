@@ -4,7 +4,7 @@
     "name": "Openforis",
     "email": "openforis.arena@gmail.com"
   },
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Arena core module",
   "main": "index.js",
   "license": "MIT",
