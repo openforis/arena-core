@@ -10,7 +10,7 @@ export interface Record {
   ownerUuid: string
   preview: boolean
   step: string
-  surveyId: string
+  surveyId: number
   surveyUuid: string
   uuid: string
   validation: Validation
