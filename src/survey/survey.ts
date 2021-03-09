@@ -1,4 +1,8 @@
-import { SurveyInfo } from './info'
+import { ArenaObject } from 'src/common'
+import { AuthGroup } from 'src/auth'
+import { Labels, LanguageCode } from 'src/language'
+import { SRS } from 'src/srs'
+
 import { NodeDef, NodeDefType } from '../nodeDef'
 
 export interface SurveyDependency {
@@ -12,10 +16,34 @@ export interface SurveyDependencyGraph {
   formula: SurveyDependency
 }
 
-export interface Survey {
+export interface SurveyCycle {
+  dateEnd?: string
+  dateStart: string
+}
+
+export interface SurveyProps {
+  cycles: {
+    [key: string]: SurveyCycle
+  }
+  descriptions?: Labels
+  languages: Array<LanguageCode> | Object
+  labels?: Labels
+  name: string
+  srs: Array<SRS>
+  collectUri?: string
+}
+
+export interface Survey extends ArenaObject<SurveyProps>{
   dependencyGraph?: SurveyDependencyGraph
-  info: SurveyInfo
   nodeDefs?: {
     [nodeDefUuid: string]: NodeDef<NodeDefType>
   }
+  authGroups: Array<AuthGroup>
+  dateCreated?: string
+  dateModified?: string
+  draft: boolean
+  readonly id: string
+  ownerUuid: string
+  published: boolean
+  uuid: string
 }

@@ -1,5 +1,4 @@
 import { User } from '../auth'
-import { SurveyInfoProps } from './info'
 import { JobStatus } from '../job'
 import { LanguageCode } from '../language'
 import { Survey } from './survey'
@@ -30,7 +29,7 @@ export interface SurveyService {
   }): Promise<Survey>
 
   // ==== UPDATE
-  update(options: { props: SurveyInfoProps; surveyId: number; user: User }): Promise<Survey>
+  update(options: { surveyId: number; user: User }): Promise<Survey>
 
   publish(options: { surveyId: number; user: User }): Promise<JobStatus<any>>
 
