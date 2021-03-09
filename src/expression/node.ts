@@ -28,18 +28,20 @@ export interface CallExpression extends ExpressionNode<ExpressionNodeType.Call> 
   arguments: Array<ExpressionNode<ExpressionNodeType>>
   callee: ExpressionNode<ExpressionNodeType>
 }
-export interface CompoundExpression extends ExpressionNode<ExpressionNodeType.Compound> {}
-export interface GroupExpression extends ExpressionNode<ExpressionNodeType.Group> {}
-export interface IdentifierExpression extends ExpressionNode<ExpressionNodeType.Identifier> {}
+export type CompoundExpression = ExpressionNode<ExpressionNodeType.Compound>
+export interface GroupExpression extends ExpressionNode<ExpressionNodeType.Group> {
+  argument: ExpressionNode<ExpressionNodeType>
+}
+export type IdentifierExpression = ExpressionNode<ExpressionNodeType.Identifier>
 export interface LiteralExpression extends ExpressionNode<ExpressionNodeType.Literal> {
   value: any
 }
-export interface LogicalExpression extends ExpressionNode<ExpressionNodeType.Logical> {}
+export type LogicalExpression = ExpressionNode<ExpressionNodeType.Logical>
 export interface MemberExpression extends ExpressionNode<ExpressionNodeType.Member> {
   object: ExpressionNode<ExpressionNodeType>
   property: ExpressionNode<ExpressionNodeType>
 }
-export interface ThisExpression extends ExpressionNode<ExpressionNodeType.This> {}
+export type ThisExpression = ExpressionNode<ExpressionNodeType.This>
 export interface UnaryExpression extends ExpressionNode<ExpressionNodeType.Unary> {
   argument: ExpressionNode<ExpressionNodeType>
   operator: string

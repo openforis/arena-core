@@ -4,14 +4,16 @@ import { ExpressionFunction } from '../function'
 import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
 
 import { functionsDefault } from './functionsDefault'
-import jsep from './parser/jsep'
 import { BinaryEvaluator } from './node/binary'
 import { CallEvaluator } from './node/call'
+import { CompoundEvaluator } from './node/compound'
+import { GroupEvaluator } from './node/group'
 import { IdentifierEvaluator } from './node/identifier'
 import { LiteralEvaluator } from './node/literal'
 import { MemberEvaluator } from './node/member'
 import { ThisEvaluator } from './node/this'
 import { UnaryEvaluator } from './node/unary'
+import jsep from './parser/jsep'
 
 export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
   functions: { [functionName: string]: ExpressionFunction }
@@ -23,8 +25,8 @@ export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
     this.evaluators = {
       [ExpressionNodeType.Binary]: BinaryEvaluator,
       [ExpressionNodeType.Call]: CallEvaluator,
-      [ExpressionNodeType.Compound]: null,
-      [ExpressionNodeType.Group]: null,
+      [ExpressionNodeType.Compound]: CompoundEvaluator,
+      [ExpressionNodeType.Group]: GroupEvaluator,
       [ExpressionNodeType.Identifier]: IdentifierEvaluator,
       [ExpressionNodeType.Literal]: LiteralEvaluator,
       [ExpressionNodeType.Logical]: BinaryEvaluator,
