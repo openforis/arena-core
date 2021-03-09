@@ -23,7 +23,9 @@ export interface CallExpression extends ExpressionNode<ExpressionNodeType.Call> 
 export interface CompoundExpression extends ExpressionNode<ExpressionNodeType.Compound> {}
 export interface GroupExpression extends ExpressionNode<ExpressionNodeType.Group> {}
 export interface IdentifierExpression extends ExpressionNode<ExpressionNodeType.Identifier> {}
-export interface LiteralExpression extends ExpressionNode<ExpressionNodeType.Literal> {}
+export interface LiteralExpression extends ExpressionNode<ExpressionNodeType.Literal> {
+  value: any
+}
 export interface LogicalExpression extends ExpressionNode<ExpressionNodeType.Logical> {}
 export interface MemberExpression extends ExpressionNode<ExpressionNodeType.Member> {}
 export interface ThisExpression extends ExpressionNode<ExpressionNodeType.This> {}
