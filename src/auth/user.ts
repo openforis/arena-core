@@ -9,6 +9,7 @@ export enum UserStatus {
 export enum UserTitle {
   mr = 'mr',
   ms = 'ms',
+  preferNotToSay = 'preferNotToSay',
 }
 
 export interface UserPrefSurveys {
