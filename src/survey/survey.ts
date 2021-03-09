@@ -25,15 +25,15 @@ export interface SurveyProps {
   cycles: {
     [key: string]: SurveyCycle
   }
-  descriptions?: Labels
-  languages: Array<LanguageCode> | Object
-  labels?: Labels
+  descriptions?: Labels[]
+  languages: Array<LanguageCode>
+  labels?: Labels | {}
   name: string
   srs: Array<SRS>
   collectUri?: string
 }
 
-export interface Survey extends ArenaObject<SurveyProps>{
+export interface Survey extends ArenaObject<SurveyProps> {
   dependencyGraph?: SurveyDependencyGraph
   nodeDefs?: {
     [nodeDefUuid: string]: NodeDef<NodeDefType>

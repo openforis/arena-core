@@ -1,31 +1,26 @@
-import { SurveyFactory } from './factory'
+import { LanguageCode } from 'src/language'
+import { SurveyFactory, SurveyFactoryParams } from './factory'
 
 test('ExpectedSurvey === Survey', () => {
   const surveyFactory = new SurveyFactory()
-  const survey = surveyFactory.createInstance({})
-  expect(survey).toHaveProperty('info')
-})
-
-type PerkeleType = any
-test('ExpectedSurvey === Survey', () => {
-  const surveyFactory = new SurveyFactory()
-  const surveyOptions: PerkeleType = {
+  const surveyOptions: SurveyFactoryParams = {
     ownerUuid: 'uuid-0001-test',
     name: 'test_survey',
-    languages: ['en', 'es'],
+    languages: [LanguageCode.en, LanguageCode.es],
   }
+
   const survey = surveyFactory.createInstance(surveyOptions)
-  
+
   expect(survey).toHaveProperty('uuid')
   expect(survey).toHaveProperty('published')
   expect(survey).toHaveProperty('draft')
   expect(survey).toHaveProperty('ownerUuid')
   expect(survey.ownerUuid).toBe(surveyOptions.ownerUuid)
-  
+
   // props
-  expect(survey).toHaveProperty('props')  
-  const {props: surveyProps} = survey
-  
+  expect(survey).toHaveProperty('props')
+  const { props: surveyProps } = survey
+
   // props.name
   expect(surveyProps).toHaveProperty('name')
   expect(surveyProps.name).toBe(surveyOptions.name)
@@ -45,7 +40,6 @@ test('ExpectedSurvey === Survey', () => {
 
   // props.cycle
   expect(surveyProps).toHaveProperty('cycles')
-  
 
   expect(surveyProps).toHaveProperty('descriptions')
   expect(surveyProps).toHaveProperty('collectUri')

@@ -2,27 +2,27 @@ import { Factory } from 'src/common'
 import { Survey } from './survey'
 import { Labels, LanguageCode } from 'src/language'
 
-type SurveyFactoryParams = {
-  ownerUuid: string,
-  name: string,
-  label?: string ,
-  languages?: Array<LanguageCode>,
-  published: boolean,
-  draft: boolean,
-  collectUri: string,
-  descriptions?: Array<Labels>
+export type SurveyFactoryParams = {
+  ownerUuid: string
+  name: string
+  label?: string | null
+  languages?: LanguageCode[]
+  published?: boolean
+  draft?: boolean
+  collectUri?: string
+  descriptions?: Labels[]
 }
 export class SurveyFactory implements Factory<Survey> {
   createInstance(options: SurveyFactoryParams): Survey {
-    const { 
+    const {
       ownerUuid,
       name,
-      // label = null,
-      languages = ['en'],
+      label = null,
+      languages = [LanguageCode.en],
       published = false,
       draft = true,
       collectUri = '',
-      // descriptions = {}
+      descriptions = [{ en: 'hello, world' }],
     } = options
     return {
       id: 'a',
@@ -34,16 +34,20 @@ export class SurveyFactory implements Factory<Survey> {
       props: {
         name,
         languages,
-        //labels: label ? { languages[0]: label } : {},
-        srs: [], //[R.omit([Srs.keys.wkt], Srs.latLonSrs)],
+        labels: label ? { [languages[0]]: label } : {},
+        srs: [
+          {
+            code: '4326',
+            name: 'GCS WGS 1984',
+          },
+        ], //[R.omit([Srs.keys.wkt], Srs.latLonSrs)],
         cycles: {}, // [SurveyInfo.cycleOneKey]: SurveyCycle.newCycle(),
-        //descriptions,
-        collectUri
-      }
+        descriptions,
+        collectUri,
+      },
     }
   }
 }
-
 
 /*
 export const newSurvey = ({ ownerUuid, name, label = null, languages, published = false, draft = true, ...rest }) => ({
