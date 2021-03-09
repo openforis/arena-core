@@ -35,7 +35,7 @@ describe('NodeDefFactory', () => {
 
     expect(nodeDef).toHaveProperty('props')
     expect(nodeDef.props).toHaveProperty('name')
-    expect(nodeDef.props.name).toBe(nodeDefParams?.props?.name)
+    expect(nodeDef.props.name).toBe(nodeDefParams.props?.name)
     expect(nodeDef.props).toHaveProperty('multiple')
     expect(nodeDef.props.multiple).toBe(false)
 
