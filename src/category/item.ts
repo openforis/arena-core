@@ -2,9 +2,9 @@ import { ArenaObject } from 'src/common'
 import { Labels } from 'src/language'
 
 export interface CategoryItemProps {
-  code: string
+  code?: string
   extra?: { [key: string]: any }
-  labels: Labels
+  labels?: Labels
 }
 
 export interface CategoryItem extends ArenaObject<CategoryItemProps> {

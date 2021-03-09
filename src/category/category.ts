@@ -15,7 +15,7 @@ export interface CategoryProps {
   itemExtraDefs?: {
     [name: string]: CategoryItemExtraDef
   }
-  name: string
+  name?: string
 }
 
 export interface Category extends ArenaObject<CategoryProps> {
