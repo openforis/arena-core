@@ -1,5 +1,5 @@
 import { CategoryItem } from 'src/category/item'
-import { Taxon } from 'src/taxonomy/taxon/taxon'
+import { Taxon } from 'src/taxonomy/taxon'
 
 export interface NodeMeta {
   childApplicability: { [uuid: string]: boolean }

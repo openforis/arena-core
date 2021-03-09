@@ -1,5 +1,5 @@
 import { ArenaObject } from 'src/common'
-import { VernacularName } from '../taxonVernacularName'
+import { VernacularName } from './taxonVernacularName'
 
 export interface TaxonProps {
   code: string
