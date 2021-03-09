@@ -1,69 +1,69 @@
 import { JavascriptExpressionEvaluator } from './evaluator'
 
 type Query = {
-  q: string
-  r?: any
-  e?: boolean
+  expression: string
+  result?: any
+  error?: boolean
 }
 
 const queries: Array<Query> = [
-  { q: '1 + 1', r: 2 },
-  { q: '3 * 8 - 4', r: 20 },
+  { expression: '1 + 1', result: 2 },
+  { expression: '3 * 8 - 4', result: 20 },
   // global objects: Array
-  { q: 'Array.of(1,2,3)', r: [1, 2, 3] },
-  { q: `Array.of('a',2,'c')`, r: ['a', 2, 'c'] },
+  { expression: 'Array.of(1,2,3)', result: [1, 2, 3] },
+  { expression: `Array.of('a',2,'c')`, result: ['a', 2, 'c'] },
   // global objects: Boolean
-  { q: 'Boolean(1)', r: true },
-  { q: `Boolean('value')`, r: true },
-  { q: `Boolean('false')`, r: true },
-  { q: `Boolean(false)`, r: false },
+  { expression: 'Boolean(1)', result: true },
+  { expression: `Boolean('value')`, result: true },
+  { expression: `Boolean('false')`, result: true },
+  { expression: `Boolean(false)`, result: false },
   // global objects: Date
-  { q: 'Math.round(Date.now() / 10000)', r: Math.round(Date.now() / 10000) },
+  { expression: 'Math.round(Date.now() / 10000)', result: Math.round(Date.now() / 10000) },
   // global objects: Math
-  { q: 'Math.pow(2,3) + 1', r: 9 },
-  { q: 'Math.pow(2,3) + 1 > 10', r: false },
-  { q: 'Math.pow(2,3) + 1 > 10 - 8', r: true },
-  { q: '16 / Math.pow(2, 3) - 2', r: 0 },
-  { q: '16 / (Math.pow(2, 3) - 2)', r: 2.6666666666666665 },
-  { q: '16 / (Math.pow(2, 3) - 2) == 2.6666666666666665', r: true },
-  { q: '3 ** 9', r: 19683 },
-  { q: 'Math.log(2)', r: 0.6931471805599453 },
-  { q: 'Math.log10(10)', r: 1 },
-  { q: 'Math.log10(100) == 2', r: true },
+  { expression: 'Math.pow(2,3) + 1', result: 9 },
+  { expression: 'Math.pow(2,3) + 1 > 10', result: false },
+  { expression: 'Math.pow(2,3) + 1 > 10 - 8', result: true },
+  { expression: '16 / Math.pow(2, 3) - 2', result: 0 },
+  { expression: '16 / (Math.pow(2, 3) - 2)', result: 2.6666666666666665 },
+  { expression: '16 / (Math.pow(2, 3) - 2) == 2.6666666666666665', result: true },
+  { expression: '3 ** 9', result: 19683 },
+  { expression: 'Math.log(2)', result: 0.6931471805599453 },
+  { expression: 'Math.log10(10)', result: 1 },
+  { expression: 'Math.log10(100) == 2', result: true },
   // global objects: Number
-  { q: 'Number.isFinite(1/0)', r: false },
-  { q: 'Number.isInteger(12)', r: true },
-  { q: 'Number.isInteger(1.23)', r: false },
-  { q: 'Number.isNaN(1.23)', r: false },
+  { expression: 'Number.isFinite(1/0)', result: false },
+  { expression: 'Number.isInteger(12)', result: true },
+  { expression: 'Number.isInteger(1.23)', result: false },
+  { expression: 'Number.isNaN(1.23)', result: false },
   // global objects: String
-  { q: 'String.fromCharCode(65, 66, 67)', r: 'ABC' },
-  { q: 'String(65)', r: '65' },
+  { expression: 'String.fromCharCode(65, 66, 67)', result: 'ABC' },
+  { expression: 'String(65)', result: '65' },
   // global objects: Unknown object/function
-  { q: 'Math.unknownFunc(1)', e: true },
-  { q: 'Invalid.func(1)', e: true },
+  { expression: 'Math.unknownFunc(1)', error: true },
+  { expression: 'Invalid.func(1)', error: true },
   // custom functions
-  { q: `includes(Array.of(1,2,3), 2)`, r: true },
-  { q: `includes(Array.of(1,2,3), 4)`, r: false },
-  { q: `includes(Array.of('a',2,'c'), 'c')`, r: true },
-  { q: `isEmpty('test')`, r: false },
-  { q: `isEmpty('')`, r: true },
-  { q: 'isEmpty(1)', r: false },
-  { q: 'isEmpty(0)', r: false },
+  { expression: `includes(Array.of(1,2,3), 2)`, result: true },
+  { expression: `includes(Array.of(1,2,3), 4)`, result: false },
+  { expression: `includes(Array.of('a',2,'c'), 'c')`, result: true },
+  { expression: `isEmpty('test')`, result: false },
+  { expression: `isEmpty('')`, result: true },
+  { expression: 'isEmpty(1)', result: false },
+  { expression: 'isEmpty(0)', result: false },
 ]
 
 describe('ExpressionParser test', () => {
   queries.forEach((query: Query) => {
-    test(query.q, () => {
-      const { q: expression, r: result, e: error = false } = query
+    test(query.expression, () => {
+      const { expression, result: resultExpected, error: errorExpected = false } = query
 
       try {
         const res = new JavascriptExpressionEvaluator().evaluate(expression)
-        expect(res).toEqual(result)
-      } catch (e) {
-        if (error) {
-          expect(e).toBeDefined()
+        expect(res).toEqual(resultExpected)
+      } catch (error) {
+        if (errorExpected) {
+          expect(error).toBeDefined()
         } else {
-          throw e
+          throw error
         }
       }
     })
