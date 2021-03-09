@@ -13,7 +13,8 @@ import { LiteralEvaluator } from './node/literal'
 import { MemberEvaluator } from './node/member'
 import { ThisEvaluator } from './node/this'
 import { UnaryEvaluator } from './node/unary'
-import jsep from './parser/jsep'
+// @ts-ignore
+import * as jsep from './parser/jsep'
 
 export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
   functions: { [functionName: string]: ExpressionFunction }
