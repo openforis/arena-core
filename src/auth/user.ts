@@ -17,15 +17,15 @@ export interface UserPrefSurveys {
 }
 
 export interface UserPrefs {
-  surveys: UserPrefSurveys
+  surveys?: UserPrefSurveys | undefined
 }
 
 export interface UserProps {
-  title: UserTitle
+  title?: UserTitle
 }
 
 export interface User {
-  authGroups: Array<AuthGroup>
+  authGroups?: Array<AuthGroup>
   email: string
   hasProfilePicture: boolean
   name: string
