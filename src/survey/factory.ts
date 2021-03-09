@@ -33,7 +33,6 @@ export const SurveyFactory: Factory<Survey> = {
       ...params,
     }
 
-    console.log(DEFAULT_SRS, DEFAULT_SRS.name)
     return {
       id: undefined,
       uuid: uuidv4(),
