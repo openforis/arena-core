@@ -3,4 +3,5 @@ export interface ExpressionFunction {
   minArity: number
   maxArity?: number
   executor: <P = unknown, R = unknown>(args?: P) => R
+  evaluateToNode?: boolean
 }

@@ -15,6 +15,7 @@ export const enum ExpressionNodeType {
 }
 
 export interface ExpressionNode<T extends ExpressionNodeType> {
+  name: string
   type: T
 }
 
@@ -24,6 +25,7 @@ export interface BinaryExpression extends ExpressionNode<ExpressionNodeType.Bina
   operator: string
 }
 export interface CallExpression extends ExpressionNode<ExpressionNodeType.Call> {
+  arguments: Array<ExpressionNode<ExpressionNodeType>>
   callee: ExpressionNode<ExpressionNodeType>
 }
 export interface CompoundExpression extends ExpressionNode<ExpressionNodeType.Compound> {}

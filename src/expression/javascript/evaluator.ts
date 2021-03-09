@@ -1,8 +1,9 @@
 import { ExpressionContext } from '../context'
 import { ExpressionEvaluator } from '../evaluator'
-// import { ExpressionFunction } from '../function'
+import { ExpressionFunction } from '../function'
 import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
 
+import { functionsDefault } from './functionsDefault'
 import jsep from './parser/jsep'
 import { BinaryEvaluator } from './node/binary'
 import { CallEvaluator } from './node/call'
@@ -13,30 +14,32 @@ import { ThisEvaluator } from './node/this'
 import { UnaryEvaluator } from './node/unary'
 
 export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
-  // functions: { [functionName: string]: ExpressionFunction }
+  functions: { [functionName: string]: ExpressionFunction }
   evaluators: {
     [nodeType in ExpressionNodeType]: ExpressionNodeEvaluatorConstructor<ExpressionNode<ExpressionNodeType>>
   }
 
-  constructor() {
+  constructor(functions: Array<ExpressionFunction> = []) {
     this.evaluators = {
       [ExpressionNodeType.Binary]: BinaryEvaluator,
       [ExpressionNodeType.Call]: CallEvaluator,
+      [ExpressionNodeType.Compound]: null,
+      [ExpressionNodeType.Group]: null,
       [ExpressionNodeType.Identifier]: IdentifierEvaluator,
       [ExpressionNodeType.Literal]: LiteralEvaluator,
+      [ExpressionNodeType.Logical]: BinaryEvaluator,
       [ExpressionNodeType.Member]: MemberEvaluator,
       [ExpressionNodeType.This]: ThisEvaluator,
       [ExpressionNodeType.Unary]: UnaryEvaluator,
     }
+    this.functions = [...functionsDefault, ...functions].reduce<{ [functionName: string]: ExpressionFunction }>(
+      (functionsAcc, expressionFunction) => ({ ...functionsAcc, [expressionFunction.name]: expressionFunction }),
+      {}
+    )
   }
 
-  parse(expression: string): ExpressionNode<ExpressionNodeType> {
-    return jsep(expression)
-  }
-
-  evaluate(expression: string, context: ExpressionContext): any {
-    const expr = this.parse(expression)
-    return this.evaluateNode(expr, context)
+  evaluate(expression: string): any {
+    return this.evaluateNode(jsep(expression), {})
   }
 
   evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: ExpressionContext): any {
