@@ -23,7 +23,9 @@ export interface BinaryExpression extends ExpressionNode<ExpressionNodeType.Bina
   right: ExpressionNode<ExpressionNodeType>
   operator: string
 }
-export interface CallExpression extends ExpressionNode<ExpressionNodeType.Call> {}
+export interface CallExpression extends ExpressionNode<ExpressionNodeType.Call> {
+  callee: ExpressionNode<ExpressionNodeType>
+}
 export interface CompoundExpression extends ExpressionNode<ExpressionNodeType.Compound> {}
 export interface GroupExpression extends ExpressionNode<ExpressionNodeType.Group> {}
 export interface IdentifierExpression extends ExpressionNode<ExpressionNodeType.Identifier> {}

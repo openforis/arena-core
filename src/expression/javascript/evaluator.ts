@@ -1,10 +1,11 @@
 import { ExpressionContext } from '../context'
 import { ExpressionEvaluator } from '../evaluator'
-import { ExpressionFunction } from '../function'
+// import { ExpressionFunction } from '../function'
 import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
 
 import jsep from './parser/jsep'
 import { BinaryEvaluator } from './node/binary'
+import { CallEvaluator } from './node/call'
 import { IdentifierEvaluator } from './node/identifier'
 import { LiteralEvaluator } from './node/literal'
 import { MemberEvaluator } from './node/member'
@@ -12,7 +13,7 @@ import { ThisEvaluator } from './node/this'
 import { UnaryEvaluator } from './node/unary'
 
 export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
-  functions: { [functionName: string]: ExpressionFunction }
+  // functions: { [functionName: string]: ExpressionFunction }
   evaluators: {
     [nodeType in ExpressionNodeType]: ExpressionNodeEvaluatorConstructor<ExpressionNode<ExpressionNodeType>>
   }
@@ -20,6 +21,7 @@ export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
   constructor() {
     this.evaluators = {
       [ExpressionNodeType.Binary]: BinaryEvaluator,
+      [ExpressionNodeType.Call]: CallEvaluator,
       [ExpressionNodeType.Identifier]: IdentifierEvaluator,
       [ExpressionNodeType.Literal]: LiteralEvaluator,
       [ExpressionNodeType.Member]: MemberEvaluator,
