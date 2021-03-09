@@ -7,7 +7,7 @@ const unaryOperators: { [key: string]: (x: any) => any } = {
 
   // Negation: Only accept normal finite numbers, otherwise return null
   // NOTE: Under JS semantics, we would have -"123" -> -123
-  '-': (x: any): number | null => (x && x.constructor === Number && !Number.isNaN(x) && Number.isFinite(x) ? -x : null),
+  '-': (x: any): number | null => (Number.isFinite(x) ? -x : null),
 
   // Don't allow the unary + operator now. Define semantics for it first.
   // Under JS semantics, "+" coerces a string to a number.

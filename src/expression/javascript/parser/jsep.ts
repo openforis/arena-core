@@ -179,7 +179,7 @@
         // then, return that binary operation
         gobbleBinaryOp = function() {
           gobbleSpaces();
-          var biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
+          var to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
           while(tc_len > 0) {
             // Don't accept a binary op when it is an identifier.
             // Binary ops that start with a identifier-valid character must be followed
@@ -199,7 +199,7 @@
         // This function is responsible for gobbling an individual expression,
         // e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
         gobbleBinaryExpression = function() {
-          var ch_i, node, biop, prec, stack, biop_info, left, right, i;
+          var node, biop, prec, stack, biop_info, left, right, i;
 
           // First, try to get the leftmost thing
           // Then, check to see if there's a binary operator operating on that leftmost thing

@@ -14,7 +14,7 @@ export const functionsDefault: Array<ExpressionFunction> = [
     executor: (value: any) =>
       value === null ||
       value === '' ||
-      (value instanceof Number && Number.isNaN(value)) ||
+      Number.isNaN(value) ||
       (value instanceof Object && Object.entries(value).length === 0) ||
       (Array.isArray(value) && value.length === 0),
   },
