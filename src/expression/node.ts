@@ -18,7 +18,11 @@ export interface ExpressionNode<T extends ExpressionNodeType> {
   type: T
 }
 
-export interface BinaryExpression extends ExpressionNode<ExpressionNodeType.Binary> {}
+export interface BinaryExpression extends ExpressionNode<ExpressionNodeType.Binary> {
+  left: ExpressionNode<ExpressionNodeType>
+  right: ExpressionNode<ExpressionNodeType>
+  operator: string
+}
 export interface CallExpression extends ExpressionNode<ExpressionNodeType.Call> {}
 export interface CompoundExpression extends ExpressionNode<ExpressionNodeType.Compound> {}
 export interface GroupExpression extends ExpressionNode<ExpressionNodeType.Group> {}

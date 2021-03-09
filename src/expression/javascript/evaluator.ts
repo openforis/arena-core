@@ -4,6 +4,7 @@ import { ExpressionFunction } from '../function'
 import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
 
 import jsep from './parser/jsep'
+import { BinaryEvaluator } from './node/binary'
 import { IdentifierEvaluator } from './node/identifier'
 import { LiteralEvaluator } from './node/literal'
 import { MemberEvaluator } from './node/member'
@@ -18,6 +19,7 @@ export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
 
   constructor() {
     this.evaluators = {
+      [ExpressionNodeType.Binary]: BinaryEvaluator,
       [ExpressionNodeType.Identifier]: IdentifierEvaluator,
       [ExpressionNodeType.Literal]: LiteralEvaluator,
       [ExpressionNodeType.Member]: MemberEvaluator,
