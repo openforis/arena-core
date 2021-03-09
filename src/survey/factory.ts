@@ -27,10 +27,10 @@ const defaultProps = {
 }
 
 export const SurveyFactory: Factory<Survey> = {
-  createInstance: (options: SurveyFactoryParams): Survey => {
+  createInstance: (params: SurveyFactoryParams): Survey => {
     const { ownerUuid, name, label, languages, published, draft, collectUri, descriptions } = {
       ...defaultProps,
-      ...options,
+      ...params,
     }
 
     console.log(DEFAULT_SRS, DEFAULT_SRS.name)
