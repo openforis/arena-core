@@ -25,25 +25,23 @@ export interface SurveyProps {
   cycles: {
     [key: string]: SurveyCycle
   }
-  descriptions?: Labels[]
-  languages: Array<LanguageCode>
+  descriptions?: Labels[] | null
+  languages: LanguageCode[]
   labels?: Labels | {}
   name: string
   srs: Array<SRS>
-  collectUri?: string
+  collectUri?: string | null
 }
 
 export interface Survey extends ArenaObject<SurveyProps> {
-  dependencyGraph?: SurveyDependencyGraph
-  nodeDefs?: {
-    [nodeDefUuid: string]: NodeDef<NodeDefType>
-  }
   authGroups: Array<AuthGroup>
   dateCreated?: string
   dateModified?: string
+  dependencyGraph?: SurveyDependencyGraph
   draft: boolean
-  readonly id: string
+  nodeDefs?: { [nodeDefUuid: string]: NodeDef<NodeDefType> }
   ownerUuid: string
   published: boolean
+  readonly id?: string
   uuid: string
 }

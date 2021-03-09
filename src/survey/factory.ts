@@ -1,6 +1,10 @@
+// TODO : Use srs factory
+import { DEFAULT_SRS } from '../srs'
+
 import { Factory } from 'src/common'
 import { Survey } from './survey'
 import { Labels, LanguageCode } from 'src/language'
+import { v4 as uuidv4 } from 'uuid'
 
 export type SurveyFactoryParams = {
   ownerUuid: string
@@ -12,21 +16,27 @@ export type SurveyFactoryParams = {
   collectUri?: string
   descriptions?: Labels[]
 }
-export class SurveyFactory implements Factory<Survey> {
-  createInstance(options: SurveyFactoryParams): Survey {
-    const {
-      ownerUuid,
-      name,
-      label = null,
-      languages = [LanguageCode.en],
-      published = false,
-      draft = true,
-      collectUri = '',
-      descriptions = [{ en: 'hello, world' }],
-    } = options
+
+const defaultProps = {
+  label: null,
+  languages: [LanguageCode.en],
+  published: false,
+  draft: true,
+  collectUri: null,
+  descriptions: null,
+}
+
+export const SurveyFactory: Factory<Survey> = {
+  createInstance: (options: SurveyFactoryParams): Survey => {
+    const { ownerUuid, name, label, languages, published, draft, collectUri, descriptions } = {
+      ...defaultProps,
+      ...options,
+    }
+
+    console.log(DEFAULT_SRS, DEFAULT_SRS.name)
     return {
-      id: 'a',
-      uuid: 'aaaaaa', //uuidv4(),
+      id: undefined,
+      uuid: uuidv4(),
       published,
       draft,
       ownerUuid,
@@ -35,47 +45,15 @@ export class SurveyFactory implements Factory<Survey> {
         name,
         languages,
         labels: label ? { [languages[0]]: label } : {},
-        srs: [
-          {
-            code: '4326',
-            name: 'GCS WGS 1984',
-            wkt: `GEOGCS["WGS 84",
-            DATUM["WGS_1984",
-                SPHEROID["WGS 84",6378137,298.257223563,
-                    AUTHORITY["EPSG","7030"]],
-                AUTHORITY["EPSG","6326"]],
-            PRIMEM["Greenwich",0,
-                AUTHORITY["EPSG","8901"]],
-            UNIT["degree",0.01745329251994328,
-                AUTHORITY["EPSG","9122"]],
-            AUTHORITY["EPSG","4326"]]`,
+        srs: [DEFAULT_SRS],
+        cycles: {
+          '0': {
+            dateStart: new Date().toISOString().split('T')[0],
           },
-        ], //[R.omit([Srs.keys.wkt], Srs.latLonSrs)],
-        cycles: {}, // [SurveyInfo.cycleOneKey]: SurveyCycle.newCycle(),
+        },
         descriptions,
         collectUri,
       },
     }
-  }
-}
-
-/*
-export const newSurvey = ({ ownerUuid, name, label = null, languages, published = false, draft = true, ...rest }) => ({
-  [SurveyInfo.keys.uuid]: uuidv4(),
-  [SurveyInfo.keys.props]: {
-    [SurveyInfo.keys.name]: name,
-    [SurveyInfo.keys.languages]: languages,
-    [SurveyInfo.keys.labels]: label ? { [languages[0]]: label } : {},
-    [SurveyInfo.keys.srs]: [R.omit([Srs.keys.wkt], Srs.latLonSrs)],
-    [SurveyInfo.keys.cycles]: {
-      [SurveyInfo.cycleOneKey]: SurveyCycle.newCycle(),
-    },
-    [Survey.infoKeys.descriptions]: descriptions,
-    [Survey.infoKeys.collectUri]: collectUri,
-    ...rest,
   },
-  [SurveyInfo.keys.published]: published,
-  [SurveyInfo.keys.draft]: draft,
-  [SurveyInfo.keys.ownerUuid]: ownerUuid,
-})
-*/
+}

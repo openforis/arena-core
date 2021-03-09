@@ -1,7 +1,7 @@
 import { User } from '../auth'
 import { JobStatus } from '../job'
 import { LanguageCode } from '../language'
-import { Survey } from './survey'
+import { Survey, SurveyProps } from './survey'
 
 export interface SurveyService {
   // ==== CREATE
@@ -29,7 +29,7 @@ export interface SurveyService {
   }): Promise<Survey>
 
   // ==== UPDATE
-  update(options: { surveyId: number; user: User }): Promise<Survey>
+  update(options: { props: SurveyProps; surveyId: number; user: User }): Promise<Survey>
 
   publish(options: { surveyId: number; user: User }): Promise<JobStatus<any>>
 
