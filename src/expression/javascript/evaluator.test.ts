@@ -41,10 +41,12 @@ const queries: Array<Query> = [
   // global objects: Unknown object/function
   { expression: 'Math.unknownFunc(1)', error: true },
   { expression: 'Invalid.func(1)', error: true },
+  // native properties/functions
+  { expression: `Array.of(1,2,3).length`, result: 3 },
+  { expression: `Array.of(1,2,3).includes(2)`, result: true },
+  { expression: `Array.of('a','b','c').includes('a')`, result: true },
+  { expression: `Array.of('a','b','c').includes('d')`, result: false },
   // custom functions
-  { expression: `includes(Array.of(1,2,3), 2)`, result: true },
-  { expression: `includes(Array.of(1,2,3), 4)`, result: false },
-  { expression: `includes(Array.of('a',2,'c'), 'c')`, result: true },
   { expression: `isEmpty('test')`, result: false },
   { expression: `isEmpty('')`, result: true },
   { expression: 'isEmpty(1)', result: false },

@@ -2,12 +2,6 @@ import { ExpressionFunction } from '../function'
 
 export const functionsDefault: Array<ExpressionFunction> = [
   {
-    name: 'includes',
-    minArity: 2,
-    maxArity: 2,
-    executor: (items: any, value: any) => Array.isArray(items) && items.includes(value),
-  },
-  {
     name: 'isEmpty',
     minArity: 1,
     maxArity: 1,
