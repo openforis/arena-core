@@ -27,7 +27,10 @@ export interface LiteralExpression extends ExpressionNode<ExpressionNodeType.Lit
   value: any
 }
 export interface LogicalExpression extends ExpressionNode<ExpressionNodeType.Logical> {}
-export interface MemberExpression extends ExpressionNode<ExpressionNodeType.Member> {}
+export interface MemberExpression extends ExpressionNode<ExpressionNodeType.Member> {
+  object: ExpressionNode<ExpressionNodeType>
+  property: ExpressionNode<ExpressionNodeType>
+}
 export interface ThisExpression extends ExpressionNode<ExpressionNodeType.This> {}
 export interface UnaryExpression extends ExpressionNode<ExpressionNodeType.Unary> {
   argument: ExpressionNode<ExpressionNodeType>
