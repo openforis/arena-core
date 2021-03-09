@@ -2,7 +2,10 @@ import { ExpressionContext } from '../context'
 import { ExpressionEvaluator } from '../evaluator'
 import { ExpressionFunction } from '../function'
 import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
+
 import jsep from './parser/jsep'
+import { IdentifierEvaluator } from './node/identifier'
+import { ThisEvaluator } from './node/this'
 import { UnaryEvaluator } from './node/unary'
 
 export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
@@ -13,6 +16,8 @@ export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
 
   constructor() {
     this.evaluators = {
+      [ExpressionNodeType.Identifier]: IdentifierEvaluator,
+      [ExpressionNodeType.This]: ThisEvaluator,
       [ExpressionNodeType.Unary]: UnaryEvaluator,
     }
   }
