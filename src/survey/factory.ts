@@ -1,4 +1,3 @@
-// TODO : Use srs factory
 import { DEFAULT_SRS } from '../srs'
 
 import { Factory } from '../common'
