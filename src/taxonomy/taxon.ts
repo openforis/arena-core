@@ -3,6 +3,7 @@ import { VernacularName } from './taxonVernacularName'
 
 export interface TaxonProps {
   code: string
+  family: string
   genus: string
   scientificName: string
 }
