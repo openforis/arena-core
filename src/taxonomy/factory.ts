@@ -1,10 +1,10 @@
-import { v4 as uuidv4 } from 'uuid'
-
 import { Factory } from 'src/common'
 import { Taxonomy, TaxonomyProps } from './taxonomy'
 import { Taxon, TaxonProps } from './taxon'
 import { VernacularName } from './taxonVernacularName'
 import { LanguageCode } from 'src/language'
+
+import { UUIDs } from '../utils'
 
 export type TaxonomyFactoryParams = {
   props?: TaxonomyProps
@@ -26,7 +26,7 @@ export const TaxonomyFactory: Factory<Taxonomy> = {
     }
 
     return {
-      uuid: uuidv4(),
+      uuid: UUIDs.v4(),
       props,
       draft,
       published,
@@ -56,7 +56,7 @@ export const TaxonFactory: Factory<Taxon> = {
     }
 
     return {
-      uuid: uuidv4(),
+      uuid: UUIDs.v4(),
       props,
       taxonomyUuid,
       vernacularNames,
@@ -75,7 +75,7 @@ export const VernacularNameFactory: Factory<VernacularName> = {
     const { lang, name } = params
 
     return {
-      uuid: uuidv4(),
+      uuid: UUIDs.v4(),
       props: {
         lang,
         name,
