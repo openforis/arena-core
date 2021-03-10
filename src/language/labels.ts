@@ -1,5 +1,5 @@
 import { LanguageCode } from './languageCode'
 
 export type Labels = {
-  [code in LanguageCode]: string
+  [code in LanguageCode]?: string
 }

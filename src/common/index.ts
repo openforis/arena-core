@@ -5,3 +5,5 @@ export interface ArenaObject<T> {
   props: T
   validation?: Validation
 }
+
+export type { Factory } from './factory'
