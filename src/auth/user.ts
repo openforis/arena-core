@@ -1,3 +1,4 @@
+import { ArenaObject } from 'src/common'
 import { AuthGroup } from './authGroup'
 
 export enum UserStatus {
@@ -9,6 +10,7 @@ export enum UserStatus {
 export enum UserTitle {
   mr = 'mr',
   ms = 'ms',
+  preferNotToSay = 'preferNotToSay',
 }
 
 export interface UserPrefSurveys {
@@ -17,20 +19,18 @@ export interface UserPrefSurveys {
 }
 
 export interface UserPrefs {
-  surveys: UserPrefSurveys
+  surveys?: UserPrefSurveys
 }
 
 export interface UserProps {
-  title: UserTitle
+  title?: UserTitle
 }
 
-export interface User {
-  authGroups: Array<AuthGroup>
+export interface User extends ArenaObject<UserProps> {
+  authGroups?: Array<AuthGroup>
   email: string
   hasProfilePicture: boolean
   name: string
-  prefs: UserPrefs
-  props: UserProps
+  prefs?: UserPrefs
   status: UserStatus
-  uuid: string
 }
