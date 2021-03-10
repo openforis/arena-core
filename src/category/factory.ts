@@ -14,7 +14,6 @@ export const CategoryFactory: Factory<Category> = {
   createInstance: (params?: CategoryFactoryParams): Category => {
     const defaultProps = {
       props: {},
-      levels: [],
     }
 
     const { published, props, levels } = {
@@ -22,11 +21,15 @@ export const CategoryFactory: Factory<Category> = {
       ...params,
     }
 
-    return {
+    const category = {
       levels,
       props,
       published,
       uuid: UUIDs.v4(),
+    }
+    return {
+      ...category,
+      levels: levels || [CategoryLevelFactory.createInstance({ ...category, categoryUuid: category.uuid })],
     }
   },
 }
