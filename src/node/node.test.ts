@@ -18,7 +18,11 @@ const checkNode = (node: Node, nodeParams: NodeFactoryParams) => {
 
   expect(node).toHaveProperty('meta')
   expect(node.meta).toHaveProperty('h')
-  const expectedHierarchy = [...(nodeParams.parentNode?.meta?.h || []), nodeParams.parentNode?.uuid]
+
+  const expectedHierarchy = [
+    ...(nodeParams.parentNode?.meta?.h || []),
+    ...(nodeParams.parentNode?.uuid ? [nodeParams.parentNode?.uuid] : []),
+  ]
   expect(node.meta.h.length).toBe(expectedHierarchy.length)
   expect([...node.meta.h]).toMatchObject(expectedHierarchy)
 }
@@ -36,6 +40,17 @@ describe('NodeFactory', () => {
           h: ['uuid-prev'],
         },
       },
+      value: 'VALUE',
+    }
+
+    const node = NodeFactory.createInstance(nodeParams)
+    checkNode(node, nodeParams)
+  })
+
+  test('createInstence - parent node', () => {
+    const nodeParams: NodeFactoryParams = {
+      nodeDefUuid: 'nodedef-uuid-0001-test',
+      recordUuid: 'record-uuid-0001-test',
       value: 'VALUE',
     }
 
