@@ -1,13 +1,11 @@
 import { Factory } from 'src/common'
 import { UUIDs } from '../utils'
-import { Category } from './category'
+import { Category, CategoryProps } from './category'
 import { CategoryItem, CategoryItemProps } from './item'
 import { CategoryLevel, CategoryLevelProps } from './level'
 
 export type CategoryFactoryParams = {
-  props?: {
-    name?: string
-  }
+  props?: CategoryProps
   levels?: CategoryLevel[]
   published?: boolean
 }
