@@ -1,23 +1,17 @@
-import { ExpressionNodeEvaluator, ExpressionNodeType, MemberExpression } from '../../node'
+import { ExpressionNodeEvaluator, MemberExpression } from '../../node'
 
 export class MemberEvaluator extends ExpressionNodeEvaluator<MemberExpression> {
   evaluate(expressionNode: MemberExpression): any {
-    const { object, property } = expressionNode
+    const { object, property, computed } = expressionNode
 
     const objectEval = this.evaluator.evaluateNode(object, this.context)
     if (!objectEval) return null
 
-    const propertyEval = this.evaluator.evaluateNode(property, { ...this.context, expressionNode: objectEval })
+    const propertyEval = this.evaluator.evaluateNode(property, {
+      ...this.context,
+      expressionNode: computed ? this.context.expressionNode : objectEval,
+    })
 
-    if (
-      propertyEval.constructor === Array &&
-      property.type === ExpressionNodeType.Literal &&
-      objectEval.length > propertyEval
-    ) {
-      // @ts-ignore
-      return objectEval[propertyEval]
-    }
-
-    return propertyEval
+    return computed ? objectEval[propertyEval] : propertyEval
   }
 }

@@ -46,6 +46,9 @@ const queries: Array<Query> = [
   { expression: `Array.of(1,2,3).includes(2)`, result: true },
   { expression: `Array.of('a','b','c').includes('a')`, result: true },
   { expression: `Array.of('a','b','c').includes('d')`, result: false },
+  // accessing array with index
+  { expression: `Array.of('a','b','c')[1]`, result: 'b' },
+  { expression: `Array.of('a','b','c')[4]`, result: undefined },
   // custom functions
   { expression: `isEmpty('test')`, result: false },
   { expression: `isEmpty('')`, result: true },
@@ -53,7 +56,7 @@ const queries: Array<Query> = [
   { expression: 'isEmpty(0)', result: false },
 ]
 
-describe('ExpressionParser test', () => {
+describe('JavascriptExpressionEvaluator test', () => {
   queries.forEach((query: Query) => {
     test(query.expression, () => {
       const { expression, result: resultExpected, error: errorExpected = false } = query

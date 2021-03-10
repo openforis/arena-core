@@ -40,6 +40,7 @@ export type LogicalExpression = ExpressionNode<ExpressionNodeType.Logical>
 export interface MemberExpression extends ExpressionNode<ExpressionNodeType.Member> {
   object: ExpressionNode<ExpressionNodeType>
   property: ExpressionNode<ExpressionNodeType>
+  computed: boolean
 }
 export type ThisExpression = ExpressionNode<ExpressionNodeType.This>
 export interface UnaryExpression extends ExpressionNode<ExpressionNodeType.Unary> {
