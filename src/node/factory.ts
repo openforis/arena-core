@@ -9,19 +9,9 @@ export type NodeFactoryParams = {
   value?: any
 }
 
-const defaultProps = {
-  published: false,
-  draft: true,
-  collectUri: null,
-  descriptions: null,
-}
-
 export const NodeFactory: Factory<Node> = {
   createInstance: (params: NodeFactoryParams): Node => {
-    const { nodeDefUuid, recordUuid, parentNode, value } = {
-      ...defaultProps,
-      ...params,
-    }
+    const { nodeDefUuid, recordUuid, parentNode, value } = params
 
     return {
       uuid: UUIDs.v4(),

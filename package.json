@@ -32,7 +32,7 @@
     "postversion": "git push && git push --tags",
     "prepare": "yarn build",
     "preversion": "run-s format lint:fix build",
-    "test": "echo not implemented yet",
+    "test": "jest",
     "version": "git add -A src"
   },
   "files": [
