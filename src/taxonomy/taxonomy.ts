@@ -3,7 +3,7 @@ import { ArenaObject } from '../common'
 
 export interface TaxonomyProps {
   descriptions?: Labels
-  name: string
+  name?: string
   vernacularLanguageCodes?: Array<string>
 }
 
