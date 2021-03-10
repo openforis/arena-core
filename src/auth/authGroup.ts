@@ -1,14 +1,6 @@
 import { Permission } from './permission'
 
-export interface AuthGroup {
-  name: string
-  surveyUuid?: string
-  permissions: Array<Permission>
-  recordSteps: { [key: number]: string } // TODO RecordSteps
-  uuid: string
-}
-
-export enum groupNames {
+export enum AuthGroupName {
   systemAdmin = 'systemAdmin',
   surveyAdmin = 'surveyAdmin',
   surveyEditor = 'surveyEditor',
@@ -18,10 +10,18 @@ export enum groupNames {
   surveyGuest = 'surveyGuest',
 }
 
+export interface AuthGroup {
+  name: AuthGroupName
+  surveyUuid?: string
+  permissions: Array<Permission>
+  recordSteps: { [key: number]: string } // TODO RecordSteps
+  uuid: string
+}
+
 export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   {
     uuid: 'surveyAdmin',
-    name: groupNames.surveyAdmin,
+    name: AuthGroupName.surveyAdmin,
     permissions: [
       Permission.permissionsEdit,
       Permission.surveyEdit,
@@ -41,7 +41,7 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   },
   {
     uuid: 'surveyEditor',
-    name: groupNames.surveyEditor,
+    name: AuthGroupName.surveyEditor,
     permissions: [
       Permission.surveyEdit,
       Permission.recordView,
@@ -58,7 +58,7 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   },
   {
     uuid: 'dataAnalyst',
-    name: groupNames.dataAnalyst,
+    name: AuthGroupName.dataAnalyst,
     permissions: [
       Permission.recordView,
       Permission.recordCreate,
@@ -74,7 +74,7 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   },
   {
     uuid: 'dataCleanser',
-    name: groupNames.dataCleanser,
+    name: AuthGroupName.dataCleanser,
     permissions: [Permission.recordView, Permission.recordCreate, Permission.recordEdit, Permission.recordCleanse],
     recordSteps: {
       1: 'all',
@@ -83,7 +83,7 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   },
   {
     uuid: 'dataEditor',
-    name: groupNames.dataEditor,
+    name: AuthGroupName.dataEditor,
     permissions: [Permission.recordView, Permission.recordCreate, Permission.recordEdit],
     recordSteps: {
       1: 'own',

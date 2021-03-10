@@ -1,5 +1,5 @@
 import { Factory } from 'src/common'
-import { UUIDs } from 'src/utils'
+import { UUIDs } from '../utils'
 import { User, UserStatus, UserTitle } from './user'
 
 export type UserFactoryParams = {
@@ -17,7 +17,7 @@ export const UserFactory: Factory<User> = {
       status: UserStatus.INVITED,
     }
 
-    const { email, name, hasProfilePicture, status, title, surveys } = {
+    const { email, name, hasProfilePicture, status, title } = {
       ...defaultProps,
       ...params,
     }
@@ -26,9 +26,6 @@ export const UserFactory: Factory<User> = {
       email,
       hasProfilePicture,
       name,
-      prefs: {
-        surveys,
-      },
       props: {
         title,
       },
