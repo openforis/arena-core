@@ -1,6 +1,6 @@
 import { Factory } from 'src/common'
 import { NodeDef, NodeDefType, NodeDefProps, NodeDefPropsAdvanced } from './nodeDef'
-import { v4 as uuidv4 } from 'uuid'
+import { UUIDs } from '../utils'
 
 export type NodeDefFactoryParams = {
   analysis?: boolean
@@ -16,7 +16,7 @@ export const NodeDefFactory: Factory<NodeDef<NodeDefType, NodeDefProps>> = {
     const defaultProps = {
       analysis: false,
       draft: true,
-      nodeDefParent: undefined,
+      nodeDefParent: null,
       props: {},
       propsDraft: {},
       published: false,
@@ -41,7 +41,7 @@ export const NodeDefFactory: Factory<NodeDef<NodeDefType, NodeDefProps>> = {
       published,
       temporary,
       type,
-      uuid: uuidv4(),
+      uuid: UUIDs.v4(),
       virtual,
     }
   },

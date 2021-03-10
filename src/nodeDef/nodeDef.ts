@@ -69,6 +69,5 @@ export interface NodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDef
   published?: boolean
   temporary?: boolean
   type: T
-  uuid: string
   virtual?: boolean
 }

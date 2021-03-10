@@ -1,6 +1,6 @@
 import { Factory } from 'src/common'
 import { Node } from './node'
-import { v4 as uuidv4 } from 'uuid'
+import { UUIDs } from '../utils'
 
 export type NodeFactoryParams = {
   nodeDefUuid: string
@@ -24,7 +24,7 @@ export const NodeFactory: Factory<Node> = {
     }
 
     return {
-      uuid: uuidv4(),
+      uuid: UUIDs.v4(),
       nodeDefUuid,
       recordUuid,
       parentUuid: parentNode?.uuid,
