@@ -1,5 +1,5 @@
 import { Factory } from 'src/common'
-import { v4 as uuidv4 } from 'uuid'
+import { UUIDs } from '../utils'
 import { Category } from './category'
 import { CategoryItem, CategoryItemProps } from './item'
 import { CategoryLevel, CategoryLevelProps } from './level'
@@ -24,11 +24,15 @@ export const CategoryFactory: Factory<Category> = {
       ...params,
     }
 
-    return {
+    const category = {
       levels,
       props,
       published,
-      uuid: uuidv4(),
+      uuid: UUIDs.v4(),
+    }
+    return {
+      ...category,
+      levels: levels || [CategoryLevelFactory.createInstance({ categoryUuid: category.uuid })],
     }
   },
 }
@@ -43,7 +47,7 @@ export const CategoryLevelFactory: Factory<CategoryLevel> = {
   createInstance: (params?: CategoryLevelFactoryParams): CategoryLevel => {
     const defaultProps = {
       props: {},
-      index: undefined,
+      index: 0,
     }
 
     const { index, categoryUuid, props } = {
@@ -55,7 +59,7 @@ export const CategoryLevelFactory: Factory<CategoryLevel> = {
       categoryUuid,
       index,
       props,
-      uuid: uuidv4(),
+      uuid: UUIDs.v4(),
     }
   },
 }
@@ -70,7 +74,6 @@ export const CategoryItemFactory: Factory<CategoryItem> = {
   createInstance: (params?: CategoryItemFactoryParams): CategoryItem => {
     const defaultProps = {
       props: {},
-      parentUuid: undefined,
     }
 
     const { levelUuid, parentUuid, props } = {
@@ -79,7 +82,7 @@ export const CategoryItemFactory: Factory<CategoryItem> = {
     }
 
     return {
-      uuid: uuidv4(),
+      uuid: UUIDs.v4(),
       levelUuid,
       parentUuid,
       props,

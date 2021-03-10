@@ -47,18 +47,18 @@ test('ExpectedCategoryItem === CategoryItem', () => {
   })
 
   expect(categoryItem).toHaveProperty('levelUuid')
-  expect(categoryItem.levelUuid).toBe('level_uuid')
+  expect(categoryItem.levelUuid).toBe(categoryItem.levelUuid)
 
   expect(categoryItem).toHaveProperty('parentUuid')
-  expect(categoryItem.parentUuid).toBe('parent_uuid')
+  expect(categoryItem.parentUuid).toBe(categoryItem.parentUuid)
 
   expect(categoryItem).toHaveProperty('uuid')
   expect(categoryItem.uuid).toBeTruthy()
 
   expect(categoryItem).toHaveProperty('props')
   expect(categoryItem.props).toHaveProperty('code')
-  expect(categoryItem.props.code).toBe('001')
+  expect(categoryItem.props.code).toBe(categoryItem.props.code)
   expect(categoryItem.props.labels).toBeTruthy()
   expect(categoryItem.props.labels).toHaveProperty(LanguageCode.en)
-  expect(categoryItem.props.labels?.en).toBe('Label')
+  expect(categoryItem.props.labels?.en).toBe(categoryItem.props?.labels?.en)
 })
