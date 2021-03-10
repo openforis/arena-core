@@ -1,6 +1,6 @@
 import { Factory } from 'src/common'
 import { Node } from './node'
-import { v4 as uuidv4 } from 'uuid'
+import { UUIDs } from '../utils'
 
 export type NodeFactoryParams = {
   nodeDefUuid: string
@@ -9,22 +9,12 @@ export type NodeFactoryParams = {
   value?: any
 }
 
-const defaultProps = {
-  published: false,
-  draft: true,
-  collectUri: null,
-  descriptions: null,
-}
-
 export const NodeFactory: Factory<Node> = {
   createInstance: (params: NodeFactoryParams): Node => {
-    const { nodeDefUuid, recordUuid, parentNode, value } = {
-      ...defaultProps,
-      ...params,
-    }
+    const { nodeDefUuid, recordUuid, parentNode, value } = params
 
     return {
-      uuid: uuidv4(),
+      uuid: UUIDs.v4(),
       nodeDefUuid,
       recordUuid,
       parentUuid: parentNode?.uuid,

@@ -20,10 +20,10 @@ export interface NodeDefMeta {
 }
 
 export interface NodeDefProps {
-  cycles: Array<string>
-  labels: Labels
-  multiple: boolean
-  name: string
+  cycles?: Array<string>
+  labels?: Labels
+  multiple?: boolean
+  name?: string
 }
 
 export interface NodeDefPropsWithLayout<L> extends NodeDefProps {
@@ -67,6 +67,7 @@ export interface NodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDef
   propsAdvancedDraft?: NodeDefPropsAdvanced
   propsDraft?: P
   published?: boolean
+  temporary?: boolean
   type: T
   virtual?: boolean
 }
