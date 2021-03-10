@@ -1,5 +1,5 @@
 import { Factory } from 'src/common'
-import { v4 as uuidv4 } from 'uuid'
+import { UUIDs } from 'src/utils'
 import { User, UserStatus, UserTitle } from './user'
 
 export type UserFactoryParams = {
@@ -37,7 +37,7 @@ export const UserFactory: Factory<User> = {
         title,
       },
       status,
-      uuid: uuidv4(),
+      uuid: UUIDs.v4(),
     }
   },
 }
