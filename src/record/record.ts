@@ -1,6 +1,8 @@
 import { Node } from 'src/node'
 import { Validation } from 'src/validation'
 
+export const RECORD_STEP_DEFAULT = '1'
+
 export interface Record {
   cycle?: string
   dateCreated?: string

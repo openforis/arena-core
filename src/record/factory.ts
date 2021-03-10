@@ -1,7 +1,7 @@
 import { Factory } from 'src/common'
 import { User } from '../auth/user'
-import { Record } from './record'
-import { v4 as uuidv4 } from 'uuid'
+import { Record, RECORD_STEP_DEFAULT } from './record'
+import { UUIDs } from '../utils'
 
 export type RecordFactoryParams = {
   cycle?: string
@@ -15,7 +15,7 @@ export const RecordFactory: Factory<Record> = {
   createInstance: (params: RecordFactoryParams): Record => {
     const defaultProps = {
       preview: false,
-      step: '1', // TODO RecordStep.getDefaultStep(), const export const getDefaultStep = () => R.pipe(R.head, R.prop(keys.id))(steps)
+      step: RECORD_STEP_DEFAULT,
     }
 
     const { user, cycle, preview, dateCreated, step } = {
@@ -30,7 +30,7 @@ export const RecordFactory: Factory<Record> = {
       ownerName: user.name,
       preview,
       step,
-      uuid: uuidv4(),
+      uuid: UUIDs.v4(),
     }
   },
 }
