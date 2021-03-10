@@ -3,7 +3,8 @@ import { DEFAULT_SRS } from '../srs'
 
 import { Survey } from './survey'
 import { Labels, LanguageCode } from 'src/language'
-import { Factory, uuid } from '../common'
+import { Factory } from '../common'
+import { UUIDs } from '../utils'
 
 export type SurveyFactoryParams = {
   ownerUuid: string
@@ -34,7 +35,7 @@ export const SurveyFactory: Factory<Survey> = {
 
     return {
       id: undefined,
-      uuid: uuid(),
+      uuid: UUIDs.v4(),
       published,
       draft,
       ownerUuid,
