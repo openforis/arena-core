@@ -18,30 +18,6 @@ export const groupNames = {
   surveyGuest: 'surveyGuest',
 }
 
-export const permissions = {
-  // Surveys
-  surveyCreate: 'surveyCreate',
-
-  // Only owner and administrator can delete survey
-  // edit survey info props, edit nodeDefs, edit categories, edit taxonomies, publishSurvey
-  surveyEdit: 'surveyEdit',
-
-  // Records
-  recordCreate: 'recordCreate',
-  recordEdit: 'recordEdit',
-  recordView: 'recordView',
-  recordCleanse: 'recordCleanse',
-  recordAnalyse: 'recordAnalyse',
-
-  // Users
-  userEdit: 'userEdit',
-  userInvite: 'userInvite',
-
-  // Edit
-  // only owner and admin - for now
-  permissionsEdit: 'permissionsEdit',
-}
-
 export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   {
     uuid: 'surveyAdmin',

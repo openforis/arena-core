@@ -17,7 +17,7 @@ export interface UserPrefSurveys {
 }
 
 export interface UserPrefs {
-  surveys?: UserPrefSurveys | undefined
+  surveys?: UserPrefSurveys
 }
 
 export interface UserProps {
