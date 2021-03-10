@@ -18,6 +18,11 @@ export interface AuthGroup {
   uuid: string
 }
 
+export enum StepKeys {
+  all = 'all',
+  own = 'own',
+}
+
 export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   {
     uuid: 'surveyAdmin',
@@ -34,9 +39,9 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
       Permission.userInvite,
     ],
     recordSteps: {
-      1: 'all',
-      2: 'all',
-      3: 'all',
+      1: StepKeys.all,
+      2: StepKeys.all,
+      3: StepKeys.all,
     },
   },
   {
@@ -51,9 +56,9 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
       Permission.recordAnalyse,
     ],
     recordSteps: {
-      1: 'all',
-      2: 'all',
-      3: 'all',
+      1: StepKeys.all,
+      2: StepKeys.all,
+      3: StepKeys.all,
     },
   },
   {
@@ -67,9 +72,9 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
       Permission.recordAnalyse,
     ],
     recordSteps: {
-      1: 'all',
-      2: 'all',
-      3: 'all',
+      1: StepKeys.all,
+      2: StepKeys.all,
+      3: StepKeys.all,
     },
   },
   {
@@ -77,8 +82,8 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
     name: AuthGroupName.dataCleanser,
     permissions: [Permission.recordView, Permission.recordCreate, Permission.recordEdit, Permission.recordCleanse],
     recordSteps: {
-      1: 'all',
-      2: 'all',
+      1: StepKeys.all,
+      2: StepKeys.all,
     },
   },
   {
@@ -86,7 +91,7 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
     name: AuthGroupName.dataEditor,
     permissions: [Permission.recordView, Permission.recordCreate, Permission.recordEdit],
     recordSteps: {
-      1: 'own',
+      1: StepKeys.own,
     },
   },
   // ,
@@ -96,3 +101,22 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   //   descriptions: {[lang]: `Can view records`},
   // },
 ]
+
+
+// Methods
+const isSystemAdminGroup = (authGroup: AuthGroup):boolean => authGroup.name === AuthGroupName.systemAdmin
+
+const getRecordSteps = (authGroup: AuthGroup): { [key: number]: string } => authGroup.recordSteps
+
+const getRecordEditLevel = (step: string | undefined) => (authGroup: AuthGroup | undefined): string => {
+  const steps = getRecordSteps(authGroup)
+  //R.pipe(getRecordSteps, R.prop(step))
+  // TODO redo this function
+  //return steps
+  return 'all'
+}
+
+export const AuthGroupMethods = {
+  isSystemAdminGroup,
+  getRecordEditLevel
+}

@@ -17,3 +17,11 @@ export interface Record {
   uuid: string
   validation?: Validation
 }
+
+// Getters
+const getOwnerUuid = (record:Record): string => record.ownerUuid
+
+export const RecordMethods = {
+  //Getters
+  getOwnerUuid
+}
