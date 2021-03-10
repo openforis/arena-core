@@ -80,5 +80,5 @@ test('ExpectedCategoryItem === CategoryItem', () => {
   expect(categoryItem.props.code).toBe(categoryItem.props.code)
   expect(categoryItem.props.labels).toBeTruthy()
   expect(categoryItem.props.labels).toHaveProperty(LanguageCode.en)
-  expect(categoryItem.props.labels?.en).toBe(categoryItem.props?.labels?.en)
+  expect(categoryItem.props.labels?.en).toBe(categoryItem.props.labels?.en)
 })
