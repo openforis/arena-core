@@ -14,7 +14,7 @@ export type SurveyFactoryParams = {
   published?: boolean
   draft?: boolean
   collectUri?: string
-  descriptions?: Labels[]
+  descriptions?: Labels
 }
 
 const defaultProps = {

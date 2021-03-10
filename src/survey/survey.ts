@@ -25,9 +25,9 @@ export interface SurveyProps {
   cycles: {
     [key: string]: SurveyCycle
   }
-  descriptions?: Labels
+  descriptions?: Labels | null
   languages: LanguageCode[]
-  labels?: Labels
+  labels?: Labels | null
   name: string
   srs: Array<SRS>
   collectUri?: string | null
