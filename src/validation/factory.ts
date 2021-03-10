@@ -1,19 +1,19 @@
 import { Factory } from 'src/common'
-import { Validation, ValidationMessage } from './validation'
+import { CustomMessages, Severity, Validation, ValidationResult } from './validation'
 
-export type ValidationFactoryParams = {
-  errors: Array<ValidationMessage>
+type ValidationFactoryParams = {
+  errors: Array<ValidationResult>
   fields: {
     [name: string]: Validation
   }
   valid: boolean
-  warnings: Array<ValidationMessage>
+  warnings: Array<ValidationResult>
 }
 
 const defaultProps = {
   valid: true,
-  errors: <ValidationMessage[]>[],
-  warnings: <ValidationMessage[]>[],
+  errors: <ValidationResult[]>[],
+  warnings: <ValidationResult[]>[],
 }
 
 export const ValidationFactory: Factory<Validation> = {
@@ -27,6 +27,28 @@ export const ValidationFactory: Factory<Validation> = {
       fields,
       valid,
       warnings,
+    }
+  },
+}
+
+type ValidationResultFactoryParams = {
+  severity: Severity
+  messageKey: string
+  messageParams?: { [key: string]: any }
+  customMessages?: CustomMessages
+}
+
+export const ValidationResultFactory: Factory<ValidationResult> = {
+  createInstance: (params: ValidationResultFactoryParams): ValidationResult => {
+    const { severity, messageKey, messageParams, customMessages } = {
+      ...defaultProps,
+      ...params,
+    }
+    return {
+      severity,
+      messageKey,
+      messageParams,
+      customMessages,
     }
   },
 }
