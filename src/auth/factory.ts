@@ -10,17 +10,13 @@ export type UserFactoryParams = {
   groupUuid: string
 }
 
-// TODO: Use Authgroup factory
-
-const defaultProps = {
-  hasProfilePicture: false,
-  status: UserStatus.INVITED,
-  title: undefined,
-  surveys: undefined,
-}
-
 export const UserFactory: Factory<User> = {
   createInstance: (params: UserFactoryParams): User => {
+    const defaultProps = {
+      hasProfilePicture: false,
+      status: UserStatus.INVITED,
+    }
+
     const { email, name, hasProfilePicture, status, title, surveys } = {
       ...defaultProps,
       ...params,

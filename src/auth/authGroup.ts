@@ -8,14 +8,14 @@ export interface AuthGroup {
   uuid: string
 }
 
-export const groupNames = {
-  systemAdmin: 'systemAdmin',
-  surveyAdmin: 'surveyAdmin',
-  surveyEditor: 'surveyEditor',
-  dataEditor: 'dataEditor',
-  dataCleanser: 'dataCleanser',
-  dataAnalyst: 'dataAnalyst',
-  surveyGuest: 'surveyGuest',
+export enum groupNames {
+  systemAdmin = 'systemAdmin',
+  surveyAdmin = 'surveyAdmin',
+  surveyEditor = 'surveyEditor',
+  dataEditor = 'dataEditor',
+  dataCleanser = 'dataCleanser',
+  dataAnalyst = 'dataAnalyst',
+  surveyGuest = 'surveyGuest',
 }
 
 export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [

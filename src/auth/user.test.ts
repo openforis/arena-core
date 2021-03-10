@@ -14,10 +14,10 @@ test('ExpectedUser === User', () => {
   expect(user.uuid).toBeTruthy()
 
   expect(user).toHaveProperty('name')
-  expect(user.name).toBe('name')
+  expect(user.name).toBe(userParams.name)
 
   expect(user).toHaveProperty('email')
-  expect(user.email).toBe('email@email.com')
+  expect(user.email).toBe(userParams.email)
 
   expect(user.props.title).toBeUndefined()
 
