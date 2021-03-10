@@ -1,6 +1,6 @@
 import { User } from 'src/auth'
 import { JobStatus } from 'src/job'
-import { Taxon } from 'src/taxonomy/taxon'
+import { Taxon } from './taxon'
 import { VernacularName } from './taxonVernacularName'
 
 export interface TaxonService {
