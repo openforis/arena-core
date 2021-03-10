@@ -13,6 +13,10 @@ test('ExpectedCategory === Category', () => {
   expect(category).toHaveProperty('props')
   expect(category.props).toHaveProperty('name')
   expect(category.props.name).toBe('name')
+
+  expect(category.levels?.length).toBe(1)
+  expect(category.levels?.[0].index).toBe(0)
+  expect(category.levels?.[0].props.name).toBe('name')
 })
 
 test('ExpectedCategory === Category', () => {

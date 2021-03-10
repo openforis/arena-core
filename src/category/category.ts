@@ -20,8 +20,6 @@ export interface CategoryProps {
 
 export interface Category extends ArenaObject<CategoryProps> {
   id?: number
-  levels?: {
-    [key: number]: CategoryLevel
-  }
+  levels?: CategoryLevel[]
   published?: boolean
 }
