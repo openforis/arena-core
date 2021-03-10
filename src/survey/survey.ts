@@ -25,12 +25,12 @@ export interface SurveyProps {
   cycles: {
     [key: string]: SurveyCycle
   }
-  descriptions?: Labels | null
+  descriptions?: Labels
   languages: LanguageCode[]
-  labels?: Labels | null
+  labels?: Labels
   name: string
   srs: Array<SRS>
-  collectUri?: string | null
+  collectUri?: string
 }
 
 export interface Survey extends ArenaObject<SurveyProps> {

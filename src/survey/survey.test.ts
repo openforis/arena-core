@@ -55,7 +55,7 @@ test('ExpectedSurvey === Survey', () => {
   expect(surveyProps.cycles['0'].dateStart).toBe(new Date().toISOString().split('T')[0])
 
   expect(surveyProps).toHaveProperty('descriptions')
-  expect(surveyProps.descriptions).toBeNull()
+  expect(surveyProps.descriptions).toMatchObject({})
 
   expect(surveyProps).toHaveProperty('collectUri')
   expect(surveyProps.collectUri).toBeNull()

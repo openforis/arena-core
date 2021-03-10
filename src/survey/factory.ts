@@ -9,7 +9,7 @@ import { UUIDs } from '../utils'
 export type SurveyFactoryParams = {
   ownerUuid: string
   name: string
-  label?: string | null
+  label?: string
   languages?: LanguageCode[]
   published?: boolean
   draft?: boolean
@@ -18,12 +18,12 @@ export type SurveyFactoryParams = {
 }
 
 const defaultProps = {
-  label: null,
+  label: null as any,
   languages: [LanguageCode.en],
   published: false,
   draft: true,
-  collectUri: null,
-  descriptions: null,
+  collectUri: null as any,
+  descriptions: {},
 }
 
 export const SurveyFactory: Factory<Survey> = {
