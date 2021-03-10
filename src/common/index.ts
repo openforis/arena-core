@@ -1,4 +1,5 @@
 import { Validation } from '../validation'
+import { v4 as uuidv4 } from 'uuid'
 
 export interface ArenaObject<T> {
   readonly uuid: string
@@ -7,3 +8,5 @@ export interface ArenaObject<T> {
 }
 
 export type { Factory } from './factory'
+
+export const uuid = uuidv4

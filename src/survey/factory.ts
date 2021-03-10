@@ -1,10 +1,9 @@
 // TODO : Use srs factory
 import { DEFAULT_SRS } from '../srs'
 
-import { Factory } from 'src/common'
 import { Survey } from './survey'
 import { Labels, LanguageCode } from 'src/language'
-import { v4 as uuidv4 } from 'uuid'
+import { Factory, uuid } from '../common'
 
 export type SurveyFactoryParams = {
   ownerUuid: string
@@ -35,7 +34,7 @@ export const SurveyFactory: Factory<Survey> = {
 
     return {
       id: undefined,
-      uuid: uuidv4(),
+      uuid: uuid(),
       published,
       draft,
       ownerUuid,
