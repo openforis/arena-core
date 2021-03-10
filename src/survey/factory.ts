@@ -1,10 +1,10 @@
-// TODO : Use srs factory
 import { DEFAULT_SRS } from '../srs'
 
 import { Factory } from '../common'
 import { Survey } from './survey'
 import { Labels, LanguageCode } from 'src/language'
 import { UUIDs } from '../utils'
+
 
 export type SurveyFactoryParams = {
   ownerUuid: string
