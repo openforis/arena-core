@@ -1,8 +1,8 @@
 import { DEFAULT_SRS } from '../srs'
 
+import { Factory } from '../common'
 import { Survey } from './survey'
 import { Labels, LanguageCode } from 'src/language'
-import { Factory } from '../common'
 import { UUIDs } from '../utils'
 
 export type SurveyFactoryParams = {
