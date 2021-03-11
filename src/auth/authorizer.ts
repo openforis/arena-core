@@ -68,14 +68,13 @@ const canInviteUsers = _hasSurveyPermission(Permission.userInvite)
 // READ
 const canViewUser = (user: User, survey: Survey, userToView: User): boolean =>
   Users.isSystemAdmin(user) ||
-  (Boolean(_getSurveyUserGroup(user, survey, false)) && Boolean(_getSurveyUserGroup(userToView, survey, false)))
+  Boolean(_getSurveyUserGroup(user, survey, false) && _getSurveyUserGroup(userToView, survey, false))
 
 // EDIT
 const _hasUserEditAccess = (user: User, survey: Survey, userToUpdate: User): boolean =>
   Boolean(
     Users.isSystemAdmin(user) ||
-      (_hasSurveyPermission(Permission.userEdit)(user, survey) &&
-        Boolean(_getSurveyUserGroup(userToUpdate, survey, false)))
+      (_hasSurveyPermission(Permission.userEdit)(user, survey) && _getSurveyUserGroup(userToUpdate, survey, false))
   )
 
 export const canEditUser = (user: User, survey: Survey, userToUpdate: User): boolean =>
