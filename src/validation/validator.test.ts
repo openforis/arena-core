@@ -1,13 +1,23 @@
-import { Validation } from './validation'
+import { Validation, ValidationResult, ValidationSeverity } from './validation'
 import { FieldValidator } from './fieldValidator'
 import { name, notKeyword, numeric, numericPositive, required } from './fieldValidators'
 import { Validator } from './validator'
+import { ValidationResultFactory } from './factory'
 
 type ValidationTest = {
   title: string
   obj: any
   fieldsValidators: { [field: string]: Array<FieldValidator> }
   valid: boolean
+  errorsCountByField?: { [field: string]: number }
+  warningsCountByField?: { [field: string]: number }
+}
+
+const greaterThan10 = (severity: ValidationSeverity) => (prop: string, obj: any): ValidationResult => {
+  const value = obj?.[prop]
+  return value <= 10
+    ? ValidationResultFactory.createInstance({ messageKey: 'less_or_equal_to_10', severity })
+    : <ValidationResult>(<unknown>null)
 }
 
 const tests: Array<ValidationTest> = [
@@ -17,12 +27,15 @@ const tests: Array<ValidationTest> = [
     obj: { a: 1, b: 2, c: null },
     fieldsValidators: { a: [required('required_field')] },
     valid: true,
+    errorsCountByField: { a: 0 },
+    warningsCountByField: { a: 0 },
   },
   {
     title: 'required field (null)',
     obj: { a: 1, b: 2, c: null },
     fieldsValidators: { c: [required('required_field')] },
     valid: false,
+    errorsCountByField: { a: 0, b: 0, c: 1 },
   },
   // number
   {
@@ -103,17 +116,44 @@ const tests: Array<ValidationTest> = [
     fieldsValidators: { a: [notKeyword('keywords_cannot_be_used')] },
     valid: false,
   },
+  // custom
+  {
+    title: 'custom (valid)',
+    obj: { a: 20 },
+    fieldsValidators: { a: [greaterThan10(ValidationSeverity.error)] },
+    valid: true,
+  },
+  {
+    title: 'custom (not valid)',
+    obj: { a: 9, b: 8 },
+    fieldsValidators: { a: [greaterThan10(ValidationSeverity.error)], b: [greaterThan10(ValidationSeverity.warning)] },
+    valid: false,
+    errorsCountByField: { a: 1, b: 0 },
+    warningsCountByField: { a: 0, b: 1 },
+  },
 ]
 
 const validator = new Validator()
 
 describe('Validator', () => {
   tests.forEach((query) => {
-    const { title, obj, fieldsValidators, valid } = query
+    const { title, obj, fieldsValidators, valid, errorsCountByField, warningsCountByField } = query
     test(`Validator: ${title}`, async () => {
       const validation: Validation = await validator.validate(obj, fieldsValidators)
       expect(validation).toBeDefined()
       expect(validation.valid).toBe(valid)
+      if (errorsCountByField) {
+        Object.entries(errorsCountByField).forEach(([field, errorsCount]) => {
+          const fieldErrorsCount = validation?.fields?.[field]?.errors?.length || 0
+          expect(fieldErrorsCount).toBe(errorsCount)
+        })
+      }
+      if (warningsCountByField) {
+        Object.entries(warningsCountByField).forEach(([field, count]) => {
+          const fieldWarningsCount = validation?.fields?.[field]?.warnings?.length || 0
+          expect(fieldWarningsCount).toBe(count)
+        })
+      }
     })
   })
 })
