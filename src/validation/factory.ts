@@ -1,5 +1,6 @@
 import { Factory } from 'src/common'
-import { Validation, ValidationCustomMessages, ValidationResult, ValidationSeverity } from './validation'
+import { Labels } from 'src/language'
+import { Validation, ValidationResult, ValidationSeverity } from './validation'
 
 type ValidationFactoryParams = {
   errors: Array<ValidationResult>
@@ -31,7 +32,7 @@ export const ValidationFactory: Factory<Validation> = {
 }
 
 type ValidationResultFactoryParams = {
-  customMessages?: ValidationCustomMessages
+  customMessages?: Labels
   messageKey: string
   messageParams?: { [key: string]: any }
   severity?: ValidationSeverity
