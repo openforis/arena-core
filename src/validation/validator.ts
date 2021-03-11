@@ -1,6 +1,6 @@
 import { ValidationFactory } from './factory'
 import { FieldValidator } from './fieldValidator'
-import { Severity, Validation, ValidationResult } from './validation'
+import { ValidationSeverity, Validation, ValidationResult } from './validation'
 
 interface ValidateOptions {
   removeValid: boolean
@@ -15,7 +15,7 @@ export class Validator {
     const warnings: Array<ValidationResult> = []
     validations.forEach((validationResult) => {
       if (validationResult) {
-        const arr = validationResult.severity === Severity.error ? errors : warnings
+        const arr = validationResult.severity === ValidationSeverity.error ? errors : warnings
         arr.push(validationResult)
       }
     })

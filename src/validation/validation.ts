@@ -1,19 +1,19 @@
 import { LanguageCode } from 'src/language'
 
-export enum Severity {
+export enum ValidationSeverity {
   error = 'error',
   warning = 'warning',
 }
 
-export type CustomMessages = {
+export type ValidationCustomMessages = {
   [code in LanguageCode]?: string
 }
 
 export interface ValidationResult {
-  severity: Severity
+  severity: ValidationSeverity
   messageKey: string
   messageParams?: { [key: string]: any }
-  customMessages?: CustomMessages
+  customMessages?: ValidationCustomMessages
 }
 
 export interface Validation {
