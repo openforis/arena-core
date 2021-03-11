@@ -1,3 +1,4 @@
+import { Objects } from '../../utils'
 import { ValidationResultFactory } from '../factory'
 import { ValidationResult } from '../validation'
 
@@ -8,7 +9,7 @@ import { ValidationResult } from '../validation'
 const nameRegex = /^[a-z][a-z0-9_]{0,39}$/
 
 export const name = (messageKey: string) => (field: string, obj: any): ValidationResult => {
-  const value = obj?.[field]
+  const value = Objects.path(field)(obj)
   return value && !nameRegex.test(value)
     ? ValidationResultFactory.createInstance({ messageKey })
     : <ValidationResult>(<unknown>null)

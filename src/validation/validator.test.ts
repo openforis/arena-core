@@ -1,3 +1,4 @@
+import { Objects } from '../utils'
 import { FieldValidator } from './fieldValidator'
 import { FieldValidators } from './fieldValidators'
 import { Validation, ValidationResult, ValidationSeverity } from './validation'
@@ -15,8 +16,8 @@ type ValidationTest = {
   warningsCountByField?: { [field: string]: number }
 }
 
-const greaterThan10 = (severity: ValidationSeverity) => (prop: string, obj: any): ValidationResult => {
-  const value = obj?.[prop]
+const greaterThan10 = (severity: ValidationSeverity) => (field: string, obj: any): ValidationResult => {
+  const value = Objects.path(field)(obj)
   return value <= 10
     ? ValidationResultFactory.createInstance({ messageKey: 'less_or_equal_to_10', severity })
     : <ValidationResult>(<unknown>null)

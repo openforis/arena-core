@@ -1,3 +1,4 @@
+import { Objects } from '../../utils'
 import { ValidationResultFactory } from '../factory'
 import { ValidationResult } from '../validation'
 
@@ -22,8 +23,8 @@ const keywords = [
   'value',
 ]
 
-export const notKeyword = (messageKey: string) => (prop: string, obj: any): ValidationResult => {
-  const value = obj?.[prop]
+export const notKeyword = (messageKey: string) => (field: string, obj: any): ValidationResult => {
+  const value = Objects.path(field)(obj)
   return value && keywords.includes(value)
     ? ValidationResultFactory.createInstance({ messageKey })
     : <ValidationResult>(<unknown>null)

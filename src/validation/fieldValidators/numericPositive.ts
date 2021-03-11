@@ -1,3 +1,4 @@
+import { Objects } from '../../utils'
 import { ValidationResultFactory } from '../factory'
 import { ValidationResult } from '../validation'
 import { numeric } from './numeric'
@@ -10,7 +11,7 @@ export const numericPositive = (messageKey: string, messageParams: any = {}) => 
   if (validateNumberResult) {
     return validateNumberResult
   }
-  const value = obj?.[field]
+  const value = Objects.path(field)(obj)
   return value && value <= 0
     ? ValidationResultFactory.createInstance({ messageKey, messageParams })
     : <ValidationResult>(<unknown>null)
