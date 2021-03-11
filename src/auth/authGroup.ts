@@ -14,7 +14,7 @@ export interface AuthGroup {
   name: AuthGroupName
   surveyUuid?: string
   permissions: Array<Permission>
-  recordSteps: { [key: number]: string }
+  recordSteps: { [key: number]: RecordStepPermission }
   uuid: string
 }
 

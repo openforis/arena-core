@@ -1,3 +1,4 @@
+import { RecordStepPermission } from 'src/auth/permission'
 import { Node } from 'src/node'
 import { Validation } from 'src/validation'
 
@@ -11,7 +12,7 @@ export interface Record {
   ownerName: string
   ownerUuid: string
   preview?: boolean
-  step?: string
+  step?: RecordStepPermission
   surveyId?: number
   surveyUuid?: string
   uuid: string
