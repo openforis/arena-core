@@ -2,15 +2,11 @@ import { ValidationFactory } from './factory'
 import { FieldValidator } from './fieldValidators'
 import { Severity, Validation, ValidationResult } from './validation'
 
-export type FieldsValidators = {
-  [prop: string]: Array<FieldValidator>
-}
-
 interface ValidateOptions {
-  removeValidFields: boolean
+  removeValid: boolean
 }
 
-const defaultValidateOptions: ValidateOptions = { removeValidFields: true }
+const defaultValidateOptions: ValidateOptions = { removeValid: true }
 
 export class Validator {
   private async validateProp(obj: any, prop: string, fieldValidators: Array<FieldValidator>): Promise<Validation> {
@@ -29,19 +25,19 @@ export class Validator {
 
   async validate(
     obj: any,
-    propsValidators: FieldsValidators,
+    fieldsValidators: { [prop: string]: Array<FieldValidator> },
     options: ValidateOptions = defaultValidateOptions
   ): Promise<Validation> {
     const fieldsValidationArray: Array<Validation> = await Promise.all(
-      Object.entries(propsValidators).flatMap(async ([field, fieldValidators]) =>
+      Object.entries(fieldsValidators).flatMap(async ([field, fieldValidators]) =>
         this.validateProp(obj, field, fieldValidators)
       )
     )
     const fields: { [key: string]: Validation } = {}
     let valid = true
-    Object.keys(propsValidators).forEach((field, index) => {
+    Object.keys(fieldsValidators).forEach((field, index) => {
       const fieldValidation: Validation = fieldsValidationArray[index]
-      if (!options.removeValidFields || !fieldValidation.valid) {
+      if (!options.removeValid || !fieldValidation.valid) {
         fields[field] = fieldValidation
         valid = false
       }

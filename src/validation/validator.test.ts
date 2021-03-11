@@ -1,11 +1,11 @@
 import { Validation } from './validation'
-import { required } from './fieldValidators'
-import { FieldsValidators, Validator } from './validator'
+import { FieldValidator, required } from './fieldValidators'
+import { Validator } from './validator'
 
 type ValidationTest = {
   title: string
   obj: any
-  propsValidators: FieldsValidators
+  fieldsValidators: { [prop: string]: Array<FieldValidator> }
   valid: boolean
 }
 
@@ -13,24 +13,26 @@ const tests: Array<ValidationTest> = [
   {
     title: 'required property (valid)',
     obj: { a: 1, b: 2, c: null },
-    propsValidators: { a: [required('required_field')] },
+    fieldsValidators: { a: [required('required_field')] },
     valid: true,
   },
   {
     title: 'required property (null)',
     obj: { a: 1, b: 2, c: null },
-    propsValidators: { c: [required('required_field')] },
+    fieldsValidators: { c: [required('required_field')] },
     valid: false,
   },
 ]
 
 const validator = new Validator()
 
-tests.forEach((query) => {
-  const { title, obj, propsValidators, valid } = query
-  test(`Validator: ${title}`, async () => {
-    const validation: Validation = await validator.validate(obj, propsValidators)
-    expect(validation).toBeDefined()
-    expect(validation.valid).toBe(valid)
+describe('Validator', () => {
+  tests.forEach((query) => {
+    const { title, obj, fieldsValidators, valid } = query
+    test(`Validator: ${title}`, async () => {
+      const validation: Validation = await validator.validate(obj, fieldsValidators)
+      expect(validation).toBeDefined()
+      expect(validation.valid).toBe(valid)
+    })
   })
 })

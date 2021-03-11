@@ -17,10 +17,10 @@ export interface ValidationResult {
 }
 
 export interface Validation {
-  errors: Array<ValidationResult>
+  errors: ValidationResult[]
   fields: {
     [name: string]: Validation
   }
   valid: boolean
-  warnings: Array<ValidationResult>
+  warnings: ValidationResult[]
 }
