@@ -31,15 +31,18 @@ export const ValidationFactory: Factory<Validation> = {
 }
 
 type ValidationResultFactoryParams = {
-  severity: ValidationSeverity
+  customMessages?: ValidationCustomMessages
   messageKey: string
   messageParams?: { [key: string]: any }
-  customMessages?: ValidationCustomMessages
+  severity?: ValidationSeverity
 }
 
 export const ValidationResultFactory: Factory<ValidationResult> = {
   createInstance: (params: ValidationResultFactoryParams): ValidationResult => {
-    const { severity, messageKey, messageParams, customMessages } = params
+    const defaultParams = {
+      severity: ValidationSeverity.error,
+    }
+    const { severity, messageKey, messageParams, customMessages } = { ...defaultParams, ...params }
     return {
       severity,
       messageKey,

@@ -1,6 +1,6 @@
 import { Validation } from './validation'
 import { FieldValidator } from './fieldValidator'
-import { numeric, numericPositive, required } from './fieldValidators'
+import { name, notKeyword, numeric, numericPositive, required } from './fieldValidators'
 import { Validator } from './validator'
 
 type ValidationTest = {
@@ -40,9 +40,7 @@ const tests: Array<ValidationTest> = [
   {
     title: 'number field (not valid)',
     obj: { a: 'a' },
-    fieldsValidators: {
-      a: [numeric('invalid_number')],
-    },
+    fieldsValidators: { a: [numeric('invalid_number')] },
     valid: false,
   },
   // positive number
@@ -58,17 +56,51 @@ const tests: Array<ValidationTest> = [
   {
     title: 'positive number field (not valid - integer)',
     obj: { a: -1 },
-    fieldsValidators: {
-      a: [numericPositive('invalid_positive_number')],
-    },
+    fieldsValidators: { a: [numericPositive('invalid_positive_number')] },
     valid: false,
   },
   {
     title: 'positive number field (not valid - decimal)',
     obj: { a: -0.1 },
-    fieldsValidators: {
-      a: [numericPositive('invalid_positive_number')],
-    },
+    fieldsValidators: { a: [numericPositive('invalid_positive_number')] },
+    valid: false,
+  },
+  // name
+  {
+    title: 'name (valid)',
+    obj: { a: 'valid_name' },
+    fieldsValidators: { a: [name('invalid_name')] },
+    valid: true,
+  },
+  {
+    title: 'name (not valid - uppercase letter)',
+    obj: { a: 'Not_valid_name' },
+    fieldsValidators: { a: [name('invalid_name')] },
+    valid: false,
+  },
+  {
+    title: 'name (not valid - starting with number)',
+    obj: { a: '1_not_valid_name' },
+    fieldsValidators: { a: [name('invalid_name')] },
+    valid: false,
+  },
+  {
+    title: 'name (not valid - too long)',
+    obj: { a: 'abcde678901234567890123456789012345678901' },
+    fieldsValidators: { a: [name('invalid_name')] },
+    valid: false,
+  },
+  // keyword
+  {
+    title: 'keyword (valid)',
+    obj: { a: 'valid_word' },
+    fieldsValidators: { a: [notKeyword('keywords_cannot_be_used')] },
+    valid: true,
+  },
+  {
+    title: 'keyword (not valid)',
+    obj: { a: 'uuid' },
+    fieldsValidators: { a: [notKeyword('keywords_cannot_be_used')] },
     valid: false,
   },
 ]
