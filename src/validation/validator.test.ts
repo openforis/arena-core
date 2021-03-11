@@ -1,8 +1,10 @@
-import { Validation, ValidationResult, ValidationSeverity } from './validation'
 import { FieldValidator } from './fieldValidator'
-import { name, notKeyword, numeric, numericPositive, required } from './fieldValidators'
-import { Validator } from './validator'
+import { FieldValidators } from './fieldValidators'
+import { Validation, ValidationResult, ValidationSeverity } from './validation'
 import { ValidationResultFactory } from './factory'
+import { Validator } from './validator'
+
+const { name, notKeyword, numeric, numericPositive, required } = FieldValidators
 
 type ValidationTest = {
   title: string
