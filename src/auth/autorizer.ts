@@ -1,21 +1,23 @@
-import { AuthGroup, AuthGroupMethods, StepKeys } from './authGroup'
+import { AuthGroup } from './authGroup'
+import { AuthGroups } from './authGroups'
 
 import { Survey } from '../survey'
-import { User, UserMethods } from './user'
-import { Permission } from './permission'
-import { Record, RecordMethods } from '../record'
+import { User, UserStatus } from './user'
+import { Users} from './users'
+import { Permission, RecordStepPermission } from './permission'
+import { Record } from '../record'
 
 // ======
 // ====== Survey
 // ======
 
-const _getSurveyUserGroup = (user: User, survey: Survey, includeSystemAdmin = true): AuthGroup | undefined =>
-  UserMethods.getAuthGroupBySurveyUuid(survey.uuid, includeSystemAdmin)(user)
+const _getSurveyUserGroup = (user: User, survey: Survey, includeSystemAdmin = true):AuthGroup =>
+  Users.getAuthGroupBySurveyUuid(survey.uuid, includeSystemAdmin)(user)
 
 const _hasSurveyPermission = (permission: Permission) => (user: User, survey: Survey) =>
   user &&
   survey &&
-  (UserMethods.isSystemAdmin(user) || _getSurveyUserGroup(user, survey)?.permissions.includes(permission))
+  (Users.isSystemAdmin(user) || _getSurveyUserGroup(user, survey)?.permissions.includes(permission))
 
 // READ
 const canViewSurvey = (user: User, survey: Survey): boolean => Boolean(_getSurveyUserGroup(user, survey))
@@ -35,7 +37,7 @@ const canViewRecord = _hasSurveyPermission(Permission.recordView)
 
 // UPDATE
 const canEditRecord = (user: User, record: Record): boolean => {
-  if (UserMethods.isSystemAdmin(user)) {
+  if (Users.isSystemAdmin(user)) {
     return true
   }
 
@@ -45,15 +47,15 @@ const canEditRecord = (user: User, record: Record): boolean => {
 
   const { step: recordDataStep, surveyUuid: recordSurveyUuid } = record
 
-  const userAuthGroup = UserMethods.getAuthGroupBySurveyUuid(recordSurveyUuid)(user)
+  const userAuthGroup = Users.getAuthGroupBySurveyUuid(recordSurveyUuid)(user)
 
   // Level = 'all' or 'own'. If 'own', user can only edit the records that he created
   // If 'all', he can edit all survey's records
-  const level = AuthGroupMethods.getRecordEditLevel(recordDataStep)(userAuthGroup)
+  const level = AuthGroups.getRecordEditLevel(recordDataStep)(userAuthGroup)
 
   return (
-    level === StepKeys.all ||
-    (level === StepKeys.own && RecordMethods.getOwnerUuid(record) === UserMethods.getUuid(user))
+    level === RecordStepPermission.all ||
+    (level === RecordStepPermission.own && record.ownerUuid === user.uuid)
   )
 }
 
@@ -70,32 +72,31 @@ const canInviteUsers = _hasSurveyPermission(Permission.userInvite)
 
 // READ
 const canViewUser = (user: User, survey: Survey, userToView: User): boolean =>
-  UserMethods.isSystemAdmin(user) ||
+  Users.isSystemAdmin(user) ||
   (Boolean(_getSurveyUserGroup(user, survey, false)) && Boolean(_getSurveyUserGroup(userToView, survey, false)))
 
 // EDIT
 const _hasUserEditAccess = (user: User, survey: Survey, userToUpdate: User): boolean =>
   Boolean(
-    UserMethods.isSystemAdmin(user) ||
+    Users.isSystemAdmin(user) ||
       (_hasSurveyPermission(Permission.userEdit)(user, survey) &&
         Boolean(_getSurveyUserGroup(userToUpdate, survey, false)))
   )
 
 export const canEditUser = (user: User, survey: Survey, userToUpdate: User): boolean =>
-  Boolean(
-    UserMethods.hasAccepted(userToUpdate) &&
-      (UserMethods.isEqual(user)(userToUpdate) || _hasUserEditAccess(user, survey, userToUpdate))
+  Boolean( userToUpdate.status === UserStatus.ACCEPTED &&
+      ((user.uuid === userToUpdate.uuid) || _hasUserEditAccess(user, survey, userToUpdate))
   )
 
 export const canEditUserEmail = _hasUserEditAccess
 
 export const canEditUserGroup = (user: User, survey: Survey, userToUpdate: User): boolean =>
-  Boolean(!UserMethods.isEqual(user)(userToUpdate) && _hasUserEditAccess(user, survey, userToUpdate))
+  Boolean(!(user.uuid === userToUpdate.uuid) && _hasUserEditAccess(user, survey, userToUpdate))
 
 export const canRemoveUser = (user: User, survey: Survey, userToRemove: User): boolean =>
   Boolean(
-    !UserMethods.isEqual(user)(userToRemove) &&
-      !UserMethods.isSystemAdmin(userToRemove) &&
+    !(user.uuid === userToRemove.uuid) &&
+      !Users.isSystemAdmin(userToRemove) &&
       _hasUserEditAccess(user, survey, userToRemove)
   )
 
