@@ -86,11 +86,11 @@ export const canEditUser = (user: User, survey: Survey, userToUpdate: User): boo
 export const canEditUserEmail = _hasUserEditAccess
 
 export const canEditUserGroup = (user: User, survey: Survey, userToUpdate: User): boolean =>
-  Boolean(!(user.uuid === userToUpdate.uuid) && _hasUserEditAccess(user, survey, userToUpdate))
+  Boolean(user.uuid !== userToUpdate.uuid && _hasUserEditAccess(user, survey, userToUpdate))
 
 export const canRemoveUser = (user: User, survey: Survey, userToRemove: User): boolean =>
   Boolean(
-    !(user.uuid === userToRemove.uuid) &&
+    user.uuid !== userToRemove.uuid &&
       !Users.isSystemAdmin(userToRemove) &&
       _hasUserEditAccess(user, survey, userToRemove)
   )
