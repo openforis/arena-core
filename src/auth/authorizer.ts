@@ -3,7 +3,7 @@ import { AuthGroups } from './authGroups'
 
 import { Survey } from '../survey'
 import { User, UserStatus } from './user'
-import { Users} from './users'
+import { Users } from './users'
 import { Permission, RecordStepPermission } from './permission'
 import { Record } from '../record'
 
@@ -11,13 +11,11 @@ import { Record } from '../record'
 // ====== Survey
 // ======
 
-const _getSurveyUserGroup = (user: User, survey: Survey, includeSystemAdmin = true):AuthGroup =>
+const _getSurveyUserGroup = (user: User, survey: Survey, includeSystemAdmin = true): AuthGroup | undefined =>
   Users.getAuthGroupBySurveyUuid(survey.uuid, includeSystemAdmin)(user)
 
 const _hasSurveyPermission = (permission: Permission) => (user: User, survey: Survey) =>
-  user &&
-  survey &&
-  (Users.isSystemAdmin(user) || _getSurveyUserGroup(user, survey)?.permissions.includes(permission))
+  user && survey && (Users.isSystemAdmin(user) || _getSurveyUserGroup(user, survey)?.permissions.includes(permission))
 
 // READ
 const canViewSurvey = (user: User, survey: Survey): boolean => Boolean(_getSurveyUserGroup(user, survey))
@@ -53,10 +51,7 @@ const canEditRecord = (user: User, record: Record): boolean => {
   // If 'all', he can edit all survey's records
   const level = AuthGroups.getRecordEditLevel(recordDataStep)(userAuthGroup)
 
-  return (
-    level === RecordStepPermission.all ||
-    (level === RecordStepPermission.own && record.ownerUuid === user.uuid)
-  )
+  return level === RecordStepPermission.all || (level === RecordStepPermission.own && record.ownerUuid === user.uuid)
 }
 
 const canCleanseRecords = _hasSurveyPermission(Permission.recordCleanse)
@@ -84,8 +79,9 @@ const _hasUserEditAccess = (user: User, survey: Survey, userToUpdate: User): boo
   )
 
 export const canEditUser = (user: User, survey: Survey, userToUpdate: User): boolean =>
-  Boolean( userToUpdate.status === UserStatus.ACCEPTED &&
-      ((user.uuid === userToUpdate.uuid) || _hasUserEditAccess(user, survey, userToUpdate))
+  Boolean(
+    userToUpdate.status === UserStatus.ACCEPTED &&
+      (user.uuid === userToUpdate.uuid || _hasUserEditAccess(user, survey, userToUpdate))
   )
 
 export const canEditUserEmail = _hasUserEditAccess
