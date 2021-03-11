@@ -1,4 +1,4 @@
-import * as Objects from '../../utils/objects'
+import { Objects } from '../../utils'
 
 import { ExpressionFunction } from '../function'
 
