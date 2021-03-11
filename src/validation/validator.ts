@@ -1,5 +1,5 @@
 import { ValidationFactory } from './factory'
-import { FieldValidator } from './fieldValidators'
+import { FieldValidator } from './fieldValidator'
 import { Severity, Validation, ValidationResult } from './validation'
 
 interface ValidateOptions {
@@ -9,8 +9,8 @@ interface ValidateOptions {
 const defaultValidateOptions: ValidateOptions = { removeValid: true }
 
 export class Validator {
-  private async validateProp(obj: any, prop: string, fieldValidators: Array<FieldValidator>): Promise<Validation> {
-    const validations = await Promise.all(fieldValidators.map((fieldValidator) => fieldValidator(prop, obj)))
+  private async validateField(obj: any, field: string, fieldValidators: Array<FieldValidator>): Promise<Validation> {
+    const validations = await Promise.all(fieldValidators.map((fieldValidator) => fieldValidator(field, obj)))
     const errors: Array<ValidationResult> = []
     const warnings: Array<ValidationResult> = []
     validations.forEach((validationResult) => {
@@ -25,12 +25,12 @@ export class Validator {
 
   async validate(
     obj: any,
-    fieldsValidators: { [prop: string]: Array<FieldValidator> },
+    fieldsValidators: { [field: string]: Array<FieldValidator> },
     options: ValidateOptions = defaultValidateOptions
   ): Promise<Validation> {
     const fieldsValidationArray: Array<Validation> = await Promise.all(
       Object.entries(fieldsValidators).flatMap(async ([field, fieldValidators]) =>
-        this.validateProp(obj, field, fieldValidators)
+        this.validateField(obj, field, fieldValidators)
       )
     )
     const fields: { [key: string]: Validation } = {}

@@ -1,25 +1,74 @@
 import { Validation } from './validation'
-import { FieldValidator, required } from './fieldValidators'
+import { FieldValidator } from './fieldValidator'
+import { numeric, numericPositive, required } from './fieldValidators'
 import { Validator } from './validator'
 
 type ValidationTest = {
   title: string
   obj: any
-  fieldsValidators: { [prop: string]: Array<FieldValidator> }
+  fieldsValidators: { [field: string]: Array<FieldValidator> }
   valid: boolean
 }
 
 const tests: Array<ValidationTest> = [
+  // required
   {
-    title: 'required property (valid)',
+    title: 'required field (valid)',
     obj: { a: 1, b: 2, c: null },
     fieldsValidators: { a: [required('required_field')] },
     valid: true,
   },
   {
-    title: 'required property (null)',
+    title: 'required field (null)',
     obj: { a: 1, b: 2, c: null },
     fieldsValidators: { c: [required('required_field')] },
+    valid: false,
+  },
+  // number
+  {
+    title: 'number field (valid)',
+    obj: { a: 1, b: 2.14, c: -3, d: -4.12, e: '1' },
+    fieldsValidators: {
+      a: [numeric('invalid_number')],
+      b: [numeric('invalid_number')],
+      c: [numeric('invalid_number')],
+      d: [numeric('invalid_number')],
+      e: [numeric('invalid_number')],
+    },
+    valid: true,
+  },
+  {
+    title: 'number field (not valid)',
+    obj: { a: 'a' },
+    fieldsValidators: {
+      a: [numeric('invalid_number')],
+    },
+    valid: false,
+  },
+  // positive number
+  {
+    title: 'positive number field (valid)',
+    obj: { a: 1, b: 0 },
+    fieldsValidators: {
+      a: [numericPositive('invalid_positive_number')],
+      b: [numericPositive('invalid_positive_number')],
+    },
+    valid: true,
+  },
+  {
+    title: 'positive number field (not valid - integer)',
+    obj: { a: -1 },
+    fieldsValidators: {
+      a: [numericPositive('invalid_positive_number')],
+    },
+    valid: false,
+  },
+  {
+    title: 'positive number field (not valid - decimal)',
+    obj: { a: -0.1 },
+    fieldsValidators: {
+      a: [numericPositive('invalid_positive_number')],
+    },
     valid: false,
   },
 ]
