@@ -96,5 +96,3 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   //   descriptions: {[lang]: `Can view records`},
   // },
 ]
-
-
