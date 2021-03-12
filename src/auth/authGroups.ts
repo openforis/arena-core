@@ -1,4 +1,5 @@
-import { AuthGroup, AuthGroupName } from './authGroup'
+import { UUIDs } from '../utils'
+import { AuthGroup, AuthGroupName, DEFAULT_AUTH_GROUPS } from './authGroup'
 import { RecordStepPermission } from './permission'
 
 const isSystemAdminGroup = (authGroup: AuthGroup): boolean => authGroup.name === AuthGroupName.systemAdmin
@@ -12,7 +13,10 @@ const getRecordEditLevel = (step: string) => (authGroup?: AuthGroup): RecordStep
   return steps[step]
 }
 
+const getDefaultGroups = (): AuthGroup[] => DEFAULT_AUTH_GROUPS.map((group) => ({ ...group, uuid: UUIDs.v4() }))
+
 export const AuthGroups = {
   isSystemAdminGroup,
   getRecordEditLevel,
+  getDefaultGroups,
 }

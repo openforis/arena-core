@@ -1,6 +1,6 @@
 import { Survey } from '../../survey'
 import { SurveyFactory, SurveyFactoryParams } from '../../survey/factory'
-import { DEFAULT_AUTH_GROUPS } from '../authGroup'
+import { AuthGroups } from '../authGroups'
 import { Authorizer } from '../authorizer'
 import { UserFactory, UserFactoryParams } from '../factory'
 import { User } from '../user'
@@ -31,7 +31,7 @@ describe('Authorizer', () => {
       const surveyParams: SurveyFactoryParams = {
         name: 'survey_name',
         ownerUuid: 'user_owner_uuid',
-        authGroups: DEFAULT_AUTH_GROUPS,
+        authGroups: AuthGroups.getDefaultGroups(),
       }
 
       const survey = SurveyFactory.createInstance(surveyParams)
