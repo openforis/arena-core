@@ -29,14 +29,14 @@ export const CategoryFactory: Factory<Category, CategoryFactoryParams> = {
     }
     return {
       ...category,
-      levels: levels || [CategoryLevelFactory.createInstance({ ...category, categoryUuid: category.uuid })],
+      levels: levels || [CategoryLevelFactory.createInstance({ categoryUuid: category.uuid, index: 0 })],
     }
   },
 }
 
 export type CategoryLevelFactoryParams = {
   index?: number
-  props: CategoryLevelProps
+  props?: CategoryLevelProps
   categoryUuid: string
 }
 
