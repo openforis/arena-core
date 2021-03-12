@@ -22,7 +22,7 @@ const defaultProps = {
   draft: true,
 }
 
-export const SurveyFactory: Factory<Survey> = {
+export const SurveyFactory: Factory<Survey, SurveyFactoryParams> = {
   createInstance: (params: SurveyFactoryParams): Survey => {
     const { ownerUuid, name, label, languages, published, draft, collectUri, descriptions } = {
       ...defaultProps,

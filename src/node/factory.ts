@@ -9,7 +9,7 @@ export type NodeFactoryParams = {
   value?: any
 }
 
-export const NodeFactory: Factory<Node> = {
+export const NodeFactory: Factory<Node, NodeFactoryParams> = {
   createInstance: (params: NodeFactoryParams): Node => {
     const { nodeDefUuid, recordUuid, parentNode, value } = params
 
@@ -26,7 +26,7 @@ export const NodeFactory: Factory<Node> = {
   },
 }
 
-export const NodePlaceholderFactory: Factory<Node> = {
+export const NodePlaceholderFactory: Factory<Node, NodeFactoryParams> = {
   createInstance: (params: NodeFactoryParams): Node => {
     return {
       ...NodeFactory.createInstance(params),
