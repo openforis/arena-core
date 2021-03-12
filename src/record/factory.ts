@@ -12,7 +12,7 @@ export type RecordFactoryParams = {
   user: User
 }
 
-export const RecordFactory: Factory<Record> = {
+export const RecordFactory: Factory<Record, RecordFactoryParams> = {
   createInstance: (params: RecordFactoryParams): Record => {
     const defaultProps = {
       preview: false,

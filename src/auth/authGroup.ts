@@ -1,3 +1,4 @@
+import { UUIDs } from 'src/utils'
 import { Permission, RecordStepPermission } from './permission'
 
 export enum AuthGroupName {
@@ -20,7 +21,7 @@ export interface AuthGroup {
 
 export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   {
-    uuid: 'surveyAdmin',
+    uuid: UUIDs.v4(),
     name: AuthGroupName.surveyAdmin,
     permissions: [
       Permission.permissionsEdit,
@@ -40,7 +41,7 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
     },
   },
   {
-    uuid: 'surveyEditor',
+    uuid: UUIDs.v4(),
     name: AuthGroupName.surveyEditor,
     permissions: [
       Permission.surveyEdit,
@@ -57,7 +58,7 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
     },
   },
   {
-    uuid: 'dataAnalyst',
+    uuid: UUIDs.v4(),
     name: AuthGroupName.dataAnalyst,
     permissions: [
       Permission.recordView,
@@ -73,7 +74,7 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
     },
   },
   {
-    uuid: 'dataCleanser',
+    uuid: UUIDs.v4(),
     name: AuthGroupName.dataCleanser,
     permissions: [Permission.recordView, Permission.recordCreate, Permission.recordEdit, Permission.recordCleanse],
     recordSteps: {
@@ -82,7 +83,7 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
     },
   },
   {
-    uuid: 'dataEditor',
+    uuid: UUIDs.v4(),
     name: AuthGroupName.dataEditor,
     permissions: [Permission.recordView, Permission.recordCreate, Permission.recordEdit],
     recordSteps: {

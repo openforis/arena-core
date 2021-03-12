@@ -12,7 +12,7 @@ export type TaxonomyFactoryParams = {
   published?: boolean
 }
 
-export const TaxonomyFactory: Factory<Taxonomy> = {
+export const TaxonomyFactory: Factory<Taxonomy, TaxonomyFactoryParams> = {
   createInstance: (params: TaxonomyFactoryParams): Taxonomy => {
     const defaultProps = {
       props: {},
@@ -43,7 +43,7 @@ export type TaxonFactoryParams = {
   }
 }
 
-export const TaxonFactory: Factory<Taxon> = {
+export const TaxonFactory: Factory<Taxon, TaxonFactoryParams> = {
   createInstance: (params: TaxonFactoryParams): Taxon => {
     const defaultProps = {
       props: {},
@@ -70,7 +70,7 @@ export type VernacularNameParams = {
   name: string
 }
 
-export const VernacularNameFactory: Factory<VernacularName> = {
+export const VernacularNameFactory: Factory<VernacularName, VernacularNameParams> = {
   createInstance: (params: VernacularNameParams): VernacularName => {
     const { lang, name } = params
 
