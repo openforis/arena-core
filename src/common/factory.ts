@@ -1,3 +1,3 @@
 export interface Factory<T> {
-  createInstance(options?: any): T
+  createInstance(params?: any): T
 }
