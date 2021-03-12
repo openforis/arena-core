@@ -28,17 +28,30 @@ const queries: Query[] = [
   },
   // canEditSurvey
   {
+    title: 'canViewSurvey: systemAdmin can',
+    groups: [AuthGroupName.systemAdmin],
+    authorizer: Authorizer.canEditSurvey,
+    result: true,
+  },
+  {
     title: 'canViewSurvey: surveyAdmin can',
     groups: [AuthGroupName.surveyAdmin],
     authorizer: Authorizer.canEditSurvey,
     result: true,
   },
   {
-    title: 'canViewSurvey: surveyEditor can',
+    title: 'canEditSurvey: surveyEditor can',
     groups: [AuthGroupName.surveyEditor],
     authorizer: Authorizer.canEditSurvey,
     result: true,
   },
+  // users not surveyAdmin or surveyEditor cannot edit survey
+  ...[AuthGroupName.dataAnalyst, AuthGroupName.dataCleanser, AuthGroupName.dataEditor].map((groupName) => ({
+    title: `canEditSurvey: ${groupName} cannot`,
+    groups: [groupName],
+    authorizer: Authorizer.canEditSurvey,
+    result: false,
+  })),
 ]
 
 describe('Authorizer - Survey', () => {
