@@ -1,4 +1,4 @@
-import { UUIDs } from 'src/utils'
+import { UUIDs } from '../utils'
 import { Permission, RecordStepPermission } from './permission'
 
 export enum AuthGroupName {

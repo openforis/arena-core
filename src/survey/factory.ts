@@ -4,7 +4,7 @@ import { Factory } from '../common'
 import { Survey } from './survey'
 import { Labels, LanguageCode } from 'src/language'
 import { UUIDs } from '../utils'
-import { DEFAULT_AUTH_GROUPS } from 'src/auth/authGroup'
+import { AuthGroup, DEFAULT_AUTH_GROUPS } from '../auth/authGroup'
 
 export type SurveyFactoryParams = {
   ownerUuid: string
@@ -15,6 +15,7 @@ export type SurveyFactoryParams = {
   draft?: boolean
   collectUri?: string
   descriptions?: Labels
+  authGroups?: AuthGroup[]
 }
 
 const defaultProps = {

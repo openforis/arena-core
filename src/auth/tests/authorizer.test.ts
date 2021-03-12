@@ -1,5 +1,6 @@
-import { Survey } from 'src/survey'
+import { Survey } from '../../survey'
 import { SurveyFactory, SurveyFactoryParams } from '../../survey/factory'
+import { DEFAULT_AUTH_GROUPS } from '../authGroup'
 import { Authorizer } from '../authorizer'
 import { UserFactory, UserFactoryParams } from '../factory'
 import { User } from '../user'
@@ -27,21 +28,24 @@ describe('Authorizer', () => {
     })
 
     test('canViewSurvey - User has survey group', () => {
+      const surveyParams: SurveyFactoryParams = {
+        name: 'survey_name',
+        ownerUuid: 'user_owner_uuid',
+        authGroups: DEFAULT_AUTH_GROUPS,
+      }
+
+      const survey = SurveyFactory.createInstance(surveyParams)
+      const groupUuid = survey.authGroups[0].uuid
+
       const userParams: UserFactoryParams = {
         email: 'email@email.com',
         name: 'user',
-        authGroups: [], // [Attach survey groups]
+        groupUuid,
       }
 
       const user = UserFactory.createInstance(userParams)
 
-      const surveyParams: SurveyFactoryParams = {
-        name: 'survey_name',
-        ownerUuid: user.uuid,
-      }
-
-      const survey = SurveyFactory.createInstance(surveyParams)
-      checkPermission(user, survey, Authorizer.canViewSurvey, false)
+      checkPermission(user, survey, Authorizer.canViewSurvey, true)
     })
   })
 })
