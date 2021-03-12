@@ -14,7 +14,7 @@ const getAuthGroupBySurveyUuid = (surveyUuid?: string, includeSystemAdmin = true
     return authGroups[0]
   }
 
-  return authGroups?.find((authGroup) => authGroup.surveyUuid === surveyUuid)
+  return authGroups?.find((authGroup) => authGroup?.surveyUuid === surveyUuid)
 }
 
 export const Users = {
