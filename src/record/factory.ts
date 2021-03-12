@@ -2,12 +2,13 @@ import { Factory } from 'src/common'
 import { User } from '../auth/user'
 import { Record, RECORD_STEP_DEFAULT } from './record'
 import { UUIDs } from '../utils'
+import { RecordStepPermission } from 'src/auth/permission'
 
 export type RecordFactoryParams = {
   cycle?: string
   dateCreated?: string
   preview?: boolean
-  step?: string
+  step?: RecordStepPermission
   user: User
 }
 

@@ -1,8 +1,9 @@
-import { RecordStepPermission } from 'src/auth/permission'
 import { Node } from 'src/node'
 import { Validation } from 'src/validation'
 
 export const RECORD_STEP_DEFAULT = '1'
+
+export const steps = ['entry', 'cleansing', 'analysis']
 
 export interface Record {
   cycle?: string
@@ -12,7 +13,7 @@ export interface Record {
   ownerName: string
   ownerUuid: string
   preview?: boolean
-  step?: RecordStepPermission
+  step: string // in steps
   surveyId?: number
   surveyUuid?: string
   uuid: string

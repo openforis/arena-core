@@ -15,7 +15,9 @@ const _getSurveyUserGroup = (user: User, survey: Survey, includeSystemAdmin = tr
   Users.getAuthGroupBySurveyUuid(survey.uuid, includeSystemAdmin)(user)
 
 const _hasSurveyPermission = (permission: Permission) => (user: User, survey: Survey) =>
-  user && survey && (Users.isSystemAdmin(user) || _getSurveyUserGroup(user, survey)?.permissions.includes(permission))
+  user &&
+  survey &&
+  (Users.isSystemAdmin(user) || Boolean(_getSurveyUserGroup(user, survey)?.permissions.includes(permission)))
 
 // READ
 const canViewSurvey = (user: User, survey: Survey): boolean => Boolean(_getSurveyUserGroup(user, survey))
@@ -71,11 +73,11 @@ const canViewUser = (user: User, survey: Survey, userToView: User): boolean =>
   Boolean(_getSurveyUserGroup(user, survey, false) && _getSurveyUserGroup(userToView, survey, false))
 
 // EDIT
+const _hasSurveyUserGroup = (user: User, survey: Survey): boolean => Boolean(_getSurveyUserGroup(user, survey, false))
+
 const _hasUserEditAccess = (user: User, survey: Survey, userToUpdate: User): boolean =>
-  Boolean(
-    Users.isSystemAdmin(user) ||
-      (_hasSurveyPermission(Permission.userEdit)(user, survey) && _getSurveyUserGroup(userToUpdate, survey, false))
-  )
+  Users.isSystemAdmin(user) ||
+  (_hasSurveyPermission(Permission.userEdit)(user, survey) && _hasSurveyUserGroup(userToUpdate, survey))
 
 export const canEditUser = (user: User, survey: Survey, userToUpdate: User): boolean =>
   Boolean(
