@@ -1,7 +1,7 @@
 import { AuthGroup, AuthGroupName } from './authGroup'
 import { RecordStepPermission } from './permission'
 
-const isSystemAdminGroup = (authGroup: AuthGroup): boolean => authGroup.name === AuthGroupName.systemAdmin
+const isSystemAdminGroup = (authGroup: AuthGroup): boolean => authGroup?.name === AuthGroupName.systemAdmin
 
 const getRecordSteps = (authGroup?: AuthGroup): { [key: string]: RecordStepPermission } | undefined =>
   authGroup?.recordSteps
