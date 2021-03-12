@@ -13,7 +13,8 @@ const getRecordEditLevel = (step: string) => (authGroup?: AuthGroup): RecordStep
   return steps[step]
 }
 
-const getDefaultGroups = (): AuthGroup[] => DEFAULT_AUTH_GROUPS.map((group) => ({ ...group, uuid: UUIDs.v4() }))
+const getDefaultGroups = (surveyUuid: string): AuthGroup[] =>
+  DEFAULT_AUTH_GROUPS.map((group) => ({ ...group, uuid: UUIDs.v4(), surveyUuid }))
 
 export const AuthGroups = {
   isSystemAdminGroup,

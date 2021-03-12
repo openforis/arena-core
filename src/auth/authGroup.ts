@@ -14,10 +14,12 @@ export enum AuthGroupName {
 export interface AuthGroup {
   name: AuthGroupName
   surveyUuid?: string
-  permissions: Array<Permission>
-  recordSteps: { [key: number]: RecordStepPermission }
+  permissions?: Array<Permission>
+  recordSteps?: { [key: number]: RecordStepPermission }
   uuid?: string
 }
+
+export const SYSTEM_ADMIN_GROUP: AuthGroup = { name: AuthGroupName.systemAdmin }
 
 export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   {
