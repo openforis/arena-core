@@ -37,9 +37,9 @@ export const CategoryFactory: Factory<Category, CategoryFactoryParams> = {
 }
 
 export type CategoryLevelFactoryParams = {
-  categoryUuid: string
-  index: number
+  index?: number
   props?: CategoryLevelProps
+  categoryUuid: string
 }
 
 export const CategoryLevelFactory: Factory<CategoryLevel, CategoryLevelFactoryParams> = {
