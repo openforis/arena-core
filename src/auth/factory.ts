@@ -7,7 +7,6 @@ export type UserFactoryParams = {
   name: string
   status?: UserStatus
   title?: UserTitle
-  groupUuid: string
 }
 
 export const UserFactory: Factory<User, UserFactoryParams> = {

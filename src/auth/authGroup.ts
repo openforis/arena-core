@@ -7,7 +7,8 @@ export enum AuthGroupName {
   dataEditor = 'dataEditor',
   dataCleanser = 'dataCleanser',
   dataAnalyst = 'dataAnalyst',
-  surveyGuest = 'surveyGuest',
+  // TODO enable surveyGuest auth group
+  // surveyGuest = 'surveyGuest',
 }
 
 export interface AuthGroup {
@@ -15,12 +16,11 @@ export interface AuthGroup {
   surveyUuid?: string
   permissions: Array<Permission>
   recordSteps: { [key: number]: RecordStepPermission }
-  uuid: string
+  uuid?: string
 }
 
 export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
   {
-    uuid: 'surveyAdmin',
     name: AuthGroupName.surveyAdmin,
     permissions: [
       Permission.permissionsEdit,
@@ -40,7 +40,6 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
     },
   },
   {
-    uuid: 'surveyEditor',
     name: AuthGroupName.surveyEditor,
     permissions: [
       Permission.surveyEdit,
@@ -57,7 +56,6 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
     },
   },
   {
-    uuid: 'dataAnalyst',
     name: AuthGroupName.dataAnalyst,
     permissions: [
       Permission.recordView,
@@ -73,7 +71,6 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
     },
   },
   {
-    uuid: 'dataCleanser',
     name: AuthGroupName.dataCleanser,
     permissions: [Permission.recordView, Permission.recordCreate, Permission.recordEdit, Permission.recordCleanse],
     recordSteps: {
@@ -82,7 +79,6 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
     },
   },
   {
-    uuid: 'dataEditor',
     name: AuthGroupName.dataEditor,
     permissions: [Permission.recordView, Permission.recordCreate, Permission.recordEdit],
     recordSteps: {
