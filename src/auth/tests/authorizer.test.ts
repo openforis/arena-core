@@ -30,6 +30,7 @@ describe('Authorizer', () => {
       const userParams: UserFactoryParams = {
         email: 'email@email.com',
         name: 'user',
+        authGroups: [], // [Attach survey groups]
       }
 
       const user = UserFactory.createInstance(userParams)
