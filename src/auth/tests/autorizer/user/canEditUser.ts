@@ -22,10 +22,7 @@ export const canEditUserQueries: Query[] = [
     groups: [groupName],
     authorizer: Authorizer.canEditUser,
     result: false,
-    getParams: ({ user, survey }: any): any[] => {
-      const thirdUser = createThirdUser({ status: UserStatus.INVITED })
-      return [user, survey, thirdUser]
-    },
+    getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser({ status: UserStatus.INVITED })],
   })),
   ...ALL_GROUPS.map((groupName) => ({
     title: `canEditUser: ${groupName} can edit ACCEPTED user if user is the same of userToUpdate`,
@@ -53,10 +50,7 @@ export const canEditUserQueries: Query[] = [
     groups: [AuthGroupName.systemAdmin],
     authorizer: Authorizer.canEditUser,
     result: true,
-    getParams: ({ user, survey }: any): any[] => {
-      const thirdUser = createThirdUser()
-      return [user, survey, thirdUser]
-    },
+    getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser()],
   },
 
   {
@@ -76,10 +70,7 @@ export const canEditUserQueries: Query[] = [
     groups: [AuthGroupName.surveyAdmin],
     authorizer: Authorizer.canEditUser,
     result: false,
-    getParams: ({ user, survey }: any): any[] => {
-      const thirdUser = createThirdUser()
-      return [user, survey, thirdUser]
-    },
+    getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser()],
   },
 
   ...[AuthGroupName.surveyEditor, AuthGroupName.dataAnalyst, AuthGroupName.dataCleanser, AuthGroupName.dataEditor].map(

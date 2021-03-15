@@ -3,7 +3,7 @@ import { Authorizer } from '../../../authorizer'
 import { Query, createThirdUser } from '../common'
 
 export const canViewUserQueries: Query[] = [
-  // canViewUser
+  // systemAdmin
   {
     title: 'canViewUser: systemAdmin can',
     groups: [AuthGroupName.systemAdmin],
@@ -66,10 +66,7 @@ export const canViewUserQueries: Query[] = [
       groups: [groupName],
       authorizer: Authorizer.canViewUser,
       result: false,
-      getParams: ({ user, survey }: any): any[] => {
-        const thirdUser = createThirdUser()
-        return [user, survey, thirdUser]
-      },
+      getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser()],
     })
   ),
 ]

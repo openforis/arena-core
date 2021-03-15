@@ -10,10 +10,7 @@ export const canEditUserEmailQueries: Query[] = [
     groups: [AuthGroupName.systemAdmin],
     authorizer: Authorizer.canEditUserEmail,
     result: true,
-    getParams: ({ user, survey }: any): any[] => {
-      const thirdUser = createThirdUser()
-      return [user, survey, thirdUser]
-    },
+    getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser()],
   },
 
   {
@@ -33,9 +30,6 @@ export const canEditUserEmailQueries: Query[] = [
     groups: [AuthGroupName.surveyAdmin],
     authorizer: Authorizer.canEditUserEmail,
     result: false,
-    getParams: ({ user, survey }: any): any[] => {
-      const thirdUser = createThirdUser()
-      return [user, survey, thirdUser]
-    },
+    getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser()],
   },
 ]

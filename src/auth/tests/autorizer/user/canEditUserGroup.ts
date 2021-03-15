@@ -10,9 +10,7 @@ export const canEditUserGroupQueries: Query[] = [
     groups: [groupName],
     authorizer: Authorizer.canEditUserGroup,
     result: false,
-    getParams: ({ user, survey }: any): any[] => {
-      return [user, survey, user]
-    },
+    getParams: ({ user, survey }: any): any[] => [user, survey, user],
   })),
 
   {
@@ -20,10 +18,7 @@ export const canEditUserGroupQueries: Query[] = [
     groups: [AuthGroupName.systemAdmin],
     authorizer: Authorizer.canEditUserGroup,
     result: true,
-    getParams: ({ user, survey }: any): any[] => {
-      const thirdUser = createThirdUser()
-      return [user, survey, thirdUser]
-    },
+    getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser()],
   },
 
   {
@@ -43,9 +38,6 @@ export const canEditUserGroupQueries: Query[] = [
     groups: [AuthGroupName.surveyAdmin],
     authorizer: Authorizer.canEditUserGroup,
     result: false,
-    getParams: ({ user, survey }: any): any[] => {
-      const thirdUser = createThirdUser()
-      return [user, survey, thirdUser]
-    },
+    getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser()],
   },
 ]
