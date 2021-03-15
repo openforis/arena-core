@@ -1,51 +1,136 @@
 import { Authorizer } from '../authorizer'
 import { UserFactory } from '../factory'
-import { AuthGroup, AuthGroupName, DEFAULT_AUTH_GROUPS } from '../authGroup'
-import { User } from 'src/auth'
+import { AuthGroup, AuthGroupName, SYSTEM_ADMIN_GROUP } from '../authGroup'
 import { SurveyFactory } from '../../survey'
+import { AuthGroups } from '../authGroups'
 
-describe('Authorizer', () => {
-  const ownerUser = UserFactory.createInstance({ email: 'owner@arena.org', name: 'owner user' })
+/* 
+Contains tests for Authorizer:
+For permissions, check: src/auth/authGroup.ts
+
+  Record
+  CREATE
+  - canCreateRecord
+
+  READ
+  - canViewRecord
+
+  UPDATE
+  - canEditRecord
+  - canCleanseRecords
+  - canAnalyzeRecords
+
+*/
+
+type Query = {
+  title: string
+  groups: AuthGroupName[]
+  authorizer: any
+  result: boolean
+}
+
+const queries: Query[] = [
+  // canCreateRecord
+  ...[
+    AuthGroupName.systemAdmin,
+    AuthGroupName.surveyAdmin,
+    AuthGroupName.surveyEditor,
+    AuthGroupName.dataAnalyst,
+    AuthGroupName.dataCleanser,
+    AuthGroupName.dataEditor,
+  ].map((groupName) => ({
+    title: `canCreateRecord: ${groupName} can`,
+    groups: [groupName],
+    authorizer: Authorizer.canCreateRecord,
+    result: true,
+  })),
+  // canViewRecord
+  ...[
+    AuthGroupName.systemAdmin,
+    AuthGroupName.surveyAdmin,
+    AuthGroupName.surveyEditor,
+    AuthGroupName.dataAnalyst,
+    AuthGroupName.dataCleanser,
+    AuthGroupName.dataEditor,
+  ].map((groupName) => ({
+    title: `canViewRecord: ${groupName} can`,
+    groups: [groupName],
+    authorizer: Authorizer.canViewRecord,
+    result: true,
+  })),
+  // canEditRecord
+  ...[
+    AuthGroupName.systemAdmin,
+    AuthGroupName.surveyAdmin,
+    AuthGroupName.surveyEditor,
+    AuthGroupName.dataAnalyst,
+    AuthGroupName.dataCleanser,
+    AuthGroupName.dataEditor,
+  ].map((groupName) => ({
+    title: `canEditRecord: ${groupName} can`,
+    groups: [groupName],
+    authorizer: Authorizer.canEditRecord,
+    result: true,
+  })),
+  // canCleanseRecords
+  // truthy
+  ...[
+    AuthGroupName.systemAdmin,
+    AuthGroupName.surveyAdmin,
+    AuthGroupName.surveyEditor,
+    AuthGroupName.dataAnalyst,
+    AuthGroupName.dataCleanser,
+  ].map((groupName) => ({
+    title: `canCleanseRecords: ${groupName} can`,
+    groups: [groupName],
+    authorizer: Authorizer.canCleanseRecords,
+    result: true,
+  })),
+  // falsy
+  {
+    title: `canCleanseRecords: ${AuthGroupName.dataEditor} cannot`,
+    groups: [AuthGroupName.dataEditor],
+    authorizer: Authorizer.canCleanseRecords,
+    result: false,
+  },
+  // canAnalyzeRecords
+  // truthy
+  ...[AuthGroupName.systemAdmin, AuthGroupName.surveyAdmin, AuthGroupName.surveyEditor, AuthGroupName.dataAnalyst].map(
+    (groupName) => ({
+      title: `canAnalyzeRecords: ${groupName} can`,
+      groups: [groupName],
+      authorizer: Authorizer.canAnalyzeRecords,
+      result: true,
+    })
+  ),
+  // falsy
+  ...[AuthGroupName.dataCleanser, AuthGroupName.dataEditor].map((groupName) => ({
+    title: `canAnalyzeRecords: ${groupName} cannot`,
+    groups: [groupName],
+    authorizer: Authorizer.canAnalyzeRecords,
+    result: false,
+  })),
+]
+
+describe('Authorizer - Record', () => {
+  const ownerUser = UserFactory.createInstance({ email: 'owner@arena.org', name: 'survey owner' })
+  const defaultUser = UserFactory.createInstance({ email: 'user@arena.org', name: 'user' })
   const survey = SurveyFactory.createInstance({ name: 'test_authorizer', ownerUuid: ownerUser.uuid })
-  survey.authGroups = Array.from(DEFAULT_AUTH_GROUPS)
+  survey.authGroups = AuthGroups.getDefaultGroups(survey.uuid)
 
-  // TODO move it to Surveys.ts?
-  const getSurveyAuthGroup = (name: string): AuthGroup =>
-    survey.authGroups.find((ag) => ag.name === name) || <AuthGroup>(<unknown>null)
+  queries.forEach((query) => {
+    const { title, groups, authorizer, result: resultExpected } = query
 
-  const createUser = (authGroupName: AuthGroupName): User => {
-    const user = UserFactory.createInstance({ email: `${authGroupName}@arena.org`, name: `${authGroupName} user` })
-    user.authGroups = [getSurveyAuthGroup(authGroupName)]
-    return user
-  }
-  const dataAnalystUser = createUser(AuthGroupName.dataAnalyst)
-  const dataCleanserUser = createUser(AuthGroupName.dataCleanser)
-  const dataEditorUser = createUser(AuthGroupName.dataEditor)
-  const surveyAdminGuest = createUser(AuthGroupName.surveyAdmin)
-  const surveyEditorUser = createUser(AuthGroupName.surveyEditor)
-  const systemAdminUser = createUser(AuthGroupName.systemAdmin)
+    const authGroups: AuthGroup[] =
+      groups.length === 1 && groups[0] === AuthGroupName.systemAdmin
+        ? [SYSTEM_ADMIN_GROUP]
+        : survey.authGroups.filter((group) => groups.includes(group.name))
 
-  const usersCanEditRecord = [systemAdminUser]
+    const user = { ...defaultUser, authGroups }
 
-  const usersCannotEditRecord = [dataAnalystUser, dataCleanserUser, dataEditorUser, surveyAdminGuest, surveyEditorUser]
-
-  usersCanEditRecord.map((user) =>
-    test(`Authorizer - canCreateRecord (${user.authGroups?.[0]?.name})`, () =>
-      expect(Authorizer.canCreateRecord(user, survey)).toBeTruthy())
-  )
-
-  usersCannotEditRecord.map((user) =>
-    test(`Authorizer - canCreateRecord (${user.authGroups?.[0]?.name})`, () =>
-      expect(Authorizer.canCreateRecord(user, survey)).toBeFalsy())
-  )
+    test(title, () => {
+      const result = authorizer(user, survey)
+      expect(result).toBe(resultExpected)
+    })
+  })
 })
-
-//  //Record
-//   // CREATE
-//   canCreateRecord,
-//   // READ
-//   canViewRecord,
-//   // UPDATE
-//   canEditRecord,
-//   canCleanseRecords,
-//   canAnalyzeRecords,
