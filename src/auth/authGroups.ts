@@ -7,9 +7,10 @@ const isSystemAdminGroup = (authGroup: AuthGroup): boolean => authGroup?.name ==
 const getRecordSteps = (authGroup?: AuthGroup): { [key: string]: RecordStepPermission } | undefined =>
   authGroup?.recordSteps
 
-const getRecordEditLevel = (step: string) => (authGroup?: AuthGroup): RecordStepPermission | undefined => {
+const getRecordEditLevel = (step: string) => (authGroup?: AuthGroup): RecordStepPermission => {
   const steps = getRecordSteps(authGroup)
-  if (!steps) return
+  if (!steps) throw new Error('No steps')
+
   return steps[step]
 }
 
