@@ -6,7 +6,7 @@ import { Authorizer } from '../../../authorizer'
 import { UserFactory } from '../../../factory'
 import { User } from '../../../user'
 
-import { Query } from '../user/common'
+import { Query } from '../common'
 
 const createRecord = (params: { user: User; survey: Survey; step?: string }) =>
   RecordFactory.createInstance({

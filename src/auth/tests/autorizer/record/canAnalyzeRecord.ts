@@ -1,7 +1,7 @@
 import { AuthGroupName } from '../../../authGroup'
 import { Authorizer } from '../../../authorizer'
 
-import { Query } from '../user/common'
+import { Query } from '../common'
 
 export const canAnalyzeRecordQueries: Query[] = [
   // truthy

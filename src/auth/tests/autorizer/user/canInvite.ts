@@ -1,6 +1,6 @@
 import { AuthGroupName } from '../../../authGroup'
 import { Authorizer } from '../../../authorizer'
-import { Query } from './common'
+import { Query } from '../common'
 
 export const canInviteUsersQueries: Query[] = [
   // canInviteUsers

@@ -1,6 +1,6 @@
 import { AuthGroupName, SYSTEM_ADMIN_GROUP } from '../../../authGroup'
 import { Authorizer } from '../../../authorizer'
-import { Query, ALL_GROUPS, createThirdUser } from './common'
+import { Query, ALL_GROUPS, createThirdUser } from '../common'
 
 export const canRemoveUserQueries: Query[] = [
   // canRemoveUser

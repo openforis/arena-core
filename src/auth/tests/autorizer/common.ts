@@ -1,32 +1,40 @@
-import { SurveyFactory } from '../../../../survey'
-import { AuthGroup, AuthGroupName, SYSTEM_ADMIN_GROUP } from '../../../authGroup'
-import { AuthGroups } from '../../../authGroups'
-import { UserFactory } from '../../../factory'
-import { Query } from './common'
+import { AuthGroup, AuthGroupName, SYSTEM_ADMIN_GROUP } from '../../authGroup'
+import { SurveyFactory } from '../../../survey'
+import { AuthGroups } from '../../authGroups'
+import { UserFactory } from '../../factory'
+import { UserStatus } from '../../user'
 
-import { canInviteUsersQueries } from './canInvite'
-import { canViewUserQueries } from './canViewUser'
-import { canEditUserQueries } from './canEditUser'
-import { canEditUserEmailQueries } from './canEditUserEmail'
-import { canEditUserGroupQueries } from './canEditUserGroup'
-import { canRemoveUserQueries } from './canRemoveUser'
+export type Query = {
+  title: string
+  groups: AuthGroupName[]
+  authorizer: any
+  result: boolean
+  getParams?: any
+}
 
-const queries: Query[] = [
-  ...canInviteUsersQueries,
-  ...canViewUserQueries,
-  ...canEditUserQueries,
-  ...canEditUserEmailQueries,
-  ...canEditUserGroupQueries,
-  ...canRemoveUserQueries,
+export const ALL_GROUPS = [
+  AuthGroupName.systemAdmin,
+  AuthGroupName.surveyAdmin,
+  AuthGroupName.surveyEditor,
+  AuthGroupName.dataAnalyst,
+  AuthGroupName.dataCleanser,
+  AuthGroupName.dataEditor,
 ]
 
-describe('Authorizer - User', () => {
+export const createThirdUser = ({ status = UserStatus.ACCEPTED } = {}) =>
+  UserFactory.createInstance({
+    email: 'third@arena.org',
+    name: 'third',
+    status,
+  })
+
+export const testQueries = (_queries: Query[]) => () => {
   const ownerUser = UserFactory.createInstance({ email: 'owner@arena.org', name: 'survey owner' })
   const defaultUser = UserFactory.createInstance({ email: 'user@arena.org', name: 'user' })
   const survey = SurveyFactory.createInstance({ name: 'test_authorizer', ownerUuid: ownerUser.uuid })
   survey.authGroups = AuthGroups.getDefaultGroups(survey.uuid)
 
-  queries.forEach((query) => {
+  _queries.forEach((query) => {
     const { title, groups, authorizer, result: resultExpected, getParams = false } = query
 
     const authGroups: AuthGroup[] =
@@ -42,4 +50,4 @@ describe('Authorizer - User', () => {
       expect(result).toBe(resultExpected)
     })
   })
-})
+}

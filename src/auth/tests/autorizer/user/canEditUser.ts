@@ -1,7 +1,7 @@
 import { AuthGroupName } from '../../../authGroup'
 import { Authorizer } from '../../../authorizer'
 import { UserStatus } from '../../../user'
-import { Query, ALL_GROUPS, createThirdUser } from './common'
+import { Query, ALL_GROUPS, createThirdUser } from '../common'
 
 export const canEditUserQueries: Query[] = [
   // canEditUser
