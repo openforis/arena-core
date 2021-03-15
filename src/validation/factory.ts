@@ -4,7 +4,7 @@ import { Validation, ValidationResult, ValidationSeverity } from './validation'
 
 type ValidationFactoryParams = {
   errors: Array<ValidationResult>
-  fields: {
+  fields?: {
     [name: string]: Validation
   }
   valid: boolean
