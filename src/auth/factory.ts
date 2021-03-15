@@ -7,7 +7,6 @@ export type UserFactoryParams = {
   name: string
   status?: UserStatus
   title?: UserTitle
-  groupUuid?: string
 }
 
 export const UserFactory: Factory<User, UserFactoryParams> = {
@@ -17,7 +16,7 @@ export const UserFactory: Factory<User, UserFactoryParams> = {
       status: UserStatus.INVITED,
     }
 
-    const { email, name, hasProfilePicture, status, title, groupUuid } = {
+    const { email, name, hasProfilePicture, status, title } = {
       ...defaultProps,
       ...params,
     }
@@ -31,7 +30,6 @@ export const UserFactory: Factory<User, UserFactoryParams> = {
       },
       status,
       uuid: UUIDs.v4(),
-      groupUuid,
     }
   },
 }

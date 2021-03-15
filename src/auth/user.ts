@@ -33,5 +33,4 @@ export interface User extends ArenaObject<UserProps> {
   name: string
   prefs?: UserPrefs
   status: UserStatus
-  groupUuid?: string
 }

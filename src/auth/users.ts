@@ -4,7 +4,7 @@ import { AuthGroups } from './authGroups'
 
 const getAuthGroups = (user: User): AuthGroup[] => user?.authGroups || []
 
-const isSystemAdmin = (user: User): boolean => (getAuthGroups(user) || []).some(AuthGroups.isSystemAdminGroup)
+const isSystemAdmin = (user: User): boolean => (getAuthGroups(user) || []).some(AuthGroups.isSystemAdmin)
 
 const getAuthGroupBySurveyUuid = (surveyUuid?: string, includeSystemAdmin = true) => (
   user: User

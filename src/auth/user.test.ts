@@ -4,7 +4,6 @@ import { UserStatus } from './user'
 test('ExpectedUser === User', () => {
   const userParams: UserFactoryParams = {
     email: 'email@email.com',
-    groupUuid: 'group-0001',
     name: 'name',
   }
 

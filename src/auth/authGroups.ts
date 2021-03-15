@@ -2,7 +2,7 @@ import { UUIDs } from '../utils'
 import { AuthGroup, AuthGroupName, DEFAULT_AUTH_GROUPS } from './authGroup'
 import { RecordStepPermission } from './permission'
 
-const isSystemAdminGroup = (authGroup: AuthGroup): boolean => authGroup?.name === AuthGroupName.systemAdmin
+const isSystemAdmin = (authGroup: AuthGroup): boolean => authGroup?.name === AuthGroupName.systemAdmin
 
 const getRecordSteps = (authGroup?: AuthGroup): { [key: string]: RecordStepPermission } | undefined =>
   authGroup?.recordSteps
@@ -14,11 +14,11 @@ const getRecordEditLevel = (step: string) => (authGroup?: AuthGroup): RecordStep
   return steps[step]
 }
 
-const getDefaultGroups = (surveyUuid: string): AuthGroup[] =>
+const getDefaultAuthGroups = (surveyUuid: string): AuthGroup[] =>
   DEFAULT_AUTH_GROUPS.map((group) => ({ ...group, uuid: UUIDs.v4(), surveyUuid }))
 
 export const AuthGroups = {
-  isSystemAdminGroup,
+  isSystemAdmin,
   getRecordEditLevel,
-  getDefaultGroups,
+  getDefaultAuthGroups,
 }

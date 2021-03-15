@@ -32,7 +32,7 @@ export const testQueries = (queries: Query[]) => () => {
   const ownerUser = UserFactory.createInstance({ email: 'owner@arena.org', name: 'survey owner' })
   const defaultUser = UserFactory.createInstance({ email: 'user@arena.org', name: 'user' })
   const survey = SurveyFactory.createInstance({ name: 'test_authorizer', ownerUuid: ownerUser.uuid })
-  survey.authGroups = AuthGroups.getDefaultGroups(survey.uuid)
+  survey.authGroups = AuthGroups.getDefaultAuthGroups(survey.uuid)
 
   queries.forEach((query) => {
     const { title, groups, authorizer, result: resultExpected, getParams = false } = query
