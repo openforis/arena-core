@@ -1,2 +1,2 @@
-export type { JobSummary } from './summary'
+export type { Job } from './job'
 export { JobStatus } from './status'
