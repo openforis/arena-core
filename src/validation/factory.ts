@@ -11,7 +11,7 @@ type ValidationFactoryParams = {
   warnings: Array<ValidationResult>
 }
 
-export const ValidationFactory: Factory<Validation> = {
+export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
   createInstance: (params: ValidationFactoryParams): Validation => {
     const defaultParams = {
       valid: true,
@@ -38,7 +38,7 @@ type ValidationResultFactoryParams = {
   severity?: ValidationSeverity
 }
 
-export const ValidationResultFactory: Factory<ValidationResult> = {
+export const ValidationResultFactory: Factory<ValidationResult, ValidationResultFactoryParams> = {
   createInstance: (params: ValidationResultFactoryParams): ValidationResult => {
     const defaultParams = {
       severity: ValidationSeverity.error,
