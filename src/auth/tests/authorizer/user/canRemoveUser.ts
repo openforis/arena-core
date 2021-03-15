@@ -9,30 +9,25 @@ export const canRemoveUserQueries: Query[] = [
     groups: [groupName],
     authorizer: Authorizer.canRemoveUser,
     result: false,
-    getParams: ({ user, survey }: any): any[] => {
-      return [user, survey, user]
-    },
+    getParams: ({ user, survey }: any): any[] => [user, survey, user],
   })),
   ...ALL_GROUPS.map((groupName) => ({
     title: `canRemoveUser: ${groupName} cannot remove user if user is System Admin`,
     groups: [groupName],
     authorizer: Authorizer.canRemoveUser,
     result: false,
-    getParams: ({ user, survey }: any): any[] => {
-      let thirdUser = createThirdUser()
-      thirdUser = { ...thirdUser, authGroups: [SYSTEM_ADMIN_GROUP] }
-      return [user, survey, thirdUser]
-    },
+    getParams: ({ user, survey }: any): any[] => [
+      user,
+      survey,
+      { ...createThirdUser(), authGroups: [SYSTEM_ADMIN_GROUP] },
+    ],
   })),
   {
     title: 'canRemoveUser: systemAdmin can remove user',
     groups: [AuthGroupName.systemAdmin],
     authorizer: Authorizer.canRemoveUser,
     result: true,
-    getParams: ({ user, survey }: any): any[] => {
-      const thirdUser = createThirdUser()
-      return [user, survey, thirdUser]
-    },
+    getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser()],
   },
 
   {
@@ -52,9 +47,6 @@ export const canRemoveUserQueries: Query[] = [
     groups: [AuthGroupName.surveyAdmin],
     authorizer: Authorizer.canRemoveUser,
     result: false,
-    getParams: ({ user, survey }: any): any[] => {
-      const thirdUser = createThirdUser()
-      return [user, survey, thirdUser]
-    },
+    getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser()],
   },
 ]

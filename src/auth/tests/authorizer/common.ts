@@ -28,13 +28,13 @@ export const createThirdUser = ({ status = UserStatus.ACCEPTED } = {}) =>
     status,
   })
 
-export const testQueries = (_queries: Query[]) => () => {
+export const testQueries = (queries: Query[]) => () => {
   const ownerUser = UserFactory.createInstance({ email: 'owner@arena.org', name: 'survey owner' })
   const defaultUser = UserFactory.createInstance({ email: 'user@arena.org', name: 'user' })
   const survey = SurveyFactory.createInstance({ name: 'test_authorizer', ownerUuid: ownerUser.uuid })
   survey.authGroups = AuthGroups.getDefaultGroups(survey.uuid)
 
-  _queries.forEach((query) => {
+  queries.forEach((query) => {
     const { title, groups, authorizer, result: resultExpected, getParams = false } = query
 
     const authGroups: AuthGroup[] =
