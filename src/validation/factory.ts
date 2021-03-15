@@ -17,6 +17,7 @@ export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
       valid: true,
       errors: new Array<ValidationResult>(),
       warnings: new Array<ValidationResult>(),
+      fields: {},
     }
     const { errors, fields, valid, warnings } = {
       ...defaultParams,
