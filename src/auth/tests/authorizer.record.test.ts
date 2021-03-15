@@ -3,6 +3,7 @@ import { UserFactory } from '../factory'
 import { AuthGroup, AuthGroupName, SYSTEM_ADMIN_GROUP } from '../authGroup'
 import { SurveyFactory } from '../../survey'
 import { AuthGroups } from '../authGroups'
+import { RecordFactory } from '../../record'
 
 /* 
 Contains tests for Authorizer:
@@ -22,11 +23,12 @@ For permissions, check: src/auth/authGroup.ts
 
 */
 
-type Query = {
+export type Query = {
   title: string
   groups: AuthGroupName[]
   authorizer: any
   result: boolean
+  getParams?: any
 }
 
 const queries: Query[] = [
@@ -59,8 +61,20 @@ const queries: Query[] = [
     result: true,
   })),
   // canEditRecord
+  // system admin can
+  {
+    title: `canEditRecord: systemAdmin can`,
+    groups: [AuthGroupName.systemAdmin],
+    authorizer: Authorizer.canEditRecord,
+    getParams: ({ user, survey }: any): any[] => {
+      const record = RecordFactory.createInstance({ user, surveyId: survey.id, surveyUuid: survey.uuid })
+      return [user, record]
+    },
+    result: true,
+  },
+  // canEditRecord
+  // user is the owner of the record
   ...[
-    AuthGroupName.systemAdmin,
     AuthGroupName.surveyAdmin,
     AuthGroupName.surveyEditor,
     AuthGroupName.dataAnalyst,
@@ -70,7 +84,72 @@ const queries: Query[] = [
     title: `canEditRecord: ${groupName} can`,
     groups: [groupName],
     authorizer: Authorizer.canEditRecord,
+    getParams: ({ user, survey }: any): any[] => {
+      const record = RecordFactory.createInstance({ user, surveyId: survey.id, surveyUuid: survey.uuid })
+      return [user, record]
+    },
     result: true,
+  })),
+  // canEditRecord
+  // record cannot be edited if auth group is dataEditor and record is not owned by the user
+  {
+    title: `canEditRecord (not owned record): dataEditor cannot`,
+    groups: [AuthGroupName.dataEditor],
+    authorizer: Authorizer.canEditRecord,
+    getParams: ({ user, survey }: any): any[] => {
+      const thirdUser = UserFactory.createInstance({ email: 'third@arena.org', name: 'third user' })
+      const record = RecordFactory.createInstance({ user: thirdUser, surveyId: survey.id, surveyUuid: survey.uuid })
+      return [user, record]
+    },
+    result: false,
+  },
+  // canEditRecord
+  // record in step 2 can be edited by all groups but dataEditor
+  ...[AuthGroupName.surveyAdmin, AuthGroupName.surveyEditor, AuthGroupName.dataAnalyst, AuthGroupName.dataCleanser].map(
+    (groupName) => ({
+      title: `canEditRecord step 2: ${groupName} can`,
+      groups: [groupName],
+      authorizer: Authorizer.canEditRecord,
+      getParams: ({ user, survey }: any): any[] => {
+        const record = RecordFactory.createInstance({ user, surveyId: survey.id, surveyUuid: survey.uuid, step: '2' })
+        return [user, record]
+      },
+      result: true,
+    })
+  ),
+  // record in step 2 cannot be edited by dataEditor
+  ...[AuthGroupName.dataEditor].map((groupName) => ({
+    title: `canEditRecord step 2: ${groupName} can`,
+    groups: [groupName],
+    authorizer: Authorizer.canEditRecord,
+    getParams: ({ user, survey }: any): any[] => {
+      const record = RecordFactory.createInstance({ user, surveyId: survey.id, surveyUuid: survey.uuid, step: '2' })
+      return [user, record]
+    },
+    result: false,
+  })),
+  // canEditRecord
+  // record in step 3 can be edited by all groups but dataEditor
+  ...[AuthGroupName.surveyAdmin, AuthGroupName.surveyEditor, AuthGroupName.dataAnalyst].map((groupName) => ({
+    title: `canEditRecord step 3: ${groupName} can`,
+    groups: [groupName],
+    authorizer: Authorizer.canEditRecord,
+    getParams: ({ user, survey }: any): any[] => {
+      const record = RecordFactory.createInstance({ user, surveyId: survey.id, surveyUuid: survey.uuid, step: '3' })
+      return [user, record]
+    },
+    result: true,
+  })),
+  // record in step 3 cannot be edited by dataEditor and dataCleanser
+  ...[AuthGroupName.dataEditor, AuthGroupName.dataCleanser].map((groupName) => ({
+    title: `canEditRecord step 3: ${groupName} can`,
+    groups: [groupName],
+    authorizer: Authorizer.canEditRecord,
+    getParams: ({ user, survey }: any): any[] => {
+      const record = RecordFactory.createInstance({ user, surveyId: survey.id, surveyUuid: survey.uuid, step: '3' })
+      return [user, record]
+    },
+    result: false,
   })),
   // canCleanseRecords
   // truthy
@@ -119,7 +198,7 @@ describe('Authorizer - Record', () => {
   survey.authGroups = AuthGroups.getDefaultGroups(survey.uuid)
 
   queries.forEach((query) => {
-    const { title, groups, authorizer, result: resultExpected } = query
+    const { title, groups, authorizer, result: resultExpected, getParams = false } = query
 
     const authGroups: AuthGroup[] =
       groups.length === 1 && groups[0] === AuthGroupName.systemAdmin
@@ -129,7 +208,8 @@ describe('Authorizer - Record', () => {
     const user = { ...defaultUser, authGroups }
 
     test(title, () => {
-      const result = authorizer(user, survey)
+      const params = getParams ? getParams({ user, survey, authGroups }) : [user, survey]
+      const result = authorizer(...params)
       expect(result).toBe(resultExpected)
     })
   })

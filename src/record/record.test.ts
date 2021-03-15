@@ -20,19 +20,27 @@ describe('RecordFactory', () => {
         status: UserStatus.ACCEPTED,
         uuid: 'user_uuid',
       },
+      surveyId: 1,
+      surveyUuid: 'survey_uuid',
     }
 
-    const node = RecordFactory.createInstance(recordParams)
+    const record = RecordFactory.createInstance(recordParams)
 
-    expect(node).toHaveProperty('uuid')
+    expect(record).toHaveProperty('uuid')
 
-    expect(node).toHaveProperty('ownerUuid')
-    expect(node.ownerUuid).toBe(recordParams.user.uuid)
+    expect(record).toHaveProperty('ownerUuid')
+    expect(record.ownerUuid).toBe(recordParams.user.uuid)
 
-    expect(node).toHaveProperty('ownerName')
-    expect(node.ownerName).toBe(recordParams.user.name)
+    expect(record).toHaveProperty('ownerName')
+    expect(record.ownerName).toBe(recordParams.user.name)
 
-    expect(node).toHaveProperty('preview')
-    expect(node.preview).toBe(false)
+    expect(record).toHaveProperty('preview')
+    expect(record.preview).toBe(false)
+
+    expect(record).toHaveProperty('surveyId')
+    expect(record.surveyId).toBe(recordParams.surveyId)
+
+    expect(record).toHaveProperty('surveyUuid')
+    expect(record.surveyUuid).toBe(recordParams.surveyUuid)
   })
 })

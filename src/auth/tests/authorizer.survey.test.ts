@@ -28,13 +28,13 @@ const queries: Query[] = [
   },
   // canEditSurvey
   {
-    title: 'canViewSurvey: systemAdmin can',
+    title: 'canEditSurvey: systemAdmin can',
     groups: [AuthGroupName.systemAdmin],
     authorizer: Authorizer.canEditSurvey,
     result: true,
   },
   {
-    title: 'canViewSurvey: surveyAdmin can',
+    title: 'canEditSurvey: surveyAdmin can',
     groups: [AuthGroupName.surveyAdmin],
     authorizer: Authorizer.canEditSurvey,
     result: true,

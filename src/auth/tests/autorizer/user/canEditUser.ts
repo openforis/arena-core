@@ -11,10 +11,11 @@ export const canEditUserQueries: Query[] = [
     groups: [groupName],
     authorizer: Authorizer.canEditUser,
     result: false,
-    getParams: ({ user, survey }: any): any[] => {
-      const thirdUser = createThirdUser({ status: UserStatus.FORCE_CHANGE_PASSWORD })
-      return [user, survey, thirdUser]
-    },
+    getParams: ({ user, survey }: any): any[] => [
+      user,
+      survey,
+      createThirdUser({ status: UserStatus.FORCE_CHANGE_PASSWORD }),
+    ],
   })),
   ...ALL_GROUPS.map((groupName) => ({
     title: `canEditUser: ${groupName} cannot edit non ACCEPTED user - INVITED`,

@@ -2,13 +2,14 @@ import { Factory } from 'src/common'
 import { User } from '../auth/user'
 import { Record, RECORD_STEP_DEFAULT } from './record'
 import { UUIDs } from '../utils'
-import { RecordStepPermission } from 'src/auth/permission'
 
 export type RecordFactoryParams = {
   cycle?: string
   dateCreated?: string
   preview?: boolean
-  step?: RecordStepPermission
+  surveyId: number
+  surveyUuid: string
+  step?: string
   user: User
 }
 
@@ -19,7 +20,7 @@ export const RecordFactory: Factory<Record, RecordFactoryParams> = {
       step: RECORD_STEP_DEFAULT,
     }
 
-    const { user, cycle, preview, dateCreated, step } = {
+    const { user, cycle, preview, dateCreated, step, surveyId, surveyUuid } = {
       ...defaultProps,
       ...params,
     }
@@ -31,6 +32,8 @@ export const RecordFactory: Factory<Record, RecordFactoryParams> = {
       ownerName: user.name,
       preview,
       step,
+      surveyId,
+      surveyUuid,
       uuid: UUIDs.v4(),
     }
   },
