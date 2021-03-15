@@ -20,7 +20,6 @@ describe('RecordFactory', () => {
         status: UserStatus.ACCEPTED,
         uuid: 'user_uuid',
       },
-      surveyId: 1,
       surveyUuid: 'survey_uuid',
     }
 
@@ -36,9 +35,6 @@ describe('RecordFactory', () => {
 
     expect(record).toHaveProperty('preview')
     expect(record.preview).toBe(false)
-
-    expect(record).toHaveProperty('surveyId')
-    expect(record.surveyId).toBe(recordParams.surveyId)
 
     expect(record).toHaveProperty('surveyUuid')
     expect(record.surveyUuid).toBe(recordParams.surveyUuid)

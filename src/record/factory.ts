@@ -7,7 +7,6 @@ export type RecordFactoryParams = {
   cycle?: string
   dateCreated?: string
   preview?: boolean
-  surveyId: number
   surveyUuid: string
   step?: string
   user: User
@@ -20,7 +19,7 @@ export const RecordFactory: Factory<Record, RecordFactoryParams> = {
       step: RECORD_STEP_DEFAULT,
     }
 
-    const { user, cycle, preview, dateCreated, step, surveyId, surveyUuid } = {
+    const { user, cycle, preview, dateCreated, step, surveyUuid } = {
       ...defaultProps,
       ...params,
     }
@@ -32,7 +31,6 @@ export const RecordFactory: Factory<Record, RecordFactoryParams> = {
       ownerName: user.name,
       preview,
       step,
-      surveyId,
       surveyUuid,
       uuid: UUIDs.v4(),
     }
