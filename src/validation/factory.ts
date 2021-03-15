@@ -3,12 +3,12 @@ import { Labels } from 'src/language'
 import { Validation, ValidationResult, ValidationSeverity } from './validation'
 
 type ValidationFactoryParams = {
-  errors: Array<ValidationResult>
+  errors?: Array<ValidationResult>
   fields?: {
     [name: string]: Validation
   }
-  valid: boolean
-  warnings: Array<ValidationResult>
+  valid?: boolean
+  warnings?: Array<ValidationResult>
 }
 
 export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
