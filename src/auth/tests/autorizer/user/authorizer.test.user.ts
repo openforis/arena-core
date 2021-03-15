@@ -1,50 +1,23 @@
 import { SurveyFactory } from '../../../../survey'
 import { AuthGroup, AuthGroupName, SYSTEM_ADMIN_GROUP } from '../../../authGroup'
 import { AuthGroups } from '../../../authGroups'
-import { Authorizer } from '../../../authorizer'
 import { UserFactory } from '../../../factory'
+import { Query } from './common'
 
-/*
- //Users
-  // EDIT
-  canEditUser,
-  canEditUserEmail,
-  canEditUserGroup,
-  canRemoveUser,
-
-*/
-
-type Query = {
-  title: string
-  groups: AuthGroupName[]
-  authorizer: any
-  result: boolean
-  getParams?: any
-}
+import { canInviteUsersQueries } from './canInvite'
+import { canViewUserQueries } from './canViewUser'
+import { canEditUserQueries } from './canEditUser'
+import { canEditUserEmailQueries } from './canEditUserEmail'
+import { canEditUserGroupQueries } from './canEditUserGroup'
+import { canRemoveUserQueries } from './canRemoveUser'
 
 const queries: Query[] = [
-  // canInviteUsers
-  {
-    title: 'canInviteUsers: systemAdmin can',
-    groups: [AuthGroupName.systemAdmin],
-    authorizer: Authorizer.canInviteUsers,
-    result: true,
-  },
-  {
-    title: 'canInviteUsers: surveyAdmin can',
-    groups: [AuthGroupName.surveyAdmin],
-    authorizer: Authorizer.canInviteUsers,
-    result: true,
-  },
-  // users not surveyAdmin cannot invite user
-  ...[AuthGroupName.surveyEditor, AuthGroupName.dataAnalyst, AuthGroupName.dataCleanser, AuthGroupName.dataEditor].map(
-    (groupName) => ({
-      title: `canInviteUsers: ${groupName} cannot`,
-      groups: [groupName],
-      authorizer: Authorizer.canInviteUsers,
-      result: false,
-    })
-  ),
+  ...canInviteUsersQueries,
+  ...canViewUserQueries,
+  ...canEditUserQueries,
+  ...canEditUserEmailQueries,
+  ...canEditUserGroupQueries,
+  ...canRemoveUserQueries,
 ]
 
 describe('Authorizer - User', () => {
