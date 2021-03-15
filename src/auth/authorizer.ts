@@ -17,7 +17,7 @@ const _getSurveyUserGroup = (user: User, survey: Survey, includeSystemAdmin = tr
 const _hasSurveyPermission = (permission: Permission) => (user: User, survey: Survey) =>
   user &&
   survey &&
-  (Users.isSystemAdmin(user) || Boolean(_getSurveyUserGroup(user, survey)?.permissions.includes(permission)))
+  (Users.isSystemAdmin(user) || Boolean(_getSurveyUserGroup(user, survey)?.permissions?.includes(permission)))
 
 // READ
 const canViewSurvey = (user: User, survey: Survey): boolean => Boolean(_getSurveyUserGroup(user, survey))
