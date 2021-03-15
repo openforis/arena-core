@@ -42,6 +42,6 @@ export interface Survey extends ArenaObject<SurveyProps> {
   nodeDefs?: { [nodeDefUuid: string]: NodeDef<NodeDefType> }
   ownerUuid: string
   published: boolean
-  readonly id?: string
+  readonly id?: number
   uuid: string
 }
