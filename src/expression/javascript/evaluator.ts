@@ -1,7 +1,12 @@
 import { ExpressionContext } from '../context'
 import { ExpressionEvaluator } from '../evaluator'
 import { ExpressionFunction } from '../function'
-import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
+import {
+  ExpressionNode,
+  ExpressionNodeEvaluator,
+  ExpressionNodeEvaluatorConstructor,
+  ExpressionNodeType,
+} from '../node'
 
 import { functionsDefault } from './functionsDefault'
 import { BinaryEvaluator } from './node/binary'
@@ -16,25 +21,29 @@ import { UnaryEvaluator } from './node/unary'
 // @ts-ignore
 import * as jsep from './parser/jsep'
 
+const defaultEvaluators = {
+  [ExpressionNodeType.Binary]: BinaryEvaluator,
+  [ExpressionNodeType.Call]: CallEvaluator,
+  [ExpressionNodeType.Compound]: CompoundEvaluator,
+  [ExpressionNodeType.Group]: GroupEvaluator,
+  [ExpressionNodeType.Identifier]: IdentifierEvaluator,
+  [ExpressionNodeType.Literal]: LiteralEvaluator,
+  [ExpressionNodeType.Logical]: BinaryEvaluator,
+  [ExpressionNodeType.Member]: MemberEvaluator,
+  [ExpressionNodeType.This]: ThisEvaluator,
+  [ExpressionNodeType.Unary]: UnaryEvaluator,
+}
+
+type Evaluators = {
+  [nodeType in ExpressionNodeType]?: ExpressionNodeEvaluatorConstructor<ExpressionNode<ExpressionNodeType>>
+}
+
 export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
   functions: { [functionName: string]: ExpressionFunction }
-  evaluators: {
-    [nodeType in ExpressionNodeType]: ExpressionNodeEvaluatorConstructor<ExpressionNode<ExpressionNodeType>>
-  }
+  evaluators: Evaluators
 
-  constructor(functions: Array<ExpressionFunction> = []) {
-    this.evaluators = {
-      [ExpressionNodeType.Binary]: BinaryEvaluator,
-      [ExpressionNodeType.Call]: CallEvaluator,
-      [ExpressionNodeType.Compound]: CompoundEvaluator,
-      [ExpressionNodeType.Group]: GroupEvaluator,
-      [ExpressionNodeType.Identifier]: IdentifierEvaluator,
-      [ExpressionNodeType.Literal]: LiteralEvaluator,
-      [ExpressionNodeType.Logical]: BinaryEvaluator,
-      [ExpressionNodeType.Member]: MemberEvaluator,
-      [ExpressionNodeType.This]: ThisEvaluator,
-      [ExpressionNodeType.Unary]: UnaryEvaluator,
-    }
+  constructor(functions: Array<ExpressionFunction> = [], evaluators: Evaluators = {}) {
+    this.evaluators = { ...defaultEvaluators, ...evaluators }
     this.functions = [...functionsDefault, ...functions].reduce<{ [functionName: string]: ExpressionFunction }>(
       (functionsAcc, expressionFunction) => ({ ...functionsAcc, [expressionFunction.name]: expressionFunction }),
       {}
