@@ -27,7 +27,7 @@ export interface UserProps {
 }
 
 export interface User extends ArenaObject<UserProps> {
-  authGroups?: Array<AuthGroup>
+  authGroups?: AuthGroup[]
   email: string
   hasProfilePicture: boolean
   name: string

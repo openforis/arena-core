@@ -7,10 +7,9 @@ export type UserFactoryParams = {
   name: string
   status?: UserStatus
   title?: UserTitle
-  groupUuid: string
 }
 
-export const UserFactory: Factory<User> = {
+export const UserFactory: Factory<User, UserFactoryParams> = {
   createInstance: (params: UserFactoryParams): User => {
     const defaultProps = {
       hasProfilePicture: false,
