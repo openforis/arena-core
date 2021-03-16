@@ -13,9 +13,8 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: actions/checkout@v2
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
+          token: ${{secrets.GITHUB_TOKEN}}
           node-version: 14
 
       - name: 'Automated Version Bump'
