@@ -11,6 +11,11 @@ jobs:
   publish-new-version:
     runs-on: ubuntu-latest
     steps:
+      - name: Temporarily disable "include administrators" branch protection
+        uses: benjefferies/branch-protection-bot@master
+        if: always()
+        with:
+          access-token: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Checkout'
         uses: actions/checkout@v2
         with:
@@ -33,3 +38,10 @@ jobs:
       - run: cat .npmrc
       - run: cat .yarnrc
       - run: npm publish
+      - name: Enable "include administrators" branch protection
+        uses: benjefferies/branch-protection-bot@master
+        if: always()  # Force to always run this step to ensure "include administrators" is always turned back on
+        with:
+          access-token: ${{ secrets.GITHUB_TOKEN }}
+          owner: openforis
+          repo: arena-core
