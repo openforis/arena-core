@@ -9,7 +9,8 @@ jobs:
   publish-new-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: 'Checkout'
+        uses: actions/checkout@v2
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
