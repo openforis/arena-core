@@ -4,7 +4,7 @@
     "name": "Openforis",
     "email": "openforis.arena@gmail.com"
   },
-  "version": "0.0.14",
+  "version": "0.0.13",
   "description": "Arena core module",
   "main": "index.js",
   "license": "MIT",
@@ -28,7 +28,7 @@
     "lint:fix": "npm run lint -- --fix",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "postversion": "git push && git push --tags",
-    "prepare": "yarn install && yarn build",
+    "prepare": "yarn build",
     "preversion": "run-s format lint:fix build",
     "test": "jest",
     "version": "git add -A src"
