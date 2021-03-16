@@ -16,7 +16,6 @@ jobs:
         with:
           node-version: 14
           token: ${{ secrets.ACCESS_TOKEN }}
-
       - name: Temporarily disable "include administrators" branch protection
         uses: benjefferies/branch-protection-bot@master
         if: always()
