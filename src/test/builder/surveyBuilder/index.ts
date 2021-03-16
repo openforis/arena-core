@@ -1,4 +1,4 @@
-import { NodeDefType } from 'src/nodeDef'
+import { NodeDefType } from '../../../nodeDef'
 import { NodeDefAttributeBuilder } from './nodeDefAttributeBuilder'
 import { NodeDefBuilder } from './nodeDefBuilder'
 import { NodeDefEntityBuilder } from './nodeDefEntityBuilder'

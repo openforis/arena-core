@@ -1,5 +1,4 @@
-import { NodeFactory } from 'src/node/factory'
-import { Node } from '../../../node'
+import { Node, NodeFactory } from '../../../node'
 import { Survey } from '../../../survey'
 import { NodeBuilder } from './nodeBuilder'
 
@@ -14,7 +13,7 @@ export class AttributeBuilder extends NodeBuilder {
   build(params: { survey: Survey; recordUuid: string; parentNode?: Node }): { [nodeUuid: string]: Node } {
     const { survey, recordUuid, parentNode } = params
 
-    const nodeDef = this._getNodeDef({ survey })
+    const nodeDef = this.getNodeDef({ survey })
 
     const attribute = NodeFactory.createInstance({
       nodeDefUuid: nodeDef.uuid,

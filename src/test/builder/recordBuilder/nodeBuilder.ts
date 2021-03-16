@@ -9,7 +9,7 @@ export abstract class NodeBuilder {
     this.nodeDefName = nodeDefName
   }
 
-  _getNodeDef(params: { survey: Survey }): NodeDef<NodeDefType, NodeDefProps> {
+  protected getNodeDef(params: { survey: Survey }): NodeDef<NodeDefType, NodeDefProps> {
     const nodeDef = Object.values(params.survey.nodeDefs || {}).find((n) => n.props.name === this.nodeDefName)
 
     if (!nodeDef) {

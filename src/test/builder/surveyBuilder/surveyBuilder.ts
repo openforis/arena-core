@@ -1,5 +1,5 @@
-import { LanguageCode } from 'src/language'
-import { SurveyFactory } from 'src/survey'
+import { LanguageCode } from '../../../language'
+import { SurveyFactory } from '../../../survey'
 import { User } from '../../../auth'
 import { NodeDefEntityBuilder } from './nodeDefEntityBuilder'
 

@@ -13,7 +13,7 @@ export class EntityBuilder extends NodeBuilder {
   build(params: { survey: Survey; recordUuid: string; parentNode?: Node }): { [nodeUuid: string]: Node } {
     const { survey, recordUuid, parentNode } = params
 
-    const nodeDef = this._getNodeDef({ survey })
+    const nodeDef = this.getNodeDef({ survey })
 
     const entity = NodeFactory.createInstance({ nodeDefUuid: nodeDef.uuid, recordUuid, parentNode })
 
