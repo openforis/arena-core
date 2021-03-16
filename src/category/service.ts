@@ -1,7 +1,7 @@
 import { User } from 'src/auth'
 import { Category, CategoryProps } from './category'
 import { CategoryImportSummary } from './categoryImportSummary'
-import { JobStatus } from 'src/job/status'
+import { JobSummary } from 'src/job'
 
 export interface CategoryService {
   // ==== CREATE
@@ -14,7 +14,7 @@ export interface CategoryService {
     summary: CategoryImportSummary
     surveyId: number
     user: User
-  }): Promise<JobStatus<any>>
+  }): Promise<JobSummary<any>>
 
   // ==== READ
   count(options: { draft?: boolean; user: User }): Promise<number>

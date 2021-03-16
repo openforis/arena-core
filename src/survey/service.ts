@@ -1,5 +1,5 @@
 import { User } from '../auth'
-import { JobStatus } from '../job'
+import { JobSummary } from '../job'
 import { LanguageCode } from '../language'
 import { Survey, SurveyProps } from './survey'
 
@@ -13,7 +13,7 @@ export interface SurveyService {
     lang: LanguageCode
     surveyId: number
     user: User
-  }): Promise<JobStatus<any>>
+  }): Promise<JobSummary<any>>
 
   // ==== READ
   count(options: { user: User }): Promise<number>
@@ -31,7 +31,7 @@ export interface SurveyService {
   // ==== UPDATE
   update(options: { props: SurveyProps; surveyId: number; user: User }): Promise<Survey>
 
-  publish(options: { surveyId: number; user: User }): Promise<JobStatus<any>>
+  publish(options: { surveyId: number; user: User }): Promise<JobSummary<any>>
 
   // ==== DELETE
   delete(options: { surveyId: number; user: User }): Promise<void>
