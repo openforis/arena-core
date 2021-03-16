@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefEntity, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefEntity, NodeDefType } from '../../../nodeDef'
 import { NodeDefBuilder } from './nodeDefBuilder'
 
 export class NodeDefAttributeBuilder extends NodeDefBuilder {
@@ -13,7 +13,7 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
 
   build(params: { nodeDefParent?: NodeDefEntity } = {}): { [uuid: string]: NodeDef<NodeDefType> } {
     const { nodeDefParent } = params
-    const def: NodeDef<NodeDefType> = this._createNodeDef({ nodeDefParent })
+    const def: NodeDef<NodeDefType> = this.createNodeDef({ nodeDefParent })
     return { [def.uuid]: def }
   }
 }

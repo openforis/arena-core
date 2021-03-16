@@ -1,5 +1,12 @@
-import { Survey } from '../../survey'
-import { NodeDef, NodeDefFactory, NodeDefEntity, NodeDefProps, NodeDefPropsAdvanced, NodeDefType } from '../../nodeDef'
+import { Survey } from '../../../survey'
+import {
+  NodeDef,
+  NodeDefFactory,
+  NodeDefEntity,
+  NodeDefProps,
+  NodeDefPropsAdvanced,
+  NodeDefType,
+} from '../../../nodeDef'
 
 export abstract class NodeDefBuilder {
   props: NodeDefProps
@@ -14,7 +21,7 @@ export abstract class NodeDefBuilder {
     this.propsAdvanced = {}
   }
 
-  _createNodeDef(params: { nodeDefParent?: NodeDefEntity } = {}): NodeDef<NodeDefType, NodeDefProps> {
+  protected createNodeDef(params: { nodeDefParent?: NodeDefEntity } = {}): NodeDef<NodeDefType, NodeDefProps> {
     return NodeDefFactory.createInstance({
       nodeDefParent: params.nodeDefParent,
       type: this.type,
@@ -25,7 +32,7 @@ export abstract class NodeDefBuilder {
 
   multiple() {
     this.props.multiple = true
-    return true
+    return this
   }
 
   abstract build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> }

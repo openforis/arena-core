@@ -1,5 +1,5 @@
-import { NodeDef, NodeDefEntity, NodeDefType } from '../../nodeDef'
-import { Survey } from '../../survey'
+import { NodeDef, NodeDefEntity, NodeDefType } from '../../../nodeDef'
+import { Survey } from '../../../survey'
 import { NodeDefBuilder } from './nodeDefBuilder'
 
 export class NodeDefEntityBuilder extends NodeDefBuilder {
@@ -12,7 +12,7 @@ export class NodeDefEntityBuilder extends NodeDefBuilder {
 
   build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> } {
     const { survey, nodeDefParent } = params
-    const def: NodeDefEntity = this._createNodeDef({ nodeDefParent }) as NodeDefEntity
+    const def: NodeDefEntity = this.createNodeDef({ nodeDefParent }) as NodeDefEntity
 
     return this.childBuilders.reduce(
       (nodeDefsAcc: { [uuid: string]: NodeDef<NodeDefType> }, childBuilder: NodeDefBuilder) => {

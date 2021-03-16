@@ -1,6 +1,6 @@
 import { NodeFactory } from 'src/node/factory'
-import { Node } from '../../node'
-import { Survey } from '../../survey'
+import { Node } from '../../../node'
+import { Survey } from '../../../survey'
 import { NodeBuilder } from './nodeBuilder'
 
 export class AttributeBuilder extends NodeBuilder {

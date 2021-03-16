@@ -1,5 +1,5 @@
-import { Node, NodeFactory } from '../../node'
-import { Survey } from '../../survey'
+import { Node, NodeFactory } from '../../../node'
+import { Survey } from '../../../survey'
 import { NodeBuilder } from './nodeBuilder'
 
 export class EntityBuilder extends NodeBuilder {

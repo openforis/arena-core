@@ -1,6 +1,6 @@
-import { Node } from '../../node'
-import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
-import { Survey } from '../../survey'
+import { Node } from '../../../node'
+import { NodeDef, NodeDefProps, NodeDefType } from '../../../nodeDef'
+import { Survey } from '../../../survey'
 
 export abstract class NodeBuilder {
   nodeDefName: string
