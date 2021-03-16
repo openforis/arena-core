@@ -10,3 +10,8 @@ export enum Permission {
   userInvite = 'userInvite',
   permissionsEdit = 'permissionsEdit',
 }
+
+export enum RecordStepPermission {
+  all = 'all',
+  own = 'own',
+}
