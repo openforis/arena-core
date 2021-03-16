@@ -1,12 +1,7 @@
 import { ExpressionContext } from '../context'
 import { ExpressionEvaluator } from '../evaluator'
 import { ExpressionFunction } from '../function'
-import {
-  ExpressionNode,
-  ExpressionNodeEvaluator,
-  ExpressionNodeEvaluatorConstructor,
-  ExpressionNodeType,
-} from '../node'
+import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
 
 import { functionsDefault } from './functionsDefault'
 import { BinaryEvaluator } from './node/binary'
@@ -56,7 +51,8 @@ export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
 
   evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: ExpressionContext): any {
     const { type } = expressionNode
-    const NodeEvaluator: ExpressionNodeEvaluatorConstructor<ExpressionNode<ExpressionNodeType>> = this.evaluators[type]
+
+    const NodeEvaluator = this.evaluators[type]
     if (!NodeEvaluator) {
       throw new Error(`Unsupported function type: ${type}`)
     }

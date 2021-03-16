@@ -23,10 +23,11 @@ class RecordBuilder {
   }
 }
 
-export const record = (user: User, survey: Survey, rootEntityBuilder: any) =>
+export const record = (user: User, survey: Survey, rootEntityBuilder: EntityBuilder): RecordBuilder =>
   new RecordBuilder(user, survey, rootEntityBuilder)
 
-export const entity = (nodeDefName: string, ...childBuilders: NodeBuilder[]) =>
+export const entity = (nodeDefName: string, ...childBuilders: NodeBuilder[]): EntityBuilder =>
   new EntityBuilder(nodeDefName, ...childBuilders)
 
-export const attribute = (nodeDefName: string, value: any = null) => new AttributeBuilder(nodeDefName, value)
+export const attribute = (nodeDefName: string, value: any = null): AttributeBuilder =>
+  new AttributeBuilder(nodeDefName, value)

@@ -33,7 +33,11 @@ class SurveyBuilder {
   }
 }
 
-export const survey = (user: User, rootDefBuilder: NodeDefEntityBuilder) => new SurveyBuilder(user, rootDefBuilder)
-export const entity = (name: string, ...childBuilders: NodeDefBuilder[]) =>
+export const survey = (user: User, rootDefBuilder: NodeDefEntityBuilder): SurveyBuilder =>
+  new SurveyBuilder(user, rootDefBuilder)
+
+export const entity = (name: string, ...childBuilders: NodeDefBuilder[]): NodeDefEntityBuilder =>
   new NodeDefEntityBuilder(name, ...childBuilders)
-export const attribute = (name: string, type = NodeDefType.text) => new NodeDefAttributeBuilder(name, type)
+
+export const attribute = (name: string, type = NodeDefType.text): NodeDefAttributeBuilder =>
+  new NodeDefAttributeBuilder(name, type)
