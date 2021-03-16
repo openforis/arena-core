@@ -28,7 +28,7 @@
     "lint:fix": "npm run lint -- --fix",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "postversion": "git push && git push --tags",
-    "prepare": "yarn build",
+    "prepare": "yarn install && yarn build",
     "preversion": "run-s format lint:fix build",
     "test": "jest",
     "version": "git add -A src"
