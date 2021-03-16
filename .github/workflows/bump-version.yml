@@ -43,4 +43,5 @@ jobs:
       - run: echo "\"@openforis:registry\"" "\"https://npm.pkg.github.com\"" > .yarnrc
       - run: cat .npmrc
       - run: cat .yarnrc
+      - run: npm install
       - run: npm publish
