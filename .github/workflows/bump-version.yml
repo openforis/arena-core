@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - 'CU-fq1kgj_Auto-publish_ramirobgav'
-    paths-ignore:
-      - 'package.json'
 
 jobs:
   publish-new-version:
