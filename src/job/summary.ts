@@ -33,7 +33,9 @@ export interface JobSummary<R> {
    * Execution start time.
    */
   startTime?: Date
-
+  /**
+   * Total number of items to process.
+   */
   total: number
   /**
    * String representing the Job type.
