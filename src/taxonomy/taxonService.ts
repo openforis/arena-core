@@ -1,5 +1,5 @@
 import { User } from 'src/auth'
-import { JobStatus } from 'src/job'
+import { JobSummary } from 'src/job'
 import { Taxon } from './taxon'
 import { VernacularName } from './taxonVernacularName'
 
@@ -28,5 +28,10 @@ export interface TaxonService {
 
   // ==== UPDATE
 
-  importTaxa(options: { user: User; surveyId: number; taxonomyUuid: string; filePath: string }): Promise<JobStatus<any>>
+  importTaxa(options: {
+    user: User
+    surveyId: number
+    taxonomyUuid: string
+    filePath: string
+  }): Promise<JobSummary<any>>
 }
