@@ -1,3 +1,5 @@
+export { NodeDefFactory } from './factory'
+
 export type {
   NodeDef,
   NodeDefProps,
