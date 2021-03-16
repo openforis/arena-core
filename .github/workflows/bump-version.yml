@@ -10,17 +10,19 @@ on:
 jobs:
   publish-new-version:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          node-version: 14
+
       - name: Temporarily disable "include administrators" branch protection
         uses: benjefferies/branch-protection-bot@master
         if: always()
         with:
-          access-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: 'Checkout'
-        uses: actions/checkout@v2
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          node-version: 14
+          access-token: ${{ secrets.ACCESS_TOKEN }}
 
       - name: 'Automated Version Bump'
         uses: 'phips28/gh-action-bump-version@master'
@@ -28,6 +30,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag-prefix: ''
+      - name: Enable "include administrators" branch protection
+        uses: benjefferies/branch-protection-bot@master
+        if: always()  # Force to always run this step to ensure "include administrators" is always turned back on
+        with:
+          access-token: ${{ secrets.ACCESS_TOKEN }}
+          owner: openforis
+          repo: arena-core
       - uses: actions/setup-node@v1
         with:
           node-version: 14
@@ -38,10 +47,3 @@ jobs:
       - run: cat .npmrc
       - run: cat .yarnrc
       - run: npm publish
-      - name: Enable "include administrators" branch protection
-        uses: benjefferies/branch-protection-bot@master
-        if: always()  # Force to always run this step to ensure "include administrators" is always turned back on
-        with:
-          access-token: ${{ secrets.GITHUB_TOKEN }}
-          owner: openforis
-          repo: arena-core
