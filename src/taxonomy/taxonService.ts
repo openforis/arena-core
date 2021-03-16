@@ -7,7 +7,7 @@ export interface TaxonService {
   // ==== READ
   count(options: { surveyId: number; taxonomyUuid: string; draft?: boolean }): Promise<number>
 
-  get(options: { surveyId: string; taxonomyUuid: string; taxonUuid?: string; draft?: boolean }): Promise<Taxon>
+  get(options: { surveyId: number; taxonomyUuid: string; taxonUuid?: string; draft?: boolean }): Promise<Taxon>
 
   getMany(options: {
     draft?: boolean
@@ -15,7 +15,7 @@ export interface TaxonService {
     offset?: number
     searchField?: 'code' | 'scientificName' | 'vernacularNames'
     searchValue?: string
-    surveyId: string
+    surveyId: number
     taxonomyUuid: string
     includeUnlUnk?: boolean
   }): Promise<Array<Taxon>>

@@ -19,7 +19,7 @@ export interface UserService {
   getProfilePicture(options: { userUuid: string }): Promise<string>
 
   // ==== UPDATE
-  update(options: { user: User; surveyId: string; userToUpdate: User; filePath?: string }): Promise<User>
+  update(options: { user: User; surveyId: number; userToUpdate: User; filePath?: string }): Promise<User>
   updateUserPrefs(options: { userToUpdate: User }): Promise<User>
 
   // ==== DELETE

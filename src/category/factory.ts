@@ -10,7 +10,7 @@ export type CategoryFactoryParams = {
   published?: boolean
 }
 
-export const CategoryFactory: Factory<Category> = {
+export const CategoryFactory: Factory<Category, CategoryFactoryParams> = {
   createInstance: (params?: CategoryFactoryParams): Category => {
     const defaultProps = {
       props: {},
@@ -29,18 +29,20 @@ export const CategoryFactory: Factory<Category> = {
     }
     return {
       ...category,
-      levels: levels || [CategoryLevelFactory.createInstance({ ...category, categoryUuid: category.uuid })],
+      levels: levels || [
+        CategoryLevelFactory.createInstance({ categoryUuid: category.uuid, index: 0, props: { name: 'level_1' } }),
+      ],
     }
   },
 }
 
 export type CategoryLevelFactoryParams = {
-  index: number
-  props: CategoryLevelProps
+  index?: number
+  props?: CategoryLevelProps
   categoryUuid: string
 }
 
-export const CategoryLevelFactory: Factory<CategoryLevel> = {
+export const CategoryLevelFactory: Factory<CategoryLevel, CategoryLevelFactoryParams> = {
   createInstance: (params?: CategoryLevelFactoryParams): CategoryLevel => {
     const defaultProps = {
       props: {},
@@ -67,7 +69,7 @@ export type CategoryItemFactoryParams = {
   props?: CategoryItemProps
 }
 
-export const CategoryItemFactory: Factory<CategoryItem> = {
+export const CategoryItemFactory: Factory<CategoryItem, CategoryItemFactoryParams> = {
   createInstance: (params?: CategoryItemFactoryParams): CategoryItem => {
     const defaultProps = {
       props: {},

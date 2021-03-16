@@ -23,7 +23,7 @@ test('ExpectedCategory === Category', () => {
 
   expect(category.levels?.length).toBe(1)
   expect(category.levels?.[0].index).toBe(0)
-  expect(category.levels?.[0].props.name).toBe(categoryParams.props?.name)
+  expect(category.levels?.[0].props.name).toBe('level_1')
 })
 
 test('ExpectedCategory === Category', () => {
@@ -45,7 +45,7 @@ test('ExpectedCategoryLevel === CategoryLevel', () => {
 
   expect(categoryLevel).toHaveProperty('props')
   expect(categoryLevel.props).toHaveProperty('name')
-  expect(categoryLevel.props.name).toBe(categoryLevelParams.props.name)
+  expect(categoryLevel.props.name).toBe(categoryLevelParams.props?.name)
   expect(categoryLevel.props.name).toBeTruthy()
 })
 

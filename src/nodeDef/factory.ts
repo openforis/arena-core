@@ -11,7 +11,7 @@ export type NodeDefFactoryParams = {
   virtual?: boolean
 }
 
-export const NodeDefFactory: Factory<NodeDef<NodeDefType, NodeDefProps>> = {
+export const NodeDefFactory: Factory<NodeDef<NodeDefType, NodeDefProps>, NodeDefFactoryParams> = {
   createInstance: (params: NodeDefFactoryParams): NodeDef<NodeDefType, NodeDefProps> => {
     const defaultProps = {
       analysis: false,
