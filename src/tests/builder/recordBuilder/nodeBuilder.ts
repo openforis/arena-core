@@ -3,7 +3,7 @@ import { NodeDef, NodeDefProps, NodeDefType } from '../../../nodeDef'
 import { Survey } from '../../../survey'
 
 export abstract class NodeBuilder {
-  nodeDefName: string
+  protected nodeDefName: string
 
   constructor(nodeDefName: string) {
     this.nodeDefName = nodeDefName

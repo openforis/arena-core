@@ -9,9 +9,9 @@ import {
 } from '../../../nodeDef'
 
 export abstract class NodeDefBuilder {
-  props: NodeDefProps
-  propsAdvanced: NodeDefPropsAdvanced
-  type: NodeDefType
+  protected props: NodeDefProps
+  protected propsAdvanced: NodeDefPropsAdvanced
+  protected type: NodeDefType
 
   constructor(name: string, type: NodeDefType) {
     this.type = type
@@ -30,10 +30,10 @@ export abstract class NodeDefBuilder {
     })
   }
 
+  abstract build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> }
+
   multiple() {
     this.props.multiple = true
     return this
   }
-
-  abstract build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> }
 }

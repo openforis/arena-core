@@ -3,7 +3,7 @@ import { Survey } from '../../../survey'
 import { NodeBuilder } from './nodeBuilder'
 
 export class EntityBuilder extends NodeBuilder {
-  childBuilders: NodeBuilder[] = []
+  private childBuilders: NodeBuilder[] = []
 
   constructor(nodeDefName: string, ...childBuilders: NodeBuilder[]) {
     super(nodeDefName)

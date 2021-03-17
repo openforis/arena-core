@@ -3,7 +3,7 @@ import { Survey } from '../../../survey'
 import { NodeBuilder } from './nodeBuilder'
 
 export class AttributeBuilder extends NodeBuilder {
-  value: any
+  private value: any
 
   constructor(nodeDefName: string, value: any = null) {
     super(nodeDefName)

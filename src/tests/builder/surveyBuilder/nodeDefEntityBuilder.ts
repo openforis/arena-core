@@ -3,7 +3,7 @@ import { Survey } from '../../../survey'
 import { NodeDefBuilder } from './nodeDefBuilder'
 
 export class NodeDefEntityBuilder extends NodeDefBuilder {
-  childBuilders: NodeDefBuilder[]
+  protected childBuilders: NodeDefBuilder[]
 
   constructor(name: string, ...childBuilders: NodeDefBuilder[]) {
     super(name, NodeDefType.entity)

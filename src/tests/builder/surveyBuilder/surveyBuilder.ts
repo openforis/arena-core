@@ -4,11 +4,11 @@ import { User } from '../../../auth'
 import { NodeDefEntityBuilder } from './nodeDefEntityBuilder'
 
 export class SurveyBuilder {
-  user: User
-  name: string
-  label: string
-  lang: LanguageCode
-  rootDefBuilder: NodeDefEntityBuilder
+  private user: User
+  private name: string
+  private label: string
+  private lang: LanguageCode
+  private rootDefBuilder: NodeDefEntityBuilder
 
   constructor(user: User, rootDefBuilder: NodeDefEntityBuilder) {
     this.user = user
