@@ -1,23 +1,54 @@
-import { ServiceRegistry, Services } from './serviceRegistry'
+import { Taxonomy, TaxonomyService } from '../taxonomy'
+import { ServiceRegistry } from './serviceRegistry'
+
+// this implementation just for test
+class TaxonomyServiceImplementation implements TaxonomyService {
+  create(): any {
+    return 'create'
+  }
+
+  count(): any {
+    return 'count'
+  }
+
+  getMany(): any {
+    return 'getMany Taxonomies'
+  }
+
+  get(): any {
+    return 'get'
+  }
+
+  update(): any {
+    return 'update'
+  }
+
+  delete(): any {
+    return 'delete'
+  }
+}
+
 describe('ServiceRegistry', () => {
   test('ServiceRegistry - doesnt have taxonomyService registered', () => {
-    const service = ServiceRegistry.getInstance().getService(Services.taxonomyService)
-
+    const service: TaxonomyService = ServiceRegistry.getInstance().getTaxonomyService()
     expect(service).toBeNull()
   })
 
-  test('taxonomyService - register taxonomyService and get the service', () => {
-    const taxonomyService = ServiceRegistry.getInstance()
-      .registerService(Services.taxonomyService)
-      .getService(Services.taxonomyService)
+  test('taxonomyService - register taxonomyService and get the service', async () => {
+    const service: TaxonomyService = ServiceRegistry.getInstance()
+      .registerTaxonomyService(TaxonomyServiceImplementation)
+      .getTaxonomyService()
 
-    expect(taxonomyService).toBe('TaxonomyService')
+    expect(service).not.toBeNull()
+    const taxonomies: Array<Taxonomy> = await service.getMany({ surveyId: 1 })
+    expect(taxonomies).toBe('getMany Taxonomies')
   })
 
-  test('taxonomyService - Check if the taxonomyService is into the singleton registry', () => {
-    const taxonomyService = ServiceRegistry.getInstance().getService(Services.taxonomyService)
+  test('taxonomyService - Check if the taxonomyService is into the singleton registry', async () => {
+    const service: TaxonomyService = ServiceRegistry.getInstance().getTaxonomyService()
 
-    expect(taxonomyService).not.toBeNull()
-    expect(taxonomyService).toBe('TaxonomyService')
+    expect(service).not.toBeNull()
+    const taxonomies: Array<Taxonomy> = await service.getMany({ surveyId: 1 })
+    expect(taxonomies).toBe('getMany Taxonomies')
   })
 })

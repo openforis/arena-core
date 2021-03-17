@@ -2,35 +2,35 @@ const defaultServiceRegistryInstance = {
   taxonomyService: null,
 }
 
-export enum Services {
+export enum _Services {
   taxonomyService = 'taxonomyService',
-}
-
-const servicesByType = {
-  [Services.taxonomyService]: 'TaxonomyService',
 }
 
 let instance: any = null
 
 // registers
-const registerService = (type: Services) => {
+const _registerService = (type: _Services) => (service: any) => {
   if (!instance) {
     instance = getInstance()
   }
   instance = {
     ...instance,
-    [type]: instance[type] ?? servicesByType[type],
+    [type]: instance[type] ?? new service(),
   }
   return instance
 }
 
-// getters
-const getService = (type: Services) => instance[type] || null
+const _getService = (type: _Services) => () => instance[type] || null
+
+// Taxonomy
+const registerTaxonomyService = _registerService(_Services.taxonomyService)
+const getTaxonomyService = _getService(_Services.taxonomyService)
 
 // Registry functions
 const registryFunctions = {
-  registerService,
-  getService,
+  //Taxonomy
+  registerTaxonomyService,
+  getTaxonomyService,
 }
 
 const getInstance = (): any => {
