@@ -3,7 +3,7 @@ name: Arena Core
 on:
   push:
     branches:
-      - 'CU-fq1kgj_Auto-publish_ramirobgav'
+      - 'master'
     paths-ignore:
       - 'package.json'
 
