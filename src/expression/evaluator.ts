@@ -1,9 +1,10 @@
-import { ExpressionContext } from './context'
+import { ExpressionContext, ExpressionNodeContext } from './context'
 import { ExpressionFunction } from './function'
 import { ExpressionNode, ExpressionNodeType } from './node'
 
-export interface ExpressionEvaluator {
+export interface ExpressionEvaluator<C extends ExpressionContext> {
+  context: C
   functions: { [functionName: string]: ExpressionFunction }
-  evaluate(expression: string, context: ExpressionContext): any
-  evaluateNode(expression: ExpressionNode<ExpressionNodeType>, context: ExpressionContext): any
+  evaluate(expression: string): any
+  evaluateNode(expression: ExpressionNode<ExpressionNodeType>, context: ExpressionNodeContext): any
 }

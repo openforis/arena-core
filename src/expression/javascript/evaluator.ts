@@ -1,4 +1,4 @@
-import { ExpressionContext } from '../context'
+import { ExpressionContext, ExpressionNodeContext } from '../context'
 import { ExpressionEvaluator } from '../evaluator'
 import { ExpressionFunction } from '../function'
 import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
@@ -33,7 +33,8 @@ type Evaluators = {
   [nodeType in ExpressionNodeType]?: ExpressionNodeEvaluatorConstructor<ExpressionNode<ExpressionNodeType>>
 }
 
-export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
+export class JavascriptExpressionEvaluator<C extends ExpressionContext> implements ExpressionEvaluator<C> {
+  context: C
   functions: { [functionName: string]: ExpressionFunction }
   evaluators: Evaluators
 
@@ -43,13 +44,14 @@ export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
       (functionsAcc, expressionFunction) => ({ ...functionsAcc, [expressionFunction.name]: expressionFunction }),
       {}
     )
+    this.context = {} as C
   }
 
   evaluate(expression: string): any {
-    return this.evaluateNode(jsep(expression), {})
+    return this.evaluateNode(jsep(expression), this.context)
   }
 
-  evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: ExpressionContext): any {
+  evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: ExpressionNodeContext): any {
     const { type } = expressionNode
 
     const NodeEvaluator = this.evaluators[type]

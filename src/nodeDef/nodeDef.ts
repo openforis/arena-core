@@ -62,7 +62,7 @@ export interface NodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDef
   deleted?: boolean
   draft?: boolean
   id?: number
-  meta?: NodeDefMeta
+  meta: NodeDefMeta
   parentUuid?: string
   propsAdvanced?: NodeDefPropsAdvanced
   propsAdvancedDraft?: NodeDefPropsAdvanced

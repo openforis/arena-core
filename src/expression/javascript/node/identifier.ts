@@ -1,3 +1,4 @@
+import { ExpressionContext } from '../../context'
 import { ExpressionNodeEvaluator, IdentifierExpression } from '../../node'
 import { getGlobalObjectProperty } from '../global'
 
@@ -9,7 +10,7 @@ const getNativeProperty = (name: string, object: any) => {
   return prop instanceof Function ? prop.bind(object) : prop
 }
 
-export class IdentifierEvaluator extends ExpressionNodeEvaluator<IdentifierExpression> {
+export class IdentifierEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, IdentifierExpression> {
   evaluate(expressionNode: IdentifierExpression): any {
     const { name } = expressionNode
 

@@ -21,4 +21,20 @@ const getChild = (params: { record: Record; parentNode: Node; childDefUuid: stri
   return children[0]
 }
 
-export const Records = { getRoot, getChild, getChildren }
+const getParent = (params: { record: Record; node: Node }): Node | undefined => {
+  const { record, node } = params
+  const nodes = getNodes(record)
+  const parent = nodes.find((n) => n.uuid === node.parentUuid)
+  return parent
+}
+
+const getAncestor = (params: { record: Record; node: Node; ancestorDefUuid: string }): Node | undefined => {
+  const { record, node, ancestorDefUuid } = params
+  let ancestor = getParent({ record, node })
+  while (ancestor && ancestor.nodeDefUuid !== ancestorDefUuid) {
+    ancestor = getParent({ record, node: ancestor })
+  }
+  return ancestor
+}
+
+export const Records = { getRoot, getChild, getChildren, getParent, getAncestor }
