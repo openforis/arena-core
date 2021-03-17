@@ -16,24 +16,12 @@ jobs:
         with:
           node-version: 14
           token: ${{ secrets.ACCESS_TOKEN }}
-      - name: Temporarily disable "include administrators" branch protection
-        uses: benjefferies/branch-protection-bot@master
-        if: always()
-        with:
-          access-token: ${{ secrets.ACCESS_TOKEN }}
       - name: 'Automated Version Bump'
         uses: 'phips28/gh-action-bump-version@master'
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         with:
           tag-prefix: ''
-      - name: Enable "include administrators" branch protection
-        uses: benjefferies/branch-protection-bot@master
-        if: always()  # Force to always run this step to ensure "include administrators" is always turned back on
-        with:
-          access-token: ${{ secrets.ACCESS_TOKEN }}
-          owner: openforis
-          repo: arena-core
       - uses: actions/setup-node@v1
         with:
           node-version: 14
