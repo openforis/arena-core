@@ -29,22 +29,26 @@ const getParent = (params: { record: Record; node: Node }): Node | undefined => 
   return parent
 }
 
-const getAncestor = (params: { record: Record; node: Node; ancestorDefUuid: string }): Node | undefined => {
+const getAncestor = (params: { record: Record; node: Node; ancestorDefUuid: string }): Node => {
   const { record, node, ancestorDefUuid } = params
   let ancestor = getParent({ record, node })
   while (ancestor && ancestor.nodeDefUuid !== ancestorDefUuid) {
     ancestor = getParent({ record, node: ancestor })
   }
+  if (!ancestor) {
+    throw new Error(`Uncestor with ancestorDefUuid ${ancestorDefUuid} not found`)
+  }
   return ancestor
 }
 
-const getDescendant = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node | undefined => {
+const getDescendant = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node => {
   const { record, node, nodeDefDescendant } = params
   // starting from node, visit descendant entities up to referenced node parent entity
   const nodeDescendantH = nodeDefDescendant.meta.h
-  return nodeDescendantH
+  const descendant = nodeDescendantH
     .slice(nodeDescendantH.indexOf(node.nodeDefUuid) + 1)
     .reduce((parentNode, childDefUuid) => getChild({ record, parentNode, childDefUuid }), node)
+  return descendant
 }
 
 export const Records = { getRoot, getChild, getChildren, getParent, getAncestor, getDescendant }

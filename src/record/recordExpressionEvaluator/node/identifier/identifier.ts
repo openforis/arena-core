@@ -39,6 +39,30 @@ const getNodeValue = (params: { survey: Survey; node: Node; nodeDef: NodeDef<any
   }
 }
 
+const getNodesOrValues = (params: {
+  survey: Survey
+  referencedNodes: Node[]
+  nodeDefReferenced: NodeDef<any>
+  propName: string
+  evaluateToNode?: boolean
+}) => {
+  const { survey, nodeDefReferenced, referencedNodes, propName, evaluateToNode } = params
+  const single = !nodeDefReferenced.props.multiple
+  if (single) {
+    if (referencedNodes.length === 0) throw new Error(`Cannot find node definition with name ${propName}`)
+    if (referencedNodes.length > 1) throw new Error(`Multiple nodes found for definition with name ${propName}`)
+  }
+  if (nodeDefReferenced.type === NodeDefType.entity || evaluateToNode) {
+    // return nodes
+    return single ? referencedNodes[0] : referencedNodes
+  }
+  // return node values
+  const values = referencedNodes.map((referencedNode) =>
+    getNodeValue({ survey, node: referencedNode, nodeDef: nodeDefReferenced })
+  )
+  return single ? values[0] : values
+}
+
 export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
     try {
@@ -54,50 +78,28 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     const evaluatorContext: RecordExpressionContext = this.evaluator.context
     const { survey, record } = evaluatorContext
 
-    const nodeDefUuid = nodeContext.nodeDefUuid
-    if (!nodeDefUuid) {
+    const { nodeDefUuid: nodeDefContextUuid, value } = nodeContext
+    if (!nodeDefContextUuid) {
       throw new Error(`Cannot find node with name ${propName}: context object is not a Node`)
     }
     // node value prop
-    const value = nodeContext.value
-    if (value && Object.prototype.hasOwnProperty.call(value, propName)) {
+    if (value && value[propName] !== undefined) {
       return value[propName]
     }
 
-    const nodeDefContext = Surveys.getNodeDefByUuid({ survey, uuid: nodeContext.nodeDefUuid })
+    const nodeDefContext = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefContextUuid })
     const nodeDefReferenced = Surveys.getNodeDefByName({ survey, name: propName })
 
-    // referenced node
-    let nodeResult = null
     if (nodeContext.nodeDefUuid === nodeDefReferenced.uuid) {
       // the referenced node is the current node itself
-      nodeResult = nodeContext
-    } else if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefContext })) {
-      // if the rerenced node name is an ancestor of the current node, return it following the hierarchy
-      nodeResult = Records.getAncestor({ record, node: nodeContext, ancestorDefUuid: nodeDefReferenced.uuid })
+      return nodeContext
     }
-    if (nodeResult) {
-      return evaluateToNode || nodeDefContext.type === NodeDefType.entity
-        ? nodeResult
-        : getNodeValue({ survey, node: nodeResult, nodeDef: nodeDefContext })
+    if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefContext })) {
+      // if the rerenced node is an ancestor of the context node, return it following the hierarchy
+      return Records.getAncestor({ record, node: nodeContext, ancestorDefUuid: nodeDefReferenced.uuid })
     }
-
     // the referenced nodes can be siblings of the current node
     const referencedNodes = RecordNodesFinder.findDescendantNodes({ survey, record, nodeContext, nodeDefReferenced })
-
-    const single = !nodeDefReferenced.props.multiple
-    if (single && (referencedNodes.length === 0 || referencedNodes.length > 1)) {
-      throw new Error(`Cannot find node definition with name ${propName}`)
-    }
-
-    if (nodeDefReferenced.type !== NodeDefType.entity && !evaluateToNode) {
-      // return node values
-      const values = referencedNodes.map((referencedNode) =>
-        getNodeValue({ survey, node: referencedNode, nodeDef: nodeDefReferenced })
-      )
-      return single ? values[0] : values
-    }
-    // return nodes
-    return single ? referencedNodes[0] : referencedNodes
+    return getNodesOrValues({ survey, referencedNodes, nodeDefReferenced, propName, evaluateToNode })
   }
 }
