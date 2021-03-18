@@ -287,3 +287,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/node,linux,macos,windows,intellij+all,visualstudiocode
+
+.npmrc
+.yarnrc
