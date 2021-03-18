@@ -2,8 +2,17 @@ import { SurveyService } from '../survey'
 import { TaxonomyService } from '../taxonomy'
 import { UserService } from '../auth'
 
-enum ServiceTypes {
+type Services = SurveyService | TaxonomyService | UserService
+
+export enum ServiceTypes {
+  category = 'category',
+  categoryItem = 'categoryItem',
+  categoryLevel = 'categoryLevel',
+  //node
+  nodeDef = 'nodeDef',
+  //record = 'record',
   survey = 'survey',
+  taxon = 'taxon',
   taxonomy = 'taxonomy',
   user = 'user',
 }
@@ -23,38 +32,14 @@ export class ServiceRegistry {
     return ServiceRegistry._instance
   }
 
-  private getService(type: ServiceTypes): any {
+  getService(type: ServiceTypes): Services {
     const service = this.services[type]
     if (!service) throw new Error(`Service ${type} not registered`)
     return service
   }
 
-  private registerService(type: ServiceTypes, service: any): ServiceRegistry {
+  registerService(type: ServiceTypes, service: Services): ServiceRegistry {
     this.services[type] = service
     return this
-  }
-
-  getSurveyService(): SurveyService {
-    return this.getService(ServiceTypes.survey)
-  }
-
-  registerSurveyService(service: SurveyService): ServiceRegistry {
-    return this.registerService(ServiceTypes.survey, service)
-  }
-
-  getTaxonomyService(): TaxonomyService {
-    return this.getService(ServiceTypes.taxonomy)
-  }
-
-  registerTaxonomyService(service: TaxonomyService): ServiceRegistry {
-    return this.registerService(ServiceTypes.taxonomy, service)
-  }
-
-  getUserService(): UserService {
-    return this.getService(ServiceTypes.user)
-  }
-
-  registerUserService(service: UserService): ServiceRegistry {
-    return this.registerService(ServiceTypes.user, service)
   }
 }

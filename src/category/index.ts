@@ -1,4 +1,5 @@
 export type { Category, CategoryItemExtraDef, CategoryProps } from './category'
+export { CategoryFactory, CategoryLevelFactory, CategoryItemFactory } from './factory'
 
 export type { CategoryItem, CategoryItemProps } from './item'
 
