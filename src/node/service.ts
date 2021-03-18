@@ -1,7 +1,7 @@
 import { User } from 'src/auth'
 import { Node } from 'src/node'
 
-export interface CategoryService {
+export interface NodeService {
   // ==== CREATE
   create(options: { filePath?: string; node: Node; socketId: string; surveyId: number; user: User }): Promise<Node>
 
