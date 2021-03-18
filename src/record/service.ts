@@ -4,27 +4,28 @@ import { Record } from './record'
 
 export interface RecordService {
   // ==== CREATE
-  create(options: { socketId: string; user: User; surveyId: number; record: Record }): Promise<Record>
+  create(options: { socketId: string; record: Record; surveyId: number; user: User }): Promise<Record>
 
   // ==== READ
-  count(options: { surveyId: number; cycle: string }): Promise<number>
+  count(options: { cycle: string; surveyId: number }): Promise<number>
 
-  get(options: { surveyId: number; cycle: string }): Promise<Record>
-  getMany(options: { surveyId: number; cycle: string; offset: number; limit: number }): Promise<Record[]>
+  get(options: { cycle: string; recordUuid: string; surveyId: number }): Promise<Record>
+
+  getMany(options: { cycle: string; limit: number; offset: number; surveyId: number }): Promise<Record[]>
 
   // ==== UPDATE
-  update(options: { user: User; surveyId: number; recordUuid: string; step: Step }): Promise<Record>
+  update(options: { recordUuid: string; step: Step; surveyId: number; user: User }): Promise<Record>
 
   checkIn(options: {
-    socketId: string
-    user: User
-    surveyId: number
-    recordUuid: string
     draft?: boolean
+    recordUuid: string
+    socketId: string
+    surveyId: number
+    user: User
   }): Promise<Record>
 
-  checkOut(options: { socketId: string; user: User; surveyId: number; recordUuid: string }): void
+  checkOut(options: { recordUuid: string; socketId: string; surveyId: number; user: User }): void
 
   // ==== DELETE
-  delete(options: { socketId: string; user: User; surveyId: number; recordUuid: string }): void
+  delete(options: { recordUuid: string; socketId: string; surveyId: number; user: User }): void
 }
