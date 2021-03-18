@@ -1,3 +1,4 @@
+import { NodeDef } from 'src/nodeDef'
 import { Node } from '../node'
 import { Record } from './record'
 
@@ -37,4 +38,13 @@ const getAncestor = (params: { record: Record; node: Node; ancestorDefUuid: stri
   return ancestor
 }
 
-export const Records = { getRoot, getChild, getChildren, getParent, getAncestor }
+const getDescendant = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node | undefined => {
+  const { record, node, nodeDefDescendant } = params
+  // starting from node, visit descendant entities up to referenced node parent entity
+  const nodeDescendantH = nodeDefDescendant.meta.h
+  return nodeDescendantH
+    .slice(nodeDescendantH.indexOf(node.nodeDefUuid) + 1)
+    .reduce((parentNode, childDefUuid) => getChild({ record, parentNode, childDefUuid }), node)
+}
+
+export const Records = { getRoot, getChild, getChildren, getParent, getAncestor, getDescendant }

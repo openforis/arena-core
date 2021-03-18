@@ -29,6 +29,7 @@ export const recordExpressionFunctions = (context: RecordExpressionContext): Arr
       name: 'parent',
       minArity: 1,
       maxArity: 1,
+      evaluateToNode: true,
       executor: (node) => {
         if (!node || Nodes.isRoot(node)) {
           return null

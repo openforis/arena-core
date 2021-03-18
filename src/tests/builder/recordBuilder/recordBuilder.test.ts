@@ -37,6 +37,11 @@ describe('RecordBuilder', () => {
     expect(plots.length).toBe(3)
 
     const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
+    const plot1 = plots[0]
+    const plotId1 = Records.getChild({ record, parentNode: plot1, childDefUuid: plotIdDef.uuid })
+    expect(plotId1).toBeDefined()
+    expect(plotId1.value).toBe(1)
+
     const plot2 = plots[1]
     const plotId2 = Records.getChild({ record, parentNode: plot2, childDefUuid: plotIdDef.uuid })
     expect(plotId2).toBeDefined()

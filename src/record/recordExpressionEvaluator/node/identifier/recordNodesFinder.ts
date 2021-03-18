@@ -72,10 +72,7 @@ const getReferencedNodesParent = (params: {
     return undefined
   }
 
-  // starting from nodeCommonAncestor, visit descendant entities up to referenced node parent entity
-  return nodeDefReferencedH
-    .slice(nodeDefReferencedH.indexOf(nodeCommonAncestor.nodeDefUuid) + 1)
-    .reduce((parentNode, childDefUuid) => Records.getChild({ record, parentNode, childDefUuid }), nodeCommonAncestor)
+  return Records.getDescendant({ record, node: nodeCommonAncestor, nodeDefDescendant: nodeDefReferenced })
 }
 
 // Get reachable nodes, i.e. the children of the node's ancestors.

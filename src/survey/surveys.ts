@@ -1,3 +1,4 @@
+import { Arrays } from '../utils'
 import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
 import { Survey } from './survey'
 
@@ -25,20 +26,12 @@ const getNodeDefParent = (params: {
 }
 
 const isNodeDefAncestor = (params: {
-  survey: Survey
   nodeDefAncestor: NodeDef<NodeDefType, NodeDefProps>
   nodeDefDescendant: NodeDef<NodeDefType, NodeDefProps>
 }): boolean => {
-  const { survey, nodeDefAncestor, nodeDefDescendant } = params
+  const { nodeDefAncestor, nodeDefDescendant } = params
 
-  if (!nodeDefDescendant.parentUuid) {
-    return false
-  }
-
-  const nodeDefParent = getNodeDefParent({ survey, nodeDef: nodeDefDescendant })
-  return nodeDefParent.uuid === nodeDefAncestor.uuid
-    ? true
-    : isNodeDefAncestor({ survey, nodeDefAncestor, nodeDefDescendant: nodeDefParent })
+  return Arrays.startsWith(nodeDefDescendant.meta.h, nodeDefAncestor.meta.h)
 }
 
 export const Surveys = {
