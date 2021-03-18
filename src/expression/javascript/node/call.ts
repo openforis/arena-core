@@ -1,8 +1,9 @@
-import { CallExpression, ExpressionNodeEvaluator, ExpressionNodeType } from '../../node'
+import { ExpressionContext } from '../../context'
 import { ExpressionFunction } from '../../function'
+import { CallExpression, ExpressionNodeEvaluator, ExpressionNodeType } from '../../node'
 import { getGlobalObjectProperty } from '../global'
 
-export class CallEvaluator extends ExpressionNodeEvaluator<CallExpression> {
+export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, CallExpression> {
   evaluate(expressionNode: CallExpression): any {
     const { callee } = expressionNode
 
@@ -51,7 +52,7 @@ export class CallEvaluator extends ExpressionNodeEvaluator<CallExpression> {
     throw new Error(`undefinedFunction ${fnName}`)
   }
 
-  evaluateCustomIdentifier(expressionNode: CallExpression) {
+  evaluateCustomIdentifier(expressionNode: CallExpression): any {
     // Arguments is a reserved word in strict mode
     const { callee, arguments: exprArgs } = expressionNode
 

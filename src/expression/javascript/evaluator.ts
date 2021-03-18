@@ -16,6 +16,10 @@ import { UnaryEvaluator } from './node/unary'
 // @ts-ignore
 import * as jsep from './parser/jsep'
 
+type Evaluators<C extends ExpressionContext> = {
+  [nodeType in ExpressionNodeType]?: ExpressionNodeEvaluatorConstructor<C, ExpressionNode<ExpressionNodeType>>
+}
+
 const defaultEvaluators = {
   [ExpressionNodeType.Binary]: BinaryEvaluator,
   [ExpressionNodeType.Call]: CallEvaluator,
@@ -29,16 +33,12 @@ const defaultEvaluators = {
   [ExpressionNodeType.Unary]: UnaryEvaluator,
 }
 
-type Evaluators = {
-  [nodeType in ExpressionNodeType]?: ExpressionNodeEvaluatorConstructor<ExpressionNode<ExpressionNodeType>>
-}
-
 export class JavascriptExpressionEvaluator<C extends ExpressionContext> implements ExpressionEvaluator<C> {
   context: C
   functions: { [functionName: string]: ExpressionFunction }
-  evaluators: Evaluators
+  evaluators: Evaluators<C>
 
-  constructor(functions: Array<ExpressionFunction> = [], evaluators: Evaluators = {}) {
+  constructor(functions: Array<ExpressionFunction> = [], evaluators: Evaluators<C> = {}) {
     this.evaluators = { ...defaultEvaluators, ...evaluators }
     this.functions = [...functionsDefault, ...functions].reduce<{ [functionName: string]: ExpressionFunction }>(
       (functionsAcc, expressionFunction) => ({ ...functionsAcc, [expressionFunction.name]: expressionFunction }),

@@ -1,3 +1,4 @@
+import { ExpressionContext } from '../../context'
 import { ExpressionNodeEvaluator, UnaryExpression } from '../../node'
 
 const unaryOperators: { [key: string]: (x: any) => any } = {
@@ -15,7 +16,7 @@ const unaryOperators: { [key: string]: (x: any) => any } = {
   // '+': x => R.isNil(x) ? null : +x,
 }
 
-export class UnaryEvaluator extends ExpressionNodeEvaluator<UnaryExpression> {
+export class UnaryEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, UnaryExpression> {
   evaluate(expressionNode: UnaryExpression): any {
     const { argument, operator } = expressionNode
     const fn = unaryOperators[operator]
