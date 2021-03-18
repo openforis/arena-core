@@ -1,6 +1,8 @@
+import { SurveyService } from 'src/survey'
 import { TaxonomyService } from '../taxonomy'
 
 enum ServiceTypes {
+  survey = 'survey',
   taxonomy = 'taxonomy',
 }
 
@@ -28,6 +30,14 @@ export class ServiceRegistry {
   private registerService(type: ServiceTypes, service: any): ServiceRegistry {
     this.services[type] = service
     return this
+  }
+
+  getSurveyService(): SurveyService {
+    return this.getService(ServiceTypes.survey)
+  }
+
+  registerSurveyService(service: SurveyService): ServiceRegistry {
+    return this.registerService(ServiceTypes.survey, service)
   }
 
   getTaxonomyService(): TaxonomyService {
