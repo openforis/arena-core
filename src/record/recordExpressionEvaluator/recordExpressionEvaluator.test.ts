@@ -49,19 +49,19 @@ describe('RecordExpressionEvaluator', () => {
     { q: '(cluster_distance * 0.5) >= Math.pow(cluster_id, 3)', r: false },
     // visit_date must be before current date
     // { q: 'visit_date <= now()', r: true },
-    // // cluster_id is not empty
-    // { q: 'isEmpty(cluster_id)', r: false },
-    // // gps_model is not empty
-    // { q: 'isEmpty(gps_model)', r: false },
-    // // remarks is empty
-    // { q: 'isEmpty(remarks)', r: true },
-    // // plot count is 3
-    // { q: 'plot.length', r: 3 },
-    // // access multiple entities with index
-    // { q: 'plot[0].plot_id', r: 1 },
-    // { q: 'plot[1].plot_id', r: 2 },
-    // { q: 'plot[2].plot_id', r: 3 },
-    // { q: 'plot[4].plot_id', r: null },
+    // cluster_id is not empty
+    { q: 'isEmpty(cluster_id)', r: false },
+    // gps_model is not empty
+    { q: 'isEmpty(gps_model)', r: false },
+    // remarks is empty
+    { q: 'isEmpty(remarks)', r: true },
+    // plot count is 3
+    { q: 'plot.length', r: 3 },
+    // access multiple entities with index
+    { q: 'plot[0].plot_id', r: 1 },
+    { q: 'plot[1].plot_id', r: 2 },
+    { q: 'plot[2].plot_id', r: 3 },
+    { q: 'plot[4].plot_id', r: null },
     // // plot_multiple_number counts
     // { q: 'plot[0].plot_multiple_number.length', r: 2 },
     // { q: 'plot[1].plot_multiple_number.length', r: 0 },

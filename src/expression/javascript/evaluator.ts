@@ -47,8 +47,12 @@ export class JavascriptExpressionEvaluator<C extends ExpressionContext> implemen
     this.context = {} as C
   }
 
+  protected getEvaluateContext(): ExpressionNodeContext {
+    return {}
+  }
+
   evaluate(expression: string): any {
-    return this.evaluateNode(jsep(expression), this.context)
+    return this.evaluateNode(jsep(expression), this.getEvaluateContext())
   }
 
   evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: ExpressionNodeContext): any {

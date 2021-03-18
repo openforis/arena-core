@@ -13,12 +13,13 @@ const getNativeProperty = (name: string, object: any) => {
 export class IdentifierEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, IdentifierExpression> {
   evaluate(expressionNode: IdentifierExpression): any {
     const { name } = expressionNode
+    const { object: contextObject } = this.context
 
-    const globalProp = getGlobalObjectProperty(name, this.context.expressionNode)
+    const globalProp = getGlobalObjectProperty(name, contextObject)
     if (globalProp !== null) {
       return globalProp
     }
-    const nativeProperty = getNativeProperty(name, this.context.expressionNode)
+    const nativeProperty = getNativeProperty(name, contextObject)
     if (nativeProperty !== undefined) {
       return nativeProperty
     }

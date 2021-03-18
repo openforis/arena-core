@@ -1,4 +1,4 @@
-import { ExpressionNodeType, JavascriptExpressionEvaluator } from '../../expression'
+import { ExpressionNodeContext, ExpressionNodeType, JavascriptExpressionEvaluator } from '../../expression'
 import { RecordIdentifierEvaluator } from './node/identifier'
 import { recordExpressionFunctions } from './functions'
 import { RecordExpressionContext } from './context'
@@ -11,5 +11,9 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
       [ExpressionNodeType.Identifier]: RecordIdentifierEvaluator,
     })
     this.context = context
+  }
+
+  protected getEvaluateContext(): ExpressionNodeContext {
+    return { object: this.context.nodeContext }
   }
 }

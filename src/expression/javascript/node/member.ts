@@ -10,7 +10,7 @@ export class MemberEvaluator<C extends ExpressionContext> extends ExpressionNode
 
     const propertyEval = this.evaluator.evaluateNode(property, {
       ...this.context,
-      expressionNode: computed ? this.context.expressionNode : objectEval,
+      object: computed ? this.context.object : objectEval,
     })
 
     return computed ? objectEval[propertyEval] : propertyEval

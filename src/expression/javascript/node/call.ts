@@ -33,7 +33,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
   evaluateIdentifier(expressionNode: CallExpression): any {
     // Arguments is a reserved word in strict mode
     const { callee, arguments: exprArgs } = expressionNode
-    const { expressionNode: nodeContext } = this.context
+    const { object: contextObject } = this.context
 
     const { name: fnName } = callee
 
@@ -43,7 +43,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
       return this.evaluateCustomIdentifier(expressionNode)
     }
     // identifier is a global object
-    const globalFn = getGlobalObjectProperty(fnName, nodeContext)
+    const globalFn = getGlobalObjectProperty(fnName, contextObject)
     if (globalFn !== null) {
       const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context))
       return globalFn(...args)
