@@ -1,9 +1,11 @@
-import { SurveyService } from 'src/survey'
+import { SurveyService } from '../survey'
 import { TaxonomyService } from '../taxonomy'
+import { UserService } from '../auth'
 
 enum ServiceTypes {
   survey = 'survey',
   taxonomy = 'taxonomy',
+  user = 'user',
 }
 
 export class ServiceRegistry {
@@ -46,5 +48,13 @@ export class ServiceRegistry {
 
   registerTaxonomyService(service: TaxonomyService): ServiceRegistry {
     return this.registerService(ServiceTypes.taxonomy, service)
+  }
+
+  getUserService(): UserService {
+    return this.getService(ServiceTypes.user)
+  }
+
+  registerUserService(service: UserService): ServiceRegistry {
+    return this.registerService(ServiceTypes.user, service)
   }
 }
