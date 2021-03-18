@@ -7,6 +7,7 @@ export interface CategoryLevelService {
   create(options: { level: any; surveyId: number; user: User }): Promise<{ level: CategoryLevel; category: Category }>
 
   // ==== READ
+  get(options: { validate?: boolean; draft?: boolean; categoryUuid: string; surveyId: number }): Promise<CategoryLevel>
 
   getMany(options: {
     draft?: boolean
@@ -16,8 +17,6 @@ export interface CategoryLevelService {
     search?: string
     surveyId: number
   }): Promise<Array<CategoryLevel>>
-
-  get(options: { validate?: boolean; draft?: boolean; categoryUuid: string; surveyId: number }): Promise<CategoryLevel>
 
   // ==== UPDATE
   update(options: {

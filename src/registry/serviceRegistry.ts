@@ -1,16 +1,30 @@
+import { CategoryService, CategoryItemService, CategoryLevelService } from '../category'
+import { NodeService } from '../node'
+import { NodeDefService } from '../nodeDef'
+import { RecordService } from '../record'
 import { SurveyService } from '../survey'
-import { TaxonomyService } from '../taxonomy'
+import { TaxonService, TaxonomyService } from '../taxonomy'
 import { UserService } from '../auth'
 
-type Services = SurveyService | TaxonomyService | UserService
+export type Service =
+  | CategoryService
+  | CategoryItemService
+  | CategoryLevelService
+  | NodeService
+  | NodeDefService
+  | RecordService
+  | SurveyService
+  | TaxonService
+  | TaxonomyService
+  | UserService
 
 export enum ServiceTypes {
   category = 'category',
   categoryItem = 'categoryItem',
   categoryLevel = 'categoryLevel',
-  //node
+  node = 'node',
   nodeDef = 'nodeDef',
-  //record = 'record',
+  record = 'record',
   survey = 'survey',
   taxon = 'taxon',
   taxonomy = 'taxonomy',
@@ -32,13 +46,13 @@ export class ServiceRegistry {
     return ServiceRegistry._instance
   }
 
-  getService(type: ServiceTypes): Services {
+  getService(type: ServiceTypes): any {
     const service = this.services[type]
     if (!service) throw new Error(`Service ${type} not registered`)
     return service
   }
 
-  registerService(type: ServiceTypes, service: Services): ServiceRegistry {
+  registerService(type: ServiceTypes, service: Service): ServiceRegistry {
     this.services[type] = service
     return this
   }

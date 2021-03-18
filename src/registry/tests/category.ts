@@ -1,7 +1,7 @@
 import { Category, CategoryFactory, CategoryService, CategoryImportSummary } from '../../category'
 import { JobSummary } from '../../job'
 
-export const categoryMock: Category = CategoryFactory.createInstance()
+export const categoryMock: Category = CategoryFactory.createInstance({ props: { name: 'category_mock' } })
 
 export class CategoryServiceMock implements CategoryService {
   create(): Promise<Category> {
