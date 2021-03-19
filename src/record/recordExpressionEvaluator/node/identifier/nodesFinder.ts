@@ -43,17 +43,14 @@ const getReferencedNodesParent = (params: {
 
   const nodeDefCtx = Surveys.getNodeDefByUuid({ survey, uuid: nodeContext.nodeDefUuid })
 
-  const nodeDefReferencedH = nodeDefReferenced.meta.h
-  const nodeDefCtxH = nodeDefCtx.meta.h
-
   const nodeCtxH = [...nodeContext.meta.h]
   if (nodeDefCtx.type === NodeDefType.entity) {
     // When nodeDefCtx is entity, expression is type applicableIf (and context always starts from parent)
     nodeCtxH.push(nodeContext.uuid)
   }
 
-  if (Arrays.startsWith(nodeDefCtxH, nodeDefReferencedH)) {
-    // Referenced node is an ancestor of the context node
+  if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefCtx })) {
+    const nodeDefReferencedH = nodeDefReferenced.meta.h
     const nodeReferencedParentUuid = nodeCtxH[nodeDefReferencedH.length - 1]
     const nodeReferencedParent = record.nodes?.[nodeReferencedParentUuid]
     if (!nodeReferencedParent) {
