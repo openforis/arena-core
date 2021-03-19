@@ -16,6 +16,11 @@ jobs:
         with:
           node-version: 14
           token: ${{ secrets.ACCESS_TOKEN }}
+      - name: Temporarily disable "include administrators" branch protection
+        uses: benjefferies/branch-protection-bot@master
+        if: always()
+        with:
+          access-token: ${{ secrets.ACCESS_TOKEN }}
       - name: 'Automated Version Bump'
         uses: 'phips28/gh-action-bump-version@master'
         env:
@@ -28,9 +33,16 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@openforis'
           
-      - run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
+      - run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.ACCESS_TOKEN }}" > .npmrc
       - run: echo "\"@openforis:registry\"" "\"https://npm.pkg.github.com\"" > .yarnrc
       - run: cat .npmrc
       - run: cat .yarnrc
       - run: npm install
       - run: npm publish
+      - name: Enable "include administrators" branch protection
+        uses: benjefferies/branch-protection-bot@master
+        if: always()  # Force to always run this step to ensure "include administrators" is always turned back on
+        with:
+          access-token: ${{ secrets.ACCESS_TOKEN }}
+          owner: openforis
+          repo: arena-core
