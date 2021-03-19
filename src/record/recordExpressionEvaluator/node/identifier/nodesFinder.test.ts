@@ -1,8 +1,8 @@
 import { UserFactory } from '../../../../auth'
 import { Survey, Surveys } from '../../../../survey'
-import { Record, Records } from '../../../../record'
+import { Record, Records } from '../../..'
 import { createTestRecord, createTestSurvey } from '../../../../tests/data'
-import { RecordNodesFinder } from './recordNodesFinder'
+import { NodesFinder } from './nodesFinder'
 
 let survey: Survey
 let record: Record
@@ -19,7 +19,7 @@ describe('ReferencedNodes', () => {
   test('Context node: root', () => {
     const cluster = Records.getRoot(record)
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
-    const plotsReferenced = RecordNodesFinder.findDescendantNodes({
+    const plotsReferenced = NodesFinder.findDescendants({
       survey,
       record,
       nodeContext: cluster,
@@ -36,7 +36,7 @@ describe('ReferencedNodes', () => {
     const plots = Records.getChildren({ record, parentNode: cluster, childDefUuid: plotDef.uuid })
     const plot2 = plots[1]
     const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
-    const nodesReferenced = RecordNodesFinder.findDescendantNodes({
+    const nodesReferenced = NodesFinder.findDescendants({
       survey,
       record,
       nodeContext: plot2,

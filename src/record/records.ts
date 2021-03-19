@@ -2,7 +2,7 @@ import { NodeDef } from 'src/nodeDef'
 import { Node } from '../node'
 import { Record } from './record'
 
-const getNodes = (record: Record) => Object.values(record.nodes || {})
+const getNodes = (record: Record): Node[] => Object.values(record.nodes || {})
 
 const getRoot = (record: Record): Node => {
   const root = getNodes(record).find((node) => !node.parentUuid)

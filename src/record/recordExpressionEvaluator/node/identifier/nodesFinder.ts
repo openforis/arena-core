@@ -5,7 +5,7 @@ import { Records } from '../../../records'
 import { Survey, Surveys } from '../../../../survey'
 import { Arrays } from '../../../../utils'
 
-const getNodeCommonAncestor = (params: {
+const getCommonAncestor = (params: {
   record: Record
   nodeCtxHierarchy: string[]
   nodeDefCtx: NodeDef<any>
@@ -62,7 +62,7 @@ const getReferencedNodesParent = (params: {
     return nodeReferencedParent
   }
 
-  const nodeCommonAncestor = getNodeCommonAncestor({
+  const nodeCommonAncestor = getCommonAncestor({
     record,
     nodeCtxHierarchy: nodeCtxH,
     nodeDefCtx,
@@ -77,7 +77,7 @@ const getReferencedNodesParent = (params: {
 
 // Get reachable nodes, i.e. the children of the node's ancestors.
 // NOTE: The root node is excluded, but it _should_ be an entity, so that is fine.
-const findDescendantNodes = (params: {
+const findDescendants = (params: {
   survey: Survey
   record: Record
   nodeContext: Node
@@ -92,6 +92,6 @@ const findDescendantNodes = (params: {
   return []
 }
 
-export const RecordNodesFinder = {
-  findDescendantNodes,
+export const NodesFinder = {
+  findDescendants,
 }

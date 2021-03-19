@@ -6,7 +6,7 @@ import { Records } from '../../../records'
 import { Survey, Surveys } from '../../../../survey'
 import { RecordExpressionContext } from '../../context'
 import { Objects } from '../../../../utils'
-import { RecordNodesFinder } from './recordNodesFinder'
+import { NodesFinder } from './nodesFinder'
 
 const getNodeValue = (params: { survey: Survey; node: Node; nodeDef: NodeDef<any> }) => {
   const { node, nodeDef } = params
@@ -99,7 +99,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
       return Records.getAncestor({ record, node: nodeContext, ancestorDefUuid: nodeDefReferenced.uuid })
     }
     // the referenced nodes can be siblings of the current node
-    const referencedNodes = RecordNodesFinder.findDescendantNodes({ survey, record, nodeContext, nodeDefReferenced })
+    const referencedNodes = NodesFinder.findDescendants({ survey, record, nodeContext, nodeDefReferenced })
     return getNodesOrValues({ survey, referencedNodes, nodeDefReferenced, propName, evaluateToNode })
   }
 }
