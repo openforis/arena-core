@@ -3,8 +3,7 @@ import { ExpressionFunction } from './function'
 import { ExpressionNode, ExpressionNodeType } from './node'
 
 export interface ExpressionEvaluator<C extends ExpressionContext> {
-  initialContext: C
-  functions: { [functionName: string]: ExpressionFunction }
-  evaluate(expression: string): any
+  functions: { [functionName: string]: ExpressionFunction<C> }
+  evaluate(expression: string, context?: C): any
   evaluateNode(expression: ExpressionNode<ExpressionNodeType>, context: C): any
 }

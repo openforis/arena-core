@@ -179,8 +179,8 @@ describe('RecordExpressionEvaluator', () => {
         if (!nodeContext) {
           throw new Error(`Cannot find context node: ${n}`)
         }
-        const context: RecordExpressionContext = { survey, record, nodeContext }
-        const res = new RecordExpressionEvaluator(context).evaluate(expression)
+        const context: RecordExpressionContext = { survey, record, nodeContext, object: nodeContext }
+        const res = new RecordExpressionEvaluator().evaluate(expression, context)
         expect(res).toEqual(resultExpected instanceof Function ? resultExpected() : resultExpected)
       } catch (error) {
         if (errorExpected) {

@@ -34,25 +34,19 @@ const defaultEvaluators = {
 }
 
 export class JavascriptExpressionEvaluator<C extends ExpressionContext> implements ExpressionEvaluator<C> {
-  initialContext: C
-  functions: { [functionName: string]: ExpressionFunction }
+  functions: { [functionName: string]: ExpressionFunction<C> }
   evaluators: Evaluators<C>
 
-  constructor(functions: Array<ExpressionFunction> = [], evaluators: Evaluators<C> = {}) {
+  constructor(functions: Array<ExpressionFunction<C>> = [], evaluators: Evaluators<C> = {}) {
     this.evaluators = { ...defaultEvaluators, ...evaluators }
-    this.functions = [...functionsDefault, ...functions].reduce<{ [functionName: string]: ExpressionFunction }>(
+    this.functions = [...functionsDefault, ...functions].reduce(
       (functionsAcc, expressionFunction) => ({ ...functionsAcc, [expressionFunction.name]: expressionFunction }),
       {}
     )
-    this.initialContext = {} as C
   }
 
-  getEvaluateContext(): C {
-    return { ...this.initialContext }
-  }
-
-  evaluate(expression: string): any {
-    return this.evaluateNode(jsep(expression), this.getEvaluateContext())
+  evaluate(expression: string, context?: C): any {
+    return this.evaluateNode(jsep(expression), context || ({} as C))
   }
 
   evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: C): any {
