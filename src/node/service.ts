@@ -9,7 +9,7 @@ export interface NodeService {
   get(options: { surveyId: number; nodeUuid: string }): Promise<Node>
 
   // ==== UPDATE
-  update(options: { filePath?: string; node: Node; socketId: string; surveyId: number; user: User }): void
+  update(options: { filePath?: string; node: Node; socketId: string; surveyId: number; user: User }): Promise<Node>
 
   // ==== DELETE
   delete(options: {
