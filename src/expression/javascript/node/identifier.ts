@@ -10,7 +10,10 @@ const getNativeProperty = (name: string, object: any) => {
   return prop instanceof Function ? prop.bind(object) : prop
 }
 
-export class IdentifierEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, IdentifierExpression> {
+export class IdentifierEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<
+  C,
+  IdentifierExpression
+> {
   evaluate(expressionNode: IdentifierExpression): any {
     const { name } = expressionNode
     const { object: contextObject } = this.context

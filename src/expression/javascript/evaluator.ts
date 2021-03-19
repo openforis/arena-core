@@ -1,4 +1,4 @@
-import { ExpressionContext, ExpressionNodeContext } from '../context'
+import { ExpressionContext } from '../context'
 import { ExpressionEvaluator } from '../evaluator'
 import { ExpressionFunction } from '../function'
 import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
@@ -34,7 +34,7 @@ const defaultEvaluators = {
 }
 
 export class JavascriptExpressionEvaluator<C extends ExpressionContext> implements ExpressionEvaluator<C> {
-  context: C
+  initialContext: C
   functions: { [functionName: string]: ExpressionFunction }
   evaluators: Evaluators<C>
 
@@ -44,18 +44,18 @@ export class JavascriptExpressionEvaluator<C extends ExpressionContext> implemen
       (functionsAcc, expressionFunction) => ({ ...functionsAcc, [expressionFunction.name]: expressionFunction }),
       {}
     )
-    this.context = {} as C
+    this.initialContext = {} as C
   }
 
-  protected getEvaluateContext(): ExpressionNodeContext {
-    return {}
+  getEvaluateContext(): C {
+    return { ...this.initialContext }
   }
 
   evaluate(expression: string): any {
     return this.evaluateNode(jsep(expression), this.getEvaluateContext())
   }
 
-  evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: ExpressionNodeContext): any {
+  evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: C): any {
     const { type } = expressionNode
 
     const NodeEvaluator = this.evaluators[type]

@@ -1,5 +1,5 @@
 import { ExpressionEvaluator } from './evaluator'
-import { ExpressionContext, ExpressionNodeContext } from './context'
+import { ExpressionContext } from './context'
 
 export const enum ExpressionNodeType {
   Binary = 'BinaryExpression',
@@ -52,7 +52,7 @@ export interface ExpressionNodeEvaluatorConstructor<
   C extends ExpressionContext,
   N extends ExpressionNode<ExpressionNodeType>
 > {
-  new (evaluator: ExpressionEvaluator<C>, context: ExpressionNodeContext): ExpressionNodeEvaluator<C, N>
+  new (evaluator: ExpressionEvaluator<C>, context: C): ExpressionNodeEvaluator<C, N>
 }
 
 export abstract class ExpressionNodeEvaluator<
@@ -60,9 +60,9 @@ export abstract class ExpressionNodeEvaluator<
   N extends ExpressionNode<ExpressionNodeType>
 > {
   readonly evaluator: ExpressionEvaluator<C>
-  readonly context: ExpressionNodeContext
+  readonly context: C
 
-  constructor(evaluator: ExpressionEvaluator<C>, context: ExpressionNodeContext) {
+  constructor(evaluator: ExpressionEvaluator<C>, context: C) {
     this.evaluator = evaluator
     this.context = context
   }

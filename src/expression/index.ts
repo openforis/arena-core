@@ -1,4 +1,4 @@
-export type { ExpressionNodeContext } from './context'
+export type { ExpressionContext as ExpressionNodeContext } from './context'
 
 export type { ExpressionEvaluator } from './evaluator'
 

@@ -74,9 +74,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     // identifier not found
     // identifier should be a node or a node value property
     const { name: propName } = expressionNode
-    const { evaluateToNode, object: nodeContext } = this.context
-    const evaluatorContext: RecordExpressionContext = this.evaluator.context
-    const { survey, record } = evaluatorContext
+    const { survey, record, evaluateToNode, object: nodeContext } = this.context
 
     const { nodeDefUuid: nodeDefContextUuid, value } = nodeContext
     if (!nodeDefContextUuid) {
