@@ -1,8 +1,9 @@
-import { CallExpression, ExpressionNodeEvaluator, ExpressionNodeType } from '../../node'
+import { ExpressionContext } from '../../context'
 import { ExpressionFunction } from '../../function'
+import { CallExpression, ExpressionNodeEvaluator, ExpressionNodeType } from '../../node'
 import { getGlobalObjectProperty } from '../global'
 
-export class CallEvaluator extends ExpressionNodeEvaluator<CallExpression> {
+export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, CallExpression> {
   evaluate(expressionNode: CallExpression): any {
     const { callee } = expressionNode
 
@@ -32,7 +33,7 @@ export class CallEvaluator extends ExpressionNodeEvaluator<CallExpression> {
   evaluateIdentifier(expressionNode: CallExpression): any {
     // Arguments is a reserved word in strict mode
     const { callee, arguments: exprArgs } = expressionNode
-    const { expressionNode: nodeContext } = this.context
+    const { object: contextObject } = this.context
 
     const { name: fnName } = callee
 
@@ -42,7 +43,7 @@ export class CallEvaluator extends ExpressionNodeEvaluator<CallExpression> {
       return this.evaluateCustomIdentifier(expressionNode)
     }
     // identifier is a global object
-    const globalFn = getGlobalObjectProperty(fnName, nodeContext)
+    const globalFn = getGlobalObjectProperty(fnName, contextObject)
     if (globalFn !== null) {
       const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context))
       return globalFn(...args)
@@ -51,16 +52,16 @@ export class CallEvaluator extends ExpressionNodeEvaluator<CallExpression> {
     throw new Error(`undefinedFunction ${fnName}`)
   }
 
-  evaluateCustomIdentifier(expressionNode: CallExpression) {
+  evaluateCustomIdentifier(expressionNode: CallExpression): any {
     // Arguments is a reserved word in strict mode
     const { callee, arguments: exprArgs } = expressionNode
 
     const { name: fnName } = callee
     const numArgs = exprArgs.length
 
-    const expressionFunction: ExpressionFunction = this.evaluator.functions[fnName]
+    const expressionFunction: ExpressionFunction<C> = this.evaluator.functions[fnName]
 
-    const { minArity, maxArity, evaluateToNode } = expressionFunction
+    const { minArity, maxArity, evaluateToNode, executor } = expressionFunction
 
     if (numArgs < minArity) throw new Error(`functionHasTooFewArguments`)
     if (maxArity && maxArity > 0 && numArgs > maxArity) throw new Error('functionHasTooManyArguments')
@@ -70,6 +71,6 @@ export class CallEvaluator extends ExpressionNodeEvaluator<CallExpression> {
     // Currently there are no side effects from function evaluation so it's
     // safe to call the function even when we're just parsing the expression
     // to find all identifiers being used.
-    return expressionFunction.executor(...args)
+    return executor(this.context)(...args)
   }
 }

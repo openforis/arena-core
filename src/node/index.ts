@@ -1,3 +1,7 @@
 export type { Node } from './node'
-export { NodeService } from './service'
+
 export { NodeFactory } from './factory'
+
+export { Nodes } from './nodes'
+
+export { NodeService } from './service'
