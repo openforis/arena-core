@@ -3,7 +3,7 @@ import { Nodes } from '../../node'
 import { ExpressionFunction } from '../../expression'
 import { RecordExpressionContext } from './context'
 import { Objects } from '../../utils'
-import { Surveys } from 'src/survey'
+import { Surveys } from '../../survey'
 
 export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressionContext>> = [
   {
@@ -15,11 +15,10 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
       ...codePaths: string[]
     ) => {
       const { survey } = context
-      const category = Object.values(survey.categories || {}).find((category) => category.props.name === categoryName)
+      const category = Object.values(survey.categories).find((category) => category.props.name === categoryName)
       if (!category) return null
 
       const categoryItem = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid: category.uuid, codePaths })
-
       if (!categoryItem) return null
 
       const extraProp = categoryItem.props.extra?.[itemPropName]

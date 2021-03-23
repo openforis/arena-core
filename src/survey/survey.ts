@@ -36,7 +36,7 @@ export interface SurveyProps {
 }
 
 export interface SurveyRefData {
-  categoryItemUuidIndex: { [categoryUuid: string]: { [parentItemUuid: string]: { [code: string]: CategoryItem } } }
+  categoryItemUuidIndex: { [categoryUuid: string]: { [parentItemUuid: string]: { [code: string]: string } } }
   categoryItemIndex: { [categoryItemUuid: string]: CategoryItem }
   taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: Taxon } }
   taxonIndex: { [taxonomyUuid: string]: Taxon }
@@ -54,6 +54,6 @@ export interface Survey extends ArenaObject<SurveyProps> {
   readonly id?: number
   uuid: string
   // indexes
-  categories?: { [categoryUuid: string]: Category }
-  indexRefData?: SurveyRefData
+  categories: { [categoryUuid: string]: Category }
+  indexRefData: SurveyRefData
 }

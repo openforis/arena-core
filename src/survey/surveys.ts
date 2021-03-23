@@ -32,7 +32,7 @@ const isNodeDefAncestor = (params: {
 }): boolean => {
   const { nodeDefAncestor, nodeDefDescendant } = params
 
-  return Arrays.startsWith(nodeDefDescendant.meta.h, nodeDefAncestor.meta.h)
+  return Arrays.startsWith(nodeDefDescendant.meta.h, [...nodeDefAncestor.meta.h, nodeDefAncestor.uuid])
 }
 
 const getCategoryItemByCodePaths = (params: {
@@ -43,7 +43,7 @@ const getCategoryItemByCodePaths = (params: {
   const { survey, categoryUuid, codePaths } = params
   const itemUuid = codePaths.reduce((currentParentUuid: string | undefined, code) => {
     if (currentParentUuid) {
-      return survey.indexRefData?.categoryItemUuidIndex?.[categoryUuid]?.[currentParentUuid]?.[code]?.uuid
+      return survey.indexRefData?.categoryItemUuidIndex?.[categoryUuid]?.[currentParentUuid]?.[code]
     }
     return undefined
   }, 'null')

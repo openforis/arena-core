@@ -31,12 +31,16 @@ const getParent = (params: { record: Record; node: Node }): Node | undefined => 
 
 const getAncestor = (params: { record: Record; node: Node; ancestorDefUuid: string }): Node => {
   const { record, node, ancestorDefUuid } = params
+  if (node.nodeDefUuid === ancestorDefUuid) return node
+
   let ancestor = getParent({ record, node })
   while (ancestor && ancestor.nodeDefUuid !== ancestorDefUuid) {
     ancestor = getParent({ record, node: ancestor })
   }
   if (!ancestor) {
-    throw new Error(`Uncestor with ancestorDefUuid ${ancestorDefUuid} not found`)
+    throw new Error(
+      `Ancestor with ancestorDefUuid ${ancestorDefUuid} not found for node with uuid ${node.uuid} and node def uuid ${node.nodeDefUuid}`
+    )
   }
   return ancestor
 }

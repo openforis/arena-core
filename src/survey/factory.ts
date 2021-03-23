@@ -52,6 +52,13 @@ export const SurveyFactory: Factory<Survey, SurveyFactoryParams> = {
         descriptions,
         collectUri,
       },
+      categories: {},
+      indexRefData: {
+        categoryItemUuidIndex: {},
+        categoryItemIndex: {},
+        taxonIndex: {},
+        taxonUuidIndex: {},
+      },
     }
   },
 }

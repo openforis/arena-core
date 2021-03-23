@@ -94,7 +94,13 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     }
     if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefContext })) {
       // if the rerenced node is an ancestor of the context node, return it following the hierarchy
-      return Records.getAncestor({ record, node: nodeContext, ancestorDefUuid: nodeDefReferenced.uuid })
+      try {
+        return Records.getAncestor({ record, node: nodeContext, ancestorDefUuid: nodeDefReferenced.uuid })
+      } catch (e) {
+        throw new Error(
+          `Could not find ancestor with def ${nodeDefReferenced.props.name} - node def descendant: ${nodeDefContext.props.name} - ancestor h: ${nodeDefReferenced.meta.h} descendant h : ${nodeDefContext.meta.h}`
+        )
+      }
     }
     // the referenced nodes can be siblings of the current node
     const referencedNodes = NodesFinder.findDescendants({ survey, record, nodeContext, nodeDefReferenced })
