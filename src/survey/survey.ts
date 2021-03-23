@@ -4,6 +4,8 @@ import { Labels, LanguageCode } from 'src/language'
 import { SRS } from 'src/srs'
 
 import { NodeDef, NodeDefType } from '../nodeDef'
+import { Category, CategoryItem } from '../category'
+import { Taxon } from '../taxonomy'
 
 export interface SurveyDependency {
   [nodeDefUuid: string]: Array<string>
@@ -33,6 +35,13 @@ export interface SurveyProps {
   collectUri?: string
 }
 
+export interface SurveyRefData {
+  categoryItemUuidIndex: { [categoryUuid: string]: { [parentItemUuid: string]: { [code: string]: CategoryItem } } }
+  categoryItemIndex: { [categoryItemUuid: string]: CategoryItem }
+  taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: Taxon } }
+  taxonIndex: { [taxonomyUuid: string]: Taxon }
+}
+
 export interface Survey extends ArenaObject<SurveyProps> {
   authGroups: Array<AuthGroup>
   dateCreated?: string
@@ -44,4 +53,7 @@ export interface Survey extends ArenaObject<SurveyProps> {
   published: boolean
   readonly id?: number
   uuid: string
+  // indexes
+  categories?: { [categoryUuid: string]: Category }
+  indexRefData?: SurveyRefData
 }
