@@ -1,9 +1,31 @@
+import { Records } from '../records'
 import { Nodes } from '../../node'
 import { ExpressionFunction } from '../../expression'
-import { Records } from '../records'
 import { RecordExpressionContext } from './context'
+import { Objects } from '../../utils'
+import { Surveys } from 'src/survey'
 
 export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressionContext>> = [
+  {
+    name: 'categoryItemProp',
+    minArity: 3,
+    executor: (context: RecordExpressionContext) => (
+      categoryName: string,
+      itemPropName: string,
+      ...codePaths: string[]
+    ) => {
+      const { survey } = context
+      const category = Object.values(survey.categories || {}).find((category) => category.props.name === categoryName)
+      if (!category) return null
+
+      const categoryItem = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid: category.uuid, codePaths })
+
+      if (!categoryItem) return null
+
+      const extraProp = categoryItem.props.extra?.[itemPropName]
+      return Objects.isEmpty(extraProp) ? null : extraProp
+    },
+  },
   {
     name: 'index',
     minArity: 1,
