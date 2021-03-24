@@ -4,8 +4,8 @@ import { Labels, LanguageCode } from 'src/language'
 import { SRS } from 'src/srs'
 
 import { NodeDef, NodeDefType } from '../nodeDef'
-import { Category, CategoryItem } from '../category'
-import { Taxon } from '../taxonomy'
+import { Category } from '../category'
+import { SurveyRefData } from './refData/refData'
 
 export interface SurveyDependency {
   [nodeDefUuid: string]: Array<string>
@@ -33,13 +33,6 @@ export interface SurveyProps {
   name: string
   srs: Array<SRS>
   collectUri?: string
-}
-
-export interface SurveyRefData {
-  categoryItemUuidIndex: { [categoryUuid: string]: { [parentItemUuid: string]: { [code: string]: string } } }
-  categoryItemIndex: { [categoryItemUuid: string]: CategoryItem }
-  taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: Taxon } }
-  taxonIndex: { [taxonUuid: string]: Taxon }
 }
 
 export interface Survey extends ArenaObject<SurveyProps> {

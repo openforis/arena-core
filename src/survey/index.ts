@@ -1,7 +1,11 @@
-export type { Survey, SurveyRefData } from './survey'
+export type { Survey } from './survey'
 
 export { Surveys } from './surveys'
 
-export { SurveyFactory, SurveyRefDataFactory } from './factory'
+export { SurveyFactory } from './factory'
 
 export type { SurveyService } from './service'
+
+export type { SurveyRefData } from './refData'
+
+export { SurveyRefDataFactory } from './refData'

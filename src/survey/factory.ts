@@ -1,12 +1,10 @@
 import { DEFAULT_SRS } from '../srs'
 
 import { Factory } from '../common'
-import { Survey, SurveyRefData } from './survey'
+import { Survey } from './survey'
 import { Labels, LanguageCode } from 'src/language'
-import { Objects, UUIDs } from '../utils'
+import { UUIDs } from '../utils'
 import { AuthGroup, DEFAULT_AUTH_GROUPS } from '../auth/authGroup'
-import { Taxon } from 'src/taxonomy'
-import { CategoryItem } from 'src/category'
 
 export type SurveyFactoryParams = {
   ownerUuid: string
@@ -55,42 +53,5 @@ export const SurveyFactory: Factory<Survey, SurveyFactoryParams> = {
         collectUri,
       },
     }
-  },
-}
-
-export type SurveyRefDataFactoryParams = {
-  itemsByCategoryUuid?: { [categoryUuid: string]: CategoryItem[] }
-  taxonUuidIndex?: { [taxonomyUuid: string]: { [taxonCode: string]: Taxon } }
-  taxonIndex?: { [taxonUuid: string]: Taxon }
-}
-
-export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryParams> = {
-  createInstance: (params: SurveyRefDataFactoryParams): SurveyRefData => {
-    const defaultParams = {
-      itemsByCategoryUuid: {},
-      taxonUuidIndex: {},
-      taxonIndex: {},
-    }
-    const { itemsByCategoryUuid, taxonUuidIndex, taxonIndex } = {
-      ...defaultParams,
-      ...params,
-    }
-    const categoryItemUuidIndex: {
-      [categoryUuid: string]: { [parentItemUuid: string]: { [code: string]: string } }
-    } = {}
-    const categoryItemIndex: { [categoryItemUuid: string]: CategoryItem } = {}
-
-    Object.entries(itemsByCategoryUuid).forEach(([categoryUuid, items]) => {
-      items.forEach((item) => {
-        Objects.setInPath({
-          obj: categoryItemUuidIndex,
-          path: [categoryUuid, item.parentUuid || 'null', item?.props?.code || ''],
-          value: item.uuid,
-        })
-        categoryItemIndex[item.uuid] = item
-      }, {})
-    })
-
-    return { categoryItemUuidIndex, categoryItemIndex, taxonUuidIndex, taxonIndex }
   },
 }
