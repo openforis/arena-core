@@ -30,7 +30,7 @@ export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryPa
       items.forEach((item) => {
         Objects.setInPath({
           obj: categoryItemUuidIndex,
-          path: [categoryUuid, item.parentUuid || 'null', item?.props?.code || ''],
+          path: [categoryUuid, item.parentUuid || 'null', item.props?.code || ''],
           value: item.uuid,
         })
         categoryItemIndex[item.uuid] = item
