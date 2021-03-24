@@ -1,7 +1,6 @@
-import { Arrays } from '../utils'
-import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
-import { Survey } from './survey'
-import { CategoryItem } from '../category'
+import { Survey } from '../survey'
+import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { Arrays } from '../../utils'
 
 const getNodeDefByName = (params: { survey: Survey; name: string }): NodeDef<NodeDefType, NodeDefProps> => {
   const { survey, name } = params
@@ -35,25 +34,9 @@ const isNodeDefAncestor = (params: {
   return Arrays.startsWith(nodeDefDescendant.meta.h, [...nodeDefAncestor.meta.h, nodeDefAncestor.uuid])
 }
 
-const getCategoryItemByCodePaths = (params: {
-  survey: Survey
-  categoryUuid: string
-  codePaths: string[]
-}): CategoryItem | undefined => {
-  const { survey, categoryUuid, codePaths } = params
-  const itemUuid = codePaths.reduce((currentParentUuid: string | undefined, code) => {
-    if (currentParentUuid) {
-      return survey.refData?.categoryItemUuidIndex?.[categoryUuid]?.[currentParentUuid]?.[code]
-    }
-    return undefined
-  }, 'null')
-  return itemUuid ? survey.refData?.categoryItemIndex[itemUuid] : undefined
-}
-
-export const Surveys = {
+export const SurveysNodeDefs = {
   getNodeDefByName,
   getNodeDefByUuid,
   getNodeDefParent,
   isNodeDefAncestor,
-  getCategoryItemByCodePaths,
 }
