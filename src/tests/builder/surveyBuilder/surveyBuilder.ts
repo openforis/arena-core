@@ -1,9 +1,9 @@
 import { LanguageCode } from '../../../language'
-import { Survey, SurveyFactory } from '../../../survey'
+import { Survey, SurveyFactory, SurveyRefDataFactory } from '../../../survey'
+import { Category, CategoryItem } from '../../../category'
 import { User } from '../../../auth'
 import { NodeDefEntityBuilder } from './nodeDefEntityBuilder'
 import { CategoryBuilder } from './categoryBuilder'
-import { Objects } from '../../../utils'
 
 export class SurveyBuilder {
   private user: User
@@ -35,18 +35,16 @@ export class SurveyBuilder {
       languages: [this.lang],
     })
     survey.nodeDefs = this.rootDefBuilder.build({ survey })
+    const categoriesByUuid: { [categoryUuid: string]: Category } = {}
+    const itemsByCategoryUuid: { [categoryUuid: string]: CategoryItem[] } = {}
+
     this.categoryBuilders.forEach((categoryBuilder) => {
       const { category, items } = categoryBuilder.build()
-      items.forEach((item) => {
-        Objects.setInPath({
-          obj: survey.indexRefData.categoryItemUuidIndex,
-          value: item.uuid,
-          path: [category.uuid, item.parentUuid || 'null', item.props.code || ''],
-        })
-        survey.indexRefData.categoryItemIndex[item.uuid] = item
-      })
-      survey.categories[category.uuid] = category
+      itemsByCategoryUuid[category.uuid] = items
+      categoriesByUuid[category.uuid] = category
     })
+    survey.refData = SurveyRefDataFactory.createInstance({ itemsByCategoryUuid })
+    survey.categories = categoriesByUuid
     return survey
   }
 }

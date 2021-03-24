@@ -43,11 +43,11 @@ const getCategoryItemByCodePaths = (params: {
   const { survey, categoryUuid, codePaths } = params
   const itemUuid = codePaths.reduce((currentParentUuid: string | undefined, code) => {
     if (currentParentUuid) {
-      return survey.indexRefData?.categoryItemUuidIndex?.[categoryUuid]?.[currentParentUuid]?.[code]
+      return survey.refData?.categoryItemUuidIndex?.[categoryUuid]?.[currentParentUuid]?.[code]
     }
     return undefined
   }, 'null')
-  return itemUuid ? survey.indexRefData?.categoryItemIndex[itemUuid] : undefined
+  return itemUuid ? survey.refData?.categoryItemIndex[itemUuid] : undefined
 }
 
 export const Surveys = {
