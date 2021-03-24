@@ -15,7 +15,9 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
       ...codePaths: string[]
     ) => {
       const { survey } = context
-      const category = Object.values(survey.categories).find((category) => category.props.name === categoryName)
+      const category = survey.categories
+        ? Object.values(survey.categories).find((category) => category.props.name === categoryName)
+        : null
       if (!category) return null
 
       const categoryItem = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid: category.uuid, codePaths })
