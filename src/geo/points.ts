@@ -1,8 +1,9 @@
+import proj4 from 'proj4'
+
 import { Objects } from '../utils'
 import { DEFAULT_SRS, SRSs } from '../srs'
 import { Point } from './point'
 import { PointFactory } from './pointFactory'
-import proj4 from 'proj4'
 
 const POINT_REGEX = /SRID=((EPSG:)?(\w+));POINT\((\d+(\.\d+)?) (\d+(\.\d+)?)\)/
 
@@ -27,19 +28,16 @@ const toLatLong = (point: Point): Point | null => {
   if (!isFilled(point)) return null
 
   const { x, y, srs } = point
+
   if (srs === DEFAULT_SRS.code) {
     // projection is not needed
     return point
   }
 
-  const srsFrom = SRSs.getSrsByCode(srs)
-  const srsTo = DEFAULT_SRS
+  const srsFrom = SRSs.getSRSByCode(srs)
 
-  const [long, lat] = proj4(
-    srsFrom.wkt,
-    srsTo.wkt, // To srs
-    [x, y] // Coordinates
-  )
+  const srsTo = DEFAULT_SRS
+  const [long, lat] = proj4(srsFrom.wkt, srsTo.wkt, [x, y])
   return PointFactory.createInstance({ srs: DEFAULT_SRS.code, x: long, y: lat })
 }
 
