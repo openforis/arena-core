@@ -46,7 +46,12 @@ export interface Survey extends ArenaObject<SurveyProps> {
   published: boolean
   readonly id?: number
   uuid: string
-
+  /**
+   * Categories indexed by uuid.
+   */
   categories?: { [categoryUuid: string]: Category }
+  /**
+   * Refernce data cache (category items and taxa).
+   */
   refData?: SurveyRefData
 }

@@ -1,8 +1,5 @@
-import { SurveysNodeDefs } from './nodeDefs'
-import { SurveysRefsData } from './refsData'
-
-const { getNodeDefByName, getNodeDefByUuid, getNodeDefParent, isNodeDefAncestor } = SurveysNodeDefs
-const { getCategoryItemByCodePaths } = SurveysRefsData
+import { getNodeDefByName, getNodeDefByUuid, getNodeDefParent, isNodeDefAncestor } from './nodeDefs'
+import { getCategoryItemByCodePaths } from './refsData'
 
 export const Surveys = {
   getNodeDefByName,

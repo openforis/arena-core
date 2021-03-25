@@ -1,7 +1,7 @@
 import { Survey } from '../survey'
 import { CategoryItem } from '../../category'
 
-const getCategoryItemByCodePaths = (params: {
+export const getCategoryItemByCodePaths = (params: {
   survey: Survey
   categoryUuid: string
   codePaths: string[]
@@ -15,8 +15,4 @@ const getCategoryItemByCodePaths = (params: {
     'null'
   )
   return itemUuid ? survey.refData?.categoryItemIndex[itemUuid] : undefined
-}
-
-export const SurveysRefsData = {
-  getCategoryItemByCodePaths,
 }
