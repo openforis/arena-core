@@ -6,14 +6,19 @@ export class CategoryBuilder {
   private itemBuilders: CategoryItemBuilder[]
   private levelNames: string[]
 
-  constructor(name: string, ...itemBuilders: CategoryItemBuilder[]) {
+  constructor(name: string) {
     this.name = name
-    this.itemBuilders = itemBuilders
     this.levelNames = []
+    this.itemBuilders = []
   }
 
   levels(...levelNames: string[]): CategoryBuilder {
     this.levelNames = levelNames
+    return this
+  }
+
+  items(...itemBuilders: CategoryItemBuilder[]): CategoryBuilder {
+    this.itemBuilders = [...itemBuilders]
     return this
   }
 

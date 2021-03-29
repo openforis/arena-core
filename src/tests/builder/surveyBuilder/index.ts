@@ -7,8 +7,7 @@ import { NodeDefEntityBuilder } from './nodeDefEntityBuilder'
 
 export { SurveyBuilder } from './surveyBuilder'
 
-export const category = (name: string, ...itemBuilders: CategoryItemBuilder[]): CategoryBuilder =>
-  new CategoryBuilder(name, ...itemBuilders)
+export const category = (name: string): CategoryBuilder => new CategoryBuilder(name)
 export const categoryItem = (code: string): CategoryItemBuilder => new CategoryItemBuilder(code)
 
 export const entityDef = (name: string, ...childBuilders: NodeDefBuilder[]): NodeDefEntityBuilder =>

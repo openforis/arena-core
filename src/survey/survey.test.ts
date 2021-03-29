@@ -1,4 +1,5 @@
-import { LanguageCode } from 'src/language'
+import { LanguageCode } from '../language'
+import { DEFAULT_SRS } from '../srs'
 import { SurveyFactory, SurveyFactoryParams } from './factory'
 
 test('ExpectedSurvey === Survey', () => {
@@ -45,7 +46,7 @@ test('ExpectedSurvey === Survey', () => {
   expect(surveyProps).toHaveProperty('srs')
   expect(surveyProps.srs.length).toBe(1)
   expect(surveyProps.srs[0].code).toBeTruthy()
-  expect(surveyProps.srs[0].code).toBe('4326')
+  expect(surveyProps.srs[0].code).toBe(DEFAULT_SRS.code)
   expect(surveyProps.srs[0].name).toBeTruthy()
   expect(surveyProps.srs[0].name).toBe('GCS WGS 1984')
 

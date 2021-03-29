@@ -4,7 +4,7 @@
     "name": "Openforis",
     "email": "openforis.arena@gmail.com"
   },
-  "version": "0.0.40",
+  "version": "0.0.41",
   "description": "Arena core module",
   "main": "index.js",
   "types": "index.d.ts",
@@ -12,10 +12,12 @@
   "devDependencies": {
     "@babel/preset-typescript": "^7.13.0",
     "@types/jest": "^26.0.20",
+    "@types/proj4": "^2.5.0",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "eslint": "^7.21.0",
+    "eslint-plugin-no-explicit-type-exports": "^0.11.10",
     "husky": "=4",
     "jest": "^26.6.3",
     "lint-staged": "^10.5.4",
@@ -47,6 +49,8 @@
     "**/*.{js,ts,json,css,md}": "prettier --write"
   },
   "dependencies": {
+    "@esri/proj-codes": "^2.7.0",
+    "proj4": "^2.7.2",
     "uuid": "^8.3.2"
   }
 }

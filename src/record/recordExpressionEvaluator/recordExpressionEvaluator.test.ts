@@ -1,18 +1,18 @@
 import { UserFactory } from '../../auth'
 import { NodeDefType } from '../../nodeDef'
-import { Record } from '../record'
 import { Survey, Surveys } from '../../survey'
+import { Node } from '../../node'
+import { Record } from '../record'
 import { RecordExpressionEvaluator } from './recordExpressionEvaluator'
 import { RecordExpressionContext } from './context'
 import { Records } from '../records'
 import { createTestRecord, createTestSurvey } from '../../tests/data'
-import { Node } from 'src/node'
 
 type Query = {
-  q: string
-  r?: any
-  e?: boolean
-  n?: string
+  expression: string
+  result?: any
+  error?: boolean
+  node?: string
 }
 
 let survey: Survey
@@ -46,161 +46,184 @@ describe('RecordExpressionEvaluator', () => {
     record = createTestRecord({ user, survey })
   }, 10000)
   const queries: Query[] = [
-    { q: 'cluster_id + 1', r: 13 },
-    { q: 'cluster_id != 1', r: true },
+    { expression: 'cluster_id + 1', result: 13 },
+    { expression: 'cluster_id != 1', result: true },
     // !12 == null under strict logical negation semantics
-    { q: '!cluster_id', r: null },
+    { expression: '!cluster_id', result: null },
     // Number + String is invalid -> null
-    { q: 'cluster_id + "1"', r: null },
-    { q: '!(cluster_id == 1)', r: true },
+    { expression: 'cluster_id + "1"', result: null },
+    { expression: '!(cluster_id == 1)', result: true },
     // 18 + 1
-    { q: 'cluster_distance + 1', r: 19 },
+    { expression: 'cluster_distance + 1', result: 19 },
     // 18 + 1
-    { q: 'cluster_distance + 1', r: 19 },
+    { expression: 'cluster_distance + 1', result: 19 },
     // 18 + 1 + 12
-    { q: 'cluster_distance + 1 + cluster_id', r: 31 },
+    { expression: 'cluster_distance + 1 + cluster_id', result: 31 },
     // 18 + 12
-    { q: 'cluster_distance + cluster_id', r: 30 },
+    { expression: 'cluster_distance + cluster_id', result: 30 },
     // 19 >= 12
-    { q: 'cluster_distance + 1 >= cluster_id', r: true },
+    { expression: 'cluster_distance + 1 >= cluster_id', result: true },
     // 18 * 0.5 >= 12
-    { q: '(cluster_distance * 0.5) >= cluster_id', r: false },
+    { expression: '(cluster_distance * 0.5) >= cluster_id', result: false },
     // 1728
-    { q: 'Math.pow(cluster_id, 3)', r: 1728 },
+    { expression: 'Math.pow(cluster_id, 3)', result: 1728 },
     // 18 * 0.5 >= 1728
-    { q: '(cluster_distance * 0.5) >= Math.pow(cluster_id, 3)', r: false },
+    { expression: '(cluster_distance * 0.5) >= Math.pow(cluster_id, 3)', result: false },
     // visit_date must be before current date
     // { q: 'visit_date <= now()', r: true },
     // cluster_id is not empty
-    { q: 'isEmpty(cluster_id)', r: false },
+    { expression: 'isEmpty(cluster_id)', result: false },
     // gps_model is not empty
-    { q: 'isEmpty(gps_model)', r: false },
+    { expression: 'isEmpty(gps_model)', result: false },
     // remarks is empty
-    { q: 'isEmpty(remarks)', r: true },
+    { expression: 'isEmpty(remarks)', result: true },
     // plot count is 3
-    { q: 'plot.length', r: 3 },
+    { expression: 'plot.length', result: 3 },
     // access multiple entities with index
-    { q: 'plot[0].plot_id', r: 1 },
-    { q: 'plot[1].plot_id', r: 2 },
-    { q: 'plot[2].plot_id', r: 3 },
-    { q: 'plot[4].plot_id', r: null },
+    { expression: 'plot[0].plot_id', result: 1 },
+    { expression: 'plot[1].plot_id', result: 2 },
+    { expression: 'plot[2].plot_id', result: 3 },
+    { expression: 'plot[4].plot_id', result: null },
     // plot_multiple_number counts
-    { q: 'plot[0].plot_multiple_number.length', r: 2 },
-    { q: 'plot[1].plot_multiple_number.length', r: 0 },
-    { q: 'plot[2].plot_multiple_number.length', r: 1 },
+    { expression: 'plot[0].plot_multiple_number.length', result: 2 },
+    { expression: 'plot[1].plot_multiple_number.length', result: 0 },
+    { expression: 'plot[2].plot_multiple_number.length', result: 1 },
     // index (single entity)
-    { q: 'index(cluster)', r: 0 },
-    { q: 'index(cluster)', r: 0, n: 'cluster.plot[0].plot_id' },
+    { expression: 'index(cluster)', result: 0 },
+    { expression: 'index(cluster)', result: 0, node: 'cluster.plot[0].plot_id' },
     // index (multiple entity)
-    { q: 'index(plot)', r: 0, n: 'cluster.plot[0]' },
-    { q: 'index(plot)', r: 1, n: 'cluster.plot[1]' },
-    { q: 'index(plot)', r: 0, n: 'cluster.plot[0].plot_id' },
-    { q: 'index(plot)', r: 1, n: 'cluster.plot[1].plot_id' },
-    { q: 'index(plot[0])', r: 0 },
-    { q: 'index(plot[1])', r: 1 },
-    { q: 'index(plot[2])', r: 2 },
-    { q: 'index(plot[3])', r: -1 },
+    { expression: 'index(plot)', result: 0, node: 'cluster.plot[0]' },
+    { expression: 'index(plot)', result: 1, node: 'cluster.plot[1]' },
+    { expression: 'index(plot)', result: 0, node: 'cluster.plot[0].plot_id' },
+    { expression: 'index(plot)', result: 1, node: 'cluster.plot[1].plot_id' },
+    { expression: 'index(plot[0])', result: 0 },
+    { expression: 'index(plot[1])', result: 1 },
+    { expression: 'index(plot[2])', result: 2 },
+    { expression: 'index(plot[3])', result: -1 },
     // index (single attribute)
-    { q: 'index(visit_date)', r: 0, n: 'cluster.remarks' },
-    { q: 'index(plot[0].plot_id)', r: 0 },
-    { q: 'index(plot_id)', r: 0, n: 'cluster.plot[0].plot_multiple_number[1]' },
+    { expression: 'index(visit_date)', result: 0, node: 'cluster.remarks' },
+    { expression: 'index(plot[0].plot_id)', result: 0 },
+    { expression: 'index(plot_id)', result: 0, node: 'cluster.plot[0].plot_multiple_number[1]' },
     // index (multiple attribute)
-    { q: 'index(plot[0].plot_multiple_number[0])', r: 0 },
-    { q: 'index(plot[0].plot_multiple_number[1])', r: 1 },
-    { q: 'index(plot[0].plot_multiple_number[2])', r: -1 },
+    { expression: 'index(plot[0].plot_multiple_number[0])', result: 0 },
+    { expression: 'index(plot[0].plot_multiple_number[1])', result: 1 },
+    { expression: 'index(plot[0].plot_multiple_number[2])', result: -1 },
     // parent
-    { q: 'parent(cluster)', r: null },
-    { q: 'parent(remarks)', r: () => getNode('cluster') },
-    { q: 'parent(plot_id)', r: () => getNode('cluster.plot[1]'), n: 'cluster.plot[1].plot_id' },
-    { q: 'parent(parent(plot_id))', r: () => getNode('cluster'), n: 'cluster.plot[1].plot_id' },
-    { q: 'index(parent(plot_id))', r: 1, n: 'cluster.plot[1].plot_id' },
+    { expression: 'parent(cluster)', result: null },
+    { expression: 'parent(remarks)', result: () => getNode('cluster') },
+    { expression: 'parent(plot_id)', result: () => getNode('cluster.plot[1]'), node: 'cluster.plot[1].plot_id' },
+    { expression: 'parent(parent(plot_id))', result: () => getNode('cluster'), node: 'cluster.plot[1].plot_id' },
+    { expression: 'index(parent(plot_id))', result: 1, node: 'cluster.plot[1].plot_id' },
     // access plot_id of previous plot
-    { q: 'parent(parent(plot_id)).plot[index(parent(plot_id)) - 1].plot_id', r: 1, n: 'cluster.plot[1].plot_id' },
+    {
+      expression: 'parent(parent(plot_id)).plot[index(parent(plot_id)) - 1].plot_id',
+      result: 1,
+      node: 'cluster.plot[1].plot_id',
+    },
     // access dbh of a tree inside sibling plot
     {
-      q: 'parent(parent(parent(dbh))).plot[index(parent(parent(dbh))) - 2].tree[1].dbh',
-      r: 10.123,
-      n: 'cluster.plot[2].tree[1].dbh',
+      expression: 'parent(parent(parent(dbh))).plot[index(parent(parent(dbh))) - 2].tree[1].dbh',
+      result: 10.123,
+      node: 'cluster.plot[2].tree[1].dbh',
     },
     // categoryItemProp
-    { q: `categoryItemProp('hierarchical_category', 'prop1', '1')`, r: 'Extra prop1 item 1' },
-    { q: `categoryItemProp('hierarchical_category', 'prop2', '3')`, r: 'Extra prop2 item 3' },
-    { q: `categoryItemProp('hierarchical_category', 'prop1', '2', '1')`, r: 'Extra prop1 item 2-1' },
-    { q: `categoryItemProp('hierarchical_category', 'prop1', cluster_id - 10)`, r: 'Extra prop1 item 2' },
+    { expression: `categoryItemProp('hierarchical_category', 'prop1', '1')`, result: 'Extra prop1 item 1' },
+    { expression: `categoryItemProp('hierarchical_category', 'prop2', '3')`, result: 'Extra prop2 item 3' },
+    { expression: `categoryItemProp('hierarchical_category', 'prop1', '2', '1')`, result: 'Extra prop1 item 2-1' },
+    { expression: `categoryItemProp('hierarchical_category', 'prop1', cluster_id - 10)`, result: 'Extra prop1 item 2' },
     {
-      q: `categoryItemProp('hierarchical_category', 'prop1', cluster_id - 10, plot_id)`,
-      r: 'Extra prop1 item 2-2',
-      n: 'cluster.plot[1].plot_id',
+      expression: `categoryItemProp('hierarchical_category', 'prop1', cluster_id - 10, plot_id)`,
+      result: 'Extra prop1 item 2-2',
+      node: 'cluster.plot[1].plot_id',
     },
     // categoryItemProp: unexisting prop or code
     {
-      q: `categoryItemProp('simple_category', 'prop9', '1')`,
-      r: null,
+      expression: `categoryItemProp('simple_category', 'prop9', '1')`,
+      result: null,
     },
     {
-      q: `categoryItemProp('simple_category', 'prop1', '999')`,
-      r: null,
+      expression: `categoryItemProp('simple_category', 'prop1', '999')`,
+      result: null,
+    },
+    // distance
+    { expression: 'distance(plot[0].plot_location, plot[1].plot_location).toFixed(2)', result: '2171.94' },
+    {
+      expression:
+        'distance(plot[0].plot_location, plot[1].plot_location) == distance(plot[1].plot_location, plot[0].plot_location)',
+      result: true,
+    },
+    // distance (invalid node type)
+    { expression: 'distance(plot[0].plot_location, remarks)', result: null },
+    // distance (using categoryItemProp)
+    {
+      expression: `distance(cluster_location, categoryItemProp('sampling_point', 'location', cluster_id)).toFixed(2)`,
+      result: '4307919.62',
+    },
+    {
+      expression: `distance(plot_location, categoryItemProp('sampling_point', 'location', cluster_id, plot_id)).toFixed(2)`,
+      result: '4311422.21',
+      node: 'cluster.plot[1].plot_id',
     },
     // global objects (Array)
-    { q: 'Array.of(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', r: [1, 2, 3] },
+    { expression: 'Array.of(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', result: [1, 2, 3] },
     // global objects (Date)
-    { q: `Date.parse('01 Jan 1970 00:00:00 GMT')`, r: 0 },
-    { q: 'Math.round(Date.now() / 1000)', r: () => Math.round(Date.now() / 1000) },
+    { expression: `Date.parse('01 Jan 1970 00:00:00 GMT')`, result: 0 },
+    { expression: 'Math.round(Date.now() / 1000)', result: () => Math.round(Date.now() / 1000) },
     // global objects (Math)
-    { q: 'Math.PI', r: Math.PI },
-    { q: 'Math.min(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', r: 1 },
-    { q: 'Math.max(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', r: 3 },
+    { expression: 'Math.PI', result: Math.PI },
+    { expression: 'Math.min(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', result: 1 },
+    { expression: 'Math.max(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', result: 3 },
     // global objects (Number)
-    { q: 'Number.isFinite(plot[1].plot_id)', r: true },
-    { q: 'Number.isFinite(plot[1].plot_id / 0)', r: false },
+    { expression: 'Number.isFinite(plot[1].plot_id)', result: true },
+    { expression: 'Number.isFinite(plot[1].plot_id / 0)', result: false },
     // global objects (String)
-    { q: 'String.fromCharCode(65, 66, 67)', r: 'ABC' },
+    { expression: 'String.fromCharCode(65, 66, 67)', result: 'ABC' },
     // global objects (unknown objects/functions)
-    { q: 'Invalid.func(1)', e: true },
-    { q: 'Math.unknownFunc(1)', e: true },
-    // // native properties (number)
-    // { q: 'Math.PI.toFixed(2)', r: '3.14' },
-    // { q: 'plot[0].tree[1].dbh.toFixed(1)', r: '10.1' },
-    // { q: 'plot[0].tree[1].dbh.toPrecision(4)', r: '10.12' },
+    { expression: 'Invalid.func(1)', error: true },
+    { expression: 'Math.unknownFunc(1)', error: true },
+    // native properties (number)
+    // { expression: 'Math.PI.toFixed(2)', result: '3.14' },
+    // { expression: 'plot[0].tree[1].dbh.toFixed(1)', result: '10.1' },
+    // { expression: 'plot[0].tree[1].dbh.toPrecision(4)', result: '10.12' },
     // // native properties (string)
-    // { q: 'gps_model.toLowerCase()', r: 'abc-123-xyz' },
-    // { q: 'gps_model.substring(4,7)', r: '123' },
-    // { q: 'gps_model.length', r: 11 },
-    // // global objects (constructors)
-    { q: 'Boolean(cluster_id)', r: true },
-    { q: 'Boolean(remarks)', r: false },
-    { q: 'Date.parse(Date()) <= Date.now()', r: true },
-    { q: 'Number(remarks)', r: 0 },
-    { q: 'String(cluster_id)', r: '12' },
+    // { expression: 'gps_model.toLowerCase()', result: 'abc-123-xyz' },
+    // { expression: 'gps_model.substring(4,7)', result: '123' },
+    // { expression: 'gps_model.length', result: 11 },
+    // global objects (constructors)
+    { expression: 'Boolean(cluster_id)', result: true },
+    { expression: 'Boolean(remarks)', result: false },
+    { expression: 'Date.parse(Date()) <= Date.now()', result: true },
+    { expression: 'Number(remarks)', result: 0 },
+    { expression: 'String(cluster_id)', result: '12' },
     // // composite attribute members
-    // { q: 'cluster_location.x', r: 41.883012 },
-    // { q: 'cluster_location.y', r: 12.489056 },
-    // { q: 'cluster_location.srs', r: 'EPSG:4326' },
-    // { q: 'plot[0].tree[0].tree_species.code', r: 'ACA' },
-    // { q: 'plot[0].tree[0].tree_species.scientificName', r: 'Acacia sp.' },
-    // { q: 'visit_date.year', r: 2021 },
-    // { q: 'visit_date.month', r: 1 },
-    // { q: 'visit_date.day', r: 1 },
-    // { q: 'visit_date.week', e: true },
-    // { q: 'visit_time.hour', r: 10 },
-    // { q: 'visit_time.minute', r: 30 },
-    // { q: 'visit_time.seconds', e: true },
+    // { expression: 'cluster_location.x', result: 41.883012 },
+    // { expression: 'cluster_location.y', result: 12.489056 },
+    // { expression: 'cluster_location.srs', result: 'EPSG:4326' },
+    // { expression: 'plot[0].tree[0].tree_species.code', result: 'ACA' },
+    // { expression: 'plot[0].tree[0].tree_species.scientificName', result: 'Acacia sp.' },
+    // { expression: 'visit_date.year', result: 2021 },
+    // { expression: 'visit_date.month', result: 1 },
+    // { expression: 'visit_date.day', result: 1 },
+    // { expression: 'visit_date.week', error: true },
+    // { expression: 'visit_time.hour', result: 10 },
+    // { expression: 'visit_time.minute', result: 30 },
+    // { expression: 'visit_time.seconds', error: true },
   ]
 
   queries.forEach((query: Query) => {
-    const { q: expression, r: resultExpected, e: errorExpected = false, n } = query
-    test(`${expression}${n ? ` (node: ${n})` : ''}`, () => {
+    const { expression, result, error: errorExpected = false, node } = query
+    test(`${expression}${node ? ` (node: ${node})` : ''}`, () => {
       try {
-        const nodeCurrent = n ? getNode(n) : Records.getRoot(record)
+        const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid })
         const nodeContext =
           nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent({ record, node: nodeCurrent })
         if (!nodeContext) {
-          throw new Error(`Cannot find context node: ${n}`)
+          throw new Error(`Cannot find context node: ${node}`)
         }
         const context: RecordExpressionContext = { survey, record, nodeContext, object: nodeContext }
         const res = new RecordExpressionEvaluator().evaluate(expression, context)
-        expect(res).toEqual(resultExpected instanceof Function ? resultExpected() : resultExpected)
+        expect(res).toEqual(result instanceof Function ? result() : result)
       } catch (error) {
         if (errorExpected) {
           expect(error).toBeDefined()
