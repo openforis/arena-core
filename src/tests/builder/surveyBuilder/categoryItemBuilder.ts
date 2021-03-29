@@ -23,8 +23,8 @@ export class CategoryItemBuilder {
     return this
   }
 
-  item(itemBuilder: CategoryItemBuilder): CategoryItemBuilder {
-    this.childItemBuilders.push(itemBuilder)
+  items(...itemBuilders: CategoryItemBuilder[]): CategoryItemBuilder {
+    this.childItemBuilders = [...itemBuilders]
     return this
   }
 
