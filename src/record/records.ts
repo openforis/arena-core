@@ -1,4 +1,4 @@
-import { NodeDef } from 'src/nodeDef'
+import { NodeDef } from '../nodeDef'
 import { Node } from '../node'
 import { Record } from './record'
 

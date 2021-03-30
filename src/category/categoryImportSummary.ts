@@ -1,4 +1,4 @@
-import { LanguageCode } from 'src/language'
+import { LanguageCode } from '../language'
 import { CategoryItemExtraDefDataType } from './category'
 
 export enum CategoryImportColumnType {

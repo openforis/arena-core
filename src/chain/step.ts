@@ -1,4 +1,4 @@
-import { ArenaObject } from 'src/common'
+import { ArenaObject } from '../common'
 import { Calculation } from './calculation'
 
 export interface StepProps {

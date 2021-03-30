@@ -13,8 +13,7 @@ import { LiteralEvaluator } from './node/literal'
 import { MemberEvaluator } from './node/member'
 import { ThisEvaluator } from './node/this'
 import { UnaryEvaluator } from './node/unary'
-// @ts-ignore
-import * as jsep from './parser/jsep'
+import { jsep } from './parser/jsep'
 
 type Evaluators<C extends ExpressionContext> = {
   [nodeType in ExpressionNodeType]?: ExpressionNodeEvaluatorConstructor<C, ExpressionNode<ExpressionNodeType>>

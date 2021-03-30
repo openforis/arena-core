@@ -1,4 +1,4 @@
-import { Factory } from 'src/common'
+import { Factory } from '../common'
 import { NodeDef, NodeDefType, NodeDefProps, NodeDefPropsAdvanced } from './nodeDef'
 import { UUIDs } from '../utils'
 

@@ -1,4 +1,4 @@
-import { LanguageCode } from 'src/language'
+import { LanguageCode } from '../language'
 import { VernacularNameFactory, VernacularNameParams } from './factory'
 
 describe('VernacularNameFactory', () => {

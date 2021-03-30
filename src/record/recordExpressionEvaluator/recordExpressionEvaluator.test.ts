@@ -136,7 +136,7 @@ describe('RecordExpressionEvaluator', () => {
       result: 'Extra prop1 item 2-2',
       node: 'cluster.plot[1].plot_id',
     },
-    // categoryItemProp: unexisting prop or code
+    // categoryItemProp: non existing prop or code
     {
       expression: `categoryItemProp('simple_category', 'prop9', '1')`,
       result: null,

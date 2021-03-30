@@ -4,4 +4,4 @@ export { NodeFactory } from './factory'
 
 export { Nodes } from './nodes'
 
-export { NodeService } from './service'
+export type { NodeService } from './service'

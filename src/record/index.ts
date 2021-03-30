@@ -5,4 +5,4 @@ export { Records } from './records'
 export { RECORD_STEP_DEFAULT } from './record'
 
 export { RecordFactory } from './factory'
-export { RecordService } from './service'
+export type { RecordService } from './service'

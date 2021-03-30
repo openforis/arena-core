@@ -1,4 +1,4 @@
-import { Factory } from 'src/common'
+import { Factory } from '../common'
 import { UUIDs } from '../utils'
 import { User, UserStatus, UserTitle } from './user'
 

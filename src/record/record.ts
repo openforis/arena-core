@@ -1,5 +1,5 @@
-import { Node } from 'src/node'
-import { Validation } from 'src/validation'
+import { Node } from '../node'
+import { Validation } from '../validation'
 
 export const RECORD_STEP_DEFAULT = '1'
 
