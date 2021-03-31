@@ -1,5 +1,5 @@
-import { Factory } from 'src/common'
-import { Labels } from 'src/language'
+import { Factory } from '../common'
+import { Labels } from '../language'
 import { Validation, ValidationResult, ValidationSeverity } from './validation'
 
 type ValidationFactoryParams = {

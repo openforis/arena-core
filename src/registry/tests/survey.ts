@@ -19,6 +19,10 @@ export class SurveyServiceMock implements SurveyService {
     throw new Error('Not implemented')
   }
 
+  getAllIds(): Promise<Array<number>> {
+    throw new Error('Not implemented')
+  }
+
   getMany(): Promise<Array<Survey>> {
     throw new Error('Not implemented')
   }

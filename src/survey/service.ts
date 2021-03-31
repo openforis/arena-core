@@ -18,6 +18,8 @@ export interface SurveyService {
   // ==== READ
   count(options: { user: User }): Promise<number>
 
+  getAllIds(): Promise<Array<number>>
+
   getMany(options: { limit?: number; offset?: number; user: User }): Promise<Array<Survey>>
 
   get(options: {

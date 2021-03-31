@@ -1,5 +1,5 @@
-import { ArenaObject } from 'src/common'
-import { Labels } from 'src/language'
+import { ArenaObject } from '../common'
+import { Labels } from '../language'
 
 export enum NodeDefType {
   boolean = 'boolean',

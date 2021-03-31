@@ -1,7 +1,7 @@
-import { User } from 'src/auth'
+import { User } from '../auth'
 import { Category, CategoryProps } from './category'
 import { CategoryImportSummary } from './categoryImportSummary'
-import { JobSummary } from 'src/job'
+import { JobSummary } from '../job'
 
 export interface CategoryService {
   // ==== CREATE

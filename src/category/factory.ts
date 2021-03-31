@@ -1,4 +1,4 @@
-import { Factory } from 'src/common'
+import { Factory } from '../common'
 import { UUIDs } from '../utils'
 import { Category, CategoryProps } from './category'
 import { CategoryItem, CategoryItemProps } from './item'

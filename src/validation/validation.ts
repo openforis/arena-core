@@ -1,4 +1,4 @@
-import { Labels } from 'src/language'
+import { Labels } from '../language'
 
 export enum ValidationSeverity {
   error = 'error',

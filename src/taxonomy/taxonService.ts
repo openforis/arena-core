@@ -1,5 +1,5 @@
-import { User } from 'src/auth'
-import { JobSummary } from 'src/job'
+import { User } from '../auth'
+import { JobSummary } from '../job'
 import { Taxon } from './taxon'
 import { VernacularName } from './taxonVernacularName'
 

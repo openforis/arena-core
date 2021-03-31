@@ -1,7 +1,7 @@
-import { ArenaObject } from 'src/common'
-import { AuthGroup } from 'src/auth'
-import { Labels, LanguageCode } from 'src/language'
-import { SRS } from 'src/srs'
+import { ArenaObject } from '../common'
+import { AuthGroup } from '../auth'
+import { Labels, LanguageCode } from '../language'
+import { SRS } from '../srs'
 
 import { NodeDef, NodeDefType } from '../nodeDef'
 import { Category } from '../category'

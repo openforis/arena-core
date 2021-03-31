@@ -1,5 +1,5 @@
-import { User } from 'src/auth'
-import { Step } from 'src/chain'
+import { User } from '../auth'
+import { Step } from '../chain'
 import { Record } from './record'
 
 export interface RecordService {

@@ -1,4 +1,4 @@
-import { Factory } from 'src/common'
+import { Factory } from '../common'
 import { SRS } from './srs'
 
 export type SRSFactoryParams = {
