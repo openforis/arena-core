@@ -20,4 +20,8 @@ export interface Job<R> {
    * Starts the execution of the job.
    */
   start(): void
+  /**
+   * Cancels the execution of the job.
+   */
+  cancel(): void
 }
