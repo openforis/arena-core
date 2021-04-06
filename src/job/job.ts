@@ -1,7 +1,7 @@
 import { JobSummary } from './summary'
 
 /**
- * Asynchronous task hanlder.
+ * Asynchronous task handler.
  *
  * Status workflow:
  * - pending
@@ -11,26 +11,17 @@ import { JobSummary } from './summary'
  * -- failed
  * -- canceled
  *  */
-export interface Job<P, R, C> {
-  /**
-   * Execution parameters.
-   */
-  params?: P
-  /**
-   * Context object (shared among nested jobs).
-   */
-  context?: C
+export interface Job<R> {
   /**
    * Summary of the job with the information about its status.
    */
   summary: JobSummary<R>
   /**
-   * Returns true if the job should be executed.
-   * It returns true by default.
-   */
-  shouldExecute(): boolean
-  /**
    * Starts the execution of the job.
    */
-  start(): void
+  start(): Promise<void>
+  /**
+   * Cancels the execution of the job.
+   */
+  cancel(): Promise<void>
 }
