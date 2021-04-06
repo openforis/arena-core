@@ -19,9 +19,9 @@ export interface Job<R> {
   /**
    * Starts the execution of the job.
    */
-  start(): void
+  start(): Promise<void>
   /**
    * Cancels the execution of the job.
    */
-  cancel(): void
+  cancel(): Promise<void>
 }
