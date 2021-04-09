@@ -23,11 +23,9 @@ const init = async (): Promise<void> => {
   }
 }
 
-const getSRSByCode = (code: string): SRS => {
+const getSRSByCode = (code: string): SRS | undefined => {
   if (!SrsMap) throw new Error('SRSs not initialized. Call SRSs.init() first')
-  const srs = SrsMap[code]
-  if (!srs) throw new Error(`SRS with code '${code}' not found`)
-  return srs
+  return SrsMap[code]
 }
 
 export const SRSs = {
