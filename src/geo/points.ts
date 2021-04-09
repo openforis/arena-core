@@ -1,11 +1,13 @@
 import proj4 from 'proj4'
 
-import { Objects } from '../utils'
+import { Numbers, Objects } from '../utils'
 import { DEFAULT_SRS, SRSs } from '../srs'
 import { Point } from './point'
 import { PointFactory } from './pointFactory'
 
-const POINT_REGEX = /SRID=((EPSG:)?(\w+));POINT\((\d+(\.\d+)?) (\d+(\.\d+)?)\)/
+const INVALID_LAT_LONG_POINT: Point = PointFactory.createInstance({ srs: DEFAULT_SRS.code, x: 0, y: 90 }) // Proj4 returns [0,90] when a wrong coordinate is projected into lat-lon
+
+const POINT_REGEX = /SRID=((EPSG:)?(\w+));POINT\((-?\d+(\.\d+)?) (-?\d+(\.\d+)?)\)/
 
 /**
  * Parses a point in the format: SRID=SRS_CODE;POINT(X Y)
@@ -18,7 +20,12 @@ const POINT_REGEX = /SRID=((EPSG:)?(\w+));POINT\((\d+(\.\d+)?) (\d+(\.\d+)?)\)/
  */
 const parse = (pointText: string): Point | null => {
   const match = POINT_REGEX.exec(pointText)
-  return match ? PointFactory.createInstance({ srs: match[3], x: Number(match[4]), y: Number(match[6]) }) : null
+  if (!match) return null
+
+  const srs = match[3]
+  const x = Number(match[4])
+  const y = Number(match[6])
+  return PointFactory.createInstance({ srs, x, y })
 }
 
 const isFilled = (point: Point): boolean =>
@@ -72,7 +79,34 @@ const distance = (pointFrom: Point, pointTo: Point): number | null => {
   return earthRadius * c
 }
 
+const equals = (point1: Point, point2: Point): boolean => {
+  if (point1 === null && point2 === null) return true
+  if (point1 === null || point2 === null) return false
+  return point1.srs === point2.srs && point1.x === point2.x && point1.y === point2.y
+}
+
+const isValid = (point: Point): boolean => {
+  if (!point || !isFilled(point)) return false
+
+  try {
+    SRSs.getSRSByCode(point.srs)
+  } catch (e) {
+    // SRS not found
+    return false
+  }
+
+  const pointLatLong = toLatLong(point)
+  if (!pointLatLong || equals(pointLatLong, INVALID_LAT_LONG_POINT)) return false
+
+  return Numbers.between(pointLatLong.x, -180, 180) && Numbers.between(pointLatLong.y, -90, 90)
+}
+
+const toString = (point: Point): string => `SRID=${point.srs};POINT(${point.x} ${point.y})`
+
 export const Points = {
   parse,
   distance,
+  equals,
+  isValid,
+  toString,
 }
