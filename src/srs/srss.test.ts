@@ -4,7 +4,8 @@ beforeAll(SRSs.init)
 
 describe('SRSs', () => {
   test('SRSs.getSRSByCode', async () => {
-    const srs = await SRSs.getSRSByCode('4326')
-    expect(srs.name).toBe('GCS WGS 1984')
+    const srs = SRSs.getSRSByCode('4326')
+    expect(srs).toBeDefined()
+    expect(srs?.name).toBe('GCS WGS 1984')
   })
 })

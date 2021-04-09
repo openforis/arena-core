@@ -3,9 +3,8 @@ import { PointFactory } from './pointFactory'
 import { Points } from './points'
 
 describe('Points test', () => {
-  beforeAll(async () => {
-    await SRSs.init()
-  })
+  beforeAll(SRSs.init)
+
   test('parsing incomplete coordinate (missing srs)', () => {
     const parsed = Points.parse('POINT(144.50234 -6.321367)')
     expect(parsed).toBeNull()
