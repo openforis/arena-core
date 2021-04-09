@@ -4,6 +4,7 @@ import { SRSFactory } from './factory'
 const formatName = (name = ''): string => name.replace(/_/g, ' ')
 
 let SRS_MAP: { [code: string]: SRS }
+let SRS_ARRAY: SRS[]
 
 const init = async (): Promise<void> => {
   if (!SRS_MAP) {
@@ -20,6 +21,8 @@ const init = async (): Promise<void> => {
     ])
     GeographicCoordinateSystems.forEach(addCrs)
     ProjectedCoordinateSystems.forEach(addCrs)
+
+    SRS_ARRAY = Object.values(SRS_MAP).sort((srs1, srs2) => srs1.name.localeCompare(srs2.name))
   }
 }
 
@@ -28,7 +31,24 @@ const getSRSByCode = (code: string): SRS | undefined => {
   return SRS_MAP[code]
 }
 
+/**
+ * Finds a list of srs whose name or code matches the specified parameter.
+ *
+ * @param {!string} codeOrName - Code or name of the SRS to find.
+ * @param {number} limit - Maximum number of items to return.
+ * @returns {SRS[]} - List of SRS matching the specified code or name.
+ */
+const findSRSByCodeOrName = (codeOrName: string, limit = 200): SRS[] => {
+  const contains = (string: string, value: string) => string.indexOf(value) >= 0
+  const codeOrNameLowerCase = codeOrName.toLocaleLowerCase()
+  return SRS_ARRAY.filter(
+    (srs) =>
+      contains(srs.code.toLowerCase(), codeOrNameLowerCase) || contains(srs.name.toLowerCase(), codeOrNameLowerCase)
+  ).slice(0, limit)
+}
+
 export const SRSs = {
+  findSRSByCodeOrName,
   getSRSByCode,
   init,
 }
