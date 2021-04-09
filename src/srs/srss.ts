@@ -3,15 +3,15 @@ import { SRSFactory } from './factory'
 
 const formatName = (name = ''): string => name.replace(/_/g, ' ')
 
-let SrsMap: { [code: string]: SRS }
+let SRS_MAP: { [code: string]: SRS }
 
 const init = async (): Promise<void> => {
-  if (!SrsMap) {
-    SrsMap = {}
+  if (!SRS_MAP) {
+    SRS_MAP = {}
     const addCrs = (crs: { name: string; wkid: number; wkt: string }): void => {
       const { name, wkid, wkt } = crs
       const code: string = wkid.toString()
-      SrsMap[code] = SRSFactory.createInstance({ code, name: formatName(name), wkt })
+      SRS_MAP[code] = SRSFactory.createInstance({ code, name: formatName(name), wkt })
     }
 
     const [{ GeographicCoordinateSystems }, { ProjectedCoordinateSystems }] = await Promise.all([
@@ -24,8 +24,8 @@ const init = async (): Promise<void> => {
 }
 
 const getSRSByCode = (code: string): SRS | undefined => {
-  if (!SrsMap) throw new Error('SRSs not initialized. Call SRSs.init() first')
-  return SrsMap[code]
+  if (!SRS_MAP) throw new Error('SRSs not initialized. Call SRSs.init() first')
+  return SRS_MAP[code]
 }
 
 export const SRSs = {
