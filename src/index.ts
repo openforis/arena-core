@@ -17,6 +17,16 @@ export type {
   CategoryService,
 } from './category'
 
+export { ChainStatusExec } from './chain'
+export type {
+  Chain,
+  ChainProps,
+  ChainNodeDef,
+  ChainNodeDefAggregate,
+  ChainNodeDefProps,
+  ChainNodeDefAggregateProps,
+} from './chain'
+
 export type { ArenaObject, Factory } from './common'
 
 export { ExpressionNodeType, ExpressionNodeEvaluator, JavascriptExpressionEvaluator } from './expression'
