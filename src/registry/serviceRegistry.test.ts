@@ -8,6 +8,7 @@ import { TaxonService, TaxonomyService } from '../taxonomy'
 import { UserService } from '../auth'
 
 import { ServiceRegistry } from './serviceRegistry'
+import { ServiceType } from './serviceType'
 
 import { categoryMock, CategoryServiceMock } from './tests/category'
 import { categoryItemMock, CategoryItemServiceMock } from './tests/categoryItem'
@@ -20,7 +21,6 @@ import { surveyMock, SurveyServiceMock } from './tests/survey'
 import { taxonMock, TaxonServiceMock } from './tests/taxon'
 import { taxonomyMock, TaxonomyServiceMock } from './tests/taxonomy'
 import { userMock, UserServiceMock } from './tests/user'
-import { ServiceType } from './serviceType'
 
 beforeAll(() => {
   ServiceRegistry.getInstance()
