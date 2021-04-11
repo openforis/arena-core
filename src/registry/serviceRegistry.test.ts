@@ -64,7 +64,7 @@ describe('ServiceRegistry', () => {
 
   test('ChainService', async () => {
     const service: ChainService = ServiceRegistry.getInstance().getService(ServiceType.chain)
-    const chain = await service.get({ chainUuid: 'fake-uuid', surveyId: 1 })
+    const chain = await service.get({ chainUuid: 'chain_uuid', surveyId: 1 })
 
     expect(service).toBeDefined()
     expect(chain.props.labels?.en).toBeDefined()
