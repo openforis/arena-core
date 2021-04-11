@@ -1,5 +1,4 @@
 import { User } from '../auth'
-import { Step } from '../chain'
 import { Record } from './record'
 
 export interface RecordService {
@@ -14,7 +13,7 @@ export interface RecordService {
   getMany(options: { cycle: string; limit: number; offset: number; surveyId: number }): Promise<Record[]>
 
   // ==== UPDATE
-  update(options: { recordUuid: string; step: Step; surveyId: number; user: User }): Promise<Record>
+  update(options: { recordUuid: string; step: string; surveyId: number; user: User }): Promise<Record>
 
   checkIn(options: {
     draft?: boolean
