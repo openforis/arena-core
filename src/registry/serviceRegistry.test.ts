@@ -1,4 +1,5 @@
 import { CategoryItemService, CategoryService, CategoryLevelService } from '../category'
+import { ChainService } from '../chain'
 import { NodeService } from '../node'
 import { NodeDefService } from '../nodeDef'
 import { RecordService } from '../record'
@@ -20,7 +21,6 @@ import { taxonMock, TaxonServiceMock } from './tests/taxon'
 import { taxonomyMock, TaxonomyServiceMock } from './tests/taxonomy'
 import { userMock, UserServiceMock } from './tests/user'
 import { ServiceType } from './serviceType'
-import { ChainService } from '../chain'
 
 beforeAll(() => {
   ServiceRegistry.getInstance()
