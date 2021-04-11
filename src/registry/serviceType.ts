@@ -2,6 +2,7 @@ export enum ServiceType {
   category = 'category',
   categoryItem = 'categoryItem',
   categoryLevel = 'categoryLevel',
+  chain = 'chain',
   node = 'node',
   nodeDef = 'nodeDef',
   record = 'record',

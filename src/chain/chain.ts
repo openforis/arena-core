@@ -9,9 +9,9 @@ export enum ChainStatusExec {
 }
 
 export interface ChainProps {
-  cycles: Array<string>
-  descriptions: Labels
-  labels: Labels
+  cycles?: Array<string>
+  descriptions?: Labels
+  labels?: Labels
 }
 
 export interface Chain extends ArenaObject<ChainProps> {

@@ -1,4 +1,5 @@
 import { CategoryItemService, CategoryLevelService, CategoryService } from '../category'
+import { ChainService } from '../chain'
 import { NodeService } from '../node'
 import { NodeDefService } from '../nodeDef'
 import { RecordService } from '../record'
@@ -10,6 +11,7 @@ export type Service =
   | CategoryService
   | CategoryItemService
   | CategoryLevelService
+  | ChainService
   | NodeService
   | NodeDefService
   | RecordService
