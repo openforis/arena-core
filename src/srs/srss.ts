@@ -26,8 +26,9 @@ const init = async (): Promise<void> => {
   }
 }
 
-const getSRSByCode = (code: string): SRS | undefined => {
-  if (!SRS_MAP) throw new Error('SRSs not initialized. Call SRSs.init() first')
+const getSRSByCode = async (code: string): Promise<SRS | undefined> => {
+  await init()
+
   return SRS_MAP[code]
 }
 
@@ -36,9 +37,11 @@ const getSRSByCode = (code: string): SRS | undefined => {
  *
  * @param {!string} codeOrName - Code or name of the SRS to find.
  * @param {number} limit - Maximum number of items to return.
- * @returns {SRS[]} - List of SRS matching the specified code or name.
+ * @returns {Promise<SRS[]>} - List of SRS matching the specified code or name.
  */
-const findSRSByCodeOrName = (codeOrName: string, limit = 200): SRS[] => {
+const findSRSByCodeOrName = async (codeOrName: string, limit = 200): Promise<SRS[]> => {
+  await init()
+
   const contains = (string: string, value: string) => string.indexOf(value) >= 0
   const codeOrNameLowerCase = codeOrName.toLocaleLowerCase()
   return SRS_ARRAY.filter(
