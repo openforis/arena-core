@@ -4,7 +4,7 @@ import { CallExpression, ExpressionNodeEvaluator, ExpressionNodeType } from '../
 import { getGlobalObjectProperty } from '../global'
 
 export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, CallExpression> {
-  evaluate(expressionNode: CallExpression): any {
+  async evaluate(expressionNode: CallExpression): Promise<any> {
     const { callee } = expressionNode
 
     if (callee.type === ExpressionNodeType.Member) {
@@ -18,21 +18,26 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     throw new Error(`invalidSyntax ${callee.type}`)
   }
 
-  evaluateMember(expressionNode: CallExpression): any {
-    const { callee, arguments: exprArgs } = expressionNode
+  private async evaluateExpressionArgs(expressionNode: CallExpression, evaluateToNode = false): Promise<any[]> {
+    const { arguments: exprArgs } = expressionNode
+    return Promise.all(exprArgs.map((arg) => this.evaluator.evaluateNode(arg, { ...this.context, evaluateToNode })))
+  }
+
+  private async evaluateMember(expressionNode: CallExpression): Promise<any> {
+    const { callee } = expressionNode
 
     // global function (e.g. Math.round(...))
-    const fn = this.evaluator.evaluateNode(callee, this.context)
+    const fn = await this.evaluator.evaluateNode(callee, this.context)
     if (fn) {
-      const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context))
+      const args = await this.evaluateExpressionArgs(expressionNode)
       return fn(...args)
     }
     return null
   }
 
-  evaluateIdentifier(expressionNode: CallExpression): any {
+  private async evaluateIdentifier(expressionNode: CallExpression): Promise<any> {
     // Arguments is a reserved word in strict mode
-    const { callee, arguments: exprArgs } = expressionNode
+    const { callee } = expressionNode
     const { object: contextObject } = this.context
 
     const { name: fnName } = callee
@@ -45,14 +50,14 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     // identifier is a global object
     const globalFn = getGlobalObjectProperty(fnName, contextObject)
     if (globalFn !== null) {
-      const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context))
+      const args = await this.evaluateExpressionArgs(expressionNode)
       return globalFn(...args)
     }
 
     throw new Error(`undefinedFunction ${fnName}`)
   }
 
-  evaluateCustomIdentifier(expressionNode: CallExpression): any {
+  async evaluateCustomIdentifier(expressionNode: CallExpression): Promise<any> {
     // Arguments is a reserved word in strict mode
     const { callee, arguments: exprArgs } = expressionNode
 
@@ -66,7 +71,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     if (numArgs < minArity) throw new Error(`functionHasTooFewArguments`)
     if (maxArity && maxArity > 0 && numArgs > maxArity) throw new Error('functionHasTooManyArguments')
 
-    const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, { ...this.context, evaluateToNode }))
+    const args = await this.evaluateExpressionArgs(expressionNode, evaluateToNode)
 
     // Currently there are no side effects from function evaluation so it's
     // safe to call the function even when we're just parsing the expression

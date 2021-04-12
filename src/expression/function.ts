@@ -4,6 +4,6 @@ export interface ExpressionFunction<C extends ExpressionContext> {
   name: string
   minArity: number
   maxArity?: number
-  executor: (conxtext: C) => (...args: any[]) => any
+  executor: (conxtext: C) => (...args: any[]) => Promise<any>
   evaluateToNode?: boolean
 }

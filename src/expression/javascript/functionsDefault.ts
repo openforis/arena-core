@@ -8,6 +8,6 @@ export const functionsDefault: Array<ExpressionFunction<ExpressionContext>> = [
     name: 'isEmpty',
     minArity: 1,
     maxArity: 1,
-    executor: () => (value: any) => Objects.isEmpty(value),
+    executor: () => async (value: any): Promise<boolean> => Objects.isEmpty(value),
   },
 ]
