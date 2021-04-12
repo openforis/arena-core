@@ -1,7 +1,5 @@
 import { SRSs } from './srss'
 
-beforeAll(SRSs.init)
-
 describe('SRSs', () => {
   test('SRSs.getSRSByCode', async () => {
     const srs = await SRSs.getSRSByCode('4326')
