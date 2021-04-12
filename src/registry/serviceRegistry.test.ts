@@ -1,4 +1,5 @@
 import { CategoryItemService, CategoryService, CategoryLevelService } from '../category'
+import { ChainService } from '../chain'
 import { NodeService } from '../node'
 import { NodeDefService } from '../nodeDef'
 import { RecordService } from '../record'
@@ -7,25 +8,26 @@ import { TaxonService, TaxonomyService } from '../taxonomy'
 import { UserService } from '../auth'
 
 import { ServiceRegistry } from './serviceRegistry'
+import { ServiceType } from './serviceType'
 
 import { categoryMock, CategoryServiceMock } from './tests/category'
 import { categoryItemMock, CategoryItemServiceMock } from './tests/categoryItem'
 import { categoryLevelMock, CategoryLevelServiceMock } from './tests/categoryLevel'
+import { chainMock, ChainServiceMock } from './tests/chain'
 import { nodeMock, NodeServiceMock } from './tests/node'
 import { nodeDefMock, NodeDefServiceMock } from './tests/nodeDef'
-
 import { recordMock, RecordServiceMock } from './tests/record'
 import { surveyMock, SurveyServiceMock } from './tests/survey'
 import { taxonMock, TaxonServiceMock } from './tests/taxon'
 import { taxonomyMock, TaxonomyServiceMock } from './tests/taxonomy'
 import { userMock, UserServiceMock } from './tests/user'
-import { ServiceType } from './serviceType'
 
 beforeAll(() => {
   ServiceRegistry.getInstance()
     .registerService(ServiceType.category, new CategoryServiceMock())
     .registerService(ServiceType.categoryItem, new CategoryItemServiceMock())
     .registerService(ServiceType.categoryLevel, new CategoryLevelServiceMock())
+    .registerService(ServiceType.chain, new ChainServiceMock())
     .registerService(ServiceType.node, new NodeServiceMock())
     .registerService(ServiceType.nodeDef, new NodeDefServiceMock())
     .registerService(ServiceType.record, new RecordServiceMock())
@@ -58,6 +60,15 @@ describe('ServiceRegistry', () => {
 
     expect(service).not.toBeNull()
     expect(categoryLevel.props.name).toBe(categoryLevelMock.props.name)
+  })
+
+  test('ChainService', async () => {
+    const service: ChainService = ServiceRegistry.getInstance().getService(ServiceType.chain)
+    const chain = await service.get({ chainUuid: 'chain_uuid', surveyId: 1 })
+
+    expect(service).toBeDefined()
+    expect(chain.props.labels?.en).toBeDefined()
+    expect(chain.props.labels?.en).toBe(chainMock.props.labels?.en)
   })
 
   test('NodeService', async () => {

@@ -14,7 +14,7 @@ export interface UserService {
   // ==== READ
   count(options: { user: User; surveyId: number }): Promise<number>
 
-  get(options: { userUuid: string }): Promise<User>
+  get(options: { userUuid: string } | { email: string; password?: string }): Promise<User>
   getMany(options: { surveyId: number; limit?: number; offset?: number; user: User }): Promise<Array<User>>
   getProfilePicture(options: { userUuid: string }): Promise<string>
 
