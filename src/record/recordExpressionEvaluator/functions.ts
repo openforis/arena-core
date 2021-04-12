@@ -1,5 +1,5 @@
 import { Records } from '../records'
-import { Node, Nodes } from '../../node'
+import { Nodes } from '../../node'
 import { ExpressionFunction } from '../../expression'
 import { RecordExpressionContext } from './context'
 import { Objects } from '../../utils'
@@ -10,11 +10,11 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
   {
     name: 'categoryItemProp',
     minArity: 3,
-    executor: (context: RecordExpressionContext) => async (
+    executor: (context: RecordExpressionContext) => (
       categoryName: string,
       itemPropName: string,
       ...codePaths: string[]
-    ): Promise<any | null> => {
+    ) => {
       const { survey } = context
       const category = survey.categories
         ? Object.values(survey.categories).find((category) => category.props.name === categoryName)
@@ -32,22 +32,19 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
     name: 'distance',
     minArity: 2,
     maxArity: 2,
-    executor: () => async (coordinateFrom: Point | string, coordinateTo: Point | string): Promise<number | null> => {
+    executor: () => (coordinateFrom: Point | string, coordinateTo: Point | string): number | null => {
       const toPoint = (coordinate: Point | string): Point | null =>
         coordinate && typeof coordinate === 'string' ? Points.parse(coordinate) : (coordinate as Point)
       const pointFrom = toPoint(coordinateFrom)
       const pointTo = toPoint(coordinateTo)
-      if (pointFrom && pointTo) {
-        return Points.distance(pointFrom, pointTo)
-      }
-      return null
+      return pointFrom && pointTo ? Points.distance(pointFrom, pointTo) : null
     },
   },
   {
     name: 'index',
     minArity: 1,
     maxArity: 1,
-    executor: (context: RecordExpressionContext) => async (node): Promise<number> => {
+    executor: (context: RecordExpressionContext) => (node) => {
       if (!node) {
         return -1
       }
@@ -68,9 +65,9 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
     minArity: 1,
     maxArity: 1,
     evaluateToNode: true,
-    executor: (context: RecordExpressionContext) => async (node): Promise<Node | undefined> => {
+    executor: (context: RecordExpressionContext) => (node) => {
       if (!node || Nodes.isRoot(node)) {
-        return undefined
+        return null
       }
       const { record } = context
       return Records.getParent({ record, node })

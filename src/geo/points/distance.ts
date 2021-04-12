@@ -6,11 +6,11 @@ import { toLatLong } from './toLatLong'
  *
  * @param {!object} pointFrom - Start point.
  * @param {!object} pointTo - End point.
- * @returns {Promise<number| null>} - The result Promise with the distance between the specified points in meters.
+ * @returns {number} - Distance between the specified points in meters.
  */
-export const distance = async (pointFrom: Point, pointTo: Point): Promise<number | null> => {
-  const point1LatLong = await toLatLong(pointFrom)
-  const point2LatLong = await toLatLong(pointTo)
+export const distance = (pointFrom: Point, pointTo: Point): number | null => {
+  const point1LatLong = toLatLong(pointFrom)
+  const point2LatLong = toLatLong(pointTo)
 
   if (!point1LatLong || !point2LatLong) return null
 

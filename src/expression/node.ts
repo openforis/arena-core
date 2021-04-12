@@ -67,5 +67,5 @@ export abstract class ExpressionNodeEvaluator<
     this.context = context
   }
 
-  abstract evaluate(expressionNode: N): Promise<any>
+  abstract evaluate(expressionNode: N): any
 }

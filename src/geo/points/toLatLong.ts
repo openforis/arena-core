@@ -5,7 +5,7 @@ import { Point } from '../point'
 import { PointFactory } from '../pointFactory'
 import { isFilled } from './isFilled'
 
-export const toLatLong = async (point: Point): Promise<Point | null> => {
+export const toLatLong = (point: Point): Point | null => {
   if (!isFilled(point)) return null
 
   const { x, y, srs } = point
@@ -15,7 +15,7 @@ export const toLatLong = async (point: Point): Promise<Point | null> => {
     return point
   }
 
-  const srsFrom = await SRSs.getSRSByCode(srs)
+  const srsFrom = SRSs.getSRSByCode(srs)
   if (!srsFrom) return null
 
   const srsTo = DEFAULT_SRS
