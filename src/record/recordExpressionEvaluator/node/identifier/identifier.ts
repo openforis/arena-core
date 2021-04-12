@@ -64,9 +64,9 @@ const getNodesOrValues = (params: {
 }
 
 export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpressionContext> {
-  evaluate(expressionNode: IdentifierExpression): any {
+  async evaluate(expressionNode: IdentifierExpression): Promise<any> {
     try {
-      const result = super.evaluate(expressionNode)
+      const result = await super.evaluate(expressionNode)
       return result
     } catch (e) {
       // ignore it

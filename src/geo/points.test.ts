@@ -1,10 +1,7 @@
-import { SRSs } from '../srs'
 import { PointFactory } from './pointFactory'
 import { Points } from './points'
 
 describe('Points test', () => {
-  beforeAll(SRSs.init)
-
   test('parsing incomplete coordinate (missing srs)', () => {
     const parsed = Points.parse('POINT(144.50234 -6.321367)')
     expect(parsed).toBeNull()
@@ -32,24 +29,24 @@ describe('Points test', () => {
       expect(parsedToString).toBe(pointString)
     }
   })
-  test('validate valid coordinate', () => {
+  test('validate valid coordinate', async () => {
     const point = PointFactory.createInstance({ srs: '4326', x: 144.50234, y: -6.321367 })
-    const valid = Points.isValid(point)
+    const valid = await Points.isValid(point)
     expect(valid).toBeTruthy()
   })
-  test('validate invalid coordinate (invalid srs)', () => {
+  test('validate invalid coordinate (invalid srs)', async () => {
     const point = PointFactory.createInstance({ srs: '99999', x: 144.50234, y: -6.321367 })
-    const valid = Points.isValid(point)
+    const valid = await Points.isValid(point)
     expect(valid).toBeFalsy()
   })
-  test('validate invalid coordinate (invalid x)', () => {
+  test('validate invalid coordinate (invalid x)', async () => {
     const point = PointFactory.createInstance({ srs: '4326', x: 244.50234, y: -6.321367 })
-    const valid = Points.isValid(point)
+    const valid = await Points.isValid(point)
     expect(valid).toBeFalsy()
   })
-  test('validate invalid coordinate (invalid y)', () => {
+  test('validate invalid coordinate (invalid y)', async () => {
     const point = PointFactory.createInstance({ srs: '4326', x: 144.50234, y: -96.321367 })
-    const valid = Points.isValid(point)
+    const valid = await Points.isValid(point)
     expect(valid).toBeFalsy()
   })
 })
