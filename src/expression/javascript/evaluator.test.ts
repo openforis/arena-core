@@ -58,11 +58,11 @@ const queries: Array<Query> = [
 
 describe('JavascriptExpressionEvaluator test', () => {
   queries.forEach((query: Query) => {
-    test(query.expression, async () => {
+    test(query.expression, () => {
       const { expression, result: resultExpected, error: errorExpected = false } = query
 
       try {
-        const res = await new JavascriptExpressionEvaluator().evaluate(expression)
+        const res = new JavascriptExpressionEvaluator().evaluate(expression)
         expect(res).toEqual(resultExpected)
       } catch (error) {
         if (errorExpected) {

@@ -41,7 +41,7 @@ const binaryOperators = {
 }
 
 export class BinaryEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, BinaryExpression> {
-  async evaluate(expressionNode: BinaryExpression): Promise<any> {
+  evaluate(expressionNode: BinaryExpression): any {
     const { left, right, operator } = expressionNode
 
     const fn = binaryOperators[operator]
@@ -49,8 +49,8 @@ export class BinaryEvaluator<C extends ExpressionContext> extends ExpressionNode
       throw new Error(`Boolean ${operator} not supported`)
     }
 
-    const leftResult = await this.evaluator.evaluateNode(left, this.context)
-    const rightResult = await this.evaluator.evaluateNode(right, this.context)
+    const leftResult = this.evaluator.evaluateNode(left, this.context)
+    const rightResult = this.evaluator.evaluateNode(right, this.context)
 
     const nullCount = [leftResult, rightResult].filter((result) => result === null || result === undefined).length
 

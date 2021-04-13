@@ -109,7 +109,7 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'index(plot[0].plot_multiple_number[1])', result: 1 },
     { expression: 'index(plot[0].plot_multiple_number[2])', result: -1 },
     // parent
-    { expression: 'parent(cluster)', result: undefined },
+    { expression: 'parent(cluster)', result: null },
     { expression: 'parent(remarks)', result: () => getNode('cluster') },
     { expression: 'parent(plot_id)', result: () => getNode('cluster.plot[1]'), node: 'cluster.plot[1].plot_id' },
     { expression: 'parent(parent(plot_id))', result: () => getNode('cluster'), node: 'cluster.plot[1].plot_id' },
@@ -212,7 +212,7 @@ describe('RecordExpressionEvaluator', () => {
 
   queries.forEach((query: Query) => {
     const { expression, result, error: errorExpected = false, node } = query
-    test(`${expression}${node ? ` (node: ${node})` : ''}`, async () => {
+    test(`${expression}${node ? ` (node: ${node})` : ''}`, () => {
       try {
         const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid })
@@ -222,7 +222,7 @@ describe('RecordExpressionEvaluator', () => {
           throw new Error(`Cannot find context node: ${node}`)
         }
         const context: RecordExpressionContext = { survey, record, nodeContext, object: nodeContext }
-        const res = await new RecordExpressionEvaluator().evaluate(expression, context)
+        const res = new RecordExpressionEvaluator().evaluate(expression, context)
         expect(res).toEqual(result instanceof Function ? result() : result)
       } catch (error) {
         if (errorExpected) {
