@@ -36,6 +36,8 @@ const path = (path: Array<string> | string) => (obj: any): any => {
   return current
 }
 
+const propertyOf = <T>(name: keyof T): keyof T => name
+
 const setInPath = (params: { obj: any; path: string[]; value: any; excludeEmpty?: boolean }): any => {
   const { obj, path, value, excludeEmpty } = params
   if (excludeEmpty && isEmpty(value)) {
@@ -59,5 +61,6 @@ const setInPath = (params: { obj: any; path: string[]; value: any; excludeEmpty?
 export const Objects = {
   isEmpty,
   path,
+  propertyOf,
   setInPath,
 }
