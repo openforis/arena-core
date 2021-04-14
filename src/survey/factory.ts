@@ -13,22 +13,24 @@ export type SurveyFactoryParams = {
   languages?: LanguageCode[]
   published?: boolean
   draft?: boolean
+  template?: boolean
   collectUri?: string
   descriptions?: Labels
   authGroups?: AuthGroup[]
 }
 
-const defaultProps = {
+const defaultParams = {
   languages: [LanguageCode.en],
   published: false,
   draft: true,
+  template: false,
   authGroups: DEFAULT_AUTH_GROUPS,
 }
 
 export const SurveyFactory: Factory<Survey, SurveyFactoryParams> = {
   createInstance: (params: SurveyFactoryParams): Survey => {
-    const { ownerUuid, name, label, languages, published, draft, collectUri, descriptions, authGroups } = {
-      ...defaultProps,
+    const { ownerUuid, name, label, languages, published, draft, collectUri, descriptions, authGroups, template } = {
+      ...defaultParams,
       ...params,
     }
 
@@ -52,6 +54,7 @@ export const SurveyFactory: Factory<Survey, SurveyFactoryParams> = {
         descriptions,
         collectUri,
       },
+      template,
     }
   },
 }
