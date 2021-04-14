@@ -7,3 +7,5 @@ export { UserStatus, UserTitle } from './user'
 export { UserFactory } from './factory'
 
 export { Permission } from './permission'
+
+export { Users } from './users'
