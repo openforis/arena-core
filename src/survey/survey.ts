@@ -45,6 +45,7 @@ export interface Survey extends ArenaObject<SurveyProps> {
   ownerUuid: string
   published: boolean
   readonly id?: number
+  template: boolean
   uuid: string
   /**
    * Categories indexed by uuid.
