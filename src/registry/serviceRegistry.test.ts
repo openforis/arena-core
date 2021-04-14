@@ -90,7 +90,7 @@ describe('ServiceRegistry', () => {
 
   test('RecordService', async () => {
     const service: RecordService = ServiceRegistry.getInstance().getService(ServiceType.record)
-    const record = await service.get({ recordUuid: 'record_uuid', surveyId: 1, cycle: 'cycle' })
+    const record = await service.get({ recordUuid: 'record_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
     expect(record.ownerUuid).toBe(recordMock.ownerUuid)
@@ -98,7 +98,7 @@ describe('ServiceRegistry', () => {
 
   test('SurveyService', async () => {
     const service: SurveyService = ServiceRegistry.getInstance().getService(ServiceType.survey)
-    const survey = await service.get({ surveyId: 1, user: userMock })
+    const survey = await service.get({ surveyId: 1 })
 
     expect(service).not.toBeNull()
     expect(survey.props.name).toBe(surveyMock.props.name)
