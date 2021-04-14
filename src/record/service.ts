@@ -8,7 +8,7 @@ export interface RecordService {
   // ==== READ
   count(options: { cycle: string; surveyId: number }): Promise<number>
 
-  get(options: { cycle: string; recordUuid: string; surveyId: number }): Promise<Record>
+  get(options: { recordUuid: string; surveyId: number }): Promise<Record>
 
   getMany(options: { cycle: string; limit: number; offset: number; surveyId: number }): Promise<Record[]>
 
