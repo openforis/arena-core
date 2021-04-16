@@ -1,9 +1,14 @@
 import { Objects } from '../../utils'
 
 import { ValidationResultFactory } from '../factory'
-import { ValidationResult } from '../validation'
+import { ValidationResult, ValidationSeverity } from '../validation'
 
-export const required = (messageKey: string) => (field: string, obj: any): ValidationResult | undefined => {
+export const required = (messageKey: string) => (field: string, obj: any): ValidationResult => {
   const value = Objects.path(field)(obj)
-  return Objects.isEmpty(value) ? ValidationResultFactory.createInstance({ messageKey }) : undefined
+  const valid = !Objects.isEmpty(value)
+  return ValidationResultFactory.createInstance({
+    valid,
+    messageKey,
+    severity: ValidationSeverity.error,
+  })
 }
