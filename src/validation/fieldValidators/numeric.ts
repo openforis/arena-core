@@ -5,9 +5,7 @@ import { ValidationResult } from '../validation'
 export const numeric = (messageKey = 'invalid_number', messageParams: any = {}) => (
   field: string,
   obj: any
-): ValidationResult => {
+): ValidationResult | undefined => {
   const value = Objects.path(field)(obj)
-  return value && isNaN(value)
-    ? ValidationResultFactory.createInstance({ messageKey, messageParams })
-    : <ValidationResult>(<unknown>null)
+  return value && isNaN(value) ? ValidationResultFactory.createInstance({ messageKey, messageParams }) : undefined
 }

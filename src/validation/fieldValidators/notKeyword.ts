@@ -23,9 +23,7 @@ const keywords = [
   'value',
 ]
 
-export const notKeyword = (messageKey: string) => (field: string, obj: any): ValidationResult => {
+export const notKeyword = (messageKey: string) => (field: string, obj: any): ValidationResult | undefined => {
   const value = Objects.path(field)(obj)
-  return value && keywords.includes(value)
-    ? ValidationResultFactory.createInstance({ messageKey })
-    : <ValidationResult>(<unknown>null)
+  return value && keywords.includes(value) ? ValidationResultFactory.createInstance({ messageKey }) : undefined
 }

@@ -1,3 +1,3 @@
 import { ValidationResult } from './validation'
 
-export type FieldValidator = (field: string, obj: any) => ValidationResult
+export type FieldValidator = (field: string, obj: any) => ValidationResult | undefined
