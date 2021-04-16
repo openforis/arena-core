@@ -8,11 +8,11 @@ export const numericPositive = (messageKey: string, messageParams: any = {}) => 
   obj: any
 ): ValidationResult => {
   const validateNumberResult = numeric(messageKey, messageParams)(field, obj)
-  if (validateNumberResult) {
+  if (!validateNumberResult.valid) {
     return validateNumberResult
   }
   const value = Objects.path(field)(obj)
-  const valid = Objects.isEmpty(value) || (!isNaN(value) && value >= 0)
+  const valid = Objects.isEmpty(value) || value >= 0
 
   return ValidationResultFactory.createInstance({
     valid,
