@@ -34,4 +34,5 @@ export interface User extends ArenaObject<UserProps> {
   prefs?: UserPrefs
   status: UserStatus
   password?: string
+  invitationExpired?: boolean
 }
