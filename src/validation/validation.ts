@@ -6,10 +6,11 @@ export enum ValidationSeverity {
 }
 
 export interface ValidationResult {
-  severity: ValidationSeverity
-  messageKey: string
+  severity?: ValidationSeverity
+  messageKey?: string
   messageParams?: { [key: string]: any }
   customMessages?: Labels
+  valid: boolean
 }
 
 export interface Validation {
