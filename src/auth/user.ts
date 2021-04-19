@@ -26,6 +26,10 @@ export interface UserProps {
   title?: UserTitle
 }
 
+export interface UserInvitation {
+  expired: boolean
+}
+
 export interface User extends ArenaObject<UserProps> {
   authGroups?: AuthGroup[]
   email: string
@@ -33,4 +37,6 @@ export interface User extends ArenaObject<UserProps> {
   name: string
   prefs?: UserPrefs
   status: UserStatus
+  password?: string
+  invitation?: UserInvitation
 }
