@@ -8,6 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "alwaysStrict": true,
     "declaration": true,
+    "esModuleInterop": true,
     "isolatedModules": true,
     "module": "CommonJS",
     "moduleResolution": "Node",

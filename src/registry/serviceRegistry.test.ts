@@ -69,6 +69,7 @@ describe('ServiceRegistry', () => {
     expect(service).toBeDefined()
     expect(chain.props.labels?.en).toBeDefined()
     expect(chain.props.labels?.en).toBe(chainMock.props.labels?.en)
+    expect(chain.validation.valid).toBe(true)
   })
 
   test('NodeService', async () => {

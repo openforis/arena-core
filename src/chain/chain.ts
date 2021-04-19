@@ -20,6 +20,6 @@ export interface Chain extends ArenaObject<ChainProps> {
   dateModified?: string
   scriptCommon?: string
   statusExec?: string
-  validation?: Validation
+  validation: Validation
   temporary?: boolean
 }
