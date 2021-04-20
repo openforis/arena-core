@@ -136,5 +136,6 @@ export {
   ValidationResultFactory,
   ValidationSeverity,
   Validator,
+  ValidatorErrorKeys,
 } from './validation'
-export type { FieldValidator, Validation, ValidationResult, ValidatorErrorKeys } from './validation'
+export type { FieldValidator, Validation, ValidationResult } from './validation'
