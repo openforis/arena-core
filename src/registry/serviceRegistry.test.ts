@@ -126,6 +126,7 @@ describe('ServiceRegistry', () => {
     const user = await service.get({ userUuid: 'userUuid' })
 
     expect(service).not.toBeNull()
-    expect(user.name).toBe(userMock.name)
+    expect(user).not.toBeNull()
+    expect(user?.name).toBe(userMock.name)
   })
 })
