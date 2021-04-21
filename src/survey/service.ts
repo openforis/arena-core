@@ -27,6 +27,7 @@ export interface SurveyService {
     nodeDefOptions?: { advanced?: boolean; cycle?: string; deleted?: boolean; draft?: boolean; include: boolean }
     surveyId: number
     validate?: boolean
+    backup?: boolean
   }): Promise<Survey>
 
   // ==== UPDATE
