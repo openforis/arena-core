@@ -19,8 +19,9 @@ export const _walk = (options: { object: any; skip?: string[] }): any => {
 /**
  * Recursively transform the keys of the specified object to camel-case.
  *
- * @param {object} [params={}] - The camelize parameters.
- * @param {Array} [params.skip=[]] - An optional list of keys to skip.
+ * @param {!object} [options] - The camelize options.
+ * @param {!object} [options.object] - Object to be camelized
+ * @param {Array} [options.skip=array[]] - An optional list of keys to skip.
  *
  * @returns {any} - The object with keys in camel case or the value in camel case.
  */
