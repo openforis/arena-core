@@ -138,4 +138,4 @@ export {
   Validator,
   ValidatorErrorKeys,
 } from './validation'
-export type { FieldValidator, Validation, ValidationResult } from './validation'
+export type { FieldValidator, Validation, ValidationResult, ValidationCounts } from './validation'

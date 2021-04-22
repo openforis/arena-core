@@ -13,6 +13,11 @@ export interface ValidationResult {
   valid: boolean
 }
 
+export interface ValidationCounts {
+  errors: number
+  warnings: number
+}
+
 export interface Validation {
   errors: ValidationResult[]
   fields: {
@@ -20,4 +25,5 @@ export interface Validation {
   }
   valid: boolean
   warnings: ValidationResult[]
+  counts?: ValidationCounts
 }
