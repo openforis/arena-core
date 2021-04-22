@@ -1,6 +1,6 @@
 export type { FieldValidator } from './fieldValidator'
 export { FieldValidators } from './fieldValidators'
-export type { Validation, ValidationResult } from './validation'
+export type { Validation, ValidationResult, ValidationCounts } from './validation'
 export { ValidationSeverity } from './validation'
 export { ValidationFactory, ValidationResultFactory } from './factory'
 export { Validator } from './validator'
