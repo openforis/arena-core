@@ -1,5 +1,5 @@
-import { ArenaObject } from 'src/common'
-import { Labels } from 'src/language'
+import { ArenaObject } from '../common'
+import { Labels } from '../language'
 
 export enum NodeDefType {
   boolean = 'boolean',
@@ -21,6 +21,7 @@ export interface NodeDefMeta {
 
 export interface NodeDefProps {
   cycles?: Array<string>
+  key?: boolean
   labels?: Labels
   multiple?: boolean
   name?: string
@@ -61,7 +62,7 @@ export interface NodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDef
   deleted?: boolean
   draft?: boolean
   id?: number
-  meta?: NodeDefMeta
+  meta: NodeDefMeta
   parentUuid?: string
   propsAdvanced?: NodeDefPropsAdvanced
   propsAdvancedDraft?: NodeDefPropsAdvanced

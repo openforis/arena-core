@@ -1,7 +1,10 @@
 export type { Chain, ChainProps } from './chain'
 export { ChainStatusExec } from './chain'
 
-export type { Step, StepProps } from './step'
+export type { ChainNodeDef, ChainNodeDefProps } from './chainNodeDef'
 
-export type { Calculation, CalculationProps } from './calculation'
-export { CalculationAggregateFn, CalculationType } from './calculation'
+export type { ChainNodeDefAggregate, ChainNodeDefAggregateProps } from './chainNodeDefAggregate'
+
+export { ChainFactory } from './chainFactory'
+
+export type { ChainService } from './chainService'

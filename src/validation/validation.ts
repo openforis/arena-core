@@ -1,4 +1,4 @@
-import { Labels } from 'src/language'
+import { Labels } from '../language'
 
 export enum ValidationSeverity {
   error = 'error',
@@ -6,10 +6,16 @@ export enum ValidationSeverity {
 }
 
 export interface ValidationResult {
-  severity: ValidationSeverity
-  messageKey: string
+  severity?: ValidationSeverity
+  messageKey?: string
   messageParams?: { [key: string]: any }
   customMessages?: Labels
+  valid: boolean
+}
+
+export interface ValidationCounts {
+  errors: number
+  warnings: number
 }
 
 export interface Validation {
@@ -19,4 +25,5 @@ export interface Validation {
   }
   valid: boolean
   warnings: ValidationResult[]
+  counts?: ValidationCounts
 }

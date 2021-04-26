@@ -1,6 +1,6 @@
-import { ArenaObject } from 'src/common'
-import { Labels } from 'src/language'
-import { Step } from './step'
+import { ArenaObject } from '../common'
+import { Labels } from '../language'
+import { Validation } from '../validation'
 
 export enum ChainStatusExec {
   error = 'error',
@@ -9,17 +9,17 @@ export enum ChainStatusExec {
 }
 
 export interface ChainProps {
-  cycles: Array<string>
-  descriptions: Labels
-  labels: Labels
+  cycles?: Array<string>
+  descriptions?: Labels
+  labels?: Labels
 }
 
 export interface Chain extends ArenaObject<ChainProps> {
   dateCreated?: string
   dateExecuted?: string
   dateModified?: string
-  processingSteps?: Array<Step>
   scriptCommon?: string
   statusExec?: string
+  validation: Validation
   temporary?: boolean
 }

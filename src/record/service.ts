@@ -1,5 +1,4 @@
-import { User } from 'src/auth'
-import { Step } from 'src/chain'
+import { User } from '../auth'
 import { Record } from './record'
 
 export interface RecordService {
@@ -9,12 +8,12 @@ export interface RecordService {
   // ==== READ
   count(options: { cycle: string; surveyId: number }): Promise<number>
 
-  get(options: { cycle: string; recordUuid: string; surveyId: number }): Promise<Record>
+  get(options: { recordUuid: string; surveyId: number }): Promise<Record>
 
   getMany(options: { cycle: string; limit: number; offset: number; surveyId: number }): Promise<Record[]>
 
   // ==== UPDATE
-  update(options: { recordUuid: string; step: Step; surveyId: number; user: User }): Promise<Record>
+  update(options: { recordUuid: string; step: string; surveyId: number; user: User }): Promise<Record>
 
   checkIn(options: {
     draft?: boolean

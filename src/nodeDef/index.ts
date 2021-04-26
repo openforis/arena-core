@@ -1,3 +1,5 @@
+export { NodeDefFactory } from './factory'
+
 export type {
   NodeDef,
   NodeDefProps,
@@ -10,7 +12,6 @@ export type {
 export { NodeDefType } from './nodeDef'
 
 export type { NodeDefService } from './service'
-export { NodeDefFactory } from './factory'
 
 // ==== node def types
 export type { NodeDefBoolean, NodeDefBooleanProps } from './types/boolean'

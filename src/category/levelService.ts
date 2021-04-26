@@ -1,4 +1,4 @@
-import { User } from 'src/auth'
+import { User } from '../auth'
 import { Category } from './category'
 import { CategoryLevel, CategoryLevelProps } from './level'
 

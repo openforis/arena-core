@@ -48,15 +48,21 @@ export interface UnaryExpression extends ExpressionNode<ExpressionNodeType.Unary
   operator: string
 }
 
-export interface ExpressionNodeEvaluatorConstructor<N extends ExpressionNode<ExpressionNodeType>> {
-  new (evaluator: ExpressionEvaluator, context: ExpressionContext): ExpressionNodeEvaluator<N>
+export interface ExpressionNodeEvaluatorConstructor<
+  C extends ExpressionContext,
+  N extends ExpressionNode<ExpressionNodeType>
+> {
+  new (evaluator: ExpressionEvaluator<C>, context: C): ExpressionNodeEvaluator<C, N>
 }
 
-export abstract class ExpressionNodeEvaluator<N extends ExpressionNode<ExpressionNodeType>> {
-  readonly evaluator: ExpressionEvaluator
-  readonly context: ExpressionContext
+export abstract class ExpressionNodeEvaluator<
+  C extends ExpressionContext,
+  N extends ExpressionNode<ExpressionNodeType>
+> {
+  readonly evaluator: ExpressionEvaluator<C>
+  readonly context: C
 
-  constructor(evaluator: ExpressionEvaluator, context: ExpressionContext) {
+  constructor(evaluator: ExpressionEvaluator<C>, context: C) {
     this.evaluator = evaluator
     this.context = context
   }

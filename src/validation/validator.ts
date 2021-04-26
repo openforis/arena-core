@@ -14,7 +14,7 @@ export class Validator {
     const errors: Array<ValidationResult> = []
     const warnings: Array<ValidationResult> = []
     validations.forEach((validationResult) => {
-      if (validationResult) {
+      if (!validationResult.valid) {
         const arr = validationResult.severity === ValidationSeverity.error ? errors : warnings
         arr.push(validationResult)
       }

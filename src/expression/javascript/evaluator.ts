@@ -13,41 +13,45 @@ import { LiteralEvaluator } from './node/literal'
 import { MemberEvaluator } from './node/member'
 import { ThisEvaluator } from './node/this'
 import { UnaryEvaluator } from './node/unary'
-// @ts-ignore
-import * as jsep from './parser/jsep'
+import { jsep } from './parser/jsep'
 
-export class JavascriptExpressionEvaluator implements ExpressionEvaluator {
-  functions: { [functionName: string]: ExpressionFunction }
-  evaluators: {
-    [nodeType in ExpressionNodeType]: ExpressionNodeEvaluatorConstructor<ExpressionNode<ExpressionNodeType>>
-  }
+type Evaluators<C extends ExpressionContext> = {
+  [nodeType in ExpressionNodeType]?: ExpressionNodeEvaluatorConstructor<C, ExpressionNode<ExpressionNodeType>>
+}
 
-  constructor(functions: Array<ExpressionFunction> = []) {
-    this.evaluators = {
-      [ExpressionNodeType.Binary]: BinaryEvaluator,
-      [ExpressionNodeType.Call]: CallEvaluator,
-      [ExpressionNodeType.Compound]: CompoundEvaluator,
-      [ExpressionNodeType.Group]: GroupEvaluator,
-      [ExpressionNodeType.Identifier]: IdentifierEvaluator,
-      [ExpressionNodeType.Literal]: LiteralEvaluator,
-      [ExpressionNodeType.Logical]: BinaryEvaluator,
-      [ExpressionNodeType.Member]: MemberEvaluator,
-      [ExpressionNodeType.This]: ThisEvaluator,
-      [ExpressionNodeType.Unary]: UnaryEvaluator,
-    }
-    this.functions = [...functionsDefault, ...functions].reduce<{ [functionName: string]: ExpressionFunction }>(
+const defaultEvaluators = {
+  [ExpressionNodeType.Binary]: BinaryEvaluator,
+  [ExpressionNodeType.Call]: CallEvaluator,
+  [ExpressionNodeType.Compound]: CompoundEvaluator,
+  [ExpressionNodeType.Group]: GroupEvaluator,
+  [ExpressionNodeType.Identifier]: IdentifierEvaluator,
+  [ExpressionNodeType.Literal]: LiteralEvaluator,
+  [ExpressionNodeType.Logical]: BinaryEvaluator,
+  [ExpressionNodeType.Member]: MemberEvaluator,
+  [ExpressionNodeType.This]: ThisEvaluator,
+  [ExpressionNodeType.Unary]: UnaryEvaluator,
+}
+
+export class JavascriptExpressionEvaluator<C extends ExpressionContext> implements ExpressionEvaluator<C> {
+  functions: { [functionName: string]: ExpressionFunction<C> }
+  evaluators: Evaluators<C>
+
+  constructor(functions: Array<ExpressionFunction<C>> = [], evaluators: Evaluators<C> = {}) {
+    this.evaluators = { ...defaultEvaluators, ...evaluators }
+    this.functions = [...functionsDefault, ...functions].reduce(
       (functionsAcc, expressionFunction) => ({ ...functionsAcc, [expressionFunction.name]: expressionFunction }),
       {}
     )
   }
 
-  evaluate(expression: string): any {
-    return this.evaluateNode(jsep(expression), {})
+  evaluate(expression: string, context?: C): any {
+    return this.evaluateNode(jsep(expression), context || ({} as C))
   }
 
-  evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: ExpressionContext): any {
+  evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: C): any {
     const { type } = expressionNode
-    const NodeEvaluator: ExpressionNodeEvaluatorConstructor<ExpressionNode<ExpressionNodeType>> = this.evaluators[type]
+
+    const NodeEvaluator = this.evaluators[type]
     if (!NodeEvaluator) {
       throw new Error(`Unsupported function type: ${type}`)
     }

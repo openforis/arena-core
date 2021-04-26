@@ -1,4 +1,4 @@
-import { ArenaObject } from 'src/common'
+import { ArenaObject } from '../common'
 import { CategoryLevel } from './level'
 
 export enum CategoryItemExtraDefDataType {
@@ -20,6 +20,6 @@ export interface CategoryProps {
 
 export interface Category extends ArenaObject<CategoryProps> {
   id?: number
-  levels?: CategoryLevel[]
+  levels: CategoryLevel[]
   published?: boolean
 }

@@ -1,12 +1,13 @@
 import { Objects } from '../../utils'
+import { ExpressionContext } from '../context'
 
 import { ExpressionFunction } from '../function'
 
-export const functionsDefault: Array<ExpressionFunction> = [
+export const functionsDefault: Array<ExpressionFunction<ExpressionContext>> = [
   {
     name: 'isEmpty',
     minArity: 1,
     maxArity: 1,
-    executor: (value: any) => Objects.isEmpty(value),
+    executor: () => (value: any) => Objects.isEmpty(value),
   },
 ]

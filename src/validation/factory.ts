@@ -1,5 +1,5 @@
-import { Factory } from 'src/common'
-import { Labels } from 'src/language'
+import { Factory } from '../common'
+import { Labels } from '../language'
 import { Validation, ValidationResult, ValidationSeverity } from './validation'
 
 type ValidationFactoryParams = {
@@ -34,22 +34,25 @@ export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
 
 type ValidationResultFactoryParams = {
   customMessages?: Labels
-  messageKey: string
+  messageKey?: string
   messageParams?: { [key: string]: any }
   severity?: ValidationSeverity
+  valid?: boolean
 }
 
 export const ValidationResultFactory: Factory<ValidationResult, ValidationResultFactoryParams> = {
-  createInstance: (params: ValidationResultFactoryParams): ValidationResult => {
+  createInstance: (params: ValidationResultFactoryParams = {}): ValidationResult => {
     const defaultParams = {
-      severity: ValidationSeverity.error,
+      valid: true,
     }
-    const { severity, messageKey, messageParams, customMessages } = { ...defaultParams, ...params }
+
+    const { severity, messageKey, messageParams, customMessages, valid } = { ...defaultParams, ...params }
     return {
       severity,
       messageKey,
       messageParams,
       customMessages,
+      valid,
     }
   },
 }

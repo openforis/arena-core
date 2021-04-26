@@ -1,7 +1,9 @@
-export interface ExpressionFunction {
+import { ExpressionContext } from './context'
+
+export interface ExpressionFunction<C extends ExpressionContext> {
   name: string
   minArity: number
   maxArity?: number
-  executor: (...args: any[]) => any
+  executor: (conxtext: C) => (...args: any[]) => any
   evaluateToNode?: boolean
 }

@@ -18,14 +18,16 @@ export interface SurveyService {
   // ==== READ
   count(options: { user: User }): Promise<number>
 
+  getAllIds(): Promise<Array<number>>
+
   getMany(options: { limit?: number; offset?: number; user: User }): Promise<Array<Survey>>
 
   get(options: {
     draft?: boolean
     nodeDefOptions?: { advanced?: boolean; cycle?: string; deleted?: boolean; draft?: boolean; include: boolean }
     surveyId: number
-    user: User
     validate?: boolean
+    backup?: boolean
   }): Promise<Survey>
 
   // ==== UPDATE

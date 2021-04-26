@@ -1,3 +1,4 @@
+import { ExpressionContext } from '../../context'
 import { BinaryExpression, ExpressionNodeEvaluator } from '../../node'
 
 const booleanOperators: { [operator: string]: (a: any, b: any) => boolean } = {
@@ -39,7 +40,7 @@ const binaryOperators = {
   ...arithmeticOperators,
 }
 
-export class BinaryEvaluator extends ExpressionNodeEvaluator<BinaryExpression> {
+export class BinaryEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, BinaryExpression> {
   evaluate(expressionNode: BinaryExpression): any {
     const { left, right, operator } = expressionNode
 

@@ -1,5 +1,5 @@
-import { Factory } from 'src/common'
-import { User } from '../auth/user'
+import { Factory } from '../common'
+import { User } from '../auth'
 import { Record, RECORD_STEP_DEFAULT } from './record'
 import { UUIDs } from '../utils'
 

@@ -1,8 +1,8 @@
-import { Factory } from 'src/common'
+import { Factory } from '../common'
+import { LanguageCode } from '../language'
 import { Taxonomy, TaxonomyProps } from './taxonomy'
 import { Taxon, TaxonProps } from './taxon'
 import { VernacularName } from './taxonVernacularName'
-import { LanguageCode } from 'src/language'
 
 import { UUIDs } from '../utils'
 

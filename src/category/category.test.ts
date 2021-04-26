@@ -6,7 +6,7 @@ import {
   CategoryLevelFactory,
   CategoryLevelFactoryParams,
 } from './factory'
-import { LanguageCode } from 'src/language'
+import { LanguageCode } from '../language'
 
 test('ExpectedCategory === Category', () => {
   const categoryParams: CategoryFactoryParams = {

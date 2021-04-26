@@ -1,5 +1,5 @@
-import { User } from 'src/auth'
-import { Node } from 'src/node'
+import { User } from '../auth'
+import { Node } from '../node'
 
 export interface NodeService {
   // ==== CREATE

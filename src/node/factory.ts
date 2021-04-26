@@ -1,6 +1,6 @@
-import { Factory } from 'src/common'
-import { Node } from './node'
+import { Factory } from '../common'
 import { UUIDs } from '../utils'
+import { Node } from './node'
 
 export type NodeFactoryParams = {
   nodeDefUuid: string
