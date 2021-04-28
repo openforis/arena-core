@@ -3,7 +3,7 @@ import { Service } from './service'
 
 export class ServiceRegistry {
   private static _instance: ServiceRegistry
-  private readonly services: { [type in ServiceType]?: any }
+  private readonly services: { [type in ServiceType]?: Service }
 
   private constructor() {
     this.services = {}
@@ -16,7 +16,7 @@ export class ServiceRegistry {
     return ServiceRegistry._instance
   }
 
-  getService(type: ServiceType): any {
+  getService(type: ServiceType): Service {
     const service = this.services[type]
     if (!service) throw new Error(`Service ${type} not registered`)
     return service

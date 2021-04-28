@@ -22,8 +22,10 @@ import { taxonMock, TaxonServiceMock } from './tests/taxon'
 import { taxonomyMock, TaxonomyServiceMock } from './tests/taxonomy'
 import { userMock, UserServiceMock } from './tests/user'
 
+let serviceRegistry: ServiceRegistry
+
 beforeAll(() => {
-  ServiceRegistry.getInstance()
+  serviceRegistry = ServiceRegistry.getInstance()
     .registerService(ServiceType.category, new CategoryServiceMock())
     .registerService(ServiceType.categoryItem, new CategoryItemServiceMock())
     .registerService(ServiceType.categoryLevel, new CategoryLevelServiceMock())
@@ -39,7 +41,7 @@ beforeAll(() => {
 
 describe('ServiceRegistry', () => {
   test('CategoryService', async () => {
-    const service: CategoryService = ServiceRegistry.getInstance().getService(ServiceType.category)
+    const service: CategoryService = serviceRegistry.getService(ServiceType.category) as CategoryService
     const category = await service.get({ categoryUuid: 'category_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -47,7 +49,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('CategoryItemService', async () => {
-    const service: CategoryItemService = ServiceRegistry.getInstance().getService(ServiceType.categoryItem)
+    const service: CategoryItemService = serviceRegistry.getService(ServiceType.categoryItem) as CategoryItemService
     const categoryItem = await service.get({ categoryUuid: 'category_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -55,7 +57,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('CategoryLevelService', async () => {
-    const service: CategoryLevelService = ServiceRegistry.getInstance().getService(ServiceType.categoryLevel)
+    const service: CategoryLevelService = serviceRegistry.getService(ServiceType.categoryLevel) as CategoryLevelService
     const categoryLevel = await service.get({ categoryUuid: 'category_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -63,7 +65,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('ChainService', async () => {
-    const service: ChainService = ServiceRegistry.getInstance().getService(ServiceType.chain)
+    const service: ChainService = serviceRegistry.getService(ServiceType.chain) as ChainService
     const chain = await service.get({ chainUuid: 'chain_uuid', surveyId: 1 })
 
     expect(service).toBeDefined()
@@ -73,7 +75,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('NodeService', async () => {
-    const service: NodeService = ServiceRegistry.getInstance().getService(ServiceType.node)
+    const service: NodeService = serviceRegistry.getService(ServiceType.node) as NodeService
     const node = await service.get({ nodeUuid: 'node_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -81,7 +83,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('NodeDefService', async () => {
-    const service: NodeDefService = ServiceRegistry.getInstance().getService(ServiceType.nodeDef)
+    const service: NodeDefService = serviceRegistry.getService(ServiceType.nodeDef) as NodeDefService
     const nodeDefs = await service.getMany({ surveyId: 1, user: userMock })
     const [nodeDef] = Object.values(nodeDefs)
 
@@ -90,7 +92,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('RecordService', async () => {
-    const service: RecordService = ServiceRegistry.getInstance().getService(ServiceType.record)
+    const service: RecordService = serviceRegistry.getService(ServiceType.record) as RecordService
     const record = await service.get({ recordUuid: 'record_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -98,7 +100,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('SurveyService', async () => {
-    const service: SurveyService = ServiceRegistry.getInstance().getService(ServiceType.survey)
+    const service: SurveyService = serviceRegistry.getService(ServiceType.survey) as SurveyService
     const survey = await service.get({ surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -106,7 +108,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('TaxonService', async () => {
-    const service: TaxonService = ServiceRegistry.getInstance().getService(ServiceType.taxon)
+    const service: TaxonService = serviceRegistry.getService(ServiceType.taxon) as TaxonService
     const taxon = await service.get({ surveyId: 1, taxonomyUuid: 'mock' })
 
     expect(service).not.toBeNull()
@@ -114,7 +116,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('TaxonomyService', async () => {
-    const service: TaxonomyService = ServiceRegistry.getInstance().getService(ServiceType.taxonomy)
+    const service: TaxonomyService = serviceRegistry.getService(ServiceType.taxonomy) as TaxonomyService
     const taxonomy = await service.get({ surveyId: 1, taxonomyUuid: 'mock' })
 
     expect(service).not.toBeNull()
@@ -122,7 +124,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('UserService', async () => {
-    const service: UserService = ServiceRegistry.getInstance().getService(ServiceType.user)
+    const service: UserService = serviceRegistry.getService(ServiceType.user) as UserService
     const user = await service.get({ userUuid: 'userUuid' })
 
     expect(service).not.toBeNull()
