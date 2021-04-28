@@ -1,5 +1,5 @@
 import { CategoryItemService, CategoryService, CategoryLevelService } from '../category'
-import { ChainService } from '../chain'
+import { ChainNodeDefService, ChainService } from '../chain'
 import { NodeService } from '../node'
 import { NodeDefService } from '../nodeDef'
 import { RecordService } from '../record'
@@ -14,6 +14,7 @@ import { categoryMock, CategoryServiceMock } from './tests/category'
 import { categoryItemMock, CategoryItemServiceMock } from './tests/categoryItem'
 import { categoryLevelMock, CategoryLevelServiceMock } from './tests/categoryLevel'
 import { chainMock, ChainServiceMock } from './tests/chain'
+import { chainNodeDefMock, ChainNodeDefServiceMock } from './tests/chainNodeDef'
 import { nodeMock, NodeServiceMock } from './tests/node'
 import { nodeDefMock, NodeDefServiceMock } from './tests/nodeDef'
 import { recordMock, RecordServiceMock } from './tests/record'
@@ -30,6 +31,7 @@ beforeAll(() => {
     .registerService(ServiceType.categoryItem, new CategoryItemServiceMock())
     .registerService(ServiceType.categoryLevel, new CategoryLevelServiceMock())
     .registerService(ServiceType.chain, new ChainServiceMock())
+    .registerService(ServiceType.chainNodeDef, new ChainNodeDefServiceMock())
     .registerService(ServiceType.node, new NodeServiceMock())
     .registerService(ServiceType.nodeDef, new NodeDefServiceMock())
     .registerService(ServiceType.record, new RecordServiceMock())
@@ -72,6 +74,19 @@ describe('ServiceRegistry', () => {
     expect(chain.props.labels?.en).toBeDefined()
     expect(chain.props.labels?.en).toBe(chainMock.props.labels?.en)
     expect(chain.validation.valid).toBe(true)
+  })
+
+  test('ChainNodeDefService', async () => {
+    const service: ChainNodeDefService = serviceRegistry.getService(ServiceType.chainNodeDef) as ChainNodeDefService
+    const chainNodeDefs = await service.getMany({ chainUuid: '', entityDefUuid: '', surveyId: 0 })
+    const chainNodeDef = chainNodeDefs[0]
+
+    expect(service).toBeDefined()
+    expect(chainNodeDefs.length).toBe(1)
+    expect(chainNodeDef.chainUuid).toBe(chainNodeDefMock.chainUuid)
+    expect(chainNodeDef.nodeDefUuid).toBe(chainNodeDefMock.nodeDefUuid)
+    expect(chainNodeDef.props.active).toBe(true)
+    expect(chainNodeDef.index).toBe(0)
   })
 
   test('NodeService', async () => {
