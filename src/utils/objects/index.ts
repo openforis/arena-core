@@ -1,13 +1,21 @@
+import { camelize } from './camelize'
+import { difference } from './difference'
+import { fromPairs } from './fromPairs'
+import { isEmpty } from './isEmpty'
+import { isEqual } from './isEqual'
 import { path } from './path'
 import { propertyOf } from './propertyOf'
-import { isEmpty } from './isEmpty'
 import { setInPath } from './setInPath'
-import { camelize } from './camelize'
+import { toPairs } from './toPairs'
 
 export const Objects = {
+  camelize,
+  difference,
+  fromPairs,
   isEmpty,
+  isEqual,
   path,
   propertyOf,
   setInPath,
-  camelize,
+  toPairs,
 }

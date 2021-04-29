@@ -17,13 +17,14 @@ export type {
   CategoryService,
 } from './category'
 
-export { ChainFactory, ChainStatusExec } from './chain'
+export { ChainFactory, ChainStatusExec, ChainNodeDefFactory } from './chain'
 export type {
   Chain,
   ChainProps,
   ChainService,
   ChainNodeDef,
   ChainNodeDefProps,
+  ChainNodeDefService,
   ChainNodeDefAggregate,
   ChainNodeDefAggregateProps,
 } from './chain'

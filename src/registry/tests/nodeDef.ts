@@ -1,6 +1,6 @@
-import { NodeDefType, NodeDefFactory, NodeDefService, NodeDef, NodeDefProps } from '../../nodeDef'
+import { NodeDef, NodeDefFactory, NodeDefService, NodeDefType } from '../../nodeDef'
 
-export const nodeDefMock: NodeDef<NodeDefType, NodeDefProps> = NodeDefFactory.createInstance({ type: NodeDefType.text })
+export const nodeDefMock: NodeDef<NodeDefType> = NodeDefFactory.createInstance({ type: NodeDefType.text })
 
 export class NodeDefServiceMock implements NodeDefService {
   create(): Promise<{ [nodeDefUuid: string]: NodeDef<NodeDefType> }> {
