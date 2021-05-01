@@ -1,6 +1,6 @@
 import { Factory } from '../common'
-import { NodeDef, NodeDefType, NodeDefProps, NodeDefPropsAdvanced } from './nodeDef'
 import { UUIDs } from '../utils'
+import { NodeDef, NodeDefType, NodeDefProps, NodeDefPropsAdvanced } from './nodeDef'
 
 export type NodeDefFactoryParams = {
   analysis?: boolean
@@ -11,19 +11,19 @@ export type NodeDefFactoryParams = {
   virtual?: boolean
 }
 
-export const NodeDefFactory: Factory<NodeDef<NodeDefType, NodeDefProps>, NodeDefFactoryParams> = {
-  createInstance: (params: NodeDefFactoryParams): NodeDef<NodeDefType, NodeDefProps> => {
-    const defaultProps = {
-      analysis: false,
-      draft: true,
-      nodeDefParent: null,
-      props: {},
-      propsDraft: {},
-      published: false,
-      temporary: true,
-      virtual: false,
-    }
+const defaultProps = {
+  analysis: false,
+  draft: true,
+  nodeDefParent: null,
+  props: {},
+  propsDraft: {},
+  published: false,
+  temporary: true,
+  virtual: false,
+}
 
+export const NodeDefFactory: Factory<NodeDef<NodeDefType>, NodeDefFactoryParams> = {
+  createInstance: (params: NodeDefFactoryParams): NodeDef<NodeDefType> => {
     const { analysis, draft, nodeDefParent, props, propsAdvanced, published, temporary, type, virtual } = {
       ...defaultProps,
       ...params,
@@ -33,7 +33,7 @@ export const NodeDefFactory: Factory<NodeDef<NodeDefType, NodeDefProps>, NodeDef
       analysis,
       draft,
       meta: {
-        h: [...(nodeDefParent?.meta?.h || []), ...(nodeDefParent?.uuid ? [nodeDefParent?.uuid] : [])],
+        h: nodeDefParent ? [...nodeDefParent.meta.h, nodeDefParent.uuid] : [],
       },
       parentUuid: nodeDefParent?.uuid,
       props,
