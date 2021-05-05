@@ -9,4 +9,6 @@ export interface ChainNodeDefService {
 
   // ==== UPDATE
   update(options: { chainNodeDef: ChainNodeDef; surveyId: number; user: User }): Promise<ChainNodeDef>
+
+  updateIndexes(options: { surveyId: number }): Promise<void>
 }
