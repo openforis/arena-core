@@ -17,4 +17,8 @@ export class ChainNodeDefServiceMock implements ChainNodeDefService {
   update(): Promise<ChainNodeDef> {
     throw new Error('Not implemented')
   }
+
+  updateIndexes(): Promise<void> {
+    throw new Error('Not implemented')
+  }
 }
