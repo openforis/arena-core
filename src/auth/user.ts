@@ -15,7 +15,7 @@ export enum UserTitle {
 
 export interface UserPrefSurveys {
   [surveyId: number]: { cycle: number }
-  current: number
+  current?: number
 }
 
 export interface UserPrefs {
