@@ -1,3 +1,6 @@
+export { ActivityLogType } from './activityLog'
+export type { ActivityLog } from './activityLog'
+
 export { Authorizer, AuthGroupName, UserStatus, Permission, UserTitle, UserFactory, Users } from './auth'
 export type { User, UserPrefs, UserPrefSurveys, UserProps, AuthGroup, UserService } from './auth'
 
