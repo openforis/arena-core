@@ -1,4 +1,5 @@
 export enum ServiceType {
+  activityLog = 'activityLog',
   category = 'category',
   categoryItem = 'categoryItem',
   categoryLevel = 'categoryLevel',
