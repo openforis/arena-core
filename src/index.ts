@@ -1,20 +1,20 @@
 export { ActivityLogType } from './activityLog'
-export type { ActivityLog } from './activityLog'
+export type { ActivityLog, ActivityLogService, ActivityLogSurveyCreate } from './activityLog'
 
 export { Authorizer, AuthGroupName, UserStatus, Permission, UserTitle, UserFactory, Users } from './auth'
 export type { User, UserPrefs, UserPrefSurveys, UserProps, AuthGroup, UserService } from './auth'
 
 export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, CategoryLevelFactory } from './category'
 export type {
-  CategoryItemProps,
   Category,
-  CategoryItemExtraDef,
-  CategoryItem,
-  CategoryLevel,
-  CategoryLevelProps,
   CategoryImportSummary,
   CategoryImportSummaryColumn,
+  CategoryItem,
+  CategoryItemExtraDef,
+  CategoryItemProps,
   CategoryItemService,
+  CategoryLevel,
+  CategoryLevelProps,
   CategoryLevelService,
   CategoryProps,
   CategoryService,
@@ -23,34 +23,34 @@ export type {
 export { ChainFactory, ChainStatusExec, ChainNodeDefFactory } from './chain'
 export type {
   Chain,
-  ChainProps,
-  ChainService,
   ChainNodeDef,
-  ChainNodeDefProps,
-  ChainNodeDefService,
   ChainNodeDefAggregate,
   ChainNodeDefAggregateProps,
+  ChainNodeDefProps,
+  ChainNodeDefService,
+  ChainProps,
+  ChainService,
 } from './chain'
 
 export type { ArenaObject, Factory } from './common'
 
-export { ExpressionNodeType, ExpressionNodeEvaluator, JavascriptExpressionEvaluator } from './expression'
+export { ExpressionNodeEvaluator, ExpressionNodeType, JavascriptExpressionEvaluator } from './expression'
 export type {
+  BinaryExpression,
+  CallExpression,
+  CompoundExpression,
+  ExpressionContext,
+  ExpressionEvaluator,
   ExpressionFunction,
   ExpressionNode,
-  MemberExpression,
-  CallExpression,
-  BinaryExpression,
-  LiteralExpression,
-  IdentifierExpression,
-  ThisExpression,
-  ExpressionContext,
   ExpressionNodeEvaluatorConstructor,
-  UnaryExpression,
-  LogicalExpression,
   GroupExpression,
-  ExpressionEvaluator,
-  CompoundExpression,
+  IdentifierExpression,
+  LiteralExpression,
+  LogicalExpression,
+  MemberExpression,
+  ThisExpression,
+  UnaryExpression,
 } from './expression'
 
 export { PointFactory, Points } from './geo'
@@ -68,33 +68,33 @@ export type { Node, NodeService } from './node'
 export { NodeDefType, NodeDefFactory } from './nodeDef'
 export type {
   NodeDef,
-  NodeDefService,
-  NodeDefValidations,
-  NodeDefExpression,
-  NodeDefPropsWithLayout,
-  NodeDefTaxon,
-  NodeDefEntity,
   NodeDefBoolean,
-  NodeDefPropsAdvanced,
-  NodeDefDate,
-  NodeDefMeta,
-  NodeDefCodeLayout,
-  NodeDefCoordinate,
   NodeDefBooleanProps,
-  NodeDefCodeProps,
   NodeDefCode,
+  NodeDefCodeLayout,
+  NodeDefCodeProps,
+  NodeDefCoordinate,
+  NodeDefDate,
   NodeDefDecimal,
   NodeDefDecimalProps,
-  NodeDefEntityLayout,
+  NodeDefEntity,
   NodeDefEntityChildPosition,
+  NodeDefEntityLayout,
+  NodeDefExpression,
   NodeDefFile,
   NodeDefFileProps,
   NodeDefInteger,
+  NodeDefMeta,
+  NodeDefProps,
+  NodeDefPropsAdvanced,
+  NodeDefPropsWithLayout,
+  NodeDefService,
+  NodeDefTaxon,
   NodeDefTaxonProps,
   NodeDefText,
   NodeDefTextProps,
   NodeDefTime,
-  NodeDefProps,
+  NodeDefValidations,
 } from './nodeDef'
 
 export { RecordFactory, Records, RECORD_STEP_DEFAULT } from './record'
@@ -109,27 +109,27 @@ export type { SRS } from './srs'
 export { SurveyFactory, SurveyRefDataFactory, Surveys } from './survey'
 export type {
   Survey,
-  SurveyService,
-  SurveyRefData,
+  SurveyCycle,
   SurveyDependency,
   SurveyDependencyGraph,
-  SurveyCycle,
   SurveyProps,
+  SurveyRefData,
+  SurveyService,
 } from './survey'
 
 export { TaxonomyFactory, TaxonFactory, VernacularNameFactory } from './taxonomy'
 export type {
-  VernacularNameParams,
-  TaxonomyFactoryParams,
-  TaxonFactoryParams,
-  Taxonomy,
-  TaxonomyService,
-  VernacularNameProps,
-  VernacularName,
-  TaxonProps,
   Taxon,
-  TaxonomyProps,
+  TaxonFactoryParams,
+  TaxonProps,
   TaxonService,
+  Taxonomy,
+  TaxonomyFactoryParams,
+  TaxonomyProps,
+  TaxonomyService,
+  VernacularName,
+  VernacularNameParams,
+  VernacularNameProps,
 } from './taxonomy'
 
 export { Arrays, Numbers, Objects, UUIDs } from './utils'
@@ -142,4 +142,4 @@ export {
   Validator,
   ValidatorErrorKeys,
 } from './validation'
-export type { FieldValidator, Validation, ValidationResult, ValidationCounts } from './validation'
+export type { FieldValidator, Validation, ValidationCounts, ValidationResult } from './validation'
