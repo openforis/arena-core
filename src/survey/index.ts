@@ -3,6 +3,7 @@ export type { Survey, SurveyProps, SurveyCycle, SurveyDependencyGraph, SurveyDep
 export { Surveys } from './surveys'
 
 export { SurveyFactory } from './factory'
+export type { SurveyFactoryParams } from './factory'
 
 export type { SurveyService } from './service'
 

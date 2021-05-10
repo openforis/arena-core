@@ -1,7 +1,6 @@
 import { ActivityLogType } from '../activityLog'
 import { ActivityLogFactoryParams } from '../factory'
-import { SurveyFactory } from '../../survey'
-import { SurveyFactoryParams } from '../../survey/factory'
+import { SurveyFactory, SurveyFactoryParams } from '../../survey'
 import { LanguageCode } from '../../language'
 
 const surveyOptions: SurveyFactoryParams = {
