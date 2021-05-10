@@ -11,12 +11,12 @@ export type ActivityLogFactoryParams = {
 
 export const ActivityLogFactory: Factory<ActivityLog<ActivityLogType, any>, ActivityLogFactoryParams> = {
   createInstance: (params: ActivityLogFactoryParams): ActivityLog<ActivityLogType, any> => {
-    const defaultProps = {
+    const defaultParams = {
       system: false,
     }
 
     const { content, id, type, system, userUuid } = {
-      ...defaultProps,
+      ...defaultParams,
       ...params,
     }
 
