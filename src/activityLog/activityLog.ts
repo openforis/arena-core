@@ -51,7 +51,8 @@ export enum ActivityLogType {
   // Analysis
   chainCreate = 'chainCreate',
   chainPropUpdate = 'chainPropUpdate',
-  chainNodeDef = 'chainNodeDef',
+  chainNodeDefCreate = 'chainNodeDefCreate',
+  chainNodeDefPropUpdate = 'chainNodeDefPropUpdate',
   processingChainStatusExecSuccess = 'processingChainStatusExecSuccess',
   processingChainDelete = 'processingChainDelete',
   processingStepCreate = 'processingStepCreate',
