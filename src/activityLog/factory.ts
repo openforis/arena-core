@@ -6,7 +6,7 @@ export type ActivityLogFactoryParams = {
   userUuid: string
   type: ActivityLogType
   content: any
-  system: boolean
+  system?: boolean
 }
 
 export const ActivityLogFactory: Factory<ActivityLog<ActivityLogType, any>, ActivityLogFactoryParams> = {
