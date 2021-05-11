@@ -1,5 +1,6 @@
 export { Authorizer } from './authorizer'
 
+export { AuthGroupName } from './authGroup'
 export type { AuthGroup } from './authGroup'
 
 export type { User, UserPrefs, UserProps, UserPrefSurveys, UserInvitation } from './user'

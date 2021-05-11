@@ -1,4 +1,4 @@
-export { Authorizer, UserStatus, Permission, UserTitle, UserFactory, Users } from './auth'
+export { Authorizer, AuthGroupName, UserStatus, Permission, UserTitle, UserFactory, Users } from './auth'
 export type { User, UserPrefs, UserPrefSurveys, UserProps, AuthGroup, UserService } from './auth'
 
 export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, CategoryLevelFactory } from './category'
@@ -17,13 +17,14 @@ export type {
   CategoryService,
 } from './category'
 
-export { ChainFactory, ChainStatusExec } from './chain'
+export { ChainFactory, ChainStatusExec, ChainNodeDefFactory } from './chain'
 export type {
   Chain,
   ChainProps,
   ChainService,
   ChainNodeDef,
   ChainNodeDefProps,
+  ChainNodeDefService,
   ChainNodeDefAggregate,
   ChainNodeDefAggregateProps,
 } from './chain'

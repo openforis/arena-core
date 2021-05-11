@@ -8,5 +8,5 @@ export interface ChainNodeDef extends ArenaObject<ChainNodeDefProps> {
   chainUuid: string
   index: number
   nodeDefUuid: string
-  script: string
+  script?: string
 }

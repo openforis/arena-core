@@ -1,13 +1,15 @@
-import { NodeDef, NodeDefType } from './nodeDef'
 import { User } from '../auth'
+import { ChainNodeDef } from '../chain'
+import { NodeDef, NodeDefType } from './nodeDef'
 
 export interface NodeDefService {
   // ==== CREATE
   create(options: {
+    chainNodeDef?: ChainNodeDef
     cycle: string
     nodeDef: NodeDef<NodeDefType>
-    user: User
     surveyId: number
+    user: User
   }): Promise<{ [nodeDefUuid: string]: NodeDef<NodeDefType> }>
 
   // ==== READ
