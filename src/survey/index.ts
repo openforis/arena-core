@@ -10,3 +10,5 @@ export type { SurveyService } from './service'
 export type { SurveyRefData } from './refData'
 
 export { SurveyRefDataFactory } from './refData'
+
+export { validateNewSurvey } from './surveys/validator'

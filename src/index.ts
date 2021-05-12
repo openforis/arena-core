@@ -106,7 +106,7 @@ export type { Service } from './registry'
 export { DEFAULT_SRS, SRSs } from './srs'
 export type { SRS } from './srs'
 
-export { SurveyFactory, SurveyRefDataFactory, Surveys } from './survey'
+export { SurveyFactory, SurveyRefDataFactory, Surveys, validateNewSurvey } from './survey'
 export type {
   Survey,
   SurveyCycle,
