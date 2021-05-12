@@ -1,5 +1,6 @@
 import { getNodeDefByName, getNodeDefByUuid, getNodeDefParent, isNodeDefAncestor } from './nodeDefs'
 import { getCategoryItemByCodePaths } from './refsData'
+import { validateNewSurvey } from './validator'
 
 export const Surveys = {
   getNodeDefByName,
@@ -7,4 +8,5 @@ export const Surveys = {
   getNodeDefParent,
   isNodeDefAncestor,
   getCategoryItemByCodePaths,
+  validateNewSurvey,
 }
