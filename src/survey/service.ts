@@ -5,7 +5,7 @@ import { Survey, SurveyProps } from './survey'
 
 export interface SurveyService {
   // ==== CREATE
-  create(options: { name: string; label: string; lang: LanguageCode; user: User }): Promise<Survey>
+  create(options: { name: string; label: string; lang: LanguageCode; template?: boolean; user: User }): Promise<Survey>
 
   clone(options: {
     name: string
@@ -21,6 +21,8 @@ export interface SurveyService {
   getAllIds(): Promise<Array<number>>
 
   getMany(options: { limit?: number; offset?: number; user: User }): Promise<Array<Survey>>
+
+  getManyByName(options: { surveyName: string }): Promise<Array<Survey> | null>
 
   get(options: {
     draft?: boolean
