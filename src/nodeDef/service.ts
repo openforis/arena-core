@@ -40,4 +40,12 @@ export interface NodeDefService {
     user: User
     surveyId: number
   }): Promise<{ [nodeDefUuid: string]: NodeDef<NodeDefType> }>
+
+
+  // ==== VIRTUAL ENTITIES
+  countVirtualEntities(options: { surveyId: number }): Promise<number>
+
+
+  getManyVirtualEntities(options: { limit?: number; offset?: number; surveyId: number }): Promise<Array<NodeDef<NodeDefType>>>
 }
+
