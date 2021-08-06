@@ -19,7 +19,12 @@ export const toLatLong = (point: Point): Point | null => {
   if (!srsFrom) return null
 
   const srsTo = DEFAULT_SRS
-  const [long, lat] = proj4(srsFrom.wkt, srsTo.wkt, [x, y])
 
-  return PointFactory.createInstance({ srs: DEFAULT_SRS.code, x: long, y: lat })
+  try {
+    const [long, lat] = proj4(srsFrom.wkt, srsTo.wkt, [x, y])
+
+    return PointFactory.createInstance({ srs: DEFAULT_SRS.code, x: long, y: lat })
+  } catch (error) {
+    return null
+  }
 }
