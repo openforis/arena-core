@@ -6,6 +6,7 @@ export interface TaxonProps {
   family: string
   genus: string
   scientificName: string
+  extra?: { [key: string]: any }
 }
 
 export interface Taxon extends ArenaObject<TaxonProps> {
