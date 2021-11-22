@@ -45,8 +45,7 @@
     "lint:fix": "npm run lint -- --fix",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "prepare": "yarn build",
-    "test": "jest",
-    "version": "git add -A src"
+    "test": "jest"
   },
   "files": [
     "dist/**/*"
