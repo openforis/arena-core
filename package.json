@@ -44,7 +44,6 @@
     "build": "tsc",
     "lint:fix": "npm run lint -- --fix",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "postversion": "git push && git push --tags",
     "prepare": "yarn build",
     "test": "jest",
     "version": "git add -A src"

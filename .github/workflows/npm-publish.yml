@@ -17,8 +17,8 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14.15.0'
-      - run: npm ci
-      - run: npm test
+      - run: yarn install --frozen-lockfile
+      - run: yarn test
 
   publish-npm:
     needs: build
@@ -31,8 +31,8 @@ jobs:
         with:
           node-version: '14.15.0'
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm publish
+      - run: yarn install --frozen-lockfile
+      - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
@@ -47,7 +47,7 @@ jobs:
         with:
           node-version: '14.15.0'
           registry-url: https://npm.pkg.github.com/
-      - run: npm ci
-      - run: npm publish
+      - run: yarn install --frozen-lockfile
+      - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
