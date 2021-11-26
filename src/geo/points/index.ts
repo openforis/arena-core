@@ -4,6 +4,7 @@ import { isValid } from './isValid'
 import { parse } from './parse'
 import { toLatLong } from './toLatLong'
 import { toString } from './toString'
+import { transform } from './transform'
 
 export const Points = {
   distance,
@@ -12,4 +13,5 @@ export const Points = {
   parse,
   toLatLong,
   toString,
+  transform,
 }
