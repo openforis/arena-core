@@ -13,6 +13,8 @@ export { NodeDefType } from './nodeDef'
 
 export type { NodeDefService } from './service'
 
+export { NodeDefExpressionEvaluator } from './expressionEvaluator/evaluator'
+
 // ==== node def types
 export type { NodeDefBoolean, NodeDefBooleanProps } from './types/boolean'
 
