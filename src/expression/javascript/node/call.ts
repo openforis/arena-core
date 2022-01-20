@@ -1,3 +1,4 @@
+import { MemberExpression } from '../..'
 import { ExpressionContext } from '../../context'
 import { ExpressionFunction } from '../../function'
 import { CallExpression, ExpressionNodeEvaluator, ExpressionNodeType } from '../../node'
@@ -24,8 +25,10 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     // global function (e.g. Math.round(...))
     const fn = this.evaluator.evaluateNode(callee, this.context)
     if (fn) {
+      const { object: calleeObj } = callee as MemberExpression
+      const fnObject = this.evaluator.evaluateNode(calleeObj, this.context)
       const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context))
-      return fn(...args)
+      return fn.call(fnObject, ...args)
     }
     return null
   }
