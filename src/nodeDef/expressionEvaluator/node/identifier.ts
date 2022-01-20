@@ -65,6 +65,16 @@ const getReachableNodeDefs = (params: {
 
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
+    try {
+      const result = super.evaluate(expressionNode)
+      return result
+    } catch (e) {
+      // ignore it
+    }
+
+    // identifier not found
+    // identifier should be a node def or a node value property
+
     const { survey, nodeDefContext } = this.context
 
     const exprName = expressionNode.name

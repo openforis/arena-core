@@ -8,6 +8,7 @@ import { NodeDefExpressionContext } from './context'
 type Query = {
   expression: string
   result?: any
+  resultIsNotNodeDef?: boolean // default false
   error?: boolean
   nodeDef?: string
 }
@@ -52,10 +53,13 @@ describe('NodeDefExpressionEvaluator', () => {
     { expression: 'parent(parent(plot_id)).accessible', nodeDef: 'plot_id', result: 'accessible' },
     // ancestors properties without using parent function
     { expression: 'cluster_id', nodeDef: 'plot_id', result: 'cluster_id' },
+    // global objects
+    { expression: 'Math.PI', result: Math.PI, resultIsNotNodeDef: true },
+    { expression: 'Number.isFinite(plot[1].plot_id)', result: false, resultIsNotNodeDef: true },
   ]
 
   queries.forEach((query: Query) => {
-    const { expression, result, error: errorExpected = false, nodeDef } = query
+    const { expression, result, resultIsNotNodeDef = false, error: errorExpected = false, nodeDef } = query
     const expectedResultValue = result instanceof Function ? result() : result
 
     test(`${expression}${nodeDef ? ` (nodeDef: ${nodeDef})` : ''}`, () => {
@@ -77,9 +81,14 @@ describe('NodeDefExpressionEvaluator', () => {
         if (expectedResultValue === null || expectedResultValue === undefined) {
           expect(result).toBe(expectedResultValue)
         } else {
-          expectToBeNodeDef(result)
-          const nodeDefResult: NodeDef<NodeDefType, NodeDefProps> = result
-          expect(nodeDefResult.props.name).toEqual(expectedResultValue)
+          expect(result).not.toBeNull()
+          if (resultIsNotNodeDef) {
+            expect(result).toBe(expectedResultValue)
+          } else {
+            expectToBeNodeDef(result)
+            const nodeDefResult: NodeDef<NodeDefType, NodeDefProps> = result
+            expect(nodeDefResult.props.name).toEqual(expectedResultValue)
+          }
         }
       } catch (error) {
         if (errorExpected) {
