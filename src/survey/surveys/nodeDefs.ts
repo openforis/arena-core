@@ -53,8 +53,9 @@ export const getNodeDefSource = (params: {
 export const getNodeDefChildren = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  includeAnalysis?: boolean
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, nodeDef } = params
+  const { survey, nodeDef, includeAnalysis = false } = params
 
   if (!survey.nodeDefs) return []
 
@@ -69,7 +70,7 @@ export const getNodeDefChildren = (params: {
 
   children.push(
     ...Object.values(survey.nodeDefs).filter((nodeDefCurrent) => {
-      if (nodeDefCurrent.analysis) {
+      if (!includeAnalysis && nodeDefCurrent.analysis) {
         return false
       }
       if (nodeDefCurrent.virtual) {

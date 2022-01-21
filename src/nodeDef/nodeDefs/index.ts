@@ -1,5 +1,4 @@
-import { NodeDefType } from '.'
-import { NodeDef } from './nodeDef'
+import { NodeDef, NodeDefType } from '../nodeDef'
 
 const isEntity = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.entity
 
