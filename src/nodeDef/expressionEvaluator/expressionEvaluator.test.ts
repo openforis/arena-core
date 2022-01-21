@@ -56,6 +56,12 @@ describe('NodeDefExpressionEvaluator', () => {
     // global objects
     { expression: 'Math.PI', result: Math.PI, resultIsNotNodeDef: true },
     { expression: 'Number.isFinite(plot[1].plot_id)', result: false, resultIsNotNodeDef: true },
+    // sequence expressions
+    {
+      expression: '(accessible && cluster_id) || (accessible && plot[1].plot_id)',
+      result: true,
+      resultIsNotNodeDef: true,
+    },
   ]
 
   queries.forEach((query: Query) => {

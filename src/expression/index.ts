@@ -10,11 +10,10 @@ export type {
   BinaryExpression,
   CallExpression,
   CompoundExpression,
-  GroupExpression,
   IdentifierExpression,
   LiteralExpression,
-  LogicalExpression,
   MemberExpression,
+  SequenceExpression,
   ThisExpression,
   UnaryExpression,
 } from './node'

@@ -5,17 +5,16 @@ export const enum ExpressionNodeType {
   Binary = 'BinaryExpression',
   Call = 'CallExpression',
   Compound = 'Compound',
-  Group = 'GroupExpression',
   Identifier = 'Identifier',
   Literal = 'Literal',
-  Logical = 'LogicalExpression',
   Member = 'MemberExpression',
+  Sequence = 'SequenceExpression',
   This = 'ThisExpression',
   Unary = 'UnaryExpression',
 }
 
 export interface ExpressionNode<T extends ExpressionNodeType> {
-  name: string
+  name?: string
   type: T
 }
 
@@ -29,18 +28,17 @@ export interface CallExpression extends ExpressionNode<ExpressionNodeType.Call> 
   callee: ExpressionNode<ExpressionNodeType>
 }
 export type CompoundExpression = ExpressionNode<ExpressionNodeType.Compound>
-export interface GroupExpression extends ExpressionNode<ExpressionNodeType.Group> {
-  argument: ExpressionNode<ExpressionNodeType>
-}
 export type IdentifierExpression = ExpressionNode<ExpressionNodeType.Identifier>
 export interface LiteralExpression extends ExpressionNode<ExpressionNodeType.Literal> {
   value: any
 }
-export type LogicalExpression = ExpressionNode<ExpressionNodeType.Logical>
 export interface MemberExpression extends ExpressionNode<ExpressionNodeType.Member> {
   object: ExpressionNode<ExpressionNodeType>
   property: ExpressionNode<ExpressionNodeType>
   computed: boolean
+}
+export interface SequenceExpression extends ExpressionNode<ExpressionNodeType.Sequence> {
+  expression: ExpressionNode<ExpressionNodeType>
 }
 export type ThisExpression = ExpressionNode<ExpressionNodeType.This>
 export interface UnaryExpression extends ExpressionNode<ExpressionNodeType.Unary> {

@@ -33,21 +33,20 @@ export type { ArenaObject, Factory } from './common'
 
 export { ExpressionNodeType, ExpressionNodeEvaluator, JavascriptExpressionEvaluator } from './expression'
 export type {
+  BinaryExpression,
+  CallExpression,
+  CompoundExpression,
+  ExpressionContext,
+  ExpressionEvaluator,
   ExpressionFunction,
   ExpressionNode,
-  MemberExpression,
-  CallExpression,
-  BinaryExpression,
-  LiteralExpression,
-  IdentifierExpression,
-  ThisExpression,
-  ExpressionContext,
   ExpressionNodeEvaluatorConstructor,
+  MemberExpression,
+  IdentifierExpression,
+  LiteralExpression,
+  SequenceExpression,
+  ThisExpression,
   UnaryExpression,
-  LogicalExpression,
-  GroupExpression,
-  ExpressionEvaluator,
-  CompoundExpression,
 } from './expression'
 
 export { PointFactory, Points } from './geo'

@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@esri/proj-codes": "^2.7.0",
+    "jsep": "^1.2.0",
     "lodash.differencewith": "^4.5.0",
     "lodash.frompairs": "^4.0.1",
     "lodash.isequal": "^4.5.0",
