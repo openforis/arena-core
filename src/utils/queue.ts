@@ -1,14 +1,14 @@
 export class Queue {
-  data: any[]
+  items: any[]
 
   constructor(items: any[] = []) {
-    this.data = []
+    this.items = []
     this.enqueueItems(items)
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   enqueue(item: any): void {
-    this.data.unshift(item)
+    this.items.unshift(item)
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -19,19 +19,19 @@ export class Queue {
   }
 
   dequeue(): any {
-    return this.data.pop()
+    return this.items.pop()
   }
 
   first(): any {
-    return this.data[this.size() - 1]
+    return this.items[this.size() - 1]
   }
 
   last(): any {
-    return this.data[0]
+    return this.items[0]
   }
 
   size(): number {
-    return this.data.length
+    return this.items.length
   }
 
   isEmpty(): boolean {
