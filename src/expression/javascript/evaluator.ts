@@ -25,7 +25,6 @@ const defaultEvaluators = {
   [ExpressionNodeType.Compound]: CompoundEvaluator,
   [ExpressionNodeType.Identifier]: IdentifierEvaluator,
   [ExpressionNodeType.Literal]: LiteralEvaluator,
-  [ExpressionNodeType.Logical]: BinaryEvaluator,
   [ExpressionNodeType.Member]: MemberEvaluator,
   [ExpressionNodeType.Sequence]: SequenceEvaluator,
   [ExpressionNodeType.This]: ThisEvaluator,
