@@ -47,7 +47,7 @@ export const getNodeDefSource = (params: {
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
 }): NodeDef<NodeDefType, NodeDefProps> | null => {
   const { survey, nodeDef } = params
-  return nodeDef.virtual ? getNodeDefByUuid({ survey, uuid: nodeDef.uuid }) : null
+  return nodeDef.virtual && nodeDef.parentUuid ? getNodeDefByUuid({ survey, uuid: nodeDef.parentUuid }) : null
 }
 
 export const getNodeDefChildren = (params: {
