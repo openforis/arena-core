@@ -19,9 +19,9 @@ export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): Node
 export const getNodeDefParent = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
-}): NodeDef<NodeDefType, NodeDefProps> | null => {
+}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
   const { survey, nodeDef } = params
-  if (!nodeDef.parentUuid) return null
+  if (!nodeDef.parentUuid) return undefined
   return getNodeDefByUuid({ survey, uuid: nodeDef.parentUuid })
 }
 
@@ -45,9 +45,9 @@ export const getNodeDefRoot = (params: { survey: Survey }): NodeDef<NodeDefType,
 export const getNodeDefSource = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
-}): NodeDef<NodeDefType, NodeDefProps> | null => {
+}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
   const { survey, nodeDef } = params
-  return nodeDef.virtual ? getNodeDefParent({ survey, nodeDef }) : null
+  return nodeDef.virtual ? getNodeDefParent({ survey, nodeDef }) : undefined
 }
 
 export const getNodeDefChildren = (params: {
