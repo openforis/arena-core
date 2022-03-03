@@ -11,8 +11,7 @@ export const nodeDefExpressionFunctions: Array<ExpressionFunction<NodeDefExpress
     evaluateToNode: true,
     executor: (context: NodeDefExpressionContext) => (nodeDef: NodeDef<NodeDefType, NodeDefProps>) => {
       const { survey } = context
-      const parentDef = Surveys.getNodeDefParent({ survey, nodeDef })
-      return parentDef
+      return Surveys.getNodeDefParent({ survey, nodeDef })
     },
   },
 ]

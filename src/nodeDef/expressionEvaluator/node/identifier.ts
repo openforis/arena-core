@@ -66,8 +66,7 @@ const getReachableNodeDefs = (params: {
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
     try {
-      const result = super.evaluate(expressionNode)
-      return result
+      return super.evaluate(expressionNode)
     } catch (e) {
       // ignore it
     }
