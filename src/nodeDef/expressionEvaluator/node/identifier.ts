@@ -49,7 +49,7 @@ const getReachableNodeDefs = (params: {
     reachableNodeDefs.push(entityDefCurrent, ...entityDefCurrentChildren)
 
     // visit nodes inside single entities
-    queue.enqueueItems(entityDefCurrentChildren.filter((nd) => NodeDefs.isSingleEntity(nd)))
+    queue.enqueueItems(entityDefCurrentChildren.filter(NodeDefs.isSingleEntity))
 
     // avoid visiting 2 times the same entity definition when traversing single entities
     if (!visitedUuids.includes(entityDefCurrent.uuid)) {
