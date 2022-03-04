@@ -1,11 +1,10 @@
-import { NodeDef, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Surveys } from '../../../survey'
 import { NodeDefs } from '../../nodeDefs'
 import { Queue } from '../../../utils'
 import { IdentifierEvaluator } from '../../../expression/javascript/node/identifier'
 import { NodeDefExpressionContext } from '../context'
 import { IdentifierExpression } from '../../../expression'
-import { NodeDefProps } from '../../nodeDef'
 
 /**
  * Determines the actual context node def
