@@ -65,24 +65,23 @@ const getReachableNodeDefs = (params: {
 
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
+    // 1. try to find the identifier is a global object property or a native property
     try {
       return super.evaluate(expressionNode)
     } catch (e) {
-      // ignore it
+      // ignore it;
     }
 
-    // identifier not found
-    // identifier should be a node def or a node value property
+    // 2. try to find the identifier among reachable node defs
 
     const { survey, nodeDefContext } = this.context
 
-    const exprName = expressionNode.name
-
-    // identifier references a node
     if (nodeDefContext) {
       const reachableNodeDefs = getReachableNodeDefs({ survey, nodeDefContext })
 
-      return reachableNodeDefs.find((x: NodeDef<NodeDefType, NodeDefProps>) => x.props.name === exprName)
+      return reachableNodeDefs.find((reachableNodeDef: NodeDef<NodeDefType, NodeDefProps>) => 
+         reachableNodeDef.props.name === expressionNode.name
+      )
     }
 
     return undefined
