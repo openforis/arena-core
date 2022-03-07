@@ -7,6 +7,7 @@ import { Survey, Surveys } from '../../../../survey'
 import { RecordExpressionContext } from '../../context'
 import { Objects } from '../../../../utils'
 import { NodesFinder } from './nodesFinder'
+import { NodeValue } from '../../../../node/nodeValue'
 
 const getNodeValue = (params: { survey: Survey; node: Node; nodeDef: NodeDef<any> }) => {
   const { node, nodeDef } = params
@@ -71,6 +72,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     } catch (e) {
       // ignore it
     }
+
     // identifier not found
     // identifier should be a node or a node value property
     const { name: propName } = expressionNode
@@ -80,12 +82,18 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     if (!nodeDefContextUuid) {
       throw new Error(`Cannot find node with name ${propName}: context object is not a Node`)
     }
-    // node value prop
+
+    const nodeDefContext = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefContextUuid })
+
+    // node value prop (native)
     if (value && value[propName] !== undefined) {
       return value[propName]
     }
+    // node value prop (Arena specific value property)
+    if (NodeValue.isValueProp({ nodeDef: nodeDefContext, prop: propName })) {
+      return NodeValue.getValueProp({ nodeDef: nodeDefContext, node: nodeContext, prop: propName })
+    }
 
-    const nodeDefContext = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefContextUuid })
     const nodeDefReferenced = Surveys.getNodeDefByName({ survey, name: propName })
 
     if (nodeContext.nodeDefUuid === nodeDefReferenced.uuid) {
