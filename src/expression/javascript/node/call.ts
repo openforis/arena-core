@@ -1,4 +1,4 @@
-import { MemberExpression } from '../..'
+import { IdentifierExpression, MemberExpression } from '../..'
 import { ExpressionContext } from '../../context'
 import { ExpressionFunction } from '../../function'
 import { CallExpression, ExpressionNodeEvaluator, ExpressionNodeType } from '../../node'
@@ -38,7 +38,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     const { callee, arguments: exprArgs } = expressionNode
     const { object: contextObject } = this.context
 
-    const { name: fnName } = callee
+    const { name: fnName } = callee as IdentifierExpression
 
     const functionInfo = this.evaluator.functions[fnName]
     if (functionInfo) {
@@ -59,7 +59,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     // Arguments is a reserved word in strict mode
     const { callee, arguments: exprArgs } = expressionNode
 
-    const { name: fnName } = callee
+    const { name: fnName } = callee as IdentifierExpression
     const numArgs = exprArgs.length
 
     const expressionFunction: ExpressionFunction<C> = this.evaluator.functions[fnName]

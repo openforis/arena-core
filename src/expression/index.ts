@@ -7,14 +7,15 @@ export type { ExpressionFunction } from './function'
 export type {
   ExpressionNode,
   ExpressionNodeEvaluatorConstructor,
+  ArrayExpression,
   BinaryExpression,
   CallExpression,
   CompoundExpression,
-  GroupExpression,
+  ConditionalExpression,
   IdentifierExpression,
   LiteralExpression,
-  LogicalExpression,
   MemberExpression,
+  SequenceExpression,
   ThisExpression,
   UnaryExpression,
 } from './node'
