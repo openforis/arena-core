@@ -2,9 +2,11 @@ import { ExpressionEvaluator } from './evaluator'
 import { ExpressionContext } from './context'
 
 export const enum ExpressionNodeType {
+  Array = 'ArrayExpression',
   Binary = 'BinaryExpression',
   Call = 'CallExpression',
   Compound = 'Compound',
+  Conditional = 'ConditionalExpression',
   Identifier = 'Identifier',
   Literal = 'Literal',
   Member = 'MemberExpression',
@@ -14,10 +16,12 @@ export const enum ExpressionNodeType {
 }
 
 export interface ExpressionNode<T extends ExpressionNodeType> {
-  name: string
   type: T
 }
 
+export interface ArrayExpression extends ExpressionNode<ExpressionNodeType.Array> {
+  elements: Array<ExpressionNode<ExpressionNodeType>>
+}
 export interface BinaryExpression extends ExpressionNode<ExpressionNodeType.Binary> {
   left: ExpressionNode<ExpressionNodeType>
   right: ExpressionNode<ExpressionNodeType>
@@ -28,14 +32,23 @@ export interface CallExpression extends ExpressionNode<ExpressionNodeType.Call> 
   callee: ExpressionNode<ExpressionNodeType>
 }
 export type CompoundExpression = ExpressionNode<ExpressionNodeType.Compound>
-export type IdentifierExpression = ExpressionNode<ExpressionNodeType.Identifier>
+export interface ConditionalExpression extends ExpressionNode<ExpressionNodeType.Conditional> {
+  test: ExpressionNode<ExpressionNodeType>
+  consequent: ExpressionNode<ExpressionNodeType>
+  alternate: ExpressionNode<ExpressionNodeType>
+}
+export interface IdentifierExpression extends ExpressionNode<ExpressionNodeType.Identifier> {
+  name: string
+}
 export interface LiteralExpression extends ExpressionNode<ExpressionNodeType.Literal> {
+  raw: string
   value: any
 }
 export interface MemberExpression extends ExpressionNode<ExpressionNodeType.Member> {
+  computed: boolean
   object: ExpressionNode<ExpressionNodeType>
   property: ExpressionNode<ExpressionNodeType>
-  computed: boolean
+  optional?: boolean
 }
 export interface SequenceExpression extends ExpressionNode<ExpressionNodeType.Sequence> {
   expression: ExpressionNode<ExpressionNodeType>
@@ -44,6 +57,7 @@ export type ThisExpression = ExpressionNode<ExpressionNodeType.This>
 export interface UnaryExpression extends ExpressionNode<ExpressionNodeType.Unary> {
   argument: ExpressionNode<ExpressionNodeType>
   operator: string
+  prefix: boolean
 }
 
 export interface ExpressionNodeEvaluatorConstructor<
