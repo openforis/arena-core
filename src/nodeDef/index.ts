@@ -10,6 +10,7 @@ export type {
   NodeDefValidations,
 } from './nodeDef'
 export { NodeDefType } from './nodeDef'
+export { NodeDefs } from './nodeDefs'
 
 export type { NodeDefService } from './service'
 

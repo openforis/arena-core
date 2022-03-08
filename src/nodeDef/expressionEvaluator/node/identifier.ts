@@ -1,11 +1,10 @@
-import { NodeDef, NodeDefType } from '../../nodeDef'
-import { Survey, Surveys } from '../../../survey'
+import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { Surveys } from '../../../survey'
 import { NodeDefs } from '../../nodeDefs'
 import { Queue } from '../../../utils'
 import { IdentifierEvaluator } from '../../../expression/javascript/node/identifier'
 import { NodeDefExpressionContext } from '../context'
 import { IdentifierExpression } from '../../../expression'
-import { NodeDefProps } from '../..'
 
 /**
  * Determines the actual context node def
@@ -13,8 +12,14 @@ import { NodeDefProps } from '../..'
  * - virtual entity def => source node def
  * - entity def => entity def itself
  */
-const findActualContextNode = (params: { survey: Survey; nodeDefContext: NodeDef<NodeDefType> }) => {
-  const { survey, nodeDefContext } = params
+const findActualContextNode = (params: {
+  context: NodeDefExpressionContext
+}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
+  const { context } = params
+  const { survey, nodeDefContext } = context
+
+  if (!nodeDefContext) return undefined
+
   if (NodeDefs.isAttribute(nodeDefContext)) {
     return Surveys.getNodeDefParent({ survey, nodeDef: nodeDefContext })
   }
@@ -25,21 +30,19 @@ const findActualContextNode = (params: { survey: Survey; nodeDefContext: NodeDef
 }
 
 /**
- * Get reachable nodes, i.e. the children of the node's ancestors.
- * NOTE: The root node is excluded, but it _should_ be an entity, so that is fine.
+ * Get reachable node defs, i.e. the children of the node definition's ancestors.
+ * NOTE: The root node def is excluded, but it _should_ be an entity, so that is fine.
  */
-const getReachableNodeDefs = (params: {
-  survey: Survey
-  nodeDefContext: NodeDef<NodeDefType>
-}): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, nodeDefContext } = params
+const getReachableNodeDefs = (params: { context: NodeDefExpressionContext }): NodeDef<NodeDefType, NodeDefProps>[] => {
+  const { context } = params
+  const { survey } = context
 
   const reachableNodeDefs = []
 
   const queue = new Queue()
   const visitedUuids: string[] = []
 
-  const actualContextNode = findActualContextNode({ survey, nodeDefContext })
+  const actualContextNode = findActualContextNode({ context })
   if (actualContextNode) queue.enqueue(actualContextNode)
 
   while (!queue.isEmpty()) {
@@ -49,7 +52,7 @@ const getReachableNodeDefs = (params: {
     reachableNodeDefs.push(entityDefCurrent, ...entityDefCurrentChildren)
 
     // visit nodes inside single entities
-    queue.enqueueItems(entityDefCurrentChildren.filter((nd) => NodeDefs.isSingleEntity(nd)))
+    queue.enqueueItems(entityDefCurrentChildren.filter(NodeDefs.isSingleEntity))
 
     // avoid visiting 2 times the same entity definition when traversing single entities
     if (!visitedUuids.includes(entityDefCurrent.uuid)) {
@@ -63,29 +66,33 @@ const getReachableNodeDefs = (params: {
   return reachableNodeDefs
 }
 
+/**
+ * Tries to find the specified identifier among the node defs that can be "reached" from the context node def.
+ */
+const findIdentifierAmongReachableNodeDefs = (params: {
+  context: NodeDefExpressionContext
+  expressionNode: IdentifierExpression
+}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
+  const { context, expressionNode } = params
+  const { nodeDefContext } = context
+
+  if (nodeDefContext) {
+    const reachableNodeDefs = getReachableNodeDefs({ context })
+
+    return reachableNodeDefs.find(
+      (reachableNodeDef: NodeDef<NodeDefType, NodeDefProps>) => reachableNodeDef.props.name === expressionNode.name
+    )
+  }
+  return undefined
+}
+
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
     try {
-      const result = super.evaluate(expressionNode)
-      return result
+      // try to find the identifier among global objects or native properties
+      return super.evaluate(expressionNode)
     } catch (e) {
-      // ignore it
+      return findIdentifierAmongReachableNodeDefs({ context: this.context, expressionNode })
     }
-
-    // identifier not found
-    // identifier should be a node def or a node value property
-
-    const { survey, nodeDefContext } = this.context
-
-    const exprName = expressionNode.name
-
-    // identifier references a node
-    if (nodeDefContext) {
-      const reachableNodeDefs = getReachableNodeDefs({ survey, nodeDefContext })
-
-      return reachableNodeDefs.find((x: NodeDef<NodeDefType, NodeDefProps>) => x.props.name === exprName)
-    }
-
-    return undefined
   }
 }

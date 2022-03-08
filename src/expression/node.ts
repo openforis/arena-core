@@ -14,7 +14,7 @@ export const enum ExpressionNodeType {
 }
 
 export interface ExpressionNode<T extends ExpressionNodeType> {
-  name?: string
+  name: string
   type: T
 }
 

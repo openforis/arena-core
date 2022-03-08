@@ -45,9 +45,9 @@ export const getNodeDefRoot = (params: { survey: Survey }): NodeDef<NodeDefType,
 export const getNodeDefSource = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
-}): NodeDef<NodeDefType, NodeDefProps> | null => {
+}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
   const { survey, nodeDef } = params
-  return nodeDef.virtual && nodeDef.parentUuid ? getNodeDefByUuid({ survey, uuid: nodeDef.parentUuid }) : null
+  return nodeDef.virtual ? getNodeDefParent({ survey, nodeDef }) : undefined
 }
 
 export const getNodeDefChildren = (params: {
@@ -55,7 +55,7 @@ export const getNodeDefChildren = (params: {
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   includeAnalysis?: boolean
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, nodeDef, includeAnalysis = true } = params
+  const { survey, nodeDef, includeAnalysis = false } = params
 
   if (!survey.nodeDefs) return []
 
@@ -68,23 +68,21 @@ export const getNodeDefChildren = (params: {
     }
   }
 
-  if (!includeAnalysis) {
-    children.push(
-      ...Object.values(survey.nodeDefs).filter((nodeDefCurrent) => {
-        if (nodeDefCurrent.analysis) {
-          return false
+  children.push(
+    ...Object.values(survey.nodeDefs).filter((nodeDefCurrent) => {
+      if (!includeAnalysis && nodeDefCurrent.analysis) {
+        return false
+      }
+      if (nodeDefCurrent.virtual) {
+        // Include virtual entities having their source as a child of the given entity
+        const entitySource = getNodeDefSource({ survey, nodeDef: nodeDefCurrent })
+        if (entitySource) {
+          return entitySource.parentUuid === nodeDef.uuid
         }
-        if (nodeDefCurrent.virtual) {
-          // Include virtual entities having their source as a child of the given entity
-          const entitySource = getNodeDefSource({ survey, nodeDef: nodeDefCurrent })
-          if (entitySource) {
-            return entitySource.parentUuid === nodeDef.uuid
-          }
-        }
-        // "natural" child
-        return nodeDefCurrent.parentUuid === nodeDef.uuid
-      })
-    )
-  }
+      }
+      // "natural" child
+      return nodeDefCurrent.parentUuid === nodeDef.uuid
+    })
+  )
   return children
 }
