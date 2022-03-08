@@ -12,11 +12,11 @@ const SEQUENCE_EXPRESSION = 'SequenceExpression'
 // (by default the unnecessary enclosing parenthesis of a sequence expression are omitted, but this won't work in the basic expression editor)
 const sequenceExpressionPlugin = {
   name: 'the plugin',
-  init(jsep: any) {
-    jsep.hooks.add('gobble-token', (env: any): void => {
+  init(thisJsep: any) {
+    thisJsep.hooks.add('gobble-token', (env: any): void => {
       const { context } = env
       // token starts with
-      if (!jsep.isIdentifierStart(context.code) && context.code === OPEN_PARENTHESIS_CODE) {
+      if (!thisJsep.isIdentifierStart(context.code) && context.code === OPEN_PARENTHESIS_CODE) {
         context.index += 1
         let nodes = context.gobbleExpressions(CLOSE_PARENTHESIS_CODE)
         if (context.code === CLOSE_PARENTHESIS_CODE) {
