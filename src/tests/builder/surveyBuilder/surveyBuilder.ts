@@ -36,7 +36,10 @@ export class SurveyBuilder {
     return this
   }
 
-  private buildCategories() {
+  private buildCategories(): {
+    categoriesByUuid: { [categoryUuid: string]: Category }
+    itemsByCategoryUuid: { [categoryUuid: string]: CategoryItem[] }
+  } {
     const categoriesByUuid: { [categoryUuid: string]: Category } = {}
     const itemsByCategoryUuid: { [categoryUuid: string]: CategoryItem[] } = {}
 
@@ -48,7 +51,11 @@ export class SurveyBuilder {
     return { categoriesByUuid, itemsByCategoryUuid }
   }
 
-  private buildTaxonomies() {
+  private buildTaxonomies(): {
+    taxonomiesByUuid: { [taxonomyUuid: string]: Taxonomy }
+    taxonIndex: { [taxonUuid: string]: Taxon }
+    taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: string } }
+  } {
     const taxonomiesByUuid: { [taxonomyUuid: string]: Taxonomy } = {}
     const taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: string } } = {}
     const taxonIndex: { [taxonUuid: string]: Taxon } = {}
@@ -76,22 +83,8 @@ export class SurveyBuilder {
     })
     survey.nodeDefs = this.rootDefBuilder.build({ survey })
 
-    const {
-      categoriesByUuid,
-      itemsByCategoryUuid,
-    }: {
-      categoriesByUuid: { [categoryUuid: string]: Category }
-      itemsByCategoryUuid: { [categoryUuid: string]: CategoryItem[] }
-    } = this.buildCategories()
-    const {
-      taxonomiesByUuid,
-      taxonIndex,
-      taxonUuidIndex,
-    }: {
-      taxonomiesByUuid: { [taxonomyUuid: string]: Taxonomy }
-      taxonIndex: { [taxonUuid: string]: Taxon }
-      taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: string } }
-    } = this.buildTaxonomies()
+    const { categoriesByUuid, itemsByCategoryUuid } = this.buildCategories()
+    const { taxonomiesByUuid, taxonIndex, taxonUuidIndex } = this.buildTaxonomies()
 
     survey.categories = categoriesByUuid
     survey.taxonomies = taxonomiesByUuid
