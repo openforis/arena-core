@@ -36,16 +36,7 @@ export class SurveyBuilder {
     return this
   }
 
-  build(): Survey {
-    const survey = SurveyFactory.createInstance({
-      name: this.name,
-      ownerUuid: this.user.uuid,
-      label: this.label,
-      languages: [this.lang],
-    })
-    survey.nodeDefs = this.rootDefBuilder.build({ survey })
-
-    // categories
+  private buildCategories() {
     const categoriesByUuid: { [categoryUuid: string]: Category } = {}
     const itemsByCategoryUuid: { [categoryUuid: string]: CategoryItem[] } = {}
 
@@ -54,8 +45,10 @@ export class SurveyBuilder {
       itemsByCategoryUuid[category.uuid] = items
       categoriesByUuid[category.uuid] = category
     })
+    return { categoriesByUuid, itemsByCategoryUuid }
+  }
 
-    // taxonomies
+  private buildTaxonomies() {
     const taxonomiesByUuid: { [taxonomyUuid: string]: Taxonomy } = {}
     const taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: string } } = {}
     const taxonIndex: { [taxonUuid: string]: Taxon } = {}
@@ -71,6 +64,35 @@ export class SurveyBuilder {
       })
       taxonomiesByUuid[taxonomy.uuid] = taxonomy
     })
+    return { taxonomiesByUuid, taxonIndex, taxonUuidIndex }
+  }
+
+  build(): Survey {
+    const survey = SurveyFactory.createInstance({
+      name: this.name,
+      ownerUuid: this.user.uuid,
+      label: this.label,
+      languages: [this.lang],
+    })
+    survey.nodeDefs = this.rootDefBuilder.build({ survey })
+
+    const {
+      categoriesByUuid,
+      itemsByCategoryUuid,
+    }: {
+      categoriesByUuid: { [categoryUuid: string]: Category }
+      itemsByCategoryUuid: { [categoryUuid: string]: CategoryItem[] }
+    } = this.buildCategories()
+    const {
+      taxonomiesByUuid,
+      taxonIndex,
+      taxonUuidIndex,
+    }: {
+      taxonomiesByUuid: { [taxonomyUuid: string]: Taxonomy }
+      taxonIndex: { [taxonUuid: string]: Taxon }
+      taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: string } }
+    } = this.buildTaxonomies()
+
     survey.categories = categoriesByUuid
     survey.taxonomies = taxonomiesByUuid
     survey.refData = SurveyRefDataFactory.createInstance({ itemsByCategoryUuid, taxonIndex, taxonUuidIndex })
