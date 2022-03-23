@@ -73,4 +73,22 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
       return Records.getParent({ record, node })
     },
   },
+  {
+    name: 'taxonProp',
+    minArity: 3,
+    maxArity: 3,
+    executor: (context: RecordExpressionContext) => (taxonomyName: string, propName: string, taxonCode: string) => {
+      const { survey } = context
+      const taxonomy = survey.taxonomies
+        ? Object.values(survey.taxonomies).find((taxonomy) => taxonomy.props.name === taxonomyName)
+        : null
+      if (!taxonomy) return null
+
+      const taxon = Surveys.getTaxonByCode({ survey, taxonomyUuid: taxonomy.uuid, taxonCode })
+      if (!taxon) return null
+
+      const extraProp = taxon.props.extra?.[propName]
+      return Objects.isEmpty(extraProp) ? null : extraProp
+    },
+  },
 ]

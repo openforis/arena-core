@@ -6,7 +6,7 @@ import { Objects } from '../../utils'
 
 export type SurveyRefDataFactoryParams = {
   itemsByCategoryUuid?: { [categoryUuid: string]: CategoryItem[] }
-  taxonUuidIndex?: { [taxonomyUuid: string]: { [taxonCode: string]: Taxon } }
+  taxonUuidIndex?: { [taxonomyUuid: string]: { [taxonCode: string]: string } }
   taxonIndex?: { [taxonUuid: string]: Taxon }
 }
 

@@ -1,5 +1,4 @@
 import { Factory } from '../common'
-import { LanguageCode } from '../language'
 import { Taxonomy, TaxonomyProps } from './taxonomy'
 import { Taxon, TaxonProps } from './taxon'
 import { VernacularName } from './taxonVernacularName'
@@ -66,7 +65,7 @@ export const TaxonFactory: Factory<Taxon, TaxonFactoryParams> = {
 
 // VernacularNameFactory
 export type VernacularNameParams = {
-  lang: LanguageCode
+  lang: string
   name: string
 }
 
