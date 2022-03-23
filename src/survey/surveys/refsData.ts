@@ -1,5 +1,6 @@
 import { Survey } from '../survey'
 import { CategoryItem } from '../../category'
+import { Taxon } from '../../taxonomy'
 
 export const getCategoryItemByCodePaths = (params: {
   survey: Survey
@@ -15,4 +16,19 @@ export const getCategoryItemByCodePaths = (params: {
     'null'
   )
   return itemUuid ? survey.refData?.categoryItemIndex[itemUuid] : undefined
+}
+
+export const getTaxonByUuid = (params: { survey: Survey; taxonUuid: string }): Taxon | undefined => {
+  const { survey, taxonUuid } = params
+  return survey.refData?.taxonIndex?.[taxonUuid]
+}
+
+export const getTaxonByCode = (params: {
+  survey: Survey
+  taxonomyUuid: string
+  taxonCode: string
+}): Taxon | undefined => {
+  const { survey, taxonomyUuid, taxonCode } = params
+  const taxonUuid = survey.refData?.taxonUuidIndex?.[taxonomyUuid]?.[taxonCode]
+  return taxonUuid ? getTaxonByUuid({ survey, taxonUuid }) : undefined
 }

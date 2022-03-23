@@ -14,9 +14,9 @@ export interface SurveyRefData {
    */
   categoryItemIndex: { [categoryItemUuid: string]: CategoryItem }
   /**
-   * Taxa indexed by taxonomy UUID and taxon code.
+   * Taxa UUIDs indexed by taxonomy UUID and taxon code.
    */
-  taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: Taxon } }
+  taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: string } }
   /**
    * Taxa indexed by taxon UUID.
    */

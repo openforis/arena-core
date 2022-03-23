@@ -1,10 +1,9 @@
-import { LanguageCode } from '../language'
 import { VernacularNameFactory, VernacularNameParams } from './factory'
 
 describe('VernacularNameFactory', () => {
   test('createInstance', () => {
     const vernacularNameParams: VernacularNameParams = {
-      lang: LanguageCode.en,
+      lang: 'eng',
       name: 'vernacular_name',
     }
 

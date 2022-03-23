@@ -7,7 +7,7 @@ import {
   getNodeDefSource,
   isNodeDefAncestor,
 } from './nodeDefs'
-import { getCategoryItemByCodePaths } from './refsData'
+import { getCategoryItemByCodePaths, getTaxonByCode, getTaxonByUuid } from './refsData'
 
 export const Surveys = {
   getNodeDefByName,
@@ -18,4 +18,6 @@ export const Surveys = {
   getNodeDefSource,
   isNodeDefAncestor,
   getCategoryItemByCodePaths,
+  getTaxonByCode,
+  getTaxonByUuid,
 }
