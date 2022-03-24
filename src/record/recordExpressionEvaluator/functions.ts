@@ -16,9 +16,7 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
       ...codePaths: string[]
     ) => {
       const { survey } = context
-      const category = survey.categories
-        ? Object.values(survey.categories).find((category) => category.props.name === categoryName)
-        : null
+      const category = Surveys.getCategoryByName({ survey, categoryName })
       if (!category) return null
 
       const categoryItem = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid: category.uuid, codePaths })
@@ -71,6 +69,22 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
       }
       const { record } = context
       return Records.getParent({ record, node })
+    },
+  },
+  {
+    name: 'taxonProp',
+    minArity: 3,
+    maxArity: 3,
+    executor: (context: RecordExpressionContext) => (taxonomyName: string, propName: string, taxonCode: string) => {
+      const { survey } = context
+      const taxonomy = Surveys.getTaxonomyByName({ survey, taxonomyName })
+      if (!taxonomy) return null
+
+      const taxon = Surveys.getTaxonByCode({ survey, taxonomyUuid: taxonomy.uuid, taxonCode })
+      if (!taxon) return null
+
+      const extraProp = taxon.props.extra?.[propName]
+      return Objects.isEmpty(extraProp) ? null : extraProp
     },
   },
 ]

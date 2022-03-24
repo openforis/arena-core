@@ -63,7 +63,7 @@ export type { Labels } from './language'
 export { NodeFactory, Nodes } from './node'
 export type { Node, NodeService } from './node'
 
-export { NodeDefType, NodeDefFactory, NodeDefs } from './nodeDef'
+export { NodeDefType, NodeDefFactory, NodeDefs, NodeDefExpressionEvaluator } from './nodeDef'
 export type {
   NodeDef,
   NodeDefService,
@@ -95,7 +95,7 @@ export type {
   NodeDefProps,
 } from './nodeDef'
 
-export { RecordFactory, Records, RECORD_STEP_DEFAULT } from './record'
+export { RecordFactory, Records, RECORD_STEP_DEFAULT, RecordExpressionEvaluator } from './record'
 export type { Record, RecordService } from './record'
 
 export { ServiceRegistry, ServiceType } from './registry'
