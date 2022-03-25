@@ -9,8 +9,8 @@ enum Formats {
   timeStorage = 'HH:mm',
 }
 
-const nowDateTimeStorageFormat = (): string => format(Date.now(), Formats.datetimeStorage)
+const nowFormattedForStorage = (): string => format(Date.now(), Formats.datetimeStorage)
 
 export const Dates = {
-  nowDateTimeStorageFormat,
+  nowFormattedForStorage,
 }
