@@ -55,7 +55,7 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
         return -1
       }
       const children = Records.getChildren({ record, parentNode, childDefUuid: node.nodeDefUuid })
-      return children.findIndex((n) => n === node)
+      return children.findIndex((n) => Nodes.areEqual(n, node))
     },
   },
   {
