@@ -70,7 +70,7 @@ describe('RecordExpressionEvaluator', () => {
     // 18 * 0.5 >= 1728
     { expression: '(cluster_distance * 0.5) >= Math.pow(cluster_id, 3)', result: false },
     // visit_date must be before current date
-    // { q: 'visit_date <= now()', r: true },
+    { expression: 'visit_date <= now()', result: true },
     // cluster_id is not empty
     { expression: 'isEmpty(cluster_id)', result: false },
     // gps_model is not empty

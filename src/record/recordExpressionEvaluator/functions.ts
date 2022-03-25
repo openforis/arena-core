@@ -5,6 +5,7 @@ import { RecordExpressionContext } from './context'
 import { Objects } from '../../utils'
 import { Surveys } from '../../survey'
 import { Point, Points } from '../../geo'
+import { Dates } from '../../utils/dates'
 
 export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressionContext>> = [
   {
@@ -57,6 +58,13 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
       const children = Records.getChildren({ record, parentNode, childDefUuid: node.nodeDefUuid })
       return children.findIndex((n) => Nodes.areEqual(n, node))
     },
+  },
+  {
+    name: 'now',
+    minArity: 0,
+    maxArity: 0,
+    evaluateToNode: false,
+    executor: () => () => Dates.nowDateTimeStorageFormat(),
   },
   {
     name: 'parent',
