@@ -130,7 +130,7 @@ export type {
   TaxonService,
 } from './taxonomy'
 
-export { Arrays, Numbers, Objects, UUIDs } from './utils'
+export { Arrays, Dates, Numbers, Objects, UUIDs } from './utils'
 
 export {
   FieldValidators,
