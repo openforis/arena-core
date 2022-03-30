@@ -38,7 +38,7 @@ export const createTestSurvey = (params: { user: User }): Survey =>
           integerDef('tree_id').key(),
           integerDef('tree_height'),
           decimalDef('dbh'),
-          taxonDef('tree_species')
+          taxonDef('tree_species', 'trees')
         ).multiple()
       ).multiple()
     )

@@ -10,7 +10,7 @@ import {
   getNodeDefSource,
   isNodeDefAncestor,
 } from './nodeDefs'
-import { getCategoryItemByCodePaths, getTaxonByCode, getTaxonByUuid } from './refsData'
+import { getCategoryItemByCodePaths, getCategoryItemByUuid, getTaxonByCode, getTaxonByUuid } from './refsData'
 
 const getCategoryByName = (params: { survey: Survey; categoryName: string }): Category | undefined => {
   const { survey, categoryName } = params
@@ -36,6 +36,7 @@ export const Surveys = {
   isNodeDefAncestor,
   getCategoryByName,
   getCategoryItemByCodePaths,
+  getCategoryItemByUuid,
   getTaxonByCode,
   getTaxonByUuid,
   getTaxonomyByName,

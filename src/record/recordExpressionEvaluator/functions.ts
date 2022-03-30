@@ -43,6 +43,7 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
     name: 'index',
     minArity: 1,
     maxArity: 1,
+    evaluateArgsToNodes: true,
     executor: (context: RecordExpressionContext) => (node) => {
       if (!node) {
         return -1
@@ -70,6 +71,7 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
     name: 'parent',
     minArity: 1,
     maxArity: 1,
+    evaluateArgsToNodes: true,
     evaluateToNode: true,
     executor: (context: RecordExpressionContext) => (node) => {
       if (!node || Nodes.isRoot(node)) {
