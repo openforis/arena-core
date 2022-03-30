@@ -50,7 +50,7 @@ const getNodesOrValues = (params: {
   const { survey, nodeDefReferenced, referencedNodes, propName, evaluateToNode } = params
   const single = !nodeDefReferenced.props.multiple
   if (single) {
-    if (referencedNodes.length === 0) throw new Error(`Cannot find node definition with name ${propName}`)
+    if (referencedNodes.length === 0) throw new Error(`Cannot find node for definition with name ${propName}`)
     if (referencedNodes.length > 1) throw new Error(`Multiple nodes found for definition with name ${propName}`)
   }
   if (nodeDefReferenced.type === NodeDefType.entity || evaluateToNode) {

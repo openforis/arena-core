@@ -64,12 +64,17 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
 
     const expressionFunction: ExpressionFunction<C> = this.evaluator.functions[fnName]
 
-    const { minArity, maxArity, evaluateToNode, executor } = expressionFunction
+    const { minArity, maxArity, evaluateArgsToNodes, executor } = expressionFunction
 
     if (numArgs < minArity) throw new Error(`functionHasTooFewArguments`)
     if (maxArity && maxArity > 0 && numArgs > maxArity) throw new Error('functionHasTooManyArguments')
 
-    const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, { ...this.context, evaluateToNode }))
+    const args = exprArgs.map((arg) =>
+      this.evaluator.evaluateNode(arg, {
+        ...this.context,
+        evaluateToNode: evaluateArgsToNodes,
+      })
+    )
 
     // Currently there are no side effects from function evaluation so it's
     // safe to call the function even when we're just parsing the expression
