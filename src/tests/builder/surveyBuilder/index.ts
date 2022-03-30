@@ -5,7 +5,9 @@ import { TaxonBuilder } from './taxonBuilder'
 import { TaxonomyBuilder } from './taxonomyBuilder'
 import { NodeDefAttributeBuilder } from './nodeDefAttributeBuilder'
 import { NodeDefBuilder } from './nodeDefBuilder'
+import { NodeDefCodeBuilder } from './nodeDefCodeBuilder'
 import { NodeDefEntityBuilder } from './nodeDefEntityBuilder'
+import { NodeDefTaxonBuilder } from './nodeDefTaxonBuilder'
 
 export { SurveyBuilder } from './surveyBuilder'
 
@@ -21,7 +23,8 @@ export const entityDef = (name: string, ...childBuilders: NodeDefBuilder[]): Nod
 
 export const booleanDef = (name: string): NodeDefAttributeBuilder =>
   new NodeDefAttributeBuilder(name, NodeDefType.boolean)
-export const codeDef = (name: string): NodeDefAttributeBuilder => new NodeDefAttributeBuilder(name, NodeDefType.code)
+export const codeDef = (name: string, categoryName: string): NodeDefCodeBuilder =>
+  new NodeDefCodeBuilder(name, categoryName)
 export const coordinateDef = (name: string): NodeDefAttributeBuilder =>
   new NodeDefAttributeBuilder(name, NodeDefType.coordinate)
 export const dateDef = (name: string): NodeDefAttributeBuilder => new NodeDefAttributeBuilder(name, NodeDefType.date)
@@ -30,6 +33,7 @@ export const decimalDef = (name: string): NodeDefAttributeBuilder =>
 export const fileDef = (name: string): NodeDefAttributeBuilder => new NodeDefAttributeBuilder(name, NodeDefType.file)
 export const integerDef = (name: string): NodeDefAttributeBuilder =>
   new NodeDefAttributeBuilder(name, NodeDefType.integer)
-export const taxonDef = (name: string): NodeDefAttributeBuilder => new NodeDefAttributeBuilder(name, NodeDefType.taxon)
+export const taxonDef = (name: string, taxonomyName: string): NodeDefTaxonBuilder =>
+  new NodeDefTaxonBuilder(name, taxonomyName)
 export const textDef = (name: string): NodeDefAttributeBuilder => new NodeDefAttributeBuilder(name, NodeDefType.text)
 export const timeDef = (name: string): NodeDefAttributeBuilder => new NodeDefAttributeBuilder(name, NodeDefType.time)

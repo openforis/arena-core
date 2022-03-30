@@ -81,13 +81,15 @@ export class SurveyBuilder {
       label: this.label,
       languages: [this.lang],
     })
-    survey.nodeDefs = this.rootDefBuilder.build({ survey })
 
     const { categoriesByUuid, itemsByCategoryUuid } = this.buildCategories()
     const { taxonomiesByUuid, taxonIndex, taxonUuidIndex } = this.buildTaxonomies()
 
     survey.categories = categoriesByUuid
     survey.taxonomies = taxonomiesByUuid
+
+    survey.nodeDefs = this.rootDefBuilder.build({ survey })
+
     survey.refData = SurveyRefDataFactory.createInstance({ itemsByCategoryUuid, taxonIndex, taxonUuidIndex })
     return survey
   }

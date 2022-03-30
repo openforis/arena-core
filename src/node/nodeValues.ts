@@ -56,11 +56,15 @@ export const valuePropsByType = {
   [NodeDefType.text]: null,
 }
 
-const getValuePropRaw = (params: { node: Node; prop: string; defaultValue?: any }) => {
+const getValuePropRaw = (params: { node: Node; prop: string; defaultValue?: any }): any | undefined => {
   const { node, prop, defaultValue } = params
   const valueProp = node.value?.[prop]
   return valueProp === undefined ? defaultValue : valueProp
 }
+
+// Code
+const getItemUuid = (node: Node): string | undefined =>
+  getValuePropRaw({ node, prop: valuePropsCode[valuePropsCode.itemUuid] })
 
 // Date
 const getDatePart = (index: number) => (node: Node) => Number((node.value || '--').split('-')[index].trim())
@@ -73,6 +77,10 @@ const _datePropGetters: { [key in valuePropsDate]: (node: Node) => number } = {
   [valuePropsDate.month]: getDateMonth,
   [valuePropsDate.year]: getDateYear,
 }
+
+// Taxon
+const getTaxonUuid = (node: Node): string | undefined =>
+  getValuePropRaw({ node, prop: valuePropsTaxon[valuePropsTaxon.taxonUuid] })
 
 // Time
 const _getTimePart = (index: number) => (node: Node) => Number((node.value || ':').split(':')[index].trim())
@@ -100,7 +108,11 @@ const getValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; nod
   return propGetter ? propGetter(prop)(node) : getValuePropRaw({ node, prop })
 }
 
-export const NodeValue = {
+export const NodeValues = {
   getValueProp,
   isValueProp,
+  // code
+  getItemUuid,
+  // taxon
+  getTaxonUuid,
 }

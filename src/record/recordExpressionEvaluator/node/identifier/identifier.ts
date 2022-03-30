@@ -3,31 +3,31 @@ import { IdentifierEvaluator } from '../../../../expression/javascript/node/iden
 import { Node } from '../../../../node'
 import { NodeDef, NodeDefType } from '../../../../nodeDef'
 import { Records } from '../../../records'
+import { NodeValues } from '../../../../node/nodeValues'
 import { Survey, Surveys } from '../../../../survey'
 import { RecordExpressionContext } from '../../context'
 import { Objects } from '../../../../utils'
 import { NodesFinder } from './nodesFinder'
-import { NodeValue } from '../../../../node/nodeValue'
 
 const getNodeValue = (params: { survey: Survey; node: Node; nodeDef: NodeDef<any> }) => {
-  const { node, nodeDef } = params
+  const { node, nodeDef, survey } = params
 
   const value = node.value
   if (Objects.isEmpty(value)) {
     return null
   }
 
-  //   if (NodeDef.isCode(nodeDef)) {
-  //     const itemUuid = Node.getCategoryItemUuid(node)
-  //     const item = itemUuid ? Survey.getCategoryItemByUuid(itemUuid)(survey) : null
-  //     return item ? CategoryItem.getCode(item) : null
-  //   }
+  if (nodeDef.type === NodeDefType.code) {
+    const itemUuid = NodeValues.getItemUuid(node)
+    const item = itemUuid ? Surveys.getCategoryItemByUuid({ survey, itemUuid }) : null
+    return item ? item.props.code : null
+  }
 
-  //   if (NodeDef.isTaxon(nodeDef)) {
-  //     const taxonUuid = Node.getTaxonUuid(node)
-  //     const taxon = taxonUuid ? Survey.getTaxonByUuid(taxonUuid)(survey) : null
-  //     return taxon ? Taxon.getCode(taxon) : null
-  //   }
+  if (nodeDef.type === NodeDefType.taxon) {
+    const taxonUuid = NodeValues.getTaxonUuid(node)
+    const taxon = taxonUuid ? Surveys.getTaxonByUuid({ survey, taxonUuid }) : null
+    return taxon ? taxon.props.code : null
+  }
 
   switch (nodeDef.type) {
     case NodeDefType.decimal:
@@ -90,8 +90,8 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
       return value[propName]
     }
     // node value prop (Arena specific value property)
-    if (NodeValue.isValueProp({ nodeDef: nodeDefContext, prop: propName })) {
-      return NodeValue.getValueProp({ nodeDef: nodeDefContext, node: nodeContext, prop: propName })
+    if (NodeValues.isValueProp({ nodeDef: nodeDefContext, prop: propName })) {
+      return NodeValues.getValueProp({ nodeDef: nodeDefContext, node: nodeContext, prop: propName })
     }
 
     const nodeDefReferenced = Surveys.getNodeDefByName({ survey, name: propName })
