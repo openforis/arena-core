@@ -31,7 +31,12 @@ export type {
 
 export type { ArenaObject, Factory } from './common'
 
-export { ExpressionNodeType, ExpressionNodeEvaluator, JavascriptExpressionEvaluator } from './expression'
+export {
+  ExpressionNodeType,
+  ExpressionNodeEvaluator,
+  JavascriptExpressionEvaluator,
+  JavascriptExpressionParser,
+} from './expression'
 export type {
   ArrayExpression,
   BinaryExpression,
