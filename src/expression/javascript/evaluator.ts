@@ -15,7 +15,7 @@ import { MemberEvaluator } from './node/member'
 import { SequenceEvaluator } from './node/sequence'
 import { ThisEvaluator } from './node/this'
 import { UnaryEvaluator } from './node/unary'
-import { jsep } from './parser/jsep'
+import { JavascriptExpressionParser } from './parser/parser'
 
 type Evaluators<C extends ExpressionContext> = {
   [nodeType in ExpressionNodeType]?: ExpressionNodeEvaluatorConstructor<C, ExpressionNode<ExpressionNodeType>>
@@ -48,7 +48,8 @@ export class JavascriptExpressionEvaluator<C extends ExpressionContext> implemen
   }
 
   evaluate(expression: string, context?: C): any {
-    return this.evaluateNode(jsep(expression) as ExpressionNode<ExpressionNodeType>, context || ({} as C))
+    const parser = new JavascriptExpressionParser()
+    return this.evaluateNode(parser.parse(expression), context || ({} as C))
   }
 
   evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: C): any {
