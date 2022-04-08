@@ -16,7 +16,7 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
       - uses: actions/setup-node@v2
         with:
-          node-version: '14.15.0'
+          node-version: '16.14.2'
       - run: yarn install --frozen-lockfile
       - run: yarn test
 
@@ -29,7 +29,7 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
       - uses: actions/setup-node@v2
         with:
-          node-version: '14.15.0'
+          node-version: '16.14.2'
           registry-url: https://registry.npmjs.org/
       - run: yarn install --frozen-lockfile
       - run: yarn publish
@@ -45,7 +45,7 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
       - uses: actions/setup-node@v2
         with:
-          node-version: '14.15.0'
+          node-version: '16.14.2'
           registry-url: https://npm.pkg.github.com/
       - run: yarn install --frozen-lockfile
       - run: yarn publish
