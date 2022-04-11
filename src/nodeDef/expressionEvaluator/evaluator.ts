@@ -11,4 +11,13 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
       [ExpressionNodeType.Member]: NodeDefMemberEvaluator,
     })
   }
+
+  findReferencedNodeDefUuids(expression: string, context: NodeDefExpressionContext): Set<string> {
+    try {
+      this.evaluate(expression, context)
+      return context.referencedNodeDefUuids || new Set()
+    } catch (error) {
+      return new Set()
+    }
+  }
 }
