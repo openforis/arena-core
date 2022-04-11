@@ -9,7 +9,7 @@ let record: Record
 
 describe('ReferencedNodes', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@arena.org', name: 'test' })
+    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
 
     survey = createTestSurvey({ user })
 

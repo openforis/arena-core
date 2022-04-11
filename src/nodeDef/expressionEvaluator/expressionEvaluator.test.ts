@@ -21,7 +21,7 @@ const expectToBeNodeDef = (value: any): void => {
 
 describe('NodeDefExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@arena.org', name: 'test' })
+    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
 
     survey = new SurveyBuilder(
       user,
@@ -36,7 +36,7 @@ describe('NodeDefExpressionEvaluator', () => {
 
   const queries: Query[] = [
     // wrong node def name
-    { expression: 'not_existent', result: undefined },
+    { expression: 'not_existent', error: true },
     // sibling node defs
     { expression: 'accessible', result: 'accessible' },
     // sibling node defs when current node def is specified
