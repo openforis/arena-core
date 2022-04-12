@@ -39,7 +39,7 @@ const getNode = (path: string): Node => {
 
 describe('RecordExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@arena.org', name: 'test' })
+    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
 
     survey = createTestSurvey({ user })
 

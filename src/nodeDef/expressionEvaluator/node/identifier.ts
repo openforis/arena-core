@@ -92,7 +92,14 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
       // try to find the identifier among global objects or native properties
       return super.evaluate(expressionNode)
     } catch (e) {
-      return findIdentifierAmongReachableNodeDefs({ context: this.context, expressionNode })
+      const { context } = this
+
+      const referencedNodeDef = findIdentifierAmongReachableNodeDefs({ context: this.context, expressionNode })
+      if (referencedNodeDef) {
+        context.referencedNodeDefUuids = (context.referencedNodeDefUuids || new Set()).add(referencedNodeDef.uuid)
+        return referencedNodeDef
+      }
+      throw new Error(`Unable to find node with name "${expressionNode.name}"`)
     }
   }
 }

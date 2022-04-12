@@ -7,7 +7,7 @@ import { Surveys } from '../../../survey'
 
 describe('RecordBuilder', () => {
   test('simple record build', () => {
-    const user = UserFactory.createInstance({ email: 'test@arena.org', name: 'test' })
+    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
 
     const survey = new SurveyBuilder(
       user,
