@@ -1,42 +1,44 @@
 {
   "name": "@openforis/arena-core",
   "author": {
-    "name": "Openforis",
+    "name": "OpenForis",
     "email": "openforis.arena@gmail.com"
   },
-  "version": "0.0.74",
+  "version": "0.0.81",
   "description": "Arena core module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
   "devDependencies": {
-    "@babel/preset-typescript": "^7.13.0",
-    "@types/jest": "^26.0.22",
+    "@babel/preset-typescript": "^7.16.7",
+    "@types/jest": "^27.4.1",
     "@types/lodash.differencewith": "^4.5.6",
     "@types/lodash.frompairs": "^4.0.6",
     "@types/lodash.isequal": "^4.5.5",
     "@types/lodash.topairs": "^4.3.6",
-    "@types/proj4": "^2.5.0",
-    "@types/uuid": "^8.3.0",
-    "@typescript-eslint/eslint-plugin": "^4.20.0",
-    "@typescript-eslint/parser": "^4.20.0",
-    "eslint": "^7.23.0",
-    "eslint-plugin-no-explicit-type-exports": "^0.11.10",
-    "husky": "=4",
-    "jest": "^26.6.3",
-    "lint-staged": "^10.5.4",
+    "@types/proj4": "^2.5.2",
+    "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "^5.18.0",
+    "@typescript-eslint/parser": "^5.18.0",
+    "eslint": "^8.12.0",
+    "eslint-plugin-no-explicit-type-exports": "^0.12.1",
+    "husky": "^7.0.4",
+    "jest": "^27.5.1",
+    "lint-staged": "^12.3.7",
     "npm-run-all": "^4.1.5",
-    "prettier": "2.2.1",
-    "ts-jest": "^26.5.4",
-    "typescript": "^4.2.3"
+    "prettier": "2.6.2",
+    "ts-jest": "^27.1.4",
+    "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@esri/proj-codes": "^2.7.0",
+    "@esri/proj-codes": "^2.9.0",
+    "date-fns": "^2.28.0",
+    "jsep": "^1.3.4",
     "lodash.differencewith": "^4.5.0",
     "lodash.frompairs": "^4.0.1",
     "lodash.isequal": "^4.5.0",
     "lodash.topairs": "^4.3.0",
-    "proj4": "^2.7.2",
+    "proj4": "^2.8.0",
     "uuid": "^8.3.2"
   },
   "scripts": {
@@ -44,17 +46,12 @@
     "build": "tsc",
     "lint:fix": "npm run lint -- --fix",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "prepare": "yarn build",
+    "prepare": "yarn build && husky install",
     "test": "jest"
   },
   "files": [
     "dist/**/*"
   ],
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "**/*.{js,ts,json,css,md}": "prettier --write"

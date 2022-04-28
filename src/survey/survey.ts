@@ -5,6 +5,7 @@ import { SRS } from '../srs'
 
 import { NodeDef, NodeDefType } from '../nodeDef'
 import { Category } from '../category'
+import { Taxonomy } from '../taxonomy'
 import { SurveyRefData } from './refData/refData'
 
 export interface SurveyDependency {
@@ -55,6 +56,10 @@ export interface Survey extends ArenaObject<SurveyProps> {
    * Categories indexed by uuid.
    */
   categories?: { [categoryUuid: string]: Category }
+  /**
+   * Taxonomies indexed by uuid.
+   */
+  taxonomies?: { [taxonomyUuid: string]: Taxonomy }
   /**
    * Refernce data cache (category items and taxa).
    */

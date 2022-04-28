@@ -1,4 +1,5 @@
 import { User } from '../../auth'
+import { Survey } from '../../survey'
 import {
   category,
   categoryItem,
@@ -8,12 +9,14 @@ import {
   entityDef,
   integerDef,
   SurveyBuilder,
+  taxon,
   taxonDef,
+  taxonomy,
   textDef,
   timeDef,
 } from '../builder/surveyBuilder'
 
-export const createTestSurvey = (params: { user: User }) =>
+export const createTestSurvey = (params: { user: User }): Survey =>
   new SurveyBuilder(
     params.user,
     entityDef(
@@ -35,7 +38,7 @@ export const createTestSurvey = (params: { user: User }) =>
           integerDef('tree_id').key(),
           integerDef('tree_height'),
           decimalDef('dbh'),
-          taxonDef('tree_species')
+          taxonDef('tree_species', 'trees')
         ).multiple()
       ).multiple()
     )
@@ -87,5 +90,14 @@ export const createTestSurvey = (params: { user: User }) =>
               categoryItem('4').extra({ location: 'SRID=EPSG:4326;POINT(13.09963 41.99548)' })
             )
         )
+    )
+    .taxonomies(
+      taxonomy('trees').taxa(
+        taxon('AFZ/QUA', 'Fabaceae', 'Afzelia', 'Afzelia quanzensis')
+          .vernacularName('eng', 'Mahogany')
+          .vernacularName('swa', 'Mbambakofi')
+          .extra({ max_height: '200', max_dbh: '30' }),
+        taxon('OLE/CAP', 'Oleacea', 'Olea', 'Olea capensis').extra({ max_height: '300', max_dbh: '40' })
+      )
     )
     .build()

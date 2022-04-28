@@ -31,23 +31,29 @@ export type {
 
 export type { ArenaObject, Factory } from './common'
 
-export { ExpressionNodeType, ExpressionNodeEvaluator, JavascriptExpressionEvaluator } from './expression'
+export {
+  ExpressionNodeType,
+  ExpressionNodeEvaluator,
+  JavascriptExpressionEvaluator,
+  JavascriptExpressionParser,
+} from './expression'
 export type {
+  ArrayExpression,
+  BinaryExpression,
+  CallExpression,
+  CompoundExpression,
+  ConditionalExpression,
+  ExpressionContext,
+  ExpressionEvaluator,
   ExpressionFunction,
   ExpressionNode,
-  MemberExpression,
-  CallExpression,
-  BinaryExpression,
-  LiteralExpression,
-  IdentifierExpression,
-  ThisExpression,
-  ExpressionContext,
   ExpressionNodeEvaluatorConstructor,
+  MemberExpression,
+  IdentifierExpression,
+  LiteralExpression,
+  SequenceExpression,
+  ThisExpression,
   UnaryExpression,
-  LogicalExpression,
-  GroupExpression,
-  ExpressionEvaluator,
-  CompoundExpression,
 } from './expression'
 
 export { PointFactory, Points } from './geo'
@@ -62,7 +68,13 @@ export type { Labels } from './language'
 export { NodeFactory, Nodes } from './node'
 export type { Node, NodeService } from './node'
 
-export { NodeDefType, NodeDefFactory } from './nodeDef'
+export {
+  NodeDefType,
+  NodeDefFactory,
+  NodeDefs,
+  NodeDefExpressionEvaluator,
+  NodeDefExpressionValidator,
+} from './nodeDef'
 export type {
   NodeDef,
   NodeDefService,
@@ -94,7 +106,7 @@ export type {
   NodeDefProps,
 } from './nodeDef'
 
-export { RecordFactory, Records, RECORD_STEP_DEFAULT } from './record'
+export { RecordFactory, Records, RECORD_STEP_DEFAULT, RecordExpressionEvaluator } from './record'
 export type { Record, RecordService } from './record'
 
 export { ServiceRegistry, ServiceType } from './registry'
@@ -129,7 +141,7 @@ export type {
   TaxonService,
 } from './taxonomy'
 
-export { Arrays, Numbers, Objects, UUIDs } from './utils'
+export { Arrays, Dates, Numbers, Objects, UUIDs } from './utils'
 
 export {
   FieldValidators,
