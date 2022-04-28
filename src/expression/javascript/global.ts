@@ -1,3 +1,5 @@
+import { SystemError } from '../../error'
+
 const globalObjects: { [key: string]: any } = {
   Array,
   Boolean,
@@ -16,7 +18,7 @@ export const getGlobalObjectProperty = (name: string, object: any): any => {
     const property = object[name]
 
     if (!property) {
-      throw new Error(`undefinedFunction ${name}`)
+      throw new SystemError('expression.undefinedFunction', { name })
     }
     return property
   }

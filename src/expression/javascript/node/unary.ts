@@ -1,3 +1,4 @@
+import { SystemError } from '../../../error'
 import { ExpressionContext } from '../../context'
 import { ExpressionNodeEvaluator, UnaryExpression } from '../../node'
 
@@ -22,7 +23,7 @@ export class UnaryEvaluator<C extends ExpressionContext> extends ExpressionNodeE
     const fn = unaryOperators[operator]
 
     if (!fn) {
-      throw new Error(`Unary operator ${operator} not supported`)
+      throw new SystemError('expression.unaryOperatorNotSupported', { operator })
     }
 
     const res = this.evaluator.evaluateNode(argument, this.context)

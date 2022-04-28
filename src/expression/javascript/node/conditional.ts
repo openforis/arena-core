@@ -1,3 +1,4 @@
+import { SystemError } from '../../../error'
 import { ExpressionContext } from '../../context'
 import { ConditionalExpression, ExpressionNodeEvaluator } from '../../node'
 
@@ -6,6 +7,6 @@ export class ConditionalEvaluator<C extends ExpressionContext> extends Expressio
   ConditionalExpression
 > {
   evaluate(): any {
-    throw new Error('conditional expression not supported')
+    throw new SystemError('expression.notSupported', { type: 'conditional' })
   }
 }

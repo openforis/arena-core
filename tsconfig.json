@@ -26,6 +26,7 @@
     "sourceMap": true,
     "strict": true,
     "strictFunctionTypes": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "target": "ES6"
   }
 }
