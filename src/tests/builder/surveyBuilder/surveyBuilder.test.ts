@@ -1,8 +1,10 @@
 import { NodeDefType } from '../../../nodeDef'
 import { Survey, Surveys } from '../../../survey'
-import { entityDef, integerDef } from '.'
 import { UserFactory } from '../../../auth'
 import { SurveyBuilder } from './surveyBuilder'
+import { SurveyObjectBuilders } from '.'
+
+const { entityDef, integerDef } = SurveyObjectBuilders
 
 const expectNodeDefToExist = (params: { survey: Survey; name: string }): void => {
   const def = Surveys.getNodeDefByName(params)

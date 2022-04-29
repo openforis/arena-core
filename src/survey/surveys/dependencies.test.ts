@@ -1,6 +1,8 @@
 import { UserFactory } from '../../auth'
 import { Survey, Surveys } from '../../survey'
-import { booleanDef, entityDef, integerDef, SurveyBuilder } from '../../tests/builder/surveyBuilder'
+import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
+const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
+
 import { SurveyDependencyType } from '../survey'
 
 let survey: Survey

@@ -1,9 +1,11 @@
 import { NodeDefExpressionValidator } from '..'
 import { UserFactory } from '../../auth'
 import { Survey, Surveys } from '../../survey'
-import { booleanDef, entityDef, integerDef, SurveyBuilder } from '../../tests/builder/surveyBuilder'
+import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { NodeDefs } from '../nodeDefs'
 import { NodeDefExpressionContext } from './context'
+
+const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
 
 type Query = {
   expression: string

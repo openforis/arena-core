@@ -1,6 +1,8 @@
 import { User } from '../../auth'
 import { Survey } from '../../survey'
-import {
+import { SurveyBuilder, SurveyObjectBuilders } from '../builder/surveyBuilder'
+
+const {
   category,
   categoryItem,
   coordinateDef,
@@ -8,13 +10,12 @@ import {
   decimalDef,
   entityDef,
   integerDef,
-  SurveyBuilder,
   taxon,
   taxonDef,
   taxonomy,
   textDef,
   timeDef,
-} from '../builder/surveyBuilder'
+} = SurveyObjectBuilders
 
 export const createTestSurvey = (params: { user: User }): Survey =>
   new SurveyBuilder(
