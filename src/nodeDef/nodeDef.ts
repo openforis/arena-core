@@ -26,6 +26,7 @@ export interface NodeDefProps {
   labels?: Labels
   multiple?: boolean
   name?: string
+  readOnly?: boolean
 }
 
 export interface NodeDefPropsWithLayout<L> extends NodeDefProps {

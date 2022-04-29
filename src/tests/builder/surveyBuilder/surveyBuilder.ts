@@ -1,5 +1,5 @@
 import { LanguageCode } from '../../../language'
-import { Survey, SurveyFactory, SurveyRefDataFactory } from '../../../survey'
+import { Survey, SurveyFactory, SurveyRefDataFactory, Surveys } from '../../../survey'
 import { Category, CategoryItem } from '../../../category'
 import { Taxon, Taxonomy } from '../../../taxonomy'
 import { User } from '../../../auth'
@@ -75,7 +75,7 @@ export class SurveyBuilder {
   }
 
   build(): Survey {
-    const survey = SurveyFactory.createInstance({
+    let survey = SurveyFactory.createInstance({
       name: this.name,
       ownerUuid: this.user.uuid,
       label: this.label,
@@ -91,6 +91,8 @@ export class SurveyBuilder {
     survey.nodeDefs = this.rootDefBuilder.build({ survey })
 
     survey.refData = SurveyRefDataFactory.createInstance({ itemsByCategoryUuid, taxonIndex, taxonUuidIndex })
+
+    survey = Surveys.buildAndAssocDependencyGraph(survey)
     return survey
   }
 }

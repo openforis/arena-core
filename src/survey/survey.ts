@@ -13,10 +13,10 @@ export interface SurveyDependency {
 }
 
 export enum SurveyDependencyType {
-  defaultValues,
   applicable,
-  validations,
+  defaultValues,
   formula,
+  validations,
 }
 
 export type SurveyDependencyGraph = {
