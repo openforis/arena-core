@@ -1,3 +1,4 @@
+import { SystemError } from '../../../error'
 import { ExpressionContext } from '../../context'
 import { BinaryExpression, ExpressionNodeEvaluator } from '../../node'
 
@@ -46,7 +47,7 @@ export class BinaryEvaluator<C extends ExpressionContext> extends ExpressionNode
 
     const fn = binaryOperators[operator]
     if (!fn) {
-      throw new Error(`Boolean ${operator} not supported`)
+      throw new SystemError('expression.booleanOperatorNotSupported', { operator })
     }
 
     const leftResult = this.evaluator.evaluateNode(left, this.context)

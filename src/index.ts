@@ -31,6 +31,8 @@ export type {
 
 export type { ArenaObject, Factory } from './common'
 
+export { SystemError } from './error'
+
 export {
   ExpressionNodeType,
   ExpressionNodeEvaluator,

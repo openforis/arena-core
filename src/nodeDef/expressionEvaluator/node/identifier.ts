@@ -5,6 +5,7 @@ import { Queue } from '../../../utils'
 import { IdentifierEvaluator } from '../../../expression/javascript/node/identifier'
 import { NodeDefExpressionContext } from '../context'
 import { IdentifierExpression } from '../../../expression'
+import { SystemError } from '../../../error'
 
 /**
  * Determines the actual context node def
@@ -99,7 +100,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
         context.referencedNodeDefUuids = (context.referencedNodeDefUuids || new Set()).add(referencedNodeDef.uuid)
         return referencedNodeDef
       }
-      throw new Error(`Unable to find node with name "${expressionNode.name}"`)
+      throw new SystemError('expression.identifierNotFound', { name: expressionNode.name })
     }
   }
 }
