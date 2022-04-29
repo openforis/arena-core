@@ -8,6 +8,7 @@ import { Survey, Surveys } from '../../../../survey'
 import { RecordExpressionContext } from '../../context'
 import { Objects } from '../../../../utils'
 import { NodesFinder } from './nodesFinder'
+import { SystemError } from '../../../../error'
 
 const getNodeValue = (params: { survey: Survey; node: Node; nodeDef: NodeDef<any> }) => {
   const { node, nodeDef, survey } = params
@@ -50,8 +51,10 @@ const getNodesOrValues = (params: {
   const { survey, nodeDefReferenced, referencedNodes, propName, evaluateToNode } = params
   const single = !nodeDefReferenced.props.multiple
   if (single) {
-    if (referencedNodes.length === 0) throw new Error(`Cannot find node for definition with name ${propName}`)
-    if (referencedNodes.length > 1) throw new Error(`Multiple nodes found for definition with name ${propName}`)
+    if (referencedNodes.length === 0)
+      throw new SystemError('expression.nodeNotFoundForNodeDef', { nodeDefName: propName })
+    if (referencedNodes.length > 1)
+      throw new SystemError('expression.multipleNodesFoundForNodeDef', { nodeDefName: propName })
   }
   if (nodeDefReferenced.type === NodeDefType.entity || evaluateToNode) {
     // return nodes
@@ -80,7 +83,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
 
     const { nodeDefUuid: nodeDefContextUuid, value } = nodeContext
     if (!nodeDefContextUuid) {
-      throw new Error(`Cannot find node with name ${propName}: context object is not a Node`)
+      throw new SystemError('expression.contextObjectIsNotANode', { nodeDefName: propName })
     }
 
     const nodeDefContext = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefContextUuid })
@@ -105,9 +108,10 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
       try {
         return Records.getAncestor({ record, node: nodeContext, ancestorDefUuid: nodeDefReferenced.uuid })
       } catch (e) {
-        throw new Error(
-          `Could not find ancestor with def ${nodeDefReferenced.props.name} - node def descendant: ${nodeDefContext.props.name} - ancestor h: ${nodeDefReferenced.meta.h} descendant h : ${nodeDefContext.meta.h}`
-        )
+        throw new SystemError('expression.ancestorNotFound', {
+          ancestorDefName: nodeDefReferenced.props.name || '',
+          descendantDefName: nodeDefContext.props.name || '',
+        })
       }
     }
     // the referenced nodes can be siblings of the current node
