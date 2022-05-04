@@ -1,9 +1,12 @@
 import { Records } from '../../../record'
-import { attribute, entity } from '.'
 import { UserFactory } from '../../../auth'
-import { entityDef, integerDef, SurveyBuilder } from '../surveyBuilder'
+import { SurveyBuilder, SurveyObjectBuilders } from '../surveyBuilder'
 import { RecordBuilder } from './recordBuilder'
+import { RecordNodeBuilders } from '.'
 import { Surveys } from '../../../survey'
+
+const { entityDef, integerDef } = SurveyObjectBuilders
+const { attribute, entity } = RecordNodeBuilders
 
 describe('RecordBuilder', () => {
   test('simple record build', () => {

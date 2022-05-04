@@ -12,11 +12,15 @@ export interface SurveyDependency {
   [nodeDefUuid: string]: Array<string>
 }
 
-export interface SurveyDependencyGraph {
-  defaultValues: SurveyDependency
-  applicable: SurveyDependency
-  validations: SurveyDependency
-  formula: SurveyDependency
+export enum SurveyDependencyType {
+  applicable,
+  defaultValues,
+  formula,
+  validations,
+}
+
+export type SurveyDependencyGraph = {
+  [key in SurveyDependencyType]: SurveyDependency
 }
 
 export interface SurveyCycle {

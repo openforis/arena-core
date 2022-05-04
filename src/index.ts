@@ -143,6 +143,9 @@ export type {
   TaxonService,
 } from './taxonomy'
 
+export { SurveyBuilder, SurveyObjectBuilders } from './tests/builder/surveyBuilder'
+export { RecordBuilder, RecordNodeBuilders } from './tests/builder/recordBuilder'
+
 export { Arrays, Dates, Numbers, Objects, UUIDs } from './utils'
 
 export {
