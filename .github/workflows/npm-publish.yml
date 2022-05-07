@@ -14,11 +14,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           token: ${{secrets.GITHUB_TOKEN}}
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: '14.15.0'
-      - run: npm ci
-      - run: npm test
+          node-version: '16.14.2'
+      - run: yarn install --frozen-lockfile
+      - run: yarn test
 
   publish-npm:
     needs: build
@@ -27,12 +27,12 @@ jobs:
       - uses: actions/checkout@v2
         with:
           token: ${{secrets.GITHUB_TOKEN}}
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: '14.15.0'
+          node-version: '16.14.2'
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm publish
+      - run: yarn install --frozen-lockfile
+      - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
@@ -43,11 +43,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           token: ${{secrets.GITHUB_TOKEN}}
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: '14.15.0'
+          node-version: '16.14.2'
           registry-url: https://npm.pkg.github.com/
-      - run: npm ci
-      - run: npm publish
+      - run: yarn install --frozen-lockfile
+      - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

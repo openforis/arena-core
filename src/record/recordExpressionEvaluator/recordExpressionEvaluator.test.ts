@@ -39,7 +39,7 @@ const getNode = (path: string): Node => {
 
 describe('RecordExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@arena.org', name: 'test' })
+    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
 
     survey = createTestSurvey({ user })
 
@@ -70,7 +70,7 @@ describe('RecordExpressionEvaluator', () => {
     // 18 * 0.5 >= 1728
     { expression: '(cluster_distance * 0.5) >= Math.pow(cluster_id, 3)', result: false },
     // visit_date must be before current date
-    // { q: 'visit_date <= now()', r: true },
+    { expression: 'visit_date <= now()', result: true },
     // cluster_id is not empty
     { expression: 'isEmpty(cluster_id)', result: false },
     // gps_model is not empty
@@ -145,6 +145,12 @@ describe('RecordExpressionEvaluator', () => {
       expression: `categoryItemProp('simple_category', 'prop1', '999')`,
       result: null,
     },
+    // taxonProp
+    { expression: `taxonProp('trees', 'max_height', 'AFZ/QUA')`, result: '200' },
+    { expression: `taxonProp('trees', 'max_dbh', 'OLE/CAP')`, result: '40' },
+    // taxonProp: unexisting prop or code
+    { expression: `taxonProp('trees', 'unexisting_prop', 'AFZ/QUA')`, result: null },
+    { expression: `taxonProp('trees', 'max_dbh', 'AFZ/QUA/OTHER')`, result: null },
     // distance
     { expression: 'distance(plot[0].plot_location, plot[1].plot_location).toFixed(2)', result: '2171.94' },
     {
@@ -182,13 +188,13 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'Invalid.func(1)', error: true },
     { expression: 'Math.unknownFunc(1)', error: true },
     // native properties (number)
-    // { expression: 'Math.PI.toFixed(2)', result: '3.14' },
-    // { expression: 'plot[0].tree[1].dbh.toFixed(1)', result: '10.1' },
-    // { expression: 'plot[0].tree[1].dbh.toPrecision(4)', result: '10.12' },
-    // // native properties (string)
-    // { expression: 'gps_model.toLowerCase()', result: 'abc-123-xyz' },
-    // { expression: 'gps_model.substring(4,7)', result: '123' },
-    // { expression: 'gps_model.length', result: 11 },
+    { expression: 'Math.PI.toFixed(2)', result: '3.14' },
+    { expression: 'plot[0].tree[1].dbh.toFixed(1)', result: '10.1' },
+    { expression: 'plot[0].tree[1].dbh.toPrecision(4)', result: '10.12' },
+    // native properties (string)
+    { expression: 'gps_model.toLowerCase()', result: 'abc-123-xyz' },
+    { expression: 'gps_model.substring(4,7)', result: '123' },
+    { expression: 'gps_model.length', result: 11 },
     // global objects (constructors)
     { expression: 'Boolean(cluster_id)', result: true },
     { expression: 'Boolean(remarks)', result: false },
@@ -196,18 +202,19 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'Number(remarks)', result: 0 },
     { expression: 'String(cluster_id)', result: '12' },
     // // composite attribute members
-    // { expression: 'cluster_location.x', result: 41.883012 },
-    // { expression: 'cluster_location.y', result: 12.489056 },
-    // { expression: 'cluster_location.srs', result: 'EPSG:4326' },
-    // { expression: 'plot[0].tree[0].tree_species.code', result: 'ACA' },
-    // { expression: 'plot[0].tree[0].tree_species.scientificName', result: 'Acacia sp.' },
-    // { expression: 'visit_date.year', result: 2021 },
-    // { expression: 'visit_date.month', result: 1 },
-    // { expression: 'visit_date.day', result: 1 },
-    // { expression: 'visit_date.week', error: true },
-    // { expression: 'visit_time.hour', result: 10 },
-    // { expression: 'visit_time.minute', result: 30 },
-    // { expression: 'visit_time.seconds', error: true },
+    { expression: 'cluster_location.x', result: 41.883012 },
+    { expression: 'cluster_location.y', result: 12.489056 },
+    { expression: 'cluster_location.srs', result: '4326' },
+    { expression: 'plot[0].tree[0].tree_species', result: 'AFZ/QUA' },
+    { expression: 'plot[0].tree[0].tree_species.code', result: 'AFZ/QUA' },
+    { expression: 'plot[0].tree[0].tree_species.scientificName', result: 'Afzelia quanzensis' },
+    { expression: 'visit_date.year', result: 2021 },
+    { expression: 'visit_date.month', result: 1 },
+    { expression: 'visit_date.day', result: 1 },
+    { expression: 'visit_date.week', error: true },
+    { expression: 'visit_time.hour', result: 10 },
+    { expression: 'visit_time.minute', result: 30 },
+    { expression: 'visit_time.seconds', error: true },
   ]
 
   queries.forEach((query: Query) => {

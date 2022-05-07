@@ -7,6 +7,7 @@ import {
   NodeDefPropsAdvanced,
   NodeDefType,
 } from '../../../nodeDef'
+import { NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
 
 export abstract class NodeDefBuilder {
   protected props: NodeDefProps
@@ -32,8 +33,13 @@ export abstract class NodeDefBuilder {
 
   abstract build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> }
 
-  multiple() {
+  multiple(): NodeDefBuilder {
     this.props.multiple = true
+    return this
+  }
+
+  applyIf(expression: string): NodeDefBuilder {
+    this.propsAdvanced.applicable = [NodeDefExpressionFactory.createInstance({ expression })]
     return this
   }
 }

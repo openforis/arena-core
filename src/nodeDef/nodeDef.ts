@@ -1,4 +1,5 @@
-import { ArenaObject } from '../common'
+import { UUIDs } from '../utils'
+import { ArenaObject, Factory } from '../common'
 import { Labels } from '../language'
 
 export enum NodeDefType {
@@ -25,6 +26,7 @@ export interface NodeDefProps {
   labels?: Labels
   multiple?: boolean
   name?: string
+  readOnly?: boolean
 }
 
 export interface NodeDefPropsWithLayout<L> extends NodeDefProps {
@@ -37,6 +39,18 @@ export interface NodeDefExpression {
   applyIf?: string
   expression?: string
   uuid: string
+}
+
+export interface NodeDefExpressionFactoryParams {
+  applyIf?: string
+  expression?: string
+}
+
+export const NodeDefExpressionFactory: Factory<NodeDefExpression, NodeDefExpressionFactoryParams> = {
+  createInstance: (params: NodeDefExpressionFactoryParams): NodeDefExpression => {
+    const { applyIf, expression } = params
+    return { applyIf, expression, uuid: UUIDs.v4() }
+  },
 }
 
 export interface NodeDefValidations {

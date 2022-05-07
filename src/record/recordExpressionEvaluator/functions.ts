@@ -5,6 +5,7 @@ import { RecordExpressionContext } from './context'
 import { Objects } from '../../utils'
 import { Surveys } from '../../survey'
 import { Point, Points } from '../../geo'
+import { Dates } from '../../utils/dates'
 
 export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressionContext>> = [
   {
@@ -16,9 +17,7 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
       ...codePaths: string[]
     ) => {
       const { survey } = context
-      const category = survey.categories
-        ? Object.values(survey.categories).find((category) => category.props.name === categoryName)
-        : null
+      const category = Surveys.getCategoryByName({ survey, categoryName })
       if (!category) return null
 
       const categoryItem = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid: category.uuid, codePaths })
@@ -44,6 +43,7 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
     name: 'index',
     minArity: 1,
     maxArity: 1,
+    evaluateArgsToNodes: true,
     executor: (context: RecordExpressionContext) => (node) => {
       if (!node) {
         return -1
@@ -57,13 +57,21 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
         return -1
       }
       const children = Records.getChildren({ record, parentNode, childDefUuid: node.nodeDefUuid })
-      return children.findIndex((n) => n === node)
+      return children.findIndex((n) => Nodes.areEqual(n, node))
     },
+  },
+  {
+    name: 'now',
+    minArity: 0,
+    maxArity: 0,
+    evaluateToNode: false,
+    executor: () => () => Dates.nowFormattedForStorage(),
   },
   {
     name: 'parent',
     minArity: 1,
     maxArity: 1,
+    evaluateArgsToNodes: true,
     evaluateToNode: true,
     executor: (context: RecordExpressionContext) => (node) => {
       if (!node || Nodes.isRoot(node)) {
@@ -71,6 +79,22 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
       }
       const { record } = context
       return Records.getParent({ record, node })
+    },
+  },
+  {
+    name: 'taxonProp',
+    minArity: 3,
+    maxArity: 3,
+    executor: (context: RecordExpressionContext) => (taxonomyName: string, propName: string, taxonCode: string) => {
+      const { survey } = context
+      const taxonomy = Surveys.getTaxonomyByName({ survey, taxonomyName })
+      if (!taxonomy) return null
+
+      const taxon = Surveys.getTaxonByCode({ survey, taxonomyUuid: taxonomy.uuid, taxonCode })
+      if (!taxon) return null
+
+      const extraProp = taxon.props.extra?.[propName]
+      return Objects.isEmpty(extraProp) ? null : extraProp
     },
   },
 ]

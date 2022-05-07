@@ -1,3 +1,4 @@
+import { SystemError } from '../../../error'
 import { ExpressionContext } from '../../context'
 import { ExpressionNodeEvaluator, IdentifierExpression } from '../../node'
 import { getGlobalObjectProperty } from '../global'
@@ -23,6 +24,6 @@ export class IdentifierEvaluator<C extends ExpressionContext> extends Expression
     if (nativeProperty !== undefined) {
       return nativeProperty
     }
-    throw new Error(`Identifier not found: ${name}`)
+    throw new SystemError('expression.dentifierNotFound', { name })
   }
 }

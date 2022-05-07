@@ -1,8 +1,10 @@
 import { NodeDefType } from '../../../nodeDef'
 import { Survey, Surveys } from '../../../survey'
-import { entityDef, integerDef } from '.'
 import { UserFactory } from '../../../auth'
 import { SurveyBuilder } from './surveyBuilder'
+import { SurveyObjectBuilders } from '.'
+
+const { entityDef, integerDef } = SurveyObjectBuilders
 
 const expectNodeDefToExist = (params: { survey: Survey; name: string }): void => {
   const def = Surveys.getNodeDefByName(params)
@@ -12,7 +14,7 @@ const expectNodeDefToExist = (params: { survey: Survey; name: string }): void =>
 
 describe('SurveyBuilder', () => {
   test('simple survey build', () => {
-    const user = UserFactory.createInstance({ email: 'test@arena.org', name: 'test' })
+    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
     const survey: Survey = new SurveyBuilder(
       user,
       entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())

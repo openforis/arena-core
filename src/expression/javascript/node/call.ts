@@ -1,3 +1,5 @@
+import { IdentifierExpression, MemberExpression } from '../..'
+import { SystemError } from '../../../error'
 import { ExpressionContext } from '../../context'
 import { ExpressionFunction } from '../../function'
 import { CallExpression, ExpressionNodeEvaluator, ExpressionNodeType } from '../../node'
@@ -15,7 +17,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
 
     // No complex expressions may be put in place of a function body.
     // Only a plain identifier is allowed.
-    throw new Error(`invalidSyntax ${callee.type}`)
+    throw new SystemError('expression.invalidCalleeType', { type: callee.type })
   }
 
   evaluateMember(expressionNode: CallExpression): any {
@@ -24,8 +26,10 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     // global function (e.g. Math.round(...))
     const fn = this.evaluator.evaluateNode(callee, this.context)
     if (fn) {
+      const { object: calleeObj } = callee as MemberExpression
+      const fnObject = this.evaluator.evaluateNode(calleeObj, this.context)
       const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context))
-      return fn(...args)
+      return fn.call(fnObject, ...args)
     }
     return null
   }
@@ -35,7 +39,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     const { callee, arguments: exprArgs } = expressionNode
     const { object: contextObject } = this.context
 
-    const { name: fnName } = callee
+    const { name: fnName } = callee as IdentifierExpression
 
     const functionInfo = this.evaluator.functions[fnName]
     if (functionInfo) {
@@ -49,24 +53,30 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
       return globalFn(...args)
     }
 
-    throw new Error(`undefinedFunction ${fnName}`)
+    throw new SystemError('expression.undefinedFunction', { name: fnName })
   }
 
   evaluateCustomIdentifier(expressionNode: CallExpression): any {
     // Arguments is a reserved word in strict mode
     const { callee, arguments: exprArgs } = expressionNode
 
-    const { name: fnName } = callee
+    const { name: fnName } = callee as IdentifierExpression
     const numArgs = exprArgs.length
 
     const expressionFunction: ExpressionFunction<C> = this.evaluator.functions[fnName]
 
-    const { minArity, maxArity, evaluateToNode, executor } = expressionFunction
+    const { minArity, maxArity, evaluateArgsToNodes, executor } = expressionFunction
 
-    if (numArgs < minArity) throw new Error(`functionHasTooFewArguments`)
-    if (maxArity && maxArity > 0 && numArgs > maxArity) throw new Error('functionHasTooManyArguments')
+    if (numArgs < minArity) throw new SystemError('expression.functionHasTooFewArguments', { name: fnName })
+    if (maxArity && maxArity > 0 && numArgs > maxArity)
+      throw new SystemError('expression.functionHasTooManyArguments', { name: fnName })
 
-    const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, { ...this.context, evaluateToNode }))
+    const args = exprArgs.map((arg) =>
+      this.evaluator.evaluateNode(arg, {
+        ...this.context,
+        evaluateToNode: evaluateArgsToNodes,
+      })
+    )
 
     // Currently there are no side effects from function evaluation so it's
     // safe to call the function even when we're just parsing the expression

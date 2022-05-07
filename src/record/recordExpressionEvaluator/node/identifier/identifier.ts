@@ -3,30 +3,32 @@ import { IdentifierEvaluator } from '../../../../expression/javascript/node/iden
 import { Node } from '../../../../node'
 import { NodeDef, NodeDefType } from '../../../../nodeDef'
 import { Records } from '../../../records'
+import { NodeValues } from '../../../../node/nodeValues'
 import { Survey, Surveys } from '../../../../survey'
 import { RecordExpressionContext } from '../../context'
 import { Objects } from '../../../../utils'
 import { NodesFinder } from './nodesFinder'
+import { SystemError } from '../../../../error'
 
 const getNodeValue = (params: { survey: Survey; node: Node; nodeDef: NodeDef<any> }) => {
-  const { node, nodeDef } = params
+  const { node, nodeDef, survey } = params
 
   const value = node.value
   if (Objects.isEmpty(value)) {
     return null
   }
 
-  //   if (NodeDef.isCode(nodeDef)) {
-  //     const itemUuid = Node.getCategoryItemUuid(node)
-  //     const item = itemUuid ? Survey.getCategoryItemByUuid(itemUuid)(survey) : null
-  //     return item ? CategoryItem.getCode(item) : null
-  //   }
+  if (nodeDef.type === NodeDefType.code) {
+    const itemUuid = NodeValues.getItemUuid(node)
+    const item = itemUuid ? Surveys.getCategoryItemByUuid({ survey, itemUuid }) : null
+    return item ? item.props.code : null
+  }
 
-  //   if (NodeDef.isTaxon(nodeDef)) {
-  //     const taxonUuid = Node.getTaxonUuid(node)
-  //     const taxon = taxonUuid ? Survey.getTaxonByUuid(taxonUuid)(survey) : null
-  //     return taxon ? Taxon.getCode(taxon) : null
-  //   }
+  if (nodeDef.type === NodeDefType.taxon) {
+    const taxonUuid = NodeValues.getTaxonUuid(node)
+    const taxon = taxonUuid ? Surveys.getTaxonByUuid({ survey, taxonUuid }) : null
+    return taxon ? taxon.props.code : null
+  }
 
   switch (nodeDef.type) {
     case NodeDefType.decimal:
@@ -49,8 +51,10 @@ const getNodesOrValues = (params: {
   const { survey, nodeDefReferenced, referencedNodes, propName, evaluateToNode } = params
   const single = !nodeDefReferenced.props.multiple
   if (single) {
-    if (referencedNodes.length === 0) throw new Error(`Cannot find node definition with name ${propName}`)
-    if (referencedNodes.length > 1) throw new Error(`Multiple nodes found for definition with name ${propName}`)
+    if (referencedNodes.length === 0)
+      throw new SystemError('expression.nodeNotFoundForNodeDef', { nodeDefName: propName })
+    if (referencedNodes.length > 1)
+      throw new SystemError('expression.multipleNodesFoundForNodeDef', { nodeDefName: propName })
   }
   if (nodeDefReferenced.type === NodeDefType.entity || evaluateToNode) {
     // return nodes
@@ -71,6 +75,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     } catch (e) {
       // ignore it
     }
+
     // identifier not found
     // identifier should be a node or a node value property
     const { name: propName } = expressionNode
@@ -78,14 +83,20 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
 
     const { nodeDefUuid: nodeDefContextUuid, value } = nodeContext
     if (!nodeDefContextUuid) {
-      throw new Error(`Cannot find node with name ${propName}: context object is not a Node`)
-    }
-    // node value prop
-    if (value && value[propName] !== undefined) {
-      return value[propName]
+      throw new SystemError('expression.contextObjectIsNotANode', { nodeDefName: propName })
     }
 
     const nodeDefContext = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefContextUuid })
+
+    // node value prop (native)
+    if (value && value[propName] !== undefined) {
+      return value[propName]
+    }
+    // node value prop (Arena specific value property)
+    if (NodeValues.isValueProp({ nodeDef: nodeDefContext, prop: propName })) {
+      return NodeValues.getValueProp({ nodeDef: nodeDefContext, node: nodeContext, prop: propName })
+    }
+
     const nodeDefReferenced = Surveys.getNodeDefByName({ survey, name: propName })
 
     if (nodeContext.nodeDefUuid === nodeDefReferenced.uuid) {
@@ -97,9 +108,10 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
       try {
         return Records.getAncestor({ record, node: nodeContext, ancestorDefUuid: nodeDefReferenced.uuid })
       } catch (e) {
-        throw new Error(
-          `Could not find ancestor with def ${nodeDefReferenced.props.name} - node def descendant: ${nodeDefContext.props.name} - ancestor h: ${nodeDefReferenced.meta.h} descendant h : ${nodeDefContext.meta.h}`
-        )
+        throw new SystemError('expression.ancestorNotFound', {
+          ancestorDefName: nodeDefReferenced.props.name || '',
+          descendantDefName: nodeDefContext.props.name || '',
+        })
       }
     }
     // the referenced nodes can be siblings of the current node
