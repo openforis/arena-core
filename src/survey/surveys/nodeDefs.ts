@@ -1,18 +1,19 @@
 import { Survey } from '../survey'
 import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Arrays } from '../../utils'
+import { SystemError } from '../../error'
 
 export const getNodeDefByName = (params: { survey: Survey; name: string }): NodeDef<NodeDefType, NodeDefProps> => {
   const { survey, name } = params
   const nodeDef = Object.values(survey.nodeDefs || {}).find((nodeDef) => nodeDef.props.name === name)
-  if (!nodeDef) throw new Error(`Node def with name ${name} not found in survey`)
+  if (!nodeDef) throw new SystemError('survey.nodeDefNameNotFound', { name })
   return nodeDef
 }
 
 export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): NodeDef<NodeDefType, NodeDefProps> => {
   const { survey, uuid } = params
   const nodeDef = survey.nodeDefs?.[uuid]
-  if (!nodeDef) throw new Error(`Node def with uuid ${uuid} not found in survey`)
+  if (!nodeDef) throw new SystemError('survey.nodeDefUuidNotFound', { uuid })
   return nodeDef
 }
 
@@ -36,9 +37,9 @@ export const isNodeDefAncestor = (params: {
 
 export const getNodeDefRoot = (params: { survey: Survey }): NodeDef<NodeDefType, NodeDefProps> => {
   const { survey } = params
-  if (!survey.nodeDefs) throw new Error('Empty node defs in survey')
+  if (!survey.nodeDefs) throw new SystemError('survey.emptyNodeDefs')
   const rootDef = Object.values(survey.nodeDefs).find((nodeDef) => !nodeDef.parentUuid)
-  if (!rootDef) throw new Error('Cannot find root def in survey')
+  if (!rootDef) throw new SystemError('survey.rootDefNotFound')
   return rootDef
 }
 
