@@ -83,7 +83,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
 
     const { nodeDefUuid: nodeDefContextUuid, value } = nodeContext
     if (!nodeDefContextUuid) {
-      throw new SystemError('expression.contextObjectIsNotANode', { nodeDefName: propName })
+      throw new SystemError('expression.identifierNotFound', { name: propName })
     }
 
     const nodeDefContext = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefContextUuid })
