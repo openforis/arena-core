@@ -7,11 +7,12 @@ import { RecordExpressionEvaluator } from './recordExpressionEvaluator'
 import { RecordExpressionContext } from './context'
 import { Records } from '../records'
 import { createTestRecord, createTestSurvey } from '../../tests/data'
+import { SystemError } from '../../error'
 
 type Query = {
   expression: string
   result?: any
-  error?: boolean
+  error?: Error
   node?: string
 }
 
@@ -185,8 +186,8 @@ describe('RecordExpressionEvaluator', () => {
     // global objects (String)
     { expression: 'String.fromCharCode(65, 66, 67)', result: 'ABC' },
     // global objects (unknown objects/functions)
-    { expression: 'Invalid.func(1)', error: true },
-    { expression: 'Math.unknownFunc(1)', error: true },
+    { expression: 'Invalid.func(1)', error: new SystemError('expression.identifierNotFound') },
+    { expression: 'Math.unknownFunc(1)', error: new SystemError('expression.identifierNotFound') },
     // native properties (number)
     { expression: 'Math.PI.toFixed(2)', result: '3.14' },
     { expression: 'plot[0].tree[1].dbh.toFixed(1)', result: '10.1' },
@@ -211,10 +212,10 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'visit_date.year', result: 2021 },
     { expression: 'visit_date.month', result: 1 },
     { expression: 'visit_date.day', result: 1 },
-    { expression: 'visit_date.week', error: true },
+    { expression: 'visit_date.week', error: new SystemError('expression.invalidAttributeValuePropertyName') },
     { expression: 'visit_time.hour', result: 10 },
     { expression: 'visit_time.minute', result: 30 },
-    { expression: 'visit_time.seconds', error: true },
+    { expression: 'visit_time.seconds', error: new SystemError('expression.invalidAttributeValuePropertyName') },
   ]
 
   queries.forEach((query: Query) => {
@@ -233,7 +234,7 @@ describe('RecordExpressionEvaluator', () => {
         expect(res).toEqual(result instanceof Function ? result() : result)
       } catch (error) {
         if (errorExpected) {
-          expect(error).toBeDefined()
+          expect(error).toEqual(errorExpected)
         } else {
           throw error
         }

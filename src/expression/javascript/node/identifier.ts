@@ -24,6 +24,6 @@ export class IdentifierEvaluator<C extends ExpressionContext> extends Expression
     if (nativeProperty !== undefined) {
       return nativeProperty
     }
-    throw new SystemError('expression.dentifierNotFound', { name })
+    throw new SystemError('expression.identifierNotFound', { name })
   }
 }
