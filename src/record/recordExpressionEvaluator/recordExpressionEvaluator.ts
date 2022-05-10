@@ -9,4 +9,5 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
       [ExpressionNodeType.Identifier]: RecordIdentifierEvaluator,
     })
   }
+  
 }
