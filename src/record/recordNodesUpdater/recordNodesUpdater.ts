@@ -1,13 +1,11 @@
 import { Queue } from '../../utils'
 
-import * as Survey from '@core/survey/survey'
-import * as NodeDef from '@core/survey/nodeDef'
-import * as NodeDefValidations from '@core/survey/nodeDefValidations'
-import * as Node from '@core/record/node'
-
 import * as RecordNodeDependentsUpdater from './recordNodeDependentsUpdater'
-import RecordUpdateResult from './RecordUpdateResult'
 import { NodeDefProps, NodeDefType } from '../../nodeDef'
+import { Survey, Surveys } from '../../survey'
+import { Record } from '../record'
+import { Node } from '../../node'
+import { RecordUpdateResult } from './recordUpdateResult'
 
 /**
  * Nodes can be visited maximum 2 times during the update of the dependent nodes, to avoid loops in the evaluation.
@@ -16,50 +14,14 @@ import { NodeDefProps, NodeDefType } from '../../nodeDef'
  */
 const MAX_DEPENDENTS_VISITING_TIMES = 2
 
-const getNodesToInsertCount = (nodeDef:NodeDef<NodeDefType, NodeDefProps>):number => {
-  if (NodeDef.isSingle(nodeDef)) return 1
-  const validations = NodeDef.getValidations(nodeDef)
-  return Number(NodeDefValidations.getMinCount(validations)) || 0
-}
-
-const _addNodeAndDescendants = ({ survey, record, parentNode, nodeDef }) => {
-  const node = Node.newNode(NodeDef.getUuid(nodeDef), record.uuid, parentNode)
-
-  const updateResult = new RecordUpdateResult({ record })
-  updateResult.addNode(node)
-
-  // Add children if entity
-  if (NodeDef.isEntity(nodeDef)) {
-    const childDefs = Survey.getNodeDefChildren(nodeDef)(survey)
-
-    // Add only child single nodes (it allows to apply default values)
-    childDefs.forEach((childDef) => {
-      const nodesToInsert = getNodesToInsertCount(childDef)
-      if (nodesToInsert === 0) {
-        return // do nothing
-      }
-      const nodesToInsertArray = [...Array(Number(nodesToInsert)).keys()]
-      nodesToInsertArray.forEach(() => {
-        const childUpdateResult = _addNodeAndDescendants({
-          survey,
-          record: updateResult.record,
-          parentNode: node,
-          nodeDef: childDef,
-        })
-        updateResult.merge(childUpdateResult)
-      })
-    })
-  }
-  return updateResult
-}
-
-const updateNodesDependents = ({ survey, record, nodes, logger = null }) => {
-  // Output
+const updateNodesDependents = (params: { survey:Survey, record:Record, nodes: {[key:string]: Node}, logger: any }):RecordUpdateResult => {
+  const {survey, record, nodes, logger} = params
   const updateResult = new RecordUpdateResult({ record, nodes })
 
   const nodeUuidsToVisit = new Queue(Object.keys(nodes))
 
-  const visitedCountByUuid = {} // Avoid loops: visit the same node maximum 2 times (the second time the applicability could have been changed)
+  // Avoid loops: visit the same node maximum 2 times (the second time the applicability could have been changed)
+  const visitedCountByUuid: {[key:string]: number} = {} 
 
   while (!nodeUuidsToVisit.isEmpty()) {
     const nodeUuid = nodeUuidsToVisit.dequeue()
