@@ -138,7 +138,7 @@ export const updateSelfAndDependentsDefaultValues = ({ survey, record, node, log
       const exprEvalValue = exprEval.value
       const exprValue = Objects.isEmpty(exprEvalValue)
         ? null
-        : RecordExpressionValueConverter.toNodeValue(survey, record, nodeCtx, exprEvalValue)
+        : RecordExpressionValueConverter.toNodeValue({ survey, record, nodeCtx, valueExpr: exprEvalValue })
 
       // 4
       // 4a. if node value is not changed, do nothing

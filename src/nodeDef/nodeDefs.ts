@@ -9,9 +9,12 @@ const isAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => !isEntity(nodeDe
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
+const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
+
 export const NodeDefs = {
   isEntity,
   isSingleEntity,
   isAttribute,
   isRoot,
+  getType,
 }

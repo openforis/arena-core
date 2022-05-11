@@ -2,6 +2,8 @@ import { Node } from '../../node'
 import { Survey, Surveys } from '../../survey'
 import { Record } from '../record'
 import { Records } from '../records'
+import { NodeDefType, NodeDefs } from '../../nodeDef'
+import { Points } from '../../geo'
 
 const _toBoolean = ({ valueExpr }) => {
   if (R.is(Boolean, valueExpr)) {
@@ -46,27 +48,27 @@ const _toTaxon = ({ survey, nodeCtx, valueExpr }) => {
     return null
   }
 
-  const nodeDef = Survey.getNodeDefByUuid(Node.getNodeDefUuid(nodeCtx))(survey)
+  const nodeDef = Survey.getNodeDefByUuid(nodeCtx.nodeDefUuid)(survey)
   const taxonUuid = Survey.getTaxonUuid(nodeDef, taxonCode)(survey)
 
   return taxonUuid ? { [Node.valuePropsTaxon.taxonUuid]: taxonUuid } : null
 }
 
 const _valueExprToValueNodeFns = {
-  [NodeDef.nodeDefType.boolean]: _toBoolean,
-  [NodeDef.nodeDefType.code]: _toCode,
-  [NodeDef.nodeDefType.coordinate]: _toCoordinate,
-  [NodeDef.nodeDefType.date]: ({ valueExpr }) =>
+  [NodeDefType.boolean]: _toBoolean,
+  [NodeDefType.code]: _toCode,
+  [NodeDefType.coordinate]: _toCoordinate,
+  [NodeDefType.date]: ({ valueExpr }) =>
     _toDateTime({
       valueExpr,
       format: DateUtils.formats.dateISO,
       formatsFrom: [DateUtils.formats.datetimeDefault, DateUtils.formats.dateISO],
     }),
-  [NodeDef.nodeDefType.decimal]: ({ valueExpr }) => _toPrimitive(valueExpr, Number),
-  [NodeDef.nodeDefType.integer]: ({ valueExpr }) => _toPrimitive(valueExpr, Number),
-  [NodeDef.nodeDefType.taxon]: _toTaxon,
-  [NodeDef.nodeDefType.text]: ({ valueExpr }) => _toPrimitive(valueExpr, String),
-  [NodeDef.nodeDefType.time]: ({ valueExpr }) =>
+  [NodeDefType.decimal]: ({ valueExpr }) => _toPrimitive(valueExpr, Number),
+  [NodeDefType.integer]: ({ valueExpr }) => _toPrimitive(valueExpr, Number),
+  [NodeDefType.taxon]: _toTaxon,
+  [NodeDefType.text]: ({ valueExpr }) => _toPrimitive(valueExpr, String),
+  [NodeDefType.time]: ({ valueExpr }) =>
     _toDateTime({
       valueExpr,
       format: DateUtils.formats.timeStorage,
@@ -74,9 +76,10 @@ const _valueExprToValueNodeFns = {
     }),
 }
 
-export const toNodeValue = (survey, record, nodeCtx, valueExpr) => {
-  const nodeDef = Survey.getNodeDefByUuid(Node.getNodeDefUuid(nodeCtx))(survey)
-  const fn = _valueExprToValueNodeFns[NodeDef.getType(nodeDef)]
-  if (!fn) throw new Error(`Unsupported type ${NodeDef.getType(nodeDef)} for record node value conversion`)
+export const toNodeValue = (params: { survey: Survey, record: Record, nodeCtx: Node, valueExpr: string} ) => {
+  const { survey, record, nodeCtx, valueExpr } = params
+  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtx.nodeDefUuid })
+  const fn = _valueExprToValueNodeFns[NodeDefs.getType(nodeDef)]
+  if (!fn) throw new Error(`Unsupported type ${NodeDefs.getType(nodeDef)} for record node value conversion`)
   return fn({ survey, record, nodeCtx, valueExpr })
 }
