@@ -1,7 +1,7 @@
 import { IdentifierExpression } from '../../../../expression'
 import { IdentifierEvaluator } from '../../../../expression/javascript/node/identifier'
 import { Node } from '../../../../node'
-import { NodeDef, NodeDefType } from '../../../../nodeDef'
+import { NodeDef, NodeDefs, NodeDefType } from '../../../../nodeDef'
 import { Records } from '../../../records'
 import { NodeValues } from '../../../../node/nodeValues'
 import { Survey, Surveys } from '../../../../survey'
@@ -9,6 +9,10 @@ import { RecordExpressionContext } from '../../context'
 import { Objects } from '../../../../utils'
 import { NodesFinder } from './nodesFinder'
 import { SystemError } from '../../../../error'
+import { FieldValidators } from '../../../../validation'
+
+const isValidNodeDefName = (nodeDefName: string) =>
+  FieldValidators.name('expression.invalidNodeDefName')('name', { name: nodeDefName }).valid
 
 const getNodeValue = (params: { survey: Survey; node: Node; nodeDef: NodeDef<any> }) => {
   const { node, nodeDef, survey } = params
@@ -83,7 +87,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
 
     const { nodeDefUuid: nodeDefContextUuid, value } = nodeContext
     if (!nodeDefContextUuid) {
-      throw new SystemError('expression.contextObjectIsNotANode', { nodeDefName: propName })
+      throw new SystemError('expression.identifierNotFound', { name: propName })
     }
 
     const nodeDefContext = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefContextUuid })
@@ -92,9 +96,20 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     if (value && value[propName] !== undefined) {
       return value[propName]
     }
-    // node value prop (Arena specific value property)
-    if (NodeValues.isValueProp({ nodeDef: nodeDefContext, prop: propName })) {
-      return NodeValues.getValueProp({ nodeDef: nodeDefContext, node: nodeContext, prop: propName })
+    if (NodeDefs.isAttribute(nodeDefContext)) {
+      // node value prop (Arena specific value property)
+      if (NodeValues.isValueProp({ nodeDef: nodeDefContext, prop: propName })) {
+        return NodeValues.getValueProp({ nodeDef: nodeDefContext, node: nodeContext, prop: propName })
+      } else {
+        throw new SystemError('expression.invalidAttributeValuePropertyName', {
+          attributeName: nodeDefContext.props.name || '',
+          propName,
+        })
+      }
+    }
+
+    if (!isValidNodeDefName(propName)) {
+      throw new SystemError('expression.identifierNotFound', { name: propName })
     }
 
     const nodeDefReferenced = Surveys.getNodeDefByName({ survey, name: propName })
