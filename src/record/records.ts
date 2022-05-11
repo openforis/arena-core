@@ -142,18 +142,20 @@ const getDependentNodePointers = (params: {
 
       const nodeDefUuidDependent = isDependencyApplicable ? dependentDef.parentUuid : dependentDef.uuid
 
-      const nodeDependents = getNodesByDefUuid({ record, nodeDefUuid: nodeDefUuidDependent })
-      for (const nodeDependent of nodeDependents) {
-        if (
-          isNodeDescendantOf({ node: nodeDependent, ancestor: commonParentNode }) ||
-          (isDependencyApplicable && nodeDependent.uuid === commonParentNode.uuid)
-        ) {
-          const nodePointer = {
-            nodeDef: dependentDef,
-            nodeCtx: nodeDependent,
-          }
-          if (filterFn === null || filterFn(nodePointer)) {
-            nodePointers.push(nodePointer)
+      if (nodeDefUuidDependent) {
+        const nodeDependents = getNodesByDefUuid({ record, nodeDefUuid: nodeDefUuidDependent })
+        for (const nodeDependent of nodeDependents) {
+          if (
+            isNodeDescendantOf({ node: nodeDependent, ancestor: commonParentNode }) ||
+            (isDependencyApplicable && nodeDependent.uuid === commonParentNode.uuid)
+          ) {
+            const nodePointer = {
+              nodeDef: dependentDef,
+              nodeCtx: nodeDependent,
+            }
+            if (filterFn === null || filterFn(nodePointer)) {
+              nodePointers.push(nodePointer)
+            }
           }
         }
       }
