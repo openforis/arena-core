@@ -1,14 +1,13 @@
 import { Survey } from '../survey'
 import { CategoryItem } from '../../category'
 import { Taxon } from '../../taxonomy'
-import { NodeDef, NodeDefCodeProps, NodeDefType } from '../../nodeDef'
-import { Record } from '../../record'
-import { getNodeDefCategoryLevelIndex } from './nodeDefs'
 
 export const getCategoryItemByUuid = (params: { survey: Survey; itemUuid: string }): CategoryItem | undefined => {
   const { survey, itemUuid } = params
   return survey.refData?.categoryItemIndex[itemUuid]
 }
+
+const nullParentItemUuid = 'null'
 
 export const getCategoryItemByCode = (params: {
   survey: Survey
@@ -16,8 +15,8 @@ export const getCategoryItemByCode = (params: {
   parentItemUuid: string | undefined
   code: string
 }) => {
-  const { survey, categoryUuid, parentItemUuid } = params
-  return R.path([keys.refData, keys.categoryItemUuidIndex, categoryUuid, parentItemUuid, code])
+  const { survey, categoryUuid, parentItemUuid = nullParentItemUuid, code } = params
+  return survey.refData?.categoryItemUuidIndex?.[categoryUuid]?.[parentItemUuid]?.[code]
 }
 
 export const getCategoryItemByCodePaths = (params: {
@@ -29,7 +28,7 @@ export const getCategoryItemByCodePaths = (params: {
   const itemUuid = codePaths.reduce(
     (currentParentUuid: string | undefined, code) =>
       currentParentUuid
-        ? survey.refData?.categoryItemUuidIndex?.[categoryUuid]?.[currentParentUuid]?.[code]
+        ? getCategoryItemByCode({ survey, categoryUuid, parentItemUuid: currentParentUuid, code })
         : undefined,
     'null'
   )
