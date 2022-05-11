@@ -165,36 +165,34 @@ const getDependentNodePointers = (params: {
   const dependentUuids = Surveys.getNodeDefDependentUuids({ survey, nodeDefUuid, dependencyType })
   const nodePointers: Array<NodePointer> = []
 
-  if (dependentUuids) {
-    for (const dependentDefUuid of dependentUuids) {
-      const dependentDef = Surveys.getNodeDefByUuid({ survey, uuid: dependentDefUuid })
-      // 1 find common parent def
-      const commonParentDefUuid = Arrays.last(Arrays.intersection(nodeDef.meta.h, dependentDef.meta.h))
-      if (!commonParentDefUuid) continue
+  for (const dependentDefUuid of dependentUuids) {
+    const dependentDef = Surveys.getNodeDefByUuid({ survey, uuid: dependentDefUuid })
+    // 1 find common parent def
+    const commonParentDefUuid = Arrays.last(Arrays.intersection(nodeDef.meta.h, dependentDef.meta.h))
+    if (!commonParentDefUuid) continue
 
-      // 2 find common parent node
-      const commonParentNode = getAncestor({ record, node, ancestorDefUuid: commonParentDefUuid })
-      if (!commonParentNode) continue
+    // 2 find common parent node
+    const commonParentNode = getAncestor({ record, node, ancestorDefUuid: commonParentDefUuid })
+    if (!commonParentNode) continue
 
-      // 3 find descendant nodes of common parent node with nodeDefUuid = dependentDef uuid
-      const isDependencyApplicable = dependencyType === SurveyDependencyType.applicable
+    // 3 find descendant nodes of common parent node with nodeDefUuid = dependentDef uuid
+    const isDependencyApplicable = dependencyType === SurveyDependencyType.applicable
 
-      const nodeDefUuidDependent = isDependencyApplicable ? dependentDef.parentUuid : dependentDef.uuid
+    const nodeDefUuidDependent = isDependencyApplicable ? dependentDef.parentUuid : dependentDef.uuid
 
-      if (nodeDefUuidDependent) {
-        const nodeDependents = getNodesByDefUuid({ record, nodeDefUuid: nodeDefUuidDependent })
-        for (const nodeDependent of nodeDependents) {
-          if (
-            isNodeDescendantOf({ node: nodeDependent, ancestor: commonParentNode }) ||
-            (isDependencyApplicable && nodeDependent.uuid === commonParentNode.uuid)
-          ) {
-            const nodePointer = {
-              nodeDef: dependentDef,
-              nodeCtx: nodeDependent,
-            }
-            if (filterFn === null || filterFn(nodePointer)) {
-              nodePointers.push(nodePointer)
-            }
+    if (nodeDefUuidDependent) {
+      const nodeDependents = getNodesByDefUuid({ record, nodeDefUuid: nodeDefUuidDependent })
+      for (const nodeDependent of nodeDependents) {
+        if (
+          isNodeDescendantOf({ node: nodeDependent, ancestor: commonParentNode }) ||
+          (isDependencyApplicable && nodeDependent.uuid === commonParentNode.uuid)
+        ) {
+          const nodePointer = {
+            nodeDef: dependentDef,
+            nodeCtx: nodeDependent,
+          }
+          if (filterFn === null || filterFn(nodePointer)) {
+            nodePointers.push(nodePointer)
           }
         }
       }

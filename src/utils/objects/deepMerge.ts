@@ -12,10 +12,10 @@ const isObject = (item: any): boolean => {
  * @param target
  * @param ...sources
  */
-export function deepMerge(
+export const deepMerge = (
   target: Record<string, any>,
   ...sources: Array<Record<string, any>>
-): Record<string, unknown> {
+): Record<string, unknown> => {
   const _target = { ...target }
   if (!sources.length) return _target
 
@@ -24,8 +24,7 @@ export function deepMerge(
   if (isObject(_target) && isObject(source)) {
     for (const key in source) {
       if (isObject(source[key])) {
-        if (!_target[key]) Object.assign(_target, { [key]: {} })
-        deepMerge(_target[key], source[key])
+        _target[key] = deepMerge(_target[key] || {}, source[key])
       } else {
         Object.assign(_target, { [key]: source[key] })
       }

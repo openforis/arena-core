@@ -122,7 +122,7 @@ export const updateSelfAndDependentsDefaultValues = (params: { survey: Survey; r
   const nodeDependentPointersFilterFn = (nodePointer: NodePointer): boolean => {
     const { nodeCtx, nodeDef } = nodePointer
 
-    return NodeDefs.isAttribute(nodeDef) && (Objects.isEmpty(nodeCtx.value) || Nodes.isDefaultValueApplied(node))
+    return NodeDefs.isAttribute(nodeDef) && (Objects.isEmpty(nodeCtx.value) || Nodes.isDefaultValueApplied(nodeCtx))
   }
 
   const nodePointersToUpdate = Records.getDependentNodePointers({
@@ -137,6 +137,7 @@ export const updateSelfAndDependentsDefaultValues = (params: { survey: Survey; r
   // 2. update expr to node and dependent nodes
   nodePointersToUpdate.forEach(({ nodeCtx, nodeDef }) => {
     const expressionsToEvaluate = NodeDefs.getDefaultValues(nodeDef)
+    if (expressionsToEvaluate.length === 0) return
 
     try {
       // 3. evaluate applicable default value expression
@@ -147,21 +148,21 @@ export const updateSelfAndDependentsDefaultValues = (params: { survey: Survey; r
         expressions: expressionsToEvaluate,
       })
 
-      const oldValue = nodeCtx.value
-
-      const exprEvalValue = exprEval.value
+      const exprEvalValue = exprEval?.value
       const exprValue = Objects.isEmpty(exprEvalValue)
         ? null
         : RecordExpressionValueConverter.toNodeValue({ survey, record, nodeCtx, valueExpr: exprEvalValue })
 
       // 4
       // 4a. if node value is not changed, do nothing
+      const oldValue = nodeCtx.value
+
       if (Objects.isEqual(oldValue, exprValue)) {
         return // do nothing
       }
 
       // 4b. update node value and meta and return updated node
-      const defaultValueApplied = !Objects.isEmpty(exprEval)
+      const defaultValueApplied = !Objects.isEmpty(exprValue)
 
       const nodeCtxUpdated = Nodes.mergeNodes(nodeCtx, {
         value: exprValue,

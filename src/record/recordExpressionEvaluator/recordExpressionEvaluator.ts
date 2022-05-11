@@ -31,9 +31,9 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
     nodeCtx: Node
     expressions: NodeDefExpression[]
     stopAtFirstFound: boolean
-  }) {
+  }): NodeDefExpression[] {
     const { survey, record, nodeCtx, expressions, stopAtFirstFound = false } = params
-    const applicableExpressions = []
+    const applicableExpressions: NodeDefExpression[] = []
     for (let i = 0; i < expressions.length; i += 1) {
       const expression = expressions[i]
 
@@ -81,7 +81,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
     record: Record
     nodeCtx: Node
     expressions: NodeDefExpression[]
-  }): any => {
+  }): any | null => {
     const { survey, record, nodeCtx, expressions } = params
     const expressionsEvaluated = this.evalApplicableExpressions({
       survey,
