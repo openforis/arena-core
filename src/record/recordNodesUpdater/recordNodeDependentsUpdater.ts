@@ -1,7 +1,7 @@
 import { SystemError } from '../../error'
 import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Record } from '../record'
-import { Survey, Surveys } from '../../survey'
+import { Survey } from '../../survey'
 import { Node, Nodes } from '../../node'
 import { Objects } from '../../utils'
 import { SurveyDependencyType } from '../../survey/survey'
@@ -10,6 +10,7 @@ import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
 import { RecordExpressionValueConverter } from './recordExpressionValueConverter'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
+import { NodeValues } from '../../node/nodeValues'
 
 const _logError = (params: {
   error: any
@@ -96,9 +97,13 @@ export const updateSelfAndDependentsApplicable = (params: {
       })
       nodeCtxChildren.forEach((nodeCtxChild) => {
         // 5. add nodeCtxChild and its descendants to nodesUpdated
-        Records.visitDescendantsAndSelf(nodeCtxChild, (nodeDescendant) => {
-          updateResult.addNode(nodeDescendant)
-        })(updateResult.record)
+        Records.visitDescendantsAndSelf({
+          record: updateResult.record,
+          node: nodeCtxChild,
+          visitor: (nodeDescendant) => {
+            updateResult.addNode(nodeDescendant)
+          },
+        })
       })
     }
   })
@@ -106,7 +111,14 @@ export const updateSelfAndDependentsApplicable = (params: {
   return updateResult
 }
 
-export const updateSelfAndDependentsDefaultValues = ({ survey, record, node, logger = null }) => {
+export const updateSelfAndDependentsDefaultValues = (params: {
+  survey: Survey
+  record: Record
+  node: Node
+  logger: any
+}) => {
+  const { survey, record, node, logger = null } = params
+
   const updateResult = new RecordUpdateResult({ record })
 
   // 1. fetch dependent nodes
@@ -116,7 +128,7 @@ export const updateSelfAndDependentsDefaultValues = ({ survey, record, node, log
   const nodeDependentPointersFilterFn = (nodePointer: NodePointer): boolean => {
     const { nodeCtx, nodeDef } = nodePointer
 
-    return NodeDef.isAttribute(nodeDef) && (Node.isValueBlank(nodeCtx) || Node.isDefaultValueApplied(nodeCtx))
+    return NodeDefs.isAttribute(nodeDef) && (Node.isValueBlank(nodeCtx) || Node.isDefaultValueApplied(nodeCtx))
   }
 
   const nodePointersToUpdate = Records.getDependentNodePointers({

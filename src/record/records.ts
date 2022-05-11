@@ -2,7 +2,7 @@ import { NodeDef, NodeDefCodeProps, NodeDefType } from '../nodeDef'
 import { Node, Nodes } from '../node'
 import { Record } from './record'
 import { Surveys } from '../survey'
-import { Arrays } from '../utils'
+import { Arrays, Queue } from '../utils'
 import { Survey, SurveyDependencyType } from '../survey/survey'
 import { NodePointer } from './recordNodesUpdater/nodePointer'
 import { SystemError } from '../error'
@@ -26,9 +26,11 @@ const getNodeByUuid = (params: { record: Record; uuid: string }): Node | undefin
   return record.nodes?.[uuid]
 }
 
-const getChildren = (params: { record: Record; parentNode: Node; childDefUuid: string }): Node[] => {
+const getChildren = (params: { record: Record; parentNode: Node; childDefUuid?: string }): Node[] => {
   const { record, childDefUuid, parentNode } = params
-  return getNodesArray(record).filter((node) => node.parentUuid === parentNode.uuid && node.nodeDefUuid == childDefUuid)
+  return getNodesArray(record).filter(
+    (node) => node.parentUuid === parentNode.uuid && (!childDefUuid || node.nodeDefUuid == childDefUuid)
+  )
 }
 
 const getChild = (params: { record: Record; parentNode: Node; childDefUuid: string }): Node => {
@@ -59,16 +61,6 @@ const getParentCodeAttribute = (params: {
     }
   }
   return undefined
-}
-
-const getDescendant = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node => {
-  const { record, node, nodeDefDescendant } = params
-  // starting from node, visit descendant entities up to referenced node parent entity
-  const nodeDescendantH = nodeDefDescendant.meta.h
-  const descendant = nodeDescendantH
-    .slice(nodeDescendantH.indexOf(node.nodeDefUuid) + 1)
-    .reduce((parentNode, childDefUuid) => getChild({ record, parentNode, childDefUuid }), node)
-  return descendant
 }
 
 // ancestors
@@ -115,9 +107,37 @@ const getAncestorsAndSelf = (params: { record: Record; node: Node }): Array<Node
   return ancestors
 }
 
+// descendants
+
+const getDescendant = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node => {
+  const { record, node, nodeDefDescendant } = params
+  // starting from node, visit descendant entities up to referenced node parent entity
+  const nodeDescendantH = nodeDefDescendant.meta.h
+  const descendant = nodeDescendantH
+    .slice(nodeDescendantH.indexOf(node.nodeDefUuid) + 1)
+    .reduce((parentNode, childDefUuid) => getChild({ record, parentNode, childDefUuid }), node)
+  return descendant
+}
+
 const isNodeDescendantOf = (params: { node: Node; ancestor: Node }): boolean => {
   const { node, ancestor } = params
   return node.meta.h.includes(ancestor.uuid)
+}
+
+const visitDescendantsAndSelf = (params: { record: Record; node: Node; visitor: (node: Node) => void }): void => {
+  const { record, node, visitor } = params
+  const queue = new Queue()
+
+  queue.enqueue(node)
+
+  while (!queue.isEmpty()) {
+    const node = queue.dequeue()
+
+    visitor(node)
+
+    const children = getChildren({ record, parentNode: node })
+    queue.enqueueItems(children)
+  }
 }
 
 /**
@@ -253,10 +273,11 @@ export const Records = {
   getParent,
   getParentCodeAttribute,
   getAncestor,
-  getDescendant,
   getNodeByUuid,
   visitAncestorsAndSelf,
   getAncestorsAndSelf,
+  getDescendant,
+  visitDescendantsAndSelf,
   getDependentNodePointers,
   getCategoryItemUuid,
 }
