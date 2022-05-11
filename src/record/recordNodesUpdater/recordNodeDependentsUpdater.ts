@@ -1,5 +1,5 @@
 import { SystemError } from '../../error'
-import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Record } from '../record'
 import { Survey, Surveys } from '../../survey'
 import { Node, Nodes } from '../../node'
@@ -8,13 +8,15 @@ import { SurveyDependencyType } from '../../survey/survey'
 import { NodePointer } from './nodePointer'
 import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
+import { RecordExpressionValueConverter } from './recordExpressionValueConverter'
+import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 
 const _logError = (params: {
   error: any
   expressionType: SurveyDependencyType
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
-  expressionsToEvaluate: Array<string>
+  expressionsToEvaluate: NodeDefExpression[]
 }) => {
   const { error, expressionType, survey, nodeDef, expressionsToEvaluate } = params
   const nodeDefName = nodeDef.props.name
@@ -42,22 +44,22 @@ export const updateSelfAndDependentsApplicable = (params: {
   const updateResult = new RecordUpdateResult({ record })
 
   // 1. fetch dependent nodes
-  const nodePointersToUpdate = RecordReader.getDependentNodePointers({
+  const nodePointersToUpdate = Records.getDependentNodePointers({
     survey,
     record,
     node,
     dependencyType: SurveyDependencyType.applicable,
   })
 
-  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
+  // const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
 
-  if (Node.isCreated(node) && !Objects.isEmpty(nodeDef.propsAdvanced?.applicable)) {
-    // Include a pointer to node itself if it has just been created and it has an "applicable if" expression
-    nodePointersToUpdate.push({
-      nodeDef,
-      nodeCtx: Records.getParent({ record, node }),
-    })
-  }
+  // if (Node.isCreated(node) && !Objects.isEmpty(nodeDef.propsAdvanced?.applicable)) {
+  //   // Include a pointer to node itself if it has just been created and it has an "applicable if" expression
+  //   nodePointersToUpdate.push({
+  //     nodeDef,
+  //     nodeCtx: Records.getParent({ record, node }),
+  //   })
+  // }
 
   // 2. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
@@ -66,14 +68,14 @@ export const updateSelfAndDependentsApplicable = (params: {
     const nodeCtxUuid = nodeCtxNodePointer.uuid
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) || nodeCtxNodePointer
-    const expressionsToEvaluate = nodeDefNodePointer.propsAdvanced?.applicable
+    const expressionsToEvaluate = NodeDefs.getApplicable(nodeDefNodePointer)
     // 3. evaluate applicable expression
-    const exprEval = RecordExpressionParser.evalApplicableExpression(
+    const exprEval = new RecordExpressionEvaluator().evalApplicableExpression({
       survey,
-      updateResult.record,
+      record: updateResult.record,
       nodeCtx,
-      expressionsToEvaluate
-    )
+      expressions: expressionsToEvaluate,
+    })
 
     const applicable = exprEval.value || false
 
@@ -94,7 +96,7 @@ export const updateSelfAndDependentsApplicable = (params: {
       })
       nodeCtxChildren.forEach((nodeCtxChild) => {
         // 5. add nodeCtxChild and its descendants to nodesUpdated
-        RecordReader.visitDescendantsAndSelf(nodeCtxChild, (nodeDescendant) => {
+        Records.visitDescendantsAndSelf(nodeCtxChild, (nodeDescendant) => {
           updateResult.addNode(nodeDescendant)
         })(updateResult.record)
       })
@@ -111,29 +113,35 @@ export const updateSelfAndDependentsDefaultValues = ({ survey, record, node, log
 
   // filter nodes to update including itself and (attributes with empty values or with default values applied)
   // therefore attributes with user defined values are excluded
-  const nodeDependentPointersFilterFn = (nodePointer) => {
+  const nodeDependentPointersFilterFn = (nodePointer: NodePointer): boolean => {
     const { nodeCtx, nodeDef } = nodePointer
 
     return NodeDef.isAttribute(nodeDef) && (Node.isValueBlank(nodeCtx) || Node.isDefaultValueApplied(nodeCtx))
   }
 
-  const nodePointersToUpdate = RecordReader.getDependentNodePointers(
+  const nodePointersToUpdate = Records.getDependentNodePointers({
     survey,
+    record,
     node,
-    Survey.dependencyTypes.defaultValues,
-    true, // IncludeSelf
-    nodeDependentPointersFilterFn
-  )(record)
+    dependencyType: SurveyDependencyType.defaultValues,
+    includeSelf: true,
+    filterFn: nodeDependentPointersFilterFn,
+  })
 
   // 2. update expr to node and dependent nodes
   nodePointersToUpdate.forEach(({ nodeCtx, nodeDef }) => {
-    const expressionsToEvaluate = NodeDef.getDefaultValues(nodeDef)
+    const expressionsToEvaluate = NodeDefs.getDefaultValues(nodeDef)
 
     try {
       // 3. evaluate applicable default value expression
-      const exprEval = RecordExpressionParser.evalApplicableExpression(survey, record, nodeCtx, expressionsToEvaluate)
+      const exprEval = new RecordExpressionEvaluator().evalApplicableExpression({
+        survey,
+        record,
+        nodeCtx,
+        expressions: expressionsToEvaluate,
+      })
 
-      const oldValue = Node.getValue(nodeCtx, null)
+      const oldValue = nodeCtx.value
 
       const exprEvalValue = exprEval.value
       const exprValue = Objects.isEmpty(exprEvalValue)

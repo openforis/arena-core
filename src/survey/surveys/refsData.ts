@@ -10,9 +10,15 @@ export const getCategoryItemByUuid = (params: { survey: Survey; itemUuid: string
   return survey.refData?.categoryItemIndex[itemUuid]
 }
 
-
-export const getCategoryItemByCode = (params: {survey:Survey, categoryUuid:string, parentItemUuid:string | undefined, code }) =>
-  R.path([keys.refData, keys.categoryItemUuidIndex, categoryUuid, parentItemUuid, code])
+export const getCategoryItemByCode = (params: {
+  survey: Survey
+  categoryUuid: string
+  parentItemUuid: string | undefined
+  code: string
+}) => {
+  const { survey, categoryUuid, parentItemUuid } = params
+  return R.path([keys.refData, keys.categoryItemUuidIndex, categoryUuid, parentItemUuid, code])
+}
 
 export const getCategoryItemByCodePaths = (params: {
   survey: Survey

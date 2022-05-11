@@ -1,11 +1,12 @@
 import { NodeDef, NodeDefCodeProps, NodeDefType } from '../nodeDef'
-import { Node } from '../node'
+import { Node, Nodes } from '../node'
 import { Record } from './record'
 import { Surveys } from '../survey'
 import { Arrays } from '../utils'
 import { Survey, SurveyDependencyType } from '../survey/survey'
 import { NodePointer } from './recordNodesUpdater/nodePointer'
 import { SystemError } from '../error'
+import { NodeValues } from '../node/nodeValues'
 
 const getNodesArray = (record: Record): Node[] => Object.values(record.nodes || {})
 
@@ -135,8 +136,8 @@ const getDependentNodePointers = (params: {
   record: Record
   node: Node
   dependencyType: SurveyDependencyType
-  includeSelf: boolean
-  filterFn: (nodePointer: NodePointer) => boolean
+  includeSelf?: boolean
+  filterFn?: (nodePointer: NodePointer) => boolean
 }) => {
   const { survey, record, node, dependencyType, includeSelf = false, filterFn = null } = params
   const nodeDefUuid = node.nodeDefUuid
@@ -193,37 +194,56 @@ const getDependentNodePointers = (params: {
   return nodePointers
 }
 
-const categoryItemNullParentUuid = 'null'
+const getAncestorCodePath = (params: {
+  survey: Survey
+  record: Record
+  parentNode: Node
+  nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>
+}): string[] => {
+  const { record, parentNode, nodeDef, survey } = params
 
-export const getCategoryItemUuidAndCodeHierarchy = (params: {
+  const codesPath = []
+  let ancestor: Node | undefined | null = parentNode
+  let ancestorCodeAttribute: Node | undefined | null = getParentCodeAttribute({ record, parentNode: ancestor, nodeDef })
+
+  while (ancestor && ancestorCodeAttribute) {
+    const ancestorCodeDef = Surveys.getNodeDefByUuid({ survey, uuid: ancestorCodeAttribute.nodeDefUuid }) as NodeDef<
+      NodeDefType.code,
+      NodeDefCodeProps
+    >
+    ancestor = getParent({ record, node: ancestor })
+    if (!ancestorCodeDef || !ancestor) {
+      ancestorCodeAttribute = undefined
+    } else {
+      const parentCodeItemUuid = NodeValues.getItemUuid(ancestorCodeAttribute)
+      if (!parentCodeItemUuid) {
+        ancestorCodeAttribute = undefined
+      } else {
+        const parentCategoryItem = Surveys.getCategoryItemByUuid({ survey, itemUuid: parentCodeItemUuid })
+        codesPath.push(parentCategoryItem?.props.code || '')
+        ancestorCodeAttribute = getParentCodeAttribute({ record, parentNode: ancestor, nodeDef: ancestorCodeDef })
+      }
+    }
+  }
+  return codesPath
+}
+
+export const getCategoryItemUuid = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>
   record: Record
   parentNode: Node
   code: string
-}) => {
+}): string | undefined => {
   const { survey, nodeDef, record, parentNode } = params
   const categoryUuid = nodeDef.props.categoryUuid
-  const levelIndex = Surveys.getNodeDefCategoryLevelIndex({ survey, nodeDef })
-  let parentItemUuid = categoryItemNullParentUuid
-  let hierarchyCode = []
 
-  if (levelIndex > 0) {
-    const parentCodeAttribute = getParentCodeAttribute({ record, parentNode, nodeDef })
-    
-    parentItemUuid = Node.getCategoryItemUuid(parentCodeAttribute)
-    hierarchyCode = R.append(parentItemUuid, Node.getHierarchyCode(parentCodeAttribute))
-  }
+  const codePaths = getAncestorCodePath({ survey, record, parentNode, nodeDef })
 
-  const itemUuid = Surveys.getCategoryItemUuid({ categoryUuid, parentItemUuid, code })(survey)
+  const item = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid, codePaths })
 
-  return {
-    itemUuid,
-    hierarchyCode,
-  }
+  return item?.uuid
 }
-
-// copy missing functions from RecordReader in arena
 
 export const Records = {
   getRoot,
@@ -238,4 +258,5 @@ export const Records = {
   visitAncestorsAndSelf,
   getAncestorsAndSelf,
   getDependentNodePointers,
+  getCategoryItemUuid,
 }
