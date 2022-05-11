@@ -127,11 +127,10 @@ const getDependentNodePointers = (params: {
   const nodePointers: Array<NodePointer> = []
 
   if (dependentUuids) {
-    const dependentDefs = Surveys.getNodeDefsByUuids({ survey, uuids: dependentUuids })
-
-    for (const dependentDef of dependentDefs) {
+    for (const dependentDefUuid of dependentUuids) {
+      const dependentDef = Surveys.getNodeDefByUuid({ survey, uuid: dependentDefUuid })
       // 1 find common parent def
-      const commonParentDefUuid = Arrays.intersection(nodeDef.meta.h, dependentDef.meta.h).at(-1) // .slice(-1)[0]
+      const commonParentDefUuid = Arrays.last(Arrays.intersection(nodeDef.meta.h, dependentDef.meta.h))
       if (!commonParentDefUuid) continue
 
       // 2 find common parent node
