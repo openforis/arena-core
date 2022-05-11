@@ -10,9 +10,8 @@ import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
 import { RecordExpressionValueConverter } from './recordExpressionValueConverter'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { NodeValues } from '../../node/nodeValues'
 
-const _logError = (params: {
+const _throwError = (params: {
   error: any
   expressionType: SurveyDependencyType
   survey: Survey
@@ -117,7 +116,7 @@ export const updateSelfAndDependentsDefaultValues = (params: {
   node: Node
   logger: any
 }) => {
-  const { survey, record, node, logger = null } = params
+  const { survey, record, node } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -128,7 +127,7 @@ export const updateSelfAndDependentsDefaultValues = (params: {
   const nodeDependentPointersFilterFn = (nodePointer: NodePointer): boolean => {
     const { nodeCtx, nodeDef } = nodePointer
 
-    return NodeDefs.isAttribute(nodeDef) && (Node.isValueBlank(nodeCtx) || Node.isDefaultValueApplied(nodeCtx))
+    return NodeDefs.isAttribute(nodeDef) && (Objects.isEmpty(nodeCtx.value) || Nodes.isDefaultValueApplied(node))
   }
 
   const nodePointersToUpdate = Records.getDependentNodePointers({
@@ -168,19 +167,20 @@ export const updateSelfAndDependentsDefaultValues = (params: {
 
       // 4b. update node value and meta and return updated node
       const defaultValueApplied = !Objects.isEmpty(exprEval)
-      const nodeCtxUpdated = A.pipe(
-        Node.assocIsDefaultValueApplied(defaultValueApplied),
-        Node.assocValue(exprValue)
-      )(nodeCtx)
+
+      const nodeCtxUpdated = Nodes.mergeNodes(nodeCtx, {
+        value: exprValue,
+        meta: { defaultValueApplied },
+      })
+
       updateResult.addNode(nodeCtxUpdated)
     } catch (error) {
-      _logError({
+      _throwError({
         error,
         expressionType: SurveyDependencyType.defaultValues,
         survey,
         nodeDef,
         expressionsToEvaluate,
-        logger,
       })
     }
   })

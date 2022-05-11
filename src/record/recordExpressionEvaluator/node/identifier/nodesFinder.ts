@@ -1,4 +1,4 @@
-import { Node } from '../../../../node'
+import { Node, Nodes } from '../../../../node'
 import { NodeDef, NodeDefType } from '../../../../nodeDef'
 import { Record } from '../../../record'
 import { Records } from '../../../records'
@@ -43,7 +43,7 @@ const getReferencedNodesParent = (params: {
 
   const nodeDefCtx = Surveys.getNodeDefByUuid({ survey, uuid: nodeContext.nodeDefUuid })
 
-  const nodeCtxH = [...nodeContext.meta.h]
+  const nodeCtxH = Nodes.getHierarchy(nodeContext)
   if (nodeDefCtx.type === NodeDefType.entity) {
     // When nodeDefCtx is entity, expression is type applicableIf (and context always starts from parent)
     nodeCtxH.push(nodeContext.uuid)

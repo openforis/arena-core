@@ -121,7 +121,7 @@ const getDescendant = (params: { record: Record; node: Node; nodeDefDescendant: 
 
 const isNodeDescendantOf = (params: { node: Node; ancestor: Node }): boolean => {
   const { node, ancestor } = params
-  return node.meta.h.includes(ancestor.uuid)
+  return Nodes.getHierarchy(node).includes(ancestor.uuid)
 }
 
 const visitDescendantsAndSelf = (params: { record: Record; node: Node; visitor: (node: Node) => void }): void => {
