@@ -110,12 +110,7 @@ export const updateSelfAndDependentsApplicable = (params: {
   return updateResult
 }
 
-export const updateSelfAndDependentsDefaultValues = (params: {
-  survey: Survey
-  record: Record
-  node: Node
-  logger: any
-}) => {
+export const updateSelfAndDependentsDefaultValues = (params: { survey: Survey; record: Record; node: Node }) => {
   const { survey, record, node } = params
 
   const updateResult = new RecordUpdateResult({ record })

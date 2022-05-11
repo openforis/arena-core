@@ -1,8 +1,7 @@
 import { Queue } from '../../utils'
 
 import * as RecordNodeDependentsUpdater from './recordNodeDependentsUpdater'
-import { NodeDefProps, NodeDefType } from '../../nodeDef'
-import { Survey, Surveys } from '../../survey'
+import { Survey } from '../../survey'
 import { Record } from '../record'
 import { Node } from '../../node'
 import { RecordUpdateResult } from './recordUpdateResult'
@@ -14,14 +13,18 @@ import { RecordUpdateResult } from './recordUpdateResult'
  */
 const MAX_DEPENDENTS_VISITING_TIMES = 2
 
-const updateNodesDependents = (params: { survey:Survey, record:Record, nodes: {[key:string]: Node}, logger: any }):RecordUpdateResult => {
-  const {survey, record, nodes, logger} = params
+const updateNodesDependents = (params: {
+  survey: Survey
+  record: Record
+  nodes: { [key: string]: Node }
+}): RecordUpdateResult => {
+  const { survey, record, nodes } = params
   const updateResult = new RecordUpdateResult({ record, nodes })
 
   const nodeUuidsToVisit = new Queue(Object.keys(nodes))
 
   // Avoid loops: visit the same node maximum 2 times (the second time the applicability could have been changed)
-  const visitedCountByUuid: {[key:string]: number} = {} 
+  const visitedCountByUuid: { [key: string]: number } = {}
 
   while (!nodeUuidsToVisit.isEmpty()) {
     const nodeUuid = nodeUuidsToVisit.dequeue()
@@ -35,7 +38,6 @@ const updateNodesDependents = (params: { survey:Survey, record:Record, nodes: {[
         survey,
         record: updateResult.record,
         node,
-        logger,
       })
 
       updateResult.merge(applicabilityUpdateResult)
@@ -45,7 +47,6 @@ const updateNodesDependents = (params: { survey:Survey, record:Record, nodes: {[
         survey,
         record: updateResult.record,
         node,
-        logger,
       })
 
       updateResult.merge(defaultValuesUpdateResult)
@@ -66,7 +67,6 @@ const updateNodesDependents = (params: { survey:Survey, record:Record, nodes: {[
 
   return updateResult
 }
-
 
 export const RecordNodesUpdater = {
   updateNodesDependents,
