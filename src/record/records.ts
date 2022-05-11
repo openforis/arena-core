@@ -145,11 +145,10 @@ const getDependentNodePointers = (params: {
   const nodePointers: Array<NodePointer> = []
 
   if (dependentUuids) {
-    const dependentDefs = Surveys.getNodeDefsByUuids({ survey, uuids: dependentUuids })
-
-    for (const dependentDef of dependentDefs) {
+    for (const dependentDefUuid of dependentUuids) {
+      const dependentDef = Surveys.getNodeDefByUuid({ survey, uuid: dependentDefUuid })
       // 1 find common parent def
-      const commonParentDefUuid = Arrays.intersection(nodeDef.meta.h, dependentDef.meta.h).at(-1) // .slice(-1)[0]
+      const commonParentDefUuid = Arrays.last(Arrays.intersection(nodeDef.meta.h, dependentDef.meta.h))
       if (!commonParentDefUuid) continue
 
       // 2 find common parent node
@@ -161,18 +160,20 @@ const getDependentNodePointers = (params: {
 
       const nodeDefUuidDependent = isDependencyApplicable ? dependentDef.parentUuid : dependentDef.uuid
 
-      const nodeDependents = getNodesByDefUuid({ record, nodeDefUuid: nodeDefUuidDependent })
-      for (const nodeDependent of nodeDependents) {
-        if (
-          isNodeDescendantOf({ node: nodeDependent, ancestor: commonParentNode }) ||
-          (isDependencyApplicable && nodeDependent.uuid === commonParentNode.uuid)
-        ) {
-          const nodePointer = {
-            nodeDef: dependentDef,
-            nodeCtx: nodeDependent,
-          }
-          if (filterFn === null || filterFn(nodePointer)) {
-            nodePointers.push(nodePointer)
+      if (nodeDefUuidDependent) {
+        const nodeDependents = getNodesByDefUuid({ record, nodeDefUuid: nodeDefUuidDependent })
+        for (const nodeDependent of nodeDependents) {
+          if (
+            isNodeDescendantOf({ node: nodeDependent, ancestor: commonParentNode }) ||
+            (isDependencyApplicable && nodeDependent.uuid === commonParentNode.uuid)
+          ) {
+            const nodePointer = {
+              nodeDef: dependentDef,
+              nodeCtx: nodeDependent,
+            }
+            if (filterFn === null || filterFn(nodePointer)) {
+              nodePointers.push(nodePointer)
+            }
           }
         }
       }

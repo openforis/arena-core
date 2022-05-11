@@ -6,6 +6,7 @@ import { buildAndAssocDependencyGraph, addNodeDefDependencies, getNodeDefDepende
 
 import {
   getNodeDefByName,
+  getNodeDefsByUuids,
   getNodeDefByUuid,
   getNodeDefChildren,
   getNodeDefParent,
@@ -34,6 +35,7 @@ const getTaxonomyByName = (params: { survey: Survey; taxonomyName: string }): Ta
 
 export const Surveys = {
   getNodeDefByName,
+  getNodeDefsByUuids,
   getNodeDefByUuid,
   getNodeDefChildren,
   getNodeDefParent,

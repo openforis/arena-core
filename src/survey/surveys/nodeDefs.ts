@@ -12,6 +12,10 @@ export const getNodeDefByName = (params: { survey: Survey; name: string }): Node
   if (!nodeDef) throw new SystemError('survey.nodeDefNameNotFound', { name })
   return nodeDef
 }
+export const getNodeDefsByUuids = (params: { survey: Survey; uuids: string[] }) => {
+  const { survey, uuids } = params
+  return Object.values(survey.nodeDefs || {}).filter((nodeDef) => uuids.includes(nodeDef.uuid))
+}
 
 export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): NodeDef<NodeDefType, NodeDefProps> => {
   const { survey, uuid } = params
