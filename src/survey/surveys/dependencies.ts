@@ -47,7 +47,7 @@ export const getNodeDefDependentUuids = (params: {
   }
 
   dependencyTypes.forEach((depType: SurveyDependencyType) => {
-    const dependentUuidsTemp = dependencyGraph[depType][nodeDefUuid] || []
+    const dependentUuidsTemp = dependencyGraph[depType]?.[nodeDefUuid] || []
     dependentUuidsTemp.forEach((dependentUuid) => {
       dependentUuids.add(dependentUuid)
     })
