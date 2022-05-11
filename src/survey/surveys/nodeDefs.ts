@@ -1,11 +1,14 @@
 import { Survey } from '../survey'
-import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefCodeProps, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Arrays } from '../../utils'
 import { SystemError } from '../../error'
 
+export const getNodeDefsArray = (survey: Survey): Array<NodeDef<NodeDefType, NodeDefProps>> =>
+  Object.values(survey.nodeDefs || {})
+
 export const getNodeDefByName = (params: { survey: Survey; name: string }): NodeDef<NodeDefType, NodeDefProps> => {
   const { survey, name } = params
-  const nodeDef = Object.values(survey.nodeDefs || {}).find((nodeDef) => nodeDef.props.name === name)
+  const nodeDef = getNodeDefsArray(survey).find((nodeDef) => nodeDef.props.name === name)
   if (!nodeDef) throw new SystemError('survey.nodeDefNameNotFound', { name })
   return nodeDef
 }
@@ -86,4 +89,40 @@ export const getNodeDefChildren = (params: {
     })
   )
   return children
+}
+
+// Node Def Code
+export const getNodeDefParentCode = (params: {
+  survey: Survey
+  nodeDef: NodeDef<NodeDefType, NodeDefCodeProps>
+}): NodeDef<NodeDefType.code, NodeDefCodeProps> | undefined => {
+  const { survey, nodeDef } = params
+  const parentCodeDefUuid = nodeDef.props.parentCodeDefUuid
+  if (!parentCodeDefUuid) return undefined
+  const parentCodeDef = getNodeDefByUuid({ survey, uuid: parentCodeDefUuid })
+  return parentCodeDef ? (parentCodeDef as NodeDef<NodeDefType.code, NodeDefCodeProps>) : undefined
+}
+
+export const isNodeDefParentCode = (params: {
+  survey: Survey
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+}): boolean => {
+  const { survey, nodeDef } = params
+  const nodeDefsArray = getNodeDefsArray(survey)
+  return nodeDefsArray.some((def) => {
+    try {
+      nodeDef.uuid === (def as NodeDef<NodeDefType.code, NodeDefCodeProps>).props.parentCodeDefUuid
+    } catch (error) {
+      // ignore it: def is not a code attribute definition
+    }
+  })
+}
+
+export const getNodeDefCategoryLevelIndex = (params: {
+  survey: Survey
+  nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>
+}): number => {
+  const { survey, nodeDef } = params
+  const parentCodeNodeDef = getNodeDefParentCode({ survey, nodeDef })
+  return parentCodeNodeDef ? 1 + getNodeDefCategoryLevelIndex({ survey, nodeDef: parentCodeNodeDef }) : 0
 }

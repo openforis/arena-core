@@ -1,4 +1,4 @@
-import { NodeDef } from '../nodeDef'
+import { NodeDef, NodeDefCodeProps, NodeDefType } from '../nodeDef'
 import { Node } from '../node'
 import { Record } from './record'
 import { Surveys } from '../survey'
@@ -40,6 +40,24 @@ const getChild = (params: { record: Record; parentNode: Node; childDefUuid: stri
 const getParent = (params: { record: Record; node: Node }): Node | undefined => {
   const { record, node } = params
   return node.parentUuid ? getNodeByUuid({ record, uuid: node.parentUuid }) : undefined
+}
+
+const getParentCodeAttribute = (params: {
+  record: Record
+  parentNode: Node
+  nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>
+}): Node | undefined => {
+  const { record, parentNode, nodeDef } = params
+  const parentCodeDefUuid = nodeDef.props.parentCodeDefUuid
+  if (!parentCodeDefUuid) return undefined
+  const ancestors = getAncestorsAndSelf({ record, node: parentNode })
+  for (const ancestor of ancestors) {
+    const children = getChildren({ record, parentNode: ancestor, childDefUuid: parentCodeDefUuid })
+    if (children.length === 1) {
+      return children[0]
+    }
+  }
+  return undefined
 }
 
 const getDescendant = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node => {
@@ -174,6 +192,36 @@ const getDependentNodePointers = (params: {
   return nodePointers
 }
 
+const categoryItemNullParentUuid = 'null'
+
+export const getCategoryItemUuidAndCodeHierarchy = (params: {
+  survey: Survey
+  nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>
+  record: Record
+  parentNode: Node
+  code: string
+}) => {
+  const { survey, nodeDef, record, parentNode } = params
+  const categoryUuid = nodeDef.props.categoryUuid
+  const levelIndex = Surveys.getNodeDefCategoryLevelIndex({ survey, nodeDef })
+  let parentItemUuid = categoryItemNullParentUuid
+  let hierarchyCode = []
+
+  if (levelIndex > 0) {
+    const parentCodeAttribute = getParentCodeAttribute({ record, parentNode, nodeDef })
+    
+    parentItemUuid = Node.getCategoryItemUuid(parentCodeAttribute)
+    hierarchyCode = R.append(parentItemUuid, Node.getHierarchyCode(parentCodeAttribute))
+  }
+
+  const itemUuid = Surveys.getCategoryItemUuid({ categoryUuid, parentItemUuid, code })(survey)
+
+  return {
+    itemUuid,
+    hierarchyCode,
+  }
+}
+
 // copy missing functions from RecordReader in arena
 
 export const Records = {
@@ -182,6 +230,7 @@ export const Records = {
   getChild,
   getChildren,
   getParent,
+  getParentCodeAttribute,
   getAncestor,
   getDescendant,
   getNodeByUuid,

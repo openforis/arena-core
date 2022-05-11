@@ -4,7 +4,6 @@ import { Survey } from '../survey'
 
 import { buildAndAssocDependencyGraph, addNodeDefDependencies, getNodeDefDependentUuids } from './dependencies'
 
-
 import {
   getNodeDefByName,
   getNodeDefByUuid,
@@ -13,6 +12,9 @@ import {
   getNodeDefRoot,
   getNodeDefSource,
   isNodeDefAncestor,
+  getNodeDefParentCode,
+  isNodeDefParentCode,
+  getNodeDefCategoryLevelIndex,
 } from './nodeDefs'
 import { getCategoryItemByCodePaths, getCategoryItemByUuid, getTaxonByCode, getTaxonByUuid } from './refsData'
 
@@ -44,6 +46,11 @@ export const Surveys = {
   getTaxonByCode,
   getTaxonByUuid,
   getTaxonomyByName,
+
+  // node def code
+  getNodeDefParentCode,
+  isNodeDefParentCode,
+  getNodeDefCategoryLevelIndex,
 
   // dependencies
   buildAndAssocDependencyGraph,
