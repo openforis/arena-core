@@ -1,5 +1,5 @@
 import * as SurveyNodeDefs from './nodeDefs'
-import { NodeDef, NodeDefExpression, NodeDefExpressionEvaluator, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefExpression, NodeDefExpressionEvaluator, NodeDefType } from '../../nodeDef'
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
 
 const getEnumKeys = (en: any): Array<any> =>
@@ -35,8 +35,9 @@ export const getNodeDefDependentUuids = (params: {
   dependencyType: SurveyDependencyType | null
 }): Array<string> => {
   const { survey, nodeDefUuid, dependencyType } = params
-  const nodeDef = SurveyNodeDefs.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
-  if (!nodeDef) return []
+  const dependencyGraph = getDependencyGraph(survey)
+
+  const dependentUuids = new Set<string>()
 
   const dependencyTypes: Array<SurveyDependencyType> = []
   if (dependencyType) {
@@ -45,34 +46,13 @@ export const getNodeDefDependentUuids = (params: {
     dependencyTypes.push(...getEnumKeys(SurveyDependencyType))
   }
 
-  return Object.keys(
-    dependencyTypes.reduce(
-      (acc, _dependencyType) => ({
-        ...acc,
-        ...calculatedDependentNodeDefs({ survey, nodeDef, dependencyType: _dependencyType }),
-      }),
-      {}
-    )
-  )
-
-  // const dependencyGraph = getDependencyGraph(survey)
-
-  // const dependentUuids = new Set<string>()
-
-  // const dependencyTypes: Array<SurveyDependencyType> = []
-  // if (dependencyType) {
-  //   dependencyTypes.push(dependencyType)
-  // } else {
-  //   dependencyTypes.push(...getEnumKeys(SurveyDependencyType))
-  // }
-
-  // dependencyTypes.forEach((depType: SurveyDependencyType) => {
-  //   const dependentUuidsTemp = dependencyGraph[depType]?.[nodeDefUuid] || []
-  //   dependentUuidsTemp.forEach((dependentUuid) => {
-  //     dependentUuids.add(dependentUuid)
-  //   })
-  // })
-  // return Array.from(dependentUuids.values())
+  dependencyTypes.forEach((depType: SurveyDependencyType) => {
+    const dependentUuidsTemp = dependencyGraph[depType]?.[nodeDefUuid] || []
+    dependentUuidsTemp.forEach((dependentUuid) => {
+      dependentUuids.add(dependentUuid)
+    })
+  })
+  return Array.from(dependentUuids.values())
 }
 
 const getDependencies = (params: {
@@ -83,51 +63,6 @@ const getDependencies = (params: {
   const { graphs, type, nodeDefUuid } = params
   const graph = graphs[type]
   return graph[nodeDefUuid] || []
-}
-
-const getExpressionByDependencyType = (params: {
-  nodeDef: NodeDef<NodeDefType, NodeDefProps>
-  dependencyType: SurveyDependencyType
-}) => {
-  const { nodeDef, dependencyType } = params
-  const expressionsByType = {
-    [SurveyDependencyType.applicable]: () => nodeDef.propsAdvanced?.applicable,
-    [SurveyDependencyType.defaultValues]: () => nodeDef.propsAdvanced?.defaultValues,
-    [SurveyDependencyType.formula]: () => null,
-    [SurveyDependencyType.validations]: () => nodeDef.propsAdvanced?.validations?.expressions,
-  }
-  return expressionsByType[dependencyType]()
-}
-
-const calculatedDependentNodeDefs = (params: {
-  survey: Survey
-  dependencyType: SurveyDependencyType
-  nodeDef: NodeDef<NodeDefType, NodeDefProps>
-}): { [key: string]: NodeDef<NodeDefType> } => {
-  const { survey, nodeDef, dependencyType } = params
-  const expressions = getExpressionByDependencyType({ nodeDef, dependencyType })
-  if (!expressions || expressions.length === 0) return {}
-
-  const findReferencedNodeDefs = (expression: string | undefined): { [key: string]: NodeDef<NodeDefType> } => {
-    if (!expression) return {}
-
-    const uuids = [
-      ...new NodeDefExpressionEvaluator().findReferencedNodeDefUuids({ survey, nodeDef, expression, dependencyType }),
-    ]
-    return SurveyNodeDefs.getNodeDefsByUuids({ survey, uuids }).reduce(
-      (acc, _nodeDef) => ({ ...acc, [_nodeDef.uuid]: _nodeDef }),
-      {}
-    )
-  }
-
-  return expressions.reduce(
-    (referencedAcc, nodeDefExpr) => ({
-      ...referencedAcc,
-      ...findReferencedNodeDefs(nodeDefExpr.expression),
-      ...findReferencedNodeDefs(nodeDefExpr.applyIf),
-    }),
-    {}
-  )
 }
 
 // UPDATE
