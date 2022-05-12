@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefCodeProps, NodeDefType } from '../nodeDef'
+import { NodeDef, NodeDefCodeProps, NodeDefProps, NodeDefType } from '../nodeDef'
 import { Node, Nodes } from '../node'
 import { Record } from './record'
 import { Surveys } from '../survey'
@@ -140,6 +140,21 @@ const visitDescendantsAndSelf = (params: { record: Record; node: Node; visitor: 
   }
 }
 
+const getCommonParentNode = (params: {
+  record: Record
+  node: Node
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  dependentDef: NodeDef<NodeDefType, NodeDefProps>
+}): Node | undefined => {
+  const { record, node, nodeDef, dependentDef } = params
+  // 1 find common parent def
+  const commonParentDefUuid = Arrays.last(Arrays.intersection(nodeDef.meta.h, dependentDef.meta.h))
+  if (!commonParentDefUuid) return undefined
+
+  // 2 get ancestor node with common parent def
+  return getAncestor({ record, node, ancestorDefUuid: commonParentDefUuid })
+}
+
 /**
  * ==== dependency
  */
@@ -162,20 +177,15 @@ const getDependentNodePointers = (params: {
   const { survey, record, node, dependencyType, includeSelf = false, filterFn = null } = params
   const nodeDefUuid = node.nodeDefUuid
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
-  const dependentUuids = Surveys.getNodeDefDependentUuids({ survey, nodeDefUuid, dependencyType })
+  const dependentDefs = Surveys.getNodeDefDependents({ survey, nodeDefUuid, dependencyType })
   const nodePointers: Array<NodePointer> = []
 
-  for (const dependentDefUuid of dependentUuids) {
-    const dependentDef = Surveys.getNodeDefByUuid({ survey, uuid: dependentDefUuid })
-    // 1 find common parent def
-    const commonParentDefUuid = Arrays.last(Arrays.intersection(nodeDef.meta.h, dependentDef.meta.h))
-    if (!commonParentDefUuid) continue
-
-    // 2 find common parent node
-    const commonParentNode = getAncestor({ record, node, ancestorDefUuid: commonParentDefUuid })
+  for (const dependentDef of dependentDefs) {
+    // 1 find common parent node
+    const commonParentNode = getCommonParentNode({ record, node, nodeDef, dependentDef })
     if (!commonParentNode) continue
 
-    // 3 find descendant nodes of common parent node with nodeDefUuid = dependentDef uuid
+    // 2 find descendant nodes of common parent node with nodeDefUuid = dependentDef uuid
     const isDependencyApplicable = dependencyType === SurveyDependencyType.applicable
 
     const nodeDefUuidDependent = isDependencyApplicable ? dependentDef.parentUuid : dependentDef.uuid

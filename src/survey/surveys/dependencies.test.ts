@@ -14,12 +14,12 @@ const expectDependents = (params: {
 }) => {
   const { sourceName, dependencyType, expectedDependentNames } = params
   const accessibleDef = Surveys.getNodeDefByName({ survey, name: sourceName })
-  const dependentUuids = Surveys.getNodeDefDependentUuids({
+  const dependentDefs = Surveys.getNodeDefDependents({
     survey,
     nodeDefUuid: accessibleDef?.uuid,
     dependencyType,
   })
-  const dependentNames = dependentUuids.map((uuid) => Surveys.getNodeDefByUuid({ survey, uuid })?.props?.name)
+  const dependentNames = dependentDefs.map((dependentDef) => dependentDef?.props?.name)
   expect(dependentNames).toEqual(expectedDependentNames)
 }
 
