@@ -2,11 +2,6 @@ import * as SurveyNodeDefs from './nodeDefs'
 import { NodeDef, NodeDefExpression, NodeDefExpressionEvaluator, NodeDefType } from '../../nodeDef'
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
 
-const getEnumKeys = (en: any): Array<any> =>
-  Object.keys(en)
-    .filter((key) => !Number.isNaN(Number(key)))
-    .map((key) => Number(key))
-
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
   [SurveyDependencyType.defaultValues]: false,
@@ -43,7 +38,7 @@ export const getNodeDefDependentUuids = (params: {
   if (dependencyType) {
     dependencyTypes.push(dependencyType)
   } else {
-    dependencyTypes.push(...getEnumKeys(SurveyDependencyType))
+    dependencyTypes.push(...Object.values(SurveyDependencyType))
   }
 
   dependencyTypes.forEach((depType: SurveyDependencyType) => {

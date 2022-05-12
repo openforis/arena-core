@@ -51,8 +51,6 @@ export const updateSelfAndDependentsApplicable = (params: {
     dependencyType: SurveyDependencyType.applicable,
   })
 
-  // const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
-
   // if (Node.isCreated(node) && !Objects.isEmpty(nodeDef.propsAdvanced?.applicable)) {
   //   // Include a pointer to node itself if it has just been created and it has an "applicable if" expression
   //   nodePointersToUpdate.push({
@@ -65,11 +63,15 @@ export const updateSelfAndDependentsApplicable = (params: {
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
   nodePointersToUpdate.forEach((nodePointer: NodePointer) => {
     const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
+
+    const expressionsToEvaluate = NodeDefs.getApplicable(nodeDefNodePointer)
+    if (expressionsToEvaluate.length === 0) return
+
+    // 3. evaluate applicable expression
     const nodeCtxUuid = nodeCtxNodePointer.uuid
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) || nodeCtxNodePointer
-    const expressionsToEvaluate = NodeDefs.getApplicable(nodeDefNodePointer)
-    // 3. evaluate applicable expression
+
     const exprEval = new RecordExpressionEvaluator().evalApplicableExpression({
       survey,
       record: updateResult.record,
