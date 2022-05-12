@@ -118,7 +118,15 @@ export { DEFAULT_SRS, SRSs } from './srs'
 export type { SRS } from './srs'
 
 export { SurveyFactory, SurveyRefDataFactory, Surveys } from './survey'
-export type { Survey, SurveyService, SurveyRefData, SurveyDependency, SurveyCycle, SurveyProps } from './survey'
+export type {
+  Survey,
+  SurveyService,
+  SurveyRefData,
+  SurveyDependency,
+  SurveyDependencyGraph,
+  SurveyCycle,
+  SurveyProps,
+} from './survey'
 
 export { TaxonomyFactory, TaxonFactory, VernacularNameFactory } from './taxonomy'
 export type {

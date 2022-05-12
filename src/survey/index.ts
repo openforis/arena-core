@@ -1,4 +1,4 @@
-export type { Survey, SurveyProps, SurveyCycle, SurveyDependency } from './survey'
+export type { Survey, SurveyProps, SurveyCycle, SurveyDependencyGraph, SurveyDependency } from './survey'
 
 export { Surveys } from './surveys'
 

@@ -2,7 +2,7 @@ import { Category } from '../../category'
 import { Taxonomy } from '../../taxonomy'
 import { Survey } from '../survey'
 
-import { getNodeDefDependents } from './dependencies'
+import { buildAndAssocDependencyGraph, addNodeDefDependencies, getNodeDefDependentUuids } from './dependencies'
 
 import {
   getNodeDefByName,
@@ -55,5 +55,7 @@ export const Surveys = {
   getNodeDefCategoryLevelIndex,
 
   // dependencies
-  getNodeDefDependents,
+  buildAndAssocDependencyGraph,
+  addNodeDefDependencies,
+  getNodeDefDependentUuids,
 }
