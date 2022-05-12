@@ -18,11 +18,6 @@ export enum SurveyDependencyType {
   formula,
   validations,
 }
-
-export type SurveyDependencyGraph = {
-  [key in SurveyDependencyType]: SurveyDependency
-}
-
 export interface SurveyCycle {
   dateEnd?: string
   dateStart: string
@@ -44,7 +39,6 @@ export interface Survey extends ArenaObject<SurveyProps> {
   authGroups: Array<AuthGroup>
   dateCreated?: string
   dateModified?: string
-  dependencyGraph?: SurveyDependencyGraph
   draft: boolean
   nodeDefs?: { [nodeDefUuid: string]: NodeDef<NodeDefType> }
   ownerUuid: string
