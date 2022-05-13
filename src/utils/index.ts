@@ -1,5 +1,5 @@
 export { Arrays } from './arrays'
-export { Dates } from './dates'
+export { Dates, DateFormats } from './dates'
 export { Numbers } from './numbers'
 export { Objects } from './_objects'
 export { Queue } from './queue'

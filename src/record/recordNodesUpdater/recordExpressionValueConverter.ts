@@ -4,12 +4,11 @@ import { Survey, Surveys } from '../../survey'
 import { Record } from '../record'
 import { Records } from '../records'
 import { NodeDef, NodeDefType, NodeDefs, NodeDefCodeProps, NodeDefTaxonProps } from '../../nodeDef'
-import { Dates, DateFormats } from '../../utils/dates'
-import { Objects } from '../../utils'
+import { Dates, DateFormats, Objects } from '../../utils'
 
 const _toPrimitive = (TypeTo: any) => (params: { valueExpr: any }) => {
   const { valueExpr: val } = params
-  return !Objects.isEmpty(val) ? TypeTo(val) : null
+  return TypeTo(val)
 }
 
 const _toBoolean = (params: { valueExpr: any }) => {
@@ -20,11 +19,9 @@ const _toBoolean = (params: { valueExpr: any }) => {
 
 const _toCode = (params: { survey: Survey; record: Record; nodeCtx: Node; valueExpr: any }): NodeValueCode | null => {
   const { survey, record, nodeCtx, valueExpr } = params
+
   // ValueExpr is the code of a category item
   const code = String(valueExpr)
-  if (code === null) {
-    return null
-  }
 
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtx.nodeDefUuid })
   const codeNodeDef = nodeDef as NodeDef<NodeDefType.code, NodeDefCodeProps>
@@ -38,23 +35,20 @@ const _toCode = (params: { survey: Survey; record: Record; nodeCtx: Node; valueE
 
 const _toCoordinate = (params: { valueExpr: any }): Point | null => {
   const { valueExpr } = params
-  return valueExpr ? Points.parse(valueExpr) : null
+  return Points.parse(valueExpr)
 }
 
 const _toDateTime = (params: { valueExpr: any; format: DateFormats; formatsFrom: DateFormats[] }) => {
   const { valueExpr, format, formatsFrom = [DateFormats.datetimeDefault] } = params
-  if (!valueExpr) {
-    return null
-  }
   const formatFrom = formatsFrom.find((formt) => Dates.isValidDateInFormat(valueExpr, formt))
   return formatFrom ? Dates.convertDate({ dateStr: valueExpr, formatFrom, formatTo: format }) : null
 }
 
 const _toTaxon = (params: { survey: Survey; nodeCtx: Node; valueExpr: any }): NodeValueTaxon | null => {
   const { survey, nodeCtx, valueExpr } = params
+
   // ValueExpr is the code of a taxon
   const taxonCode = String(valueExpr)
-  if (taxonCode === null) return null
 
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtx.nodeDefUuid }) as NodeDef<
     NodeDefType.taxon,
@@ -95,6 +89,8 @@ const _valueExprToValueNodeFns = {
 
 const toNodeValue = (params: { survey: Survey; record: Record; nodeCtx: Node; valueExpr: string }) => {
   const { survey, record, nodeCtx, valueExpr } = params
+  if (Objects.isEmpty(valueExpr)) return null
+
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtx.nodeDefUuid })
   const fn = _valueExprToValueNodeFns[NodeDefs.getType(nodeDef)]
   return fn({ survey, record, nodeCtx, valueExpr })

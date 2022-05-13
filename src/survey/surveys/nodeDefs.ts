@@ -104,7 +104,7 @@ export const getNodeDefParentCode = (params: {
   const parentCodeDefUuid = nodeDef.props.parentCodeDefUuid
   if (!parentCodeDefUuid) return undefined
   const parentCodeDef = getNodeDefByUuid({ survey, uuid: parentCodeDefUuid })
-  return parentCodeDef ? (parentCodeDef as NodeDef<NodeDefType.code, NodeDefCodeProps>) : undefined
+  return parentCodeDef as NodeDef<NodeDefType.code, NodeDefCodeProps>
 }
 
 export const isNodeDefParentCode = (params: {
@@ -115,9 +115,10 @@ export const isNodeDefParentCode = (params: {
   const nodeDefsArray = getNodeDefsArray(survey)
   return nodeDefsArray.some((def) => {
     try {
-      nodeDef.uuid === (def as NodeDef<NodeDefType.code, NodeDefCodeProps>).props.parentCodeDefUuid
+      return nodeDef.uuid === (def as NodeDef<NodeDefType.code, NodeDefCodeProps>).props.parentCodeDefUuid
     } catch (error) {
       // ignore it: def is not a code attribute definition
+      return
     }
   })
 }
