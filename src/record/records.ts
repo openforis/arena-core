@@ -263,10 +263,10 @@ export const getCategoryItemUuid = (params: {
   parentNode: Node
   code: string
 }): string | undefined => {
-  const { survey, nodeDef, record, parentNode } = params
+  const { survey, nodeDef, record, parentNode, code } = params
   const categoryUuid = nodeDef.props.categoryUuid
 
-  const codePaths = getAncestorCodePath({ survey, record, parentNode, nodeDef })
+  const codePaths = [...getAncestorCodePath({ survey, record, parentNode, nodeDef }), code]
 
   const item = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid, codePaths })
 

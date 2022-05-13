@@ -1,1 +1,1 @@
-export { RecordNodesUpdater } from './recordNodesUpdater'
+export { RecordNodesUpdater, RecordUpdateResult } from './recordNodesUpdater'
