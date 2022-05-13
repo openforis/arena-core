@@ -16,6 +16,7 @@ export class RecordUpdateResult {
 
   addNode(node: Node) {
     this.nodes[node.uuid] = node
+    this.record = { ...this.record, nodes: { ...this.record.nodes, [node.uuid]: node } }
   }
 
   /**
