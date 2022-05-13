@@ -109,6 +109,8 @@ const getValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; nod
 }
 
 export const NodeValues = {
+  valuePropsCode,
+
   getValueProp,
   isValueProp,
   // code

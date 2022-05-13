@@ -1,8 +1,8 @@
 export class SystemError extends Error {
   private _key: string
-  private _params: { [key: string]: string }
+  private _params: { [key: string]: any }
 
-  constructor(key: string, params?: { [key: string]: string }) {
+  constructor(key: string, params?: { [key: string]: any  }) {
     super(key)
 
     this.name = 'SystemError'

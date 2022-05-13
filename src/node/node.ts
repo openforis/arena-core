@@ -3,14 +3,15 @@ import { Taxon } from '../taxonomy'
 
 export interface NodeMeta {
   childApplicability?: { [uuid: string]: boolean }
-  h: string[]
+  h?: string[]
+  defaultValueApplied?: boolean
 }
 
 export interface Node {
   dateCreated?: string
   dateModified?: string
   id?: string
-  meta: NodeMeta
+  meta?: NodeMeta
   nodeDefUuid: string
   parentUuid?: string
   recordUuid: string

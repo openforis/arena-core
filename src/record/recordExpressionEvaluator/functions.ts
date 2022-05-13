@@ -7,6 +7,7 @@ import { Surveys } from '../../survey'
 import { Point, Points } from '../../geo'
 import { Dates } from '../../utils/dates'
 
+
 export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressionContext>> = [
   {
     name: 'categoryItemProp',
@@ -36,6 +37,7 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
         coordinate && typeof coordinate === 'string' ? Points.parse(coordinate) : (coordinate as Point)
       const pointFrom = toPoint(coordinateFrom)
       const pointTo = toPoint(coordinateTo)
+      
       return pointFrom && pointTo ? Points.distance(pointFrom, pointTo) : null
     },
   },

@@ -1,4 +1,5 @@
 import { camelize } from './camelize'
+import { deepMerge } from './deepMerge'
 import { difference } from './difference'
 import { fromPairs } from './fromPairs'
 import { isEmpty } from './isEmpty'
@@ -10,6 +11,7 @@ import { toPairs } from './toPairs'
 
 export const Objects = {
   camelize,
+  deepMerge,
   difference,
   fromPairs,
   isEmpty,

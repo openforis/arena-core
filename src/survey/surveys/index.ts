@@ -2,16 +2,20 @@ import { Category } from '../../category'
 import { Taxonomy } from '../../taxonomy'
 import { Survey } from '../survey'
 
-import { buildAndAssocDependencyGraph, addNodeDefDependencies, getNodeDefDependentUuids } from './dependencies'
+import { buildAndAssocDependencyGraph, addNodeDefDependencies, getNodeDefDependents } from './dependencies'
 
 import {
   getNodeDefByName,
+  getNodeDefsByUuids,
   getNodeDefByUuid,
   getNodeDefChildren,
   getNodeDefParent,
   getNodeDefRoot,
   getNodeDefSource,
   isNodeDefAncestor,
+  getNodeDefParentCode,
+  isNodeDefParentCode,
+  getNodeDefCategoryLevelIndex,
 } from './nodeDefs'
 import { getCategoryItemByCodePaths, getCategoryItemByUuid, getTaxonByCode, getTaxonByUuid } from './refsData'
 
@@ -31,6 +35,7 @@ const getTaxonomyByName = (params: { survey: Survey; taxonomyName: string }): Ta
 
 export const Surveys = {
   getNodeDefByName,
+  getNodeDefsByUuids,
   getNodeDefByUuid,
   getNodeDefChildren,
   getNodeDefParent,
@@ -44,8 +49,13 @@ export const Surveys = {
   getTaxonByUuid,
   getTaxonomyByName,
 
+  // node def code
+  getNodeDefParentCode,
+  isNodeDefParentCode,
+  getNodeDefCategoryLevelIndex,
+
   // dependencies
   buildAndAssocDependencyGraph,
   addNodeDefDependencies,
-  getNodeDefDependentUuids,
+  getNodeDefDependents,
 }
