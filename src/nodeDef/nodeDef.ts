@@ -1,6 +1,7 @@
 import { UUIDs } from '../utils'
 import { ArenaObject, Factory } from '../common'
 import { Labels } from '../language'
+import { ValidationSeverity } from '../validation'
 
 export enum NodeDefType {
   boolean = 'boolean',
@@ -39,6 +40,7 @@ export interface NodeDefExpression {
   applyIf?: string
   expression?: string
   uuid: string
+  severity?: ValidationSeverity
 }
 
 export interface NodeDefExpressionFactoryParams {

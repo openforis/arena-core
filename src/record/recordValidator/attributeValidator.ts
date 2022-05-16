@@ -1,10 +1,11 @@
-import { Node } from '../../node'
-import { NodeDefs } from '../../nodeDef'
+import { Node, Nodes } from '../../node'
+import { NodeDef, NodeDefType, NodeDefProps, NodeDefs } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { Promises } from '../../utils/promises'
-import { Validation, ValidationFactory } from '../../validation'
+import { Validation, ValidationFactory, ValidationResult, ValidationResultFactory, Validator } from '../../validation'
 import { Record } from '../record'
+import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { NodePointer } from '../recordNodesUpdater/nodePointer'
 import { Records } from '../records'
 
@@ -25,17 +26,64 @@ const _getSiblingNodeKeys = (params: { survey: Survey; record: Record; node: Nod
   return siblingKeys
 }
 
+const _validateRequired =
+  (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
+  (_field: string, node: any): ValidationResult | null => {
+    const { nodeDef } = params
+    return (NodeDefs.isKey(nodeDef) || NodeDefs.isRequired(nodeDef)) && Nodes.isValueBlank(node)
+      ? ValidationResultFactory.createInstance({ key: 'record.valueRequired' })
+      : null
+  }
+
+/**
+ * Evaluates the validation expressions.
+ * Returns 'null' if all are valid, a concatenated error message otherwise.
+ */
+const _validateNodeValidations =
+  (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
+  async (_propName: string, node: Node) => {
+    const { survey, record, nodeDef } = params
+    if (Nodes.isValueBlank(node)) return null
+
+    const validations = NodeDefs.getValidations(nodeDef)
+    if (!validations?.expressions?.length) return null
+
+    const applicableExpressionsEval = new RecordExpressionEvaluator().evalApplicableExpressions({
+      survey,
+      record,
+      nodeCtx: node,
+      expressions: validations.expressions,
+    })
+
+    let errorMessage = null
+
+    for (const { expression, value: valid } of applicableExpressionsEval) {
+      if (!valid) {
+        const customMessages = _getCustomValidationMessages(survey, expression)
+
+        errorMessage = ValidationResultFactory.createInstance({
+          key: ValidationResult.keys.customErrorMessageKey,
+          severity: expression.severity,
+          customMessages,
+        })
+        break
+      }
+    }
+
+    return errorMessage
+  }
+
 const validateAttribute = async (params: { survey: Survey; record: Record; attribute: Node }) => {
   const { survey, record, attribute } = params
   if (Records.isNodeApplicable({ record, node: attribute })) {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: attribute.nodeDefUuid })
-    return Validator.validate(
+    return new Validator().validate(
       attribute,
       {
-        [Node.keys.value]: [
+        ['value']: [
           _validateRequired({ nodeDef }),
           AttributeTypeValidator.validateValueType(survey, nodeDef),
-          _validateNodeValidations(survey, record, nodeDef),
+          _validateNodeValidations({ survey, record, nodeDef }),
           AttributeKeyValidator.validateAttributeKey(survey, record, nodeDef),
           AttributeUniqueValidator.validateAttributeUnique(survey, record, nodeDef),
         ],
@@ -55,7 +103,7 @@ const validateSelfAndDependentAttributes = async (params: {
   const { survey, record, nodes } = params
 
   // Output
-  const attributeValidations: { [key: string]: Validation } = {}
+  const validationsByNodeUuid: { [key: string]: Validation } = {}
 
   await Promises.each(Object.values(nodes), async (node: Node) => {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
@@ -75,25 +123,23 @@ const validateSelfAndDependentAttributes = async (params: {
       const nodesToValidate = [
         ..._nodePointersToNodes(nodePointersAttributeAndDependents),
         ...(NodeDefs.isKey(nodeDef) && nodeParent ? _getSiblingNodeKeys({ survey, record, node: nodeParent }) : []),
-        ...(NodeDefs.getValidations(nodeDef)?.unique
-          ? Records.getAttributesUniqueSibling({ record, attribute: node, attributeDef: nodeDef })
-          : []),
+        ...(NodeDefs.getValidations(nodeDef)?.unique ? Records.getNodeSiblings({ record, node, nodeDef }) : []),
       ]
 
       // Call validateAttribute for each attribute
 
-      await Promises.each<Node>(nodesToValidate, async (_node) => {
+      await Promises.each<Node>(nodesToValidate, async (nodeToValidate) => {
         const nodeUuid = node.uuid
 
         // Validate only attributes not deleted and not validated already
-        if (!_node.deleted && !attributeValidations[nodeUuid]) {
-          attributeValidations[nodeUuid] = await validateAttribute(survey, record, _node)
+        if (!nodeToValidate.deleted && !validationsByNodeUuid[nodeUuid]) {
+          validationsByNodeUuid[nodeUuid] = await validateAttribute({ survey, record, attribute: nodeToValidate })
         }
       })
     }
   })
 
-  return attributeValidations
+  return validationsByNodeUuid
 }
 
 export const AttributeValidator = {

@@ -132,7 +132,10 @@ export const getNodeDefCategoryLevelIndex = (params: {
   return parentCodeNodeDef ? 1 + getNodeDefCategoryLevelIndex({ survey, nodeDef: parentCodeNodeDef }) : 0
 }
 
-export const getNodeDefKeys = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) => {
+export const getNodeDefKeys = (params: {
+  survey: Survey
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+}): NodeDef<NodeDefType, NodeDefProps>[] => {
   const { survey, nodeDef } = params
   const children = getNodeDefChildren({ survey, nodeDef })
   return children.filter((childDef) => childDef.props.key && !childDef.deleted)
