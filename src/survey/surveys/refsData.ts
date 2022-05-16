@@ -7,6 +7,18 @@ export const getCategoryItemByUuid = (params: { survey: Survey; itemUuid: string
   return survey.refData?.categoryItemIndex[itemUuid]
 }
 
+const nullParentItemUuid = 'null'
+
+export const getCategoryItemByCode = (params: {
+  survey: Survey
+  categoryUuid: string
+  parentItemUuid: string | undefined
+  code: string
+}) => {
+  const { survey, categoryUuid, parentItemUuid = nullParentItemUuid, code } = params
+  return survey.refData?.categoryItemUuidIndex?.[categoryUuid]?.[parentItemUuid]?.[code]
+}
+
 export const getCategoryItemByCodePaths = (params: {
   survey: Survey
   categoryUuid: string
@@ -16,7 +28,7 @@ export const getCategoryItemByCodePaths = (params: {
   const itemUuid = codePaths.reduce(
     (currentParentUuid: string | undefined, code) =>
       currentParentUuid
-        ? survey.refData?.categoryItemUuidIndex?.[categoryUuid]?.[currentParentUuid]?.[code]
+        ? getCategoryItemByCode({ survey, categoryUuid, parentItemUuid: currentParentUuid, code })
         : undefined,
     'null'
   )

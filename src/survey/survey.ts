@@ -13,10 +13,10 @@ export interface SurveyDependency {
 }
 
 export enum SurveyDependencyType {
-  applicable,
-  defaultValues,
-  formula,
-  validations,
+  applicable = 'applicable',
+  defaultValues = 'defaultValues',
+  formula = 'formula',
+  validations = 'validations',
 }
 
 export type SurveyDependencyGraph = {
@@ -65,3 +65,17 @@ export interface Survey extends ArenaObject<SurveyProps> {
    */
   refData?: SurveyRefData
 }
+
+// export class Survey implements SurveyI {
+//   authGroups = []
+//   draft = false
+//   ownerUuid = ''
+//   published = false
+//   template = false
+//   props = {} as SurveyProps
+//   uuid = ''
+
+//   constructor(s: SurveyI) {
+//     Object.assign(this, s)
+//   }
+// }

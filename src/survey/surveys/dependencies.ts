@@ -1,11 +1,6 @@
 import * as SurveyNodeDefs from './nodeDefs'
-import { NodeDef, NodeDefExpression, NodeDefExpressionEvaluator, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefExpression, NodeDefExpressionEvaluator, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
-
-const getEnumKeys = (en: any): Array<any> =>
-  Object.keys(en)
-    .filter((key) => !Number.isNaN(Number(key)))
-    .map((key) => Number(key))
 
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
@@ -29,11 +24,11 @@ const getDependencyGraph = (survey: Survey): SurveyDependencyGraph =>
     [SurveyDependencyType.validations]: {},
   }
 
-export const getNodeDefDependentUuids = (params: {
+export const getNodeDefDependents = (params: {
   survey: Survey
   nodeDefUuid: string
   dependencyType: SurveyDependencyType | null
-}): Array<string> => {
+}): NodeDef<NodeDefType, NodeDefProps>[] => {
   const { survey, nodeDefUuid, dependencyType } = params
   const dependencyGraph = getDependencyGraph(survey)
 
@@ -43,16 +38,16 @@ export const getNodeDefDependentUuids = (params: {
   if (dependencyType) {
     dependencyTypes.push(dependencyType)
   } else {
-    dependencyTypes.push(...getEnumKeys(SurveyDependencyType))
+    dependencyTypes.push(...Object.values(SurveyDependencyType))
   }
 
   dependencyTypes.forEach((depType: SurveyDependencyType) => {
-    const dependentUuidsTemp = dependencyGraph[depType][nodeDefUuid] || []
+    const dependentUuidsTemp = dependencyGraph[depType]?.[nodeDefUuid] || []
     dependentUuidsTemp.forEach((dependentUuid) => {
       dependentUuids.add(dependentUuid)
     })
   })
-  return Array.from(dependentUuids.values())
+  return SurveyNodeDefs.getNodeDefsByUuids({ survey, uuids: [...dependentUuids] })
 }
 
 const getDependencies = (params: {

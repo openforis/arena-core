@@ -108,7 +108,14 @@ export type {
   NodeDefProps,
 } from './nodeDef'
 
-export { RecordFactory, Records, RECORD_STEP_DEFAULT, RecordExpressionEvaluator } from './record'
+export {
+  RecordFactory,
+  Records,
+  RECORD_STEP_DEFAULT,
+  RecordExpressionEvaluator,
+  RecordNodesUpdater,
+  RecordUpdateResult,
+} from './record'
 export type { Record, RecordService } from './record'
 
 export { ServiceRegistry, ServiceType } from './registry'
