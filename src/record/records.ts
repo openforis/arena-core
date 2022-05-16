@@ -45,6 +45,17 @@ const getParent = (params: { record: Record; node: Node }): Node | undefined => 
   return node.parentUuid ? getNodeByUuid({ record, uuid: node.parentUuid }) : undefined
 }
 
+const isNodeApplicable = (params: { record: Record; node: Node }) => {
+  const { record, node } = params
+  const nodeParent = getParent({ record, node })
+  if (!nodeParent) return true
+
+  if (isNodeApplicable({ record, node: nodeParent })) {
+    return Nodes.isChildApplicable(nodeParent, node.nodeDefUuid)
+  }
+  return false
+}
+
 const getParentCodeAttribute = (params: {
   record: Record
   parentNode: Node
@@ -155,6 +166,13 @@ const getCommonParentNode = (params: {
   return getAncestor({ record, node, ancestorDefUuid: commonParentDefUuid })
 }
 
+const getEntityKeyNodes = (params: { survey: Survey; record: Record; entity: Node }): Node[] => {
+  const { survey, record, entity } = params
+  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
+  const nodeDefKeys = Surveys.getNodeDefKeys({ survey, nodeDef })
+  return nodeDefKeys.map((nodeDefKey) => getChild({ record, parentNode: entity, childDefUuid: nodeDefKey.uuid }))
+}
+
 /**
  * ==== dependency
  */
@@ -256,7 +274,7 @@ const getAncestorCodePath = (params: {
   return codesPath
 }
 
-export const getCategoryItemUuid = (params: {
+const getCategoryItemUuid = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>
   record: Record
@@ -282,6 +300,8 @@ export const Records = {
   getParentCodeAttribute,
   getAncestor,
   getNodeByUuid,
+  getEntityKeyNodes,
+  isNodeApplicable,
   visitAncestorsAndSelf,
   getAncestorsAndSelf,
   getDescendant,

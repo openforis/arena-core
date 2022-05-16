@@ -20,4 +20,7 @@ export interface Node {
   value?: any
   placeholder?: boolean
   surveyUuid?: string
+
+  created?: boolean
+  deleted?: boolean
 }

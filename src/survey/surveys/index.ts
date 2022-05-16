@@ -13,6 +13,7 @@ import {
   getNodeDefRoot,
   getNodeDefSource,
   isNodeDefAncestor,
+  getNodeDefKeys,
   getNodeDefParentCode,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
@@ -42,6 +43,9 @@ export const Surveys = {
   getNodeDefRoot,
   getNodeDefSource,
   isNodeDefAncestor,
+  getNodeDefKeys,
+
+  // ref data
   getCategoryByName,
   getCategoryItemByCodePaths,
   getCategoryItemByUuid,
