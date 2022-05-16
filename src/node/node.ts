@@ -19,4 +19,5 @@ export interface Node {
   uuid: string
   value?: any
   placeholder?: boolean
+  surveyUuid?: string
 }
