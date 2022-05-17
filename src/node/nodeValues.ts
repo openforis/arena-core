@@ -67,7 +67,10 @@ const getItemUuid = (node: Node): string | undefined =>
   getValuePropRaw({ node, prop: valuePropsCode[valuePropsCode.itemUuid] })
 
 // Date
-const getDatePart = (index: number) => (node: Node) => Number((node.value || '--').split('-')[index].trim())
+const getDatePart =
+  (index: number) =>
+  (node: Node): number =>
+    Number((node.value || '--').split('-')[index].trim())
 const getDateYear = getDatePart(0)
 const getDateMonth = getDatePart(1)
 const getDateDay = getDatePart(2)
@@ -81,9 +84,14 @@ const _datePropGetters: { [key in valuePropsDate]: (node: Node) => number } = {
 // Taxon
 const getTaxonUuid = (node: Node): string | undefined =>
   getValuePropRaw({ node, prop: valuePropsTaxon[valuePropsTaxon.taxonUuid] })
+const getVernacularNameUuid = (node: Node): string | undefined =>
+  getValuePropRaw({ node, prop: valuePropsTaxon[valuePropsTaxon.vernacularNameUuid] })
 
 // Time
-const _getTimePart = (index: number) => (node: Node) => Number((node.value || ':').split(':')[index].trim())
+const _getTimePart =
+  (index: number) =>
+  (node: Node): number =>
+    Number((node.value || ':').split(':')[index].trim())
 const getTimeHour = _getTimePart(0)
 const getTimeMinute = _getTimePart(1)
 
@@ -113,8 +121,19 @@ export const NodeValues = {
 
   getValueProp,
   isValueProp,
+
+  // time
+  getTimeHour,
+  getTimeMinute,
+
+  // date
+  getDateYear,
+  getDateMonth,
+  getDateDay,
+
   // code
   getItemUuid,
   // taxon
   getTaxonUuid,
+  getVernacularNameUuid,
 }

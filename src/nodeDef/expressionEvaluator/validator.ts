@@ -11,8 +11,8 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
       const details = error.description || error.toString()
       return ValidationResultFactory.createInstance({
         valid: false,
-        messageKey: 'expression.invalid',
-        messageParams: { details },
+        key: 'expression.invalid',
+        params: { details },
       })
     }
   }

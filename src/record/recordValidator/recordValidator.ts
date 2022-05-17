@@ -8,7 +8,7 @@ import { AttributeValidator } from './attributeValidator'
 export const validateNodes = async (params: { survey: Survey; record: Record; nodes: { [key: string]: Node } }) => {
   const { survey, record, nodes } = params
 
-  const attributeValidations = await AttributeValidator.validateSelfAndDependentAttributes(survey, record, nodes)
+  const attributeValidations = await AttributeValidator.validateSelfAndDependentAttributes({ survey, record, nodes })
 
   // 2. validate min/max count
   const nodeCountValidations = CountValidator.validateChildrenCountNodes(survey, record, nodes)

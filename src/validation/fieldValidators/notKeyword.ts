@@ -23,13 +23,15 @@ const keywords = [
   'value',
 ]
 
-export const notKeyword = (messageKey: string) => (field: string, obj: any): ValidationResult => {
-  const value = Objects.path(field)(obj)
-  const valid = Objects.isEmpty(value) || !keywords.includes(value)
+export const notKeyword =
+  (messageKey: string) =>
+  (field: string, obj: any): ValidationResult => {
+    const value = Objects.path(field)(obj)
+    const valid = Objects.isEmpty(value) || !keywords.includes(value)
 
-  return ValidationResultFactory.createInstance({
-    valid,
-    messageKey,
-    severity: ValidationSeverity.error,
-  })
-}
+    return ValidationResultFactory.createInstance({
+      valid,
+      key: messageKey,
+      severity: ValidationSeverity.error,
+    })
+  }

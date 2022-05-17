@@ -1,6 +1,7 @@
 import { Survey } from '../survey'
 import { CategoryItem } from '../../category'
 import { Taxon } from '../../taxonomy'
+import { NodeDefs, NodeDefTaxon } from '../../nodeDef'
 
 export const getCategoryItemByUuid = (params: { survey: Survey; itemUuid: string }): CategoryItem | undefined => {
   const { survey, itemUuid } = params
@@ -48,4 +49,22 @@ export const getTaxonByCode = (params: {
   const { survey, taxonomyUuid, taxonCode } = params
   const taxonUuid = survey.refData?.taxonUuidIndex?.[taxonomyUuid]?.[taxonCode]
   return taxonUuid ? getTaxonByUuid({ survey, taxonUuid }) : undefined
+}
+
+export const includesTaxonVernacularName = (params: {
+  survey: Survey
+  nodeDef: NodeDefTaxon
+  taxonCode: string
+  vernacularNameUuid: string
+}): boolean => {
+  const { survey, nodeDef, taxonCode, vernacularNameUuid } = params
+  const taxonomyUuid = NodeDefs.getTaxonomyUuid(nodeDef)
+  if (!taxonomyUuid) return false
+
+  const taxon = getTaxonByCode({ survey, taxonomyUuid, taxonCode })
+  const vernacularNamesByLang = taxon?.vernacularNames || {}
+
+  return Object.values(vernacularNamesByLang).some((vernacularNames) =>
+    vernacularNames.some((vernacularName) => vernacularName.uuid === vernacularNameUuid)
+  )
 }

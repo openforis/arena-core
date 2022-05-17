@@ -16,10 +16,12 @@ type ValidationTest = {
   warningsCountByField?: { [field: string]: number }
 }
 
-const greaterThan10 = (severity: ValidationSeverity) => (field: string, obj: any): ValidationResult => {
-  const value = Objects.path(field)(obj)
-  return ValidationResultFactory.createInstance({ valid: value >= 10, messageKey: 'less_or_equal_to_10', severity })
-}
+const greaterThan10 =
+  (severity: ValidationSeverity) =>
+  (field: string, obj: any): ValidationResult => {
+    const value = Objects.path(field)(obj)
+    return ValidationResultFactory.createInstance({ valid: value >= 10, key: 'less_or_equal_to_10', severity })
+  }
 
 const tests: Array<ValidationTest> = [
   // required

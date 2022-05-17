@@ -1,4 +1,5 @@
 import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefType, NodeDefValidations } from '../nodeDef'
+import { NodeDefTaxonProps } from '../types/taxon'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
@@ -22,6 +23,9 @@ const getValidations = (nodeDef: NodeDef<NodeDefType>): NodeDefValidations | und
 
 const isRequired = (nodeDef: NodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required || false
 
+const getTaxonomyUuid = (nodeDef: NodeDef<NodeDefType.taxon, NodeDefTaxonProps>): string | undefined =>
+  nodeDef.props.taxonomyUuid
+
 export const NodeDefs = {
   isEntity,
   isSingleEntity,
@@ -31,6 +35,7 @@ export const NodeDefs = {
   getType,
   getDefaultValues,
   getApplicable,
+  getTaxonomyUuid,
   // validations
   getValidations,
   isRequired,

@@ -1,25 +1,14 @@
-import * as R from 'ramda'
-
-import { PointFactory, Points } from '@openforis/arena-core'
-
-import * as DateTimeUtils from '@core/dateUtils'
-import * as NumberUtils from '@core/numberUtils'
-
-import * as Taxon from '@core/survey/taxon'
-
-import * as Validation from '@core/validation/validation'
-
-import * as Node from '../node'
-import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
-import { Nodes, NodeValueCoordinate } from '../../node'
-import { FieldValidator } from '../../validation'
+import { NodeDef, NodeDefProps, NodeDefTaxon, NodeDefType } from '../../nodeDef'
+import { Node, Nodes, NodeValueCoordinate } from '../../node'
+import { ValidationResult, ValidationResultFactory } from '../../validation'
 import { Survey, Surveys } from '../../survey'
 import { NodeValues } from '../../node/nodeValues'
+import { PointFactory, Points } from '../../geo'
+import { Numbers, Dates } from '../../utils'
 
-const { nodeDefType } = NodeDef
-
-const validateDecimal = ({ nodeDef, value }) => {
-  return NumberUtils.isFloat(value)
+const validateDecimal = (params: { value: any }) => {
+  const { value } = params
+  return Numbers.isFloat(value)
   // TODO validate max number of decimal digits as warning?
   // const maxNumberDecimalDigits = NodeDef.getMaxNumberDecimalDigits(nodeDef)
   // const numberDecimalDigits = (Number(value).toString().split('.')[1] || '').length
@@ -49,20 +38,25 @@ const validateTaxon = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, N
   if (!vernacularNameUuid) return true
 
   // Vernacular name not found
-  return Survey.includesTaxonVernacularName(nodeDef, Taxon.getCode(taxon), vernacularNameUuid)(survey)
+  return Surveys.includesTaxonVernacularName({
+    survey,
+    nodeDef: nodeDef as NodeDefTaxon,
+    taxonCode: taxon.props.code,
+    vernacularNameUuid,
+  })
 }
 
 const typeValidatorFns: {
-  [key in NodeDefType]: (params: { survey?: Survey; node?: Node; value: any }) => FieldValidator
+  [key in NodeDefType]: (params: {
+    survey: Survey
+    nodeDef: NodeDef<NodeDefType, NodeDefProps>
+    node: Node
+    value: any
+  }) => boolean
 } = {
-  [nodeDefType.boolean]: (params: { value: any }) => ['true', 'false'].includes(params.value),
-
-  [nodeDefType.code]: (params: { survey: Survey; node: Node }) => {
-    const { survey, node } = params
-    return validateCode({ survey, node })
-  },
-
-  [nodeDefType.coordinate]: (params: { node }) => {
+  [NodeDefType.boolean]: (params: { value?: any }): boolean => ['true', 'false'].includes(params.value),
+  [NodeDefType.code]: validateCode,
+  [NodeDefType.coordinate]: (params: { node: Node }): boolean => {
     const { node } = params
     const nodeValue = node.value as NodeValueCoordinate
     const point = PointFactory.createInstance({
@@ -73,37 +67,51 @@ const typeValidatorFns: {
     return point && Points.isValid(point)
   },
 
-  [nodeDefType.date]: (params: { node: Node }) => {
+  [NodeDefType.date]: (params: { node: Node }): boolean => {
     const { node } = params
-    const [year, month, day] = [Node.getDateYear(node), Node.getDateMonth(node), Node.getDateDay(node)]
-    return DateTimeUtils.isValidDate(year, month, day)
+    const [year, month, day] = [
+      NodeValues.getDateYear(node),
+      NodeValues.getDateMonth(node),
+      NodeValues.getDateDay(node),
+    ]
+    return Dates.isValidDate(year, month, day)
   },
 
-  [nodeDefType.decimal]: (params: { nodeDef; value }) => validateDecimal({ nodeDef, value }),
+  [NodeDefType.decimal]: validateDecimal,
 
-  [nodeDefType.file]: () => true,
+  [NodeDefType.entity]: () => true,
 
-  [nodeDefType.integer]: (params: { value }) => NumberUtils.isInteger(value),
+  [NodeDefType.file]: () => true,
 
-  [nodeDefType.taxon]: (params: { survey; nodeDef; node }) => validateTaxon({ survey, nodeDef, node }),
+  [NodeDefType.integer]: (params: { value: any }): boolean => {
+    const { value } = params
+    return Numbers.isInteger(value)
+  },
 
-  [nodeDefType.text]: (params: { value }) => R.is(String, value),
+  [NodeDefType.taxon]: validateTaxon,
 
-  [nodeDefType.time]: (params: { node }) => {
-    const [hour, minute] = [Node.getTimeHour(node), Node.getTimeMinute(node)]
-    return DateTimeUtils.isValidTime(hour, minute)
+  [NodeDefType.text]: (params: { value: any }): boolean => {
+    const { value } = params
+    return typeof value === 'string' || value instanceof String
+  },
+
+  [NodeDefType.time]: (params: { node: Node }): boolean => {
+    const { node } = params
+    const [hour, minute] = [NodeValues.getTimeHour(node), NodeValues.getTimeMinute(node)]
+    return Dates.isValidTime(hour, minute)
   },
 }
 
 const validateValueType =
-  (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) => (_propName: string, node: Node) => {
+  (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
+  (_propName: string, node: Node): ValidationResult => {
     const { survey, nodeDef } = params
 
-    if (Nodes.isValueBlank(node)) return null
+    if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance({ valid: true })
 
     const typeValidatorFn = typeValidatorFns[nodeDef.type]
-    const valid = typeValidatorFn({ survey, nodeDef, node, value: Node.getValue(node) })
-    return valid ? null : { key: Validation.messageKeys.record.valueInvalid }
+    const valid = typeValidatorFn({ survey, nodeDef, node, value: node.value })
+    return ValidationResultFactory.createInstance({ key: 'record.node.valueInvalid', valid })
   }
 
 export const AttributeTypeValidator = {

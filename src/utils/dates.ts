@@ -43,8 +43,34 @@ export const convertDate = (params: {
   return format(dateAdjusted, formatTo)
 }
 
+/**
+ * Checks if the date is valid. Takes into account leap years
+ * (i.e. 2015/2/29 is not valid).
+ */
+export const isValidDate = (year: any, month: any, day: any): boolean => {
+  if (Objects.isEmpty(year) || Objects.isEmpty(month) || Objects.isEmpty(day)) {
+    return false
+  }
+
+  const date = new Date(year, month - 1, day)
+
+  return (
+    Boolean(fnsIsValid(date)) &&
+    date.getFullYear() === Number(year) &&
+    date.getMonth() + 1 === Number(month) &&
+    date.getDate() === Number(day)
+  )
+}
+
+export const isValidTime = (hour: any = '', minutes: any = '') =>
+  Objects.isEmpty(hour) || Objects.isEmpty(minutes)
+    ? false
+    : Number(hour) >= 0 && Number(hour) < 24 && Number(minutes) >= 0 && Number(minutes) < 60
+
 export const Dates = {
   isValidDateInFormat,
+  isValidDate,
+  isValidTime,
   nowFormattedForStorage,
   convertDate,
 }

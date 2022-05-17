@@ -2,13 +2,22 @@ import * as R from 'ramda'
 
 import { NodeDef, NodeDefType, NodeDefProps, NodeDefs } from '../../nodeDef'
 
-import * as Survey from '@core/survey/survey'
+import { Survey, Surveys } from '../../survey'
 
-import * as Validation from '@core/validation/validation'
-import * as ObjectUtils from '@core/objectUtils'
+import {
+  Validation,
+  ValidationResult,
+  ValidationFactory,
+  ValidationResult,
+  ValidationResultFactory,
+  Validator,
+} from '../../validation'
+
 import { Record } from '../record'
 import { Records } from '../records'
 import * as Node from '../node'
+
+import { Numbers, Dates, Objects } from '../../utils'
 
 const _isEntityDuplicate = (params: {
   survey: Survey
@@ -19,8 +28,8 @@ const _isEntityDuplicate = (params: {
   // 1. get sibling entities
   const nodeParent = Records.getParent({ record, node: entity })
   const siblingEntities = R.pipe(
-    Record.getNodeChildrenByDefUuid(nodeParent, Node.getNodeDefUuid(entity)),
-    R.reject(ObjectUtils.isEqual(entity))
+    Records.getNodeChildrenByDefUuid(nodeParent, Node.getNodeDefUuid(entity)),
+    R.reject(Objects.isEqual(entity))
   )(record)
 
   // 2. get key values
@@ -29,7 +38,7 @@ const _isEntityDuplicate = (params: {
   return R.isEmpty(siblingEntities) || R.isEmpty(keyValues)
     ? false
     : R.any(
-        (siblingEntity) => R.equals(keyValues, Record.getEntityKeyValues(survey, siblingEntity)(record)),
+        (siblingEntity) => R.equals(keyValues, Records.getEntityKeyValues(survey, siblingEntity)(record)),
         siblingEntities
       )
 }
@@ -38,7 +47,7 @@ const validateAttributeKey =
   (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
   (_propName: string, node: Node) => {
     const { survey, nodeDef, record } = params
-    const nodeDefParent = Survey.getNodeDefParent(nodeDef)(survey)
+    const nodeDefParent = Surveys.getNodeDefParent({ survey, nodeDef })
     if (!NodeDefs.isRoot(nodeDefParent) && NodeDefs.isKey(nodeDef)) {
       const entity = Records.getParent({ record, node })
       if (entity && _isEntityDuplicate({ survey, record, entity })) {

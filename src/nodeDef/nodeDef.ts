@@ -39,8 +39,9 @@ export interface NodeDefPropsWithLayout<L> extends NodeDefProps {
 export interface NodeDefExpression {
   applyIf?: string
   expression?: string
-  uuid: string
+  messages?: Labels
   severity?: ValidationSeverity
+  uuid: string
 }
 
 export interface NodeDefExpressionFactoryParams {
