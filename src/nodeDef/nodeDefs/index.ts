@@ -20,6 +20,8 @@ const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => no
 const getValidations = (nodeDef: NodeDef<NodeDefType>): NodeDefValidations | undefined =>
   nodeDef.propsAdvanced?.validations
 
+const isRequired = (nodeDef: NodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required || false
+
 export const NodeDefs = {
   isEntity,
   isSingleEntity,
@@ -29,5 +31,7 @@ export const NodeDefs = {
   getType,
   getDefaultValues,
   getApplicable,
+  // validations
   getValidations,
+  isRequired,
 }

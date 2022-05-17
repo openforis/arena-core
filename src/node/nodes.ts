@@ -23,6 +23,8 @@ const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
 
 const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueApplied || false
 
+const isValueBlank = (node: Node): boolean => Objects.isEmpty(node.value)
+
 export const Nodes = {
   isRoot,
   areEqual,
@@ -31,4 +33,5 @@ export const Nodes = {
   mergeNodes,
   getHierarchy,
   isDefaultValueApplied,
+  isValueBlank,
 }
