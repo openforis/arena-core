@@ -18,4 +18,5 @@ export const Numbers = {
   between,
   isFloat,
   isInteger,
+  toNumber,
 }

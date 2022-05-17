@@ -37,7 +37,7 @@ export const validateAttributeUnique =
       return null
     }
     if (_isAttributeDuplicate({ record, attribute: node, nodeDef })) {
-      return { key: Validation.messageKeys.record.uniqueAttributeDuplicate }
+      return { key: 'record.uniqueAttributeDuplicate '}
     }
 
     return null

@@ -107,7 +107,7 @@ const validateValueType =
   (_propName: string, node: Node): ValidationResult => {
     const { survey, nodeDef } = params
 
-    if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance({ valid: true })
+    if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const typeValidatorFn = typeValidatorFns[nodeDef.type]
     const valid = typeValidatorFn({ survey, nodeDef, node, value: node.value })

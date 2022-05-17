@@ -58,8 +58,6 @@ const _validateRequired =
     return ValidationResultFactory.createInstance({ key: 'record.valueRequired', valid })
   }
 
-const validValidationResult = ValidationResultFactory.createInstance({ valid: true })
-
 /**
  * Evaluates the validation expressions.
  * Returns 'null' if all are valid, a concatenated error message otherwise.
@@ -68,10 +66,10 @@ const _validateNodeValidations =
   (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
   (_propName: string, node: Node): ValidationResult => {
     const { survey, record, nodeDef } = params
-    if (Nodes.isValueBlank(node)) return validValidationResult
+    if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const validations = NodeDefs.getValidations(nodeDef)
-    if (!validations?.expressions?.length) return validValidationResult
+    if (!validations?.expressions?.length) return ValidationResultFactory.createInstance()
 
     const applicableExpressionsEval = new RecordExpressionEvaluator().evalApplicableExpressions({
       survey,
@@ -80,7 +78,7 @@ const _validateNodeValidations =
       expressions: validations.expressions,
     })
 
-    let validationResult = validValidationResult
+    let validationResult = ValidationResultFactory.createInstance()
 
     for (const { expression, value: valid } of applicableExpressionsEval) {
       if (!valid) {

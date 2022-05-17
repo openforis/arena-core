@@ -6,7 +6,7 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
   validate(expression: string, context: NodeDefExpressionContext): ValidationResult {
     try {
       this.evaluate(expression, context)
-      return ValidationResultFactory.createInstance({ valid: true })
+      return ValidationResultFactory.createInstance()
     } catch (error: any) {
       const details = error.description || error.toString()
       return ValidationResultFactory.createInstance({

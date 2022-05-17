@@ -312,6 +312,13 @@ const getCategoryItemUuid = (params: {
   return item?.uuid
 }
 
+export const prefixValidationFieldChildrenCount = 'childrenCount_'
+
+const getValidationChildrenCountKey = (params: { nodeParentUuid: string; nodeDefChildUuid: string }): string => {
+  const { nodeParentUuid, nodeDefChildUuid } = params
+  return `${prefixValidationFieldChildrenCount}${nodeParentUuid}_${nodeDefChildUuid}`
+}
+
 export const Records = {
   getRoot,
   getNodesArray,
@@ -330,4 +337,5 @@ export const Records = {
   visitDescendantsAndSelf,
   getDependentNodePointers,
   getCategoryItemUuid,
+  getValidationChildrenCountKey,
 }

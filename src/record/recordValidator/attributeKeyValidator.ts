@@ -51,7 +51,7 @@ const validateAttributeKey =
     if (!NodeDefs.isRoot(nodeDefParent) && NodeDefs.isKey(nodeDef)) {
       const entity = Records.getParent({ record, node })
       if (entity && _isEntityDuplicate({ survey, record, entity })) {
-        return { key: Validation.messageKeys.record.entityKeyDuplicate }
+        return { key: 'record.entityKeyDuplicate' }
       }
     }
 
