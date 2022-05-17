@@ -8,6 +8,8 @@ import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { NodePointer } from '../recordNodesUpdater/nodePointer'
 import { Records } from '../records'
+import { AttributeTypeValidator } from './attributeTypeValidator'
+import { AttributeKeyValidator } from './attributeKeyValidator'
 
 const _nodePointersToNodes = (nodePointers: NodePointer[]): Node[] =>
   nodePointers.map((nodePointer) => nodePointer.nodeCtx)
@@ -82,9 +84,9 @@ const validateAttribute = async (params: { survey: Survey; record: Record; attri
       {
         ['value']: [
           _validateRequired({ nodeDef }),
-          AttributeTypeValidator.validateValueType(survey, nodeDef),
+          AttributeTypeValidator.validateValueType({ survey, nodeDef }),
           _validateNodeValidations({ survey, record, nodeDef }),
-          AttributeKeyValidator.validateAttributeKey(survey, record, nodeDef),
+          AttributeKeyValidator.validateAttributeKey({ survey, record, nodeDef }),
           AttributeUniqueValidator.validateAttributeUnique(survey, record, nodeDef),
         ],
       },
