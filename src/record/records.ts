@@ -291,6 +291,32 @@ const getCategoryItemUuid = (params: {
   return item?.uuid
 }
 
+// ===== Unique
+
+export const getAttributesUniqueSibling = (params: {
+  record: Record
+  attribute: Node
+  attributeDef: NodeDef<NodeDefType, NodeDefCodeProps>
+}) => {
+  const { record, attribute, attributeDef } = params
+  const parentEntity = getParent({ record, node: attribute })
+  const ancestorEntity = getParent({ record, node: parentEntity })
+
+  const siblingParentEntities = getChildren({
+    record,
+    parentNode: ancestorEntity,
+    childDefUuid: attributeDef.parentUuid,
+  })
+
+  return siblingParentEntities.reduce(
+    (siblingsAcc, siblingEntity) => [
+      ...siblingsAcc,
+      ...getNodeChildrenByDefUuid({ parentNode: siblingEntity, childDefUuid: attributeDef.uuid, record }),
+    ],
+    []
+  )
+}
+
 export const Records = {
   getRoot,
   getNodesArray,
@@ -308,4 +334,5 @@ export const Records = {
   visitDescendantsAndSelf,
   getDependentNodePointers,
   getCategoryItemUuid,
+  getAttributesUniqueSibling,
 }
