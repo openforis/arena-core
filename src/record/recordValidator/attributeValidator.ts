@@ -7,12 +7,16 @@ import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { NodePointer } from '../recordNodesUpdater/nodePointer'
 import { Records } from '../records'
-import { AttributeTypeValidator } from './attributeTypeValidator'
 import { Labels } from '../../language'
 import { Objects, Promises } from '../../utils'
+import { AttributeTypeValidator } from './attributeTypeValidator'
 
-const _nodePointersToNodes = (nodePointers: NodePointer[]): Node[] =>
-  nodePointers.map((nodePointer) => nodePointer.nodeCtx)
+const _nodePointersToNodes = (params: { record: Record; nodePointers: NodePointer[] }): Node[] => {
+  const { record, nodePointers } = params
+  return nodePointers.flatMap((nodePointer) =>
+    Records.getChildren({ record, parentNode: nodePointer.nodeCtx, childDefUuid: nodePointer.nodeDef.uuid })
+  )
+}
 
 const _getSiblingNodeKeys = (params: { survey: Survey; record: Record; node: Node }) => {
   const { survey, record, node } = params
@@ -143,7 +147,7 @@ const validateSelfAndDependentAttributes = async (params: {
       const nodeParent = Records.getParent({ record, node })
 
       const nodesToValidate = [
-        ..._nodePointersToNodes(nodePointersAttributeAndDependents),
+        ..._nodePointersToNodes({ record, nodePointers: nodePointersAttributeAndDependents }),
         ...(NodeDefs.isKey(nodeDef) && nodeParent ? _getSiblingNodeKeys({ survey, record, node: nodeParent }) : []),
         ...(NodeDefs.getValidations(nodeDef)?.unique ? Records.getNodeSiblings({ record, node, nodeDef }) : []),
       ]
@@ -151,7 +155,7 @@ const validateSelfAndDependentAttributes = async (params: {
       // Call validateAttribute for each attribute
 
       await Promises.each<Node>(nodesToValidate, async (nodeToValidate) => {
-        const nodeUuid = node.uuid
+        const nodeUuid = nodeToValidate.uuid
 
         // Validate only attributes not deleted and not validated already
         if (!nodeToValidate.deleted && !validationsByNodeUuid[nodeUuid]) {

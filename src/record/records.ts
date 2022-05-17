@@ -123,11 +123,26 @@ const getAncestorsAndSelf = (params: { record: Record; node: Node }): Array<Node
 const getDescendant = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node => {
   const { record, node, nodeDefDescendant } = params
   // starting from node, visit descendant entities up to referenced node parent entity
-  const nodeDescendantH = nodeDefDescendant.meta.h
-  const descendant = nodeDescendantH
-    .slice(nodeDescendantH.indexOf(node.nodeDefUuid) + 1)
+  const nodeDefDescendantH = nodeDefDescendant.meta.h
+  const descendant = nodeDefDescendantH
+    .slice(nodeDefDescendantH.indexOf(node.nodeDefUuid) + 1)
     .reduce((parentNode, childDefUuid) => getChild({ record, parentNode, childDefUuid }), node)
   return descendant
+}
+
+const getDescendants = (params: { record: Record; ancestor: Node; nodeDefDescendant: NodeDef<any> }): Node[] => {
+  const { record, ancestor, nodeDefDescendant } = params
+  const nodeDefDescendantH = nodeDefDescendant.meta.h
+  const descendantNodeDefUuids = nodeDefDescendantH.slice(nodeDefDescendantH.indexOf(ancestor.nodeDefUuid) + 1)
+  let currentAncestors = [ancestor]
+  const nextAncestors: Node[] = []
+  descendantNodeDefUuids.forEach((descendantDefUuid) => {
+    currentAncestors.forEach((currentAncestor) => {
+      nextAncestors.push(...getChildren({ record, parentNode: currentAncestor, childDefUuid: descendantDefUuid }))
+    })
+    currentAncestors = nextAncestors
+  })
+  return currentAncestors
 }
 
 const isNodeDescendantOf = (params: { node: Node; ancestor: Node }): boolean => {
@@ -236,9 +251,10 @@ const getDependentNodePointers = (params: {
           isNodeDescendantOf({ node: nodeDependent, ancestor: commonParentNode }) ||
           (isDependencyApplicable && nodeDependent.uuid === commonParentNode.uuid)
         ) {
+          const parentNode = getParent({ record, node: nodeDependent }) || commonParentNode
           const nodePointer = {
+            nodeCtx: parentNode,
             nodeDef: dependentDef,
-            nodeCtx: nodeDependent,
           }
           if (filterFn === null || filterFn(nodePointer)) {
             nodePointers.push(nodePointer)
