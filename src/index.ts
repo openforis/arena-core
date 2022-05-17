@@ -115,6 +115,7 @@ export {
   RecordExpressionEvaluator,
   RecordNodesUpdater,
   RecordUpdateResult,
+  RecordValidator,
 } from './record'
 export type { Record, RecordService } from './record'
 

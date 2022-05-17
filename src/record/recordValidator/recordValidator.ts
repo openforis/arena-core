@@ -1,12 +1,12 @@
-import { Validation, ValidationFactory, ValidationResult, ValidationResultFactory, Validator } from '../../validation'
-
 import { Survey } from '../../survey'
+import { Node } from '../../node'
+import { ValidationFactory } from '../../validation'
 import { Record } from '../record'
 import { AttributeValidator } from './attributeValidator'
 import { CountValidator } from './countVaildator'
-import { Node } from '../../node'
+import { Validations } from '../../validation/validations'
 
-export const validateNodes = async (params: { survey: Survey; record: Record; nodes: { [key: string]: Node } }) => {
+const validateNodes = async (params: { survey: Survey; record: Record; nodes: { [key: string]: Node } }) => {
   const { survey, record, nodes } = params
 
   const attributeValidations = await AttributeValidator.validateSelfAndDependentAttributes({ survey, record, nodes })
@@ -15,7 +15,7 @@ export const validateNodes = async (params: { survey: Survey; record: Record; no
   const nodeCountValidations = CountValidator.validateChildrenCountNodes({ survey, record, nodes })
 
   // 3. merge validations
-  return Validation.recalculateValidity(
+  return Validations.recalculateValidity(
     ValidationFactory.createInstance({
       valid: true,
       fields: {
@@ -25,3 +25,5 @@ export const validateNodes = async (params: { survey: Survey; record: Record; no
     })
   )
 }
+
+export default await validateNodes
