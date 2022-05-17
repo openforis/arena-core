@@ -2,7 +2,6 @@ import { Node, Nodes } from '../../node'
 import { NodeDef, NodeDefType, NodeDefProps, NodeDefs, NodeDefExpression } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
-import { Promises } from '../../utils/promises'
 import { Validation, ValidationFactory, ValidationResult, ValidationResultFactory, Validator } from '../../validation'
 import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
@@ -10,7 +9,7 @@ import { NodePointer } from '../recordNodesUpdater/nodePointer'
 import { Records } from '../records'
 import { AttributeTypeValidator } from './attributeTypeValidator'
 import { Labels } from '../../language'
-import { Objects } from '../../utils'
+import { Objects, Promises } from '../../utils'
 
 const _nodePointersToNodes = (nodePointers: NodePointer[]): Node[] =>
   nodePointers.map((nodePointer) => nodePointer.nodeCtx)
@@ -41,8 +40,7 @@ const _getValidationMessagesWithDefault = (params: {
 
   for (const lang of languages) {
     const customMessage = messages[lang]
-    if (Objects.isEmpty(customMessage) && Objects.isEmpty(defaultMessage)) {
-      // When custom message is blank, use the expression itself
+    if (Objects.isEmpty(customMessage) && !Objects.isEmpty(defaultMessage)) {
       messages[lang] = defaultMessage
     }
   }
@@ -89,6 +87,7 @@ const _validateNodeValidations =
         })
 
         validationResult = ValidationResultFactory.createInstance({
+          valid: false,
           key: 'record.attribute.customValidation',
           severity: expression.severity,
           customMessages,

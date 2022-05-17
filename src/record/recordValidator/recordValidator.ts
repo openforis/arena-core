@@ -6,7 +6,7 @@ import { AttributeValidator } from './attributeValidator'
 import { CountValidator } from './countVaildator'
 import { Validations } from '../../validation/validations'
 
-const validateNodes = async (params: { survey: Survey; record: Record; nodes: { [key: string]: Node } }) => {
+export const validateNodes = async (params: { survey: Survey; record: Record; nodes: { [key: string]: Node } }) => {
   const { survey, record, nodes } = params
 
   const attributeValidations = await AttributeValidator.validateSelfAndDependentAttributes({ survey, record, nodes })
@@ -25,5 +25,3 @@ const validateNodes = async (params: { survey: Survey; record: Record; nodes: { 
     })
   )
 }
-
-export default await validateNodes
