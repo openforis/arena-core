@@ -253,12 +253,15 @@ const getDependentNodePointers = (params: {
     })
   }
   if (includeSelf) {
-    const nodePointerSelf = {
-      nodeDef,
-      nodeCtx: node,
-    }
-    if (filterFn === null || filterFn(nodePointerSelf)) {
-      nodePointers.push(nodePointerSelf)
+    const parentNode = Records.getParent({ record, node })
+    if (parentNode) {
+      const nodePointerSelf: NodePointer = {
+        nodeCtx: parentNode,
+        nodeDef,
+      }
+      if (filterFn === null || filterFn(nodePointerSelf)) {
+        nodePointers.push(nodePointerSelf)
+      }
     }
   }
 

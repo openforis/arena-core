@@ -111,7 +111,7 @@ const validateValueType =
 
     const typeValidatorFn = typeValidatorFns[nodeDef.type]
     const valid = typeValidatorFn({ survey, nodeDef, node, value: node.value })
-    return ValidationResultFactory.createInstance({ key: 'record.node.valueInvalid', valid })
+    return ValidationResultFactory.createInstance({ key: 'record.attribute.valueInvalid', valid })
   }
 
 export const AttributeTypeValidator = {
