@@ -1,16 +1,11 @@
-/*import * as R from 'ramda'
-
 import { Record } from '../record'
 import { Records } from '../records'
-import { NodeDef, NodeDefType, NodeDefProps, NodeDefs } from '../../nodeDef'
+import { NodeDef, NodeDefs, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { Node, Nodes } from '../../node'
 
-import { Survey } from '../../survey'
-import { Surveys } from '../../surveys'
+import { Survey, Surveys } from '../../survey'
 
-import * as NodeDefValidations from '@core/survey/nodeDefValidations'
-import { Validation, ValidationFactory, ValidationResult, ValidationResultFactory, Validator } from '../../validation'
-
-import { Node } from '../node'
+import { Objects } from '../../utils'
 
 const _isAttributeDuplicate = (params: {
   record: Record
@@ -21,7 +16,7 @@ const _isAttributeDuplicate = (params: {
   const nodeSiblings = Records.getNodeSiblings({ record, node: attribute, nodeDef })
 
   return nodeSiblings.some(
-    (sibling) => !Node.isEqual(attribute)(sibling) && R.equals(Node.getValue(sibling), Node.getValue(attribute))
+    (sibling) => !Nodes.areEqual(attribute, sibling) && Objects.isEqual(sibling.value, attribute.value)
   )
 }
 
@@ -29,15 +24,15 @@ export const validateAttributeUnique =
   (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
   (_propName: string, node: Node) => {
     const { survey, record, nodeDef } = params
-    const nodeDefParent = Surveys.getNodeDefParent(nodeDef)(survey)
+    const nodeDefParent = Surveys.getNodeDefParent({ survey, nodeDef })
     const nodeDefValidations = NodeDefs.getValidations(nodeDef)
 
     // uniqueness at record level evaluated elsewhere
-    if (!NodeDefValidations.isUnique(nodeDefValidations) || NodeDefs.isRoot(nodeDefParent)) {
+    if (!nodeDefValidations?.unique || NodeDefs.isRoot(nodeDefParent)) {
       return null
     }
     if (_isAttributeDuplicate({ record, attribute: node, nodeDef })) {
-      return { key: 'record.uniqueAttributeDuplicate '}
+      return { key: 'record.uniqueAttributeDuplicate ' }
     }
 
     return null
@@ -46,4 +41,3 @@ export const validateAttributeUnique =
 export const AttributeUniqueValidator = {
   validateAttributeUnique,
 }
-*/

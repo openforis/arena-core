@@ -10,6 +10,7 @@ import { Records } from '../records'
 import { Labels } from '../../language'
 import { Objects, Promises } from '../../utils'
 import { AttributeTypeValidator } from './attributeTypeValidator'
+import { AttributeUniqueValidator } from './AttributeUniqueValidator'
 
 const _nodePointersToNodes = (params: { record: Record; nodePointers: NodePointer[] }): Node[] => {
   const { record, nodePointers } = params
@@ -113,7 +114,7 @@ const validateAttribute = async (params: { survey: Survey; record: Record; attri
         AttributeTypeValidator.validateValueType({ survey, nodeDef }),
         _validateNodeValidations({ survey, record, nodeDef }),
         // AttributeKeyValidator.validateAttributeKey({ survey, record, nodeDef }),
-        // AttributeUniqueValidator.validateAttributeUnique(survey, record, nodeDef),
+        AttributeUniqueValidator.validateAttributeUnique({ survey, record, nodeDef }),
       ],
     })
   }
