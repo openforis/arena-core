@@ -1,6 +1,6 @@
 export type { Node } from './node'
 
-export type { NodeValueCode, NodeValueTaxon } from './nodeValue'
+export type { NodeValueCode, NodeValueCoordinate, NodeValueTaxon } from './nodeValue'
 
 export { NodeFactory } from './factory'
 

@@ -34,8 +34,8 @@ export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
 
 type ValidationResultFactoryParams = {
   customMessages?: Labels
-  messageKey?: string
-  messageParams?: { [key: string]: any }
+  key?: string
+  params?: { [key: string]: any }
   severity?: ValidationSeverity
   valid?: boolean
 }
@@ -46,11 +46,11 @@ export const ValidationResultFactory: Factory<ValidationResult, ValidationResult
       valid: true,
     }
 
-    const { severity, messageKey, messageParams, customMessages, valid } = { ...defaultParams, ...params }
+    const { severity, key, params: _params, customMessages, valid } = { ...defaultParams, ...params }
     return {
       severity,
-      messageKey,
-      messageParams,
+      key,
+      params: _params,
       customMessages,
       valid,
     }

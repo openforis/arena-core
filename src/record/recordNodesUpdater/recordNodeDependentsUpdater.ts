@@ -79,7 +79,7 @@ export const updateSelfAndDependentsApplicable = (params: {
       expressions: expressionsToEvaluate,
     })
 
-    const applicable = exprEval.value || false
+    const applicable = exprEval?.value || false
 
     // 4. persist updated node value if changed, and return updated node
     const nodeDefUuid = nodeDefNodePointer.uuid
