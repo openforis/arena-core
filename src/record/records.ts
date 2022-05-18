@@ -187,6 +187,11 @@ const getEntityKeyNodes = (params: { survey: Survey; record: Record; entity: Nod
   return nodeDefKeys.map((nodeDefKey) => getChild({ record, parentNode: entity, childDefUuid: nodeDefKey.uuid }))
 }
 
+const getEntityKeyValues = (params: { survey: Survey; record: Record; entity: Node }): Node[] => {
+  const { survey, record, entity } = params
+  return getEntityKeyNodes({ survey, record, entity }).map((node) => node.value)
+}
+
 const getNodeSiblings = (params: { record: Record; node: Node; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) => {
   const { record, node, nodeDef } = params
   const parentEntity = getParent({ record, node })
@@ -328,6 +333,7 @@ export const Records = {
   getAncestor,
   getNodeByUuid,
   getEntityKeyNodes,
+  getEntityKeyValues,
   getNodeSiblings,
   isNodeApplicable,
   visitAncestorsAndSelf,
