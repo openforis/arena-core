@@ -10,8 +10,8 @@ import { Records } from '../records'
 import { Labels } from '../../language'
 import { Objects, Promises } from '../../utils'
 import { AttributeTypeValidator } from './attributeTypeValidator'
-import { AttributeUniqueValidator } from './AttributeUniqueValidator'
-import { AttributeKeyValidator } from './AttributeKeyValidator'
+import { AttributeUniqueValidator } from './attributeUniqueValidator'
+import { AttributeKeyValidator } from './attributeKeyValidator'
 
 const _nodePointersToNodes = (params: { record: Record; nodePointers: NodePointer[] }): Node[] => {
   const { record, nodePointers } = params

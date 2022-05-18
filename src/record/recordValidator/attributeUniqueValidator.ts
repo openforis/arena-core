@@ -2,7 +2,7 @@ import { Record } from '../record'
 import { Records } from '../records'
 import { NodeDef, NodeDefs, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Node, Nodes } from '../../node'
-import { ValidationResult, ValidationResultFactory } from '../../validation'
+import { ValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { Survey, Surveys } from '../../survey'
 
 import { Objects } from '../../utils'
@@ -11,7 +11,7 @@ const _isAttributeDuplicate = (params: {
   record: Record
   attribute: Node
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
-}) => {
+}): boolean => {
   const { attribute, record, nodeDef } = params
   const nodeSiblings = Records.getNodeSiblings({ record, node: attribute, nodeDef })
 
@@ -20,20 +20,28 @@ const _isAttributeDuplicate = (params: {
   )
 }
 
+const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps> }): boolean => {
+  const { survey, nodeDef } = params
+  const nodeDefValidations = NodeDefs.getValidations(nodeDef)
+  if (!nodeDefValidations?.unique) return false
+
+  const nodeDefParent = Surveys.getNodeDefParent({ survey, nodeDef })
+  if (!nodeDefParent || NodeDefs.isRoot(nodeDefParent)) {
+    // uniqueness at record level evaluated elsewhere
+    return false
+  }
+  return true
+}
+
 export const validateAttributeUnique =
   (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
   (_propName: string, node: Node): ValidationResult => {
     const { survey, record, nodeDef } = params
-    const nodeDefParent = Surveys.getNodeDefParent({ survey, nodeDef })
-    const nodeDefValidations = NodeDefs.getValidations(nodeDef)
 
-    // uniqueness at record level evaluated elsewhere
-    if (!nodeDefValidations?.unique || NodeDefs.isRoot(nodeDefParent)) {
-      return ValidationResultFactory.createInstance()
-    }
-    if (_isAttributeDuplicate({ record, attribute: node, nodeDef })) {
+    if (isNodeDefToBeValidated({ survey, nodeDef }) && _isAttributeDuplicate({ record, attribute: node, nodeDef })) {
       return ValidationResultFactory.createInstance({
         valid: false,
+        severity: ValidationSeverity.error,
         key: 'record.attribute.uniqueDuplicate',
       })
     }

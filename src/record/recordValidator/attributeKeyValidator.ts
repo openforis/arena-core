@@ -2,15 +2,17 @@ import { Record } from '../record'
 import { Records } from '../records'
 import { NodeDef, NodeDefs, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Node, Nodes } from '../../node'
-import { ValidationResult, ValidationResultFactory } from '../../validation'
+import { ValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { Survey, Surveys } from '../../survey'
 
 import { Objects } from '../../utils'
 
-const _isEntityDuplicate = (params: { survey: Survey; record: Record; entity: Node }) => {
+const _isEntityDuplicate = (params: { survey: Survey; record: Record; entity: Node }): boolean => {
   const { survey, entity, record } = params
   // 1. get sibling entities
   const nodeParent = Records.getParent({ record, node: entity })
+  if (!nodeParent) return false
+
   const siblingEntities = Records.getChildren({
     record,
     parentNode: nodeParent,
@@ -27,16 +29,28 @@ const _isEntityDuplicate = (params: { survey: Survey; record: Record; entity: No
       )
 }
 
+const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps> }): boolean => {
+  const { survey, nodeDef } = params
+  if (!NodeDefs.isKey(nodeDef)) return false
+
+  const nodeDefParent = Surveys.getNodeDefParent({ survey, nodeDef })
+  if (!nodeDefParent || NodeDefs.isRoot(nodeDefParent)) {
+    return false // root entity key attributes will be validated by another validator
+  }
+  return true
+}
+
 const validateAttributeKey =
   (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
   (_propName: string, node: Node): ValidationResult => {
     const { survey, nodeDef, record } = params
-    const nodeDefParent = Surveys.getNodeDefParent({ survey, nodeDef })
-    if (!NodeDefs.isRoot(nodeDefParent) && NodeDefs.isKey(nodeDef)) {
+
+    if (isNodeDefToBeValidated({ survey, nodeDef })) {
       const entity = Records.getParent({ record, node })
       if (entity && _isEntityDuplicate({ survey, record, entity })) {
         return ValidationResultFactory.createInstance({
           valid: false,
+          severity: ValidationSeverity.error,
           key: 'record.entity.keyDuplicate',
         })
       }
