@@ -2,7 +2,14 @@ import { Node, Nodes } from '../../node'
 import { NodeDef, NodeDefType, NodeDefProps, NodeDefs, NodeDefExpression } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
-import { Validation, ValidationFactory, ValidationResult, ValidationResultFactory, Validator } from '../../validation'
+import {
+  Validation,
+  ValidationFactory,
+  ValidationResult,
+  ValidationResultFactory,
+  ValidationSeverity,
+  Validator,
+} from '../../validation'
 import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { NodePointer } from '../recordNodesUpdater/nodePointer'
@@ -59,7 +66,13 @@ const _validateRequired =
   (_field: string, node: any): ValidationResult => {
     const { nodeDef } = params
     const valid = (!NodeDefs.isKey(nodeDef) && !NodeDefs.isRequired(nodeDef)) || !Nodes.isValueBlank(node)
-    return ValidationResultFactory.createInstance({ key: 'record.valueRequired', valid })
+    return valid
+      ? ValidationResultFactory.createInstance()
+      : ValidationResultFactory.createInstance({
+          key: 'record.valueRequired',
+          severity: ValidationSeverity.error,
+          valid,
+        })
   }
 
 /**

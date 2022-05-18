@@ -1,7 +1,7 @@
 import { Node, Nodes } from '../../node'
 import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Records } from '../records'
-import { Validation, ValidationFactory, ValidationResultFactory } from '../../validation'
+import { Validation, ValidationFactory, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { Record } from '../record'
 import { Numbers } from '../../utils'
 import { Survey, Surveys } from '../../survey'
@@ -22,6 +22,7 @@ const _createValidationResult = (params: {
         ValidationResultFactory.createInstance({
           key: 'record.nodes.countInvalid',
           params: { nodeDefUuid, count: minCount },
+          severity: ValidationSeverity.error,
         }),
       ],
     })
@@ -32,6 +33,7 @@ const _createValidationResult = (params: {
       ValidationResultFactory.createInstance({
         key: isMinCountValidation ? 'record.nodes.minCountNotReached' : 'record.nodes.maxCountExceeded',
         params: { nodeDefUuid, ...(isMinCountValidation ? { minCount } : { maxCount }) },
+        severity: ValidationSeverity.error,
       }),
     ],
   })
