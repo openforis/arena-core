@@ -8,6 +8,7 @@ import { RecordExpressionContext } from './context'
 import { Records } from '../records'
 import { createTestRecord, createTestSurvey } from '../../tests/data'
 import { SystemError } from '../../error'
+import { TestUtils } from '../../tests/testUtils'
 
 type Query = {
   expression: string
@@ -19,24 +20,7 @@ type Query = {
 let survey: Survey
 let record: Record
 
-const getNode = (path: string): Node => {
-  let currentNode = Records.getRoot(record)
-  path.split('.').forEach((pathPart, index) => {
-    const partMatch = /(\w+)(\[(\d+)\])?/.exec(pathPart)
-    if (!partMatch) throw new Error(`invalid syntax for path part: ${pathPart}`)
-
-    const childName = partMatch[1]
-    const childDef = Surveys.getNodeDefByName({ survey, name: childName })
-    if (index === 0 && !childDef.parentUuid) {
-      // skip root
-    } else {
-      const childIndex = Number(partMatch[3] || 0)
-      const children = Records.getChildren({ record, parentNode: currentNode, childDefUuid: childDef.uuid })
-      currentNode = children[childIndex]
-    }
-  })
-  return currentNode
-}
+const getNode = (path: string): Node => TestUtils.getNodeByPath({ survey, record, path })
 
 describe('RecordExpressionEvaluator', () => {
   beforeAll(async () => {

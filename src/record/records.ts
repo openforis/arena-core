@@ -10,11 +10,6 @@ import { NodeValues } from '../node/nodeValues'
 
 const getNodesArray = (record: Record): Node[] => Object.values(record.nodes || {})
 
-const getNodesByDefUuid = (params: { record: Record; nodeDefUuid: string }) => {
-  const { record, nodeDefUuid } = params
-  return getNodesArray(record).filter((node) => node.nodeDefUuid === nodeDefUuid)
-}
-
 const getRoot = (record: Record): Node => {
   const root = getNodesArray(record).find((node) => !node.parentUuid)
   if (!root) throw new Error('Record root not found')
@@ -120,32 +115,36 @@ const getAncestorsAndSelf = (params: { record: Record; node: Node }): Array<Node
 
 // descendants
 
+const getDescendantsOrSelf = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node[] => {
+  const { record, node, nodeDefDescendant } = params
+
+  if (nodeDefDescendant.uuid === node.nodeDefUuid) return [node]
+
+  const nodeDefDescendantH = nodeDefDescendant.meta.h
+  // 1. get the descendant node defs uuids up to the specified nodeDefDescendant
+  const descendantNodeDefUuids = nodeDefDescendantH.slice(nodeDefDescendantH.indexOf(node.nodeDefUuid) + 1)
+  // 2. for every level in the hierarchy, find the children having the nodeDefUuid equal to the current one
+  let currentAncestors = [node]
+  let currentDescendants: Node[] = []
+  descendantNodeDefUuids.forEach((currentDescendantDefUuid) => {
+    currentAncestors.forEach((currentAncestor) => {
+      currentDescendants.push(
+        ...getChildren({ record, parentNode: currentAncestor, childDefUuid: currentDescendantDefUuid })
+      )
+    })
+    currentAncestors = currentDescendants
+    currentDescendants = []
+  })
+  return currentAncestors // currentAncestors is equal to the currentDescendants of the last level
+}
+
 const getDescendant = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node => {
   const { record, node, nodeDefDescendant } = params
-  // starting from node, visit descendant entities up to referenced node parent entity
-  const nodeDefDescendantH = nodeDefDescendant.meta.h
-  const descendant = nodeDefDescendantH
-    .slice(nodeDefDescendantH.indexOf(node.nodeDefUuid) + 1)
-    .reduce((parentNode, childDefUuid) => getChild({ record, parentNode, childDefUuid }), node)
-  return descendant
+
+  return getDescendantsOrSelf({ record, node, nodeDefDescendant })[0]
 }
 
-const getDescendants = (params: { record: Record; ancestor: Node; nodeDefDescendant: NodeDef<any> }): Node[] => {
-  const { record, ancestor, nodeDefDescendant } = params
-  const nodeDefDescendantH = nodeDefDescendant.meta.h
-  const descendantNodeDefUuids = nodeDefDescendantH.slice(nodeDefDescendantH.indexOf(ancestor.nodeDefUuid) + 1)
-  let currentAncestors = [ancestor]
-  const nextAncestors: Node[] = []
-  descendantNodeDefUuids.forEach((descendantDefUuid) => {
-    currentAncestors.forEach((currentAncestor) => {
-      nextAncestors.push(...getChildren({ record, parentNode: currentAncestor, childDefUuid: descendantDefUuid }))
-    })
-    currentAncestors = nextAncestors
-  })
-  return currentAncestors
-}
-
-const isNodeDescendantOf = (params: { node: Node; ancestor: Node }): boolean => {
+const isDescendantOf = (params: { node: Node; ancestor: Node }): boolean => {
   const { node, ancestor } = params
   return Nodes.getHierarchy(node).includes(ancestor.uuid)
 }
@@ -209,17 +208,6 @@ const getNodeSiblings = (params: { record: Record; node: Node; nodeDef: NodeDef<
   )
 }
 
-/**
- * ==== dependency
- */
-/**
- * Returns a list of dependent node pointers.
- * Every item in the list is in the format:
- * {
- *   nodeCtx, //context node
- *   nodeDef, //node definition
- * }
- */
 const getDependentNodePointers = (params: {
   survey: Survey
   record: Record
@@ -239,31 +227,26 @@ const getDependentNodePointers = (params: {
     const commonParentNode = getCommonParentNode({ record, node, nodeDef, dependentDef })
     if (!commonParentNode) continue
 
+    const nodeDefDependentParent = Surveys.getNodeDefParent({ survey, nodeDef: dependentDef })
+    if (!nodeDefDependentParent) throw new SystemError('record.nodes.dependents.dependencyOnRootFound')
+
     // 2 find descendant nodes of common parent node with nodeDefUuid = dependentDef uuid
-    const isDependencyApplicable = dependencyType === SurveyDependencyType.applicable
+    const dependentContextNodes = getDescendantsOrSelf({
+      record,
+      node: commonParentNode,
+      nodeDefDescendant: nodeDefDependentParent,
+    })
 
-    const nodeDefUuidDependent = isDependencyApplicable ? dependentDef.parentUuid : dependentDef.uuid
-
-    if (nodeDefUuidDependent) {
-      const nodeDependents = getNodesByDefUuid({ record, nodeDefUuid: nodeDefUuidDependent })
-      for (const nodeDependent of nodeDependents) {
-        if (
-          isNodeDescendantOf({ node: nodeDependent, ancestor: commonParentNode }) ||
-          (isDependencyApplicable && nodeDependent.uuid === commonParentNode.uuid)
-        ) {
-          const parentNode = getParent({ record, node: nodeDependent }) || commonParentNode
-          const nodePointer = {
-            nodeCtx: parentNode,
-            nodeDef: dependentDef,
-          }
-          if (filterFn === null || filterFn(nodePointer)) {
-            nodePointers.push(nodePointer)
-          }
-        }
+    dependentContextNodes.forEach((dependentContextNode) => {
+      const nodePointer = {
+        nodeCtx: dependentContextNode,
+        nodeDef: dependentDef,
       }
-    }
+      if (filterFn === null || filterFn(nodePointer)) {
+        nodePointers.push(nodePointer)
+      }
+    })
   }
-
   if (includeSelf) {
     const nodePointerSelf = {
       nodeDef,
@@ -350,6 +333,8 @@ export const Records = {
   visitAncestorsAndSelf,
   getAncestorsAndSelf,
   getDescendant,
+  getDescendantsOrSelf,
+  isDescendantOf,
   visitDescendantsAndSelf,
   getDependentNodePointers,
   getCategoryItemUuid,

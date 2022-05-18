@@ -1,29 +1,33 @@
-import { UserFactory } from '../../auth'
-import { Survey, Surveys } from '../../survey'
-import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
-const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
+import { UserFactory } from '../auth'
+import { Survey } from '../survey'
+import { SurveyDependencyType } from '../survey/survey'
 
-import { SurveyDependencyType } from '../survey'
+import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
+import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
+
+const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
+const { entity, attribute } = RecordNodeBuilders
+
+import { Record } from './record'
+import { TestUtils } from '../tests/testUtils'
+import { Records } from './records'
 
 let survey: Survey
+let record: Record
 
 const expectDependents = (params: {
-  sourceName: string
+  sourcePath: string
   dependencyType: SurveyDependencyType
   expectedDependentNames: string[]
 }) => {
-  const { sourceName, dependencyType, expectedDependentNames } = params
-  const sourceDef = Surveys.getNodeDefByName({ survey, name: sourceName })
-  const dependentDefs = Surveys.getNodeDefDependents({
-    survey,
-    nodeDefUuid: sourceDef?.uuid,
-    dependencyType,
-  })
-  const dependentNames = dependentDefs.map((dependentDef) => dependentDef?.props?.name)
+  const { sourcePath, dependencyType, expectedDependentNames } = params
+  const source = TestUtils.getNodeByPath({ survey, record, path: sourcePath })
+  const dependentNodePointers = Records.getDependentNodePointers({ survey, record, node: source, dependencyType })
+  const dependentNames = dependentNodePointers.map((pointer) => pointer.nodeDef.props.name)
   expect(dependentNames).toEqual(expectedDependentNames)
 }
 
-describe('Survey Dependencies', () => {
+describe('Records: dependent node pointers', () => {
   beforeAll(async () => {
     const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
 
@@ -42,27 +46,24 @@ describe('Survey Dependencies', () => {
           .applyIf('accessible')
       )
     ).build()
+
+    record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'cluster',
+        attribute('cluster_id', 10),
+        attribute('accessible', 'true'),
+        entity('plot', attribute('plot_id', 1)),
+        entity('plot', attribute('plot_id', 2)),
+        entity('plot', attribute('plot_id', 3))
+      )
+    ).build()
   }, 10000)
-
-  test('Default values dependency (empty - constant value)', () => {
-    expectDependents({
-      sourceName: 'cluster_id',
-      dependencyType: SurveyDependencyType.defaultValues,
-      expectedDependentNames: [],
-    })
-  })
-
-  test('Default values dependency (empty - not specified)', () => {
-    expectDependents({
-      sourceName: 'accessible',
-      dependencyType: SurveyDependencyType.defaultValues,
-      expectedDependentNames: [],
-    })
-  })
 
   test('Default values dependency (readOnly attribute)', () => {
     expectDependents({
-      sourceName: 'plot_id',
+      sourcePath: 'plot[0].plot_id',
       dependencyType: SurveyDependencyType.defaultValues,
       expectedDependentNames: ['plot_id_double'],
     })
@@ -70,7 +71,7 @@ describe('Survey Dependencies', () => {
 
   test('Apply if dependency', () => {
     expectDependents({
-      sourceName: 'accessible',
+      sourcePath: 'accessible',
       dependencyType: SurveyDependencyType.applicable,
       expectedDependentNames: ['plot'],
     })
@@ -78,7 +79,7 @@ describe('Survey Dependencies', () => {
 
   test('Validation expression dependency', () => {
     expectDependents({
-      sourceName: 'cluster_id',
+      sourcePath: 'cluster_id',
       dependencyType: SurveyDependencyType.validations,
       expectedDependentNames: ['cluster_id'],
     })
