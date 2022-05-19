@@ -20,7 +20,7 @@ const _createValidationResult = (params: {
       valid: false,
       errors: [
         ValidationResultFactory.createInstance({
-          key: 'record.nodes.countInvalid',
+          key: 'record.nodes.count.invalid',
           params: { nodeDefUuid, count: minCount },
           severity: ValidationSeverity.error,
         }),
@@ -31,7 +31,7 @@ const _createValidationResult = (params: {
     valid: false,
     errors: [
       ValidationResultFactory.createInstance({
-        key: isMinCountValidation ? 'record.nodes.minCountNotReached' : 'record.nodes.maxCountExceeded',
+        key: isMinCountValidation ? 'record.nodes.count.minNotReached' : 'record.nodes.count.maxExceeded',
         params: { nodeDefUuid, ...(isMinCountValidation ? { minCount } : { maxCount }) },
         severity: ValidationSeverity.error,
       }),

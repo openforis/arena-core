@@ -69,7 +69,7 @@ const _validateRequired =
     return valid
       ? ValidationResultFactory.createInstance()
       : ValidationResultFactory.createInstance({
-          key: 'record.valueRequired',
+          key: 'record.attribute.valueRequired',
           severity: ValidationSeverity.error,
           valid,
         })
@@ -99,7 +99,7 @@ const _validateNodeValidations =
 
     for (const { expression, value: valid } of applicableExpressionsEval) {
       if (!valid) {
-        const customMessages = _getValidationMessagesWithDefault({
+        const messages = _getValidationMessagesWithDefault({
           survey,
           expression,
           defaultMessage: expression.expression,
@@ -109,7 +109,7 @@ const _validateNodeValidations =
           valid: false,
           key: 'record.attribute.customValidation',
           severity: expression.severity,
-          customMessages,
+          messages,
         })
         break
       }
