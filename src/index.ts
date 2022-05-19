@@ -68,7 +68,7 @@ export { LanguageCode, Languages } from './language'
 export type { Labels } from './language'
 
 export { NodeFactory, Nodes } from './node'
-export type { Node, NodeService } from './node'
+export type { Node, NodePointer, NodeService } from './node'
 
 export {
   NodeDefType,

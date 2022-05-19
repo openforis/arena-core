@@ -5,7 +5,7 @@ import { Validation, ValidationFactory, ValidationResultFactory, ValidationSever
 import { Record } from '../record'
 import { Numbers } from '../../utils'
 import { Survey, Surveys } from '../../survey'
-import { NodePointer } from '../recordNodesUpdater/nodePointer'
+import { NodePointer } from '../../node'
 
 const _createValidationResult = (params: {
   nodeDefUuid: string

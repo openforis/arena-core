@@ -1,10 +1,9 @@
 import { NodeDef, NodeDefCodeProps, NodeDefProps, NodeDefType } from '../nodeDef'
-import { Node, Nodes } from '../node'
+import { Node, NodePointer, Nodes } from '../node'
 import { Record } from './record'
 import { Surveys } from '../survey'
 import { Arrays, Queue } from '../utils'
 import { Survey, SurveyDependencyType } from '../survey/survey'
-import { NodePointer } from './recordNodesUpdater/nodePointer'
 import { SystemError } from '../error'
 import { NodeValues } from '../node/nodeValues'
 

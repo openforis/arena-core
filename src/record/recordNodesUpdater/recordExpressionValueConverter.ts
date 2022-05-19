@@ -3,7 +3,7 @@ import { Node, NodeValueCode, NodeValueTaxon } from '../../node'
 import { Survey, Surveys } from '../../survey'
 import { Record } from '../record'
 import { Records } from '../records'
-import { NodeDef, NodeDefType, NodeDefs, NodeDefCodeProps, NodeDefTaxonProps } from '../../nodeDef'
+import { NodeDef, NodeDefType, NodeDefs, NodeDefCodeProps, NodeDefTaxon } from '../../nodeDef'
 import { Dates, DateFormats, Objects } from '../../utils'
 
 const _toPrimitive = (TypeTo: any) => (params: { valueExpr: any }) => {
@@ -17,18 +17,29 @@ const _toBoolean = (params: { valueExpr: any }) => {
   return null
 }
 
-const _toCode = (params: { survey: Survey; record: Record; nodeCtx: Node; valueExpr: any }): NodeValueCode | null => {
-  const { survey, record, nodeCtx, valueExpr } = params
+const _toCode = (params: {
+  survey: Survey
+  record: Record
+  nodeDef: NodeDef<any>
+  nodeParent: Node
+  valueExpr: any
+}): NodeValueCode | null => {
+  const { survey, record, nodeDef, nodeParent, valueExpr } = params
+
+  if (!nodeParent) return null
 
   // ValueExpr is the code of a category item
   const code = String(valueExpr)
 
-  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtx.nodeDefUuid })
   const codeNodeDef = nodeDef as NodeDef<NodeDefType.code, NodeDefCodeProps>
-  const parentNode = Records.getParent({ record, node: nodeCtx })
-  if (!parentNode) return null
 
-  const categoryItemUuid = Records.getCategoryItemUuid({ survey, record, nodeDef: codeNodeDef, parentNode, code })
+  const categoryItemUuid = Records.getCategoryItemUuid({
+    survey,
+    record,
+    nodeDef: codeNodeDef,
+    parentNode: nodeParent,
+    code,
+  })
 
   return categoryItemUuid ? { itemUuid: categoryItemUuid } : null
 }
@@ -44,17 +55,14 @@ const _toDateTime = (params: { valueExpr: any; format: DateFormats; formatsFrom:
   return formatFrom ? Dates.convertDate({ dateStr: valueExpr, formatFrom, formatTo: format }) : null
 }
 
-const _toTaxon = (params: { survey: Survey; nodeCtx: Node; valueExpr: any }): NodeValueTaxon | null => {
-  const { survey, nodeCtx, valueExpr } = params
+const _toTaxon = (params: { survey: Survey; nodeDef: NodeDef<any>; valueExpr: any }): NodeValueTaxon | null => {
+  const { survey, nodeDef, valueExpr } = params
 
   // ValueExpr is the code of a taxon
   const taxonCode = String(valueExpr)
 
-  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtx.nodeDefUuid }) as NodeDef<
-    NodeDefType.taxon,
-    NodeDefTaxonProps
-  >
-  const taxon = Surveys.getTaxonByCode({ survey, taxonomyUuid: nodeDef.props.taxonomyUuid, taxonCode })
+  const taxonNodeDef = nodeDef as NodeDefTaxon
+  const taxon = Surveys.getTaxonByCode({ survey, taxonomyUuid: taxonNodeDef.props.taxonomyUuid, taxonCode })
   return taxon ? { taxonUuid: taxon.uuid } : null
 }
 
@@ -87,13 +95,18 @@ const _valueExprToValueNodeFns = {
   [NodeDefType.entity]: () => null,
 }
 
-const toNodeValue = (params: { survey: Survey; record: Record; nodeCtx: Node; valueExpr: string }) => {
-  const { survey, record, nodeCtx, valueExpr } = params
+const toNodeValue = (params: {
+  survey: Survey
+  record: Record
+  nodeParent: Node
+  nodeDef: NodeDef<any>
+  valueExpr: string
+}) => {
+  const { survey, record, nodeParent, nodeDef, valueExpr } = params
   if (Objects.isEmpty(valueExpr)) return null
 
-  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtx.nodeDefUuid })
   const fn = _valueExprToValueNodeFns[NodeDefs.getType(nodeDef)]
-  return fn({ survey, record, nodeCtx, valueExpr })
+  return fn({ survey, record, nodeParent, nodeDef, valueExpr })
 }
 
 export const RecordExpressionValueConverter = {
