@@ -1,11 +1,10 @@
-import { Node, Nodes } from '../../node'
+import { Node, NodePointer, Nodes } from '../../node'
 import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Records } from '../records'
 import { Validation, ValidationFactory, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { Record } from '../record'
 import { Numbers } from '../../utils'
 import { Survey, Surveys } from '../../survey'
-import { NodePointer } from '../recordNodesUpdater/nodePointer'
 
 const _createValidationResult = (params: {
   nodeDefUuid: string

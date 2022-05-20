@@ -1,5 +1,7 @@
 export type { Node } from './node'
 
+export type { NodePointer } from './nodePointer'
+
 export type { NodeValueCode, NodeValueCoordinate, NodeValueTaxon } from './nodeValue'
 
 export { NodeFactory } from './factory'
