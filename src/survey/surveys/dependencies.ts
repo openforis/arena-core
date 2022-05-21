@@ -56,7 +56,7 @@ const getDependencies = (params: {
   nodeDefUuid: string
 }): Array<string> => {
   const { graphs, type, nodeDefUuid } = params
-  const graph = graphs[type]
+  const graph = graphs[type] || {}
   return graph[nodeDefUuid] || []
 }
 

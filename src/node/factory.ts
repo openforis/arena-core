@@ -1,27 +1,31 @@
 import { Factory } from '../common'
-import { UUIDs } from '../utils'
+import { Dates, UUIDs } from '../utils'
 import { Node } from './node'
 
 export type NodeFactoryParams = {
   nodeDefUuid: string
   recordUuid: string
   parentNode?: Node
+  surveyUuid?: string
   value?: any
 }
 
 export const NodeFactory: Factory<Node, NodeFactoryParams> = {
   createInstance: (params: NodeFactoryParams): Node => {
-    const { nodeDefUuid, recordUuid, parentNode, value } = params
-
+    const { nodeDefUuid, recordUuid, parentNode, surveyUuid, value } = params
+    const now = Dates.nowFormattedForStorage()
     return {
-      uuid: UUIDs.v4(),
-      nodeDefUuid,
-      recordUuid,
-      parentUuid: parentNode?.uuid,
-      value,
+      dateCreated: now,
+      dateModified: now,
       meta: {
         h: [...(parentNode?.meta?.h || []), ...(parentNode?.uuid ? [parentNode?.uuid] : [])],
       },
+      nodeDefUuid,
+      parentUuid: parentNode?.uuid,
+      recordUuid,
+      surveyUuid,
+      value,
+      uuid: UUIDs.v4(),
     }
   },
 }

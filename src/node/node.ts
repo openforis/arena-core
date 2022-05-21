@@ -19,4 +19,15 @@ export interface Node {
   uuid: string
   value?: any
   placeholder?: boolean
+  surveyUuid?: string
+
+  // transient status variables
+  /**
+   * Record node has been created but not persisted yet.
+   */
+  created?: boolean
+  /**
+   * Record node has been deleted.
+   */
+  deleted?: boolean
 }

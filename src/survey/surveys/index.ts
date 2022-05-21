@@ -13,11 +13,18 @@ import {
   getNodeDefRoot,
   getNodeDefSource,
   isNodeDefAncestor,
+  getNodeDefKeys,
   getNodeDefParentCode,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
 } from './nodeDefs'
-import { getCategoryItemByCodePaths, getCategoryItemByUuid, getTaxonByCode, getTaxonByUuid } from './refsData'
+import {
+  getCategoryItemByCodePaths,
+  getCategoryItemByUuid,
+  getTaxonByCode,
+  getTaxonByUuid,
+  includesTaxonVernacularName,
+} from './refsData'
 
 const getCategoryByName = (params: { survey: Survey; categoryName: string }): Category | undefined => {
   const { survey, categoryName } = params
@@ -42,12 +49,16 @@ export const Surveys = {
   getNodeDefRoot,
   getNodeDefSource,
   isNodeDefAncestor,
+  getNodeDefKeys,
+
+  // ref data
   getCategoryByName,
   getCategoryItemByCodePaths,
   getCategoryItemByUuid,
   getTaxonByCode,
   getTaxonByUuid,
   getTaxonomyByName,
+  includesTaxonVernacularName,
 
   // node def code
   getNodeDefParentCode,

@@ -1,19 +1,13 @@
 import { NodeDef, NodeDefCodeProps, NodeDefProps, NodeDefType } from '../nodeDef'
-import { Node, Nodes } from '../node'
+import { Node, NodePointer, Nodes } from '../node'
 import { Record } from './record'
 import { Surveys } from '../survey'
 import { Arrays, Queue } from '../utils'
 import { Survey, SurveyDependencyType } from '../survey/survey'
-import { NodePointer } from './recordNodesUpdater/nodePointer'
 import { SystemError } from '../error'
 import { NodeValues } from '../node/nodeValues'
 
 const getNodesArray = (record: Record): Node[] => Object.values(record.nodes || {})
-
-const getNodesByDefUuid = (params: { record: Record; nodeDefUuid: string }) => {
-  const { record, nodeDefUuid } = params
-  return getNodesArray(record).filter((node) => node.nodeDefUuid === nodeDefUuid)
-}
 
 const getRoot = (record: Record): Node => {
   const root = getNodesArray(record).find((node) => !node.parentUuid)
@@ -43,6 +37,17 @@ const getChild = (params: { record: Record; parentNode: Node; childDefUuid: stri
 const getParent = (params: { record: Record; node: Node }): Node | undefined => {
   const { record, node } = params
   return node.parentUuid ? getNodeByUuid({ record, uuid: node.parentUuid }) : undefined
+}
+
+const isNodeApplicable = (params: { record: Record; node: Node }) => {
+  const { record, node } = params
+  const nodeParent = getParent({ record, node })
+  if (!nodeParent) return true
+
+  if (isNodeApplicable({ record, node: nodeParent })) {
+    return Nodes.isChildApplicable(nodeParent, node.nodeDefUuid)
+  }
+  return false
 }
 
 const getParentCodeAttribute = (params: {
@@ -109,17 +114,36 @@ const getAncestorsAndSelf = (params: { record: Record; node: Node }): Array<Node
 
 // descendants
 
-const getDescendant = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node => {
+const getDescendantsOrSelf = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node[] => {
   const { record, node, nodeDefDescendant } = params
-  // starting from node, visit descendant entities up to referenced node parent entity
-  const nodeDescendantH = nodeDefDescendant.meta.h
-  const descendant = nodeDescendantH
-    .slice(nodeDescendantH.indexOf(node.nodeDefUuid) + 1)
-    .reduce((parentNode, childDefUuid) => getChild({ record, parentNode, childDefUuid }), node)
-  return descendant
+
+  if (nodeDefDescendant.uuid === node.nodeDefUuid) return [node]
+
+  const nodeDefDescendantH = nodeDefDescendant.meta.h
+  // 1. get the descendant node defs uuids up to the specified nodeDefDescendant
+  const descendantNodeDefUuids = nodeDefDescendantH.slice(nodeDefDescendantH.indexOf(node.nodeDefUuid) + 1)
+  // 2. for every level in the hierarchy, find the children having the nodeDefUuid equal to the current one
+  let currentAncestors = [node]
+  let currentDescendants: Node[] = []
+  descendantNodeDefUuids.forEach((currentDescendantDefUuid) => {
+    currentAncestors.forEach((currentAncestor) => {
+      currentDescendants.push(
+        ...getChildren({ record, parentNode: currentAncestor, childDefUuid: currentDescendantDefUuid })
+      )
+    })
+    currentAncestors = currentDescendants
+    currentDescendants = []
+  })
+  return currentAncestors // currentAncestors is equal to the currentDescendants of the last level
 }
 
-const isNodeDescendantOf = (params: { node: Node; ancestor: Node }): boolean => {
+const getDescendant = (params: { record: Record; node: Node; nodeDefDescendant: NodeDef<any> }): Node => {
+  const { record, node, nodeDefDescendant } = params
+
+  return getDescendantsOrSelf({ record, node, nodeDefDescendant })[0]
+}
+
+const isDescendantOf = (params: { node: Node; ancestor: Node }): boolean => {
   const { node, ancestor } = params
   return Nodes.getHierarchy(node).includes(ancestor.uuid)
 }
@@ -155,17 +179,39 @@ const getCommonParentNode = (params: {
   return getAncestor({ record, node, ancestorDefUuid: commonParentDefUuid })
 }
 
-/**
- * ==== dependency
- */
-/**
- * Returns a list of dependent node pointers.
- * Every item in the list is in the format:
- * {
- *   nodeCtx, //context node
- *   nodeDef, //node definition
- * }
- */
+const getEntityKeyNodes = (params: { survey: Survey; record: Record; entity: Node }): Node[] => {
+  const { survey, record, entity } = params
+  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
+  const nodeDefKeys = Surveys.getNodeDefKeys({ survey, nodeDef })
+  return nodeDefKeys.map((nodeDefKey) => getChild({ record, parentNode: entity, childDefUuid: nodeDefKey.uuid }))
+}
+
+const getEntityKeyValues = (params: { survey: Survey; record: Record; entity: Node }): Node[] => {
+  const { survey, record, entity } = params
+  return getEntityKeyNodes({ survey, record, entity }).map((node) => node.value)
+}
+
+const getNodeSiblings = (params: { record: Record; node: Node; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) => {
+  const { record, node, nodeDef } = params
+  const parentEntity = getParent({ record, node })
+  if (!parentEntity) return []
+  const ancestorEntity = getParent({ record, node: parentEntity })
+  if (!ancestorEntity) return []
+  const siblingParentEntities = getChildren({
+    record,
+    parentNode: ancestorEntity,
+    childDefUuid: nodeDef.parentUuid,
+  })
+
+  return siblingParentEntities.reduce(
+    (siblingsAcc: Node[], siblingEntity) => [
+      ...siblingsAcc,
+      ...getChildren({ record, parentNode: siblingEntity, childDefUuid: nodeDef.uuid }),
+    ],
+    []
+  )
+}
+
 const getDependentNodePointers = (params: {
   survey: Survey
   record: Record
@@ -185,37 +231,36 @@ const getDependentNodePointers = (params: {
     const commonParentNode = getCommonParentNode({ record, node, nodeDef, dependentDef })
     if (!commonParentNode) continue
 
+    const nodeDefDependentParent = Surveys.getNodeDefParent({ survey, nodeDef: dependentDef })
+    if (!nodeDefDependentParent) throw new SystemError('record.nodes.dependents.dependencyOnRootFound')
+
     // 2 find descendant nodes of common parent node with nodeDefUuid = dependentDef uuid
-    const isDependencyApplicable = dependencyType === SurveyDependencyType.applicable
+    const dependentContextNodes = getDescendantsOrSelf({
+      record,
+      node: commonParentNode,
+      nodeDefDescendant: nodeDefDependentParent,
+    })
 
-    const nodeDefUuidDependent = isDependencyApplicable ? dependentDef.parentUuid : dependentDef.uuid
-
-    if (nodeDefUuidDependent) {
-      const nodeDependents = getNodesByDefUuid({ record, nodeDefUuid: nodeDefUuidDependent })
-      for (const nodeDependent of nodeDependents) {
-        if (
-          isNodeDescendantOf({ node: nodeDependent, ancestor: commonParentNode }) ||
-          (isDependencyApplicable && nodeDependent.uuid === commonParentNode.uuid)
-        ) {
-          const nodePointer = {
-            nodeDef: dependentDef,
-            nodeCtx: nodeDependent,
-          }
-          if (filterFn === null || filterFn(nodePointer)) {
-            nodePointers.push(nodePointer)
-          }
-        }
+    dependentContextNodes.forEach((dependentContextNode) => {
+      const nodePointer = {
+        nodeCtx: dependentContextNode,
+        nodeDef: dependentDef,
       }
-    }
+      if (filterFn === null || filterFn(nodePointer)) {
+        nodePointers.push(nodePointer)
+      }
+    })
   }
-
   if (includeSelf) {
-    const nodePointerSelf = {
-      nodeDef,
-      nodeCtx: node,
-    }
-    if (filterFn === null || filterFn(nodePointerSelf)) {
-      nodePointers.push(nodePointerSelf)
+    const parentNode = Records.getParent({ record, node })
+    if (parentNode) {
+      const nodePointerSelf: NodePointer = {
+        nodeCtx: parentNode,
+        nodeDef,
+      }
+      if (filterFn === null || filterFn(nodePointerSelf)) {
+        nodePointers.push(nodePointerSelf)
+      }
     }
   }
 
@@ -256,7 +301,7 @@ const getAncestorCodePath = (params: {
   return codesPath
 }
 
-export const getCategoryItemUuid = (params: {
+const getCategoryItemUuid = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>
   record: Record
@@ -273,6 +318,13 @@ export const getCategoryItemUuid = (params: {
   return item?.uuid
 }
 
+export const prefixValidationFieldChildrenCount = 'childrenCount_'
+
+const getValidationChildrenCountKey = (params: { nodeParentUuid: string; nodeDefChildUuid: string }): string => {
+  const { nodeParentUuid, nodeDefChildUuid } = params
+  return `${prefixValidationFieldChildrenCount}${nodeParentUuid}_${nodeDefChildUuid}`
+}
+
 export const Records = {
   getRoot,
   getNodesArray,
@@ -282,10 +334,17 @@ export const Records = {
   getParentCodeAttribute,
   getAncestor,
   getNodeByUuid,
+  getEntityKeyNodes,
+  getEntityKeyValues,
+  getNodeSiblings,
+  isNodeApplicable,
   visitAncestorsAndSelf,
   getAncestorsAndSelf,
   getDescendant,
+  getDescendantsOrSelf,
+  isDescendantOf,
   visitDescendantsAndSelf,
   getDependentNodePointers,
   getCategoryItemUuid,
+  getValidationChildrenCountKey,
 }

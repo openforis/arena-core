@@ -68,7 +68,7 @@ export { LanguageCode, Languages } from './language'
 export type { Labels } from './language'
 
 export { NodeFactory, Nodes } from './node'
-export type { Node, NodeService } from './node'
+export type { Node, NodePointer, NodeService } from './node'
 
 export {
   NodeDefType,
@@ -115,6 +115,7 @@ export {
   RecordExpressionEvaluator,
   RecordNodesUpdater,
   RecordUpdateResult,
+  RecordValidator,
 } from './record'
 export type { Record, RecordService } from './record'
 
@@ -153,7 +154,7 @@ export type {
 export { SurveyBuilder, SurveyObjectBuilders } from './tests/builder/surveyBuilder'
 export { RecordBuilder, RecordNodeBuilders } from './tests/builder/recordBuilder'
 
-export { Arrays, Dates, Numbers, Objects, UUIDs } from './utils'
+export { Arrays, Dates, Numbers, Objects, Promises, UUIDs } from './utils'
 
 export {
   FieldValidators,
