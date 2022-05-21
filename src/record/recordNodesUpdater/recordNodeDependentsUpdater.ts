@@ -112,6 +112,8 @@ export const updateSelfAndDependentsApplicable = (params: {
   return updateResult
 }
 
+const canApplyDefaultValue = (node: Node): boolean => Nodes.isValueBlank(node) || Nodes.isDefaultValueApplied(node)
+
 const updateDefaultValuesInNodes = (params: {
   survey: Survey
   record: Record
@@ -126,7 +128,7 @@ const updateDefaultValuesInNodes = (params: {
   if (expressionsToEvaluate.length === 0) return
 
   try {
-    // 3. evaluate applicable default value expression
+    // 1. evaluate applicable default value expression
     const exprEval = new RecordExpressionEvaluator().evalApplicableExpression({
       survey,
       record,
@@ -147,15 +149,12 @@ const updateDefaultValuesInNodes = (params: {
 
     const nodesToUpdate = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
     nodesToUpdate.forEach((nodeToUpdate) => {
-      // 4
-      // 4a. if node value is not changed, do nothing
-      const oldValue = nodeToUpdate.value
+      if (!canApplyDefaultValue(nodeToUpdate)) return
 
-      if (Objects.isEqual(oldValue, exprValue)) {
-        return // do nothing
-      }
+      // 2. if node value is not changed, do nothing
+      if (Objects.isEqual(nodeToUpdate.value, exprValue)) return
 
-      // 4b. update node value and meta
+      // 3. update node value and meta
       const defaultValueApplied = !Objects.isEmpty(exprValue)
 
       const nodeUpdated = Nodes.mergeNodes(nodeToUpdate, {
@@ -181,14 +180,15 @@ export const updateSelfAndDependentsDefaultValues = (params: { survey: Survey; r
 
   const updateResult = new RecordUpdateResult({ record })
 
-  // 1. fetch dependent nodes
+  // 1. get dependent node pointers
 
   // filter nodes to update including itself and (attributes with empty values or with default values applied)
   // therefore attributes with user defined values are excluded
-  const nodeDependentPointersFilterFn = (nodePointer: NodePointer): boolean => {
-    const { nodeCtx, nodeDef } = nodePointer
+  const nodePointersFilterFn = (nodePointer: NodePointer): boolean => {
+    if (!NodeDefs.isAttribute(nodePointer.nodeDef)) return false
 
-    return NodeDefs.isAttribute(nodeDef) && (Objects.isEmpty(nodeCtx.value) || Nodes.isDefaultValueApplied(nodeCtx))
+    const referencedNodes = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
+    return referencedNodes.some(canApplyDefaultValue)
   }
 
   const nodePointersToUpdate = Records.getDependentNodePointers({
@@ -197,7 +197,7 @@ export const updateSelfAndDependentsDefaultValues = (params: { survey: Survey; r
     node,
     dependencyType: SurveyDependencyType.defaultValues,
     includeSelf: true,
-    filterFn: nodeDependentPointersFilterFn,
+    filterFn: nodePointersFilterFn,
   })
 
   // 2. update expr to node and dependent nodes
