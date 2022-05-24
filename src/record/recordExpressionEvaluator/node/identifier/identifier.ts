@@ -34,10 +34,9 @@ const getNodesOrValues = (params: {
     return referencedNodes
   }
   // return node values
-  const values = referencedNodes.map((referencedNode) =>
+  return referencedNodes.map((referencedNode) =>
     NodeValueExtractor.getNodeValue({ survey, node: referencedNode, nodeDef: nodeDefReferenced })
   )
-  return values
 }
 
 export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpressionContext> {
