@@ -1,5 +1,6 @@
 import { ExpressionNodeType, JavascriptExpressionEvaluator } from '../../expression'
 import { RecordIdentifierEvaluator } from './node/identifier'
+import { RecordThisEvaluator } from './node/thisEvaluator'
 import { recordExpressionFunctions } from './functions'
 import { RecordExpressionContext } from './context'
 import { Survey, Surveys } from '../../survey'
@@ -13,6 +14,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
   constructor() {
     super(recordExpressionFunctions, {
       [ExpressionNodeType.Identifier]: RecordIdentifierEvaluator,
+      [ExpressionNodeType.This]: RecordThisEvaluator,
     })
   }
 
