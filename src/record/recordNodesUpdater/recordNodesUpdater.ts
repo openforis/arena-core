@@ -13,7 +13,7 @@ import { RecordUpdateResult } from './recordUpdateResult'
  */
 const MAX_DEPENDENTS_VISITING_TIMES = 2
 
-const updateNodesDependents = (params: {
+export const updateNodesDependents = (params: {
   survey: Survey
   record: Record
   nodes: { [key: string]: Node }
@@ -66,8 +66,4 @@ const updateNodesDependents = (params: {
   }
 
   return updateResult
-}
-
-export const RecordNodesUpdater = {
-  updateNodesDependents,
 }
