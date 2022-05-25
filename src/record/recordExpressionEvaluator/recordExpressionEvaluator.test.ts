@@ -111,6 +111,16 @@ describe('RecordExpressionEvaluator', () => {
       result: 10.123,
       node: 'cluster.plot[2].tree[1].dbh',
     },
+    // "this"
+    { expression: 'this', node: 'plot[0].plot_multiple_number[0]', result: 10 },
+    { expression: 'this', node: 'plot[0].plot_multiple_number[1]', result: 20 },
+    { expression: 'parent(this)', node: 'plot[0].plot_multiple_number[1]', result: () => getNode('cluster.plot[0]') },
+    { expression: 'index(this)', node: 'plot[0].plot_multiple_number[1]', result: 1 },
+    {
+      expression: 'this.invalidProp',
+      node: 'plot[0].plot_multiple_number[1]',
+      error: new SystemError('expression.invalidAttributeValuePropertyName'),
+    },
     // categoryItemProp
     { expression: `categoryItemProp('hierarchical_category', 'prop1', '1')`, result: 'Extra prop1 item 1' },
     { expression: `categoryItemProp('hierarchical_category', 'prop2', '3')`, result: 'Extra prop2 item 3' },
@@ -200,6 +210,8 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'visit_time.hour', result: 10 },
     { expression: 'visit_time.minute', result: 30 },
     { expression: 'visit_time.seconds', error: new SystemError('expression.invalidAttributeValuePropertyName') },
+    { expression: 'this.x', node: 'cluster_location', result: 41.883012 },
+    { expression: 'this.year', node: 'visit_date', result: 2021 },
   ]
 
   queries.forEach((query: Query) => {
@@ -213,7 +225,7 @@ describe('RecordExpressionEvaluator', () => {
         if (!nodeContext) {
           throw new Error(`Cannot find context node: ${node}`)
         }
-        const context: RecordExpressionContext = { survey, record, nodeContext, object: nodeContext }
+        const context: RecordExpressionContext = { survey, record, nodeContext, nodeCurrent, object: nodeContext }
         const res = new RecordExpressionEvaluator().evaluate(expression, context)
         expect(res).toEqual(result instanceof Function ? result() : result)
       } catch (error) {

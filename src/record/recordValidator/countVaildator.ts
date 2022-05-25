@@ -1,11 +1,10 @@
-import { Node, Nodes } from '../../node'
+import { Node, NodePointer, Nodes } from '../../node'
 import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Records } from '../records'
 import { Validation, ValidationFactory, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { Record } from '../record'
 import { Numbers } from '../../utils'
 import { Survey, Surveys } from '../../survey'
-import { NodePointer } from '../recordNodesUpdater/nodePointer'
 
 const _createValidationResult = (params: {
   nodeDefUuid: string
@@ -20,7 +19,7 @@ const _createValidationResult = (params: {
       valid: false,
       errors: [
         ValidationResultFactory.createInstance({
-          key: 'record.nodes.countInvalid',
+          key: 'record.nodes.count.invalid',
           params: { nodeDefUuid, count: minCount },
           severity: ValidationSeverity.error,
         }),
@@ -31,7 +30,7 @@ const _createValidationResult = (params: {
     valid: false,
     errors: [
       ValidationResultFactory.createInstance({
-        key: isMinCountValidation ? 'record.nodes.minCountNotReached' : 'record.nodes.maxCountExceeded',
+        key: isMinCountValidation ? 'record.nodes.count.minNotReached' : 'record.nodes.count.maxExceeded',
         params: { nodeDefUuid, ...(isMinCountValidation ? { minCount } : { maxCount }) },
         severity: ValidationSeverity.error,
       }),

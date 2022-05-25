@@ -9,7 +9,7 @@ export interface ValidationResult {
   severity?: ValidationSeverity
   key?: string
   params?: { [key: string]: any }
-  customMessages?: Labels
+  messages?: Labels
   valid: boolean
 }
 

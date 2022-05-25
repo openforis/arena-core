@@ -12,20 +12,13 @@ import {
 } from '../../validation'
 import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { NodePointer } from '../recordNodesUpdater/nodePointer'
 import { Records } from '../records'
+import { NodePointers } from '../nodePointers'
 import { Labels } from '../../language'
 import { Objects, Promises } from '../../utils'
 import { AttributeTypeValidator } from './attributeTypeValidator'
 import { AttributeUniqueValidator } from './attributeUniqueValidator'
 import { AttributeKeyValidator } from './attributeKeyValidator'
-
-const _nodePointersToNodes = (params: { record: Record; nodePointers: NodePointer[] }): Node[] => {
-  const { record, nodePointers } = params
-  return nodePointers.flatMap((nodePointer) =>
-    Records.getChildren({ record, parentNode: nodePointer.nodeCtx, childDefUuid: nodePointer.nodeDef.uuid })
-  )
-}
 
 const _getSiblingNodeKeys = (params: { survey: Survey; record: Record; node: Node }) => {
   const { survey, record, node } = params
@@ -69,7 +62,7 @@ const _validateRequired =
     return valid
       ? ValidationResultFactory.createInstance()
       : ValidationResultFactory.createInstance({
-          key: 'record.valueRequired',
+          key: 'record.attribute.valueRequired',
           severity: ValidationSeverity.error,
           valid,
         })
@@ -99,7 +92,7 @@ const _validateNodeValidations =
 
     for (const { expression, value: valid } of applicableExpressionsEval) {
       if (!valid) {
-        const customMessages = _getValidationMessagesWithDefault({
+        const messages = _getValidationMessagesWithDefault({
           survey,
           expression,
           defaultMessage: expression.expression,
@@ -109,7 +102,7 @@ const _validateNodeValidations =
           valid: false,
           key: 'record.attribute.customValidation',
           severity: expression.severity,
-          customMessages,
+          messages,
         })
         break
       }
@@ -162,7 +155,7 @@ const validateSelfAndDependentAttributes = async (params: {
       const nodeParent = Records.getParent({ record, node })
 
       const nodesToValidate = [
-        ..._nodePointersToNodes({ record, nodePointers: nodePointersAttributeAndDependents }),
+        ...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }),
         ...(NodeDefs.isKey(nodeDef) && nodeParent ? _getSiblingNodeKeys({ survey, record, node: nodeParent }) : []),
         ...(NodeDefs.getValidations(nodeDef)?.unique ? Records.getNodeSiblings({ record, node, nodeDef }) : []),
       ]
