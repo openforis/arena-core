@@ -23,6 +23,11 @@ export const getNodeUuidsByParent =
     return Object.values(nodesPresenceByChildDefUuid).flatMap((nodesPresence) => Object.keys(nodesPresence))
   }
 
+export const getNodeCodeDependentUuids =
+  (nodeUuid: string) =>
+  (record: Record): string[] =>
+    Object.keys(Objects.path(['_nodesIndex', 'nodeCodeDependents', nodeUuid])(record) || {})
+
 const _addNodeToCodeDependents =
   (node: Node) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
@@ -42,18 +47,27 @@ const _addNode =
     const nodeUuid = node.uuid
     const nodeDefUuid = node.nodeDefUuid
 
-    const parentUuid = node.parentUuid
-    if (!parentUuid) {
-      return { ...index, nodeRootUuid: nodeUuid }
-    }
     let indexUpdated = { ...index }
-    indexUpdated = Objects.assocPath({
-      obj: indexUpdated,
-      path: ['nodesByParentAndChildDef', parentUuid, nodeDefUuid, nodeUuid],
-      value: true,
-    })
+
+    const parentUuid = node.parentUuid
+    if (parentUuid) {
+      // nodes by parent and child def uuid
+      indexUpdated = Objects.assocPath({
+        obj: indexUpdated,
+        path: ['nodesByParentAndChildDef', parentUuid, nodeDefUuid, nodeUuid],
+        value: true,
+      })
+    } else {
+      // root entity index
+      indexUpdated = { ...indexUpdated, nodeRootUuid: nodeUuid }
+    }
+
+    // nodes by def uuid
     indexUpdated = Objects.assocPath({ obj: indexUpdated, path: ['nodesByDef', nodeDefUuid, nodeUuid], value: true })
+
+    // code dependents
     indexUpdated = _addNodeToCodeDependents(node)(indexUpdated)
+
     return indexUpdated
   }
 

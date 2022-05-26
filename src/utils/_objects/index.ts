@@ -3,6 +3,7 @@ import { assocPath } from './assocPath'
 import { camelize } from './camelize'
 import { deepMerge } from './deepMerge'
 import { difference } from './difference'
+import { dissocPath } from './dissocPath'
 import { fromPairs } from './fromPairs'
 import { isEmpty } from './isEmpty'
 import { isEqual } from './isEqual'
@@ -17,6 +18,7 @@ export const Objects = {
   camelize,
   deepMerge,
   difference,
+  dissocPath,
   fromPairs,
   isEmpty,
   isEqual,

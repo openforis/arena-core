@@ -36,4 +36,31 @@ describe('Objects', () => {
     const o2 = { a: 1, b: '2' }
     expect(Objects.isEqual(o1, o2)).toBeTruthy()
   })
+
+  test('dissocPath (simple path)', () => {
+    const obj = { a: 1 }
+    const path = ['a']
+    const objectUpdated = Objects.dissocPath({ obj, path })
+    expect(objectUpdated).toEqual({})
+    // check that the original object hasn't been updated
+    expect(obj).toEqual({ a: 1 })
+  })
+
+  test('dissocPath (deep path)', () => {
+    const obj = { a: 1, b: { b1: 2, b2: { b2a: 10, b2b: 20 } } }
+    const path = ['b', 'b2', 'b2a']
+    const objectUpdated = Objects.dissocPath({ obj, path })
+    expect(objectUpdated).toEqual({ a: 1, b: { b1: 2, b2: { b2b: 20 } } })
+    // check that the original object hasn't been updated
+    expect(obj).toEqual({ a: 1, b: { b1: 2, b2: { b2a: 10, b2b: 20 } } })
+  })
+
+  test('dissocPath (missing property)', () => {
+    const obj = { a: 1, b: { b1: 2, b2: { b2a: 10, b2b: 20 } } }
+    const path = ['b', 'b2', 'b2c']
+    const objectUpdated = Objects.dissocPath({ obj, path })
+    expect(objectUpdated).toEqual({ a: 1, b: { b1: 2, b2: { b2a: 10, b2b: 20 } } })
+    // check that the original object hasn't been updated
+    expect(obj).toEqual({ a: 1, b: { b1: 2, b2: { b2a: 10, b2b: 20 } } })
+  })
 })
