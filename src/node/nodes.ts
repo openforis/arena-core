@@ -18,6 +18,8 @@ const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: bo
 }
 const getHierarchy = (node: Node) => [...(node.meta?.h || [])]
 
+const getHierarchyCode = (node: Node) => [...(node.meta?.hCode || [])]
+
 const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
   Objects.deepMerge(target, ...sources) as unknown as Node
 
@@ -32,6 +34,7 @@ export const Nodes = {
   assocChildApplicability,
   mergeNodes,
   getHierarchy,
+  getHierarchyCode,
   isDefaultValueApplied,
   isValueBlank,
 }

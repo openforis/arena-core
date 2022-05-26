@@ -1,3 +1,4 @@
+import { assoc } from './assoc'
 import { assocPath } from './assocPath'
 import { camelize } from './camelize'
 import { deepMerge } from './deepMerge'
@@ -11,6 +12,7 @@ import { setInPath } from './setInPath'
 import { toPairs } from './toPairs'
 
 export const Objects = {
+  assoc,
   assocPath,
   camelize,
   deepMerge,

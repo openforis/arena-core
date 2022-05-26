@@ -13,19 +13,19 @@ export interface RecordNodesIndex {
   /**
    * uuid of root entity
    */
-  nodeRootUuid: string
+  nodeRootUuid?: string
   /**
    * node uuids by parent entity uuid and child def uuid
    */
-  nodesByParentAndChildDef: { [key: string]: { [key: string]: NodeUuidsPresence } }
+  nodesByParentAndChildDef?: { [key: string]: { [key: string]: NodeUuidsPresence } }
   /**
    * node uuids by node def uuid
    */
-  nodesByDef: { [key: string]: NodeUuidsPresence }
+  nodesByDef?: { [key: string]: NodeUuidsPresence }
   /**
    * Code attribute uuids by ancenstor code attribute uuid
    */
-  nodeCodeDependents: { [key: string]: NodeUuidsPresence }
+  nodeCodeDependents?: { [key: string]: NodeUuidsPresence }
 }
 
 export interface Record {
