@@ -2,6 +2,13 @@ import { Node, Nodes } from '../../node'
 import { Objects } from '../../utils'
 import { Record, RecordNodesIndex } from '../record'
 
+const keys = {
+  nodeRootUuid: 'nodeRootUuid',
+  nodesByParentAndChildDef: 'nodesByParentAndChildDef',
+  nodesByDef: 'nodesByDef',
+  nodeCodeDependents: 'nodeCodeDependents',
+}
+
 const _addNodeToCodeDependents =
   (node: Node) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
@@ -9,7 +16,7 @@ const _addNodeToCodeDependents =
       (indexAcc, ancestorCodeAttributeUuid) =>
         Objects.assocPath({
           obj: indexAcc,
-          path: ['nodeCodeDependents', ancestorCodeAttributeUuid, node.uuid],
+          path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.uuid],
           value: true,
         }),
       index
@@ -27,7 +34,7 @@ const _addNodeToIndex =
       // nodes by parent and child def uuid
       indexUpdated = Objects.assocPath({
         obj: indexUpdated,
-        path: ['nodesByParentAndChildDef', parentUuid, nodeDefUuid, nodeUuid],
+        path: [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid],
         value: true,
       })
     } else {
@@ -36,7 +43,7 @@ const _addNodeToIndex =
     }
 
     // nodes by def uuid
-    indexUpdated = Objects.assocPath({ obj: indexUpdated, path: ['nodesByDef', nodeDefUuid, nodeUuid], value: true })
+    indexUpdated = Objects.assocPath({ obj: indexUpdated, path: [keys.nodesByDef, nodeDefUuid, nodeUuid], value: true })
 
     // code dependents
     indexUpdated = _addNodeToCodeDependents(node)(indexUpdated)
@@ -65,31 +72,33 @@ const _removeNodeFromCodeDependentsIndex =
   (index: RecordNodesIndex): RecordNodesIndex => {
     let indexUpdated = Nodes.getHierarchyCode(node).reduce(
       (indexAcc, ancestorCodeAttributeUuid) =>
-        Objects.dissocPath({ obj: indexAcc, path: ['nodeCodeDependents', ancestorCodeAttributeUuid, node.uuid] }),
+        Objects.dissocPath({ obj: indexAcc, path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.uuid] }),
       index
     )
-    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: ['nodeCodeDependents', node.uuid] })
+    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeCodeDependents, node.uuid] })
     return indexUpdated
   }
 
 export const removeNode =
   (node: Node) =>
   (record: Record): Record => {
+    const { uuid: nodeUuid, parentUuid, nodeDefUuid } = node
+
     const index = record._nodesIndex || {}
     let indexUpdated = { ...index }
-    const { uuid: nodeUuid, parentUuid, nodeDefUuid } = node
+
     if (parentUuid) {
       // dissoc from nodes by parent and child def
       indexUpdated = Objects.dissocPath({
         obj: indexUpdated,
-        path: ['nodesByParentAndChildDef', parentUuid, nodeDefUuid, nodeUuid],
+        path: [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid],
       })
     } else {
       // dissoc root entity
-      indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: ['nodeRootUuid'] })
+      indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeRootUuid] })
     }
     // dissoc from nodes by def uuid
-    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: ['nodesByDef', nodeDefUuid, nodeUuid] })
+    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodesByDef, nodeDefUuid, nodeUuid] })
 
     indexUpdated = _removeNodeFromCodeDependentsIndex(node)(indexUpdated)
 
