@@ -1,27 +1,27 @@
-import { Record } from '../record'
+import { Record, RecordNodesIndex } from '../record'
 
 export const getNodeRootUuid = (record: Record): string | undefined => record._nodesIndex?.nodeRootUuid
 
 export const getNodeUuidsByDef =
   (nodeDefUuid: string) =>
-  (record: Record): string[] =>
-    Object.keys(record._nodesIndex?.nodesByDef?.[nodeDefUuid] || {})
+  (index: RecordNodesIndex): string[] =>
+    Object.keys(index.nodesByDef?.[nodeDefUuid] || {})
 
 export const getNodeUuidsByParentAndChildDef =
   (params: { parentNodeUuid: string; childDefUuid: string }) =>
-  (record: Record): string[] => {
+  (index: RecordNodesIndex): string[] => {
     const { parentNodeUuid, childDefUuid } = params
-    return Object.keys(record._nodesIndex?.nodesByParentAndChildDef?.[parentNodeUuid]?.[childDefUuid] || {})
+    return Object.keys(index.nodesByParentAndChildDef?.[parentNodeUuid]?.[childDefUuid] || {})
   }
 
 export const getNodeUuidsByParent =
   (parentNodeUuid: string) =>
-  (record: Record): string[] => {
-    const nodesPresenceByChildDefUuid = record._nodesIndex?.nodesByParentAndChildDef?.[parentNodeUuid] || {}
+  (index: RecordNodesIndex): string[] => {
+    const nodesPresenceByChildDefUuid = index.nodesByParentAndChildDef?.[parentNodeUuid] || {}
     return Object.values(nodesPresenceByChildDefUuid).flatMap((nodesPresence) => Object.keys(nodesPresence))
   }
 
 export const getNodeCodeDependentUuids =
   (nodeUuid: string) =>
-  (record: Record): string[] =>
-    Object.keys(record._nodesIndex?.nodeCodeDependents?.[nodeUuid] || {})
+  (index: RecordNodesIndex): string[] =>
+    Object.keys(index.nodeCodeDependents?.[nodeUuid] || {})
