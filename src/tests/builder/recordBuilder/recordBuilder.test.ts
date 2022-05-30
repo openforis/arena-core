@@ -1,16 +1,16 @@
 import { Records } from '../../../record'
-import { UserFactory } from '../../../auth'
 import { SurveyBuilder, SurveyObjectBuilders } from '../surveyBuilder'
 import { RecordBuilder } from './recordBuilder'
 import { RecordNodeBuilders } from '.'
 import { Surveys } from '../../../survey'
+import { createTestAdminUser } from '../../data'
 
 const { entityDef, integerDef } = SurveyObjectBuilders
 const { attribute, entity } = RecordNodeBuilders
 
 describe('RecordBuilder', () => {
   test('simple record build', () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
+    const user = createTestAdminUser()
 
     const survey = new SurveyBuilder(
       user,

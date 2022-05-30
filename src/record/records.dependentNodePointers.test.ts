@@ -1,4 +1,3 @@
-import { UserFactory } from '../auth'
 import { Survey } from '../survey'
 import { SurveyDependencyType } from '../survey/survey'
 
@@ -11,6 +10,7 @@ const { entity, attribute } = RecordNodeBuilders
 import { Record } from './record'
 import { TestUtils } from '../tests/testUtils'
 import { Records } from './records'
+import { createTestAdminUser } from '../tests/data'
 
 let survey: Survey
 let record: Record
@@ -29,7 +29,7 @@ const expectDependents = (params: {
 
 describe('Records: dependent node pointers', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
+    const user = createTestAdminUser()
 
     survey = new SurveyBuilder(
       user,

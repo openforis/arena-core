@@ -51,7 +51,7 @@ const _addNodeToIndex =
     return indexUpdated
   }
 
-export const addNodes =
+const addNodes =
   (nodes: { [key: string]: Node }) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
     const indexUpdated = Object.values(nodes).reduce(
@@ -61,7 +61,7 @@ export const addNodes =
     return indexUpdated
   }
 
-export const addNode =
+const addNode =
   (node: Node) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
     addNodes({ [node.uuid]: node })(index)
@@ -78,7 +78,7 @@ const _removeNodeFromCodeDependentsIndex =
     return indexUpdated
   }
 
-export const removeNode =
+const removeNode =
   (node: Node) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
     const { uuid: nodeUuid, parentUuid, nodeDefUuid } = node
@@ -102,3 +102,9 @@ export const removeNode =
 
     return indexUpdated
   }
+
+export const RecordNodesIndexUpdater = {
+  addNode,
+  addNodes,
+  removeNode,
+}

@@ -1,7 +1,6 @@
-import { UserFactory } from '../../../../auth'
 import { Survey, Surveys } from '../../../../survey'
 import { Record, Records } from '../../..'
-import { createTestRecord, createTestSurvey } from '../../../../tests/data'
+import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../../../tests/data'
 import { NodesFinder } from './nodesFinder'
 
 let survey: Survey
@@ -9,7 +8,7 @@ let record: Record
 
 describe('ReferencedNodes', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
+    const user = createTestAdminUser()
 
     survey = createTestSurvey({ user })
 
