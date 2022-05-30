@@ -73,6 +73,9 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'plot[0].plot_multiple_number.length', result: 2 },
     { expression: 'plot[1].plot_multiple_number.length', result: 0 },
     { expression: 'plot[2].plot_multiple_number.length', result: 1 },
+    // includes
+    { expression: `includes(plot[0].plot_multiple_number, 10)`, result: true },
+    { expression: `includes(plot[0].plot_multiple_number, 30)`, result: false },
     // index (single entity)
     { expression: 'index(cluster)', result: 0 },
     { expression: 'index(cluster)', result: 0, node: 'cluster.plot[0].plot_id' },
