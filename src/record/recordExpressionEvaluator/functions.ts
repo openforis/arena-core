@@ -41,6 +41,16 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
       },
   },
   {
+    name: 'includes',
+    minArity: 2,
+    maxArity: 2,
+    evaluateArgsToNodes: false,
+    executor:
+      () =>
+      (items: any, value: any): boolean =>
+        Array.isArray(items) && items.map(String).includes(String(value)),
+  },
+  {
     name: 'index',
     minArity: 1,
     maxArity: 1,
