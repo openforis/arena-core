@@ -22,7 +22,10 @@ import {
   getValidationChildrenCountKey,
 } from './recordGetters'
 
+import { addNode, addNodes, removeNode, removeNodes } from './recordUpdater'
+
 export const Records = {
+  // READ
   getRoot,
   getNodesArray,
   getChild,
@@ -44,4 +47,10 @@ export const Records = {
   getDependentNodePointers,
   getCategoryItemUuid,
   getValidationChildrenCountKey,
+
+  // UPDATE
+  addNode,
+  addNodes,
+  removeNode,
+  removeNodes,
 }
