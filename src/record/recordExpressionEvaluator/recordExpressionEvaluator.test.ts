@@ -221,6 +221,8 @@ describe('RecordExpressionEvaluator', () => {
     test(`${expression}${node ? ` (node: ${node})` : ''}`, () => {
       try {
         const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
+        if (!nodeCurrent) throw new Error(`Cannot find current node: ${node}`)
+
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid })
         const nodeContext =
           nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent(nodeCurrent)(record)

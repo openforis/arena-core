@@ -35,6 +35,9 @@ describe('RecordBuilder', () => {
     expect(Object.entries(nodes).length).toBe(8)
 
     const cluster = Records.getRoot(record)
+    expect(cluster).toBeDefined()
+    if (!cluster) throw new Error('Root node not found')
+
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
     const plots = Records.getChildren(cluster, plotDef.uuid)(record)
     expect(plots.length).toBe(3)

@@ -6,6 +6,12 @@ import { NodesFinder } from './nodesFinder'
 let survey: Survey
 let record: Record
 
+const getRoot = () => {
+  const root = Records.getRoot(record)
+  if (!root) throw new Error('Root node not found')
+  return root
+}
+
 describe('ReferencedNodes', () => {
   beforeAll(async () => {
     const user = createTestAdminUser()
@@ -16,7 +22,7 @@ describe('ReferencedNodes', () => {
   }, 10000)
 
   test('Context node: root', () => {
-    const cluster = Records.getRoot(record)
+    const cluster = getRoot()
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
     const plotsReferenced = NodesFinder.findDescendants({
       survey,
@@ -30,7 +36,7 @@ describe('ReferencedNodes', () => {
   })
 
   test('Context node: nested entity', () => {
-    const cluster = Records.getRoot(record)
+    const cluster = getRoot()
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
     const plots = Records.getChildren(cluster, plotDef.uuid)(record)
     const plot2 = plots[1]
