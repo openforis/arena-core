@@ -5,6 +5,8 @@ import { Survey, Surveys } from '../survey'
 const getNodeByPath = (params: { survey: Survey; record: Record; path: string }): Node => {
   const { survey, record, path } = params
   let currentNode = Records.getRoot(record)
+  if (!currentNode) throw new Error('Cannot find root node')
+
   path.split('.').forEach((pathPart, index) => {
     const partMatch = /(\w+)(\[(\d+)\])?/.exec(pathPart)
     if (!partMatch) throw new Error(`invalid syntax for path part: ${pathPart}`)
