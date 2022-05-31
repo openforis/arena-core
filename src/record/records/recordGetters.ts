@@ -6,22 +6,38 @@ import { Arrays, Queue } from '../../utils'
 import { Survey, SurveyDependencyType } from '../../survey/survey'
 import { SystemError } from '../../error'
 import { NodeValues } from '../../node/nodeValues'
+import { RecordNodesIndexReader } from './recordNodesIndexReader'
 
 export const getNodesArray = (record: Record): Node[] => Object.values(record.nodes || {})
-
-export const getRoot = (record: Record): Node => {
-  const root = getNodesArray(record).find((node) => !node.parentUuid)
-  if (!root) throw new Error('Record root not found')
-  return root
-}
 
 export const getNodeByUuid = (params: { record: Record; uuid: string }): Node | undefined => {
   const { record, uuid } = params
   return record.nodes?.[uuid]
 }
 
+export const getRoot = (record: Record): Node => {
+  let root = null
+  const rootUuid = record._nodesIndex ? RecordNodesIndexReader.getNodeRootUuid(record._nodesIndex) : null
+  if (rootUuid) {
+    root = getNodeByUuid({ record, uuid: rootUuid })
+  } else {
+    root = getNodesArray(record).find((node) => !node.parentUuid)
+  }
+  if (!root) throw new Error('Record root not found')
+  return root
+}
+
 export const getChildren = (params: { record: Record; parentNode: Node; childDefUuid?: string }): Node[] => {
   const { record, childDefUuid, parentNode } = params
+  if (record._nodesIndex) {
+    const childrenUuids = childDefUuid
+      ? RecordNodesIndexReader.getNodeUuidsByParentAndChildDef({
+          parentNodeUuid: parentNode.uuid,
+          childDefUuid,
+        })(record._nodesIndex)
+      : RecordNodesIndexReader.getNodeUuidsByParent(parentNode.uuid)(record._nodesIndex)
+    return childrenUuids.map((childUuid: string) => getNodeByUuid({ record, uuid: childUuid })) as Node[]
+  }
   return getNodesArray(record).filter(
     (node) => node.parentUuid === parentNode.uuid && (!childDefUuid || node.nodeDefUuid == childDefUuid)
   )
