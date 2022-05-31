@@ -31,10 +31,14 @@ describe('Objects', () => {
     expect(obj).toEqual({ a: 1 })
   })
 
-  test('isEqual', () => {
-    const o1 = { a: 1, b: '2' }
-    const o2 = { a: 1, b: '2' }
-    expect(Objects.isEqual(o1, o2)).toBeTruthy()
+  test('assocPath (deep path with missing properties - side effect)', () => {
+    const obj = { a: 1 }
+    const path = ['b', 'b2', 'b2a']
+    const value = 12
+    const objectUpdated = Objects.assocPath({ obj, path, value, sideEffect: true })
+    expect(objectUpdated).toEqual({ a: 1, b: { b2: { b2a: 12 } } })
+    // check that the original object has been updated (side effect)
+    expect(objectUpdated).toEqual(obj)
   })
 
   test('dissocPath (simple path)', () => {
@@ -62,5 +66,11 @@ describe('Objects', () => {
     expect(objectUpdated).toEqual({ a: 1, b: { b1: 2, b2: { b2a: 10, b2b: 20 } } })
     // check that the original object hasn't been updated
     expect(obj).toEqual({ a: 1, b: { b1: 2, b2: { b2a: 10, b2b: 20 } } })
+  })
+
+  test('isEqual', () => {
+    const o1 = { a: 1, b: '2' }
+    const o2 = { a: 1, b: '2' }
+    expect(Objects.isEqual(o1, o2)).toBeTruthy()
   })
 })
