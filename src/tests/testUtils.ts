@@ -19,9 +19,10 @@ const getNodeByPath = (params: { survey: Survey; record: Record; path: string })
       const childIndex = Number(partMatch[3] || 0)
       const children = Records.getChildren(currentNode, childDef.uuid)(record)
       currentNode = children[childIndex]
+      if (!currentNode) throw new Error(`Cannot find node at path ${path}`)
     }
   })
-  if (!currentNode) throw new Error(`Cannot find node with path ${path}`)
+  if (!currentNode) throw new Error(`Cannot find node at path ${path}`)
   return currentNode
 }
 
