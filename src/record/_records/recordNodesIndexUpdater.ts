@@ -53,13 +53,11 @@ const _addNodeToIndex =
 
 const addNodes =
   (nodes: { [key: string]: Node }, sideEffect = false) =>
-  (index: RecordNodesIndex): RecordNodesIndex => {
-    const indexUpdated = Object.values(nodes).reduce(
+  (index: RecordNodesIndex): RecordNodesIndex =>
+    Object.values(nodes).reduce(
       (indexAcc: RecordNodesIndex, node: Node) => _addNodeToIndex(node, sideEffect)(indexAcc),
       index
     )
-    return indexUpdated
-  }
 
 const addNode =
   (node: Node) =>

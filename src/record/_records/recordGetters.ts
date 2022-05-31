@@ -10,54 +10,68 @@ import { RecordNodesIndexReader } from './recordNodesIndexReader'
 
 export const getNodesArray = (record: Record): Node[] => Object.values(record.nodes || {})
 
-export const getNodeByUuid = (params: { record: Record; uuid: string }): Node | undefined => {
-  const { record, uuid } = params
-  return record.nodes?.[uuid]
-}
+export const getNodeByUuid =
+  (uuid: string) =>
+  (record: Record): Node | undefined =>
+    record.nodes?.[uuid]
 
-export const getRoot = (record: Record): Node => {
-  let root = null
+export const getNodesByUuids =
+  (uuids: string[]) =>
+  (record: Record): Node[] =>
+    uuids.map((uuid: string) => getNodeByUuid(uuid)(record)) as Node[]
+
+export const getRoot = (record: Record): Node | undefined => {
   const rootUuid = record._nodesIndex ? RecordNodesIndexReader.getNodeRootUuid(record._nodesIndex) : null
   if (rootUuid) {
-    root = getNodeByUuid({ record, uuid: rootUuid })
-  } else {
-    root = getNodesArray(record).find((node) => !node.parentUuid)
+    return getNodeByUuid(rootUuid)(record)
   }
-  if (!root) throw new Error('Record root not found')
-  return root
+  return getNodesArray(record).find((node) => !node.parentUuid)
 }
 
-export const getChildren = (params: { record: Record; parentNode: Node; childDefUuid?: string }): Node[] => {
-  const { record, childDefUuid, parentNode } = params
-  if (record._nodesIndex) {
-    const childrenUuids = childDefUuid
-      ? RecordNodesIndexReader.getNodeUuidsByParentAndChildDef({
-          parentNodeUuid: parentNode.uuid,
-          childDefUuid,
-        })(record._nodesIndex)
-      : RecordNodesIndexReader.getNodeUuidsByParent(parentNode.uuid)(record._nodesIndex)
-    return childrenUuids.map((childUuid: string) => getNodeByUuid({ record, uuid: childUuid })) as Node[]
+export const getChildren =
+  (parentNode: Node, childDefUuid?: string) =>
+  (record: Record): Node[] => {
+    if (record._nodesIndex) {
+      const childrenUuids = childDefUuid
+        ? RecordNodesIndexReader.getNodeUuidsByParentAndChildDef({
+            parentNodeUuid: parentNode.uuid,
+            childDefUuid,
+          })(record._nodesIndex)
+        : RecordNodesIndexReader.getNodeUuidsByParent(parentNode.uuid)(record._nodesIndex)
+      return getNodesByUuids(childrenUuids)(record)
+    }
+    return getNodesArray(record).filter(
+      (node) => node.parentUuid === parentNode.uuid && (!childDefUuid || node.nodeDefUuid == childDefUuid)
+    )
   }
-  return getNodesArray(record).filter(
-    (node) => node.parentUuid === parentNode.uuid && (!childDefUuid || node.nodeDefUuid == childDefUuid)
-  )
-}
 
-export const getChild = (params: { record: Record; parentNode: Node; childDefUuid: string }): Node => {
-  const children = getChildren(params)
-  if (children.length > 1) throw new Error('Multiple nodes found')
-  if (children.length === 0) throw new Error('Child not found')
-  return children[0]
-}
+export const getChild =
+  (parentNode: Node, childDefUuid: string) =>
+  (record: Record): Node => {
+    const children = getChildren(parentNode, childDefUuid)(record)
+    if (children.length > 1) throw new Error('Multiple nodes found')
+    if (children.length === 0) throw new Error('Child not found')
+    return children[0]
+  }
 
-export const getParent = (params: { record: Record; node: Node }): Node | undefined => {
-  const { record, node } = params
-  return node.parentUuid ? getNodeByUuid({ record, uuid: node.parentUuid }) : undefined
-}
+export const getParent =
+  (node: Node) =>
+  (record: Record): Node | undefined =>
+    node.parentUuid ? getNodeByUuid(node.parentUuid)(record) : undefined
+
+export const getNodesByDefUuid =
+  (nodeDefUuid: string) =>
+  (record: Record): Node[] => {
+    if (record._nodesIndex) {
+      const nodeUuids = RecordNodesIndexReader.getNodeUuidsByDef(nodeDefUuid)(record._nodesIndex)
+      return getNodesByUuids(nodeUuids)(record)
+    }
+    return getNodesArray(record).filter((node) => node.nodeDefUuid === nodeDefUuid)
+  }
 
 export const isNodeApplicable = (params: { record: Record; node: Node }) => {
   const { record, node } = params
-  const nodeParent = getParent({ record, node })
+  const nodeParent = getParent(node)(record)
   if (!nodeParent) return true
 
   if (isNodeApplicable({ record, node: nodeParent })) {
@@ -66,41 +80,50 @@ export const isNodeApplicable = (params: { record: Record; node: Node }) => {
   return false
 }
 
-export const getParentCodeAttribute = (params: {
-  record: Record
-  parentNode: Node
-  nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>
-}): Node | undefined => {
-  const { record, parentNode, nodeDef } = params
-  const parentCodeDefUuid = nodeDef.props.parentCodeDefUuid
-  if (!parentCodeDefUuid) return undefined
-  const ancestors = getAncestorsAndSelf({ record, node: parentNode })
-  for (const ancestor of ancestors) {
-    const children = getChildren({ record, parentNode: ancestor, childDefUuid: parentCodeDefUuid })
-    if (children.length === 1) {
-      return children[0]
-    }
+export const getDependentCodeAttributes = (node: Node) => (record: Record) => {
+  if (record._nodesIndex) {
+    const nodeUuids = RecordNodesIndexReader.getNodeCodeDependentUuids(node.uuid)(record._nodesIndex)
+    return getNodesByUuids(nodeUuids)(record)
   }
-  return undefined
+  throw new SystemError('record.nodesIndexNotInitialized')
 }
 
-// ancestors
-export const visitAncestorsAndSelf = (params: { record: Record; node: Node; visitor: (node: Node) => void }) => {
-  const { record, node, visitor } = params
-  let currentNode: Node | undefined = node
-  while (currentNode) {
-    visitor(currentNode)
-    currentNode = getParent({ record, node: currentNode })
+export const getParentCodeAttribute =
+  (params: { parentNode: Node; nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps> }) =>
+  (record: Record): Node | undefined => {
+    const { parentNode, nodeDef } = params
+
+    const parentCodeDefUuid = nodeDef.props.parentCodeDefUuid
+    if (!parentCodeDefUuid) return undefined
+
+    const ancestors = getAncestorsAndSelf({ record, node: parentNode })
+    for (const ancestor of ancestors) {
+      const children = getChildren(ancestor, parentCodeDefUuid)(record)
+      if (children.length === 1) {
+        return children[0]
+      }
+    }
+    return undefined
   }
-}
+
+// ancestors
+export const visitAncestorsAndSelf =
+  (node: Node, visitor: (node: Node) => void) =>
+  (record: Record): void => {
+    let currentNode: Node | undefined = node
+    while (currentNode) {
+      visitor(currentNode)
+      currentNode = getParent(currentNode)(record)
+    }
+  }
 
 export const getAncestor = (params: { record: Record; node: Node; ancestorDefUuid: string }): Node => {
   const { record, node, ancestorDefUuid } = params
   if (node.nodeDefUuid === ancestorDefUuid) return node
 
-  let ancestor = getParent({ record, node })
+  let ancestor = getParent(node)(record)
   while (ancestor && ancestor.nodeDefUuid !== ancestorDefUuid) {
-    ancestor = getParent({ record, node: ancestor })
+    ancestor = getParent(ancestor)(record)
   }
   if (!ancestor) {
     throw new SystemError('record.ancestorNotFound', {
@@ -118,13 +141,9 @@ export const getAncestor = (params: { record: Record; node: Node; ancestorDefUui
 export const getAncestorsAndSelf = (params: { record: Record; node: Node }): Array<Node> => {
   const { record, node } = params
   const ancestors: Array<Node> = []
-  visitAncestorsAndSelf({
-    record,
-    node,
-    visitor: (currentNode) => {
-      ancestors.push(currentNode)
-    },
-  })
+  visitAncestorsAndSelf(node, (currentNode) => {
+    ancestors.push(currentNode)
+  })(record)
   return ancestors
 }
 
@@ -147,9 +166,7 @@ export const getDescendantsOrSelf = (params: {
   let currentDescendants: Node[] = []
   descendantNodeDefUuids.forEach((currentDescendantDefUuid) => {
     currentAncestors.forEach((currentAncestor) => {
-      currentDescendants.push(
-        ...getChildren({ record, parentNode: currentAncestor, childDefUuid: currentDescendantDefUuid })
-      )
+      currentDescendants.push(...getChildren(currentAncestor, currentDescendantDefUuid)(record))
     })
     currentAncestors = currentDescendants
     currentDescendants = []
@@ -179,11 +196,11 @@ export const visitDescendantsAndSelf = (params: {
   queue.enqueue(node)
 
   while (!queue.isEmpty()) {
-    const node = queue.dequeue()
+    const visitedNode = queue.dequeue()
 
-    visitor(node)
+    visitor(visitedNode)
 
-    const children = getChildren({ record, parentNode: node })
+    const children = getChildren(visitedNode)(record)
     queue.enqueueItems(children)
   }
 }
@@ -207,7 +224,7 @@ export const getEntityKeyNodes = (params: { survey: Survey; record: Record; enti
   const { survey, record, entity } = params
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
   const nodeDefKeys = Surveys.getNodeDefKeys({ survey, nodeDef })
-  return nodeDefKeys.map((nodeDefKey) => getChild({ record, parentNode: entity, childDefUuid: nodeDefKey.uuid }))
+  return nodeDefKeys.map((nodeDefKey) => getChild(entity, nodeDefKey.uuid)(record))
 }
 
 export const getEntityKeyValues = (params: { survey: Survey; record: Record; entity: Node }): Node[] => {
@@ -221,21 +238,14 @@ export const getNodeSiblings = (params: {
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
 }) => {
   const { record, node, nodeDef } = params
-  const parentEntity = getParent({ record, node })
+  const parentEntity = getParent(node)(record)
   if (!parentEntity) return []
-  const ancestorEntity = getParent({ record, node: parentEntity })
+  const ancestorEntity = getParent(parentEntity)(record)
   if (!ancestorEntity) return []
-  const siblingParentEntities = getChildren({
-    record,
-    parentNode: ancestorEntity,
-    childDefUuid: nodeDef.parentUuid,
-  })
+  const siblingParentEntities = getChildren(ancestorEntity, nodeDef.parentUuid)(record)
 
   return siblingParentEntities.reduce(
-    (siblingsAcc: Node[], siblingEntity) => [
-      ...siblingsAcc,
-      ...getChildren({ record, parentNode: siblingEntity, childDefUuid: nodeDef.uuid }),
-    ],
+    (siblingsAcc: Node[], siblingEntity) => [...siblingsAcc, ...getChildren(siblingEntity, nodeDef.uuid)(record)],
     []
   )
 }
@@ -280,7 +290,7 @@ export const getDependentNodePointers = (params: {
     })
   }
   if (includeSelf) {
-    const parentNode = getParent({ record, node })
+    const parentNode = getParent(node)(record)
     if (parentNode) {
       const nodePointerSelf: NodePointer = {
         nodeCtx: parentNode,
@@ -305,14 +315,14 @@ export const getAncestorCodePath = (params: {
 
   const codesPath = []
   let ancestor: Node | undefined | null = parentNode
-  let ancestorCodeAttribute: Node | undefined | null = getParentCodeAttribute({ record, parentNode: ancestor, nodeDef })
+  let ancestorCodeAttribute: Node | undefined | null = getParentCodeAttribute({ parentNode: ancestor, nodeDef })(record)
 
   while (ancestor && ancestorCodeAttribute) {
     const ancestorCodeDef = Surveys.getNodeDefByUuid({ survey, uuid: ancestorCodeAttribute.nodeDefUuid }) as NodeDef<
       NodeDefType.code,
       NodeDefCodeProps
     >
-    ancestor = getParent({ record, node: ancestor })
+    ancestor = getParent(ancestor)(record)
     if (!ancestorCodeDef || !ancestor) {
       ancestorCodeAttribute = undefined
     } else {
@@ -322,7 +332,7 @@ export const getAncestorCodePath = (params: {
       } else {
         const parentCategoryItem = Surveys.getCategoryItemByUuid({ survey, itemUuid: parentCodeItemUuid })
         codesPath.push(parentCategoryItem?.props.code || '')
-        ancestorCodeAttribute = getParentCodeAttribute({ record, parentNode: ancestor, nodeDef: ancestorCodeDef })
+        ancestorCodeAttribute = getParentCodeAttribute({ parentNode: ancestor, nodeDef: ancestorCodeDef })(record)
       }
     }
   }

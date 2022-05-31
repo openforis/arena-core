@@ -10,14 +10,13 @@ import { Objects } from '../../utils'
 const _isEntityDuplicate = (params: { survey: Survey; record: Record; entity: Node }): boolean => {
   const { survey, entity, record } = params
   // 1. get sibling entities
-  const nodeParent = Records.getParent({ record, node: entity })
+  const nodeParent = Records.getParent(entity)(record)
   if (!nodeParent) return false
 
-  const siblingEntities = Records.getChildren({
-    record,
-    parentNode: nodeParent,
-    childDefUuid: entity.nodeDefUuid,
-  }).filter((node) => !Nodes.areEqual(entity, node))
+  const siblingEntities = Records.getChildren(
+    nodeParent,
+    entity.nodeDefUuid
+  )(record).filter((node) => !Nodes.areEqual(entity, node))
 
   // 2. get key values
   const keyValues = Records.getEntityKeyValues({ survey, entity, record })
@@ -46,7 +45,7 @@ const validateAttributeKey =
     const { survey, nodeDef, record } = params
 
     if (isNodeDefToBeValidated({ survey, nodeDef })) {
-      const entity = Records.getParent({ record, node })
+      const entity = Records.getParent(node)(record)
       if (entity && _isEntityDuplicate({ survey, record, entity })) {
         return ValidationResultFactory.createInstance({
           valid: false,

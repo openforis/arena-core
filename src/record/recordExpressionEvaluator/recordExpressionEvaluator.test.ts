@@ -220,7 +220,7 @@ describe('RecordExpressionEvaluator', () => {
         const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid })
         const nodeContext =
-          nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent({ record, node: nodeCurrent })
+          nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent(nodeCurrent)(record)
         if (!nodeContext) {
           throw new Error(`Cannot find context node: ${node}`)
         }

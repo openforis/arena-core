@@ -1,12 +1,15 @@
 import {
   getRoot,
   getNodesArray,
+  getNodeByUuid,
+  getNodesByUuids,
+  getNodesByDefUuid,
   getChild,
   getChildren,
   getParent,
   getParentCodeAttribute,
+  getDependentCodeAttributes,
   getAncestor,
-  getNodeByUuid,
   getEntityKeyNodes,
   getEntityKeyValues,
   getNodeSiblings,
@@ -20,20 +23,23 @@ import {
   getDependentNodePointers,
   getCategoryItemUuid,
   getValidationChildrenCountKey,
-} from './recordGetters'
+} from './_records/recordGetters'
 
-import { addNode, addNodes, removeNode, removeNodes } from './recordUpdater'
+import { addNode, addNodes, removeNode, removeNodes } from './_records/recordUpdater'
 
 export const Records = {
   // READ
   getRoot,
   getNodesArray,
+  getNodeByUuid,
+  getNodesByUuids,
+  getNodesByDefUuid,
   getChild,
   getChildren,
   getParent,
   getParentCodeAttribute,
+  getDependentCodeAttributes,
   getAncestor,
-  getNodeByUuid,
   getEntityKeyNodes,
   getEntityKeyValues,
   getNodeSiblings,

@@ -63,7 +63,7 @@ const validateChildrenCount = (params: {
 
 const _countChildren = (params: { record: Record; parentNode: Node; childDef: NodeDef<NodeDefType, NodeDefProps> }) => {
   const { record, parentNode, childDef } = params
-  const children = Records.getChildren({ record, parentNode, childDefUuid: childDef.uuid })
+  const children = Records.getChildren(parentNode, childDef.uuid)(record)
   const nonEmptyChildren = NodeDefs.isAttribute(childDef)
     ? children.filter((child) => !Nodes.isValueBlank(child))
     : children
@@ -92,7 +92,7 @@ const _getNodePointersToValidate = (params: { survey: Survey; record: Record; no
 
   const nodeDef = Surveys.getNodeDefByUuid({ uuid: node.nodeDefUuid, survey })
 
-  const nodeParent = Records.getParent({ record, node })
+  const nodeParent = Records.getParent(node)(record)
   if (nodeParent) {
     // always validate the node itself
     nodePointersToValidate.push({ nodeCtx: nodeParent, nodeDef })

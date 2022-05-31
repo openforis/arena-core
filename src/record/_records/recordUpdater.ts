@@ -6,14 +6,19 @@ import { visitDescendantsAndSelf } from './recordGetters'
 import { Objects } from '../../utils'
 
 export const addNodes =
-  (nodes: { [key: string]: Node }) =>
+  (nodes: { [key: string]: Node }, options: { updateNodesIndex: boolean } = { updateNodesIndex: true }) =>
   (record: Record): Record => ({
     ...record,
     nodes: Object.assign({}, record.nodes || {}, nodes),
-    _nodesIndex: RecordNodesIndexUpdater.addNodes(nodes)(record._nodesIndex || {}),
+    ...(options.updateNodesIndex
+      ? { _nodesIndex: RecordNodesIndexUpdater.addNodes(nodes)(record._nodesIndex || {}) }
+      : {}),
   })
 
-export const addNode = (node: Node) => (record: Record) => addNodes({ [node.uuid]: node })(record)
+export const addNode =
+  (node: Node, options: { updateNodesIndex: boolean } = { updateNodesIndex: true }) =>
+  (record: Record) =>
+    addNodes({ [node.uuid]: node }, options)(record)
 
 export const removeNodes =
   (nodes: { [key: string]: Node }) =>

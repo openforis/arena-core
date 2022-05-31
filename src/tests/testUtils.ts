@@ -15,7 +15,7 @@ const getNodeByPath = (params: { survey: Survey; record: Record; path: string })
       // skip root
     } else {
       const childIndex = Number(partMatch[3] || 0)
-      const children = Records.getChildren({ record, parentNode: currentNode, childDefUuid: childDef.uuid })
+      const children = Records.getChildren(currentNode, childDef.uuid)(record)
       currentNode = children[childIndex]
     }
   })

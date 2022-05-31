@@ -84,7 +84,7 @@ const findDescendants = (params: {
   const nodeReferencedParent = getReferencedNodesParent({ survey, record, nodeContext, nodeDefReferenced })
 
   if (nodeReferencedParent) {
-    return Records.getChildren({ record, parentNode: nodeReferencedParent, childDefUuid: nodeDefReferenced.uuid })
+    return Records.getChildren(nodeReferencedParent, nodeDefReferenced.uuid)(record)
   }
   return []
 }

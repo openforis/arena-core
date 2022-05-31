@@ -36,17 +36,17 @@ describe('RecordBuilder', () => {
 
     const cluster = Records.getRoot(record)
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
-    const plots = Records.getChildren({ record, parentNode: cluster, childDefUuid: plotDef.uuid })
+    const plots = Records.getChildren(cluster, plotDef.uuid)(record)
     expect(plots.length).toBe(3)
 
     const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
     const plot1 = plots[0]
-    const plotId1 = Records.getChild({ record, parentNode: plot1, childDefUuid: plotIdDef.uuid })
+    const plotId1 = Records.getChild(plot1, plotIdDef.uuid)(record)
     expect(plotId1).toBeDefined()
     expect(plotId1.value).toBe(1)
 
     const plot2 = plots[1]
-    const plotId2 = Records.getChild({ record, parentNode: plot2, childDefUuid: plotIdDef.uuid })
+    const plotId2 = Records.getChild(plot2, plotIdDef.uuid)(record)
     expect(plotId2).toBeDefined()
     expect(plotId2.value).toBe(2)
   })
