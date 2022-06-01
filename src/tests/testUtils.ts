@@ -4,7 +4,11 @@ import { Survey, Surveys } from '../survey'
 
 const getNodeByPath = (params: { survey: Survey; record: Record; path: string }): Node => {
   const { survey, record, path } = params
-  let currentNode = Records.getRoot(record)
+  const root = Records.getRoot(record)
+  if (!root) throw new Error('Cannot find root node')
+
+  let currentNode: Node = root
+
   path.split('.').forEach((pathPart, index) => {
     const partMatch = /(\w+)(\[(\d+)\])?/.exec(pathPart)
     if (!partMatch) throw new Error(`invalid syntax for path part: ${pathPart}`)
@@ -15,11 +19,13 @@ const getNodeByPath = (params: { survey: Survey; record: Record; path: string })
       // skip root
     } else {
       const childIndex = Number(partMatch[3] || 0)
-      const children = Records.getChildren({ record, parentNode: currentNode, childDefUuid: childDef.uuid })
-      currentNode = children[childIndex]
+      const children = Records.getChildren(currentNode, childDef.uuid)(record)
+      const child = children[childIndex]
+      if (!child) throw new Error(`Cannot find node at path ${path}`)
+
+      currentNode = child
     }
   })
-  if (!currentNode) throw new Error(`Cannot find node with path ${path}`)
   return currentNode
 }
 

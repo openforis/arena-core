@@ -1,6 +1,6 @@
-import { UserFactory } from '../../auth'
 import { Survey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
+import { createTestAdminUser } from '../../tests/data'
 const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
 
 import { SurveyDependencyType } from '../survey'
@@ -25,7 +25,7 @@ const expectDependents = (params: {
 
 describe('Survey Dependencies', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
+    const user = createTestAdminUser()
 
     survey = new SurveyBuilder(
       user,

@@ -55,7 +55,7 @@ export const updateSelfAndDependentsApplicable = (params: {
   //   // Include a pointer to node itself if it has just been created and it has an "applicable if" expression
   //   nodePointersToUpdate.push({
   //     nodeDef,
-  //     nodeCtx: Records.getParent({ record, node }),
+  //     nodeCtx: Records.getParent(node)(record),
   //   })
   // }
 
@@ -91,11 +91,7 @@ export const updateSelfAndDependentsApplicable = (params: {
       const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
       updateResult.addNode(nodeCtxUpdated)
 
-      const nodeCtxChildren = Records.getChildren({
-        record: updateResult.record,
-        parentNode: nodeCtx,
-        childDefUuid: nodeDefUuid,
-      })
+      const nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
       nodeCtxChildren.forEach((nodeCtxChild) => {
         // 5. add nodeCtxChild and its descendants to nodesUpdated
         Records.visitDescendantsAndSelf({

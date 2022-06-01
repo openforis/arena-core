@@ -63,11 +63,11 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
         return 0
       }
       const { record } = context
-      const parentNode = Records.getParent({ record, node })
+      const parentNode = Records.getParent(node)(record)
       if (!parentNode) {
         return -1
       }
-      const children = Records.getChildren({ record, parentNode, childDefUuid: node.nodeDefUuid })
+      const children = Records.getChildren(parentNode, node.nodeDefUuid)(record)
       return children.findIndex((n) => Nodes.areEqual(n, node))
     },
   },
@@ -89,7 +89,7 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
         return null
       }
       const { record } = context
-      return Records.getParent({ record, node })
+      return Records.getParent(node)(record)
     },
   },
   {

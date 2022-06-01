@@ -20,18 +20,18 @@ import { AttributeTypeValidator } from './attributeTypeValidator'
 import { AttributeUniqueValidator } from './attributeUniqueValidator'
 import { AttributeKeyValidator } from './attributeKeyValidator'
 
-const _getSiblingNodeKeys = (params: { survey: Survey; record: Record; node: Node }) => {
+const _getSiblingNodeKeys = (params: { survey: Survey; record: Record; node: Node }): Node[] => {
   const { survey, record, node } = params
 
-  const parentNode = Records.getParent({ record, node }) || Records.getRoot(record)
-  const siblings = Records.getChildren({ record, parentNode, childDefUuid: node.nodeDefUuid })
+  const parentNode = Records.getParent(node)(record) || Records.getRoot(record)
+  const siblingNodes = parentNode ? Records.getChildren(parentNode, node.nodeDefUuid)(record) : []
 
-  const siblingKeys = siblings.reduce(
+  const siblingKeyNodes = siblingNodes.reduce(
     (acc: Node[], sibling) => [...acc, ...Records.getEntityKeyNodes({ survey, record, entity: sibling })],
     []
   )
 
-  return siblingKeys
+  return siblingKeyNodes
 }
 
 const _getValidationMessagesWithDefault = (params: {
@@ -152,7 +152,7 @@ const validateSelfAndDependentAttributes = async (params: {
         includeSelf: true,
       })
 
-      const nodeParent = Records.getParent({ record, node })
+      const nodeParent = Records.getParent(node)(record)
 
       const nodesToValidate = [
         ...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }),

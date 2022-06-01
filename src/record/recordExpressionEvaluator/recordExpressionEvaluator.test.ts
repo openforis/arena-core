@@ -1,4 +1,3 @@
-import { UserFactory } from '../../auth'
 import { NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Node } from '../../node'
@@ -6,7 +5,7 @@ import { Record } from '../record'
 import { RecordExpressionEvaluator } from './recordExpressionEvaluator'
 import { RecordExpressionContext } from './context'
 import { Records } from '../records'
-import { createTestRecord, createTestSurvey } from '../../tests/data'
+import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../tests/data'
 import { SystemError } from '../../error'
 import { TestUtils } from '../../tests/testUtils'
 
@@ -24,7 +23,7 @@ const getNode = (path: string): Node => TestUtils.getNodeByPath({ survey, record
 
 describe('RecordExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
+    const user = createTestAdminUser()
 
     survey = createTestSurvey({ user })
 
@@ -222,9 +221,11 @@ describe('RecordExpressionEvaluator', () => {
     test(`${expression}${node ? ` (node: ${node})` : ''}`, () => {
       try {
         const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
+        if (!nodeCurrent) throw new Error(`Cannot find current node: ${node}`)
+
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid })
         const nodeContext =
-          nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent({ record, node: nodeCurrent })
+          nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent(nodeCurrent)(record)
         if (!nodeContext) {
           throw new Error(`Cannot find context node: ${node}`)
         }

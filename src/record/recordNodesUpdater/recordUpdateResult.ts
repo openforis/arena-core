@@ -1,5 +1,6 @@
 import { Node } from '../../node'
 import { Record } from '../record'
+import { Records } from '../records'
 
 export class RecordUpdateResult {
   record: Record
@@ -16,7 +17,7 @@ export class RecordUpdateResult {
 
   addNode(node: Node) {
     this.nodes[node.uuid] = node
-    this.record = { ...this.record, nodes: { ...this.record.nodes, [node.uuid]: node } }
+    this.record = Records.addNode(node)(this.record)
   }
 
   /**

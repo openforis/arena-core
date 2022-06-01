@@ -21,7 +21,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
   evalNodeQuery(params: { survey: Survey; record: Record; node: Node; query: string }): any {
     const { survey, record, node, query } = params
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
-    const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent({ record, node })
+    const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent(node)(record)
     if (!nodeContext) return null
     const context: RecordExpressionContext = { survey, record, nodeContext, nodeCurrent: node, object: nodeContext }
     return this.evaluate(query, context)

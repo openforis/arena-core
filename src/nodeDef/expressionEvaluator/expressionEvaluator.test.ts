@@ -1,7 +1,7 @@
 import { NodeDef, NodeDefExpressionEvaluator, NodeDefProps, NodeDefType } from '..'
-import { UserFactory } from '../../auth'
 import { Survey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
+import { createTestAdminUser } from '../../tests/data'
 import { NodeDefs } from '../nodeDefs'
 import { NodeDefExpressionContext } from './context'
 
@@ -23,7 +23,7 @@ const expectToBeNodeDef = (value: any): void => {
 
 describe('NodeDefExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
+    const user = createTestAdminUser()
 
     survey = new SurveyBuilder(
       user,

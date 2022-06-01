@@ -1,15 +1,20 @@
-import { UserFactory } from '../../../../auth'
 import { Survey, Surveys } from '../../../../survey'
 import { Record, Records } from '../../..'
-import { createTestRecord, createTestSurvey } from '../../../../tests/data'
+import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../../../tests/data'
 import { NodesFinder } from './nodesFinder'
 
 let survey: Survey
 let record: Record
 
+const getRoot = () => {
+  const root = Records.getRoot(record)
+  if (!root) throw new Error('Root node not found')
+  return root
+}
+
 describe('ReferencedNodes', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
+    const user = createTestAdminUser()
 
     survey = createTestSurvey({ user })
 
@@ -17,7 +22,7 @@ describe('ReferencedNodes', () => {
   }, 10000)
 
   test('Context node: root', () => {
-    const cluster = Records.getRoot(record)
+    const cluster = getRoot()
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
     const plotsReferenced = NodesFinder.findDescendants({
       survey,
@@ -25,15 +30,15 @@ describe('ReferencedNodes', () => {
       nodeContext: cluster,
       nodeDefReferenced: plotDef,
     })
-    const plotsExpected = Records.getChildren({ record, parentNode: cluster, childDefUuid: plotDef.uuid })
+    const plotsExpected = Records.getChildren(cluster, plotDef.uuid)(record)
     expect(plotsReferenced.length).toBe(3)
     expect(plotsReferenced).toStrictEqual(plotsExpected)
   })
 
   test('Context node: nested entity', () => {
-    const cluster = Records.getRoot(record)
+    const cluster = getRoot()
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
-    const plots = Records.getChildren({ record, parentNode: cluster, childDefUuid: plotDef.uuid })
+    const plots = Records.getChildren(cluster, plotDef.uuid)(record)
     const plot2 = plots[1]
     const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
     const nodesReferenced = NodesFinder.findDescendants({
@@ -44,7 +49,7 @@ describe('ReferencedNodes', () => {
     })
     expect(nodesReferenced.length).toBe(1)
     const plotIdReferenced = nodesReferenced[0]
-    const plotIdExpected = Records.getChild({ record, parentNode: plot2, childDefUuid: plotIdDef.uuid })
+    const plotIdExpected = Records.getChild(plot2, plotIdDef.uuid)(record)
     expect(plotIdReferenced).toStrictEqual(plotIdExpected)
   })
 })
