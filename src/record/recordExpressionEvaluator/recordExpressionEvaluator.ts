@@ -1,5 +1,6 @@
 import { ExpressionNodeType, JavascriptExpressionEvaluator } from '../../expression'
 import { RecordIdentifierEvaluator } from './node/identifier'
+import { RecordThisEvaluator } from './node/thisEvaluator'
 import { recordExpressionFunctions } from './functions'
 import { RecordExpressionContext } from './context'
 import { Survey, Surveys } from '../../survey'
@@ -13,15 +14,16 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
   constructor() {
     super(recordExpressionFunctions, {
       [ExpressionNodeType.Identifier]: RecordIdentifierEvaluator,
+      [ExpressionNodeType.This]: RecordThisEvaluator,
     })
   }
 
   evalNodeQuery(params: { survey: Survey; record: Record; node: Node; query: string }): any {
     const { survey, record, node, query } = params
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
-    const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent({ record, node })
+    const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent(node)(record)
     if (!nodeContext) return null
-    const context: RecordExpressionContext = { survey, record, nodeContext, object: nodeContext }
+    const context: RecordExpressionContext = { survey, record, nodeContext, nodeCurrent: node, object: nodeContext }
     return this.evaluate(query, context)
   }
 

@@ -28,10 +28,11 @@ export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryPa
 
     Object.entries(itemsByCategoryUuid).forEach(([categoryUuid, items]) => {
       items.forEach((item) => {
-        Objects.setInPath({
+        Objects.assocPath({
           obj: categoryItemUuidIndex,
           path: [categoryUuid, item.parentUuid || 'null', item.props?.code || ''],
           value: item.uuid,
+          sideEffect: true,
         })
         categoryItemIndex[item.uuid] = item
       }, {})

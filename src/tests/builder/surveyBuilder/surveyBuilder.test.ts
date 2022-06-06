@@ -1,8 +1,8 @@
 import { NodeDefType } from '../../../nodeDef'
 import { Survey, Surveys } from '../../../survey'
-import { UserFactory } from '../../../auth'
 import { SurveyBuilder } from './surveyBuilder'
 import { SurveyObjectBuilders } from '.'
+import { createTestAdminUser } from '../../data'
 
 const { entityDef, integerDef } = SurveyObjectBuilders
 
@@ -14,7 +14,7 @@ const expectNodeDefToExist = (params: { survey: Survey; name: string }): void =>
 
 describe('SurveyBuilder', () => {
   test('simple survey build', () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
+    const user = createTestAdminUser()
     const survey: Survey = new SurveyBuilder(
       user,
       entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())

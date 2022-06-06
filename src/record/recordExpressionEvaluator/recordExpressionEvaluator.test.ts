@@ -1,4 +1,3 @@
-import { UserFactory } from '../../auth'
 import { NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Node } from '../../node'
@@ -6,7 +5,7 @@ import { Record } from '../record'
 import { RecordExpressionEvaluator } from './recordExpressionEvaluator'
 import { RecordExpressionContext } from './context'
 import { Records } from '../records'
-import { createTestRecord, createTestSurvey } from '../../tests/data'
+import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../tests/data'
 import { SystemError } from '../../error'
 import { TestUtils } from '../../tests/testUtils'
 
@@ -24,7 +23,7 @@ const getNode = (path: string): Node => TestUtils.getNodeByPath({ survey, record
 
 describe('RecordExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
+    const user = createTestAdminUser()
 
     survey = createTestSurvey({ user })
 
@@ -73,6 +72,9 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'plot[0].plot_multiple_number.length', result: 2 },
     { expression: 'plot[1].plot_multiple_number.length', result: 0 },
     { expression: 'plot[2].plot_multiple_number.length', result: 1 },
+    // includes
+    { expression: `includes(plot[0].plot_multiple_number, 10)`, result: true },
+    { expression: `includes(plot[0].plot_multiple_number, 30)`, result: false },
     // index (single entity)
     { expression: 'index(cluster)', result: 0 },
     { expression: 'index(cluster)', result: 0, node: 'cluster.plot[0].plot_id' },
@@ -110,6 +112,16 @@ describe('RecordExpressionEvaluator', () => {
       expression: 'parent(parent(parent(dbh))).plot[index(parent(parent(dbh))) - 2].tree[1].dbh',
       result: 10.123,
       node: 'cluster.plot[2].tree[1].dbh',
+    },
+    // "this"
+    { expression: 'this', node: 'plot[0].plot_multiple_number[0]', result: 10 },
+    { expression: 'this', node: 'plot[0].plot_multiple_number[1]', result: 20 },
+    { expression: 'parent(this)', node: 'plot[0].plot_multiple_number[1]', result: () => getNode('cluster.plot[0]') },
+    { expression: 'index(this)', node: 'plot[0].plot_multiple_number[1]', result: 1 },
+    {
+      expression: 'this.invalidProp',
+      node: 'plot[0].plot_multiple_number[1]',
+      error: new SystemError('expression.invalidAttributeValuePropertyName'),
     },
     // categoryItemProp
     { expression: `categoryItemProp('hierarchical_category', 'prop1', '1')`, result: 'Extra prop1 item 1' },
@@ -200,6 +212,8 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'visit_time.hour', result: 10 },
     { expression: 'visit_time.minute', result: 30 },
     { expression: 'visit_time.seconds', error: new SystemError('expression.invalidAttributeValuePropertyName') },
+    { expression: 'this.x', node: 'cluster_location', result: 41.883012 },
+    { expression: 'this.year', node: 'visit_date', result: 2021 },
   ]
 
   queries.forEach((query: Query) => {
@@ -207,13 +221,15 @@ describe('RecordExpressionEvaluator', () => {
     test(`${expression}${node ? ` (node: ${node})` : ''}`, () => {
       try {
         const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
+        if (!nodeCurrent) throw new Error(`Cannot find current node: ${node}`)
+
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid })
         const nodeContext =
-          nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent({ record, node: nodeCurrent })
+          nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent(nodeCurrent)(record)
         if (!nodeContext) {
           throw new Error(`Cannot find context node: ${node}`)
         }
-        const context: RecordExpressionContext = { survey, record, nodeContext, object: nodeContext }
+        const context: RecordExpressionContext = { survey, record, nodeContext, nodeCurrent, object: nodeContext }
         const res = new RecordExpressionEvaluator().evaluate(expression, context)
         expect(res).toEqual(result instanceof Function ? result() : result)
       } catch (error) {

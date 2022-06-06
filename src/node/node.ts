@@ -4,6 +4,7 @@ import { Taxon } from '../taxonomy'
 export interface NodeMeta {
   childApplicability?: { [uuid: string]: boolean }
   h?: string[]
+  hCode?: string[]
   defaultValueApplied?: boolean
 }
 

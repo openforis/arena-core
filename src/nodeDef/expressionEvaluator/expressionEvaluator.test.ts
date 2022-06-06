@@ -1,7 +1,7 @@
 import { NodeDef, NodeDefExpressionEvaluator, NodeDefProps, NodeDefType } from '..'
-import { UserFactory } from '../../auth'
 import { Survey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
+import { createTestAdminUser } from '../../tests/data'
 import { NodeDefs } from '../nodeDefs'
 import { NodeDefExpressionContext } from './context'
 
@@ -23,7 +23,7 @@ const expectToBeNodeDef = (value: any): void => {
 
 describe('NodeDefExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
+    const user = createTestAdminUser()
 
     survey = new SurveyBuilder(
       user,
@@ -31,7 +31,11 @@ describe('NodeDefExpressionEvaluator', () => {
         'cluster',
         integerDef('cluster_id').key(),
         booleanDef('accessible'),
-        entityDef('plot', integerDef('plot_id').key()).multiple()
+        entityDef(
+          'plot',
+          integerDef('plot_id').key(),
+          entityDef('tree', integerDef('tree_id').key()).multiple()
+        ).multiple()
       )
     ).build()
   }, 10000)
@@ -64,6 +68,9 @@ describe('NodeDefExpressionEvaluator', () => {
       result: true,
       resultIsNotNodeDef: true,
     },
+    { expression: 'this', nodeDef: 'plot', result: 'plot' },
+    { expression: 'parent(this).plot_id', nodeDef: 'plot_id', result: 'plot_id' },
+    { expression: 'parent(parent(this)).accessible', nodeDef: 'tree', result: 'accessible' },
   ]
 
   queries.forEach((query: Query) => {
