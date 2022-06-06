@@ -76,7 +76,7 @@ export const recordExpressionFunctions: Array<ExpressionFunction<RecordExpressio
     minArity: 0,
     maxArity: 0,
     evaluateToNode: false,
-    executor: () => () => Dates.nowFormattedForStorage(),
+    executor: () => () => Dates.nowFormattedForExpression(),
   },
   {
     name: 'parent',

@@ -11,7 +11,8 @@ export enum DateFormats {
   datetimeDefault = 'yyyy-MM-dd_HH-mm-ss',
 }
 
-const nowFormattedForStorage = (): string => format(Date.now(), DateFormats.datetimeStorage)
+const nowFormattedForStorage = (): string => format(Date.now(), DateFormats.datetimeISO)
+const nowFormattedForExpression = (): string => format(Date.now(), DateFormats.datetimeDefault)
 
 const parse = (dateStr: string, format: DateFormats) => dateFnsParse(dateStr, format, new Date())
 
@@ -72,5 +73,6 @@ export const Dates = {
   isValidDate,
   isValidTime,
   nowFormattedForStorage,
+  nowFormattedForExpression,
   convertDate,
 }
