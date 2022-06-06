@@ -36,7 +36,12 @@ export const addNodeAndDescendants = (params: {
   nodeDef: NodeDef<any>
 }): RecordUpdateResult => {
   const { survey, record, parentNode, nodeDef } = params
-  const node = NodeFactory.createInstance({ nodeDefUuid: nodeDef.uuid, recordUuid: record.uuid, parentNode })
+  const node = NodeFactory.createInstance({
+    nodeDefUuid: nodeDef.uuid,
+    recordUuid: record.uuid,
+    parentNode,
+    surveyUuid: survey.uuid,
+  })
 
   const updateResult = new RecordUpdateResult({ record })
   updateResult.addNode(node)
