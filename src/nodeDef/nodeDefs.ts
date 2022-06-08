@@ -21,9 +21,9 @@ const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ||
 const getDefaultValues = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
   nodeDef.propsAdvanced?.defaultValues || []
 
-const isDefaultValueEvaluatedSingleTime = (nodeDef: NodeDef<NodeDefType>): boolean => {
-  const defaultValueEvaluatedSingleTime = nodeDef.propsAdvanced?.defaultValueEvaluatedSingleTime
-  return defaultValueEvaluatedSingleTime === undefined ? !isReadOnly(nodeDef) : defaultValueEvaluatedSingleTime
+const isDefaultValueEvaluatedOneTime = (nodeDef: NodeDef<NodeDefType>): boolean => {
+  const defaultValueEvaluatedOneTime = nodeDef.propsAdvanced?.defaultValueEvaluatedOneTime
+  return defaultValueEvaluatedOneTime === undefined ? !isReadOnly(nodeDef) : defaultValueEvaluatedOneTime
 }
 
 const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.applicable || []
@@ -54,7 +54,7 @@ export const NodeDefs = {
   isRoot,
   getType,
   getDefaultValues,
-  isDefaultValueEvaluatedSingleTime,
+  isDefaultValueEvaluatedOneTime,
   getApplicable,
   getTaxonomyUuid,
   // validations
