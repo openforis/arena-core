@@ -1,9 +1,9 @@
-import { addNodeAndDescendants } from './recordNodesCreator'
+import { createNodeAndDescendants } from './recordNodesCreator'
 import { updateNodesDependents } from './recordNodesUpdater'
 
 export { RecordUpdateResult } from './recordUpdateResult'
 
 export const RecordNodesUpdater = {
-  addNodeAndDescendants,
+  createNodeAndDescendants,
   updateNodesDependents,
 }
