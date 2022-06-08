@@ -28,7 +28,7 @@ export const updateNodesDependents = (params: {
 
   while (!nodeUuidsToVisit.isEmpty()) {
     const nodeUuid = nodeUuidsToVisit.dequeue()
-    const node = nodes[nodeUuid]
+    const node = updateResult.getNodeByUuid(nodeUuid)
 
     const visitedCount = visitedCountByUuid[nodeUuid] || 0
 

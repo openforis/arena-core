@@ -108,7 +108,19 @@ export const updateSelfAndDependentsApplicable = (params: {
   return updateResult
 }
 
-const canApplyDefaultValue = (node: Node): boolean => Nodes.isValueBlank(node) || Nodes.isDefaultValueApplied(node)
+const shouldResetDefaultValue = (params: { record: Record; node: Node }): boolean => {
+  const { record, node } = params
+  return !Records.isNodeApplicable({ record, node }) && !Nodes.isValueBlank(node) && Nodes.isDefaultValueApplied(node)
+}
+
+const canApplyDefaultValue = (params: { record: Record; node: Node; nodeDef: NodeDef<any> }): boolean => {
+  const { record, node, nodeDef } = params
+  return (
+    Records.isNodeApplicable({ record, node }) &&
+    (Nodes.isValueBlank(node) ||
+      (Nodes.isDefaultValueApplied(node) && !NodeDefs.isDefaultValueEvaluatedSingleTime(nodeDef)))
+  )
+}
 
 const updateDefaultValuesInNodes = (params: {
   survey: Survey
@@ -145,7 +157,15 @@ const updateDefaultValuesInNodes = (params: {
 
     const nodesToUpdate = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
     nodesToUpdate.forEach((nodeToUpdate) => {
-      if (!canApplyDefaultValue(nodeToUpdate)) return
+      if (shouldResetDefaultValue({ record: updateResult.record, node: nodeToUpdate })) {
+        const nodeUpdated = Nodes.mergeNodes(nodeToUpdate, {
+          value: null,
+          meta: { defaultValueApplied: false },
+        })
+        updateResult.addNode(nodeUpdated)
+        return
+      }
+      if (!canApplyDefaultValue({ record: updateResult.record, nodeDef, node: nodeToUpdate })) return
 
       // 2. if node value is not changed, do nothing
       if (Objects.isEqual(nodeToUpdate.value, exprValue)) return
@@ -181,10 +201,18 @@ export const updateSelfAndDependentsDefaultValues = (params: { survey: Survey; r
   // filter nodes to update including itself and (attributes with empty values or with default values applied)
   // therefore attributes with user defined values are excluded
   const nodePointersFilterFn = (nodePointer: NodePointer): boolean => {
-    if (!NodeDefs.isAttribute(nodePointer.nodeDef)) return false
+    const { nodeDef } = nodePointer
+    if (!NodeDefs.isAttribute(nodeDef)) return false
 
-    const referencedNodes = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
-    return referencedNodes.some(canApplyDefaultValue)
+    const referencedNodes = NodePointers.getNodesFromNodePointers({
+      record: updateResult.record,
+      nodePointers: [nodePointer],
+    })
+    return referencedNodes.some(
+      (referencedNode) =>
+        shouldResetDefaultValue({ record: updateResult.record, node: referencedNode }) ||
+        canApplyDefaultValue({ record: updateResult.record, node: referencedNode, nodeDef })
+    )
   }
 
   const nodePointersToUpdate = Records.getDependentNodePointers({

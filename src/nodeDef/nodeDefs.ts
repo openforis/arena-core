@@ -16,8 +16,15 @@ const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.
 
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
 
+const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly || false
+
 const getDefaultValues = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
   nodeDef.propsAdvanced?.defaultValues || []
+
+const isDefaultValueEvaluatedSingleTime = (nodeDef: NodeDef<NodeDefType>): boolean => {
+  const defaultValueEvaluatedSingleTime = nodeDef.propsAdvanced?.defaultValueEvaluatedSingleTime
+  return defaultValueEvaluatedSingleTime === undefined ? !isReadOnly(nodeDef) : defaultValueEvaluatedSingleTime
+}
 
 const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.applicable || []
 
@@ -47,6 +54,7 @@ export const NodeDefs = {
   isRoot,
   getType,
   getDefaultValues,
+  isDefaultValueEvaluatedSingleTime,
   getApplicable,
   getTaxonomyUuid,
   // validations
