@@ -118,7 +118,7 @@ const canApplyDefaultValue = (params: { record: Record; node: Node; nodeDef: Nod
   return (
     Records.isNodeApplicable({ record, node }) &&
     (Nodes.isValueBlank(node) ||
-      (Nodes.isDefaultValueApplied(node) && !NodeDefs.isDefaultValueEvaluatedSingleTime(nodeDef)))
+      (Nodes.isDefaultValueApplied(node) && !NodeDefs.isDefaultValueEvaluatedOneTime(nodeDef)))
   )
 }
 
