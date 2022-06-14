@@ -4,6 +4,8 @@ import { NodeDefMemberEvaluator } from './node/member'
 import { NodeDefThisEvaluator } from './node/thisEvaluator'
 import { nodeDefExpressionFunctions } from './functions'
 import { NodeDefExpressionContext } from './context'
+import { NodeDef } from '../nodeDef'
+import { Survey, Surveys } from '../../survey'
 
 export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<NodeDefExpressionContext> {
   constructor() {
@@ -14,7 +16,23 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
     })
   }
 
-  findReferencedNodeDefUuids(expression: string, context: NodeDefExpressionContext): Set<string> {
+  findReferencedNodeDefUuids(params: {
+    expression: string
+    survey: Survey
+    nodeDef: NodeDef<any>
+    isContextParent?: boolean
+    selfReferenceAllowed?: boolean
+  }): Set<string> {
+    const { expression, survey, nodeDef, isContextParent = true, selfReferenceAllowed = true } = params
+
+    const nodeDefContext = isContextParent ? Surveys.getNodeDefParent({ survey, nodeDef }) : nodeDef
+
+    const context: NodeDefExpressionContext = {
+      survey,
+      nodeDefCurrent: nodeDef,
+      nodeDefContext,
+      selfReferenceAllowed,
+    }
     try {
       this.evaluate(expression, context)
       return context.referencedNodeDefUuids || new Set()
