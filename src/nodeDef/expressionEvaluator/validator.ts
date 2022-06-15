@@ -1,8 +1,22 @@
 import { NodeDef } from '..'
 import { Survey, Surveys } from '../../survey'
 import { ValidationResult, ValidationResultFactory } from '../../validation'
+import { NodeDefs } from '../nodeDefs'
 import { NodeDefExpressionContext } from './context'
 import { NodeDefExpressionEvaluator } from './evaluator'
+
+const determineNodeDefContext = (params: { survey: Survey; nodeDefCurrent: NodeDef<any> }) => {
+  const { survey, nodeDefCurrent } = params
+
+  const nodeDefContext = NodeDefs.isRoot(nodeDefCurrent)
+    ? nodeDefCurrent
+    : Surveys.getNodeDefParent({ survey, nodeDef: nodeDefCurrent })
+
+  if (!nodeDefContext) {
+    throw new Error(`Cannot find context nodeDef: ${nodeDefCurrent?.props?.name}`)
+  }
+  return nodeDefContext
+}
 
 export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
   validate(params: {
@@ -23,13 +37,7 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
     try {
       const nodeDefContext = nodeDefContextParam
         ? nodeDefContextParam
-        : !nodeDefCurrent.parentUuid
-        ? nodeDefCurrent
-        : Surveys.getNodeDefParent({ survey, nodeDef: nodeDefCurrent })
-
-      if (!nodeDefContext) {
-        throw new Error(`Cannot find context nodeDef: ${nodeDefCurrent?.props?.name}`)
-      }
+        : determineNodeDefContext({ survey, nodeDefCurrent })
 
       const context: NodeDefExpressionContext = {
         survey,
