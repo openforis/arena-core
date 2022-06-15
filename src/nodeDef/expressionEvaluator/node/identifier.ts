@@ -7,7 +7,8 @@ import { NodeDefExpressionContext } from '../context'
 import { IdentifierExpression } from '../../../expression'
 import { SystemError } from '../../../error'
 import { ValidatorErrorKeys } from '../../../validation'
-import { PointFactory } from '../../../geo'
+import { NodeNativeProperties } from './nodeDefExpressionNativeProperties'
+import { NodeValues } from '../../../node/nodeValues'
 
 /**
  * Determines the actual context node def
@@ -32,18 +33,6 @@ const findActualContextNode = (params: {
   return nodeDefContext
 }
 
-const sampleValuesByNodeDefType: { [key in NodeDefType]?: any } = {
-  [NodeDefType.boolean]: true,
-  [NodeDefType.code]: { itemUuid: '54911eda-ebdd-11ec-8ea0-0242ac120002' },
-  [NodeDefType.coordinate]: PointFactory.createInstance({ x: 1, y: 2, srs: 'EPSG:4326' }),
-  [NodeDefType.date]: '2022-06-14',
-  [NodeDefType.decimal]: 1.234,
-  [NodeDefType.integer]: 1,
-  [NodeDefType.taxon]: { taxonUuid: '54911eda-ebdd-11ec-8ea0-0242ac120002' },
-  [NodeDefType.text]: 'Carpe diem',
-  [NodeDefType.time]: '10:25',
-}
-
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
     try {
@@ -52,27 +41,32 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     } catch (e) {
       const { context } = this
 
-      const { nodeDefCurrent, selfReferenceAllowed, referencedNodeDefUuids } = context
+      const { nodeDefCurrent, selfReferenceAllowed, object: objectContext, referencedNodeDefUuids } = context
+
+      const exprName = expressionNode.name
+
+      // check if identifier is a native property or function (e.g. String.length or String.toUpperCase())
+      if (NodeNativeProperties.hasNativeProperty({ nodeDefOrValue: objectContext, propName: exprName })) {
+        return NodeNativeProperties.evalNodeDefProperty({ nodeDefOrValue: objectContext, propName: exprName })
+      }
+
+      // check if identifier is a composite attribute value prop
+      if (NodeDefs.isAttribute(objectContext) && NodeValues.isValueProp({ nodeDef: objectContext, prop: exprName })) {
+        return objectContext
+      }
 
       const referencedNodeDef = this.findIdentifierAmongReachableNodeDefs(expressionNode)
       if (referencedNodeDef) {
         context.referencedNodeDefUuids = (referencedNodeDefUuids || new Set()).add(referencedNodeDef.uuid)
 
         if (!selfReferenceAllowed && referencedNodeDef.uuid === nodeDefCurrent?.uuid) {
-          throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: expressionNode.name })
+          throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: exprName })
         }
 
-        const result = this.getValueOrNodeDef(referencedNodeDef)
-        return referencedNodeDef.props.multiple ? [result] : result
+        return referencedNodeDef
       }
-      throw new SystemError('expression.identifierNotFound', { name: expressionNode.name })
+      throw new SystemError('expression.identifierNotFound', { name: exprName })
     }
-  }
-
-  getValueOrNodeDef(nodeDef: NodeDef<NodeDefType, any>): any {
-    const { evaluateToNode = true } = this.context
-    if (evaluateToNode) return nodeDef
-    return sampleValuesByNodeDefType[nodeDef.type] || null
   }
 
   /**

@@ -35,6 +35,7 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
         survey,
         nodeDefContext,
         nodeDefCurrent,
+        object: nodeDefCurrent,
         selfReferenceAllowed,
         referencedNodeDefUuids: new Set(),
       }

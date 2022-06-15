@@ -14,7 +14,7 @@ export class NodeDefMemberEvaluator extends MemberEvaluator<NodeDefExpressionCon
     }
     if (computed) {
       // access element at index (e.g. plot[1] or plot[index(...)])
-      return Array.isArray(objectEval) ? objectEval[0] : objectEval
+      return objectEval
     }
 
     // eval property and return it (e.g. plot.plot_id)

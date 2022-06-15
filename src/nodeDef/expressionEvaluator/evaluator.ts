@@ -16,13 +16,13 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
     })
   }
 
-  findReferencedNodeDefUuids(params: {
+  _eval(params: {
     expression: string
     survey: Survey
     nodeDef: NodeDef<any>
     isContextParent?: boolean
     selfReferenceAllowed?: boolean
-  }): Set<string> {
+  }): { result: any; referencedNodeDefUuids: Set<string> } {
     const { expression, survey, nodeDef, isContextParent = true, selfReferenceAllowed = true } = params
 
     const nodeDefContext = isContextParent ? Surveys.getNodeDefParent({ survey, nodeDef }) : nodeDef
@@ -31,13 +31,37 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
       survey,
       nodeDefCurrent: nodeDef,
       nodeDefContext,
+      object: nodeDef,
       selfReferenceAllowed,
     }
+    const result = this.evaluate(expression, context)
+    const referencedNodeDefUuids = context.referencedNodeDefUuids || new Set()
+    return { result, referencedNodeDefUuids }
+  }
+
+  findReferencedNodeDefUuids(params: {
+    expression: string
+    survey: Survey
+    nodeDef: NodeDef<any>
+    isContextParent?: boolean
+    selfReferenceAllowed?: boolean
+  }): Set<string> {
     try {
-      this.evaluate(expression, context)
-      return context.referencedNodeDefUuids || new Set()
+      const { referencedNodeDefUuids } = this._eval(params)
+      return referencedNodeDefUuids
     } catch (error) {
       return new Set()
     }
+  }
+
+  evalExpression(params: {
+    expression: string
+    survey: Survey
+    nodeDef: NodeDef<any>
+    isContextParent?: boolean
+    selfReferenceAllowed?: boolean
+  }): any {
+    const { result } = this._eval(params)
+    return result
   }
 }
