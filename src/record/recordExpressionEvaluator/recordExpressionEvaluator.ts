@@ -18,7 +18,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
     })
   }
 
-  evalNodeQuery(params: { survey: Survey; record: Record; node: Node; query: string }): any {
+  evalExpression(params: { survey: Survey; record: Record; node: Node; query: string }): any {
     const { survey, record, node, query } = params
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent(node)(record)
@@ -43,7 +43,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
 
       if (
         Objects.isEmpty(applyIfExpr) ||
-        this.evalNodeQuery({ survey, record, node: nodeCtx, query: applyIfExpr || '' })
+        this.evalExpression({ survey, record, node: nodeCtx, query: applyIfExpr || '' })
       ) {
         applicableExpressions.push(expression)
 
@@ -74,7 +74,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
 
     return applicableExpressions.map((expression) => ({
       expression,
-      value: this.evalNodeQuery({ survey, record, node: nodeCtx, query: expression.expression || '' }),
+      value: this.evalExpression({ survey, record, node: nodeCtx, query: expression.expression || '' }),
     }))
   }
 

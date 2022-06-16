@@ -6,7 +6,9 @@ const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
 const isEntity = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.entity
 
-const isSingle = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.props.multiple
+const isMultiple = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.props.multiple || false
+
+const isSingle = (nodeDef: NodeDef<NodeDefType>): boolean => !isMultiple(nodeDef)
 
 const isSingleEntity = (nodeDef: NodeDef<NodeDefType>): boolean => isEntity(nodeDef) && isSingle(nodeDef)
 
@@ -47,6 +49,7 @@ const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>) =>
 
 export const NodeDefs = {
   isEntity,
+  isMultiple,
   isSingle,
   isSingleEntity,
   isAttribute,

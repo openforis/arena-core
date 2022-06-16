@@ -2,7 +2,7 @@ import { MemberExpression } from '../../../expression'
 import { MemberEvaluator } from '../../../expression/javascript/node/member'
 import { NodeDefExpressionContext } from '../context'
 
-const isNodeDef = (obj: any) => 'uuid' in obj
+const isNodeDef = (obj: any) => obj && typeof obj === 'object' && 'uuid' in obj
 
 export class NodeDefMemberEvaluator extends MemberEvaluator<NodeDefExpressionContext> {
   evaluate(expressionNode: MemberExpression): any {
@@ -16,11 +16,12 @@ export class NodeDefMemberEvaluator extends MemberEvaluator<NodeDefExpressionCon
       // access element at index (e.g. plot[1] or plot[index(...)])
       return objectEval
     }
+
     // eval property and return it (e.g. plot.plot_id)
     // allow self node def reference because the referenced node at runtime can be different from current node
     // e.g. current node = plot_id ; expression = parent(plot).plot[index(plot) - 1].plot_id
 
-    const propertyNodeDefContext = isNodeDef(objectEval) ? objectEval : this.context.nodeDefContext
+    const propertyNodeDefContext = this.determinePropertyNodeDefContext(objectEval)
 
     return this.evaluator.evaluateNode(property, {
       ...this.context,
@@ -28,5 +29,11 @@ export class NodeDefMemberEvaluator extends MemberEvaluator<NodeDefExpressionCon
       nodeDefContext: propertyNodeDefContext,
       selfReferenceAllowed: true,
     })
+  }
+
+  determinePropertyNodeDefContext(objectEval: any): any {
+    if (isNodeDef(objectEval)) return objectEval
+    if (Array.isArray(objectEval) && isNodeDef(objectEval[0])) return objectEval[0]
+    return this.context.nodeDefContext
   }
 }

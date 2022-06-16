@@ -11,5 +11,5 @@ export interface NodeDefExpressionContext extends ExpressionContext {
    * Unique UUIDs of node definitions being visited during expression evaluation.
    */
   referencedNodeDefUuids?: Set<string>
-  selfReferenceAllowed: boolean
+  selfReferenceAllowed?: boolean
 }

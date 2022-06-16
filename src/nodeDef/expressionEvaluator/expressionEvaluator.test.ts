@@ -2,8 +2,6 @@ import { NodeDef, NodeDefExpressionEvaluator, NodeDefProps, NodeDefType } from '
 import { Survey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
-import { NodeDefs } from '../nodeDefs'
-import { NodeDefExpressionContext } from './context'
 
 const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
 
@@ -79,20 +77,10 @@ describe('NodeDefExpressionEvaluator', () => {
 
     test(`${expression}${nodeDef ? ` (nodeDef: ${nodeDef})` : ''}`, () => {
       try {
-        const nodeDefCurrent = nodeDef
-          ? Surveys.getNodeDefByName({ survey, name: nodeDef })
-          : Surveys.getNodeDefRoot({ survey })
+        const nodeDefCurrent = Surveys.getNodeDefByName({ survey, name: nodeDef || 'cluster_id' })
 
-        const nodeDefContext = NodeDefs.isRoot(nodeDefCurrent)
-          ? nodeDefCurrent
-          : Surveys.getNodeDefParent({ survey, nodeDef: nodeDefCurrent })
+        const result = new NodeDefExpressionEvaluator().evalExpression({ survey, expression, nodeDef: nodeDefCurrent })
 
-        if (!nodeDefContext) {
-          throw new Error(`Cannot find context nodeDef: ${nodeDef}`)
-        }
-
-        const context: NodeDefExpressionContext = { survey, nodeDefContext, nodeDefCurrent, selfReferenceAllowed: true }
-        const result = new NodeDefExpressionEvaluator().evaluate(expression, context)
         if (expectedResultValue === null || expectedResultValue === undefined) {
           expect(result).toBe(expectedResultValue)
         } else {
