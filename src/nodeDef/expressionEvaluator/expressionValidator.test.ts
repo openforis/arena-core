@@ -3,7 +3,7 @@ import { UserFactory } from '../../auth'
 import { Survey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 
-const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
+const { booleanDef, decimalDef, entityDef, integerDef } = SurveyObjectBuilders
 
 type Query = {
   expression: string
@@ -25,7 +25,11 @@ describe('NodeDefExpressionValidator', () => {
         'cluster',
         integerDef('cluster_id').key(),
         booleanDef('accessible'),
-        entityDef('plot', integerDef('plot_id').key()).multiple()
+        entityDef(
+          'plot',
+          integerDef('plot_id').key(),
+          entityDef('tree', integerDef('tree_id').key(), decimalDef('tree_height')).multiple()
+        ).multiple()
       )
     ).build()
   }, 10000)
@@ -51,6 +55,13 @@ describe('NodeDefExpressionValidator', () => {
       expression: '(accessible && cluster_id) || (accessible && plot[1].plot_id)',
       validationResult: true,
       referencedNodeDefNames: ['accessible', 'cluster_id', 'plot', 'plot_id'],
+    },
+    { expression: 'count(plot) == 2', validationResult: true, referencedNodeDefNames: ['plot'] },
+    { expression: 'count(plot[plot_id == 1]) == 1', validationResult: true, referencedNodeDefNames: ['plot'] },
+    {
+      expression: 'sum(cluster.plot.tree.tree_height) == 110',
+      validationResult: true,
+      referencedNodeDefNames: ['cluster', 'plot', 'tree', 'tree_height'],
     },
   ]
 

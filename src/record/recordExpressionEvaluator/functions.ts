@@ -7,6 +7,16 @@ import { nodeDefExpressionFunctions } from '../../nodeDef/expressionEvaluator/fu
 export const recordExpressionFunctions: ExpressionFunction<RecordExpressionContext>[] = [
   ...nodeDefExpressionFunctions,
   {
+    name: 'count',
+    minArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (_context: RecordExpressionContext) => (nodeSet) => {
+      if (!nodeSet) return 0
+      if (Array.isArray(nodeSet)) return nodeSet.length
+      return 0
+    },
+  },
+  {
     name: 'index',
     minArity: 1,
     maxArity: 1,
@@ -39,6 +49,17 @@ export const recordExpressionFunctions: ExpressionFunction<RecordExpressionConte
       }
       const { record } = context
       return Records.getParent(node)(record)
+    },
+  },
+  {
+    name: 'sum',
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: false,
+    executor: (_context: RecordExpressionContext) => (nodeSet) => {
+      if (!nodeSet) return 0
+      if (Array.isArray(nodeSet)) return nodeSet.reduce((acc, value) => acc + (Number(value) || 0), 0)
+      return 0
     },
   },
 ]

@@ -167,6 +167,14 @@ describe('RecordExpressionEvaluator', () => {
       result: '4311422.21',
       node: 'cluster.plot[1].plot_id',
     },
+    // count
+    { expression: 'count(plot)', result: 3 },
+    // { expression: 'count(plot[plot_id == 1])', result: 1 },
+    // sum
+    {
+      expression: 'sum(plot.tree.tree_height)',
+      result: 150,
+    },
     // global objects (Array)
     { expression: 'Array.of(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', result: [1, 2, 3] },
     // global objects (Date)
