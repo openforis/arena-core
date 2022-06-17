@@ -169,7 +169,7 @@ describe('RecordExpressionEvaluator', () => {
     },
     // count
     { expression: 'count(plot)', result: 3 },
-    // { expression: 'count(plot[plot_id == 1])', result: 1 },
+    { expression: 'count(plot[plot_id == 1])', result: 1 },
     // sum
     {
       expression: 'sum(plot.tree.tree_height)',
