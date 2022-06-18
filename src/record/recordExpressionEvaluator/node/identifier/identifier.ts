@@ -44,10 +44,10 @@ const evaluateIdentifierOnNode = (params: {
   survey: Survey
   record: Record
   nodeObject: Node
-  evaluateToNode: boolean
+  evaluateToNode?: boolean
   propName: string
 }) => {
-  const { survey, record, nodeObject, evaluateToNode, propName } = params
+  const { survey, record, nodeObject, evaluateToNode = false, propName } = params
   const { nodeDefUuid: nodeDefObjectUuid, value } = nodeObject
   if (!nodeDefObjectUuid) {
     throw new SystemError('expression.identifierNotFound', { name: propName })
@@ -118,7 +118,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
           survey,
           record,
           nodeObject: contextNode,
-          evaluateToNode: evaluateToNode || false,
+          evaluateToNode,
           propName,
         })
         return Array.isArray(evaluationResult) ? [...acc, ...evaluationResult] : [...acc, evaluationResult]
@@ -129,7 +129,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
         survey,
         record,
         nodeObject: contextObject,
-        evaluateToNode: evaluateToNode || false,
+        evaluateToNode,
         propName,
       })
     }

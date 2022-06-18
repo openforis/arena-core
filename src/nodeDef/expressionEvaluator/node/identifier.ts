@@ -20,17 +20,17 @@ const findActualContextNode = (params: {
   context: NodeDefExpressionContext
 }): NodeDef<NodeDefType, NodeDefProps> | undefined => {
   const { context } = params
-  const { survey, nodeDefContext } = context
+  const { survey, object: nodeDefObjectContext } = context
 
-  if (!nodeDefContext) return undefined
+  if (!nodeDefObjectContext) return undefined
 
-  if (NodeDefs.isAttribute(nodeDefContext)) {
-    return Surveys.getNodeDefParent({ survey, nodeDef: nodeDefContext })
+  if (NodeDefs.isAttribute(nodeDefObjectContext)) {
+    return Surveys.getNodeDefParent({ survey, nodeDef: nodeDefObjectContext })
   }
-  if (nodeDefContext.virtual) {
-    return Surveys.getNodeDefSource({ survey, nodeDef: nodeDefContext })
+  if (nodeDefObjectContext.virtual) {
+    return Surveys.getNodeDefSource({ survey, nodeDef: nodeDefObjectContext })
   }
-  return nodeDefContext
+  return nodeDefObjectContext
 }
 
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
@@ -65,7 +65,10 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
 
         return referencedNodeDef
       }
-      throw new SystemError('expression.identifierNotFound', { name: exprName })
+      throw new SystemError('expression.identifierNotFound', {
+        name: exprName,
+        contextObject: objectContext?.props?.name,
+      })
     }
   }
 
@@ -75,9 +78,9 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
   protected findIdentifierAmongReachableNodeDefs(
     expressionNode: IdentifierExpression
   ): NodeDef<NodeDefType, NodeDefProps> | undefined {
-    const { nodeDefContext } = this.context
+    const { object: contextObject } = this.context
 
-    if (nodeDefContext) {
+    if (contextObject) {
       const reachableNodeDefs = this.getReachableNodeDefs()
 
       return reachableNodeDefs.find(
@@ -94,19 +97,21 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     const { context } = this
     const { survey } = context
 
-    const reachableNodeDefs = []
+    const reachableNodeDefsByUuid: { [key: string]: NodeDef<any> } = {}
 
     const queue = new Queue()
     const visitedUuids: string[] = []
 
     const actualContextNode = findActualContextNode({ context })
-    if (actualContextNode) queue.enqueue(actualContextNode)
+    if (actualContextNode) {
+      queue.enqueue(actualContextNode)
+      reachableNodeDefsByUuid[actualContextNode.uuid] = actualContextNode
+    }
 
     while (!queue.isEmpty()) {
       const entityDefCurrent = queue.dequeue()
       const entityDefCurrentChildren = Surveys.getNodeDefChildren({ survey, nodeDef: entityDefCurrent })
-
-      reachableNodeDefs.push(entityDefCurrent, ...entityDefCurrentChildren)
+      entityDefCurrentChildren.forEach((childDef) => (reachableNodeDefsByUuid[childDef.uuid] = childDef))
 
       // visit nodes inside single entities
       queue.enqueueItems(entityDefCurrentChildren.filter(NodeDefs.isSingleEntity))
@@ -120,6 +125,6 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
         visitedUuids.push(entityDefCurrent.uuid)
       }
     }
-    return reachableNodeDefs
+    return Object.values(reachableNodeDefsByUuid)
   }
 }

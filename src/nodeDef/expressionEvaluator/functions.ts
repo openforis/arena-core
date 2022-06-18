@@ -24,6 +24,12 @@ export const nodeDefExpressionFunctions: ExpressionFunction<NodeDefExpressionCon
       },
   },
   {
+    name: 'count',
+    minArity: 1,
+    maxArity: 1,
+    executor: (_context: NodeDefExpressionContext) => (_nodeSet) => 1,
+  },
+  {
     name: 'distance',
     minArity: 2,
     maxArity: 2,
@@ -73,6 +79,15 @@ export const nodeDefExpressionFunctions: ExpressionFunction<NodeDefExpressionCon
     executor: (context: NodeDefExpressionContext) => (nodeDef) => {
       const { survey } = context
       return Surveys.getNodeDefParent({ survey, nodeDef })
+    },
+  },
+  {
+    name: 'sum',
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (_context: NodeDefExpressionContext) => (_nodeSet) => {
+      return 1
     },
   },
   {
