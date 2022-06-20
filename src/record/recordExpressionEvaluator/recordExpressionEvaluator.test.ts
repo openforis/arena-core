@@ -114,6 +114,8 @@ describe('RecordExpressionEvaluator', () => {
       node: 'cluster.plot[2].tree[1].dbh',
     },
     // "this"
+    { expression: 'this', node: 'cluster_id', result: 12 },
+    { expression: 'this', node: 'visit_date', result: '2021-01-01' },
     { expression: 'this', node: 'plot[0].plot_multiple_number[0]', result: 10 },
     { expression: 'this', node: 'plot[0].plot_multiple_number[1]', result: 20 },
     { expression: 'parent(this)', node: 'plot[0].plot_multiple_number[1]', result: () => getNode('cluster.plot[0]') },

@@ -122,6 +122,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
         if (entityDefCurrentParent) {
           queue.enqueue(entityDefCurrentParent)
         }
+        reachableNodeDefsByUuid[entityDefCurrent.uuid] = entityDefCurrent
         visitedUuids.push(entityDefCurrent.uuid)
       }
     }
