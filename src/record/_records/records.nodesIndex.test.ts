@@ -77,7 +77,7 @@ describe('Record nodes index', () => {
     const plotNode2 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[1]' })
     const plotNode3 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[2]' })
 
-    const updateResult = RecordNodesUpdater.addNodeAndDescendants({
+    const updateResult = RecordNodesUpdater.createNodeAndDescendants({
       survey,
       record,
       parentNode: clusterNode,

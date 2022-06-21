@@ -9,7 +9,7 @@ const getNodesToInsertCount = (nodeDef: NodeDef<any>): number => {
   return NodeDefs.getMinCount(nodeDef) || 0
 }
 
-const insertChildNodesBasedOnMinCount =
+const createChildNodesBasedOnMinCount =
   (params: { survey: Survey; updateResult: any; parentNode: Node }) =>
   (childDef: NodeDef<any>): void => {
     const { survey, parentNode, updateResult } = params
@@ -19,7 +19,7 @@ const insertChildNodesBasedOnMinCount =
       return // do nothing
     }
     for (let index = 0; index < nodesToInsertCount; index++) {
-      const childUpdateResult = addNodeAndDescendants({
+      const childUpdateResult = createNodeAndDescendants({
         survey,
         record: updateResult.record,
         parentNode,
@@ -29,14 +29,19 @@ const insertChildNodesBasedOnMinCount =
     }
   }
 
-export const addNodeAndDescendants = (params: {
+export const createNodeAndDescendants = (params: {
   survey: Survey
   record: Record
   parentNode: Node
   nodeDef: NodeDef<any>
 }): RecordUpdateResult => {
   const { survey, record, parentNode, nodeDef } = params
-  const node = NodeFactory.createInstance({ nodeDefUuid: nodeDef.uuid, recordUuid: record.uuid, parentNode })
+  const node = NodeFactory.createInstance({
+    nodeDefUuid: nodeDef.uuid,
+    recordUuid: record.uuid,
+    parentNode,
+    surveyUuid: survey.uuid,
+  })
 
   const updateResult = new RecordUpdateResult({ record })
   updateResult.addNode(node)
@@ -46,7 +51,7 @@ export const addNodeAndDescendants = (params: {
     const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef })
 
     // Add only child single nodes (it allows to apply default values)
-    childDefs.forEach(insertChildNodesBasedOnMinCount({ survey, parentNode: node, updateResult }))
+    childDefs.forEach(createChildNodesBasedOnMinCount({ survey, parentNode: node, updateResult }))
   }
   return updateResult
 }

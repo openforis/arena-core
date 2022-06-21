@@ -10,6 +10,7 @@ import { NodesFinder } from './nodesFinder'
 import { SystemError } from '../../../../error'
 import { FieldValidators } from '../../../../validation'
 import { NodeValueExtractor } from '../../nodeValueExtractor'
+import { Record } from '../../../record'
 
 const isValidNodeDefName = (nodeDefName: string) =>
   FieldValidators.name('expression.invalidNodeDefName')('name', { name: nodeDefName }).valid
@@ -39,6 +40,64 @@ const getNodesOrValues = (params: {
   )
 }
 
+const evaluateIdentifierOnNode = (params: {
+  survey: Survey
+  record: Record
+  nodeObject: Node
+  evaluateToNode?: boolean
+  propName: string
+}) => {
+  const { survey, record, nodeObject, evaluateToNode = false, propName } = params
+  const { nodeDefUuid: nodeDefObjectUuid, value } = nodeObject
+  if (!nodeDefObjectUuid) {
+    throw new SystemError('expression.identifierNotFound', { name: propName })
+  }
+
+  const nodeDefObject = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefObjectUuid })
+
+  // node value prop (native)
+  if (value && value[propName] !== undefined) {
+    return value[propName]
+  }
+  if (NodeDefs.isAttribute(nodeDefObject)) {
+    // node value prop (Arena specific value property)
+    if (NodeValues.isValueProp({ nodeDef: nodeDefObject, prop: propName })) {
+      return NodeValues.getValueProp({ nodeDef: nodeDefObject, node: nodeObject, prop: propName })
+    } else {
+      throw new SystemError('expression.invalidAttributeValuePropertyName', {
+        attributeName: nodeDefObject.props.name || '',
+        propName,
+      })
+    }
+  }
+
+  if (!isValidNodeDefName(propName)) {
+    throw new SystemError('expression.identifierNotFound', { name: propName })
+  }
+
+  const nodeDefReferenced = Surveys.getNodeDefByName({ survey, name: propName })
+
+  if (nodeObject.nodeDefUuid === nodeDefReferenced.uuid) {
+    // the referenced node is the current node itself
+    return nodeObject
+  }
+  if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefObject })) {
+    // if the rerenced node is an ancestor of the context node, return it following the hierarchy
+    try {
+      return Records.getAncestor({ record, node: nodeObject, ancestorDefUuid: nodeDefReferenced.uuid })
+    } catch (e) {
+      throw new SystemError('expression.ancestorNotFound', {
+        ancestorDefName: nodeDefReferenced.props.name || '',
+        descendantDefName: nodeDefObject.props.name || '',
+      })
+    }
+  }
+  // the referenced nodes can be siblings of the current node
+  const referencedNodes = NodesFinder.findDescendants({ survey, record, nodeContext: nodeObject, nodeDefReferenced })
+  const nodesOrValues = getNodesOrValues({ survey, referencedNodes, nodeDefReferenced, propName, evaluateToNode })
+  return nodeDefReferenced.props.multiple ? nodesOrValues : nodesOrValues[0]
+}
+
 export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
     try {
@@ -51,55 +110,28 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     // identifier not found
     // identifier should be a node or a node value property
     const { name: propName } = expressionNode
-    const { survey, record, evaluateToNode, object: nodeObject } = this.context
+    const { survey, record, evaluateToNode, object: contextObject } = this.context
 
-    const { nodeDefUuid: nodeDefObjectUuid, value } = nodeObject
-    if (!nodeDefObjectUuid) {
-      throw new SystemError('expression.identifierNotFound', { name: propName })
-    }
-
-    const nodeDefObject = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefObjectUuid })
-
-    // node value prop (native)
-    if (value && value[propName] !== undefined) {
-      return value[propName]
-    }
-    if (NodeDefs.isAttribute(nodeDefObject)) {
-      // node value prop (Arena specific value property)
-      if (NodeValues.isValueProp({ nodeDef: nodeDefObject, prop: propName })) {
-        return NodeValues.getValueProp({ nodeDef: nodeDefObject, node: nodeObject, prop: propName })
-      } else {
-        throw new SystemError('expression.invalidAttributeValuePropertyName', {
-          attributeName: nodeDefObject.props.name || '',
+    if (Array.isArray(contextObject)) {
+      const result = contextObject.reduce((acc, contextNode) => {
+        const evaluationResult = evaluateIdentifierOnNode({
+          survey,
+          record,
+          nodeObject: contextNode,
+          evaluateToNode,
           propName,
         })
-      }
+        return Array.isArray(evaluationResult) ? [...acc, ...evaluationResult] : [...acc, evaluationResult]
+      }, [])
+      return result
+    } else {
+      return evaluateIdentifierOnNode({
+        survey,
+        record,
+        nodeObject: contextObject,
+        evaluateToNode,
+        propName,
+      })
     }
-
-    if (!isValidNodeDefName(propName)) {
-      throw new SystemError('expression.identifierNotFound', { name: propName })
-    }
-
-    const nodeDefReferenced = Surveys.getNodeDefByName({ survey, name: propName })
-
-    if (nodeObject.nodeDefUuid === nodeDefReferenced.uuid) {
-      // the referenced node is the current node itself
-      return nodeObject
-    }
-    if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefObject })) {
-      // if the rerenced node is an ancestor of the context node, return it following the hierarchy
-      try {
-        return Records.getAncestor({ record, node: nodeObject, ancestorDefUuid: nodeDefReferenced.uuid })
-      } catch (e) {
-        throw new SystemError('expression.ancestorNotFound', {
-          ancestorDefName: nodeDefReferenced.props.name || '',
-          descendantDefName: nodeDefObject.props.name || '',
-        })
-      }
-    }
-    // the referenced nodes can be siblings of the current node
-    const referencedNodes = NodesFinder.findDescendants({ survey, record, nodeContext: nodeObject, nodeDefReferenced })
-    const nodesOrValues = getNodesOrValues({ survey, referencedNodes, nodeDefReferenced, propName, evaluateToNode })
-    return nodeDefReferenced.props.multiple ? nodesOrValues : nodesOrValues[0]
   }
 }

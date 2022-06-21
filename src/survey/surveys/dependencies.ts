@@ -95,9 +95,13 @@ const addDependencies = (params: {
   const findReferencedNodeDefs = (expression: string | undefined): { [key: string]: NodeDef<NodeDefType> } => {
     if (!expression) return {}
 
-    const nodeDefContext = isContextParent ? SurveyNodeDefs.getNodeDefParent({ survey, nodeDef }) : nodeDef
-    const context = { survey, nodeDefContext, nodeDefCurrent: nodeDef, selfReferenceAllowed }
-    const referencedNodeDefUuids = new NodeDefExpressionEvaluator().findReferencedNodeDefUuids(expression, context)
+    const referencedNodeDefUuids = new NodeDefExpressionEvaluator().findReferencedNodeDefUuids({
+      expression,
+      survey,
+      nodeDef,
+      isContextParent,
+      selfReferenceAllowed,
+    })
     return [...referencedNodeDefUuids.values()].reduce(
       (acc, uuid) => ({ ...acc, [uuid]: SurveyNodeDefs.getNodeDefByUuid({ survey, uuid }) }),
       {}

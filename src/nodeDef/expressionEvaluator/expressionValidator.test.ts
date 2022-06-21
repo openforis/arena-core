@@ -2,16 +2,15 @@ import { NodeDefExpressionValidator } from '..'
 import { UserFactory } from '../../auth'
 import { Survey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
-import { NodeDefs } from '../nodeDefs'
-import { NodeDefExpressionContext } from './context'
 
-const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
+const { booleanDef, decimalDef, entityDef, integerDef } = SurveyObjectBuilders
 
 type Query = {
   expression: string
   nodeDef?: string
   validationResult: boolean
   referencedNodeDefNames: Array<string>
+  selfReferenceAllowed?: boolean
 }
 
 let survey: Survey
@@ -26,7 +25,11 @@ describe('NodeDefExpressionValidator', () => {
         'cluster',
         integerDef('cluster_id').key(),
         booleanDef('accessible'),
-        entityDef('plot', integerDef('plot_id').key()).multiple()
+        entityDef(
+          'plot',
+          integerDef('plot_id').key(),
+          entityDef('tree', integerDef('tree_id').key(), decimalDef('tree_height')).multiple()
+        ).multiple()
       )
     ).build()
   }, 10000)
@@ -35,7 +38,15 @@ describe('NodeDefExpressionValidator', () => {
     // wrong node def name
     { expression: 'not_existent', validationResult: false, referencedNodeDefNames: [] },
     // sibling node defs
-    { expression: 'accessible', validationResult: true, referencedNodeDefNames: ['accessible'] },
+    { expression: 'accessible', nodeDef: 'accessible', validationResult: true, referencedNodeDefNames: ['accessible'] },
+    // self reference not allowed
+    {
+      expression: 'accessible',
+      nodeDef: 'accessible',
+      validationResult: false,
+      referencedNodeDefNames: [],
+      selfReferenceAllowed: false,
+    },
     // parent of root entity should be undefined
     { expression: 'parent(cluster)', validationResult: true, referencedNodeDefNames: ['cluster'] },
     // computed expressions (access node at index)
@@ -45,14 +56,22 @@ describe('NodeDefExpressionValidator', () => {
       validationResult: true,
       referencedNodeDefNames: ['accessible', 'cluster_id', 'plot', 'plot_id'],
     },
+    { expression: 'count(plot) == 2', validationResult: true, referencedNodeDefNames: ['plot'] },
+    { expression: 'count(plot[plot_id == 1]) == 1', validationResult: true, referencedNodeDefNames: ['plot'] },
+    {
+      expression: 'sum(cluster.plot.tree.tree_height) == 110',
+      validationResult: true,
+      referencedNodeDefNames: ['cluster', 'plot', 'tree', 'tree_height'],
+    },
   ]
 
   queries.forEach((query: Query) => {
     const {
       expression,
-      validationResult: validationrResultExpected,
+      validationResult: validationResultExpected,
       referencedNodeDefNames: referencedNodeDefNamesExpected = [],
       nodeDef,
+      selfReferenceAllowed = true,
     } = query
 
     test(`${expression}${nodeDef ? ` (nodeDef: ${nodeDef})` : ''}`, () => {
@@ -60,26 +79,16 @@ describe('NodeDefExpressionValidator', () => {
         ? Surveys.getNodeDefByName({ survey, name: nodeDef })
         : Surveys.getNodeDefRoot({ survey })
 
-      const nodeDefContext = NodeDefs.isRoot(nodeDefCurrent)
-        ? nodeDefCurrent
-        : Surveys.getNodeDefParent({ survey, nodeDef: nodeDefCurrent })
-
-      if (!nodeDefContext) {
-        throw new Error(`Cannot find context nodeDef: ${nodeDef}`)
-      }
-
-      const context: NodeDefExpressionContext = {
+      const { validationResult, referencedNodeDefUuids } = new NodeDefExpressionValidator().validate({
+        expression,
         survey,
-        nodeDefContext,
         nodeDefCurrent,
-        selfReferenceAllowed: true,
-        referencedNodeDefUuids: new Set(),
-      }
-      const validationResult = new NodeDefExpressionValidator().validate(expression, context)
+        selfReferenceAllowed,
+      })
 
-      expect(validationResult.valid).toBe(validationrResultExpected)
+      expect(validationResult.valid).toBe(validationResultExpected)
 
-      const rerencedNodeDefUuids = [...(context.referencedNodeDefUuids || new Set()).values()]
+      const rerencedNodeDefUuids = [...referencedNodeDefUuids.values()]
       const referencedNodeDefNames = rerencedNodeDefUuids.map(
         (nodeDefUuid) => Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid }).props.name
       )

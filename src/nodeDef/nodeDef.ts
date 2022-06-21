@@ -68,6 +68,7 @@ export interface NodeDefValidations {
 export interface NodeDefPropsAdvanced {
   applicable?: Array<NodeDefExpression>
   defaultValues?: Array<NodeDefExpression>
+  defaultValueEvaluatedOneTime?: boolean
   formula?: Array<NodeDefExpression>
   validations?: NodeDefValidations
 }

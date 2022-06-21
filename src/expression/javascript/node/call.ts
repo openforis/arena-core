@@ -28,7 +28,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     if (fn) {
       const { object: calleeObj } = callee as MemberExpression
       const fnObject = this.evaluator.evaluateNode(calleeObj, this.context)
-      const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context))
+      const args = exprArgs.flatMap((arg) => this.evaluator.evaluateNode(arg, this.context))
       return fn.call(fnObject, ...args)
     }
     return null
@@ -68,7 +68,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     const { minArity, maxArity, evaluateArgsToNodes, executor } = expressionFunction
 
     if (numArgs < minArity) throw new SystemError('expression.functionHasTooFewArguments', { name: fnName })
-    if (maxArity && maxArity > 0 && numArgs > maxArity)
+    if (maxArity !== undefined && maxArity >= 0 && numArgs > maxArity)
       throw new SystemError('expression.functionHasTooManyArguments', { name: fnName })
 
     const args = exprArgs.map((arg) =>

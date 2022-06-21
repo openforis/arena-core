@@ -114,6 +114,8 @@ describe('RecordExpressionEvaluator', () => {
       node: 'cluster.plot[2].tree[1].dbh',
     },
     // "this"
+    { expression: 'this', node: 'cluster_id', result: 12 },
+    { expression: 'this', node: 'visit_date', result: '2021-01-01' },
     { expression: 'this', node: 'plot[0].plot_multiple_number[0]', result: 10 },
     { expression: 'this', node: 'plot[0].plot_multiple_number[1]', result: 20 },
     { expression: 'parent(this)', node: 'plot[0].plot_multiple_number[1]', result: () => getNode('cluster.plot[0]') },
@@ -167,6 +169,14 @@ describe('RecordExpressionEvaluator', () => {
       result: '4311422.21',
       node: 'cluster.plot[1].plot_id',
     },
+    // count
+    { expression: 'count(plot)', result: 3 },
+    { expression: 'count(plot[plot_id == 1])', result: 1 },
+    // sum
+    {
+      expression: 'sum(plot.tree.tree_height)',
+      result: 150,
+    },
     // global objects (Array)
     { expression: 'Array.of(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', result: [1, 2, 3] },
     // global objects (Date)
@@ -198,7 +208,7 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'Date.parse(Date()) <= Date.now()', result: true },
     { expression: 'Number(remarks)', result: 0 },
     { expression: 'String(cluster_id)', result: '12' },
-    // // composite attribute members
+    // composite attribute members
     { expression: 'cluster_location.x', result: 41.883012 },
     { expression: 'cluster_location.y', result: 12.489056 },
     { expression: 'cluster_location.srs', result: '4326' },
@@ -214,6 +224,10 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'visit_time.seconds', error: new SystemError('expression.invalidAttributeValuePropertyName') },
     { expression: 'this.x', node: 'cluster_location', result: 41.883012 },
     { expression: 'this.year', node: 'visit_date', result: 2021 },
+    // identifier with multiple nodes
+    { expression: 'Math.max(cluster.plot.plot_id) + 1', result: 4 },
+    { expression: 'Math.max(cluster.plot.plot_id) + 1', node: 'cluster.plot[0].plot_id', result: 4 },
+    { expression: 'Math.max(cluster.plot.tree.tree_id) + 1', result: 6 },
   ]
 
   queries.forEach((query: Query) => {

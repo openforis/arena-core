@@ -6,7 +6,9 @@ const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
 const isEntity = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.entity
 
-const isSingle = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.props.multiple
+const isMultiple = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.props.multiple || false
+
+const isSingle = (nodeDef: NodeDef<NodeDefType>): boolean => !isMultiple(nodeDef)
 
 const isSingleEntity = (nodeDef: NodeDef<NodeDefType>): boolean => isEntity(nodeDef) && isSingle(nodeDef)
 
@@ -16,8 +18,15 @@ const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.
 
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
 
+const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly || false
+
 const getDefaultValues = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
   nodeDef.propsAdvanced?.defaultValues || []
+
+const isDefaultValueEvaluatedOneTime = (nodeDef: NodeDef<NodeDefType>): boolean => {
+  const defaultValueEvaluatedOneTime = nodeDef.propsAdvanced?.defaultValueEvaluatedOneTime
+  return defaultValueEvaluatedOneTime === undefined ? !isReadOnly(nodeDef) : defaultValueEvaluatedOneTime
+}
 
 const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.applicable || []
 
@@ -40,6 +49,7 @@ const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>) =>
 
 export const NodeDefs = {
   isEntity,
+  isMultiple,
   isSingle,
   isSingleEntity,
   isAttribute,
@@ -47,6 +57,7 @@ export const NodeDefs = {
   isRoot,
   getType,
   getDefaultValues,
+  isDefaultValueEvaluatedOneTime,
   getApplicable,
   getTaxonomyUuid,
   // validations
