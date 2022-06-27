@@ -3,7 +3,6 @@ import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Records } from '../records'
 import { Validation, ValidationFactory, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { Record } from '../record'
-import { Numbers } from '../../utils'
 import { Survey, Surveys } from '../../survey'
 
 const _createValidationResult = (params: {
@@ -43,10 +42,9 @@ const validateChildrenCount = (params: {
   count: number
 }): Validation => {
   const { nodeDefChild, count } = params
-  const validations = NodeDefs.getValidations(nodeDefChild)
 
-  const minCount = Numbers.toNumber(validations?.min)
-  const maxCount = Numbers.toNumber(validations?.max)
+  const minCount = NodeDefs.getMinCount(nodeDefChild)
+  const maxCount = NodeDefs.getMaxCount(nodeDefChild)
 
   const minCountValid = Number.isNaN(minCount) || count >= minCount
   const maxCountValid = Number.isNaN(maxCount) || count <= maxCount

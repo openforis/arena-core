@@ -56,11 +56,14 @@ export const NodeDefExpressionFactory: Factory<NodeDefExpression, NodeDefExpress
   },
 }
 
-export interface NodeDefValidations {
-  count?: number
-  expressions?: Array<NodeDefExpression>
+export interface NodeDefCountValidations {
   max?: number
   min?: number
+}
+
+export interface NodeDefValidations {
+  count?: NodeDefCountValidations
+  expressions?: Array<NodeDefExpression>
   required?: boolean
   unique?: boolean
 }
