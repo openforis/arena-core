@@ -1,7 +1,8 @@
 import { Queue } from '../../utils'
 
-import * as RecordNodeDependentsDefaultValuesUpdater from './recordNodeDependentsDefaultValuesUpdater'
-import * as RecordNodeDependentsApplicableUpdater from './recordNodeDependentsApplicableUpdater'
+import * as DependentDefaultValuesUpdater from './recordNodeDependentsDefaultValuesUpdater'
+import * as DependentApplicableUpdater from './recordNodeDependentsApplicableUpdater'
+import * as DependentCodeAttributesUpdater from './recordNodeDependentsCodeAttributesUpdater'
 import { Survey } from '../../survey'
 import { Record } from '../record'
 import { Node } from '../../node'
@@ -34,8 +35,8 @@ export const updateNodesDependents = (params: {
     const visitedCount = visitedCountByUuid[nodeUuid] || 0
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
-      // Update node dependents (applicability)
-      const applicabilityUpdateResult = RecordNodeDependentsApplicableUpdater.updateSelfAndDependentsApplicable({
+      // Update dependents (applicability)
+      const applicabilityUpdateResult = DependentApplicableUpdater.updateSelfAndDependentsApplicable({
         survey,
         record: updateResult.record,
         node,
@@ -43,25 +44,34 @@ export const updateNodesDependents = (params: {
 
       updateResult.merge(applicabilityUpdateResult)
 
-      // Update node dependents (default values)
-      const defaultValuesUpdateResult = RecordNodeDependentsDefaultValuesUpdater.updateSelfAndDependentsDefaultValues({
+      // Update dependents (default values)
+      const defaultValuesUpdateResult = DependentDefaultValuesUpdater.updateSelfAndDependentsDefaultValues({
         survey,
         record: updateResult.record,
         node,
       })
 
-      // Update nodes in RecordResult object
       updateResult.merge(defaultValuesUpdateResult)
+
+      // update depenent code attributes
+      const dependentCodeAttributesUpdateResult = DependentCodeAttributesUpdater.updateDependentCodeAttributes({
+        survey,
+        record: updateResult.record,
+        node,
+      })
+
+      updateResult.merge(dependentCodeAttributesUpdateResult)
 
       const nodesUpdatedCurrent = {
         ...applicabilityUpdateResult.nodes,
         ...defaultValuesUpdateResult.nodes,
+        ...dependentCodeAttributesUpdateResult.nodes,
       }
 
       // Mark updated nodes to visit
       nodeUuidsToVisit.enqueueItems(Object.keys(nodesUpdatedCurrent))
 
-      // Mark node visited
+      // Mark node as visited
       visitedCountByUuid[nodeUuid] = visitedCount + 1
     }
   }

@@ -49,8 +49,8 @@ export const getChild =
   (parentNode: Node, childDefUuid: string) =>
   (record: Record): Node => {
     const children = getChildren(parentNode, childDefUuid)(record)
-    if (children.length > 1) throw new Error('Multiple nodes found')
-    if (children.length === 0) throw new Error('Child not found')
+    if (children.length > 1) throw new SystemError('systemError.record.multipleNodesFound')
+    if (children.length === 0) throw new SystemError('systemError.record.childNotFound')
     return children[0]
   }
 
@@ -69,7 +69,7 @@ export const getNodesByDefUuid =
     return getNodesArray(record).filter((node) => node.nodeDefUuid === nodeDefUuid)
   }
 
-export const isNodeApplicable = (params: { record: Record; node: Node }) => {
+export const isNodeApplicable = (params: { record: Record; node: Node }): boolean => {
   const { record, node } = params
   const nodeParent = getParent(node)(record)
   if (!nodeParent) return true
@@ -80,13 +80,15 @@ export const isNodeApplicable = (params: { record: Record; node: Node }) => {
   return false
 }
 
-export const getDependentCodeAttributes = (node: Node) => (record: Record) => {
-  if (record._nodesIndex) {
-    const nodeUuids = RecordNodesIndexReader.getNodeCodeDependentUuids(node.uuid)(record._nodesIndex)
-    return getNodesByUuids(nodeUuids)(record)
+export const getDependentCodeAttributes =
+  (node: Node) =>
+  (record: Record): Node[] => {
+    if (record._nodesIndex) {
+      const nodeUuids = RecordNodesIndexReader.getNodeCodeDependentUuids(node.uuid)(record._nodesIndex)
+      return getNodesByUuids(nodeUuids)(record)
+    }
+    throw new SystemError('record.nodesIndexNotInitialized')
   }
-  throw new SystemError('record.nodesIndexNotInitialized')
-}
 
 export const getParentCodeAttribute =
   (params: { parentNode: Node; nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps> }) =>
