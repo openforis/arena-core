@@ -1,6 +1,7 @@
 import { Queue } from '../../utils'
 
-import * as RecordNodeDependentsUpdater from './recordNodeDependentsUpdater'
+import * as RecordNodeDependentsDefaultValuesUpdater from './recordNodeDependentsDefaultValuesUpdater'
+import * as RecordNodeDependentsApplicableUpdater from './recordNodeDependentsApplicableUpdater'
 import { Survey } from '../../survey'
 import { Record } from '../record'
 import { Node } from '../../node'
@@ -34,7 +35,7 @@ export const updateNodesDependents = (params: {
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
       // Update node dependents (applicability)
-      const applicabilityUpdateResult = RecordNodeDependentsUpdater.updateSelfAndDependentsApplicable({
+      const applicabilityUpdateResult = RecordNodeDependentsApplicableUpdater.updateSelfAndDependentsApplicable({
         survey,
         record: updateResult.record,
         node,
@@ -43,15 +44,15 @@ export const updateNodesDependents = (params: {
       updateResult.merge(applicabilityUpdateResult)
 
       // Update node dependents (default values)
-      const defaultValuesUpdateResult = RecordNodeDependentsUpdater.updateSelfAndDependentsDefaultValues({
+      const defaultValuesUpdateResult = RecordNodeDependentsDefaultValuesUpdater.updateSelfAndDependentsDefaultValues({
         survey,
         record: updateResult.record,
         node,
       })
 
+      // Update nodes in RecordResult object
       updateResult.merge(defaultValuesUpdateResult)
 
-      // Update record nodes
       const nodesUpdatedCurrent = {
         ...applicabilityUpdateResult.nodes,
         ...defaultValuesUpdateResult.nodes,
