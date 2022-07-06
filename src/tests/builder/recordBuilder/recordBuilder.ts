@@ -1,5 +1,4 @@
 import { Record, RecordFactory } from '../../../record'
-import { RecordNodesIndexUpdater } from '../../../record/_records/recordNodesIndexUpdater'
 import { User } from '../../../auth'
 import { Survey } from '../../../survey'
 import { EntityBuilder } from './entityBuilder'
@@ -17,9 +16,7 @@ export class RecordBuilder {
 
   build(): Record {
     const record = RecordFactory.createInstance({ surveyUuid: this.survey.uuid, user: this.user })
-    const nodes = this.rootEntityBuilder.build({ survey: this.survey, recordUuid: record.uuid })
-    const recordWithNodes = { ...record, nodes }
-    const nodesIndex = RecordNodesIndexUpdater.initializeIndex(recordWithNodes)
-    return { ...recordWithNodes, _nodesIndex: nodesIndex }
+    const recordUpdated = this.rootEntityBuilder.build({ survey: this.survey, record })
+    return recordUpdated
   }
 }
