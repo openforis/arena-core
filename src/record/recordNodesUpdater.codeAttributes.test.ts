@@ -46,7 +46,7 @@ describe('Record nodes updater - dependent code attributes', () => {
 
     const item1a = Surveys.getCategoryItemByCodePaths({
       survey,
-      categoryUuid: hierarchicalCategory?.uuid,
+      categoryUuid: hierarchicalCategory.uuid,
       codePaths: ['1', '1a'],
     })
     if (!item1a) throw new Error(`Could not find category item [1, 1a]`)
