@@ -1,5 +1,6 @@
 import { Node } from '../../../node'
 import { NodeDef, NodeDefProps, NodeDefType } from '../../../nodeDef'
+import { Record } from '../../../record'
 import { Survey } from '../../../survey'
 
 export abstract class NodeBuilder {
@@ -19,5 +20,5 @@ export abstract class NodeBuilder {
     return nodeDef
   }
 
-  abstract build(params: { survey: Survey; recordUuid: string; parentNode?: Node }): { [nodeUuid: string]: Node }
+  abstract build(params: { survey: Survey; record: Record; parentNode?: Node }): Record
 }

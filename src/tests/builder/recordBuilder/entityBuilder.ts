@@ -1,4 +1,5 @@
 import { Node, NodeFactory } from '../../../node'
+import { Record, Records } from '../../../record'
 import { Survey } from '../../../survey'
 import { NodeBuilder } from './nodeBuilder'
 
@@ -10,19 +11,19 @@ export class EntityBuilder extends NodeBuilder {
     this.childBuilders = childBuilders
   }
 
-  build(params: { survey: Survey; recordUuid: string; parentNode?: Node }): { [nodeUuid: string]: Node } {
-    const { survey, recordUuid, parentNode } = params
+  build(params: { survey: Survey; record: Record; parentNode?: Node }): Record {
+    const { survey, record, parentNode } = params
 
     const nodeDef = this.getNodeDef({ survey })
 
-    const entity = NodeFactory.createInstance({ nodeDefUuid: nodeDef.uuid, recordUuid, parentNode })
+    const entity = NodeFactory.createInstance({ nodeDefUuid: nodeDef.uuid, recordUuid: record.uuid, parentNode })
 
-    return this.childBuilders.reduce(
-      (nodesAcc, childBuilder) => {
-        const childNodes = childBuilder.build({ survey, recordUuid, parentNode: entity })
-        return { ...nodesAcc, ...childNodes }
-      },
-      { [entity.uuid]: entity }
-    )
+    let recordUpdated = Records.addNode(entity)(record)
+
+    this.childBuilders.forEach((childBuilder) => {
+      recordUpdated = childBuilder.build({ survey, record: recordUpdated, parentNode: entity })
+    })
+
+    return recordUpdated
   }
 }
