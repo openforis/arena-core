@@ -2,9 +2,10 @@ import { Survey } from '../survey'
 import { NodeDef, NodeDefCodeProps, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Arrays } from '../../utils'
 import { SystemError } from '../../error'
+import * as NodeDefsReader from './_nodeDefs/nodeDefsReader'
+import * as NodeDefsIndex from './_nodeDefs/nodeDefsIndex'
 
-export const getNodeDefsArray = (survey: Survey): Array<NodeDef<NodeDefType, NodeDefProps>> =>
-  Object.values(survey.nodeDefs || {})
+export const getNodeDefsArray = NodeDefsReader.getNodeDefsArray
 
 export const getNodeDefByName = (params: { survey: Survey; name: string }): NodeDef<NodeDefType, NodeDefProps> => {
   const { survey, name } = params
@@ -14,7 +15,7 @@ export const getNodeDefByName = (params: { survey: Survey; name: string }): Node
 }
 export const getNodeDefsByUuids = (params: { survey: Survey; uuids: string[] }) => {
   const { survey, uuids } = params
-  return Object.values(survey.nodeDefs || {}).filter((nodeDef) => uuids.includes(nodeDef.uuid))
+  return uuids.map((uuid) => getNodeDefByUuid({ survey, uuid }))
 }
 
 export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): NodeDef<NodeDefType, NodeDefProps> => {
@@ -67,32 +68,16 @@ export const getNodeDefChildren = (params: {
 
   if (!survey.nodeDefs) return []
 
-  const children = []
-  if (nodeDef.virtual) {
-    // If nodeDef is virtual, get children from its source
-    const entitySource = getNodeDefSource({ survey, nodeDef })
-    if (entitySource) {
-      children.push(...getNodeDefChildren({ survey, nodeDef: entitySource }))
-    }
+  let childDefs = []
+  // try to get children using index
+  if (survey.nodeDefsIndex) {
+    const childrenUuids = Object.keys(survey.nodeDefsIndex.childDefUuidPresenceByParentUuid?.[nodeDef.uuid] || {}) || []
+    childDefs = getNodeDefsByUuids({ survey, uuids: childrenUuids })
+  } else {
+    // calculate children
+    childDefs = NodeDefsReader.calculateNodeDefChildren(nodeDef)(survey)
   }
-
-  children.push(
-    ...Object.values(survey.nodeDefs).filter((nodeDefCurrent) => {
-      if (!includeAnalysis && nodeDefCurrent.analysis) {
-        return false
-      }
-      if (nodeDefCurrent.virtual) {
-        // Include virtual entities having their source as a child of the given entity
-        const entitySource = getNodeDefSource({ survey, nodeDef: nodeDefCurrent })
-        if (entitySource) {
-          return entitySource.parentUuid === nodeDef.uuid
-        }
-      }
-      // "natural" child
-      return nodeDefCurrent.parentUuid === nodeDef.uuid
-    })
-  )
-  return children
+  return includeAnalysis ? childDefs : childDefs.filter((childDef) => !childDef.analysis)
 }
 
 // Node Def Code
@@ -140,3 +125,6 @@ export const getNodeDefKeys = (params: {
   const children = getNodeDefChildren({ survey, nodeDef })
   return children.filter((childDef) => childDef.props.key && !childDef.deleted)
 }
+
+const { buildAndAssocNodeDefsIndex, addNodeDefToIndex, deleteNodeDefIndex } = NodeDefsIndex
+export { buildAndAssocNodeDefsIndex, addNodeDefToIndex, deleteNodeDefIndex }

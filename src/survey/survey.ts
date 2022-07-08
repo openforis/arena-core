@@ -40,6 +40,10 @@ export interface SurveyProps {
   collectUri?: string
 }
 
+export interface SurveyNodeDefsIndex {
+  childDefUuidPresenceByParentUuid?: { [parentUuid: string]: { [nodeDefUuid: string]: boolean }[] }
+}
+
 export interface Survey extends ArenaObject<SurveyProps> {
   authGroups: Array<AuthGroup>
   dateCreated?: string
@@ -64,18 +68,6 @@ export interface Survey extends ArenaObject<SurveyProps> {
    * Refernce data cache (category items and taxa).
    */
   refData?: SurveyRefData
+
+  nodeDefsIndex?: SurveyNodeDefsIndex
 }
-
-// export class Survey implements SurveyI {
-//   authGroups = []
-//   draft = false
-//   ownerUuid = ''
-//   published = false
-//   template = false
-//   props = {} as SurveyProps
-//   uuid = ''
-
-//   constructor(s: SurveyI) {
-//     Object.assign(this, s)
-//   }
-// }
