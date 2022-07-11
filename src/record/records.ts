@@ -25,7 +25,7 @@ import {
   getValidationChildrenCountKey,
 } from './_records/recordGetters'
 
-import { addNode, addNodes, removeNode, removeNodes } from './_records/recordUpdater'
+import { addNode, addNodes } from './_records/recordUpdater'
 
 export const Records = {
   // READ
@@ -57,6 +57,4 @@ export const Records = {
   // UPDATE
   addNode,
   addNodes,
-  removeNode,
-  removeNodes,
 }
