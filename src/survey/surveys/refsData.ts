@@ -10,12 +10,12 @@ export const getCategoryItemByUuid = (params: { survey: Survey; itemUuid: string
 
 const nullParentItemUuid = 'null'
 
-export const getCategoryItemByCode = (params: {
+export const getCategoryItemUuidByCode = (params: {
   survey: Survey
   categoryUuid: string
   parentItemUuid: string | undefined
   code: string
-}) => {
+}): string | undefined => {
   const { survey, categoryUuid, parentItemUuid = nullParentItemUuid, code } = params
   return survey.refData?.categoryItemUuidIndex?.[categoryUuid]?.[parentItemUuid]?.[code]
 }
@@ -29,7 +29,7 @@ export const getCategoryItemByCodePaths = (params: {
   const itemUuid = codePaths.reduce(
     (currentParentUuid: string | undefined, code) =>
       currentParentUuid
-        ? getCategoryItemByCode({ survey, categoryUuid, parentItemUuid: currentParentUuid, code })
+        ? getCategoryItemUuidByCode({ survey, categoryUuid, parentItemUuid: currentParentUuid, code })
         : undefined,
     'null'
   )
@@ -49,6 +49,20 @@ export const getTaxonByCode = (params: {
   const { survey, taxonomyUuid, taxonCode } = params
   const taxonUuid = survey.refData?.taxonUuidIndex?.[taxonomyUuid]?.[taxonCode]
   return taxonUuid ? getTaxonByUuid({ survey, taxonUuid }) : undefined
+}
+
+export const getTaxonVernacularNameUuid = (params: {
+  survey: Survey
+  taxonomyUuid: string
+  taxonCode: string
+  vernacularName: string
+}): string | undefined => {
+  const { survey, taxonomyUuid, taxonCode, vernacularName } = params
+  const taxon = getTaxonByCode({ survey, taxonomyUuid, taxonCode })
+  const vernacularNameObj = Object.values(taxon?.vernacularNames || {})
+    .flat()
+    .find((vernNameObj) => vernNameObj.props.name === vernacularName)
+  return vernacularNameObj?.uuid
 }
 
 export const includesTaxonVernacularName = (params: {

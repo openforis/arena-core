@@ -10,7 +10,7 @@ const keys = {
 }
 
 const _addNodeToCodeDependents =
-  (node: Node) =>
+  (node: Node, sideEffect: boolean) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
     Nodes.getHierarchyCode(node).reduce(
       (indexAcc, ancestorCodeAttributeUuid) =>
@@ -18,6 +18,7 @@ const _addNodeToCodeDependents =
           obj: indexAcc,
           path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.uuid],
           value: true,
+          sideEffect,
         }),
       index
     )
@@ -36,6 +37,7 @@ const _addNodeToIndex =
         obj: indexUpdated,
         path: [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid],
         value: true,
+        sideEffect,
       })
     } else {
       // root entity index
@@ -43,10 +45,15 @@ const _addNodeToIndex =
     }
 
     // nodes by def uuid
-    indexUpdated = Objects.assocPath({ obj: indexUpdated, path: [keys.nodesByDef, nodeDefUuid, nodeUuid], value: true })
+    indexUpdated = Objects.assocPath({
+      obj: indexUpdated,
+      path: [keys.nodesByDef, nodeDefUuid, nodeUuid],
+      value: true,
+      sideEffect,
+    })
 
     // code dependents
-    indexUpdated = _addNodeToCodeDependents(node)(indexUpdated)
+    indexUpdated = _addNodeToCodeDependents(node, sideEffect)(indexUpdated)
 
     return indexUpdated
   }

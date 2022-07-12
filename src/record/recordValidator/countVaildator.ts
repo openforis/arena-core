@@ -68,6 +68,10 @@ const _countChildren = (params: { record: Record; parentNode: Node; childDef: No
   return nonEmptyChildren.length
 }
 
+const _isNodePointerToBeValidated = (nodePointer: NodePointer) =>
+  Nodes.isChildApplicable(nodePointer.nodeCtx, nodePointer.nodeDef.uuid) &&
+  NodeDefs.hasMinOrMaxCount(nodePointer.nodeDef)
+
 const _validateNodePointer = (params: {
   record: Record
   nodeCtx: Node
@@ -93,12 +97,20 @@ const _getNodePointersToValidate = (params: { survey: Survey; record: Record; no
   const nodeParent = Records.getParent(node)(record)
   if (nodeParent) {
     // always validate the node itself
-    nodePointersToValidate.push({ nodeCtx: nodeParent, nodeDef })
+    const nodePointer = { nodeCtx: nodeParent, nodeDef }
+    if (_isNodePointerToBeValidated(nodePointer)) {
+      nodePointersToValidate.push(nodePointer)
+    }
   }
   if (NodeDefs.isEntity(nodeDef) && !node.deleted) {
     // validate the count of every node def children
     const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef })
-    childDefs.forEach((childDef) => nodePointersToValidate.push({ nodeCtx: node, nodeDef: childDef }))
+    childDefs.forEach((childDef) => {
+      const nodePointer = { nodeCtx: node, nodeDef: childDef }
+      if (_isNodePointerToBeValidated(nodePointer)) {
+        nodePointersToValidate.push(nodePointer)
+      }
+    })
   }
   return nodePointersToValidate
 }
@@ -109,8 +121,7 @@ const validateChildrenCountNodes = (params: {
   nodes: { [key: string]: Node }
 }): { [key: string]: Validation } => {
   const { survey, record, nodes } = params
-  return Object.values(nodes).reduce((validationsAcc, node) => {
-    const validationsAccUpdated: { [key: string]: Validation } = { ...validationsAcc }
+  return Object.values(nodes).reduce((validationsAcc: { [key: string]: Validation }, node) => {
     const nodePointersToValidate = _getNodePointersToValidate({ survey, record, node })
 
     nodePointersToValidate.forEach((nodePointer) => {
@@ -119,17 +130,17 @@ const validateChildrenCountNodes = (params: {
         nodeParentUuid: nodePointer.nodeCtx.uuid,
         nodeDefChildUuid: nodePointer.nodeDef.uuid,
       })
-      if (!(validationChildrenCountKey in validationsAccUpdated)) {
+      if (!(validationChildrenCountKey in validationsAcc)) {
         // validate the children count of this node pointer
         const validationNodePointer = _validateNodePointer({
           record,
           nodeCtx: nodePointer.nodeCtx,
           nodeDef: nodePointer.nodeDef,
         })
-        validationsAccUpdated[validationChildrenCountKey] = validationNodePointer
+        validationsAcc[validationChildrenCountKey] = validationNodePointer
       }
     })
-    return validationsAccUpdated
+    return validationsAcc
   }, {})
 }
 

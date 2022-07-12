@@ -17,12 +17,17 @@ import {
   getNodeDefParentCode,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
+  buildAndAssocNodeDefsIndex,
+  addNodeDefToIndex,
+  deleteNodeDefIndex,
 } from './nodeDefs'
 import {
   getCategoryItemByCodePaths,
   getCategoryItemByUuid,
+  getCategoryItemUuidByCode,
   getTaxonByCode,
   getTaxonByUuid,
+  getTaxonVernacularNameUuid,
   includesTaxonVernacularName,
 } from './refsData'
 
@@ -55,9 +60,11 @@ export const Surveys = {
   getCategoryByName,
   getCategoryItemByCodePaths,
   getCategoryItemByUuid,
+  getCategoryItemUuidByCode,
   getTaxonByCode,
   getTaxonByUuid,
   getTaxonomyByName,
+  getTaxonVernacularNameUuid,
   includesTaxonVernacularName,
 
   // node def code
@@ -69,4 +76,9 @@ export const Surveys = {
   buildAndAssocDependencyGraph,
   addNodeDefDependencies,
   getNodeDefDependents,
+
+  // index
+  buildAndAssocNodeDefsIndex,
+  addNodeDefToIndex,
+  deleteNodeDefIndex,
 }
