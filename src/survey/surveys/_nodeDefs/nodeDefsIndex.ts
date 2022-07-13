@@ -56,7 +56,7 @@ export const buildAndAssocNodeDefsIndex = (survey: Survey): Survey => {
     childDefUuidPresenceByParentUuid: {},
   }
   getNodeDefsArray(survey)
-    .sort((nodeDef1: NodeDef<any>, nodeDef2: NodeDef<any>) => (nodeDef1.id || 0) - (nodeDef2.id || 0))
+    // .sort((nodeDef1: NodeDef<any>, nodeDef2: NodeDef<any>) => (nodeDef1.id || 0) - (nodeDef2.id || 0))
     .forEach((nodeDef) => addNodeDefToIndex(nodeDef, { sideEffect: true })(survey))
 
   return survey

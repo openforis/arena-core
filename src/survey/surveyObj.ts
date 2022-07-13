@@ -1,7 +1,6 @@
 import { AuthGroup } from '../auth'
 import { SystemError } from '../error'
 import {
-  NodeDef,
   NodeDefBooleanProps,
   NodeDefCodeProps,
   NodeDefDecimalProps,
@@ -27,7 +26,7 @@ export abstract class ArenaObj<P> {
 
 export abstract class NodeDefObj<P extends NodeDefProps = NodeDefProps> extends ArenaObj<P> {
   protected _survey: SurveyObj
-  protected _parent?: EntityNodeDefObj
+  protected _parent?: EntityDefObj
 
   analysis?: boolean
   dateCreated?: string
@@ -42,7 +41,7 @@ export abstract class NodeDefObj<P extends NodeDefProps = NodeDefProps> extends 
   temporary?: boolean
   virtual?: boolean
 
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(uuid)
     this._survey = survey
     this._parent = parent
@@ -54,7 +53,7 @@ export abstract class NodeDefObj<P extends NodeDefProps = NodeDefProps> extends 
     return this._survey
   }
 
-  get parent(): EntityNodeDefObj | undefined {
+  get parent(): EntityDefObj | undefined {
     return this._parent
   }
 
@@ -66,7 +65,7 @@ export abstract class NodeDefObj<P extends NodeDefProps = NodeDefProps> extends 
 }
 
 export class BooleanNodeDefObj extends NodeDefObj<NodeDefBooleanProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
@@ -75,7 +74,7 @@ export class BooleanNodeDefObj extends NodeDefObj<NodeDefBooleanProps> {
 }
 
 export class CodeNodeDefObj extends NodeDefObj<NodeDefCodeProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
@@ -84,7 +83,7 @@ export class CodeNodeDefObj extends NodeDefObj<NodeDefCodeProps> {
 }
 
 export class CoordinateNodeDefObj extends NodeDefObj<NodeDefProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
@@ -93,7 +92,7 @@ export class CoordinateNodeDefObj extends NodeDefObj<NodeDefProps> {
 }
 
 export class DateNodeDefObj extends NodeDefObj<NodeDefProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
@@ -102,7 +101,7 @@ export class DateNodeDefObj extends NodeDefObj<NodeDefProps> {
 }
 
 export class DecimalNodeDefObj extends NodeDefObj<NodeDefDecimalProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
@@ -110,10 +109,10 @@ export class DecimalNodeDefObj extends NodeDefObj<NodeDefDecimalProps> {
   }
 }
 
-export class EntityNodeDefObj extends NodeDefObj<NodeDefProps> {
+export class EntityDefObj extends NodeDefObj<NodeDefProps> {
   protected _children: NodeDefObj<any>[] = []
 
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
 
@@ -131,7 +130,7 @@ export class EntityNodeDefObj extends NodeDefObj<NodeDefProps> {
 }
 
 export class FileNodeDefObj extends NodeDefObj<NodeDefFileProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
@@ -140,7 +139,7 @@ export class FileNodeDefObj extends NodeDefObj<NodeDefFileProps> {
 }
 
 export class IntegerNodeDefObj extends NodeDefObj<NodeDefProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
@@ -148,7 +147,7 @@ export class IntegerNodeDefObj extends NodeDefObj<NodeDefProps> {
   }
 }
 export class TaxonNodeDefObj extends NodeDefObj<NodeDefTaxonProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
@@ -156,7 +155,7 @@ export class TaxonNodeDefObj extends NodeDefObj<NodeDefTaxonProps> {
   }
 }
 export class TextNodeDefObj extends NodeDefObj<NodeDefTextProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
@@ -164,7 +163,7 @@ export class TextNodeDefObj extends NodeDefObj<NodeDefTextProps> {
   }
 }
 export class TimeNodeDefObj extends NodeDefObj<NodeDefProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityNodeDefObj) {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
@@ -178,7 +177,7 @@ const nodeDefConstructorByType = {
   [NodeDefType.coordinate]: CoordinateNodeDefObj,
   [NodeDefType.date]: DateNodeDefObj,
   [NodeDefType.decimal]: DecimalNodeDefObj,
-  [NodeDefType.entity]: EntityNodeDefObj,
+  [NodeDefType.entity]: EntityDefObj,
   [NodeDefType.file]: FileNodeDefObj,
   [NodeDefType.integer]: IntegerNodeDefObj,
   [NodeDefType.taxon]: TaxonNodeDefObj,
@@ -194,7 +193,7 @@ export class SurveyObj extends ArenaObj<SurveyProps> {
   published = false
   template = false
   nodeDefs: { [key: string]: NodeDefObj<any> }
-  protected _rootDef?: EntityNodeDefObj
+  protected _rootDef?: EntityDefObj
 
   constructor(s: Survey) {
     super(s.uuid)
@@ -205,13 +204,13 @@ export class SurveyObj extends ArenaObj<SurveyProps> {
     this.nodeDefs = {}
 
     Object.values(s.nodeDefs || {})
-      .sort((nodeDef1: NodeDef<any>, nodeDef2: NodeDef<any>) => (nodeDef1.id || 0) - (nodeDef2.id || 0))
+      // .sort((nodeDef1: NodeDef<any>, nodeDef2: NodeDef<any>) => (nodeDef1.id || 0) - (nodeDef2.id || 0))
       .forEach((nodeDef) => {
-        let parentEntityObj: EntityNodeDefObj | undefined
+        let parentEntityObj: EntityDefObj | undefined
         if (nodeDef.parentUuid) {
-          parentEntityObj = this.nodeDefs[nodeDef.parentUuid] as EntityNodeDefObj
+          parentEntityObj = this.nodeDefs[nodeDef.parentUuid] as EntityDefObj
           if (!parentEntityObj) {
-            throw new SystemError('systemError.survey.nodeDef.parentEntityNotFound', { parentUuid: nodeDef.parentUuid })
+            throw new SystemError('systemError.survey.nodeDef.parentNotFound', { parentUuid: nodeDef.parentUuid })
           }
         }
         const constructorFn = nodeDefConstructorByType[nodeDef.type]
@@ -223,12 +222,12 @@ export class SurveyObj extends ArenaObj<SurveyProps> {
         this.nodeDefs[nodeDef.uuid] = nodeDefObj
 
         if (!parentEntityObj) {
-          this._rootDef = nodeDefObj as EntityNodeDefObj
+          this._rootDef = nodeDefObj as EntityDefObj
         }
       })
   }
 
-  get root(): EntityNodeDefObj {
+  get root(): EntityDefObj {
     if (!this._rootDef) throw new SystemError('systemError.survey.rootNotDefined')
     return this._rootDef
   }

@@ -27,7 +27,7 @@ describe('Survey Object', () => {
     survey = new SurveyObj(surveyJson)
   }, 10000)
 
-  test('Survey root entity', () => {
+  test('Root entity def', () => {
     expect(survey.root).not.toBeUndefined()
     expect(survey.root.props?.name).toBe('cluster')
   })
