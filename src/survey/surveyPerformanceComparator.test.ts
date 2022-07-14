@@ -1,4 +1,5 @@
 import sizeof from 'object-sizeof'
+import memoize from 'fast-memoize'
 
 import { NodeDef, NodeDefType } from '../nodeDef'
 import surveyExampleJson from '../tests/data/surveyExample.json'
@@ -8,7 +9,7 @@ import { EntityDefObj, NodeDefObj, SurveyObj } from './surveyObj'
 import { Surveys } from './surveys'
 
 const nodeDefsCount = 227
-const traverseTimesArr = [10, 100, 1000, 10000, 100000]
+const traverseTimesArr = [10, 100, 1000, 10000]
 
 const traverseSurvey = (survey: Survey) => {
   let visitedNodesCount = 0
@@ -56,6 +57,42 @@ const traverseSurveyObject = (survey: SurveyObj) => {
   return visitedNodesCount
 }
 
+const traverseSurveyWithMemoize = (survey: Survey) => {
+  let visitedNodesCount = 0
+  const queue = new Queue()
+  queue.enqueue(Surveys.getNodeDefRoot({ survey }))
+
+  const getNodeByUuid = memoize(Surveys.getNodeDefByUuid, {
+    serializer: (params: any) => `${params.survey.uuid}-${params.uuid}`,
+  })
+  const getNodeDefByName = memoize(Surveys.getNodeDefByName, {
+    serializer: (params: any) => `${params.survey.uuid}-${params.name}`,
+  })
+  const getNodeDefParent = memoize(Surveys.getNodeDefParent, {
+    serializer: (params: any) => `${params.survey.uuid}-${params.nodeDef.uuid}`,
+  })
+  const getNodeDefChildren = memoize(Surveys.getNodeDefChildren, {
+    serializer: (params: any) => `${params.survey.uuid}-${params.nodeDef.uuid}`,
+  })
+
+  while (!queue.isEmpty()) {
+    const nodeDef: NodeDef<any> = queue.dequeue()
+    // get by uuid
+    getNodeByUuid({ survey, uuid: nodeDef.uuid })
+    // get by name
+    getNodeDefByName({ survey, name: nodeDef.props.name || '' })
+    // get parent
+    getNodeDefParent({ survey, nodeDef })
+    // get children
+    if (nodeDef.type === NodeDefType.entity) {
+      const children = getNodeDefChildren({ survey, nodeDef })
+      queue.enqueueItems(children)
+    }
+    visitedNodesCount += 1
+  }
+  return visitedNodesCount
+}
+
 const traverse = (params: { label: string; traverseFn: (survey: any) => number; survey: any }) => {
   const { label: labelPrefix, survey, traverseFn } = params
   traverseTimesArr.forEach((traverseTimes) => {
@@ -90,7 +127,7 @@ describe('Survey Performance Comparator', () => {
 
     console.time(label)
 
-    const survey = Surveys.buildAndAssocNodeDefsIndex(surveyExampleJson as unknown as Survey)
+    const survey = Surveys.buildAndAssocNodeDefsIndex({ ...(surveyExampleJson as unknown as Survey) })
 
     console.log(`size of ${label}: ${sizeof(survey)}`)
 
@@ -109,6 +146,20 @@ describe('Survey Performance Comparator', () => {
     console.log(`size of ${label}: ${sizeof(survey)}`)
 
     traverse({ label, survey, traverseFn: traverseSurveyObject })
+
+    console.timeEnd(label)
+  })
+
+  test('Survey with fast-memoize', () => {
+    const label = 'survey-memoized'
+
+    console.time(label)
+
+    const survey = surveyExampleJson as unknown as Survey
+
+    console.log(`size of ${label}: ${sizeof(survey)}`)
+
+    traverse({ label, survey, traverseFn: traverseSurveyWithMemoize })
 
     console.timeEnd(label)
   })

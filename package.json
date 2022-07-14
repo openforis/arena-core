@@ -22,6 +22,7 @@
     "@typescript-eslint/parser": "^5.30.5",
     "eslint": "^8.19.0",
     "eslint-plugin-no-explicit-type-exports": "^0.12.1",
+    "fast-memoize": "^2.5.2",
     "husky": "^8.0.1",
     "jest": "^28.1.2",
     "lint-staged": "^13.0.3",
