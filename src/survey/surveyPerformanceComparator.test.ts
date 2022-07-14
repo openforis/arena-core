@@ -1,3 +1,5 @@
+import sizeof from 'object-sizeof'
+
 import { NodeDef, NodeDefType } from '../nodeDef'
 import surveyExampleJson from '../tests/data/surveyExample.json'
 import { Queue } from '../utils'
@@ -6,7 +8,7 @@ import { EntityDefObj, NodeDefObj, SurveyObj } from './surveyObj'
 import { Surveys } from './surveys'
 
 const nodeDefsCount = 227
-const traverseTimesArr = [10, 100, 1000, 10000]
+const traverseTimesArr = [10, 100, 1000, 10000, 100000]
 
 const traverseSurvey = (survey: Survey) => {
   let visitedNodesCount = 0
@@ -76,6 +78,8 @@ describe('Survey Performance Comparator', () => {
 
     const survey = surveyExampleJson as unknown as Survey
 
+    console.log(`size of ${label}: ${sizeof(survey)}`)
+
     traverse({ label, survey, traverseFn: traverseSurvey })
 
     console.timeEnd(label)
@@ -88,6 +92,8 @@ describe('Survey Performance Comparator', () => {
 
     const survey = Surveys.buildAndAssocNodeDefsIndex(surveyExampleJson as unknown as Survey)
 
+    console.log(`size of ${label}: ${sizeof(survey)}`)
+
     traverse({ label, survey, traverseFn: traverseSurvey })
 
     console.timeEnd(label)
@@ -99,6 +105,8 @@ describe('Survey Performance Comparator', () => {
     console.time(label)
 
     const survey: SurveyObj = new SurveyObj(surveyExampleJson as unknown as Survey)
+
+    console.log(`size of ${label}: ${sizeof(survey)}`)
 
     traverse({ label, survey, traverseFn: traverseSurveyObject })
 
