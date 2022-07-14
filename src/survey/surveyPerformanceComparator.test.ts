@@ -11,6 +11,26 @@ import { Surveys } from './surveys'
 const nodeDefsCount = 227
 const traverseTimesArr = [10, 100, 1000, 10000]
 
+class Cache {
+  store: { [key: string]: any }
+
+  constructor() {
+    this.store = {}
+  }
+
+  has(key: string) {
+    return key in this.store
+  }
+
+  get(key: string) {
+    return this.store[key]
+  }
+
+  set(key: string, value: any) {
+    this.store[key] = value
+  }
+}
+
 const traverseSurvey = (survey: Survey) => {
   let visitedNodesCount = 0
   const queue = new Queue()
@@ -33,6 +53,11 @@ const traverseSurvey = (survey: Survey) => {
   }
   return visitedNodesCount
 }
+
+let cacheGetNodeByUuid: any = null
+let cacheGetNodeDefByName: any = null
+let cacheGetNodeDefParent: any = null
+let cacheGetNodeDefChildren: any = null
 
 const traverseSurveyObject = (survey: SurveyObj) => {
   let visitedNodesCount = 0
@@ -64,15 +89,39 @@ const traverseSurveyWithMemoize = (survey: Survey) => {
 
   const getNodeByUuid = memoize(Surveys.getNodeDefByUuid, {
     serializer: (params: any) => `${params.survey.uuid}-${params.uuid}`,
+    cache: {
+      create() {
+        cacheGetNodeByUuid = new Cache()
+        return cacheGetNodeByUuid
+      },
+    },
   })
   const getNodeDefByName = memoize(Surveys.getNodeDefByName, {
     serializer: (params: any) => `${params.survey.uuid}-${params.name}`,
+    cache: {
+      create() {
+        cacheGetNodeDefByName = new Cache()
+        return cacheGetNodeDefByName
+      },
+    },
   })
   const getNodeDefParent = memoize(Surveys.getNodeDefParent, {
     serializer: (params: any) => `${params.survey.uuid}-${params.nodeDef.uuid}`,
+    cache: {
+      create() {
+        cacheGetNodeDefParent = new Cache()
+        return cacheGetNodeDefParent
+      },
+    },
   })
   const getNodeDefChildren = memoize(Surveys.getNodeDefChildren, {
     serializer: (params: any) => `${params.survey.uuid}-${params.nodeDef.uuid}`,
+    cache: {
+      create() {
+        cacheGetNodeDefChildren = new Cache()
+        return cacheGetNodeDefChildren
+      },
+    },
   })
 
   while (!queue.isEmpty()) {
@@ -90,11 +139,13 @@ const traverseSurveyWithMemoize = (survey: Survey) => {
     }
     visitedNodesCount += 1
   }
+
   return visitedNodesCount
 }
 
 const traverse = (params: { label: string; traverseFn: (survey: any) => number; survey: any }) => {
   const { label: labelPrefix, survey, traverseFn } = params
+
   traverseTimesArr.forEach((traverseTimes) => {
     const label = `${labelPrefix}-${traverseTimes}-traverse-times`
     console.time(label)
@@ -105,6 +156,16 @@ const traverse = (params: { label: string; traverseFn: (survey: any) => number; 
     console.timeEnd(label)
     expect(totalVisitedNodesCount).toBe(traverseTimes * nodeDefsCount)
   })
+
+  console.log(process.memoryUsage())
+
+  const totalMomoizedCacheSize =
+    sizeof(Object.keys(cacheGetNodeByUuid?.store || {})) +
+    sizeof(Object.keys(cacheGetNodeDefByName?.store || {})) +
+    sizeof(Object.keys(cacheGetNodeDefParent?.store || {})) +
+    sizeof(Object.keys(cacheGetNodeDefChildren?.store || {}))
+
+  console.log(`total size of memoized cache: ${totalMomoizedCacheSize}`)
 }
 
 describe('Survey Performance Comparator', () => {
