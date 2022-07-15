@@ -49,8 +49,14 @@ export abstract class NodeDefObj<P extends NodeDefProps = NodeDefProps> extends 
     parent?.addChild(this)
   }
 
+  abstract get type(): NodeDefType
+
   get survey(): SurveyObj {
     return this._survey
+  }
+
+  get name(): string {
+    return this.props?.name || ''
   }
 
   get parent(): EntityDefObj | undefined {
@@ -61,10 +67,27 @@ export abstract class NodeDefObj<P extends NodeDefProps = NodeDefProps> extends 
     return this._parent?.uuid
   }
 
-  abstract get type(): NodeDefType
+  isAncestorOf(nodeDefDescendant: NodeDefObj): boolean {
+    let currentDescendant: NodeDefObj | undefined = nodeDefDescendant
+    while (currentDescendant) {
+      if (currentDescendant === this) return true
+      currentDescendant = currentDescendant.parent
+    }
+    return false
+  }
+
+  isDescendantOf(nodeDefAncestor: NodeDefObj): boolean {
+    return nodeDefAncestor.isAncestorOf(this)
+  }
 }
 
-export class BooleanNodeDefObj extends NodeDefObj<NodeDefBooleanProps> {
+export abstract class AttributeDefObj<P extends NodeDefProps = NodeDefProps> extends NodeDefObj<P> {
+  get key(): boolean {
+    return this.props?.key || false
+  }
+}
+
+export class BooleanNodeDefObj extends AttributeDefObj<NodeDefBooleanProps> {
   constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
@@ -73,16 +96,35 @@ export class BooleanNodeDefObj extends NodeDefObj<NodeDefBooleanProps> {
   }
 }
 
-export class CodeNodeDefObj extends NodeDefObj<NodeDefCodeProps> {
+export class CodeNodeDefObj extends AttributeDefObj<NodeDefCodeProps> {
   constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
     return NodeDefType.code
   }
+
+  get parentCode(): CodeNodeDefObj | undefined {
+    const parentCodeDefUuid = this.props?.parentCodeDefUuid
+    if (!parentCodeDefUuid) return undefined
+    const parentCodeDef = this.survey.getNodeDefByUuid(parentCodeDefUuid)
+    return parentCodeDef ? (parentCodeDef as CodeNodeDefObj) : undefined
+  }
+
+  isParentCode(): boolean {
+    return Object.values(this.survey.nodeDefs).some(
+      (nodeDef) =>
+        nodeDef instanceof CodeNodeDefObj && (nodeDef as CodeNodeDefObj).props?.parentCodeDefUuid === this.uuid
+    )
+  }
+
+  get categoryLevelIndex(): number {
+    const parentC = this.parentCode
+    return parentC ? 1 + parentC.categoryLevelIndex : 0
+  }
 }
 
-export class CoordinateNodeDefObj extends NodeDefObj<NodeDefProps> {
+export class CoordinateNodeDefObj extends AttributeDefObj<NodeDefProps> {
   constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
@@ -91,7 +133,7 @@ export class CoordinateNodeDefObj extends NodeDefObj<NodeDefProps> {
   }
 }
 
-export class DateNodeDefObj extends NodeDefObj<NodeDefProps> {
+export class DateNodeDefObj extends AttributeDefObj<NodeDefProps> {
   constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
@@ -100,12 +142,54 @@ export class DateNodeDefObj extends NodeDefObj<NodeDefProps> {
   }
 }
 
-export class DecimalNodeDefObj extends NodeDefObj<NodeDefDecimalProps> {
+export class DecimalNodeDefObj extends AttributeDefObj<NodeDefDecimalProps> {
   constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
     super(survey, uuid, parent)
   }
   get type(): NodeDefType {
     return NodeDefType.decimal
+  }
+}
+
+export class FileNodeDefObj extends AttributeDefObj<NodeDefFileProps> {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
+    super(survey, uuid, parent)
+  }
+  get type(): NodeDefType {
+    return NodeDefType.file
+  }
+}
+
+export class IntegerNodeDefObj extends AttributeDefObj<NodeDefProps> {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
+    super(survey, uuid, parent)
+  }
+  get type(): NodeDefType {
+    return NodeDefType.integer
+  }
+}
+export class TaxonNodeDefObj extends AttributeDefObj<NodeDefTaxonProps> {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
+    super(survey, uuid, parent)
+  }
+  get type(): NodeDefType {
+    return NodeDefType.taxon
+  }
+}
+export class TextNodeDefObj extends AttributeDefObj<NodeDefTextProps> {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
+    super(survey, uuid, parent)
+  }
+  get type(): NodeDefType {
+    return NodeDefType.text
+  }
+}
+export class TimeNodeDefObj extends AttributeDefObj<NodeDefProps> {
+  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
+    super(survey, uuid, parent)
+  }
+  get type(): NodeDefType {
+    return NodeDefType.time
   }
 }
 
@@ -116,6 +200,10 @@ export class EntityDefObj extends NodeDefObj<NodeDefProps> {
     super(survey, uuid, parent)
   }
 
+  get type(): NodeDefType {
+    return NodeDefType.entity
+  }
+
   getChildren(params: { includeAnalysis: boolean } = { includeAnalysis: false }): NodeDefObj<any>[] {
     const { includeAnalysis = false } = params
     return includeAnalysis ? this._children : this._children.filter((child) => !child.analysis)
@@ -124,50 +212,12 @@ export class EntityDefObj extends NodeDefObj<NodeDefProps> {
   addChild(childDef: NodeDefObj<any>) {
     this._children.push(childDef)
   }
-  get type(): NodeDefType {
-    return NodeDefType.entity
-  }
-}
 
-export class FileNodeDefObj extends NodeDefObj<NodeDefFileProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
-    super(survey, uuid, parent)
-  }
-  get type(): NodeDefType {
-    return NodeDefType.file
-  }
-}
-
-export class IntegerNodeDefObj extends NodeDefObj<NodeDefProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
-    super(survey, uuid, parent)
-  }
-  get type(): NodeDefType {
-    return NodeDefType.integer
-  }
-}
-export class TaxonNodeDefObj extends NodeDefObj<NodeDefTaxonProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
-    super(survey, uuid, parent)
-  }
-  get type(): NodeDefType {
-    return NodeDefType.taxon
-  }
-}
-export class TextNodeDefObj extends NodeDefObj<NodeDefTextProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
-    super(survey, uuid, parent)
-  }
-  get type(): NodeDefType {
-    return NodeDefType.text
-  }
-}
-export class TimeNodeDefObj extends NodeDefObj<NodeDefProps> {
-  constructor(survey: SurveyObj, uuid: string, parent?: EntityDefObj) {
-    super(survey, uuid, parent)
-  }
-  get type(): NodeDefType {
-    return NodeDefType.time
+  get keyAttributeDefs(): AttributeDefObj[] {
+    const children = this.getChildren()
+    return children.filter(
+      (childDef) => childDef instanceof AttributeDefObj && (childDef as AttributeDefObj).key && !childDef.deleted
+    ) as AttributeDefObj[]
   }
 }
 
@@ -234,6 +284,10 @@ export class SurveyObj extends ArenaObj<SurveyProps> {
 
   getNodeDefByUuid(uuid: string): NodeDefObj | undefined {
     return this.nodeDefs[uuid]
+  }
+
+  getNodeDefsByUuids(uuids: string[]): (NodeDefObj | undefined)[] {
+    return uuids.map((uuid) => this.getNodeDefByUuid(uuid))
   }
 
   getNodeDefByName(name: string): NodeDefObj | undefined {
