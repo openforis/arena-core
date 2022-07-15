@@ -113,8 +113,7 @@ export class CodeNodeDefObj extends AttributeDefObj<NodeDefCodeProps> {
 
   isParentCode(): boolean {
     return Object.values(this.survey.nodeDefs).some(
-      (nodeDef) =>
-        nodeDef instanceof CodeNodeDefObj && (nodeDef as CodeNodeDefObj).props?.parentCodeDefUuid === this.uuid
+      (nodeDef) => nodeDef instanceof CodeNodeDefObj && nodeDef.props?.parentCodeDefUuid === this.uuid
     )
   }
 
