@@ -1,7 +1,7 @@
-import { NodeDef } from '..'
-import { Survey, Surveys } from '../../survey'
-import { ValidationResult, ValidationResultFactory } from '../../validation'
-import { NodeDefs } from '../nodeDefs'
+import { NodeDef } from '../nodeDef'
+import { Survey, Surveys } from '../survey'
+import { ValidationResult, ValidationResultFactory } from '../validation'
+import { NodeDefs } from '../nodeDef/nodeDefs'
 import { NodeDefExpressionContext } from './context'
 import { NodeDefExpressionEvaluator } from './evaluator'
 

@@ -70,13 +70,10 @@ export type { Labels } from './language'
 export { NodeFactory, Nodes } from './node'
 export type { Node, NodePointer, NodeService } from './node'
 
-export {
-  NodeDefType,
-  NodeDefFactory,
-  NodeDefs,
-  NodeDefExpressionEvaluator,
-  NodeDefExpressionValidator,
-} from './nodeDef'
+export { NodeDefType, NodeDefFactory, NodeDefs } from './nodeDef'
+
+export { NodeDefExpressionEvaluator, NodeDefExpressionValidator } from './nodeDefExpressionEvaluator'
+
 export type {
   NodeDef,
   NodeDefService,
