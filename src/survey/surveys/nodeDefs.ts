@@ -71,7 +71,7 @@ export const getNodeDefChildren = (params: {
   let childDefs = []
   // try to get children using index
   if (survey.nodeDefsIndex) {
-    const childrenUuids = Object.keys(survey.nodeDefsIndex.childDefUuidPresenceByParentUuid?.[nodeDef.uuid] || {})
+    const childrenUuids = Object.keys(survey.nodeDefsIndex.childDefUuidPresenceByParentUuid?.[nodeDef?.uuid] || {})
     childDefs = getNodeDefsByUuids({ survey, uuids: childrenUuids })
   } else {
     // calculate children
