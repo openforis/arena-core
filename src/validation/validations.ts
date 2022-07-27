@@ -3,16 +3,18 @@ import { ValidationFactory } from './factory'
 import { Validation } from './validation'
 
 const recalculateValidity = (validation: Validation): Validation => {
-  const fieldsWithValidationRecalculated: { [key: string]: Validation } = Object.entries(validation.fields).reduce(
-    (acc, [fieldKey, fieldValidation]) => ({ ...acc, [fieldKey]: recalculateValidity(fieldValidation) }),
-    {}
-  )
+  let allFieldValidationsValid = true
+  const fieldsWithValidationRecalculated: { [key: string]: Validation } = {}
+  Object.entries(validation.fields).forEach(([fieldKey, fieldValidation]) => {
+    const fieldValidationUpdated = recalculateValidity(fieldValidation)
+    fieldsWithValidationRecalculated[fieldKey] = fieldValidationUpdated
+    if (!fieldValidationUpdated.valid) {
+      allFieldValidationsValid = false
+    }
+  })
   const errors = validation.errors
   const warnings = validation.warnings
-  const valid: boolean =
-    Object.values(fieldsWithValidationRecalculated).every((fieldValidation) => fieldValidation.valid) &&
-    Objects.isEmpty(errors) &&
-    Objects.isEmpty(warnings)
+  const valid: boolean = allFieldValidationsValid && Objects.isEmpty(errors) && Objects.isEmpty(warnings)
   return ValidationFactory.createInstance({ valid, fields: fieldsWithValidationRecalculated, errors, warnings })
 }
 

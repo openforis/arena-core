@@ -14,9 +14,12 @@ export class NodeDefEntityBuilder extends NodeDefBuilder {
     const { survey, nodeDefParent } = params
     const def: NodeDefEntity = this.createNodeDef({ nodeDefParent }) as NodeDefEntity
 
+    let surveyUpdated = { ...survey }
+
     return this.childBuilders.reduce(
       (nodeDefsAcc: { [uuid: string]: NodeDef<NodeDefType> }, childBuilder: NodeDefBuilder) => {
-        const nodeDefs = childBuilder.build({ survey, nodeDefParent: def })
+        const nodeDefs = childBuilder.build({ survey: surveyUpdated, nodeDefParent: def })
+        surveyUpdated = { ...survey, nodeDefs: { ...surveyUpdated.nodeDefs, ...nodeDefs } }
         return { ...nodeDefsAcc, ...nodeDefs }
       },
       { [def.uuid]: def }

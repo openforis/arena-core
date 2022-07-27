@@ -51,14 +51,15 @@ describe('Record nodes index', () => {
   }, 10000)
 
   test('Record nodes index creation', () => {
-    const index = RecordNodesIndexUpdater.initializeIndex(record)
-    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
+    const index = record._nodesIndex || {}
+
     const clusterNode = TestUtils.getNodeByPath({ survey, record, path: 'cluster' })
+    expect(RecordNodesIndexReader.getNodeRootUuid(index)).toBe(clusterNode.uuid)
+
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
     const plotNode1 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[0]' })
     const plotNode2 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[1]' })
     const plotNode3 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[2]' })
-
-    expect(RecordNodesIndexReader.getNodeRootUuid(index)).toBe(clusterNode.uuid)
 
     expect(
       RecordNodesIndexReader.getNodeUuidsByParentAndChildDef({
@@ -69,7 +70,7 @@ describe('Record nodes index', () => {
   })
 
   test('Record nodes index update (nodes added)', () => {
-    const index = RecordNodesIndexUpdater.initializeIndex(record)
+    const index = record._nodesIndex || {}
 
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
     const clusterNode = TestUtils.getNodeByPath({ survey, record, path: 'cluster' })
@@ -102,7 +103,7 @@ describe('Record nodes index', () => {
   })
 
   test('Record nodes index update (nodes deleted)', () => {
-    const index = RecordNodesIndexUpdater.initializeIndex(record)
+    const index = record._nodesIndex || {}
 
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
     const clusterNode = TestUtils.getNodeByPath({ survey, record, path: 'cluster' })

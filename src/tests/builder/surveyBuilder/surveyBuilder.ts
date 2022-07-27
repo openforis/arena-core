@@ -90,6 +90,8 @@ export class SurveyBuilder {
 
     survey.nodeDefs = this.rootDefBuilder.build({ survey })
 
+    survey = Surveys.buildAndAssocNodeDefsIndex(survey)
+
     survey.refData = SurveyRefDataFactory.createInstance({ itemsByCategoryUuid, taxonIndex, taxonUuidIndex })
 
     survey = Surveys.buildAndAssocDependencyGraph(survey)
