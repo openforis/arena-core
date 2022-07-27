@@ -1,5 +1,5 @@
-import { NodeDefType } from '../../nodeDef'
-import { NodeDefs } from '../../nodeDefs'
+import { NodeDefType } from '../../nodeDef/nodeDef'
+import { NodeDefs } from '../../nodeDef/nodeDefs'
 
 const nativeProperties: { [key: string]: string } = {
   length: 'length',

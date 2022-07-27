@@ -14,10 +14,6 @@ export { NodeDefs } from './nodeDefs'
 
 export type { NodeDefService } from './service'
 
-export { NodeDefExpressionEvaluator } from './expressionEvaluator/evaluator'
-
-export { NodeDefExpressionValidator } from './expressionEvaluator/validator'
-
 // ==== node def types
 export type { NodeDefBoolean, NodeDefBooleanProps } from './types/boolean'
 
