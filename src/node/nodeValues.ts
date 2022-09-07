@@ -70,7 +70,7 @@ const getItemUuid = (node: Node): string | undefined =>
 const getDatePart =
   (index: number) =>
   (node: Node): number =>
-    Number((node.value || '--').split('-')[index].trim())
+    Number((node.value || '--').split('-')[index]?.trim())
 const getDateYear = getDatePart(0)
 const getDateMonth = getDatePart(1)
 const getDateDay = getDatePart(2)
@@ -91,7 +91,7 @@ const getVernacularNameUuid = (node: Node): string | undefined =>
 const _getTimePart =
   (index: number) =>
   (node: Node): number =>
-    Number((node.value || ':').split(':')[index].trim())
+    Number((node.value || ':').split(':')[index]?.trim())
 const getTimeHour = _getTimePart(0)
 const getTimeMinute = _getTimePart(1)
 
