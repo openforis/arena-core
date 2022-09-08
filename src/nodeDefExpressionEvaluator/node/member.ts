@@ -1,5 +1,5 @@
-import { MemberExpression } from '../../../expression'
-import { MemberEvaluator } from '../../../expression/javascript/node/member'
+import { MemberExpression } from '../../expression'
+import { MemberEvaluator } from '../../expression/javascript/node/member'
 import { NodeDefExpressionContext } from '../context'
 
 const isNodeDef = (obj: any) => obj && typeof obj === 'object' && 'uuid' in obj

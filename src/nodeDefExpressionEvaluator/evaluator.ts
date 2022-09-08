@@ -1,11 +1,11 @@
-import { ExpressionNodeType, JavascriptExpressionEvaluator } from '../../expression'
+import { ExpressionNodeType, JavascriptExpressionEvaluator } from '../expression'
 import { NodeDefIdentifierEvaluator } from './node/identifier'
 import { NodeDefMemberEvaluator } from './node/member'
 import { NodeDefThisEvaluator } from './node/thisEvaluator'
 import { nodeDefExpressionFunctions } from './functions'
 import { NodeDefExpressionContext } from './context'
-import { NodeDef } from '../nodeDef'
-import { Survey, Surveys } from '../../survey'
+import { NodeDef } from '../nodeDef/nodeDef'
+import { Survey, Surveys } from '../survey'
 
 export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<NodeDefExpressionContext> {
   constructor() {

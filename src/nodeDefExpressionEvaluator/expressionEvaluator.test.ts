@@ -1,7 +1,8 @@
-import { NodeDef, NodeDefExpressionEvaluator, NodeDefProps, NodeDefType } from '..'
-import { Survey, Surveys } from '../../survey'
-import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
-import { createTestAdminUser } from '../../tests/data'
+import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
+import { createTestAdminUser } from '../tests/data'
+import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
+import { Survey, Surveys } from '../survey'
+import { NodeDefExpressionEvaluator } from './evaluator'
 
 const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
 

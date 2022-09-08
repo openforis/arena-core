@@ -1,4 +1,4 @@
-import { ThisEvaluator } from '../../../expression/javascript/node/this'
+import { ThisEvaluator } from '../../expression/javascript/node/this'
 import { NodeDefExpressionContext } from '../context'
 
 export class NodeDefThisEvaluator extends ThisEvaluator<NodeDefExpressionContext> {

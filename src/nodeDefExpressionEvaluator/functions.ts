@@ -1,8 +1,8 @@
-import { ExpressionFunction } from '../../expression'
-import { Objects } from '../../utils'
-import { Surveys } from '../../survey'
-import { Point, Points } from '../../geo'
-import { Dates } from '../../utils/dates'
+import { ExpressionFunction } from '../expression'
+import { Objects } from '../utils'
+import { Surveys } from '../survey'
+import { Point, Points } from '../geo'
+import { Dates } from '../utils/dates'
 import { NodeDefExpressionContext } from './context'
 
 export const nodeDefExpressionFunctions: ExpressionFunction<NodeDefExpressionContext>[] = [
