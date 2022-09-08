@@ -2,7 +2,7 @@ import { Records } from '../records'
 import { Nodes } from '../../node'
 import { ExpressionFunction } from '../../expression'
 import { RecordExpressionContext } from './context'
-import { nodeDefExpressionFunctions } from '../../nodeDef/expressionEvaluator/functions'
+import { nodeDefExpressionFunctions } from '../../nodeDefExpressionEvaluator/functions'
 
 export const recordExpressionFunctions: ExpressionFunction<RecordExpressionContext>[] = [
   ...nodeDefExpressionFunctions,

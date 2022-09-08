@@ -1,14 +1,14 @@
-import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
-import { Surveys } from '../../../survey'
-import { NodeDefs } from '../../nodeDefs'
-import { Queue } from '../../../utils'
-import { IdentifierEvaluator } from '../../../expression/javascript/node/identifier'
+import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef/nodeDef'
+import { Surveys } from '../../survey'
+import { NodeDefs } from '../../nodeDef/nodeDefs'
+import { Queue } from '../../utils'
+import { IdentifierEvaluator } from '../../expression/javascript/node/identifier'
 import { NodeDefExpressionContext } from '../context'
-import { IdentifierExpression } from '../../../expression'
-import { SystemError } from '../../../error'
-import { ValidatorErrorKeys } from '../../../validation'
+import { IdentifierExpression } from '../../expression'
+import { SystemError } from '../../error'
+import { ValidatorErrorKeys } from '../../validation'
 import { NodeNativeProperties } from './nodeDefExpressionNativeProperties'
-import { NodeValues } from '../../../node/nodeValues'
+import { NodeValues } from '../../node/nodeValues'
 
 /**
  * Determines the actual context node def

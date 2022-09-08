@@ -1,7 +1,7 @@
-import { ExpressionContext } from '../../expression'
-import { NodeDef } from '..'
-import { Survey } from '../../survey'
-import { NodeDefProps, NodeDefType } from '../nodeDef'
+import { ExpressionContext } from '../expression'
+import { NodeDef } from '../nodeDef'
+import { Survey } from '../survey'
+import { NodeDefProps, NodeDefType } from '../nodeDef/nodeDef'
 
 export interface NodeDefExpressionContext extends ExpressionContext {
   survey: Survey

@@ -1,7 +1,7 @@
-import { NodeDefExpressionValidator } from '..'
-import { UserFactory } from '../../auth'
-import { Survey, Surveys } from '../../survey'
-import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
+import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
+import { UserFactory } from '../auth'
+import { Survey, Surveys } from '../survey'
+import { NodeDefExpressionValidator } from './validator'
 
 const { booleanDef, decimalDef, entityDef, integerDef } = SurveyObjectBuilders
 

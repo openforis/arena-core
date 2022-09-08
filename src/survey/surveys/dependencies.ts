@@ -1,5 +1,7 @@
 import * as SurveyNodeDefs from './nodeDefs'
-import { NodeDef, NodeDefExpression, NodeDefExpressionEvaluator, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
+
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
 
 const isContextParentByDependencyType = {
