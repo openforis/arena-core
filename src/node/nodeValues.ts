@@ -66,16 +66,16 @@ const getValuePropRaw = (params: { node: Node; prop: string; defaultValue?: any 
 const getItemUuid = (node: Node): string | undefined =>
   getValuePropRaw({ node, prop: valuePropsCode[valuePropsCode.itemUuid] })
 
-const getDateTimePart = (params: { node: Node; index: number; defaultValue: string; separator: string }): number => {
-  const { node, index, defaultValue, separator } = params
-  return Number((node.value || defaultValue).split(separator)[index]?.trim())
+const getDateTimePart = (params: { node: Node; index: number; separator: string }): number => {
+  const { node, index, separator } = params
+  return Number((node.value || '').split(separator)[index]?.trim())
 }
 
 // Date
 const getDatePart =
   (index: number) =>
   (node: Node): number =>
-    getDateTimePart({ node, index, defaultValue: '--', separator: '-' })
+    getDateTimePart({ node, index, separator: '-' })
 const getDateYear = getDatePart(0)
 const getDateMonth = getDatePart(1)
 const getDateDay = getDatePart(2)
@@ -96,7 +96,7 @@ const getVernacularNameUuid = (node: Node): string | undefined =>
 const _getTimePart =
   (index: number) =>
   (node: Node): number =>
-    getDateTimePart({ node, index, defaultValue: ':', separator: ':' })
+    getDateTimePart({ node, index, separator: ':' })
 const getTimeHour = _getTimePart(0)
 const getTimeMinute = _getTimePart(1)
 
