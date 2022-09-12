@@ -3,7 +3,7 @@ import { UserFactory } from '../auth'
 import { Survey, Surveys } from '../survey'
 import { NodeDefExpressionValidator } from './validator'
 
-const { booleanDef, decimalDef, entityDef, integerDef } = SurveyObjectBuilders
+const { booleanDef, decimalDef, entityDef, integerDef, textDef } = SurveyObjectBuilders
 
 type Query = {
   expression: string
@@ -25,6 +25,7 @@ describe('NodeDefExpressionValidator', () => {
         'cluster',
         integerDef('cluster_id').key(),
         booleanDef('accessible'),
+        textDef('remarks'),
         entityDef(
           'plot',
           integerDef('plot_id').key(),
@@ -62,6 +63,11 @@ describe('NodeDefExpressionValidator', () => {
       expression: 'sum(cluster.plot.tree.tree_height) == 110',
       validationResult: true,
       referencedNodeDefNames: ['cluster', 'plot', 'tree', 'tree_height'],
+    },
+    {
+      expression: '/[a-z\\s]+/i.test(remarks)',
+      validationResult: true,
+      referencedNodeDefNames: ['remarks'],
     },
   ]
 
