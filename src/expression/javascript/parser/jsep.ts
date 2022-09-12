@@ -1,4 +1,7 @@
 import jsep from 'jsep'
+import jsepRegex from '@jsep-plugin/regex'
+
+jsep.plugins.register(jsepRegex as unknown as jsep.IPlugin)
 
 // Add exponentiation operator (right-to-left)
 jsep.addBinaryOp('**', 11, true)

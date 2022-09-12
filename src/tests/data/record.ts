@@ -22,7 +22,7 @@ export const createTestRecord = (params: { user: User; survey: Survey }): Record
       attribute('visit_date', '2021-01-01'),
       attribute('visit_time', '10:30'),
       attribute('gps_model', 'ABC-123-xyz'),
-      attribute('remarks', ''),
+      attribute('remarks', 'No issues found'),
       entity(
         'plot',
         attribute('plot_id', 1),
