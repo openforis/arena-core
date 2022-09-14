@@ -60,7 +60,7 @@ describe('RecordExpressionEvaluator', () => {
     // gps_model is not empty
     { expression: 'isEmpty(gps_model)', result: false },
     // remarks is empty
-    { expression: 'isEmpty(remarks)', result: true },
+    { expression: 'isEmpty(remarks)', result: false },
     // plot count is 3
     { expression: 'plot.length', result: 3 },
     // access multiple entities with index
@@ -204,9 +204,9 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'gps_model.length', result: 11 },
     // global objects (constructors)
     { expression: 'Boolean(cluster_id)', result: true },
-    { expression: 'Boolean(remarks)', result: false },
+    { expression: 'Boolean(remarks)', result: true },
     { expression: 'Date.parse(Date()) <= Date.now()', result: true },
-    { expression: 'Number(remarks)', result: 0 },
+    { expression: 'Number(remarks)', result: NaN },
     { expression: 'String(cluster_id)', result: '12' },
     // composite attribute members
     { expression: 'cluster_location.x', result: 41.883012 },
@@ -228,6 +228,9 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'Math.max(cluster.plot.plot_id) + 1', result: 4 },
     { expression: 'Math.max(cluster.plot.plot_id) + 1', node: 'cluster.plot[0].plot_id', result: 4 },
     { expression: 'Math.max(cluster.plot.tree.tree_id) + 1', result: 6 },
+    // regular expressions
+    { expression: '/^\\w+$/.test(remarks)', result: false },
+    { expression: '/^[a-z\\s]{3,50}$/i.test(remarks)', result: true },
   ]
 
   queries.forEach((query: Query) => {

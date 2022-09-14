@@ -4,7 +4,7 @@ import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { NodeDefExpressionEvaluator } from './evaluator'
 
-const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
+const { booleanDef, entityDef, integerDef, textDef } = SurveyObjectBuilders
 
 type Query = {
   expression: string
@@ -30,6 +30,7 @@ describe('NodeDefExpressionEvaluator', () => {
         'cluster',
         integerDef('cluster_id').key(),
         booleanDef('accessible'),
+        textDef('remarks'),
         entityDef(
           'plot',
           integerDef('plot_id').key(),
@@ -70,6 +71,8 @@ describe('NodeDefExpressionEvaluator', () => {
     { expression: 'this', nodeDef: 'plot', result: 'plot' },
     { expression: 'parent(this).plot_id', nodeDef: 'plot_id', result: 'plot_id' },
     { expression: 'parent(parent(this)).accessible', nodeDef: 'tree', result: 'accessible' },
+    // regular exprssions
+    { expression: '/[a-z\\s]+/i.test(remarks)', result: true, resultIsNotNodeDef: true },
   ]
 
   queries.forEach((query: Query) => {

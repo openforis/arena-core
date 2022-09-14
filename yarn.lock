@@ -917,6 +917,11 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@jsep-plugin/regex@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@jsep-plugin/regex/-/regex-1.0.2.tgz#a9d5b61bf9975fe6563ba13be4003773db9dfc4a"
+  integrity sha512-Nn/Bcaww8zOebMDqNmGlhAWPWhIr/8S8lGIgaB/fSqev5xaO5uKy5i4qvTh63GpR+VzKqimgxDdcxdcRuCJXSw==
+
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
   resolved "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.4.tgz"
