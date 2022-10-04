@@ -13,8 +13,12 @@ export const assocPath = (params: { obj: any; path: string[]; value: any; sideEf
   }
 
   const objPart = obj[firstPathPart] || {}
-  let objPartUpdated = sideEffect ? { ...objPart } : objPart
-  objPartUpdated = assocPath({ obj: objPartUpdated, path: otherPathParts, value, sideEffect })
+  const objPartUpdated = assocPath({
+    obj: sideEffect ? objPart : { ...objPart },
+    path: otherPathParts,
+    value,
+    sideEffect,
+  })
 
   if (sideEffect) {
     objUpdated[firstPathPart] = objPartUpdated
