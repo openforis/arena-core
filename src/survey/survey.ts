@@ -32,6 +32,7 @@ export interface SurveyProps {
   cycles: {
     [key: string]: SurveyCycle
   }
+  defaultCycleKey?: string
   descriptions?: Labels
   languages: LanguageCode[]
   labels?: Labels
