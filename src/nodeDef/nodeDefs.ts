@@ -1,5 +1,12 @@
 import { Numbers } from '../utils'
-import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefType, NodeDefValidations } from './nodeDef'
+import {
+  NodeDef,
+  NodeDefExpression,
+  NodeDefProps,
+  NodeDefPropsWithLayout,
+  NodeDefType,
+  NodeDefValidations,
+} from './nodeDef'
 import { NodeDefTaxonProps } from './types/taxon'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
@@ -47,6 +54,12 @@ const getMaxCount = (nodeDef: NodeDef<NodeDefType>) => Numbers.toNumber(getValid
 const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>) =>
   !Number.isNaN(getMinCount(nodeDef)) || !Number.isNaN(getMaxCount(nodeDef))
 
+// layout
+const getLayoutRenderTypePerCycle =
+  (cycle = '0') =>
+  (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): string | undefined =>
+    nodeDef?.props?.layout?.[cycle]?.renderType
+
 export const NodeDefs = {
   isEntity,
   isMultiple,
@@ -60,6 +73,8 @@ export const NodeDefs = {
   isDefaultValueEvaluatedOneTime,
   getApplicable,
   getTaxonomyUuid,
+  // layout
+  getLayoutRenderTypePerCycle,
   // validations
   getValidations,
   isRequired,
