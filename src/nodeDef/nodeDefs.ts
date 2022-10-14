@@ -55,10 +55,15 @@ const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>) =>
   !Number.isNaN(getMinCount(nodeDef)) || !Number.isNaN(getMaxCount(nodeDef))
 
 // layout
-const getLayoutRenderTypePerCycle =
+const getLayoutProps =
+  (cycle = '0') =>
+  (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): any =>
+    nodeDef?.props?.layout?.[cycle] || {}
+
+const getLayoutRenderType =
   (cycle = '0') =>
   (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): string | undefined =>
-    nodeDef?.props?.layout?.[cycle]?.renderType
+    getLayoutProps(cycle)(nodeDef).renderType
 
 export const NodeDefs = {
   isEntity,
@@ -74,7 +79,8 @@ export const NodeDefs = {
   getApplicable,
   getTaxonomyUuid,
   // layout
-  getLayoutRenderTypePerCycle,
+  getLayoutProps,
+  getLayoutRenderType,
   // validations
   getValidations,
   isRequired,
