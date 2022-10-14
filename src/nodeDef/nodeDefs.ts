@@ -8,6 +8,7 @@ import {
   NodeDefValidations,
 } from './nodeDef'
 import { NodeDefTaxonProps } from './types/taxon'
+import { NodeDefText } from './types/text'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
@@ -39,6 +40,8 @@ const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => no
 
 const getTaxonomyUuid = (nodeDef: NodeDef<NodeDefType.taxon, NodeDefTaxonProps>): string | undefined =>
   nodeDef.props.taxonomyUuid
+
+const getTextTransform = (nodeDef: NodeDefText): string | undefined => nodeDef.props?.textTransform
 
 // Validations
 const getValidations = (nodeDef: NodeDef<NodeDefType>): NodeDefValidations | undefined =>
@@ -78,6 +81,7 @@ export const NodeDefs = {
   isDefaultValueEvaluatedOneTime,
   getApplicable,
   getTaxonomyUuid,
+  getTextTransform,
   // layout
   getLayoutProps,
   getLayoutRenderType,
