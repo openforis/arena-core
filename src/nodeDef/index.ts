@@ -7,6 +7,7 @@ export type {
   NodeDefMeta,
   NodeDefPropsAdvanced,
   NodeDefExpression,
+  NodeDefLayout,
   NodeDefValidations,
 } from './nodeDef'
 export { NodeDefType } from './nodeDef'

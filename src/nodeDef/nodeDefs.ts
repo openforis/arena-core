@@ -68,6 +68,11 @@ const getLayoutRenderType =
   (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): string | undefined =>
     getLayoutProps(cycle)(nodeDef).renderType
 
+const isHiddenWhenNotRelevant =
+  (cycle = '0') =>
+  (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): boolean =>
+    getLayoutProps(cycle)(nodeDef).hiddenWhenNotRelevant
+
 export const NodeDefs = {
   isEntity,
   isMultiple,
@@ -85,6 +90,7 @@ export const NodeDefs = {
   // layout
   getLayoutProps,
   getLayoutRenderType,
+  isHiddenWhenNotRelevant,
   // validations
   getValidations,
   isRequired,

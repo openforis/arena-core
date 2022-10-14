@@ -30,7 +30,11 @@ export interface NodeDefProps {
   readOnly?: boolean
 }
 
-export interface NodeDefPropsWithLayout<L> extends NodeDefProps {
+export interface NodeDefLayout {
+  hiddenWhenNotRelevant?: boolean
+}
+
+export interface NodeDefPropsWithLayout<L extends NodeDefLayout> extends NodeDefProps {
   layout?: {
     [cycleKey: string]: L
   }
