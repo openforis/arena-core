@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
+import { NodeDef, NodeDefLayout, NodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
 
 export interface NodeDefEntityChildPosition {
   h: number
@@ -10,7 +10,7 @@ export interface NodeDefEntityChildPosition {
   static: number
 }
 
-export interface NodeDefEntityLayout {
+export interface NodeDefEntityLayout extends NodeDefLayout {
   columnsNo?: number
   layoutChildren?: Array<NodeDefEntityChildPosition | string>
   pageUuid?: string

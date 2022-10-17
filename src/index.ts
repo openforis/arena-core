@@ -98,6 +98,7 @@ export type {
   NodeDefFile,
   NodeDefFileProps,
   NodeDefInteger,
+  NodeDefLayout,
   NodeDefTaxonProps,
   NodeDefText,
   NodeDefTextProps,

@@ -1,6 +1,14 @@
 import { Numbers } from '../utils'
-import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefType, NodeDefValidations } from './nodeDef'
+import {
+  NodeDef,
+  NodeDefExpression,
+  NodeDefProps,
+  NodeDefPropsWithLayout,
+  NodeDefType,
+  NodeDefValidations,
+} from './nodeDef'
 import { NodeDefTaxonProps } from './types/taxon'
+import { NodeDefText } from './types/text'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
@@ -33,6 +41,8 @@ const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => no
 const getTaxonomyUuid = (nodeDef: NodeDef<NodeDefType.taxon, NodeDefTaxonProps>): string | undefined =>
   nodeDef.props.taxonomyUuid
 
+const getTextTransform = (nodeDef: NodeDefText): string | undefined => nodeDef.props?.textTransform
+
 // Validations
 const getValidations = (nodeDef: NodeDef<NodeDefType>): NodeDefValidations | undefined =>
   nodeDef.propsAdvanced?.validations
@@ -47,6 +57,22 @@ const getMaxCount = (nodeDef: NodeDef<NodeDefType>) => Numbers.toNumber(getValid
 const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>) =>
   !Number.isNaN(getMinCount(nodeDef)) || !Number.isNaN(getMaxCount(nodeDef))
 
+// layout
+const getLayoutProps =
+  (cycle = '0') =>
+  (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): any =>
+    nodeDef?.props?.layout?.[cycle] || {}
+
+const getLayoutRenderType =
+  (cycle = '0') =>
+  (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): string | undefined =>
+    getLayoutProps(cycle)(nodeDef).renderType
+
+const isHiddenWhenNotRelevant =
+  (cycle = '0') =>
+  (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): boolean =>
+    getLayoutProps(cycle)(nodeDef).hiddenWhenNotRelevant
+
 export const NodeDefs = {
   isEntity,
   isMultiple,
@@ -60,6 +86,11 @@ export const NodeDefs = {
   isDefaultValueEvaluatedOneTime,
   getApplicable,
   getTaxonomyUuid,
+  getTextTransform,
+  // layout
+  getLayoutProps,
+  getLayoutRenderType,
+  isHiddenWhenNotRelevant,
   // validations
   getValidations,
   isRequired,

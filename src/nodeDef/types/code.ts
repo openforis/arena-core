@@ -1,6 +1,6 @@
-import { NodeDef, NodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
+import { NodeDef, NodeDefLayout, NodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
 
-export interface NodeDefCodeLayout {
+export interface NodeDefCodeLayout extends NodeDefLayout {
   renderType: 'dropdown' | 'checkbox'
 }
 

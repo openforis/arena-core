@@ -1,5 +1,6 @@
 import { Category } from '../../category'
 import { Taxonomy } from '../../taxonomy'
+import { Arrays, Objects } from '../../utils'
 import { Survey } from '../survey'
 
 import { buildAndAssocDependencyGraph, addNodeDefDependencies, getNodeDefDependents } from './dependencies'
@@ -45,7 +46,22 @@ const getTaxonomyByName = (params: { survey: Survey; taxonomyName: string }): Ta
     : undefined
 }
 
+const getCycleKeys = (survey: Survey): string[] => {
+  const cycles = survey.props?.cycles || {}
+  return Object.keys(cycles)
+}
+
+const getLastCycleKey = (survey: Survey): string => Arrays.last(getCycleKeys(survey)) as string
+
+const getDefaultCycleKey = (survey: Survey) => {
+  const defaultCycleKey = survey.props?.defaultCycleKey
+  return Objects.isEmpty(defaultCycleKey) ? getLastCycleKey(survey) : defaultCycleKey
+}
+
 export const Surveys = {
+  getCycleKeys,
+  getLastCycleKey,
+  getDefaultCycleKey,
   getNodeDefByName,
   getNodeDefsByUuids,
   getNodeDefByUuid,
