@@ -147,6 +147,9 @@ describe('RecordExpressionEvaluator', () => {
     // taxonProp
     { expression: `taxonProp('trees', 'max_height', 'AFZ/QUA')`, result: '200' },
     { expression: `taxonProp('trees', 'max_dbh', 'OLE/CAP')`, result: '40' },
+    // taxonProp: using attribute as taxon code
+    { expression: `taxonProp('trees', 'max_dbh', tree_species)`, node: 'plot[0].tree[0].tree_height', result: '30' },
+    { expression: `taxonProp('trees', 'max_dbh', tree_species)`, node: 'plot[1].tree[1].tree_height', result: '40' },
     // taxonProp: unexisting prop or code
     { expression: `taxonProp('trees', 'unexisting_prop', 'AFZ/QUA')`, result: null },
     { expression: `taxonProp('trees', 'max_dbh', 'AFZ/QUA/OTHER')`, result: null },
