@@ -54,7 +54,16 @@ export const createTestRecord = (params: { user: User; survey: Survey }): Record
           y: 12.409056,
         }),
         entity('tree', attribute('tree_id', 1), attribute('tree_height', 12), attribute('dbh', 18)),
-        entity('tree', attribute('tree_id', 2), attribute('tree_height', 10), attribute('dbh', 15)),
+        entity(
+          'tree',
+          attribute('tree_id', 2),
+          attribute('tree_height', 10),
+          attribute('dbh', 15),
+          attribute('tree_species', {
+            code: 'OLE/CAP',
+            scientificName: 'Olea capensis',
+          })
+        ),
         entity('tree', attribute('tree_id', 3), attribute('tree_height', 30), attribute('dbh', 20))
       ),
       entity(
