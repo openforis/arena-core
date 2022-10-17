@@ -3,7 +3,7 @@ import { UserFactory } from '../auth'
 import { Survey, Surveys } from '../survey'
 import { NodeDefExpressionValidator } from './validator'
 
-const { booleanDef, decimalDef, entityDef, integerDef, textDef } = SurveyObjectBuilders
+const { booleanDef, decimalDef, entityDef, integerDef, taxonDef, taxon, taxonomy, textDef } = SurveyObjectBuilders
 
 type Query = {
   expression: string
@@ -29,10 +29,25 @@ describe('NodeDefExpressionValidator', () => {
         entityDef(
           'plot',
           integerDef('plot_id').key(),
-          entityDef('tree', integerDef('tree_id').key(), decimalDef('tree_height')).multiple()
+          entityDef(
+            'tree',
+            integerDef('tree_id').key(),
+            decimalDef('tree_height'),
+            taxonDef('species', 'trees')
+          ).multiple()
         ).multiple()
       )
-    ).build()
+    )
+      .taxonomies(
+        taxonomy('trees').taxa(
+          taxon('AFZ/QUA', 'Fabaceae', 'Afzelia', 'Afzelia quanzensis')
+            .vernacularName('eng', 'Mahogany')
+            .vernacularName('swa', 'Mbambakofi')
+            .extra({ max_height: '200', max_dbh: '30' }),
+          taxon('OLE/CAP', 'Oleacea', 'Olea', 'Olea capensis').extra({ max_height: '300', max_dbh: '40' })
+        )
+      )
+      .build()
   }, 10000)
 
   const queries: Query[] = [
@@ -68,6 +83,12 @@ describe('NodeDefExpressionValidator', () => {
       expression: '/[a-z\\s]+/i.test(remarks)',
       validationResult: true,
       referencedNodeDefNames: ['remarks'],
+    },
+    {
+      expression: `taxonProp('max_height', 'trees', species)`,
+      nodeDef: 'tree_height',
+      validationResult: true,
+      referencedNodeDefNames: ['species'],
     },
   ]
 

@@ -96,6 +96,15 @@ export const nodeDefExpressionFunctions: ExpressionFunction<NodeDefExpressionCon
     maxArity: 3,
     executor: (context: NodeDefExpressionContext) => (taxonomyName: string, propName: string, taxonCode: string) => {
       const { survey } = context
+
+      if (
+        Objects.isEmpty(taxonomyName) ||
+        Objects.isEmpty(propName) ||
+        Objects.isEmpty(taxonCode) ||
+        typeof taxonCode !== 'string' // node def expression validator could call it passing a node def object
+      )
+        return null
+
       const taxonomy = Surveys.getTaxonomyByName({ survey, taxonomyName })
       if (!taxonomy) return null
 

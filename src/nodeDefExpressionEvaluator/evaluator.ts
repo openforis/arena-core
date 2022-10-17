@@ -27,15 +27,17 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
 
     const nodeDefContext = isContextParent ? Surveys.getNodeDefParent({ survey, nodeDef }) : nodeDef
 
+    const referencedNodeDefUuids: Set<string> = new Set()
+
     const context: NodeDefExpressionContext = {
       survey,
       nodeDefCurrent: nodeDef,
       nodeDefContext,
       object: nodeDef,
       selfReferenceAllowed,
+      referencedNodeDefUuids,
     }
     const result = this.evaluate(expression, context)
-    const referencedNodeDefUuids = context.referencedNodeDefUuids || new Set()
     return { result, referencedNodeDefUuids }
   }
 

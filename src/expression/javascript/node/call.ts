@@ -71,12 +71,9 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     if (maxArity !== undefined && maxArity >= 0 && numArgs > maxArity)
       throw new SystemError('expression.functionHasTooManyArguments', { name: fnName })
 
-    const args = exprArgs.map((arg) =>
-      this.evaluator.evaluateNode(arg, {
-        ...this.context,
-        evaluateToNode: evaluateArgsToNodes,
-      })
-    )
+    // evaluate arguments
+    const argsContext = { ...this.context, evaluateToNode: evaluateArgsToNodes }
+    const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, argsContext))
 
     // Currently there are no side effects from function evaluation so it's
     // safe to call the function even when we're just parsing the expression
