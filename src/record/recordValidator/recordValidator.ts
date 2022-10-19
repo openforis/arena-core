@@ -15,7 +15,7 @@ export const validateNodes = async (params: { survey: Survey; record: Record; no
   const nodeCountValidations = CountValidator.validateChildrenCountNodes({ survey, record, nodes })
 
   // 3. merge validations
-  return Validations.cleanup(
+  return Validations.recalculateValidity(
     ValidationFactory.createInstance({
       valid: true,
       fields: {

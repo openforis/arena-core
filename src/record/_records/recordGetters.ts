@@ -8,7 +8,9 @@ import { SystemError } from '../../error'
 import { NodeValues } from '../../node/nodeValues'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
 
-export const getNodesArray = (record: Record): Node[] => Object.values(record.nodes || {})
+export const getNodes = (record: Record): { [key: string]: Node } => record.nodes || {}
+
+export const getNodesArray = (record: Record): Node[] => Object.values(getNodes(record))
 
 export const getNodeByUuid =
   (uuid: string) =>

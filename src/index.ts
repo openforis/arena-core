@@ -112,10 +112,11 @@ export {
   RECORD_STEP_DEFAULT,
   RecordExpressionEvaluator,
   RecordNodesUpdater,
+  RecordUpdater,
   RecordUpdateResult,
   RecordValidator,
 } from './record'
-export type { Record, RecordService } from './record'
+export type { Record, RecordService, RecordUpdateOptions } from './record'
 
 export { ServiceRegistry, ServiceType } from './registry'
 export type { Service } from './registry'

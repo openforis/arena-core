@@ -2,7 +2,14 @@ import { Objects } from '../utils'
 import { ValidationFactory } from './factory'
 import { Validation, ValidationFields, ValidationResult } from './validation'
 
+const getValidation = (obj: any): Validation => obj.validation || ValidationFactory.createInstance()
+
 const getFieldValidations = (validation: Validation): ValidationFields => validation.fields || {}
+
+const getFieldValidation =
+  (field: string) =>
+  (validation: Validation): Validation =>
+    getFieldValidations(validation)[field] || ValidationFactory.createInstance()
 
 const getErrors = (validation: Validation): ValidationResult[] => validation.errors || []
 
@@ -16,6 +23,28 @@ const hasErrors = (validation: Validation): boolean => {
 const hasWarnings = (validation: Validation): boolean => {
   const warnings = getWarnings(validation)
   return !Objects.isEmpty(warnings) || Object.values(getFieldValidations(validation)).some(hasWarnings)
+}
+
+const recalculateValidity = (validation: Validation): Validation => {
+  let allFieldsValid = true
+
+  const fieldsWithValidationRecalculated: ValidationFields = {}
+
+  Object.entries(validation.fields).forEach(([fieldKey, fieldValidation]) => {
+    const fieldValidationUpdated = recalculateValidity(fieldValidation)
+    fieldsWithValidationRecalculated[fieldKey] = fieldValidationUpdated
+    if (!fieldValidationUpdated.valid) {
+      allFieldsValid = false
+    }
+  })
+  const valid: boolean = allFieldsValid && !hasErrors(validation) && !hasWarnings(validation)
+
+  return ValidationFactory.createInstance({
+    valid,
+    fields: fieldsWithValidationRecalculated,
+    errors: getErrors(validation),
+    warnings: getWarnings(validation),
+  })
 }
 
 const cleanup = (validation: Validation): Validation => {
@@ -66,6 +95,10 @@ const mergeValidations =
   }
 
 export const Validations = {
+  getValidation,
+  getFieldValidations,
+  getFieldValidation,
+  recalculateValidity,
   cleanup,
   mergeValidations,
 }

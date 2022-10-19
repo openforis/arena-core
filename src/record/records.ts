@@ -1,5 +1,6 @@
 import {
   getRoot,
+  getNodes,
   getNodesArray,
   getNodeByUuid,
   getNodesByUuids,
@@ -30,6 +31,7 @@ import { addNode, addNodes } from './_records/recordUpdater'
 export const Records = {
   // READ
   getRoot,
+  getNodes,
   getNodesArray,
   getNodeByUuid,
   getNodesByUuids,
@@ -58,3 +60,5 @@ export const Records = {
   addNode,
   addNodes,
 }
+
+export type { RecordUpdateOptions } from './_records/recordUpdater'
