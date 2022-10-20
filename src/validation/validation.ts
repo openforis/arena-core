@@ -18,11 +18,13 @@ export interface ValidationCounts {
   warnings: number
 }
 
+export interface ValidationFields {
+  [key: string]: Validation
+}
+
 export interface Validation {
   errors: ValidationResult[]
-  fields: {
-    [name: string]: Validation
-  }
+  fields: ValidationFields
   valid: boolean
   warnings: ValidationResult[]
   counts?: ValidationCounts

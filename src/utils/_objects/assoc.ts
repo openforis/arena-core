@@ -1,6 +1,6 @@
 import { assocPath } from './assocPath'
 
-export const assoc = (params: { obj: any; prop: string; value: any }): any => {
-  const { obj, prop, value } = params
-  return assocPath({ obj, path: [prop], value })
+export const assoc = (params: { obj: any; prop: string; value: any; sideEffect?: boolean }): any => {
+  const { obj, prop, value, sideEffect = false } = params
+  return assocPath({ obj, path: [prop], value, sideEffect })
 }
