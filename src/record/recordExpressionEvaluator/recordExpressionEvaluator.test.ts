@@ -211,6 +211,9 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'Date.parse(Date()) <= Date.now()', result: true },
     { expression: 'Number(remarks)', result: NaN },
     { expression: 'String(cluster_id)', result: '12' },
+    { expression: 'String(cluster_id).substring(1)', result: '2' },
+    { expression: 'Number(String(cluster_id))', result: 12 },
+    { expression: 'Number(String(cluster_id)).toFixed(2)', result: '12.00' },
     // composite attribute members
     { expression: 'cluster_location.x', result: 41.883012 },
     { expression: 'cluster_location.y', result: 12.489056 },

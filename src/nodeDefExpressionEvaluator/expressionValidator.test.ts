@@ -90,6 +90,12 @@ describe('NodeDefExpressionValidator', () => {
       validationResult: true,
       referencedNodeDefNames: ['species'],
     },
+    // global objects
+    {
+      expression: 'String(cluster_id)',
+      validationResult: true,
+      referencedNodeDefNames: ['cluster_id'],
+    },
   ]
 
   queries.forEach((query: Query) => {
