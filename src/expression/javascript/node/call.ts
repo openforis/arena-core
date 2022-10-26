@@ -49,7 +49,9 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     // identifier is a global object
     const globalFn = getGlobalObjectProperty(fnName, contextObject)
     if (globalFn !== null) {
-      const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context))
+      // global functions like String, Number, must be invoked passing node value as argument, not the node itself
+      const contextArg = { ...this.context, evaluateToNode: false }
+      const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, contextArg))
       return globalFn(...args)
     }
 
