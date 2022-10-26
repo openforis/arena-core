@@ -8,7 +8,6 @@ import { RecordUpdater } from './recordUpdater'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 import { User } from '../auth'
-import { Records } from './records'
 import { Record } from './record'
 import { Validations } from '../validation/validations'
 import { Survey } from '../survey'
@@ -36,11 +35,10 @@ const updateAttributeAndExpectValidation = async (params: {
   const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: nodePath })
 
   const nodeUpdated = { ...nodeToUpdate, value }
-  const recordUpdated = Records.addNode(nodeUpdated)(record)
 
   const updateResult = await RecordUpdater.updateNode({
     survey,
-    record: recordUpdated,
+    record,
     node: nodeUpdated,
   })
 
