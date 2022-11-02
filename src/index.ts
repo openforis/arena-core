@@ -5,7 +5,6 @@ export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, Categor
 export type {
   CategoryItemProps,
   Category,
-  CategoryItemExtraDef,
   CategoryItem,
   CategoryLevel,
   CategoryLevelProps,
@@ -57,6 +56,8 @@ export type {
   ThisExpression,
   UnaryExpression,
 } from './expression'
+
+export type { ExtraPropDef, ExtraPropDataType } from './extraProp'
 
 export { PointFactory, Points } from './geo'
 export type { Point } from './geo'

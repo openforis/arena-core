@@ -1,36 +1,42 @@
-import { ExpressionFunction } from '../expression'
+import { ExpressionFunctions } from '../expression'
 import { Objects } from '../utils'
 import { Surveys } from '../survey'
 import { Point, Points } from '../geo'
 import { Dates } from '../utils/dates'
 import { NodeDefExpressionContext } from './context'
+import { SystemError } from '../error'
+import { ExtraProps } from '../extraProp/extraProps'
 
-export const nodeDefExpressionFunctions: ExpressionFunction<NodeDefExpressionContext>[] = [
-  {
-    name: 'categoryItemProp',
+export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
+  categoryItemProp: {
     minArity: 3,
     executor:
       (context: NodeDefExpressionContext) =>
       (categoryName: string, itemPropName: string, ...codePaths: string[]) => {
         const { survey } = context
+
+        if (Objects.isEmpty(categoryName) || Objects.isEmpty(itemPropName) || Objects.isEmpty(codePaths))
+          throw new SystemError('expression.missingFunctionParameters')
+
         const category = Surveys.getCategoryByName({ survey, categoryName })
-        if (!category) return null
+        if (!category) throw new SystemError('expression.invalidCategoryName', { name: categoryName })
+
+        const extraPropDef = category.props.itemExtraDefs?.[itemPropName]
+        if (!extraPropDef) throw new SystemError('expression.invalidCategoryExtraProp', { propName: itemPropName })
 
         const categoryItem = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid: category.uuid, codePaths })
         if (!categoryItem) return null
 
-        const extraProp = categoryItem.props.extra?.[itemPropName]
-        return Objects.isEmpty(extraProp) ? null : extraProp
+        const value = categoryItem.props.extra?.[itemPropName]
+        return ExtraProps.convertValue(value)(extraPropDef)
       },
   },
-  {
-    name: 'count',
+  count: {
     minArity: 1,
     maxArity: 1,
     executor: (_context: NodeDefExpressionContext) => (_nodeSet) => 1,
   },
-  {
-    name: 'distance',
+  distance: {
     minArity: 2,
     maxArity: 2,
     executor:
@@ -44,8 +50,7 @@ export const nodeDefExpressionFunctions: ExpressionFunction<NodeDefExpressionCon
         return pointFrom && pointTo ? Points.distance(pointFrom, pointTo) : null
       },
   },
-  {
-    name: 'includes',
+  includes: {
     minArity: 2,
     maxArity: 2,
     evaluateArgsToNodes: false,
@@ -54,8 +59,7 @@ export const nodeDefExpressionFunctions: ExpressionFunction<NodeDefExpressionCon
       (items: any, value: any): boolean =>
         Array.isArray(items) && items.map(String).includes(String(value)),
   },
-  {
-    name: 'index',
+  index: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
@@ -63,15 +67,13 @@ export const nodeDefExpressionFunctions: ExpressionFunction<NodeDefExpressionCon
       return -1
     },
   },
-  {
-    name: 'now',
+  now: {
     minArity: 0,
     maxArity: 0,
     evaluateToNode: false,
     executor: () => () => Dates.nowFormattedForExpression(),
   },
-  {
-    name: 'parent',
+  parent: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
@@ -81,8 +83,7 @@ export const nodeDefExpressionFunctions: ExpressionFunction<NodeDefExpressionCon
       return Surveys.getNodeDefParent({ survey, nodeDef })
     },
   },
-  {
-    name: 'sum',
+  sum: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
@@ -90,29 +91,30 @@ export const nodeDefExpressionFunctions: ExpressionFunction<NodeDefExpressionCon
       return 1
     },
   },
-  {
-    name: 'taxonProp',
+  taxonProp: {
     minArity: 3,
     maxArity: 3,
     executor: (context: NodeDefExpressionContext) => (taxonomyName: string, propName: string, taxonCode: string) => {
       const { survey } = context
 
-      if (
-        Objects.isEmpty(taxonomyName) ||
-        Objects.isEmpty(propName) ||
-        Objects.isEmpty(taxonCode) ||
-        typeof taxonCode !== 'string' // node def expression validator could call it passing a node def object
-      )
-        return null
+      if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(propName) || Objects.isEmpty(taxonCode))
+        throw new SystemError('expression.missingFunctionParameters')
 
       const taxonomy = Surveys.getTaxonomyByName({ survey, taxonomyName })
-      if (!taxonomy) return null
+      if (!taxonomy) throw new SystemError('expression.invalidTaxonomyName', { name: taxonomyName })
+
+      const extraPropDef = taxonomy.props.extraPropsDefs?.[propName]
+      if (!extraPropDef) throw new SystemError('expression.invalidTaxonomyExtraProp', { propName })
+
+      if (typeof taxonCode !== 'string') {
+        return null // node def expression validator could call it passing a node def object
+      }
 
       const taxon = Surveys.getTaxonByCode({ survey, taxonomyUuid: taxonomy.uuid, taxonCode })
       if (!taxon) return null
 
-      const extraProp = taxon.props.extra?.[propName]
-      return Objects.isEmpty(extraProp) ? null : extraProp
+      const value = taxon.props.extra?.[propName]
+      return ExtraProps.convertValue(value)(extraPropDef)
     },
   },
-]
+}
