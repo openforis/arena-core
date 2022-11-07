@@ -2,6 +2,7 @@ import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuil
 import { UserFactory } from '../auth'
 import { Survey, Surveys } from '../survey'
 import { NodeDefExpressionValidator } from './validator'
+import { ExtraPropDataType } from '../extraProp'
 
 const { booleanDef, decimalDef, entityDef, integerDef, taxonDef, taxon, taxonomy, textDef } = SurveyObjectBuilders
 
@@ -9,7 +10,7 @@ type Query = {
   expression: string
   nodeDef?: string
   validationResult: boolean
-  referencedNodeDefNames: Array<string>
+  referencedNodeDefNames?: Array<string>
   selfReferenceAllowed?: boolean
 }
 
@@ -39,20 +40,24 @@ describe('NodeDefExpressionValidator', () => {
       )
     )
       .taxonomies(
-        taxonomy('trees').taxa(
-          taxon('AFZ/QUA', 'Fabaceae', 'Afzelia', 'Afzelia quanzensis')
-            .vernacularName('eng', 'Mahogany')
-            .vernacularName('swa', 'Mbambakofi')
-            .extra({ max_height: '200', max_dbh: '30' }),
-          taxon('OLE/CAP', 'Oleacea', 'Olea', 'Olea capensis').extra({ max_height: '300', max_dbh: '40' })
-        )
+        taxonomy('trees')
+          .extraProps({
+            max_height: { key: 'max_height', dataType: ExtraPropDataType.number },
+          })
+          .taxa(
+            taxon('AFZ/QUA', 'Fabaceae', 'Afzelia', 'Afzelia quanzensis')
+              .vernacularName('eng', 'Mahogany')
+              .vernacularName('swa', 'Mbambakofi')
+              .extra({ max_height: '200', max_dbh: '30' }),
+            taxon('OLE/CAP', 'Oleacea', 'Olea', 'Olea capensis').extra({ max_height: '300', max_dbh: '40' })
+          )
       )
       .build()
   }, 10000)
 
   const queries: Query[] = [
     // wrong node def name
-    { expression: 'not_existent', validationResult: false, referencedNodeDefNames: [] },
+    { expression: 'not_existent', validationResult: false },
     // sibling node defs
     { expression: 'accessible', nodeDef: 'accessible', validationResult: true, referencedNodeDefNames: ['accessible'] },
     // self reference not allowed
@@ -60,7 +65,6 @@ describe('NodeDefExpressionValidator', () => {
       expression: 'accessible',
       nodeDef: 'accessible',
       validationResult: false,
-      referencedNodeDefNames: [],
       selfReferenceAllowed: false,
     },
     // parent of root entity should be undefined
@@ -85,10 +89,15 @@ describe('NodeDefExpressionValidator', () => {
       referencedNodeDefNames: ['remarks'],
     },
     {
-      expression: `taxonProp('max_height', 'trees', species)`,
+      expression: `taxonProp('trees', 'max_height', species)`,
       nodeDef: 'tree_height',
       validationResult: true,
       referencedNodeDefNames: ['species'],
+    },
+    {
+      expression: `taxonProp('unexisting_taxonomy_name', 'max_height' , species)`,
+      nodeDef: 'tree_height',
+      validationResult: false,
     },
     // global objects
     {

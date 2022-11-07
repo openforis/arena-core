@@ -1,6 +1,6 @@
 import { ExpressionContext } from '../context'
 import { ExpressionEvaluator } from '../evaluator'
-import { ExpressionFunction } from '../function'
+import { ExpressionFunctions } from '../function'
 import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
 import { SystemError } from '../../error'
 
@@ -37,15 +37,12 @@ const defaultEvaluators = {
 }
 
 export class JavascriptExpressionEvaluator<C extends ExpressionContext> implements ExpressionEvaluator<C> {
-  functions: { [functionName: string]: ExpressionFunction<C> }
+  functions: ExpressionFunctions<C>
   evaluators: Evaluators<C>
 
-  constructor(functions: Array<ExpressionFunction<C>> = [], evaluators: Evaluators<C> = {}) {
+  constructor(functions: ExpressionFunctions<C> = {}, evaluators: Evaluators<C> = {}) {
     this.evaluators = { ...defaultEvaluators, ...evaluators }
-    this.functions = [...functionsDefault, ...functions].reduce(
-      (functionsAcc, expressionFunction) => ({ ...functionsAcc, [expressionFunction.name]: expressionFunction }),
-      {}
-    )
+    this.functions = { ...functionsDefault, ...functions }
   }
 
   evaluate(expression: string, context?: C): any {

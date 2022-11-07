@@ -1,4 +1,5 @@
 import { User } from '../../auth'
+import { ExtraPropDataType } from '../../extraProp'
 import { Survey } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../builder/surveyBuilder'
 
@@ -48,23 +49,31 @@ export const createTestSurvey = (params: { user: User }): Survey =>
       category('simple_category').items(categoryItem('1'), categoryItem('2'), categoryItem('3')),
       category('hierarchical_category')
         .levels('level_1', 'level_2')
+        .extraProps({
+          prop1: { key: 'prop1', dataType: ExtraPropDataType.text },
+          prop2: { key: 'prop2', dataType: ExtraPropDataType.text },
+          prop3: { key: 'prop3', dataType: ExtraPropDataType.number },
+        })
         .items(
           categoryItem('1')
-            .extra({ prop1: 'Extra prop1 item 1', prop2: 'Extra prop2 item 1' })
-            .items(categoryItem('1').extra({ prop1: 'Extra prop1 item 1-1', prop2: 'Extra prop2 item 1-1' })),
+            .extra({ prop1: 'Extra prop1 item 1', prop2: 'Extra prop2 item 1', prop3: 1 })
+            .items(categoryItem('1').extra({ prop1: 'Extra prop1 item 1-1', prop2: 'Extra prop2 item 1-1', prop3: 2 })),
           categoryItem('2')
-            .extra({ prop1: 'Extra prop1 item 2', prop2: 'Extra prop2 item 2' })
+            .extra({ prop1: 'Extra prop1 item 2', prop2: 'Extra prop2 item 2', prop3: 4 })
             .items(
-              categoryItem('1').extra({ prop1: 'Extra prop1 item 2-1', prop2: 'Extra prop2 item 2-1' }),
-              categoryItem('2').extra({ prop1: 'Extra prop1 item 2-2', prop2: 'Extra prop2 item 2-2' }),
-              categoryItem('3').extra({ prop1: 'Extra prop1 item 2-3', prop2: 'Extra prop2 item 2-3' })
+              categoryItem('1').extra({ prop1: 'Extra prop1 item 2-1', prop2: 'Extra prop2 item 2-1', prop3: 11 }),
+              categoryItem('2').extra({ prop1: 'Extra prop1 item 2-2', prop2: 'Extra prop2 item 2-2', prop3: 12 }),
+              categoryItem('3').extra({ prop1: 'Extra prop1 item 2-3', prop2: 'Extra prop2 item 2-3', prop3: 13 })
             ),
           categoryItem('3')
-            .extra({ prop1: 'Extra prop1 item 3', prop2: 'Extra prop2 item 3' })
-            .items(categoryItem('3a').extra({ prop1: 'Extra prop1 item 3a', prop2: 'Extra prop2 item 3a' }))
+            .extra({ prop1: 'Extra prop1 item 3', prop2: 'Extra prop2 item 3', prop3: 21 })
+            .items(categoryItem('3a').extra({ prop1: 'Extra prop1 item 3a', prop2: 'Extra prop2 item 3a', prop3: 22 }))
         ),
       category('sampling_point')
         .levels('cluster', 'plot')
+        .extraProps({
+          location: { key: 'location', dataType: ExtraPropDataType.geometryPoint },
+        })
         .items(
           categoryItem('11')
             .extra({ location: 'SRID=EPSG:4326;POINT(12.89463 42.00048)' })
@@ -93,12 +102,17 @@ export const createTestSurvey = (params: { user: User }): Survey =>
         )
     )
     .taxonomies(
-      taxonomy('trees').taxa(
-        taxon('AFZ/QUA', 'Fabaceae', 'Afzelia', 'Afzelia quanzensis')
-          .vernacularName('eng', 'Mahogany')
-          .vernacularName('swa', 'Mbambakofi')
-          .extra({ max_height: '200', max_dbh: '30' }),
-        taxon('OLE/CAP', 'Oleacea', 'Olea', 'Olea capensis').extra({ max_height: '300', max_dbh: '40' })
-      )
+      taxonomy('trees')
+        .extraProps({
+          max_height: { key: 'max_height', dataType: ExtraPropDataType.number },
+          max_dbh: { key: 'max_dbh', dataType: ExtraPropDataType.number },
+        })
+        .taxa(
+          taxon('AFZ/QUA', 'Fabaceae', 'Afzelia', 'Afzelia quanzensis')
+            .vernacularName('eng', 'Mahogany')
+            .vernacularName('swa', 'Mbambakofi')
+            .extra({ max_height: 200, max_dbh: 30 }),
+          taxon('OLE/CAP', 'Oleacea', 'Olea', 'Olea capensis').extra({ max_height: 300, max_dbh: '40' })
+        )
     )
     .build()

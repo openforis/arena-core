@@ -1,13 +1,34 @@
 import { Records } from '../records'
 import { Nodes } from '../../node'
-import { ExpressionFunction } from '../../expression'
+import { ExpressionFunctions } from '../../expression'
 import { RecordExpressionContext } from './context'
 import { nodeDefExpressionFunctions } from '../../nodeDefExpressionEvaluator/functions'
+import { Objects } from '../../utils'
+import { Surveys } from '../../survey'
+import { ExtraProps } from '../../extraProp/extraProps'
 
-export const recordExpressionFunctions: ExpressionFunction<RecordExpressionContext>[] = [
+export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionContext> = {
   ...nodeDefExpressionFunctions,
-  {
-    name: 'count',
+  categoryItemProp: {
+    minArity: 3,
+    executor:
+      (context: RecordExpressionContext) =>
+      (categoryName: string, itemPropName: string, ...codePaths: string[]) => {
+        const { survey } = context
+        const category = Surveys.getCategoryByName({ survey, categoryName })
+        if (!category) return null
+
+        const extraPropDef = category.props.itemExtraDefs?.[itemPropName]
+        if (!extraPropDef) return null
+
+        const categoryItem = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid: category.uuid, codePaths })
+        if (!categoryItem) return null
+
+        const value = categoryItem.props.extra?.[itemPropName]
+        return ExtraProps.convertValue(value)(extraPropDef)
+      },
+  },
+  count: {
     minArity: 1,
     evaluateArgsToNodes: true,
     executor: (_context: RecordExpressionContext) => (nodeSet) => {
@@ -16,8 +37,7 @@ export const recordExpressionFunctions: ExpressionFunction<RecordExpressionConte
       return 0
     },
   },
-  {
-    name: 'index',
+  index: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
@@ -37,8 +57,7 @@ export const recordExpressionFunctions: ExpressionFunction<RecordExpressionConte
       return children.findIndex((n) => Nodes.areEqual(n, node))
     },
   },
-  {
-    name: 'parent',
+  parent: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
@@ -51,8 +70,7 @@ export const recordExpressionFunctions: ExpressionFunction<RecordExpressionConte
       return Records.getParent(node)(record)
     },
   },
-  {
-    name: 'sum',
+  sum: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: false,
@@ -62,4 +80,31 @@ export const recordExpressionFunctions: ExpressionFunction<RecordExpressionConte
       return 0
     },
   },
-]
+  taxonProp: {
+    minArity: 3,
+    maxArity: 3,
+    executor: (context: RecordExpressionContext) => (taxonomyName: string, propName: string, taxonCode: string) => {
+      const { survey } = context
+
+      if (
+        Objects.isEmpty(taxonomyName) ||
+        Objects.isEmpty(propName) ||
+        Objects.isEmpty(taxonCode) ||
+        typeof taxonCode !== 'string' // node def expression validator could call it passing a node def object
+      )
+        return null
+
+      const taxonomy = Surveys.getTaxonomyByName({ survey, taxonomyName })
+      if (!taxonomy) return null
+
+      const extraPropDef = taxonomy.props.extraPropsDefs?.[propName]
+      if (!extraPropDef) return null
+
+      const taxon = Surveys.getTaxonByCode({ survey, taxonomyUuid: taxonomy.uuid, taxonCode })
+      if (!taxon) return null
+
+      const value = taxon.props.extra?.[propName]
+      return ExtraProps.convertValue(value)(extraPropDef)
+    },
+  },
+}

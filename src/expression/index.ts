@@ -2,7 +2,7 @@ export type { ExpressionContext } from './context'
 
 export type { ExpressionEvaluator } from './evaluator'
 
-export type { ExpressionFunction } from './function'
+export type { ExpressionFunction, ExpressionFunctions } from './function'
 
 export type {
   ExpressionNode,
