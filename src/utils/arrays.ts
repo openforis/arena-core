@@ -4,8 +4,20 @@ const startsWith = <T>(list: T[], start: T[]): boolean => start.every((item, ind
 
 const last = <T>(array: T[] = []): T | undefined => (array.length > 0 ? array[array.length - 1] : undefined)
 
+const removeItem =
+  <T>(item: T) =>
+  (array: T[]): T[] => {
+    const result = [...array]
+    const itemIndex = array.indexOf(item)
+    if (itemIndex >= 0) {
+      result.splice(itemIndex, 1)
+    }
+    return result
+  }
+
 export const Arrays = {
   intersection,
   startsWith,
   last,
+  removeItem,
 }

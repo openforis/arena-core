@@ -1,8 +1,9 @@
 import * as SurveyNodeDefs from './nodeDefs'
-import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
+import { Arrays, Objects } from '../../utils'
 
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
@@ -29,7 +30,7 @@ const getDependencyGraph = (survey: Survey): SurveyDependencyGraph =>
 export const getNodeDefDependents = (params: {
   survey: Survey
   nodeDefUuid: string
-  dependencyType: SurveyDependencyType | null
+  dependencyType?: SurveyDependencyType
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
   const { survey, nodeDefUuid, dependencyType } = params
   const dependencyGraph = getDependencyGraph(survey)
@@ -82,14 +83,14 @@ const addDependencies = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType>
   type: SurveyDependencyType
-  expressions: NodeDefExpression[] | undefined
   graphs: SurveyDependencyGraph
+  expressions: NodeDefExpression[]
 }): SurveyDependencyGraph => {
   const { survey, nodeDef, type, expressions, graphs: graphsParam } = params
 
-  let graphs = { ...graphsParam }
+  let graphsUpdated = { ...graphsParam }
 
-  if (!expressions || expressions.length === 0) return graphs
+  if (!expressions || expressions.length === 0) return graphsUpdated
 
   const isContextParent = isContextParentByDependencyType[type]
   const selfReferenceAllowed = selfReferenceAllowedByDependencyType[type]
@@ -120,39 +121,75 @@ const addDependencies = (params: {
   )
 
   Object.values(referencedNodeDefs).forEach((nodeDefRef: any) => {
-    graphs = addDependency({ graphs, type, nodeDefUuid: nodeDefRef.uuid, nodeDefDepUuid: nodeDef.uuid })
+    graphsUpdated = addDependency({
+      graphs: graphsUpdated,
+      type,
+      nodeDefUuid: nodeDefRef.uuid,
+      nodeDefDepUuid: nodeDef.uuid,
+    })
   })
 
-  return graphs
+  return graphsUpdated
 }
 
 export const addNodeDefDependencies = (params: { nodeDef: NodeDef<NodeDefType>; survey: Survey }): Survey => {
   const { nodeDef, survey } = params
-  const graphs = getDependencyGraph(survey)
+  let graphsUpdated = getDependencyGraph(survey)
 
-  let dependencyGraph = graphs
-  dependencyGraph = addDependencies({
-    survey,
-    nodeDef,
-    type: SurveyDependencyType.defaultValues,
-    expressions: nodeDef.propsAdvanced?.defaultValues,
-    graphs: dependencyGraph,
+  const _addDependencies = (type: SurveyDependencyType, expressions: NodeDefExpression[]) =>
+    addDependencies({
+      survey,
+      nodeDef,
+      type,
+      expressions,
+      graphs: graphsUpdated,
+    })
+  graphsUpdated = _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
+  graphsUpdated = _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
+  graphsUpdated = _addDependencies(
+    SurveyDependencyType.validations,
+    NodeDefs.getValidations(nodeDef)?.expressions || []
+  )
+  return { ...survey, dependencyGraph: graphsUpdated }
+}
+
+// DELETE
+
+const _removeNodeDefDependenciesOfType = (params: {
+  graphs: SurveyDependencyGraph
+  dependencyType: SurveyDependencyType
+  nodeDefUuid: string
+}): SurveyDependencyGraph => {
+  const { graphs, nodeDefUuid, dependencyType } = params
+
+  const graphsUpdated = { ...graphs }
+  let graphUpdated = { ...(graphsUpdated[dependencyType] || {}) }
+  // dissoc nodeDefUuid dependency as dependent
+  graphUpdated = Objects.dissoc({ obj: graphUpdated, prop: nodeDefUuid })
+
+  // dissoc nodeDefUuid dependency from sources (if any)
+  Object.entries(graphUpdated).forEach(([key, dependentUuids]) => {
+    graphUpdated[key] = Arrays.removeItem(nodeDefUuid)(dependentUuids)
   })
-  dependencyGraph = addDependencies({
-    survey,
-    nodeDef,
-    type: SurveyDependencyType.applicable,
-    expressions: nodeDef.propsAdvanced?.applicable,
-    graphs: dependencyGraph,
-  })
-  dependencyGraph = addDependencies({
-    survey,
-    nodeDef,
-    type: SurveyDependencyType.validations,
-    expressions: nodeDef.propsAdvanced?.validations?.expressions,
-    graphs: dependencyGraph,
-  })
-  return { ...survey, dependencyGraph }
+
+  graphsUpdated[dependencyType] = graphUpdated
+  return graphsUpdated
+}
+
+export const removeNodeDefDependencies = (params: {
+  survey: Survey
+  nodeDefUuid: string
+  dependencyType?: SurveyDependencyType
+}): Survey => {
+  const { survey, nodeDefUuid, dependencyType = null } = params
+  const graphs = getDependencyGraph(survey)
+  const dependencyTypes = dependencyType ? [dependencyType] : (Object.keys(graphs) as SurveyDependencyType[])
+  const graphsUpdated = dependencyTypes.reduce(
+    (dependencyGraphAcc, type) =>
+      _removeNodeDefDependenciesOfType({ graphs: dependencyGraphAcc, dependencyType: type, nodeDefUuid }),
+    graphs
+  )
+  return { ...survey, dependencyGraph: graphsUpdated }
 }
 
 export const buildAndAssocDependencyGraph = (survey: Survey): Survey =>
