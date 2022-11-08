@@ -3,7 +3,7 @@ import { ExtraPropDefs } from '../extraProp'
 import { CategoryLevel } from './level'
 
 export interface CategoryProps {
-  itemExtraDefs?: ExtraPropDefs
+  itemExtraDef?: ExtraPropDefs
   name?: string
 }
 

@@ -18,7 +18,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
         const category = Surveys.getCategoryByName({ survey, categoryName })
         if (!category) return null
 
-        const extraPropDef = category.props.itemExtraDefs?.[itemPropName]
+        const extraPropDef = category.props.itemExtraDef?.[itemPropName]
         if (!extraPropDef) return null
 
         const categoryItem = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid: category.uuid, codePaths })

@@ -21,7 +21,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         const category = Surveys.getCategoryByName({ survey, categoryName })
         if (!category) throw new SystemError('expression.invalidCategoryName', { name: categoryName })
 
-        const extraPropDef = category.props.itemExtraDefs?.[itemPropName]
+        const extraPropDef = category.props.itemExtraDef?.[itemPropName]
         if (!extraPropDef) throw new SystemError('expression.invalidCategoryExtraProp', { propName: itemPropName })
 
         const categoryItem = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid: category.uuid, codePaths })
