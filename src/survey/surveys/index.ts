@@ -3,7 +3,12 @@ import { Taxonomy } from '../../taxonomy'
 import { Arrays, Objects } from '../../utils'
 import { Survey } from '../survey'
 
-import { buildAndAssocDependencyGraph, addNodeDefDependencies, getNodeDefDependents } from './dependencies'
+import {
+  buildAndAssocDependencyGraph,
+  addNodeDefDependencies,
+  getNodeDefDependents,
+  removeNodeDefDependencies,
+} from './dependencies'
 
 import {
   getNodeDefByName,
@@ -92,6 +97,7 @@ export const Surveys = {
   buildAndAssocDependencyGraph,
   addNodeDefDependencies,
   getNodeDefDependents,
+  removeNodeDefDependencies,
 
   // index
   buildAndAssocNodeDefsIndex,

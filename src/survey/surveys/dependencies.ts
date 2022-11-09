@@ -1,8 +1,9 @@
 import * as SurveyNodeDefs from './nodeDefs'
-import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
+import { Arrays, Objects } from '../../utils'
 
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
@@ -18,30 +19,28 @@ const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.validations]: true,
 }
 
-const getDependencyGraph = (survey: Survey): SurveyDependencyGraph =>
-  survey.dependencyGraph || {
-    [SurveyDependencyType.applicable]: {},
-    [SurveyDependencyType.defaultValues]: {},
-    [SurveyDependencyType.formula]: {},
-    [SurveyDependencyType.validations]: {},
-  }
+const newDependecyGraph = () => ({
+  [SurveyDependencyType.applicable]: {},
+  [SurveyDependencyType.defaultValues]: {},
+  [SurveyDependencyType.formula]: {},
+  [SurveyDependencyType.validations]: {},
+})
+
+const getDependencyGraph = (survey: Survey): SurveyDependencyGraph => survey.dependencyGraph || newDependecyGraph()
 
 export const getNodeDefDependents = (params: {
   survey: Survey
   nodeDefUuid: string
-  dependencyType: SurveyDependencyType | null
+  dependencyType?: SurveyDependencyType
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
   const { survey, nodeDefUuid, dependencyType } = params
   const dependencyGraph = getDependencyGraph(survey)
 
   const dependentUuids = new Set<string>()
 
-  const dependencyTypes: Array<SurveyDependencyType> = []
-  if (dependencyType) {
-    dependencyTypes.push(dependencyType)
-  } else {
-    dependencyTypes.push(...Object.values(SurveyDependencyType))
-  }
+  const dependencyTypes: Array<SurveyDependencyType> = dependencyType
+    ? [dependencyType]
+    : Object.values(SurveyDependencyType)
 
   dependencyTypes.forEach((depType: SurveyDependencyType) => {
     const dependentUuidsTemp = dependencyGraph[depType]?.[nodeDefUuid] || []
@@ -69,27 +68,27 @@ const addDependency = (params: {
   type: SurveyDependencyType
   nodeDefUuid: string
   nodeDefDepUuid: string
+  sideEffect: boolean
 }): SurveyDependencyGraph => {
-  const { graphs, type, nodeDefUuid, nodeDefDepUuid } = params
+  const { graphs, type, nodeDefUuid, nodeDefDepUuid, sideEffect = false } = params
   const deps = getDependencies({ graphs, type, nodeDefUuid })
-  const depsUpdated = [...deps, nodeDefDepUuid]
-  const graph = { ...(graphs[type] || {}) }
-  graph[nodeDefUuid] = depsUpdated
-  return { ...graphs, [type]: graph }
+  const depsUpdated = Arrays.addItem(nodeDefDepUuid, { sideEffect })(deps)
+  return Objects.assocPath({ obj: graphs, path: [type, nodeDefUuid], value: depsUpdated, sideEffect })
 }
 
 const addDependencies = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType>
   type: SurveyDependencyType
-  expressions: NodeDefExpression[] | undefined
   graphs: SurveyDependencyGraph
+  expressions: NodeDefExpression[]
+  sideEffect?: boolean
 }): SurveyDependencyGraph => {
-  const { survey, nodeDef, type, expressions, graphs: graphsParam } = params
+  const { survey, nodeDef, type, expressions, graphs: graphsParam, sideEffect = false } = params
 
-  let graphs = { ...graphsParam }
+  let graphsUpdated = sideEffect ? graphsParam : { ...graphsParam }
 
-  if (!expressions || expressions.length === 0) return graphs
+  if (!expressions || expressions.length === 0) return graphsUpdated
 
   const isContextParent = isContextParentByDependencyType[type]
   const selfReferenceAllowed = selfReferenceAllowedByDependencyType[type]
@@ -120,44 +119,96 @@ const addDependencies = (params: {
   )
 
   Object.values(referencedNodeDefs).forEach((nodeDefRef: any) => {
-    graphs = addDependency({ graphs, type, nodeDefUuid: nodeDefRef.uuid, nodeDefDepUuid: nodeDef.uuid })
+    graphsUpdated = addDependency({
+      graphs: graphsUpdated,
+      type,
+      nodeDefUuid: nodeDefRef.uuid,
+      nodeDefDepUuid: nodeDef.uuid,
+      sideEffect,
+    })
   })
 
-  return graphs
+  return graphsUpdated
 }
 
-export const addNodeDefDependencies = (params: { nodeDef: NodeDef<NodeDefType>; survey: Survey }): Survey => {
-  const { nodeDef, survey } = params
+export const addNodeDefDependencies = (params: {
+  nodeDef: NodeDef<NodeDefType>
+  survey: Survey
+  sideEffect?: boolean
+}): Survey => {
+  const { nodeDef, survey, sideEffect = false } = params
   const graphs = getDependencyGraph(survey)
+  let graphsUpdated = sideEffect ? graphs : { ...graphs }
 
-  let dependencyGraph = graphs
-  dependencyGraph = addDependencies({
-    survey,
-    nodeDef,
-    type: SurveyDependencyType.defaultValues,
-    expressions: nodeDef.propsAdvanced?.defaultValues,
-    graphs: dependencyGraph,
-  })
-  dependencyGraph = addDependencies({
-    survey,
-    nodeDef,
-    type: SurveyDependencyType.applicable,
-    expressions: nodeDef.propsAdvanced?.applicable,
-    graphs: dependencyGraph,
-  })
-  dependencyGraph = addDependencies({
-    survey,
-    nodeDef,
-    type: SurveyDependencyType.validations,
-    expressions: nodeDef.propsAdvanced?.validations?.expressions,
-    graphs: dependencyGraph,
-  })
-  return { ...survey, dependencyGraph }
+  const _addDependencies = (type: SurveyDependencyType, expressions: NodeDefExpression[]) =>
+    addDependencies({
+      survey,
+      nodeDef,
+      type,
+      expressions,
+      graphs: graphsUpdated,
+      sideEffect,
+    })
+  graphsUpdated = _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
+  graphsUpdated = _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
+  graphsUpdated = _addDependencies(
+    SurveyDependencyType.validations,
+    NodeDefs.getValidations(nodeDef)?.expressions || []
+  )
+  if (sideEffect) {
+    survey.dependencyGraph = graphsUpdated
+    return survey
+  }
+  return { ...survey, dependencyGraph: graphsUpdated }
 }
 
-export const buildAndAssocDependencyGraph = (survey: Survey): Survey =>
+// DELETE
+
+const _removeNodeDefDependenciesOfType = (params: {
+  graphs: SurveyDependencyGraph
+  dependencyType: SurveyDependencyType
+  nodeDefUuid: string
+}): SurveyDependencyGraph => {
+  const { graphs, nodeDefUuid, dependencyType } = params
+
+  const graphsUpdated = { ...graphs }
+  let graphUpdated = { ...(graphsUpdated[dependencyType] || {}) }
+  // dissoc nodeDefUuid dependency as dependent
+  graphUpdated = Objects.dissoc({ obj: graphUpdated, prop: nodeDefUuid })
+
+  // dissoc nodeDefUuid dependency from sources (if any)
+  Object.entries(graphUpdated).forEach(([key, dependentUuids]) => {
+    graphUpdated[key] = Arrays.removeItem(nodeDefUuid)(dependentUuids)
+  })
+
+  graphsUpdated[dependencyType] = graphUpdated
+  return graphsUpdated
+}
+
+export const removeNodeDefDependencies = (params: {
+  survey: Survey
+  nodeDefUuid: string
+  dependencyType?: SurveyDependencyType
+}): Survey => {
+  const { survey, nodeDefUuid, dependencyType = null } = params
+  const graphs = getDependencyGraph(survey)
+  const dependencyTypes = dependencyType ? [dependencyType] : (Object.keys(graphs) as SurveyDependencyType[])
+  const graphsUpdated = dependencyTypes.reduce(
+    (dependencyGraphAcc, type) =>
+      _removeNodeDefDependenciesOfType({ graphs: dependencyGraphAcc, dependencyType: type, nodeDefUuid }),
+    graphs
+  )
+  return { ...survey, dependencyGraph: graphsUpdated }
+}
+
+export const buildAndAssocDependencyGraph = (survey: Survey): Survey => {
+  survey.dependencyGraph = newDependecyGraph()
+
+  const sideEffect = true // when the dependency graph is built from scratch, do side effect to avoid re-creating objects
+
   // add dependencies for every node def
-  Object.values(survey.nodeDefs || {}).reduce(
-    (surveyAcc, nodeDef) => addNodeDefDependencies({ nodeDef, survey: surveyAcc }),
+  return SurveyNodeDefs.getNodeDefsArray(survey).reduce(
+    (surveyAcc, nodeDef) => addNodeDefDependencies({ nodeDef, survey: surveyAcc, sideEffect }),
     survey
   )
+}

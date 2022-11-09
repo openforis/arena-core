@@ -83,4 +83,67 @@ describe('Survey Dependencies', () => {
       expectedDependentNames: ['cluster_id'],
     })
   })
+
+  test('Dependencies remove (applicability dependency)', () => {
+    const surveyOld = survey
+
+    const nodeDefName = 'plot'
+    const nodeDef = Surveys.getNodeDefByName({ survey, name: nodeDefName })
+    const nodeDefUuid = nodeDef.uuid
+
+    survey = Surveys.removeNodeDefDependencies({ survey, nodeDefUuid })
+
+    const dependentDefs = Surveys.getNodeDefDependents({ survey, nodeDefUuid })
+    expect(dependentDefs).toEqual([])
+
+    expectDependents({
+      sourceName: 'accessible',
+      dependencyType: SurveyDependencyType.applicable,
+      expectedDependentNames: [],
+    })
+
+    survey = surveyOld
+  })
+
+  test('Dependencies remove (default value dependency)', () => {
+    const surveyOld = survey
+
+    const nodeDefName = 'plot_id_double'
+    const nodeDef = Surveys.getNodeDefByName({ survey, name: nodeDefName })
+    const nodeDefUuid = nodeDef.uuid
+
+    survey = Surveys.removeNodeDefDependencies({ survey, nodeDefUuid })
+
+    const dependentDefs = Surveys.getNodeDefDependents({ survey, nodeDefUuid })
+    expect(dependentDefs).toEqual([])
+
+    expectDependents({
+      sourceName: 'plot_id',
+      dependencyType: SurveyDependencyType.defaultValues,
+      expectedDependentNames: [],
+    })
+
+    survey = surveyOld
+  })
+
+  test('Dependencies remove (other dependent node defs not affected by deletion)', () => {
+    const surveyOld = survey
+
+    const nodeDefName = 'accessible'
+    const nodeDef = Surveys.getNodeDefByName({ survey, name: nodeDefName })
+    const nodeDefUuid = nodeDef.uuid
+
+    survey = Surveys.removeNodeDefDependencies({ survey, nodeDefUuid })
+
+    const dependentDefs = Surveys.getNodeDefDependents({ survey, nodeDefUuid })
+    expect(dependentDefs).toEqual([])
+
+    expectDependents({
+      sourceName: 'plot_id',
+      dependencyType: SurveyDependencyType.defaultValues,
+      expectedDependentNames: ['plot_id_double'],
+    })
+
+    survey = surveyOld
+  })
 })
