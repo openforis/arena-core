@@ -32,7 +32,7 @@ const createChildNodesBasedOnMinCount =
 export const createNodeAndDescendants = (params: {
   survey: Survey
   record: Record
-  parentNode: Node
+  parentNode?: Node
   nodeDef: NodeDef<any>
 }): RecordUpdateResult => {
   const { survey, record, parentNode, nodeDef } = params
