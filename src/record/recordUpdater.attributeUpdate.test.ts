@@ -57,7 +57,7 @@ const updateAttributeAndExpectValidation = async (params: {
   return updateResult.record
 }
 
-describe('Record updater - required attribute', () => {
+describe('RecordUpdater - attribute update', () => {
   beforeAll(async () => {
     user = createTestAdminUser()
   }, 10000)

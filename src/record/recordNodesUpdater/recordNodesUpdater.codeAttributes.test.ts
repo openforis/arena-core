@@ -1,15 +1,15 @@
-import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
-import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
+import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
+import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 
 const { category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-import { RecordNodesUpdater } from './recordNodesUpdater'
-import { createTestAdminUser } from '../tests/data'
-import { TestUtils } from '../tests/testUtils'
-import { User } from '../auth'
-import { Records } from './records'
-import { Surveys } from '../survey'
+import { RecordNodesUpdater } from '../recordNodesUpdater'
+import { createTestAdminUser } from '../../tests/data'
+import { TestUtils } from '../../tests/testUtils'
+import { User } from '../../auth'
+import { Records } from './../records'
+import { Surveys } from '../../survey'
 
 let user: User
 
