@@ -17,7 +17,7 @@ export const updateDependentCodeAttributes = (params: { survey: Survey; record: 
 
   dependentCodeAttributes.forEach((dependentCodeAttribute) => {
     if (!Nodes.isValueBlank(dependentCodeAttribute)) {
-      const nodeUpdated: Node = { ...dependentCodeAttribute, value: null }
+      const nodeUpdated: Node = { ...dependentCodeAttribute, value: null, updated: true }
       updateResult.addNode(nodeUpdated)
     }
   })

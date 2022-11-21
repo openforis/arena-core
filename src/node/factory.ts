@@ -14,7 +14,9 @@ export const NodeFactory: Factory<Node, NodeFactoryParams> = {
   createInstance: (params: NodeFactoryParams): Node => {
     const { nodeDefUuid, recordUuid, parentNode, surveyUuid, value } = params
     const now = Dates.nowFormattedForStorage()
+
     return {
+      created: true,
       dateCreated: now,
       dateModified: now,
       meta: {

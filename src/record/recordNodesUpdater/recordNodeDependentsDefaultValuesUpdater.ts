@@ -84,6 +84,7 @@ const updateDefaultValuesInNodes = (params: {
         const nodeUpdated = Nodes.mergeNodes(nodeToUpdate, {
           value: null,
           meta: { defaultValueApplied: false },
+          updated: true,
         })
         updateResult.addNode(nodeUpdated)
         return
@@ -99,6 +100,7 @@ const updateDefaultValuesInNodes = (params: {
       const nodeUpdated = Nodes.mergeNodes(nodeToUpdate, {
         value: exprValue,
         meta: { defaultValueApplied },
+        updated: true,
       })
 
       updateResult.addNode(nodeUpdated)
