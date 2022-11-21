@@ -42,10 +42,8 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     executor:
       () =>
       (coordinateFrom: Point | string, coordinateTo: Point | string): number | null => {
-        const toPoint = (coordinate: Point | string): Point | null =>
-          coordinate && typeof coordinate === 'string' ? Points.parse(coordinate) : (coordinate as Point)
-        const pointFrom = toPoint(coordinateFrom)
-        const pointTo = toPoint(coordinateTo)
+        const pointFrom = Points.parse(coordinateFrom)
+        const pointTo = Points.parse(coordinateTo)
 
         return pointFrom && pointTo ? Points.distance(pointFrom, pointTo) : null
       },
