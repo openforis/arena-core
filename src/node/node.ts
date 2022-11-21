@@ -31,4 +31,8 @@ export interface Node {
    * Record node has been deleted.
    */
   deleted?: boolean
+  /**
+   * Record node has been modified but not persisted yet.
+   */
+  updated?: boolean
 }

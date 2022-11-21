@@ -27,6 +27,13 @@ const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueA
 
 const isValueBlank = (node: Node): boolean => Objects.isEmpty(node.value)
 
+const removeStatusFlags = (node: Node): Node => {
+  delete node['created']
+  delete node['deleted']
+  delete node['updated']
+  return node
+}
+
 export const Nodes = {
   isRoot,
   areEqual,
@@ -37,4 +44,5 @@ export const Nodes = {
   getHierarchyCode,
   isDefaultValueApplied,
   isValueBlank,
+  removeStatusFlags,
 }
