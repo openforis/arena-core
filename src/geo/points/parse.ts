@@ -9,15 +9,22 @@ const POINT_REGEX = /SRID=((EPSG:)?(\w+));POINT\((-?\d+(\.\d+)?) (-?\d+(\.\d+)?)
  * - SRID=EPSG:4326;POINT(12.489060, 41.882788)
  * - SRID=4326;POINT(12, 41).
  *
- * @param {!string} pointText - The point to parse.
+ * @param {!(string | object)} value - The point to parse. It can be a string or an object.
  * @returns {Point} - The parsed Point object.
  */
-export const parse = (pointText: string): Point | null => {
-  const match = POINT_REGEX.exec(pointText)
-  if (!match) return null
+export const parse = (value: string | object): Point | null => {
+  if (!value) return null
 
-  const srs = match[3]
-  const x = Number(match[4])
-  const y = Number(match[6])
-  return PointFactory.createInstance({ srs, x, y })
+  if (typeof value === 'object') return value as Point
+
+  if (typeof value === 'string') {
+    const match = POINT_REGEX.exec(value)
+    if (!match) return null
+
+    const srs = match[3]
+    const x = Number(match[4])
+    const y = Number(match[6])
+    return PointFactory.createInstance({ srs, x, y })
+  }
+  return null
 }
