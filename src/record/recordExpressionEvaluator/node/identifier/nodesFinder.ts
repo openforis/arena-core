@@ -65,11 +65,12 @@ const getReferencedNodesParent = (params: {
     nodeDefCtx,
     nodeDefReferenced,
   })
-  if (!nodeCommonAncestor) {
-    return undefined
-  }
+  if (!nodeCommonAncestor) return undefined
 
-  return Records.getDescendant({ record, node: nodeCommonAncestor, nodeDefDescendant: nodeDefReferenced })
+  const nodeDefReferencedParent = Surveys.getNodeDefParent({ survey, nodeDef: nodeDefReferenced })
+  if (!nodeDefReferencedParent) return undefined
+
+  return Records.getDescendant({ record, node: nodeCommonAncestor, nodeDefDescendant: nodeDefReferencedParent })
 }
 
 // Get reachable nodes, i.e. the children of the node's ancestors.

@@ -37,10 +37,12 @@ describe('Records: dependent node pointers', () => {
         'cluster',
         integerDef('cluster_id').key().defaultValue('1').validationExpressions('cluster_id > 0 && cluster_id <= 1000'),
         booleanDef('accessible'),
+        booleanDef('cluster_boolean_attribute'),
         entityDef(
           'plot',
           integerDef('plot_id').key(),
-          integerDef('plot_id_double').readOnly().defaultValue('plot_id * 2')
+          integerDef('plot_id_double').readOnly().defaultValue('plot_id * 2'),
+          integerDef('plot_relevant_if_cluster_boolean_attribute').applyIf('cluster_boolean_attribute')
         )
           .multiple()
           .applyIf('accessible')
@@ -54,6 +56,7 @@ describe('Records: dependent node pointers', () => {
         'cluster',
         attribute('cluster_id', 10),
         attribute('accessible', 'true'),
+        attribute('cluster_boolean_attribute', 'true'),
         entity('plot', attribute('plot_id', 1)),
         entity('plot', attribute('plot_id', 2)),
         entity('plot', attribute('plot_id', 3))
@@ -74,6 +77,18 @@ describe('Records: dependent node pointers', () => {
       sourcePath: 'accessible',
       dependencyType: SurveyDependencyType.applicable,
       expectedDependentNames: ['plot'],
+    })
+  })
+
+  test('Apply if dependency in nested entity', () => {
+    expectDependents({
+      sourcePath: 'cluster_boolean_attribute',
+      dependencyType: SurveyDependencyType.applicable,
+      expectedDependentNames: [
+        'plot_relevant_if_cluster_boolean_attribute',
+        'plot_relevant_if_cluster_boolean_attribute',
+        'plot_relevant_if_cluster_boolean_attribute',
+      ],
     })
   })
 
