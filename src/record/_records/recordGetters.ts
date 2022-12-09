@@ -162,9 +162,12 @@ export const getDescendantsOrSelf = (params: {
 
   if (nodeDefDescendant.uuid === node.nodeDefUuid) return [node]
 
-  const nodeDefDescendantH = nodeDefDescendant.meta.h
-  // 1. get the descendant node defs uuids up to the specified nodeDefDescendant
-  const descendantNodeDefUuids = nodeDefDescendantH.slice(nodeDefDescendantH.indexOf(node.nodeDefUuid) + 1)
+  const nodeDefDescendantFullHierarchy = [...nodeDefDescendant.meta.h, nodeDefDescendant.uuid]
+
+  // 1. get the descendant node defs uuids starting from node nodeDefUuid (not inclusive) down to the specified nodeDefDescendant uuid
+  const descendantNodeDefUuids = nodeDefDescendantFullHierarchy.slice(
+    nodeDefDescendantFullHierarchy.indexOf(node.nodeDefUuid) + 1
+  )
   // 2. for every level in the hierarchy, find the children having the nodeDefUuid equal to the current one
   let currentAncestors = [node]
   let currentDescendants: Node[] = []
