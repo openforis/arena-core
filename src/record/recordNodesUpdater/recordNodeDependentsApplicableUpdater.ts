@@ -21,15 +21,8 @@ export const updateSelfAndDependentsApplicable = (params: {
     record,
     node,
     dependencyType: SurveyDependencyType.applicable,
+    includeSelf: node.created,
   })
-
-  // if (Node.isCreated(node) && !Objects.isEmpty(nodeDef.propsAdvanced?.applicable)) {
-  //   // Include a pointer to node itself if it has just been created and it has an "applicable if" expression
-  //   nodePointersToUpdate.push({
-  //     nodeDef,
-  //     nodeCtx: Records.getParent(node)(record),
-  //   })
-  // }
 
   // 2. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
@@ -53,7 +46,7 @@ export const updateSelfAndDependentsApplicable = (params: {
 
     const applicable = exprEval?.value || false
 
-    // 4. persist updated node value if changed, and return updated node
+    // 4. persist updated applicability if changed, and return updated nodes
     const nodeDefUuid = nodeDefNodePointer.uuid
 
     if (Nodes.isChildApplicable(nodeCtx, nodeDefUuid) !== applicable) {
@@ -65,7 +58,7 @@ export const updateSelfAndDependentsApplicable = (params: {
 
       const nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
       nodeCtxChildren.forEach((nodeCtxChild) => {
-        // 5. add nodeCtxChild and its descendants to nodesUpdated
+        // 6. add nodeCtxChild and its descendants to nodesUpdated
         Records.visitDescendantsAndSelf({
           record: updateResult.record,
           node: nodeCtxChild,
