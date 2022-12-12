@@ -1,11 +1,12 @@
 import { NodeDefs } from '../../nodeDef'
 import { Record } from '../record'
-import { Survey } from '../../survey'
+import { Survey, Surveys } from '../../survey'
 import { Node, NodePointer, Nodes } from '../../node'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
+import { Objects } from '../../utils'
 
 export const updateSelfAndDependentsApplicable = (params: {
   survey: Survey
@@ -23,15 +24,15 @@ export const updateSelfAndDependentsApplicable = (params: {
     dependencyType: SurveyDependencyType.applicable,
   })
 
-  // if (Node.isCreated(node) && !Objects.isEmpty(nodeDef.propsAdvanced?.applicable)) {
-  //   // Include a pointer to node itself if it has just been created and it has an "applicable if" expression
-  //   nodePointersToUpdate.push({
-  //     nodeDef,
-  //     nodeCtx: Records.getParent(node)(record),
-  //   })
-  // }
+  // 2. Include a pointer to node itself if it has just been created and it has an "applicable if" expression
+  const parentNode = Records.getParent(node)(record)
+  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
 
-  // 2. update expr to node and dependent nodes
+  if (node.created && !Objects.isEmpty(NodeDefs.getApplicable(nodeDef)) && parentNode) {
+    nodePointersToUpdate.push({ nodeCtx: parentNode, nodeDef })
+  }
+
+  // 3. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
   nodePointersToUpdate.forEach((nodePointer: NodePointer) => {
     const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
@@ -39,7 +40,7 @@ export const updateSelfAndDependentsApplicable = (params: {
     const expressionsToEvaluate = NodeDefs.getApplicable(nodeDefNodePointer)
     if (expressionsToEvaluate.length === 0) return
 
-    // 3. evaluate applicable expression
+    // 4. evaluate applicable expression
     const nodeCtxUuid = nodeCtxNodePointer.uuid
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) || nodeCtxNodePointer
@@ -53,7 +54,7 @@ export const updateSelfAndDependentsApplicable = (params: {
 
     const applicable = exprEval?.value || false
 
-    // 4. persist updated node value if changed, and return updated node
+    // 5. persist updated applicability if changed, and return updated nodes
     const nodeDefUuid = nodeDefNodePointer.uuid
 
     if (Nodes.isChildApplicable(nodeCtx, nodeDefUuid) !== applicable) {
@@ -65,7 +66,7 @@ export const updateSelfAndDependentsApplicable = (params: {
 
       const nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
       nodeCtxChildren.forEach((nodeCtxChild) => {
-        // 5. add nodeCtxChild and its descendants to nodesUpdated
+        // 6. add nodeCtxChild and its descendants to nodesUpdated
         Records.visitDescendantsAndSelf({
           record: updateResult.record,
           node: nodeCtxChild,
