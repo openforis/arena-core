@@ -69,9 +69,9 @@ const createNodeAndDescendants = async (params: {
 const createRootEntity = async (params: {
   survey: Survey
   record: Record
-  createMultipleEntities: boolean
+  createMultipleEntities?: boolean
 }): Promise<RecordUpdateResult> => {
-  const { survey, record, createMultipleEntities } = params
+  const { survey, record, createMultipleEntities = true } = params
 
   return _createNodeAndDescendants({
     survey,
