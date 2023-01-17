@@ -8,6 +8,7 @@ export { RecordExpressionEvaluator } from './recordExpressionEvaluator'
 export { RecordNodesUpdater, RecordUpdateResult } from './recordNodesUpdater'
 export { RecordUpdater } from './recordUpdater'
 export { RecordValidator } from './recordValidator'
+export { RecordValidations } from './recordValidations'
 
 export { RecordFactory } from './factory'
 export type { RecordService } from './service'

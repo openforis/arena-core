@@ -23,7 +23,6 @@ import {
   visitDescendantsAndSelf,
   getDependentNodePointers,
   getCategoryItemUuid,
-  getValidationChildrenCountKey,
 } from './_records/recordGetters'
 
 import { addNode, addNodes } from './_records/recordUpdater'
@@ -54,7 +53,6 @@ export const Records = {
   visitDescendantsAndSelf,
   getDependentNodePointers,
   getCategoryItemUuid,
-  getValidationChildrenCountKey,
 
   // UPDATE
   addNode,

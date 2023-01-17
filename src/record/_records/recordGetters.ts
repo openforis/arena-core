@@ -362,10 +362,3 @@ export const getCategoryItemUuid = (params: {
 
   return item?.uuid
 }
-
-const prefixValidationFieldChildrenCount = 'childrenCount_'
-
-export const getValidationChildrenCountKey = (params: { nodeParentUuid: string; nodeDefChildUuid: string }): string => {
-  const { nodeParentUuid, nodeDefChildUuid } = params
-  return `${prefixValidationFieldChildrenCount}${nodeParentUuid}_${nodeDefChildUuid}`
-}

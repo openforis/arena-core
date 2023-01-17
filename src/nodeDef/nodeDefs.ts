@@ -16,6 +16,8 @@ const isEntity = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === No
 
 const isMultiple = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.props.multiple || false
 
+const isMultipleEntity = (nodeDef: NodeDef<NodeDefType>): boolean => isEntity(nodeDef) && isMultiple(nodeDef)
+
 const isSingle = (nodeDef: NodeDef<NodeDefType>): boolean => !isMultiple(nodeDef)
 
 const isSingleEntity = (nodeDef: NodeDef<NodeDefType>): boolean => isEntity(nodeDef) && isSingle(nodeDef)
@@ -76,6 +78,7 @@ const isHiddenWhenNotRelevant =
 export const NodeDefs = {
   isEntity,
   isMultiple,
+  isMultipleEntity,
   isSingle,
   isSingleEntity,
   isAttribute,

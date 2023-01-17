@@ -4,6 +4,7 @@ import { Records } from '../records'
 import { Validation, ValidationFactory, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { Record } from '../record'
 import { Survey, Surveys } from '../../survey'
+import { RecordValidations } from '../recordValidations'
 
 const _createValidationResult = (params: {
   nodeDefUuid: string
@@ -126,7 +127,7 @@ const validateChildrenCountNodes = (params: {
 
     nodePointersToValidate.forEach((nodePointer) => {
       // check if validated already
-      const validationChildrenCountKey = Records.getValidationChildrenCountKey({
+      const validationChildrenCountKey = RecordValidations.getValidationChildrenCountKey({
         nodeParentUuid: nodePointer.nodeCtx.uuid,
         nodeDefChildUuid: nodePointer.nodeDef.uuid,
       })

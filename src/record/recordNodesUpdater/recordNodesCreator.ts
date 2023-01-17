@@ -10,12 +10,12 @@ const getNodesToInsertCount = (nodeDef: NodeDef<any>): number => {
 }
 
 const createChildNodesBasedOnMinCount =
-  (params: { survey: Survey; updateResult: any; parentNode: Node }) =>
+  (params: { survey: Survey; updateResult: any; parentNode: Node; createMultipleEntities?: boolean }) =>
   (childDef: NodeDef<any>): void => {
-    const { survey, parentNode, updateResult } = params
+    const { survey, parentNode, updateResult, createMultipleEntities = true } = params
 
     const nodesToInsertCount = getNodesToInsertCount(childDef)
-    if (nodesToInsertCount === 0) {
+    if (nodesToInsertCount === 0 || (!createMultipleEntities && NodeDefs.isMultipleEntity(childDef))) {
       return // do nothing
     }
     for (let index = 0; index < nodesToInsertCount; index++) {
@@ -34,8 +34,10 @@ export const createNodeAndDescendants = (params: {
   record: Record
   parentNode?: Node
   nodeDef: NodeDef<any>
+  createMultipleEntities?: boolean
 }): RecordUpdateResult => {
-  const { survey, record, parentNode, nodeDef } = params
+  const { survey, record, parentNode, nodeDef, createMultipleEntities } = params
+
   const node = NodeFactory.createInstance({
     nodeDefUuid: nodeDef.uuid,
     recordUuid: record.uuid,
@@ -51,7 +53,9 @@ export const createNodeAndDescendants = (params: {
     const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef })
 
     // Add only child single nodes (it allows to apply default values)
-    childDefs.forEach(createChildNodesBasedOnMinCount({ survey, parentNode: node, updateResult }))
+    childDefs.forEach(
+      createChildNodesBasedOnMinCount({ survey, parentNode: node, updateResult, createMultipleEntities })
+    )
   }
   return updateResult
 }

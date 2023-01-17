@@ -41,13 +41,16 @@ const _createNodeAndDescendants = async (params: {
   record: Record
   parentNode?: Node
   nodeDef: NodeDef<any>
+  createMultipleEntities?: boolean
 }): Promise<RecordUpdateResult> => {
-  const { survey, record, parentNode, nodeDef } = params
+  const { survey, record, parentNode, nodeDef, createMultipleEntities } = params
+
   const { record: updatedRecord, nodes: createdNodes } = RecordNodesUpdater.createNodeAndDescendants({
     survey,
     record,
     parentNode,
     nodeDef,
+    createMultipleEntities,
   })
   return _onRecordNodesCreateOrUpdate({ survey, record: updatedRecord, nodes: createdNodes })
 }
@@ -57,14 +60,25 @@ const createNodeAndDescendants = async (params: {
   record: Record
   parentNode: Node
   nodeDef: NodeDef<any>
+  createMultipleEntities?: boolean
 }): Promise<RecordUpdateResult> => {
-  const { survey, record, parentNode, nodeDef } = params
-  return _createNodeAndDescendants({ survey, record, parentNode, nodeDef })
+  const { survey, record, parentNode, nodeDef, createMultipleEntities } = params
+  return _createNodeAndDescendants({ survey, record, parentNode, nodeDef, createMultipleEntities })
 }
 
-const createRootEntity = async (params: { survey: Survey; record: Record }): Promise<RecordUpdateResult> => {
-  const { survey, record } = params
-  return _createNodeAndDescendants({ survey, record, nodeDef: Surveys.getNodeDefRoot({ survey }) })
+const createRootEntity = async (params: {
+  survey: Survey
+  record: Record
+  createMultipleEntities: boolean
+}): Promise<RecordUpdateResult> => {
+  const { survey, record, createMultipleEntities } = params
+
+  return _createNodeAndDescendants({
+    survey,
+    record,
+    nodeDef: Surveys.getNodeDefRoot({ survey }),
+    createMultipleEntities,
+  })
 }
 
 const updateNode = async (params: { survey: Survey; record: Record; node: Node }): Promise<RecordUpdateResult> => {

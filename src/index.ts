@@ -116,6 +116,7 @@ export {
   RecordUpdater,
   RecordUpdateResult,
   RecordValidator,
+  RecordValidations,
 } from './record'
 export type { Record, RecordService, RecordUpdateOptions } from './record'
 
@@ -160,6 +161,7 @@ export {
   FieldValidators,
   ValidationFactory,
   ValidationResultFactory,
+  Validations,
   ValidationSeverity,
   Validator,
   ValidatorErrorKeys,
