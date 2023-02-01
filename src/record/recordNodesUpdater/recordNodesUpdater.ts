@@ -19,8 +19,9 @@ export const updateNodesDependents = (params: {
   survey: Survey
   record: Record
   nodes: { [key: string]: Node }
+  sideEffect?: boolean
 }): RecordUpdateResult => {
-  const { survey, record, nodes } = params
+  const { survey, record, nodes, sideEffect = false } = params
   const updateResult = new RecordUpdateResult({ record, nodes })
 
   const nodeUuidsToVisit = new Queue(Object.keys(nodes))
@@ -40,6 +41,7 @@ export const updateNodesDependents = (params: {
         survey,
         record: updateResult.record,
         node,
+        sideEffect,
       })
 
       updateResult.merge(applicabilityUpdateResult)
@@ -49,6 +51,7 @@ export const updateNodesDependents = (params: {
         survey,
         record: updateResult.record,
         node,
+        sideEffect,
       })
 
       updateResult.merge(defaultValuesUpdateResult)
@@ -58,6 +61,7 @@ export const updateNodesDependents = (params: {
         survey,
         record: updateResult.record,
         node,
+        sideEffect,
       })
 
       updateResult.merge(dependentCodeAttributesUpdateResult)

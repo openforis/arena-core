@@ -10,9 +10,15 @@ const getNodesToInsertCount = (nodeDef: NodeDef<any>): number => {
 }
 
 const createChildNodesBasedOnMinCount =
-  (params: { survey: Survey; updateResult: any; parentNode: Node; createMultipleEntities?: boolean }) =>
+  (params: {
+    survey: Survey
+    updateResult: any
+    parentNode: Node
+    createMultipleEntities?: boolean
+    sideEffect?: boolean
+  }) =>
   (childDef: NodeDef<any>): void => {
-    const { survey, parentNode, updateResult, createMultipleEntities = true } = params
+    const { survey, parentNode, updateResult, createMultipleEntities = true, sideEffect = false } = params
 
     const nodesToInsertCount = getNodesToInsertCount(childDef)
     if (nodesToInsertCount === 0 || (!createMultipleEntities && NodeDefs.isMultipleEntity(childDef))) {
@@ -24,6 +30,7 @@ const createChildNodesBasedOnMinCount =
         record: updateResult.record,
         parentNode,
         nodeDef: childDef,
+        sideEffect,
       })
       updateResult.merge(childUpdateResult)
     }
@@ -35,8 +42,9 @@ export const createNodeAndDescendants = (params: {
   parentNode?: Node
   nodeDef: NodeDef<any>
   createMultipleEntities?: boolean
+  sideEffect?: boolean
 }): RecordUpdateResult => {
-  const { survey, record, parentNode, nodeDef, createMultipleEntities } = params
+  const { survey, record, parentNode, nodeDef, createMultipleEntities, sideEffect = false } = params
 
   const node = NodeFactory.createInstance({
     nodeDefUuid: nodeDef.uuid,
@@ -46,7 +54,7 @@ export const createNodeAndDescendants = (params: {
   })
 
   const updateResult = new RecordUpdateResult({ record })
-  updateResult.addNode(node)
+  updateResult.addNode(node, { sideEffect })
 
   // Add children if entity
   if (NodeDefs.isEntity(nodeDef)) {
@@ -54,7 +62,7 @@ export const createNodeAndDescendants = (params: {
 
     // Add only child single nodes (it allows to apply default values)
     childDefs.forEach(
-      createChildNodesBasedOnMinCount({ survey, parentNode: node, updateResult, createMultipleEntities })
+      createChildNodesBasedOnMinCount({ survey, parentNode: node, updateResult, createMultipleEntities, sideEffect })
     )
   }
   return updateResult

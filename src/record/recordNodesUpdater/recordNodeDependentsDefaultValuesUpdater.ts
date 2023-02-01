@@ -50,8 +50,9 @@ const updateDefaultValuesInNodes = (params: {
   record: Record
   nodePointer: NodePointer
   updateResult: RecordUpdateResult
+  sideEffect?: boolean
 }) => {
-  const { survey, record, nodePointer, updateResult } = params
+  const { survey, record, nodePointer, updateResult, sideEffect = false } = params
 
   const { nodeCtx, nodeDef } = nodePointer
 
@@ -86,7 +87,7 @@ const updateDefaultValuesInNodes = (params: {
           meta: { defaultValueApplied: false },
           updated: true,
         })
-        updateResult.addNode(nodeUpdated)
+        updateResult.addNode(nodeUpdated, { sideEffect })
         return
       }
       if (!canApplyDefaultValue({ record: updateResult.record, nodeDef, node: nodeToUpdate })) return
@@ -103,7 +104,7 @@ const updateDefaultValuesInNodes = (params: {
         updated: true,
       })
 
-      updateResult.addNode(nodeUpdated)
+      updateResult.addNode(nodeUpdated, { sideEffect })
     })
   } catch (error) {
     _throwError({
@@ -116,8 +117,13 @@ const updateDefaultValuesInNodes = (params: {
   }
 }
 
-export const updateSelfAndDependentsDefaultValues = (params: { survey: Survey; record: Record; node: Node }) => {
-  const { survey, record, node } = params
+export const updateSelfAndDependentsDefaultValues = (params: {
+  survey: Survey
+  record: Record
+  node: Node
+  sideEffect?: boolean
+}) => {
+  const { survey, record, node, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -151,7 +157,7 @@ export const updateSelfAndDependentsDefaultValues = (params: { survey: Survey; r
 
   // 2. update expr to node and dependent nodes
   nodePointersToUpdate.forEach((nodePointer) => {
-    updateDefaultValuesInNodes({ survey, record, nodePointer, updateResult })
+    updateDefaultValuesInNodes({ survey, record, nodePointer, updateResult, sideEffect })
   })
 
   return updateResult
