@@ -16,7 +16,7 @@ const RecordUpdateOptionsDefaults: RecordUpdateOptions = {
 export const addNodes =
   (nodes: { [key: string]: Node }, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: Record): Record => {
-    const { sideEffect, updateNodesIndex } = options
+    const { sideEffect, updateNodesIndex } = Object.assign({}, RecordUpdateOptionsDefaults, options)
 
     const recordUpdated = sideEffect ? record : { ...record }
     const recordNodes = RecordGetters.getNodes(recordUpdated)

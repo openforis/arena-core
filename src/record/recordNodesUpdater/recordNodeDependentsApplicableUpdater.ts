@@ -11,8 +11,10 @@ export const updateSelfAndDependentsApplicable = (params: {
   survey: Survey
   record: Record
   node: Node
+  sideEffect?: boolean
 }): RecordUpdateResult => {
-  const { survey, record, node } = params
+  const { survey, record, node, sideEffect = false } = params
+
   const updateResult = new RecordUpdateResult({ record })
 
   // 1. fetch dependent nodes
@@ -54,7 +56,7 @@ export const updateSelfAndDependentsApplicable = (params: {
 
       // update node and add it to nodes updated
       const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
-      updateResult.addNode(nodeCtxUpdated)
+      updateResult.addNode(nodeCtxUpdated, { sideEffect })
 
       const nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
       nodeCtxChildren.forEach((nodeCtxChild) => {
@@ -63,7 +65,7 @@ export const updateSelfAndDependentsApplicable = (params: {
           record: updateResult.record,
           node: nodeCtxChild,
           visitor: (nodeDescendant) => {
-            updateResult.addNode(nodeDescendant)
+            updateResult.addNode(nodeDescendant, { sideEffect })
           },
         })
       })
