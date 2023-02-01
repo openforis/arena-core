@@ -41,7 +41,7 @@ const _addNodeToIndex =
       })
     } else {
       // root entity index
-      indexUpdated = { ...indexUpdated, nodeRootUuid: nodeUuid }
+      indexUpdated.nodeRootUuid = nodeUuid
     }
 
     // nodes by def uuid

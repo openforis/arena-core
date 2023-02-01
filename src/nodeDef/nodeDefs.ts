@@ -24,6 +24,10 @@ const isSingleEntity = (nodeDef: NodeDef<NodeDefType>): boolean => isEntity(node
 
 const isAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => !isEntity(nodeDef)
 
+const isSingleAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => isAttribute(nodeDef) && isSingle(nodeDef)
+
+const isMultipleAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => isAttribute(nodeDef) && isMultiple(nodeDef)
+
 const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.props.key || false
 
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
@@ -82,7 +86,10 @@ export const NodeDefs = {
   isSingle,
   isSingleEntity,
   isAttribute,
+  isSingleAttribute,
+  isMultipleAttribute,
   isKey,
+  isReadOnly,
   isRoot,
   getType,
   getDefaultValues,
