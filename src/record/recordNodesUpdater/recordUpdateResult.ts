@@ -18,9 +18,10 @@ export class RecordUpdateResult {
     return this.nodes[uuid]
   }
 
-  addNode(node: Node) {
+  addNode(node: Node, options?: { sideEffect: boolean }) {
+    const { sideEffect = false } = options || {}
     this.nodes[node.uuid] = node
-    this.record = Records.addNode(node)(this.record)
+    this.record = Records.addNode(node, { sideEffect })(this.record)
   }
 
   /**

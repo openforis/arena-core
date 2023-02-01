@@ -4,8 +4,13 @@ import { Node, Nodes } from '../../node'
 import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
 
-export const updateDependentCodeAttributes = (params: { survey: Survey; record: Record; node: Node }) => {
-  const { record, node } = params
+export const updateDependentCodeAttributes = (params: {
+  survey: Survey
+  record: Record
+  node: Node
+  sideEffect?: boolean
+}) => {
+  const { record, node, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -18,7 +23,7 @@ export const updateDependentCodeAttributes = (params: { survey: Survey; record: 
   dependentCodeAttributes.forEach((dependentCodeAttribute) => {
     if (!Nodes.isValueBlank(dependentCodeAttribute)) {
       const nodeUpdated: Node = { ...dependentCodeAttribute, value: null, updated: true }
-      updateResult.addNode(nodeUpdated)
+      updateResult.addNode(nodeUpdated, { sideEffect })
     }
   })
 
