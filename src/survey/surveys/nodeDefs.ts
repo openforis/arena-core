@@ -48,9 +48,11 @@ export const getNodeDefRoot = (params: { survey: Survey }): NodeDef<NodeDefType,
   if (!survey.nodeDefs) throw new SystemError('survey.emptyNodeDefs')
 
   const rootDefUuidInIndex = survey.nodeDefsIndex?.rootDefUuid
+
   const rootDef = rootDefUuidInIndex
     ? getNodeDefByUuid({ survey, uuid: rootDefUuidInIndex })
-    : Object.values(survey.nodeDefs).find((nodeDef) => !nodeDef.parentUuid)
+    : getNodeDefsArray(survey).find((nodeDef) => !nodeDef.parentUuid)
+
   if (!rootDef) throw new SystemError('survey.rootDefNotFound')
 
   return rootDef
