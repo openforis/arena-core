@@ -42,6 +42,7 @@ export interface SurveyProps {
 }
 
 export interface SurveyNodeDefsIndex {
+  rootDefUuid?: string
   childDefUuidPresenceByParentUuid?: { [parentUuid: string]: { [nodeDefUuid: string]: boolean }[] }
 }
 
