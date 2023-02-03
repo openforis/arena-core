@@ -6,6 +6,7 @@ import { getNodeDefsArray } from './nodeDefsReader'
 const keys = {
   nodeDefsIndex: 'nodeDefsIndex',
   childDefUuidPresenceByParentUuid: 'childDefUuidPresenceByParentUuid',
+  rootDefUuid: 'rootDefUuid',
 }
 
 // ==== READ
@@ -21,12 +22,21 @@ export const addNodeDefToIndex =
   (nodeDef: NodeDef<any>, options: { sideEffect: boolean }) =>
   (survey: Survey): Survey => {
     const { sideEffect = false } = options || {}
-    return Objects.assocPath({
-      obj: survey,
-      path: [keys.nodeDefsIndex, keys.childDefUuidPresenceByParentUuid, nodeDef.parentUuid || 'null', nodeDef.uuid],
-      value: true,
-      sideEffect,
-    })
+
+    return nodeDef.parentUuid
+      ? Objects.assocPath({
+          obj: survey,
+          path: [keys.nodeDefsIndex, keys.childDefUuidPresenceByParentUuid, nodeDef.parentUuid, nodeDef.uuid],
+          value: true,
+          sideEffect,
+        })
+      : // nodeDef is root
+        Objects.assocPath({
+          obj: survey,
+          path: [keys.nodeDefsIndex, keys.rootDefUuid],
+          value: nodeDef.uuid,
+          sideEffect,
+        })
   }
 
 // ==== DELETE
@@ -42,8 +52,14 @@ export const deleteNodeDefIndex =
     const parentUuid = nodeDef.parentUuid
     if (parentUuid) {
       surveyUpdated = Objects.dissocPath({
-        obj: survey,
+        obj: surveyUpdated,
         path: [keys.nodeDefsIndex, keys.childDefUuidPresenceByParentUuid, parentUuid, nodeDef.uuid],
+      }) as Survey
+    } else {
+      // node def is root
+      surveyUpdated = Objects.dissocPath({
+        obj: surveyUpdated,
+        path: [keys.nodeDefsIndex, keys.rootDefUuid],
       }) as Survey
     }
     return surveyUpdated

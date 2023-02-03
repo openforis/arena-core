@@ -46,8 +46,15 @@ export const isNodeDefAncestor = (params: {
 export const getNodeDefRoot = (params: { survey: Survey }): NodeDef<NodeDefType, NodeDefProps> => {
   const { survey } = params
   if (!survey.nodeDefs) throw new SystemError('survey.emptyNodeDefs')
-  const rootDef = Object.values(survey.nodeDefs).find((nodeDef) => !nodeDef.parentUuid)
+
+  const rootDefUuidInIndex = survey.nodeDefsIndex?.rootDefUuid
+
+  const rootDef = rootDefUuidInIndex
+    ? getNodeDefByUuid({ survey, uuid: rootDefUuidInIndex })
+    : getNodeDefsArray(survey).find((nodeDef) => !nodeDef.parentUuid)
+
   if (!rootDef) throw new SystemError('survey.rootDefNotFound')
+
   return rootDef
 }
 
