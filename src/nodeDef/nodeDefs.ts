@@ -1,4 +1,5 @@
-import { Numbers } from '../utils'
+import { LanguageCode } from '../language'
+import { Numbers, Strings } from '../utils'
 import {
   NodeDef,
   NodeDefExpression,
@@ -12,25 +13,30 @@ import { NodeDefText } from './types/text'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
+const isAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => !isEntity(nodeDef)
+
 const isEntity = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.entity
 
 const isMultiple = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.props.multiple || false
-
-const isMultipleEntity = (nodeDef: NodeDef<NodeDefType>): boolean => isEntity(nodeDef) && isMultiple(nodeDef)
 
 const isSingle = (nodeDef: NodeDef<NodeDefType>): boolean => !isMultiple(nodeDef)
 
 const isSingleEntity = (nodeDef: NodeDef<NodeDefType>): boolean => isEntity(nodeDef) && isSingle(nodeDef)
 
-const isAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => !isEntity(nodeDef)
-
 const isSingleAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => isAttribute(nodeDef) && isSingle(nodeDef)
+
+const isMultipleEntity = (nodeDef: NodeDef<NodeDefType>): boolean => isEntity(nodeDef) && isMultiple(nodeDef)
 
 const isMultipleAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => isAttribute(nodeDef) && isMultiple(nodeDef)
 
 const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.props.key || false
 
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
+
+const getName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): string => nodeDef.props.name || ''
+
+const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
+  Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.labels?.[lang])
 
 const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly || false
 
@@ -92,6 +98,7 @@ export const NodeDefs = {
   isReadOnly,
   isRoot,
   getType,
+  getLabelOrName,
   getDefaultValues,
   isDefaultValueEvaluatedOneTime,
   getApplicable,

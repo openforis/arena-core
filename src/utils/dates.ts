@@ -1,15 +1,17 @@
-import { format, parse as dateFnsParse, isValid as fnsIsValid } from 'date-fns'
+import { format as dateFnsFormat, parse as dateFnsParse, isValid as fnsIsValid } from 'date-fns'
 import { Objects } from './_objects'
 
 export enum DateFormats {
   dateDisplay = 'dd/MM/yyyy',
-  dateISO = 'yyyy-MM-dd',
+  dateStorage = 'yyyy-MM-dd',
   datetimeStorage = 'yyyy-MM-dd_HH-mm-ss',
   datetimeDisplay = 'dd/MM/yyyy HH:mm:ss',
   datetimeISO = `yyyy-MM-dd'T'HH:mm:ss.SSS'Z'`,
   timeStorage = 'HH:mm',
   datetimeDefault = 'yyyy-MM-dd_HH-mm-ss',
 }
+
+const format = (date: number | Date, format: string): string => (date ? dateFnsFormat(date, format) : '')
 
 const nowFormattedForStorage = (): string => format(Date.now(), DateFormats.datetimeISO)
 const nowFormattedForExpression = (): string => format(Date.now(), DateFormats.datetimeDefault)
@@ -21,13 +23,13 @@ const isValidDateInFormat = (dateStr: string, format: DateFormats) => {
   return fnsIsValid(parsed)
 }
 
-export const convertDate = (params: {
+const convertDate = (params: {
   dateStr: string
   formatFrom?: DateFormats
   formatTo: DateFormats
   adjustTimezoneDifference?: boolean
 }): any => {
-  const { dateStr, formatFrom = DateFormats.dateISO, formatTo, adjustTimezoneDifference = false } = params
+  const { dateStr, formatFrom = DateFormats.dateStorage, formatTo, adjustTimezoneDifference = false } = params
   if (Objects.isEmpty(dateStr)) return null
 
   const dateParsed = parse(dateStr, formatFrom)
@@ -48,7 +50,7 @@ export const convertDate = (params: {
  * Checks if the date is valid. Takes into account leap years
  * (i.e. 2015/2/29 is not valid).
  */
-export const isValidDate = (year: any, month: any, day: any): boolean => {
+const isValidDate = (year: any, month: any, day: any): boolean => {
   if (Objects.isEmpty(year) || Objects.isEmpty(month) || Objects.isEmpty(day)) {
     return false
   }
@@ -63,7 +65,7 @@ export const isValidDate = (year: any, month: any, day: any): boolean => {
   )
 }
 
-export const isValidTime = (hour: any = '', minutes: any = '') =>
+const isValidTime = (hour: any = '', minutes: any = '') =>
   Objects.isEmpty(hour) || Objects.isEmpty(minutes)
     ? false
     : Number(hour) >= 0 && Number(hour) < 24 && Number(minutes) >= 0 && Number(minutes) < 60
@@ -75,4 +77,6 @@ export const Dates = {
   nowFormattedForStorage,
   nowFormattedForExpression,
   convertDate,
+  format,
+  parse,
 }
