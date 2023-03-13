@@ -74,8 +74,8 @@ const _valueExprToValueNodeFns = {
     const { valueExpr } = params
     return _toDateTime({
       valueExpr,
-      format: DateFormats.dateISO,
-      formatsFrom: [DateFormats.datetimeDefault, DateFormats.dateISO],
+      format: DateFormats.dateStorage,
+      formatsFrom: [DateFormats.datetimeDefault, DateFormats.dateStorage],
     })
   },
   [NodeDefType.decimal]: _toPrimitive(Number),
