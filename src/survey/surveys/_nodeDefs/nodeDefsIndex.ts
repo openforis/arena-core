@@ -23,20 +23,24 @@ export const addNodeDefToIndex =
   (survey: Survey): Survey => {
     const { sideEffect = false } = options || {}
 
-    return nodeDef.parentUuid
-      ? Objects.assocPath({
-          obj: survey,
-          path: [keys.nodeDefsIndex, keys.childDefUuidPresenceByParentUuid, nodeDef.parentUuid, nodeDef.uuid],
-          value: true,
-          sideEffect,
-        })
-      : // nodeDef is root
-        Objects.assocPath({
-          obj: survey,
-          path: [keys.nodeDefsIndex, keys.rootDefUuid],
-          value: nodeDef.uuid,
-          sideEffect,
-        })
+    if (nodeDef.parentUuid) {
+      return Objects.assocPath({
+        obj: survey,
+        path: [keys.nodeDefsIndex, keys.childDefUuidPresenceByParentUuid, nodeDef.parentUuid, nodeDef.uuid],
+        value: true,
+        sideEffect,
+      })
+    }
+    if (!nodeDef.temporary && !nodeDef.analysis) {
+      // nodeDef is root
+      return Objects.assocPath({
+        obj: survey,
+        path: [keys.nodeDefsIndex, keys.rootDefUuid],
+        value: nodeDef.uuid,
+        sideEffect,
+      })
+    }
+    return survey
   }
 
 // ==== DELETE
