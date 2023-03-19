@@ -6,7 +6,6 @@ export type {
   CategoryItemProps,
   Category,
   CategoryItem,
-  CategoryItems,
   CategoryLevel,
   CategoryLevelProps,
   CategoryImportSummary,
@@ -16,6 +15,8 @@ export type {
   CategoryProps,
   CategoryService,
 } from './category'
+
+export { CategoryItems } from './category'
 
 export { ChainFactory, ChainStatusExec, ChainNodeDefFactory } from './chain'
 export type {
@@ -69,7 +70,7 @@ export type { Job, JobSummary } from './job'
 export { LanguageCode, Languages } from './language'
 export type { Labels } from './language'
 
-export { NodeFactory, Nodes } from './node'
+export { NodeFactory, Nodes, NodeValueFormatter } from './node'
 export type { Node, NodePointer, NodeService } from './node'
 
 export { NodeDefType, NodeDefFactory, NodeDefs } from './nodeDef'
@@ -138,7 +139,7 @@ export type {
   SurveyProps,
 } from './survey'
 
-export { TaxonomyFactory, TaxonFactory, VernacularNameFactory } from './taxonomy'
+export { Taxa, TaxonomyFactory, TaxonFactory, VernacularNameFactory } from './taxonomy'
 export type {
   VernacularNameParams,
   TaxonomyFactoryParams,

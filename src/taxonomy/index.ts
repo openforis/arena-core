@@ -7,3 +7,5 @@ export type { TaxonService } from './taxonService'
 
 export { TaxonomyFactory, TaxonFactory, VernacularNameFactory } from './factory'
 export type { TaxonFactoryParams, TaxonomyFactoryParams, VernacularNameParams } from './factory'
+
+export { Taxa } from './taxa'

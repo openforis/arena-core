@@ -8,5 +8,6 @@ const getLabelOrCode = (item: CategoryItem, lang: LanguageCode) =>
   Strings.defaultIfEmpty(getCode(item))(item.props.labels?.[lang])
 
 export const CategoryItems = {
+  getCode,
   getLabelOrCode,
 }

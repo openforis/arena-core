@@ -28,6 +28,9 @@ export interface NodeDefProps {
   multiple?: boolean
   name?: string
   readOnly?: boolean
+
+  // available only when readOnly is true
+  hidden?: boolean
 }
 
 export interface NodeDefLayout {

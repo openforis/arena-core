@@ -8,4 +8,6 @@ export { NodeFactory } from './factory'
 
 export { Nodes } from './nodes'
 
+export { NodeValueFormatter } from './nodeValueFormatter'
+
 export type { NodeService } from './service'

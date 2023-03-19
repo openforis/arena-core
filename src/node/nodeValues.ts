@@ -123,6 +123,7 @@ const getValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; nod
 
 export const NodeValues = {
   valuePropsCode,
+  valuePropsTaxon,
 
   getValueProp,
   isValueProp,
