@@ -10,6 +10,23 @@ export const getCategoryItemByUuid = (params: { survey: Survey; itemUuid: string
 
 const nullParentItemUuid = 'null'
 
+export const getCategoryItems = (params: {
+  survey: Survey
+  categoryUuid: string
+  parentItemUuid?: string
+}): CategoryItem[] => {
+  const { survey, categoryUuid, parentItemUuid = nullParentItemUuid } = params
+  const itemUuids: string[] = Object.values(
+    survey.refData?.categoryItemUuidIndex?.[categoryUuid]?.[parentItemUuid] || {}
+  )
+  const items = itemUuids.reduce((acc: CategoryItem[], itemUuid) => {
+    const item = getCategoryItemByUuid({ survey, itemUuid })
+    if (item) acc.push(item)
+    return acc
+  }, [])
+  return items.sort((item1, item2) => (item1.index || 0) - (item2.index || 0))
+}
+
 export const getCategoryItemUuidByCode = (params: {
   survey: Survey
   categoryUuid: string

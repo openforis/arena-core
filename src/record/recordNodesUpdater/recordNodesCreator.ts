@@ -4,8 +4,20 @@ import { Survey, Surveys } from '../../survey'
 import { Record } from '../record'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-const getNodesToInsertCount = (nodeDef: NodeDef<any>): number => {
+const getNodesToInsertCount = (params: { survey: Survey; nodeDef: NodeDef<any> }): number => {
+  const { survey, nodeDef } = params
   if (NodeDefs.isSingle(nodeDef)) return 1
+  if (NodeDefs.isMultipleEntity(nodeDef) && NodeDefs.isEnumerate(nodeDef)) {
+    const enumerator = Surveys.getNodeDefEnumerator({ survey, entityDef: nodeDef })
+    if (enumerator) {
+      const categoryUuid = enumerator.props.categoryUuid
+      const category = survey.categories?.[categoryUuid]
+      if (category) {
+        const categoryItems = Surveys.getCategoryItems({ survey, categoryUuid: category.uuid })
+        return categoryItems.length
+      }
+    }
+  }
   return NodeDefs.getMinCount(nodeDef) || 0
 }
 
@@ -20,7 +32,7 @@ const createChildNodesBasedOnMinCount =
   (childDef: NodeDef<any>): void => {
     const { survey, parentNode, updateResult, createMultipleEntities = true, sideEffect = false } = params
 
-    const nodesToInsertCount = getNodesToInsertCount(childDef)
+    const nodesToInsertCount = getNodesToInsertCount({ survey, nodeDef: childDef })
     if (nodesToInsertCount === 0 || (!createMultipleEntities && NodeDefs.isMultipleEntity(childDef))) {
       return // do nothing
     }
