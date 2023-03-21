@@ -9,6 +9,7 @@ import {
   NodeDefValidations,
 } from './nodeDef'
 import { NodeDefDecimalProps } from './types/decimal'
+import { NodeDefEntity } from './types/entity'
 import { NodeDefTaxonProps } from './types/taxon'
 import { NodeDefText } from './types/text'
 
@@ -40,6 +41,8 @@ const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: Langu
   Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.labels?.[lang])
 
 const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly || false
+
+const isEnumerate = (nodeDef: NodeDefEntity): boolean => nodeDef.props.enumerate || false
 
 const getDefaultValues = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
   nodeDef.propsAdvanced?.defaultValues || []
@@ -103,6 +106,7 @@ export const NodeDefs = {
   isMultipleAttribute,
   isKey,
   isReadOnly,
+  isEnumerate,
   isRoot,
   getType,
   getLabelOrName,

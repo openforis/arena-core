@@ -10,6 +10,10 @@ export interface NodeDefEntityChildPosition {
   static: number
 }
 
+export interface NodeDefEntityProps extends NodeDefPropsWithLayout<NodeDefEntityLayout> {
+  enumerate?: boolean
+}
+
 export interface NodeDefEntityLayout extends NodeDefLayout {
   columnsNo?: number
   layoutChildren?: Array<NodeDefEntityChildPosition | string>
@@ -17,4 +21,4 @@ export interface NodeDefEntityLayout extends NodeDefLayout {
   renderType: 'form' | 'table'
 }
 
-export type NodeDefEntity = NodeDef<NodeDefType.entity, NodeDefPropsWithLayout<NodeDefEntityLayout>>
+export type NodeDefEntity = NodeDef<NodeDefType.entity, NodeDefEntityProps>
