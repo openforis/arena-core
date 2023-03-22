@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefEntity, NodeDefType } from '../../../nodeDef'
+import { NodeDef, NodeDefEntity, NodeDefEntityProps, NodeDefType } from '../../../nodeDef'
 import { Survey } from '../../../survey'
 import { NodeDefBuilder } from './nodeDefBuilder'
 
@@ -8,6 +8,12 @@ export class NodeDefEntityBuilder extends NodeDefBuilder {
   constructor(name: string, ...childBuilders: NodeDefBuilder[]) {
     super(name, NodeDefType.entity)
     this.childBuilders = childBuilders
+  }
+
+  enumerate(): NodeDefEntityBuilder {
+    const p = this.props as NodeDefEntityProps
+    p.enumerate = true
+    return this
   }
 
   build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> } {
