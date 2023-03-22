@@ -1,30 +1,66 @@
+import { CategoryItem } from '../../category'
+import { SystemError } from '../../error'
 import { Node, NodeFactory } from '../../node'
-import { NodeDef, NodeDefs } from '../../nodeDef'
+import { NodeValues } from '../../node/nodeValues'
+import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Record } from '../record'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-const getNodesToInsertCount = (params: { survey: Survey; nodeDef: NodeDef<any> }): number => {
-  const { survey, nodeDef } = params
+const getNodesToInsertCount = (nodeDef: NodeDef<any>): number => {
   if (NodeDefs.isSingle(nodeDef)) return 1
-  if (NodeDefs.isMultipleEntity(nodeDef) && NodeDefs.isEnumerate(nodeDef)) {
-    const enumerator = Surveys.getNodeDefEnumerator({ survey, entityDef: nodeDef })
-    if (enumerator) {
-      const categoryUuid = enumerator.props.categoryUuid
-      const category = survey.categories?.[categoryUuid]
-      if (category) {
-        const categoryItems = Surveys.getCategoryItems({ survey, categoryUuid: category.uuid })
-        return categoryItems.length
-      }
-    }
-  }
   return NodeDefs.getMinCount(nodeDef) || 0
+}
+
+const getEnumeratingCategoryItems = (params: { survey: Survey; enumerator: NodeDefCode }): CategoryItem[] => {
+  const { survey, enumerator } = params
+  const categoryUuid = enumerator.props.categoryUuid
+  const category = survey.categories?.[categoryUuid]
+  return category ? Surveys.getCategoryItems({ survey, categoryUuid: category.uuid }) : []
+}
+
+const createEnumeratedEntityNodes = (params: {
+  survey: Survey
+  parentNode: Node
+  entityDef: NodeDefEntity
+  updateResult: RecordUpdateResult
+  sideEffect: boolean
+}): boolean => {
+  const { survey, parentNode, entityDef, updateResult, sideEffect } = params
+
+  const enumerator = Surveys.getNodeDefEnumerator({ survey, entityDef })
+  if (!enumerator) return false
+
+  const categoryItems = getEnumeratingCategoryItems({ survey, enumerator })
+  categoryItems.forEach((categoryItem) => {
+    const { record } = updateResult
+    const childUpdateResult = createNodeAndDescendants({
+      survey,
+      record: updateResult.record,
+      parentNode,
+      nodeDef: entityDef,
+      sideEffect,
+    })
+    const enumeratorNode = Object.values(childUpdateResult.nodes).find((node) => node.nodeDefUuid === enumerator.uuid)
+    if (!enumeratorNode) {
+      // it should never happen
+      throw new SystemError('record.enumeratorNodeNotFound', {
+        recordUuid: record.uuid,
+        entityDef: NodeDefs.getName(entityDef),
+        enumerator: NodeDefs.getName(enumerator),
+      })
+    }
+    enumeratorNode.value = NodeValues.newCodeValue({ itemUuid: categoryItem.uuid })
+
+    updateResult.merge(childUpdateResult)
+  })
+  return true
 }
 
 const createChildNodesBasedOnMinCount =
   (params: {
     survey: Survey
-    updateResult: any
+    updateResult: RecordUpdateResult
     parentNode: Node
     createMultipleEntities?: boolean
     sideEffect?: boolean
@@ -32,7 +68,13 @@ const createChildNodesBasedOnMinCount =
   (childDef: NodeDef<any>): void => {
     const { survey, parentNode, updateResult, createMultipleEntities = true, sideEffect = false } = params
 
-    const nodesToInsertCount = getNodesToInsertCount({ survey, nodeDef: childDef })
+    if (NodeDefs.isMultipleEntity(childDef) && NodeDefs.isEnumerate(childDef)) {
+      if (createEnumeratedEntityNodes({ survey, parentNode, entityDef: childDef, updateResult, sideEffect })) {
+        return
+      }
+    }
+
+    const nodesToInsertCount = getNodesToInsertCount(childDef)
     if (nodesToInsertCount === 0 || (!createMultipleEntities && NodeDefs.isMultipleEntity(childDef))) {
       return // do nothing
     }
@@ -47,6 +89,29 @@ const createChildNodesBasedOnMinCount =
       updateResult.merge(childUpdateResult)
     }
   }
+
+export const createDescendants = (params: {
+  survey: Survey
+  record: Record
+  parentNode: Node
+  nodeDef: NodeDef<any>
+  createMultipleEntities?: boolean
+  sideEffect?: boolean
+}): RecordUpdateResult => {
+  const { survey, record, parentNode, nodeDef, createMultipleEntities, sideEffect = false } = params
+
+  const updateResult = new RecordUpdateResult({ record })
+
+  if (NodeDefs.isEntity(nodeDef)) {
+    const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef })
+
+    // Add only child single nodes (it allows to apply default values)
+    childDefs.forEach(
+      createChildNodesBasedOnMinCount({ survey, parentNode, updateResult, createMultipleEntities, sideEffect })
+    )
+  }
+  return updateResult
+}
 
 export const createNodeAndDescendants = (params: {
   survey: Survey
@@ -70,12 +135,15 @@ export const createNodeAndDescendants = (params: {
 
   // Add children if entity
   if (NodeDefs.isEntity(nodeDef)) {
-    const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef })
-
-    // Add only child single nodes (it allows to apply default values)
-    childDefs.forEach(
-      createChildNodesBasedOnMinCount({ survey, parentNode: node, updateResult, createMultipleEntities, sideEffect })
-    )
+    const descendantsUpdateResult = createDescendants({
+      survey,
+      record: updateResult.record,
+      nodeDef,
+      parentNode: node,
+      createMultipleEntities,
+      sideEffect,
+    })
+    updateResult.merge(descendantsUpdateResult)
   }
   return updateResult
 }

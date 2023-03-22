@@ -109,6 +109,7 @@ export const NodeDefs = {
   isEnumerate,
   isRoot,
   getType,
+  getName,
   getLabelOrName,
   getDefaultValues,
   isDefaultValueEvaluatedOneTime,
