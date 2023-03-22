@@ -65,7 +65,7 @@ const getValuePropRaw = (params: { node: Node; prop: string; defaultValue?: any 
 // Code
 const newCodeValue = (params: { itemUuid: string }) => {
   const { itemUuid } = params
-  return { [valuePropsCode.itemUuid]: itemUuid }
+  return { [valuePropsCode[valuePropsCode.itemUuid]]: itemUuid }
 }
 
 const getItemUuid = (node: Node): string | undefined =>
