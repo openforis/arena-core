@@ -104,6 +104,7 @@ const updateNode = async (params: {
 }
 
 export const RecordUpdater = {
+  createDescendants: RecordNodesUpdater.createDescendants,
   createNodeAndDescendants,
   createRootEntity,
   updateNode,
