@@ -63,6 +63,11 @@ const getValuePropRaw = (params: { node: Node; prop: string; defaultValue?: any 
 }
 
 // Code
+const newCodeValue = (params: { itemUuid: string }) => {
+  const { itemUuid } = params
+  return { [valuePropsCode[valuePropsCode.itemUuid]]: itemUuid }
+}
+
 const getItemUuid = (node: Node): string | undefined =>
   getValuePropRaw({ node, prop: valuePropsCode[valuePropsCode.itemUuid] })
 
@@ -123,6 +128,7 @@ const getValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; nod
 
 export const NodeValues = {
   valuePropsCode,
+  valuePropsTaxon,
 
   getValueProp,
   isValueProp,
@@ -137,7 +143,9 @@ export const NodeValues = {
   getDateDay,
 
   // code
+  newCodeValue,
   getItemUuid,
+
   // taxon
   getTaxonUuid,
   getVernacularNameUuid,

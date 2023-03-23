@@ -1,5 +1,5 @@
 import { Survey } from '../survey'
-import { NodeDef, NodeDefCodeProps, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefEntity, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Arrays } from '../../utils'
 import { SystemError } from '../../error'
 import * as NodeDefsReader from './_nodeDefs/nodeDefsReader'
@@ -28,10 +28,10 @@ export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): Node
 export const getNodeDefParent = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
-}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
+}): NodeDefEntity | undefined => {
   const { survey, nodeDef } = params
   if (!nodeDef.parentUuid) return undefined
-  return getNodeDefByUuid({ survey, uuid: nodeDef.parentUuid })
+  return getNodeDefByUuid({ survey, uuid: nodeDef.parentUuid }) as NodeDefEntity
 }
 
 export const isNodeDefAncestor = (params: {
@@ -131,6 +131,24 @@ export const getNodeDefKeys = (params: {
   const { survey, nodeDef } = params
   const children = getNodeDefChildren({ survey, nodeDef })
   return children.filter((childDef) => childDef.props.key && !childDef.deleted)
+}
+
+export const getNodeDefEnumerator = (params: { survey: Survey; entityDef: NodeDefEntity }): NodeDefCode | undefined => {
+  const { survey, entityDef } = params
+  const children = getNodeDefChildren({ survey, nodeDef: entityDef })
+  const codeAttributeKeys = children.filter((child) => child.type === NodeDefType.code && child.props.key)
+  if (codeAttributeKeys.length === 1) {
+    return codeAttributeKeys[0] as NodeDefCode
+  }
+  return undefined
+}
+
+export const isNodeDefEnumerator = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType> }): boolean => {
+  const { survey, nodeDef } = params
+  const entityDef = getNodeDefParent({ survey, nodeDef })
+  if (!entityDef) return false
+  const enumerator = getNodeDefEnumerator({ survey, entityDef })
+  return enumerator?.uuid === nodeDef.uuid
 }
 
 const { buildAndAssocNodeDefsIndex, addNodeDefToIndex, deleteNodeDefIndex } = NodeDefsIndex

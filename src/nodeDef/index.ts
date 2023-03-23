@@ -26,7 +26,7 @@ export type { NodeDefDate } from './types/date'
 
 export type { NodeDefDecimal, NodeDefDecimalProps } from './types/decimal'
 
-export type { NodeDefEntity, NodeDefEntityLayout, NodeDefEntityChildPosition } from './types/entity'
+export type { NodeDefEntity, NodeDefEntityChildPosition, NodeDefEntityLayout, NodeDefEntityProps } from './types/entity'
 
 export type { NodeDefFile, NodeDefFileProps } from './types/file'
 

@@ -1,4 +1,9 @@
-import { format as dateFnsFormat, parse as dateFnsParse, isValid as fnsIsValid } from 'date-fns'
+import {
+  format as dateFnsFormat,
+  parse as dateFnsParse,
+  parseISO as dateFnsParseISO,
+  isValid as fnsIsValid,
+} from 'date-fns'
 import { Objects } from './_objects'
 
 export enum DateFormats {
@@ -17,6 +22,7 @@ const nowFormattedForStorage = (): string => format(Date.now(), DateFormats.date
 const nowFormattedForExpression = (): string => format(Date.now(), DateFormats.datetimeDefault)
 
 const parse = (dateStr: string, format: DateFormats) => dateFnsParse(dateStr, format, new Date())
+const parseISO = (dateStr: string) => dateFnsParseISO(dateStr)
 
 const isValidDateInFormat = (dateStr: string, format: DateFormats) => {
   const parsed = parse(dateStr, format)
@@ -79,4 +85,5 @@ export const Dates = {
   convertDate,
   format,
   parse,
+  parseISO,
 }

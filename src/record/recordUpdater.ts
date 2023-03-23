@@ -38,6 +38,27 @@ const _onRecordNodesCreateOrUpdate = async (params: {
   })
 }
 
+const createDescendants = async (params: {
+  survey: Survey
+  record: Record
+  parentNode: Node
+  nodeDef: NodeDef<any>
+  createMultipleEntities?: boolean
+  sideEffect?: boolean
+}): Promise<RecordUpdateResult> => {
+  const { survey, record, parentNode, nodeDef, createMultipleEntities = false, sideEffect = false } = params
+
+  const { record: updatedRecord, nodes: createdNodes } = RecordNodesUpdater.createDescendants({
+    survey,
+    record,
+    parentNode,
+    nodeDef,
+    createMultipleEntities,
+    sideEffect,
+  })
+  return _onRecordNodesCreateOrUpdate({ survey, record: updatedRecord, nodes: createdNodes, sideEffect })
+}
+
 const _createNodeAndDescendants = async (params: {
   survey: Survey
   record: Record
@@ -104,6 +125,7 @@ const updateNode = async (params: {
 }
 
 export const RecordUpdater = {
+  createDescendants,
   createNodeAndDescendants,
   createRootEntity,
   updateNode,
