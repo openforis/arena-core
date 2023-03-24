@@ -135,6 +135,8 @@ export const getNodeDefKeys = (params: {
 
 export const getNodeDefEnumerator = (params: { survey: Survey; entityDef: NodeDefEntity }): NodeDefCode | undefined => {
   const { survey, entityDef } = params
+  if (!entityDef.props.enumerate) return undefined
+
   const children = getNodeDefChildren({ survey, nodeDef: entityDef })
   const codeAttributeKeys = children.filter((child) => child.type === NodeDefType.code && child.props.key)
   if (codeAttributeKeys.length === 1) {
