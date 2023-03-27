@@ -74,38 +74,43 @@ const addNode =
 const initializeIndex = (record: Record): RecordNodesIndex => addNodes(record.nodes || {}, true)({})
 
 const _removeNodeFromCodeDependentsIndex =
-  (node: Node) =>
+  (node: Node, sideEffect = false) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
     let indexUpdated = Nodes.getHierarchyCode(node).reduce(
       (indexAcc, ancestorCodeAttributeUuid) =>
-        Objects.dissocPath({ obj: indexAcc, path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.uuid] }),
+        Objects.dissocPath({
+          obj: indexAcc,
+          path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.uuid],
+          sideEffect,
+        }),
       index
     )
-    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeCodeDependents, node.uuid] })
+    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeCodeDependents, node.uuid], sideEffect })
     return indexUpdated
   }
 
 const removeNode =
-  (node: Node) =>
+  (node: Node, sideEffect = false) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
     const { uuid: nodeUuid, parentUuid, nodeDefUuid } = node
 
-    let indexUpdated = { ...index }
+    let indexUpdated = sideEffect ? index : { ...index }
 
     if (parentUuid) {
       // dissoc from nodes by parent and child def
       indexUpdated = Objects.dissocPath({
         obj: indexUpdated,
         path: [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid],
+        sideEffect,
       })
     } else {
       // dissoc root entity
-      indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeRootUuid] })
+      indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeRootUuid], sideEffect })
     }
     // dissoc from nodes by def uuid
-    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodesByDef, nodeDefUuid, nodeUuid] })
+    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodesByDef, nodeDefUuid, nodeUuid], sideEffect })
 
-    indexUpdated = _removeNodeFromCodeDependentsIndex(node)(indexUpdated)
+    indexUpdated = _removeNodeFromCodeDependentsIndex(node, sideEffect)(indexUpdated)
 
     return indexUpdated
   }

@@ -124,9 +124,25 @@ const updateNode = async (params: {
   return _onRecordNodesCreateOrUpdate({ survey, record, nodes: nodesUpdated, sideEffect })
 }
 
+const deleteNode = async (params: {
+  survey: Survey
+  record: Record
+  node: Node
+  sideEffect?: boolean
+}): Promise<RecordUpdateResult> => {
+  const { node, record: _record, survey, sideEffect = false } = params
+
+  const nodesUpdated = { [node.uuid]: node }
+
+  const record = Records.addNode(node, { sideEffect })(_record)
+
+  return _onRecordNodesCreateOrUpdate({ survey, record, nodes: nodesUpdated, sideEffect })
+}
+
 export const RecordUpdater = {
   createDescendants,
   createNodeAndDescendants,
   createRootEntity,
   updateNode,
+  deleteNode,
 }
