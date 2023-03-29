@@ -134,7 +134,7 @@ const deleteNode = async (params: {
 
   const nodesUpdated = { [node.uuid]: node }
 
-  const record = Records.addNode(node, { sideEffect })(_record)
+  const record = Records.deleteNode(node, { sideEffect })(_record)
 
   return _onRecordNodesCreateOrUpdate({ survey, record, nodes: nodesUpdated, sideEffect })
 }

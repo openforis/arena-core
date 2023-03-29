@@ -61,16 +61,21 @@ export const deleteNode =
       record,
       node,
       visitor: (visitedNode) => {
+        // 1. delete node from 'nodes'
         delete recordNodesUpdated[visitedNode.uuid]
 
-        Validations.dissocFieldValidation(visitedNode.uuid, true)(recordValidationUpdated)
+        // 2. delete node from validation
+        recordValidationUpdated = Validations.dissocFieldValidation(
+          visitedNode.uuid,
+          sideEffect
+        )(recordValidationUpdated)
 
-        // Dissoc childrenCount validation
         recordValidationUpdated = Validations.dissocFieldValidationsStartingWith(
           `${RecordValidations.prefixValidationFieldChildrenCount}${visitedNode.uuid}`,
           sideEffect
         )(recordValidationUpdated)
 
+        // 3. update nodes index
         if (updateNodesIndex) {
           recordNodesIndex = RecordNodesIndexUpdater.removeNode(visitedNode, sideEffect)(recordNodesIndex)
         }
