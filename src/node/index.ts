@@ -1,4 +1,4 @@
-export type { Node } from './node'
+export type { Node, NodesMap } from './node'
 
 export type { NodePointer } from './nodePointer'
 

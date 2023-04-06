@@ -132,11 +132,12 @@ const deleteNode = async (params: {
 }): Promise<RecordUpdateResult> => {
   const { node, record: _record, survey, sideEffect = false } = params
 
-  const nodesUpdated = { [node.uuid]: node }
+  const updateResult = Records.deleteNode(node, { sideEffect })(_record)
+  const { record, nodesDeleted } = updateResult
 
-  const record = Records.deleteNode(node, { sideEffect })(_record)
-
-  return _onRecordNodesCreateOrUpdate({ survey, record, nodes: nodesUpdated, sideEffect })
+  const result = await _onRecordNodesCreateOrUpdate({ survey, record, nodes: nodesDeleted, sideEffect })
+  result.nodesDeleted = nodesDeleted
+  return result
 }
 
 export const RecordUpdater = {

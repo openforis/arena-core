@@ -36,3 +36,7 @@ export interface Node {
    */
   updated?: boolean
 }
+
+export interface NodesMap {
+  [key: string]: Node
+}

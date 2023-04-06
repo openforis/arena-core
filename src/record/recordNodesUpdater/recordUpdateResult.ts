@@ -1,16 +1,18 @@
-import { Node } from '../../node'
+import { Node, NodesMap } from '../../node'
 import { Validation } from '../../validation'
 import { Record } from '../record'
 import { Records } from '../records'
 
 export class RecordUpdateResult {
   record: Record
-  nodes: { [key: string]: Node }
+  nodes: NodesMap
+  nodesDeleted: NodesMap
   validation?: Validation
 
-  constructor(params: { record: Record; nodes?: { [key: string]: Node }; validation?: Validation }) {
+  constructor(params: { record: Record; nodes?: NodesMap; nodesDeleted?: NodesMap; validation?: Validation }) {
     this.record = params.record
     this.nodes = params.nodes || {}
+    this.nodesDeleted = params.nodesDeleted || {}
     this.validation = params.validation
   }
 

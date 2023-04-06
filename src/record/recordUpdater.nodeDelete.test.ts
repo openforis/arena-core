@@ -35,7 +35,7 @@ describe('RecordUpdater - node delete', () => {
         'root_entity',
         attribute('identifier', 10),
         entity('mult_entity', attribute('mult_entity_id', 1), attribute('mult_entity_attr', 10)),
-        attribute('dependent_attribute', 1)
+        attribute('dependent_attribute', null)
       )
     ).build()
 
@@ -43,10 +43,17 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
     const updateResult = await RecordUpdater.deleteNode({ survey, record, node: nodeToDelete })
-    record = updateResult.record
+    const { nodesDeleted, nodes: nodesUpdated, record: recordUpdated } = updateResult
+    record = recordUpdated
+
+    const nodesDeletedNames = Object.values(nodesDeleted).map(TestUtils.getNodeName({ survey })).sort()
+    expect(nodesDeletedNames).toEqual(['mult_entity', 'mult_entity_attr', 'mult_entity_id'])
 
     const nodeDeleted = TestUtils.findNodeByPath({ survey, record, path: nodeToDeletePath })
     expect(nodeDeleted).toBeUndefined()
+
+    const nodesUpdatedNames = Object.values(nodesUpdated).map(TestUtils.getNodeName({ survey })).sort()
+    expect(nodesUpdatedNames).toEqual(['dependent_attribute', 'mult_entity', 'mult_entity_attr', 'mult_entity_id'])
 
     const dependentNode = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.dependent_attribute' })
     expect(dependentNode.value).toBe(0)

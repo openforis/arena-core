@@ -1,6 +1,7 @@
-import { Node } from '../../node'
+import { Node, NodesMap } from '../../node'
 import { Validations } from '../../validation'
 import { Record } from '../record'
+import { RecordUpdateResult } from '../recordNodesUpdater'
 import { RecordValidations } from '../recordValidations'
 import * as RecordGetters from './recordGetters'
 import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
@@ -41,13 +42,14 @@ export const addNode =
 
 export const deleteNode =
   (node: Node, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
-  (record: Record) => {
+  (record: Record): RecordUpdateResult => {
     const { sideEffect, updateNodesIndex } = Object.assign({}, RecordUpdateOptionsDefaults, options)
 
     const recordUpdated = sideEffect ? record : { ...record }
 
     const recordNodes = RecordGetters.getNodes(recordUpdated)
 
+    const nodesDeleted: NodesMap = {}
     const recordNodesUpdated = sideEffect ? recordNodes : { ...recordNodes }
 
     let recordNodesIndex = record._nodesIndex || {}
@@ -63,6 +65,8 @@ export const deleteNode =
       visitor: (visitedNode) => {
         // 1. delete node from 'nodes'
         delete recordNodesUpdated[visitedNode.uuid]
+
+        nodesDeleted[visitedNode.uuid] = visitedNode
 
         // 2. delete node from validation
         recordValidationUpdated = Validations.dissocFieldValidation(
@@ -89,5 +93,5 @@ export const deleteNode =
     if (updateNodesIndex) {
       record._nodesIndex = recordNodesIndex
     }
-    return recordUpdated
+    return new RecordUpdateResult({ record, nodesDeleted })
   }
