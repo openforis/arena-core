@@ -25,7 +25,7 @@ import {
   getCategoryItemUuid,
 } from './_records/recordGetters'
 
-import { addNode, addNodes, deleteNode } from './_records/recordUpdater'
+import { addNode, addNodes, deleteNode, deleteNodes } from './_records/recordUpdater'
 
 export const Records = {
   // READ
@@ -58,6 +58,7 @@ export const Records = {
   addNode,
   addNodes,
   deleteNode,
+  deleteNodes,
 }
 
 export type { RecordUpdateOptions } from './_records/recordUpdater'

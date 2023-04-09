@@ -40,8 +40,8 @@ export const addNode =
   (record: Record) =>
     addNodes({ [node.uuid]: node }, options)(record)
 
-export const deleteNode =
-  (node: Node, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+export const deleteNodes =
+  (nodes: NodesMap, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: Record): RecordUpdateResult => {
     const { sideEffect, updateNodesIndex } = Object.assign({}, RecordUpdateOptionsDefaults, options)
 
@@ -59,31 +59,35 @@ export const deleteNode =
       ? recordValidation
       : { ...recordValidation, fields: { ...Validations.getFieldValidations(recordValidation) } }
 
-    RecordGetters.visitDescendantsAndSelf({
-      record,
-      node,
-      visitor: (visitedNode) => {
-        // 1. delete node from 'nodes'
-        delete recordNodesUpdated[visitedNode.uuid]
+    Object.values(nodes).forEach((node) => {
+      RecordGetters.visitDescendantsAndSelf({
+        record,
+        node,
+        visitor: (visitedNode) => {
+          if (nodesDeleted[visitedNode.uuid]) return
 
-        nodesDeleted[visitedNode.uuid] = visitedNode
+          // 1. delete node from 'nodes'
+          delete recordNodesUpdated[visitedNode.uuid]
 
-        // 2. delete node from validation
-        recordValidationUpdated = Validations.dissocFieldValidation(
-          visitedNode.uuid,
-          sideEffect
-        )(recordValidationUpdated)
+          nodesDeleted[visitedNode.uuid] = visitedNode
 
-        recordValidationUpdated = Validations.dissocFieldValidationsStartingWith(
-          `${RecordValidations.prefixValidationFieldChildrenCount}${visitedNode.uuid}`,
-          sideEffect
-        )(recordValidationUpdated)
+          // 2. delete node from validation
+          recordValidationUpdated = Validations.dissocFieldValidation(
+            visitedNode.uuid,
+            sideEffect
+          )(recordValidationUpdated)
 
-        // 3. update nodes index
-        if (updateNodesIndex) {
-          recordNodesIndex = RecordNodesIndexUpdater.removeNode(visitedNode, sideEffect)(recordNodesIndex)
-        }
-      },
+          recordValidationUpdated = Validations.dissocFieldValidationsStartingWith(
+            `${RecordValidations.prefixValidationFieldChildrenCount}${visitedNode.uuid}`,
+            sideEffect
+          )(recordValidationUpdated)
+
+          // 3. update nodes index
+          if (updateNodesIndex) {
+            recordNodesIndex = RecordNodesIndexUpdater.removeNode(visitedNode, sideEffect)(recordNodesIndex)
+          }
+        },
+      })
     })
 
     recordValidationUpdated = Validations.cleanup(recordValidationUpdated)
@@ -95,3 +99,8 @@ export const deleteNode =
     }
     return new RecordUpdateResult({ record, nodesDeleted })
   }
+
+export const deleteNode =
+  (node: Node, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+  (record: Record): RecordUpdateResult =>
+    deleteNodes({ [node.uuid]: node }, options)(record)
