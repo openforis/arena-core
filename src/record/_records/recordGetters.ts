@@ -320,20 +320,26 @@ export const getAncestorCodePath = (params: {
 }): string[] => {
   const { record, parentNode, nodeDef, survey } = params
 
-  const codesPath = []
-  let ancestorCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef })(record)
-
-  while (ancestorCodeAttribute) {
-    const parentCodeItemUuid = NodeValues.getItemUuid(ancestorCodeAttribute)
-    if (!parentCodeItemUuid) {
-      break
-    }
-    const ancestorCodeDef = Surveys.getNodeDefByUuid({ survey, uuid: ancestorCodeAttribute.nodeDefUuid }) as NodeDefCode
-    const parentCategoryItem = Surveys.getCategoryItemByUuid({ survey, itemUuid: parentCodeItemUuid })
-    codesPath.push(parentCategoryItem?.props.code || '')
-    ancestorCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: ancestorCodeDef })(record)
+  const getCodeAttributeItemCode = (codeAttribute: Node | undefined): string => {
+    const codeItemUuid = codeAttribute ? NodeValues.getItemUuid(codeAttribute) : undefined
+    if (!codeItemUuid) return ''
+    const item = Surveys.getCategoryItemByUuid({ survey, itemUuid: codeItemUuid })
+    return item?.props.code || ''
   }
-  return codesPath
+
+  const codePaths = []
+  let currentParentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef })(record)
+
+  while (currentParentCodeAttribute) {
+    const ancestorItemCode = getCodeAttributeItemCode(currentParentCodeAttribute)
+    codePaths.unshift(ancestorItemCode)
+    const ancestorCodeDef = Surveys.getNodeDefByUuid({
+      survey,
+      uuid: currentParentCodeAttribute.nodeDefUuid,
+    }) as NodeDefCode
+    currentParentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: ancestorCodeDef })(record)
+  }
+  return codePaths
 }
 
 export const getCategoryItemUuid = (params: {
