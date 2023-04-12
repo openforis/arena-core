@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefCodeProps, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Node, NodePointer, Nodes } from '../../node'
 import { Record } from '../record'
 import { Surveys } from '../../survey'
@@ -93,7 +93,7 @@ export const getDependentCodeAttributes =
   }
 
 export const getParentCodeAttribute =
-  (params: { parentNode: Node; nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps> }) =>
+  (params: { parentNode: Node; nodeDef: NodeDefCode }) =>
   (record: Record): Node | undefined => {
     const { parentNode, nodeDef } = params
 
@@ -320,30 +320,26 @@ export const getAncestorCodePath = (params: {
 }): string[] => {
   const { record, parentNode, nodeDef, survey } = params
 
-  const codesPath = []
-  let ancestor: Node | undefined | null = parentNode
-  let ancestorCodeAttribute: Node | undefined | null = getParentCodeAttribute({ parentNode: ancestor, nodeDef })(record)
-
-  while (ancestor && ancestorCodeAttribute) {
-    const ancestorCodeDef = Surveys.getNodeDefByUuid({ survey, uuid: ancestorCodeAttribute.nodeDefUuid }) as NodeDef<
-      NodeDefType.code,
-      NodeDefCodeProps
-    >
-    ancestor = getParent(ancestor)(record)
-    if (!ancestorCodeDef || !ancestor) {
-      ancestorCodeAttribute = undefined
-    } else {
-      const parentCodeItemUuid = NodeValues.getItemUuid(ancestorCodeAttribute)
-      if (!parentCodeItemUuid) {
-        ancestorCodeAttribute = undefined
-      } else {
-        const parentCategoryItem = Surveys.getCategoryItemByUuid({ survey, itemUuid: parentCodeItemUuid })
-        codesPath.push(parentCategoryItem?.props.code || '')
-        ancestorCodeAttribute = getParentCodeAttribute({ parentNode: ancestor, nodeDef: ancestorCodeDef })(record)
-      }
-    }
+  const getCodeAttributeItemCode = (codeAttribute: Node | undefined): string => {
+    const codeItemUuid = codeAttribute ? NodeValues.getItemUuid(codeAttribute) : undefined
+    if (!codeItemUuid) return ''
+    const item = Surveys.getCategoryItemByUuid({ survey, itemUuid: codeItemUuid })
+    return item?.props.code || ''
   }
-  return codesPath
+
+  const codePaths = []
+  let currentParentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef })(record)
+
+  while (currentParentCodeAttribute) {
+    const ancestorItemCode = getCodeAttributeItemCode(currentParentCodeAttribute)
+    codePaths.unshift(ancestorItemCode)
+    const ancestorCodeDef = Surveys.getNodeDefByUuid({
+      survey,
+      uuid: currentParentCodeAttribute.nodeDefUuid,
+    }) as NodeDefCode
+    currentParentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: ancestorCodeDef })(record)
+  }
+  return codePaths
 }
 
 export const getCategoryItemUuid = (params: {
