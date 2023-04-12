@@ -22,6 +22,8 @@ const getValidationNode =
   }
 
 export const RecordValidations = {
+  prefixValidationFieldChildrenCount,
+
   getValidationChildrenCountKey,
   getValidationChildrenCount,
   getValidationNode,

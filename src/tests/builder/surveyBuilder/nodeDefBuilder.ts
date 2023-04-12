@@ -8,6 +8,7 @@ import {
   NodeDefType,
 } from '../../../nodeDef'
 import { NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
+import { Objects } from '../../../utils'
 
 export abstract class NodeDefBuilder {
   protected props: NodeDefProps
@@ -41,5 +42,14 @@ export abstract class NodeDefBuilder {
   applyIf(expression: string): NodeDefBuilder {
     this.propsAdvanced.applicable = [NodeDefExpressionFactory.createInstance({ expression })]
     return this
+  }
+
+  minCount(count: number): NodeDefBuilder {
+    return Objects.assocPath({
+      obj: this,
+      path: ['propsAdvanced', 'validations', 'count', 'min'],
+      value: count,
+      sideEffect: true,
+    })
   }
 }

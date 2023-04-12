@@ -22,7 +22,7 @@ export const updateNodesDependents = (params: {
   sideEffect?: boolean
 }): RecordUpdateResult => {
   const { survey, record, nodes, sideEffect = false } = params
-  const updateResult = new RecordUpdateResult({ record, nodes })
+  const updateResult = new RecordUpdateResult({ record, nodes: sideEffect ? nodes : { ...nodes } })
 
   const nodeUuidsToVisit = new Queue(Object.keys(nodes))
 

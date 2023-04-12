@@ -1,4 +1,4 @@
-import { Node } from '../node'
+import { Node, NodesMap } from '../node'
 import { NodeDef } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Validations } from '../validation/validations'
@@ -124,9 +124,37 @@ const updateNode = async (params: {
   return _onRecordNodesCreateOrUpdate({ survey, record, nodes: nodesUpdated, sideEffect })
 }
 
+const deleteNodes = async (params: {
+  survey: Survey
+  record: Record
+  nodes: NodesMap
+  sideEffect?: boolean
+}): Promise<RecordUpdateResult> => {
+  const { nodes, record: _record, survey, sideEffect = false } = params
+
+  const updateResult = Records.deleteNodes(nodes, { sideEffect })(_record)
+  const { record, nodesDeleted } = updateResult
+
+  const result = await _onRecordNodesCreateOrUpdate({ survey, record, nodes: nodesDeleted, sideEffect })
+  result.nodesDeleted = nodesDeleted
+  return result
+}
+
+const deleteNode = async (params: {
+  survey: Survey
+  record: Record
+  node: Node
+  sideEffect?: boolean
+}): Promise<RecordUpdateResult> => {
+  const { node, record, survey, sideEffect = false } = params
+  return deleteNodes({ survey, record, nodes: { [node.uuid]: node }, sideEffect })
+}
+
 export const RecordUpdater = {
   createDescendants,
   createNodeAndDescendants,
   createRootEntity,
   updateNode,
+  deleteNode,
+  deleteNodes,
 }

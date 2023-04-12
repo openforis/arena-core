@@ -1,4 +1,5 @@
 import { Node } from '../node'
+import { NodeDefs } from '../nodeDef'
 import { Record, Records } from '../record'
 import { Survey, Surveys } from '../survey'
 
@@ -37,7 +38,15 @@ const getNodeByPath = (params: { survey: Survey; record: Record; path: string })
   return node
 }
 
+const getNodeName =
+  (params: { survey: Survey }) =>
+  (node: Node): string => {
+    const { survey } = params
+    return NodeDefs.getName(Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }))
+  }
+
 export const TestUtils = {
   findNodeByPath,
   getNodeByPath,
+  getNodeName,
 }
