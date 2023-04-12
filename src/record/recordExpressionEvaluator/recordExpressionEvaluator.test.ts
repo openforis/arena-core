@@ -168,11 +168,11 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'distance(plot[0].plot_location, remarks)', result: null },
     // distance (using categoryItemProp)
     {
-      expression: `distance(cluster_location, categoryItemProp('sampling_point', 'location', cluster_id)).toFixed(2)`,
+      expression: `distance(cluster_location, categoryItemProp('sampling_point_data', 'location', cluster_id)).toFixed(2)`,
       result: '4307919.62',
     },
     {
-      expression: `distance(plot_location, categoryItemProp('sampling_point', 'location', cluster_id, plot_id)).toFixed(2)`,
+      expression: `distance(plot_location, categoryItemProp('sampling_point_data', 'location', cluster_id, plot_id)).toFixed(2)`,
       result: '4311422.21',
       node: 'cluster.plot[1].plot_id',
     },
