@@ -47,14 +47,14 @@ const canApplyDefaultValue = (params: { record: Record; node: Node; nodeDef: Nod
 
 const updateDefaultValuesInNodes = (params: {
   survey: Survey
-  record: Record
   nodePointer: NodePointer
   updateResult: RecordUpdateResult
   sideEffect?: boolean
 }) => {
-  const { survey, record, nodePointer, updateResult, sideEffect = false } = params
+  const { survey, nodePointer, updateResult, sideEffect = false } = params
 
   const { nodeCtx, nodeDef } = nodePointer
+  const { record } = updateResult
 
   const expressionsToEvaluate = NodeDefs.getDefaultValues(nodeDef)
   if (expressionsToEvaluate.length === 0) return
@@ -157,7 +157,7 @@ export const updateSelfAndDependentsDefaultValues = (params: {
 
   // 2. update expr to node and dependent nodes
   nodePointersToUpdate.forEach((nodePointer) => {
-    updateDefaultValuesInNodes({ survey, record, nodePointer, updateResult, sideEffect })
+    updateDefaultValuesInNodes({ survey, nodePointer, updateResult, sideEffect })
   })
 
   return updateResult

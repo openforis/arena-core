@@ -69,7 +69,7 @@ export const createTestSurvey = (params: { user: User }): Survey =>
             .extra({ prop1: 'Extra prop1 item 3', prop2: 'Extra prop2 item 3', prop3: 21 })
             .items(categoryItem('3a').extra({ prop1: 'Extra prop1 item 3a', prop2: 'Extra prop2 item 3a', prop3: 22 }))
         ),
-      category('sampling_point')
+      category('sampling_point_data')
         .levels('cluster', 'plot')
         .extraProps({
           location: { key: 'location', dataType: ExtraPropDataType.geometryPoint },

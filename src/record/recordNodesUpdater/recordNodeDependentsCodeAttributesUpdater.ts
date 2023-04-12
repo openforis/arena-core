@@ -1,8 +1,9 @@
 import { Record } from '../record'
-import { Survey } from '../../survey'
+import { Survey, Surveys } from '../../survey'
 import { Node, Nodes } from '../../node'
 import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
+import { NodeDefs } from '../../nodeDef'
 
 export const updateDependentCodeAttributes = (params: {
   survey: Survey
@@ -10,7 +11,7 @@ export const updateDependentCodeAttributes = (params: {
   node: Node
   sideEffect?: boolean
 }) => {
-  const { record, node, sideEffect = false } = params
+  const { survey, record, node, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -21,7 +22,12 @@ export const updateDependentCodeAttributes = (params: {
   // 2. clear dependent code attributes' values
 
   dependentCodeAttributes.forEach((dependentCodeAttribute) => {
-    if (!Nodes.isValueBlank(dependentCodeAttribute)) {
+    const dependentCodeAttributeDef = Surveys.getNodeDefByUuid({ survey, uuid: dependentCodeAttribute.nodeDefUuid })
+    if (
+      !NodeDefs.isReadOnly(dependentCodeAttributeDef) &&
+      !Nodes.isDefaultValueApplied(dependentCodeAttribute) &&
+      !Nodes.isValueBlank(dependentCodeAttribute)
+    ) {
       const nodeUpdated: Node = { ...dependentCodeAttribute, value: null, updated: true }
       updateResult.addNode(nodeUpdated, { sideEffect })
     }
