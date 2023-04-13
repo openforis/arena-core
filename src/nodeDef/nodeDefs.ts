@@ -8,9 +8,9 @@ import {
   NodeDefType,
   NodeDefValidations,
 } from './nodeDef'
-import { NodeDefDecimalProps } from './types/decimal'
+import { NodeDefDecimal } from './types/decimal'
 import { NodeDefEntity } from './types/entity'
-import { NodeDefTaxonProps } from './types/taxon'
+import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText } from './types/text'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
@@ -54,17 +54,17 @@ const isDefaultValueEvaluatedOneTime = (nodeDef: NodeDef<NodeDefType>): boolean 
 
 const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.applicable || []
 
-const getMaxNumberDecimalDigits = (nodeDef: NodeDef<NodeDefType, NodeDefDecimalProps>) => {
+const getVisibleFields = (nodeDef: NodeDef<NodeDefType>): string[] | undefined => nodeDef.props.visibleFields
+
+const getMaxNumberDecimalDigits = (nodeDef: NodeDefDecimal) => {
   const decimalDigits = nodeDef.props.maxNumberDecimalDigits
   return Objects.isEmpty(decimalDigits) ? NaN : Number(decimalDigits)
 }
 
-const getTaxonomyUuid = (nodeDef: NodeDef<NodeDefType.taxon, NodeDefTaxonProps>): string | undefined =>
-  nodeDef.props.taxonomyUuid
+const getTaxonomyUuid = (nodeDef: NodeDefTaxon): string | undefined => nodeDef.props.taxonomyUuid
 
 const getTextTransform = (nodeDef: NodeDefText): string | undefined => nodeDef.props?.textTransform
 
-// File
 // Validations
 const getValidations = (nodeDef: NodeDef<NodeDefType>): NodeDefValidations | undefined =>
   nodeDef.propsAdvanced?.validations
@@ -114,6 +114,7 @@ export const NodeDefs = {
   getDefaultValues,
   isDefaultValueEvaluatedOneTime,
   getApplicable,
+  getVisibleFields,
   getMaxNumberDecimalDigits,
   getTaxonomyUuid,
   getTextTransform,

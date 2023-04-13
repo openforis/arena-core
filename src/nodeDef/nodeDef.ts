@@ -31,6 +31,8 @@ export interface NodeDefProps {
 
   // available only when readOnly is true
   hidden?: boolean
+
+  visibleFields?: string[]
 }
 
 export interface NodeDefLayout {
