@@ -54,10 +54,13 @@ const updateDefaultValuesInNodes = (params: {
   const { survey, nodePointer, updateResult, sideEffect = false } = params
 
   const { nodeCtx, nodeDef } = nodePointer
-  const { record } = updateResult
+
+  if (nodeCtx.deleted) return
 
   const expressionsToEvaluate = NodeDefs.getDefaultValues(nodeDef)
   if (expressionsToEvaluate.length === 0) return
+
+  const { record } = updateResult
 
   try {
     // 1. evaluate applicable default value expression
