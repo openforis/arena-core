@@ -22,7 +22,50 @@ describe('RecordUpdater - node delete', () => {
     user = createTestAdminUser()
   }, 10000)
 
-  test('Entity deletion', async () => {
+  test('Entity deletion: no side effect', async () => {
+    const survey = new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        entityDef('mult_entity', integerDef('mult_entity_id').key(), integerDef('mult_entity_attr')).multiple()
+      )
+    ).build()
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        entity('mult_entity', attribute('mult_entity_id', 1), attribute('mult_entity_attr', 10)),
+        entity('mult_entity', attribute('mult_entity_id', 2), attribute('mult_entity_attr', 20))
+      )
+    ).build()
+
+    const nodeToDeletePath = 'root_entity.mult_entity[1]'
+    const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
+
+    const updateResult = await RecordUpdater.deleteNode({ survey, record, nodeUuid: nodeToDelete.uuid })
+    const { nodesDeleted, record: recordUpdated } = updateResult
+
+    // check record updated is a new object
+    expect(recordUpdated).not.toBe(record)
+
+    // check deleted nodes
+    const nodesDeletedNames = Object.values(nodesDeleted).map(TestUtils.getNodeName({ survey })).sort()
+    expect(nodesDeletedNames).toEqual(['mult_entity', 'mult_entity_attr', 'mult_entity_id'])
+
+    // check deleted node not in updated record anymore
+    const nodeDeleted = TestUtils.findNodeByPath({ survey, record: recordUpdated, path: nodeToDeletePath })
+    expect(nodeDeleted).toBeUndefined()
+
+    // check deleted node still in original record
+    const nodeDeletedOriginal = TestUtils.findNodeByPath({ survey, record, path: nodeToDeletePath })
+    expect(nodeDeletedOriginal).not.toBeUndefined()
+  })
+
+  test('Entity deletion: update dependent attributes', async () => {
     const survey = new SurveyBuilder(
       user,
       entityDef(
@@ -53,17 +96,7 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
     const updateResult = await RecordUpdater.deleteNode({ survey, record, nodeUuid: nodeToDelete.uuid })
-    const { nodesDeleted, nodes: nodesUpdated, record: recordUpdated } = updateResult
-
-    expect(recordUpdated).not.toBe(record)
-
-    // check deleted nodes
-    const nodesDeletedNames = Object.values(nodesDeleted).map(TestUtils.getNodeName({ survey })).sort()
-    expect(nodesDeletedNames).toEqual(['mult_entity', 'mult_entity_attr', 'mult_entity_id'])
-
-    // check deleted node not in updated record anymore
-    const nodeDeleted = TestUtils.findNodeByPath({ survey, record: recordUpdated, path: nodeToDeletePath })
-    expect(nodeDeleted).toBeUndefined()
+    const { nodes: nodesUpdated, record: recordUpdated } = updateResult
 
     // check updated nodes (including deleted ones)
     const nodesUpdatedNames = Object.values(nodesUpdated).map(TestUtils.getNodeName({ survey })).sort()
