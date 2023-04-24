@@ -121,20 +121,13 @@ export const visitAncestorsAndSelf =
     }
   }
 
-export const getAncestor = (params: { record: Record; node: Node; ancestorDefUuid: string }): Node => {
+export const getAncestor = (params: { record: Record; node: Node; ancestorDefUuid: string }): Node | undefined => {
   const { record, node, ancestorDefUuid } = params
   if (node.nodeDefUuid === ancestorDefUuid) return node
 
   let ancestor = getParent(node)(record)
   while (ancestor && ancestor.nodeDefUuid !== ancestorDefUuid) {
     ancestor = getParent(ancestor)(record)
-  }
-  if (!ancestor) {
-    throw new SystemError('record.ancestorNotFound', {
-      nodeUuid: node.uuid,
-      nodeDefUuid: node.nodeDefUuid,
-      ancestorDefUuid,
-    })
   }
   return ancestor
 }
