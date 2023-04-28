@@ -17,7 +17,7 @@ export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryPa
       taxonUuidIndex: {},
       taxonIndex: {},
     }
-    const { itemsByCategoryUuid, taxonUuidIndex, taxonIndex } = {
+    const { itemsByCategoryUuid, taxonUuidIndex, taxonIndex }: SurveyRefDataFactoryParams = {
       ...defaultParams,
       ...params,
     }
