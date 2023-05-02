@@ -10,4 +10,6 @@ export { Nodes } from './nodes'
 
 export { NodeValueFormatter } from './nodeValueFormatter'
 
+export { NodeValues } from './nodeValues'
+
 export type { NodeService } from './service'

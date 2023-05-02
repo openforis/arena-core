@@ -3,11 +3,13 @@ import { Numbers, Objects, Strings } from '../utils'
 import {
   NodeDef,
   NodeDefExpression,
+  NodeDefLayout,
   NodeDefProps,
   NodeDefPropsWithLayout,
   NodeDefType,
   NodeDefValidations,
 } from './nodeDef'
+import { NodeDefCode } from './types/code'
 import { NodeDefDecimal } from './types/decimal'
 import { NodeDefEntity } from './types/entity'
 import { NodeDefTaxon } from './types/taxon'
@@ -92,8 +94,13 @@ const getLayoutRenderType =
 
 const isHiddenWhenNotRelevant =
   (cycle = '0') =>
-  (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): boolean =>
-    getLayoutProps(cycle)(nodeDef).hiddenWhenNotRelevant
+  <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
+    getLayoutProps(cycle)(nodeDef).hiddenWhenNotRelevant || false
+
+const getLayoutCodeShown =
+  (cycle = '0') =>
+  (nodeDef: NodeDefCode): boolean =>
+    getLayoutProps(cycle)(nodeDef).codeShown || false
 
 export const NodeDefs = {
   isEntity,
@@ -123,6 +130,7 @@ export const NodeDefs = {
   getLayoutProps,
   getLayoutRenderType,
   isHiddenWhenNotRelevant,
+  getLayoutCodeShown,
   // validations
   getValidations,
   isRequired,

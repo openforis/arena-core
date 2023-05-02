@@ -70,7 +70,7 @@ export type { Job, JobSummary } from './job'
 export { LanguageCode, Languages } from './language'
 export type { Labels } from './language'
 
-export { NodeFactory, Nodes, NodeValueFormatter } from './node'
+export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
 export type { Node, NodePointer, NodeService } from './node'
 
 export { NodeDefType, NodeDefFactory, NodeDefs } from './nodeDef'

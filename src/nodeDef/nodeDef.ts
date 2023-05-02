@@ -37,6 +37,8 @@ export interface NodeDefProps {
 
 export interface NodeDefLayout {
   hiddenWhenNotRelevant?: boolean
+  // code
+  codeShown?: boolean
 }
 
 export interface NodeDefPropsWithLayout<L extends NodeDefLayout> extends NodeDefProps {
