@@ -24,7 +24,7 @@ export const getCategoryItems = (params: {
     if (item) acc.push(item)
     return acc
   }, [])
-  return items.sort((item1, item2) => (item1.index || 0) - (item2.index || 0))
+  return items.sort((item1, item2) => (item1.props.index || 0) - (item2.props.index || 0))
 }
 
 export const getCategoryItemUuidByCode = (params: {
