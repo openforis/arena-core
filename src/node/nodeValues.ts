@@ -56,10 +56,15 @@ export const valuePropsByType = {
   [NodeDefType.text]: null,
 }
 
-const getValuePropRaw = (params: { node: Node; prop: string; defaultValue?: any }): any | undefined => {
-  const { node, prop, defaultValue } = params
-  const valueProp = node.value?.[prop]
+const getValuePropRaw = (params: { value: any; prop: string; defaultValue?: any }): any | undefined => {
+  const { value, prop, defaultValue } = params
+  const valueProp = value?.[prop]
   return valueProp === undefined ? defaultValue : valueProp
+}
+
+const getNodeValuePropRaw = (params: { node: Node; prop: string; defaultValue?: any }): any | undefined => {
+  const { node, prop, defaultValue } = params
+  return getValuePropRaw({ value: node.value, prop, defaultValue })
 }
 
 // Code
@@ -69,7 +74,10 @@ const newCodeValue = (params: { itemUuid: string }) => {
 }
 
 const getItemUuid = (node: Node): string | undefined =>
-  getValuePropRaw({ node, prop: valuePropsCode[valuePropsCode.itemUuid] })
+  getNodeValuePropRaw({ node, prop: valuePropsCode[valuePropsCode.itemUuid] })
+
+const getValueItemUuid = (value: any): string | undefined =>
+  getValuePropRaw({ value, prop: valuePropsCode[valuePropsCode.itemUuid] })
 
 const getDateTimePart = (params: { node: Node; index: number; separator: string }): number => {
   const { node, index, separator } = params
@@ -93,9 +101,13 @@ const _datePropGetters: { [key in valuePropsDate]: (node: Node) => number } = {
 
 // Taxon
 const getTaxonUuid = (node: Node): string | undefined =>
-  getValuePropRaw({ node, prop: valuePropsTaxon[valuePropsTaxon.taxonUuid] })
+  getNodeValuePropRaw({ node, prop: valuePropsTaxon[valuePropsTaxon.taxonUuid] })
+const getValueTaxonUuid = (value: any): string | undefined =>
+  getValuePropRaw({ value, prop: valuePropsTaxon[valuePropsTaxon.taxonUuid] })
 const getVernacularNameUuid = (node: Node): string | undefined =>
-  getValuePropRaw({ node, prop: valuePropsTaxon[valuePropsTaxon.vernacularNameUuid] })
+  getNodeValuePropRaw({ node, prop: valuePropsTaxon[valuePropsTaxon.vernacularNameUuid] })
+const getValueVernacularNameUuid = (value: any): string | undefined =>
+  getValuePropRaw({ value, prop: valuePropsTaxon[valuePropsTaxon.vernacularNameUuid] })
 
 // Time
 const _getTimePart =
@@ -120,17 +132,17 @@ const isValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; prop
   return Object.values(valuePropsByType[nodeDef.type] || {}).includes(prop)
 }
 
-const getValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; node: Node; prop: string }): any => {
+const getNodeValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; node: Node; prop: string }): any => {
   const { nodeDef, node, prop } = params
   const propGetter: any = _valuePropGetters[nodeDef.type]
-  return propGetter ? propGetter(prop)(node) : getValuePropRaw({ node, prop })
+  return propGetter ? propGetter(prop)(node) : getNodeValuePropRaw({ node, prop })
 }
 
 export const NodeValues = {
   valuePropsCode,
   valuePropsTaxon,
 
-  getValueProp,
+  getNodeValueProp,
   isValueProp,
 
   // time
@@ -145,8 +157,11 @@ export const NodeValues = {
   // code
   newCodeValue,
   getItemUuid,
+  getValueItemUuid,
 
   // taxon
   getTaxonUuid,
+  getValueTaxonUuid,
   getVernacularNameUuid,
+  getValueVernacularNameUuid,
 }

@@ -62,7 +62,7 @@ const evaluateIdentifierOnNode = (params: {
   if (NodeDefs.isAttribute(nodeDefObject)) {
     // node value prop (Arena specific value property)
     if (NodeValues.isValueProp({ nodeDef: nodeDefObject, prop: propName })) {
-      return NodeValues.getValueProp({ nodeDef: nodeDefObject, node: nodeObject, prop: propName })
+      return NodeValues.getNodeValueProp({ nodeDef: nodeDefObject, node: nodeObject, prop: propName })
     } else {
       throw new SystemError('expression.invalidAttributeValuePropertyName', {
         attributeName: nodeDefObject.props.name || '',
