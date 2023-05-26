@@ -1,6 +1,6 @@
 import proj4 from 'proj4'
 
-import { SRSs } from '../../srs'
+import { DEFAULT_SRS_INDEX, SRSIndex } from '../../srs'
 import { Point } from '../point'
 import { PointFactory } from '../pointFactory'
 import { isFilled } from './isFilled'
@@ -9,34 +9,34 @@ import { isFilled } from './isFilled'
  * Trasforms the specified point from one SRS into another.
  *
  * @param {!Point} point - The point to transform.
- * @param {!string} srsTo - The SRS code to transform the coordinate into.
+ * @param {!string} srsCodeTo - The SRS code to transform the coordinate into.
+ * @param {SRSIndex} srsIndex - SRSs indexed by SRS code.
  * @returns {Point|null} - The transformed Point object, null if an error occurred.
  */
-export const transform = (point: Point, srsTo: string): Point | null => {
+export const transform = (point: Point, srsCodeTo: string, srsIndex: SRSIndex = DEFAULT_SRS_INDEX): Point | null => {
   if (!isFilled(point)) return null
 
-  const { x, y, srs } = point
+  const { x, y, srs: srsCodeFrom } = point
 
-  if (srs === srsTo) {
+  if (srsCodeFrom === srsCodeTo) {
     // projection is not needed
     return point
   }
-
-  const srsFromObj = SRSs.getSRSByCode(srs)
-  if (!srsFromObj) {
+  const srsFrom = srsIndex[srsCodeFrom]
+  if (!srsFrom) {
     // invalid srs specified in point
     return null
   }
 
-  const srsToObj = SRSs.getSRSByCode(srsTo)
-  if (!srsToObj) {
+  const srsTo = srsIndex[srsCodeTo]
+  if (!srsTo) {
     // invalid target srs code
     return null
   }
   try {
-    const [long, lat] = proj4(srsFromObj.wkt, srsToObj.wkt, [x, y])
+    const [long, lat] = proj4(srsFrom.wkt, srsTo.wkt, [x, y])
 
-    return PointFactory.createInstance({ srs: srsToObj.code, x: long, y: lat })
+    return PointFactory.createInstance({ srs: srsCodeTo, x: long, y: lat })
   } catch (error) {
     return null
   }

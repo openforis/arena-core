@@ -3,11 +3,13 @@ import { Factory } from '../../common'
 import { Taxon } from '../../taxonomy'
 import { CategoryItem } from '../../category'
 import { Objects } from '../../utils'
+import { DEFAULT_SRS, SRS } from '../../srs'
 
 export type SurveyRefDataFactoryParams = {
   itemsByCategoryUuid?: { [categoryUuid: string]: CategoryItem[] }
   taxonUuidIndex?: { [taxonomyUuid: string]: { [taxonCode: string]: string } }
   taxonIndex?: { [taxonUuid: string]: Taxon }
+  srsIndex?: { [srsCode: string]: SRS }
 }
 
 export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryParams> = {
@@ -16,8 +18,9 @@ export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryPa
       itemsByCategoryUuid: {},
       taxonUuidIndex: {},
       taxonIndex: {},
+      srsIndex: { [DEFAULT_SRS.code]: DEFAULT_SRS },
     }
-    const { itemsByCategoryUuid, taxonUuidIndex, taxonIndex }: SurveyRefDataFactoryParams = {
+    const { itemsByCategoryUuid, taxonUuidIndex, taxonIndex, srsIndex }: SurveyRefDataFactoryParams = {
       ...defaultParams,
       ...params,
     }
@@ -38,6 +41,6 @@ export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryPa
       }, {})
     })
 
-    return { categoryItemUuidIndex, categoryItemIndex, taxonUuidIndex, taxonIndex }
+    return { categoryItemUuidIndex, categoryItemIndex, taxonUuidIndex, taxonIndex, srsIndex }
   },
 }

@@ -25,7 +25,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
         if (!categoryItem) return null
 
         const value = categoryItem.props.extra?.[itemPropName]
-        return ExtraProps.convertValue(value)(extraPropDef)
+        return ExtraProps.convertValue({ survey, extraPropDef, value })
       },
   },
   count: {
@@ -104,7 +104,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       if (!taxon) return null
 
       const value = taxon.props.extra?.[propName]
-      return ExtraProps.convertValue(value)(extraPropDef)
+      return ExtraProps.convertValue({ survey, extraPropDef, value })
     },
   },
 }

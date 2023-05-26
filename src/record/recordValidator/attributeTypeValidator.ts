@@ -56,14 +56,15 @@ const typeValidatorFns: {
 } = {
   [NodeDefType.boolean]: (params: { value?: any }): boolean => ['true', 'false'].includes(params.value),
   [NodeDefType.code]: validateCode,
-  [NodeDefType.coordinate]: (params: { node: Node }): boolean => {
-    const { node } = params
+  [NodeDefType.coordinate]: (params: { survey: Survey; node: Node }): boolean => {
+    const { survey, node } = params
     const nodeValue = node.value as NodeValueCoordinate
-    const point = PointFactory.createInstance({
-      srs: nodeValue.srs,
-      x: nodeValue.x,
-      y: nodeValue.y,
-    })
+    const { x, y, srs: srsCode } = nodeValue
+
+    const srs = Surveys.getSrsByCode({ survey, srsCode })
+    if (!srs) return false
+
+    const point = PointFactory.createInstance({ srs: srsCode, x, y })
     return point && Points.isValid(point)
   },
 

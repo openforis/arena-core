@@ -2,6 +2,7 @@ import { Survey } from '../survey'
 import { CategoryItem } from '../../category'
 import { Taxon } from '../../taxonomy'
 import { NodeDefs, NodeDefTaxon } from '../../nodeDef'
+import { SRS } from '../../srs'
 
 export const getCategoryItemByUuid = (params: { survey: Survey; itemUuid: string }): CategoryItem | undefined => {
   const { survey, itemUuid } = params
@@ -98,4 +99,9 @@ export const includesTaxonVernacularName = (params: {
   return Object.values(vernacularNamesByLang).some((vernacularNames) =>
     vernacularNames.some((vernacularName) => vernacularName.uuid === vernacularNameUuid)
   )
+}
+
+export const getSrsByCode = (params: { survey: Survey; srsCode: string }): SRS | undefined => {
+  const { survey, srsCode } = params
+  return survey.refData?.srsIndex?.[srsCode]
 }

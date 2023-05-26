@@ -38,6 +38,7 @@ import {
   getTaxonByUuid,
   getTaxonVernacularNameUuid,
   includesTaxonVernacularName,
+  getSrsByCode,
 } from './refsData'
 
 const getCategoryByName = (params: { survey: Survey; categoryName: string }): Category | undefined => {
@@ -93,6 +94,7 @@ export const Surveys = {
   getTaxonomyByName,
   getTaxonVernacularNameUuid,
   includesTaxonVernacularName,
+  getSrsByCode,
 
   // node def code
   getNodeDefParentCode,
