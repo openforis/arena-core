@@ -43,7 +43,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       (context: NodeDefExpressionContext) =>
       (coordinateFrom: Point | string, coordinateTo: Point | string): number | null => {
         const { survey } = context
-        const srsIndex = survey.refData?.srsIndex
+        const srsIndex = Surveys.getSRSIndex(survey)
 
         const pointFrom = Points.parse(coordinateFrom)
         const pointTo = Points.parse(coordinateTo)

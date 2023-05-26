@@ -1,5 +1,4 @@
 import { CategoryItem } from '../../category'
-import { SRSIndex } from '../../srs'
 import { Taxon } from '../../taxonomy'
 
 /**
@@ -22,8 +21,4 @@ export interface SurveyRefData {
    * Taxa indexed by taxon UUID.
    */
   taxonIndex: { [taxonUuid: string]: Taxon }
-  /**
-   * SRSs index by SRS code.
-   */
-  srsIndex: SRSIndex
 }

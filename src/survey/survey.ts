@@ -37,7 +37,7 @@ export interface SurveyProps {
   languages: LanguageCode[]
   labels?: Labels
   name: string
-  srs: Array<SRS>
+  srs: SRS[]
   collectUri?: string
 }
 

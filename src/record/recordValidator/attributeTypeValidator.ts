@@ -61,7 +61,7 @@ const typeValidatorFns: {
     const nodeValue = node.value as NodeValueCoordinate
     const { x, y, srs: srsCode } = nodeValue
 
-    const srs = Surveys.getSrsByCode({ survey, srsCode })
+    const srs = Surveys.getSRSByCode(srsCode)(survey)
     if (!srs) return false
 
     const point = PointFactory.createInstance({ srs: srsCode, x, y })

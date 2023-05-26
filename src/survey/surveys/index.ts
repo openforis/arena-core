@@ -1,4 +1,5 @@
 import { Category } from '../../category'
+import { SRS, SRSIndex } from '../../srs'
 import { Taxonomy } from '../../taxonomy'
 import { Arrays, Objects } from '../../utils'
 import { Survey } from '../survey'
@@ -38,7 +39,6 @@ import {
   getTaxonByUuid,
   getTaxonVernacularNameUuid,
   includesTaxonVernacularName,
-  getSrsByCode,
 } from './refsData'
 
 const getCategoryByName = (params: { survey: Survey; categoryName: string }): Category | undefined => {
@@ -67,10 +67,26 @@ const getDefaultCycleKey = (survey: Survey) => {
   return Objects.isEmpty(defaultCycleKey) ? getLastCycleKey(survey) : defaultCycleKey
 }
 
+const getSRSs = (survey: Survey): SRS[] => survey.props.srs
+
+const getSRSIndex = (survey: Survey): SRSIndex =>
+  getSRSs(survey).reduce((acc: SRSIndex, srs) => {
+    acc[srs.code] = srs
+    return acc
+  }, {})
+
+const getSRSByCode =
+  (code: string) =>
+  (survey: Survey): SRS | undefined =>
+    getSRSIndex(survey)[code]
+
 export const Surveys = {
   getCycleKeys,
   getLastCycleKey,
   getDefaultCycleKey,
+  getSRSs,
+  getSRSByCode,
+  getSRSIndex,
   getNodeDefByName,
   getNodeDefsByUuids,
   getNodeDefByUuid,
@@ -94,7 +110,6 @@ export const Surveys = {
   getTaxonomyByName,
   getTaxonVernacularNameUuid,
   includesTaxonVernacularName,
-  getSrsByCode,
 
   // node def code
   getNodeDefParentCode,
