@@ -1,5 +1,7 @@
-export { DEFAULT_SRS } from './srs'
+export { SRSFactory } from './factory'
 
-export type { SRS } from './srs'
+export { DEFAULT_SRS, DEFAULT_SRS_INDEX } from './srs'
+
+export type { SRS, SRSIndex } from './srs'
 
 export { SRSs } from './srss'

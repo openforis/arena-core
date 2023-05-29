@@ -28,7 +28,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         if (!categoryItem) return null
 
         const value = categoryItem.props.extra?.[itemPropName]
-        return ExtraProps.convertValue(value)(extraPropDef)
+        return ExtraProps.convertValue({ survey, extraPropDef, value })
       },
   },
   count: {
@@ -40,12 +40,15 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 2,
     maxArity: 2,
     executor:
-      () =>
+      (context: NodeDefExpressionContext) =>
       (coordinateFrom: Point | string, coordinateTo: Point | string): number | null => {
+        const { survey } = context
+        const srsIndex = Surveys.getSRSIndex(survey)
+
         const pointFrom = Points.parse(coordinateFrom)
         const pointTo = Points.parse(coordinateTo)
 
-        return pointFrom && pointTo ? Points.distance(pointFrom, pointTo) : null
+        return pointFrom && pointTo ? Points.distance(pointFrom, pointTo, srsIndex) : null
       },
   },
   includes: {
@@ -112,7 +115,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       if (!taxon) return null
 
       const value = taxon.props.extra?.[propName]
-      return ExtraProps.convertValue(value)(extraPropDef)
+      return ExtraProps.convertValue({ survey, extraPropDef, value })
     },
   },
 }

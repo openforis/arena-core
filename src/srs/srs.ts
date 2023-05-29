@@ -4,6 +4,10 @@ export interface SRS {
   wkt: string
 }
 
+export interface SRSIndex {
+  [srsCode: string]: SRS
+}
+
 export const DEFAULT_SRS: SRS = {
   code: '4326',
   name: 'GCS WGS 1984',
@@ -19,4 +23,8 @@ export const DEFAULT_SRS: SRS = {
             AUTHORITY["EPSG","9122"]],
         AUTHORITY["EPSG","4326"]]
         `,
+}
+
+export const DEFAULT_SRS_INDEX = {
+  [DEFAULT_SRS.code]: DEFAULT_SRS,
 }

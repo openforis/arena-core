@@ -3,11 +3,13 @@ import { Factory } from '../../common'
 import { Taxon } from '../../taxonomy'
 import { CategoryItem } from '../../category'
 import { Objects } from '../../utils'
+import { SRS } from '../../srs'
 
 export type SurveyRefDataFactoryParams = {
   itemsByCategoryUuid?: { [categoryUuid: string]: CategoryItem[] }
   taxonUuidIndex?: { [taxonomyUuid: string]: { [taxonCode: string]: string } }
   taxonIndex?: { [taxonUuid: string]: Taxon }
+  srsIndex?: { [srsCode: string]: SRS }
 }
 
 export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryParams> = {
