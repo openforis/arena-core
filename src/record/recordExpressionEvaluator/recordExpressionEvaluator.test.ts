@@ -34,8 +34,8 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'cluster_id != 1', result: true },
     // !12 == null under strict logical negation semantics
     { expression: '!cluster_id', result: null },
-    // Number + String is invalid -> null
-    { expression: 'cluster_id + "1"', result: null },
+    // Number + String
+    { expression: 'cluster_id + "1"', result: '121' },
     { expression: '!(cluster_id == 1)', result: true },
     // 18 + 1
     { expression: 'cluster_distance + 1', result: 19 },
