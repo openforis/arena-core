@@ -6,9 +6,12 @@ type Query = {
   error?: boolean
 }
 
-const queries: Array<Query> = [
+const queries: Query[] = [
   { expression: '1 + 1', result: 2 },
   { expression: '3 * 8 - 4', result: 20 },
+  { expression: '"1" + "1"', result: '11' },
+  { expression: '"1" + 2', result: '12' },
+  { expression: '1 + "2"', result: '12' },
   // global objects: Array
   { expression: 'Array.of(1,2,3)', result: [1, 2, 3] },
   { expression: `Array.of('a',2,'c')`, result: ['a', 2, 'c'] },
