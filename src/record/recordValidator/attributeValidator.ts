@@ -86,6 +86,7 @@ const _validateNodeValidations =
       record,
       nodeCtx: node,
       expressions: validations.expressions,
+      stopAtFirstFound: false,
     })
 
     let validationResult = ValidationResultFactory.createInstance()
