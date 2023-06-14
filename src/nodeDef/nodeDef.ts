@@ -57,13 +57,14 @@ export interface NodeDefExpression {
 
 export interface NodeDefExpressionFactoryParams {
   applyIf?: string
-  expression?: string
+  expression: string
+  severity?: ValidationSeverity
 }
 
 export const NodeDefExpressionFactory: Factory<NodeDefExpression, NodeDefExpressionFactoryParams> = {
   createInstance: (params: NodeDefExpressionFactoryParams): NodeDefExpression => {
-    const { applyIf, expression } = params
-    return { applyIf, expression, uuid: UUIDs.v4() }
+    const { applyIf, expression, severity } = params
+    return { applyIf, expression, severity, uuid: UUIDs.v4() }
   },
 }
 

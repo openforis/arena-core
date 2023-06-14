@@ -1,5 +1,5 @@
 import { NodeDef, NodeDefEntity, NodeDefType } from '../../../nodeDef'
-import { NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
+import { NodeDefExpression, NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
 import { NodeDefBuilder } from './nodeDefBuilder'
 
 export class NodeDefAttributeBuilder extends NodeDefBuilder {
@@ -36,10 +36,10 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     return this
   }
 
-  validationExpressions(...expressions: string[]): NodeDefAttributeBuilder {
+  validationExpressions(...expressions: (string | NodeDefExpression)[]): NodeDefAttributeBuilder {
     if (!this.propsAdvanced.validations) this.propsAdvanced.validations = {}
     this.propsAdvanced.validations.expressions = expressions.map((expression) =>
-      NodeDefExpressionFactory.createInstance({ expression })
+      typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression
     )
     return this
   }
