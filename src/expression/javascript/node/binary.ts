@@ -1,4 +1,5 @@
 import { SystemError } from '../../../error'
+import { Objects } from '../../../utils'
 import { ExpressionContext } from '../../context'
 import { BinaryExpression, ExpressionNodeEvaluator } from '../../node'
 
@@ -36,10 +37,17 @@ const arithmeticOperators: { [operator: string]: (a: number, b: number) => numbe
   // '>>>': (a, b) => a >>> b,
 }
 
+const stringOperators: { [operatos: string]: (a: string, b: string) => string } = {
+  '+': (a, b) => a + b,
+}
+
 const binaryOperators = {
   ...booleanOperators,
   ...arithmeticOperators,
 }
+
+const isNumber = (value: any) => !Objects.isNil(value) && value.constructor === Number
+const isString = (value: any) => !Objects.isNil(value) && value.constructor === String
 
 export class BinaryEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, BinaryExpression> {
   evaluate(expressionNode: BinaryExpression): any {
@@ -53,22 +61,24 @@ export class BinaryEvaluator<C extends ExpressionContext> extends ExpressionNode
     const leftResult = this.evaluator.evaluateNode(left, this.context)
     const rightResult = this.evaluator.evaluateNode(right, this.context)
 
-    const nullCount = [leftResult, rightResult].filter((result) => result === null || result === undefined).length
+    // string operators
+    if (operator in stringOperators) {
+      if (isString(leftResult) || isString(rightResult)) {
+        const strFn = stringOperators[operator]
+        return strFn(leftResult as string, rightResult as string)
+      }
+      // operator can be in arithmeticOperators (+), do not return anything now
+    }
 
     // Arithmetic operators will always return nulls for any non-numeric inputs
     if (operator in arithmeticOperators) {
-      if (
-        leftResult !== null &&
-        leftResult !== undefined &&
-        leftResult.constructor === Number &&
-        rightResult !== null &&
-        rightResult !== undefined &&
-        rightResult.constructor === Number
-      ) {
+      if (isNumber(leftResult) && isNumber(rightResult)) {
         return fn(leftResult as number, rightResult as number)
       }
       return null
     }
+
+    const nullCount = [leftResult, rightResult].filter((result) => result === null || result === undefined).length
 
     // Boolean operators:
     // Like ternary logic, but logical OR has special handling.
