@@ -45,8 +45,23 @@ const getNodeName =
     return NodeDefs.getName(Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }))
   }
 
+const getCategoryItem = (params: { survey: Survey; categoryName: string; codePaths: string[] }) => {
+  const { survey, categoryName, codePaths } = params
+  const category = Surveys.getCategoryByName({ survey, categoryName })
+  if (!category) throw new Error(`Could not find category ${categoryName}`)
+
+  const item = Surveys.getCategoryItemByCodePaths({
+    survey,
+    categoryUuid: category.uuid,
+    codePaths,
+  })
+  if (!item) throw new Error(`Could not find category item ${codePaths}`)
+  return item
+}
+
 export const TestUtils = {
   findNodeByPath,
   getNodeByPath,
   getNodeName,
+  getCategoryItem,
 }
