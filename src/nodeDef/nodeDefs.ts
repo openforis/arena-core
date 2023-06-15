@@ -10,6 +10,7 @@ import {
   NodeDefValidations,
 } from './nodeDef'
 import { NodeDefCode } from './types/code'
+import { NodeDefCoordinate } from './types/coordinate'
 import { NodeDefDecimal } from './types/decimal'
 import { NodeDefEntity } from './types/entity'
 import { NodeDefTaxon } from './types/taxon'
@@ -56,13 +57,19 @@ const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => no
 
 const getVisibleFields = (nodeDef: NodeDef<NodeDefType>): string[] | undefined => nodeDef.props.visibleFields
 
+// coordinate
+const isAllowOnlyDeviceCoordinate = (nodeDef: NodeDefCoordinate): boolean => !!nodeDef.props.allowOnlyDeviceCoordinate
+
+// decimal
 const getMaxNumberDecimalDigits = (nodeDef: NodeDefDecimal) => {
   const decimalDigits = nodeDef.props.maxNumberDecimalDigits
   return Objects.isEmpty(decimalDigits) ? NaN : Number(decimalDigits)
 }
 
+// taxon
 const getTaxonomyUuid = (nodeDef: NodeDefTaxon): string | undefined => nodeDef.props.taxonomyUuid
 
+// text
 const getTextTransform = (nodeDef: NodeDefText): string | undefined => nodeDef.props?.textTransform
 
 // Validations
@@ -120,6 +127,7 @@ export const NodeDefs = {
   isDefaultValueEvaluatedOneTime,
   getApplicable,
   getVisibleFields,
+  isAllowOnlyDeviceCoordinate,
   getMaxNumberDecimalDigits,
   getTaxonomyUuid,
   getTextTransform,

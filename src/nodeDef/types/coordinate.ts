@@ -1,3 +1,7 @@
-import { NodeDef, NodeDefType } from '../nodeDef'
+import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
 
-export type NodeDefCoordinate = NodeDef<NodeDefType.coordinate>
+export interface NodeDefCoordinateProps extends NodeDefProps {
+  allowOnlyDeviceCoordinate: boolean
+}
+
+export type NodeDefCoordinate = NodeDef<NodeDefType.coordinate, NodeDefCoordinateProps>
