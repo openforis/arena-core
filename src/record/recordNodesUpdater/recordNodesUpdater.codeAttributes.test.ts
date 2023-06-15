@@ -44,15 +44,7 @@ describe('Record nodes updater - dependent code attributes', () => {
       )
       .build()
 
-    const hierarchicalCategory = Surveys.getCategoryByName({ survey, categoryName })
-    if (!hierarchicalCategory) throw new Error(`Could not find category ${categoryName}`)
-
-    const item1a = Surveys.getCategoryItemByCodePaths({
-      survey,
-      categoryUuid: hierarchicalCategory.uuid,
-      codePaths: ['1', '1a'],
-    })
-    if (!item1a) throw new Error(`Could not find category item [1, 1a]`)
+    const item1a = TestUtils.getCategoryItem({ survey, categoryName, codePaths: ['1', '1a'] })
 
     const record = new RecordBuilder(
       user,

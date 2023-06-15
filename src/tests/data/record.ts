@@ -13,6 +13,7 @@ export const createTestRecord = (params: { user: User; survey: Survey }): Record
     entity(
       'cluster',
       attribute('cluster_id', 12),
+      attribute('cluster_accessibility', '0'),
       attribute('cluster_location', {
         srs: DEFAULT_SRS.code,
         x: 41.883012,
