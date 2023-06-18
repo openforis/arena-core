@@ -64,8 +64,8 @@ export type { ExtraPropDef, ExtraPropDataType } from './extraProp'
 export { PointFactory, Points } from './geo'
 export type { Point } from './geo'
 
-export { JobStatus } from './job'
-export type { Job, JobSummary } from './job'
+export { AbstractJob, JobMessageInType, JobMessageOutType, JobStatus } from './job'
+export type { Job, JobContext, JobSummary } from './job'
 
 export { LanguageCode, Languages } from './language'
 export type { Labels } from './language'
