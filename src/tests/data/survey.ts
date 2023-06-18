@@ -6,6 +6,7 @@ import { SurveyBuilder, SurveyObjectBuilders } from '../builder/surveyBuilder'
 const {
   category,
   categoryItem,
+  codeDef,
   coordinateDef,
   dateDef,
   decimalDef,
@@ -24,6 +25,7 @@ export const createTestSurvey = (params: { user: User }): Survey =>
     entityDef(
       'cluster',
       integerDef('cluster_id').key(),
+      codeDef('cluster_accessibility', 'accessibility').defaultValue('0'),
       coordinateDef('cluster_location'),
       integerDef('cluster_distance'),
       dateDef('visit_date'),
@@ -46,6 +48,7 @@ export const createTestSurvey = (params: { user: User }): Survey =>
     )
   )
     .categories(
+      category('accessibility').items(categoryItem('0'), categoryItem('1'), categoryItem('2')),
       category('simple_category').items(categoryItem('1'), categoryItem('2'), categoryItem('3')),
       category('hierarchical_category')
         .levels('level_1', 'level_2')

@@ -37,6 +37,8 @@ describe('RecordExpressionEvaluator', () => {
     // Number + String
     { expression: 'cluster_id + "1"', result: '121' },
     { expression: '!(cluster_id == 1)', result: true },
+    // Code attribute + String
+    { expression: 'cluster_accessibility + "_1"', result: '0_1' },
     // 18 + 1
     { expression: 'cluster_distance + 1', result: 19 },
     // 18 + 1
