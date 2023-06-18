@@ -10,6 +10,7 @@ import {
   NodeDefValidations,
 } from './nodeDef'
 import { NodeDefCode } from './types/code'
+import { NodeDefCoordinate } from './types/coordinate'
 import { NodeDefDecimal } from './types/decimal'
 import { NodeDefEntity } from './types/entity'
 import { NodeDefTaxon } from './types/taxon'
@@ -49,22 +50,26 @@ const isEnumerate = (nodeDef: NodeDefEntity): boolean => nodeDef.props.enumerate
 const getDefaultValues = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
   nodeDef.propsAdvanced?.defaultValues || []
 
-const isDefaultValueEvaluatedOneTime = (nodeDef: NodeDef<NodeDefType>): boolean => {
-  const defaultValueEvaluatedOneTime = nodeDef.propsAdvanced?.defaultValueEvaluatedOneTime
-  return defaultValueEvaluatedOneTime === undefined ? !isReadOnly(nodeDef) : defaultValueEvaluatedOneTime
-}
+const isDefaultValueEvaluatedOneTime = (nodeDef: NodeDef<NodeDefType>): boolean =>
+  !!nodeDef.propsAdvanced?.defaultValueEvaluatedOneTime
 
 const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.applicable || []
 
 const getVisibleFields = (nodeDef: NodeDef<NodeDefType>): string[] | undefined => nodeDef.props.visibleFields
 
+// coordinate
+const isAllowOnlyDeviceCoordinate = (nodeDef: NodeDefCoordinate): boolean => !!nodeDef.props.allowOnlyDeviceCoordinate
+
+// decimal
 const getMaxNumberDecimalDigits = (nodeDef: NodeDefDecimal) => {
   const decimalDigits = nodeDef.props.maxNumberDecimalDigits
   return Objects.isEmpty(decimalDigits) ? NaN : Number(decimalDigits)
 }
 
+// taxon
 const getTaxonomyUuid = (nodeDef: NodeDefTaxon): string | undefined => nodeDef.props.taxonomyUuid
 
+// text
 const getTextTransform = (nodeDef: NodeDefText): string | undefined => nodeDef.props?.textTransform
 
 // Validations
@@ -122,6 +127,7 @@ export const NodeDefs = {
   isDefaultValueEvaluatedOneTime,
   getApplicable,
   getVisibleFields,
+  isAllowOnlyDeviceCoordinate,
   getMaxNumberDecimalDigits,
   getTaxonomyUuid,
   getTextTransform,

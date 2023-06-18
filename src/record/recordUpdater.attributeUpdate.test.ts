@@ -11,6 +11,7 @@ import { User } from '../auth'
 import { Record } from './record'
 import { Validations } from '../validation/validations'
 import { Survey } from '../survey'
+import { NodeDefExpressionFactory } from '../nodeDef/nodeDef'
 
 let user: User
 
@@ -158,6 +159,50 @@ describe('RecordUpdater - attribute update', () => {
       expectedFieldValidation: true,
       expectedValidationFieldsSize: 0,
     })
+
+    expect(record).not.toBeNull()
+  })
+
+  test('Validation: attribute validation with multiple expressions', async () => {
+    const survey = new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('source').key(),
+        integerDef('dependent').validationExpressions(
+          'this > 10',
+          NodeDefExpressionFactory.createInstance({
+            expression: 'this < 100',
+            applyIf: 'source > 10',
+          })
+        )
+      )
+    ).build()
+
+    let record = new RecordBuilder(
+      user,
+      survey,
+      entity('root_entity', attribute('source', 5), attribute('dependent', 200))
+    ).build()
+
+    const updateSource = async (params: { value: any; expectedValidationResult: boolean }) => {
+      const { value, expectedValidationResult } = params
+      record = await updateAttributeAndExpectValidation({
+        survey,
+        record,
+        nodePath: 'root_entity.source',
+        value,
+        validationNodePath: 'root_entity.dependent',
+        expectedFieldValidation: expectedValidationResult,
+        expectedValidationFieldsSize: expectedValidationResult ? 0 : 1,
+      })
+    }
+
+    // identifier > 10 (int_attr should be < 100) => error
+    await updateSource({ value: 11, expectedValidationResult: false })
+
+    // identifier < 10 => ok
+    await updateSource({ value: 8, expectedValidationResult: true })
 
     expect(record).not.toBeNull()
   })
