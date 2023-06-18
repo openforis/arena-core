@@ -70,6 +70,8 @@ export type { Job, JobContext, JobSummary } from './job'
 export { LanguageCode, Languages } from './language'
 export type { Labels } from './language'
 
+export type { Logger } from './logger'
+
 export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
 export type { Node, NodePointer, NodeService } from './node'
 

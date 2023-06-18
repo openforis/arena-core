@@ -1,12 +1,14 @@
 import { EventEmitter } from 'events'
 import { DebouncedFunc, throttle } from 'lodash'
-import { Job } from './job'
-import { JobSummary } from './summary'
 
-import { JobContext } from './jobContext'
-import { JobStatus } from './status'
+import { Logger } from '../logger'
 import { UUIDs } from '../utils'
+
+import { Job } from './job'
+import { JobContext } from './jobContext'
 import { JobMessageOutType } from './jobMessage'
+import { JobStatus } from './status'
+import { JobSummary } from './summary'
 
 export interface JobConstructor {
   new <C extends JobContext, R>(context: C, jobs?: AbstractJob<any>[]): AbstractJob<C, R>
@@ -14,8 +16,8 @@ export interface JobConstructor {
 }
 
 export abstract class AbstractJob<C extends JobContext, R = undefined> extends EventEmitter implements Job<R> {
+  protected logger: Logger
   summary: JobSummary<R>
-  protected logger: any
   protected context: C
   protected jobs: AbstractJob<C, any>[]
   private readonly emitSummaryUpdateEvent: DebouncedFunc<() => void>
@@ -25,6 +27,7 @@ export abstract class AbstractJob<C extends JobContext, R = undefined> extends E
     super()
     this.jobs = jobs
     this.context = context
+    this.logger = this.createLogger()
 
     this.summary = {
       jobs: this.jobs.map((job) => job.summary),
@@ -197,4 +200,6 @@ export abstract class AbstractJob<C extends JobContext, R = undefined> extends E
   protected throwError(errorKey: string): void {
     throw new Error(errorKey)
   }
+
+  protected abstract createLogger(): Logger
 }
