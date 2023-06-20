@@ -58,25 +58,21 @@ export abstract class AbstractJob<C extends JobContext, R = undefined> extends E
     this.logger.debug('start')
 
     try {
-      // 1. crate db transaction
-      await client.tx(async (tx: any) => {
-        this.context.tx = tx
-        // 2. notify start
-        await this.onStart()
-        // 3. execute
-        if (this.jobs.length > 0) {
-          await this.executeJobs()
-        } else {
-          await this.execute()
-        }
-      })
-
+      if (client) {
+        // 1. create db transaction and execute job inside of it
+        await client.tx(async (tx: any) => {
+          this.context.tx = tx
+          this.executeInternalJobsOrCurrentOne()
+        })
+      } else {
+        await this.executeInternalJobsOrCurrentOne()
+      }
       if (this.summary.status === JobStatus.running) {
-        // 4. if successful, prepare result and set status succeeded
+        // 2. if successful, prepare result and set status succeeded
         this.summary.result = await this.prepareResult()
         await this.setStatus(JobStatus.succeeded)
       } else {
-        // 5. if errors found or job has been canceled, throw an error to rollback transaction
+        // 3. if errors found or job has been canceled, throw an error to rollback transaction
         this.throwError('jobCanceledOrErrorsFound')
       }
     } catch (error: any) {
@@ -96,6 +92,18 @@ export abstract class AbstractJob<C extends JobContext, R = undefined> extends E
       if (this.summary.status !== JobStatus.canceled) {
         await this.cleanup()
       }
+    }
+  }
+
+  private async executeInternalJobsOrCurrentOne(): Promise<void> {
+    // notify start
+    await this.onStart()
+    // execute internal jobs
+    if (this.jobs.length > 0) {
+      await this.executeJobs()
+    } else {
+      // or execute single job
+      await this.execute()
     }
   }
 
