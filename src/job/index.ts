@@ -1,5 +1,5 @@
 export type { Job } from './job'
-export { AbstractJob } from './AbstractJob'
+export { JobBase } from './JobBase'
 export type { JobContext } from './jobContext'
 export { JobMessageInType, JobMessageOutType } from './jobMessage'
 export { JobStatus } from './status'

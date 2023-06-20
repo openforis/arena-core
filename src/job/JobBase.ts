@@ -11,19 +11,19 @@ import { JobStatus } from './status'
 import { JobSummary } from './summary'
 
 export interface JobConstructor {
-  new <C extends JobContext, R>(context: C, jobs?: AbstractJob<any>[]): AbstractJob<C, R>
-  readonly prototype: AbstractJob<any, any>
+  new <C extends JobContext, R>(context: C, jobs?: JobBase<any>[]): JobBase<C, R>
+  readonly prototype: JobBase<any, any>
 }
 
-export abstract class AbstractJob<C extends JobContext, R = undefined> extends EventEmitter implements Job<R> {
+export abstract class JobBase<C extends JobContext, R = undefined> extends EventEmitter implements Job<R> {
   protected logger: Logger
   summary: JobSummary<R>
   protected context: C
-  protected jobs: AbstractJob<C, any>[]
+  protected jobs: JobBase<C, any>[]
   private readonly emitSummaryUpdateEvent: DebouncedFunc<() => void>
-  private jobCurrent: AbstractJob<C, any> | undefined = undefined
+  private jobCurrent: JobBase<C, any> | undefined = undefined
 
-  public constructor(context: C, jobs: AbstractJob<C, any>[] = []) {
+  public constructor(context: C, jobs: JobBase<C, any>[] = []) {
     super()
     this.jobs = jobs
     this.context = context
