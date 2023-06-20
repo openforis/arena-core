@@ -201,7 +201,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
 
   protected addError(error: any, errorKey?: string): void {
     if (!this.summary.errors) this.summary.errors = {}
-    const key = errorKey || String(this.summary.processed + 1)
+    const key = errorKey ?? String(this.summary.processed + 1)
     this.summary.errors[key] = error
   }
 
