@@ -13,9 +13,24 @@ export const getNodeDefByName = (params: { survey: Survey; name: string }): Node
   if (!nodeDef) throw new SystemError('survey.nodeDefNameNotFound', { name })
   return nodeDef
 }
+
 export const getNodeDefsByUuids = (params: { survey: Survey; uuids: string[] }) => {
   const { survey, uuids } = params
   return uuids.map((uuid) => getNodeDefByUuid({ survey, uuid }))
+}
+
+export const findNodeDefsByUuids = (params: {
+  survey: Survey
+  uuids: string[]
+}): NodeDef<NodeDefType, NodeDefProps>[] => {
+  const { survey, uuids } = params
+  return uuids.reduce((acc: NodeDef<NodeDefType, NodeDefProps>[], uuid) => {
+    const nodeDef = findNodeDefByUuid({ survey, uuid })
+    if (nodeDef) {
+      acc.push(nodeDef)
+    }
+    return acc
+  }, [])
 }
 
 export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): NodeDef<NodeDefType, NodeDefProps> => {
@@ -23,6 +38,17 @@ export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): Node
   const nodeDef = survey.nodeDefs?.[uuid]
   if (!nodeDef) throw new SystemError('survey.nodeDefUuidNotFound', { uuid })
   return nodeDef
+}
+
+export const findNodeDefByUuid = (params: {
+  survey: Survey
+  uuid: string
+}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
+  try {
+    return getNodeDefByUuid(params)
+  } catch (error) {
+    return undefined
+  }
 }
 
 export const getNodeDefParent = (params: {
