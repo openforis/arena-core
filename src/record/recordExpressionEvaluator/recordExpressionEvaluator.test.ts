@@ -37,6 +37,8 @@ describe('RecordExpressionEvaluator', () => {
     // Number + String
     { expression: 'cluster_id + "1"', result: '121' },
     { expression: '!(cluster_id == 1)', result: true },
+    // Code attribute + String
+    { expression: 'cluster_accessibility + "_1"', result: '0_1' },
     // 18 + 1
     { expression: 'cluster_distance + 1', result: 19 },
     // 18 + 1
@@ -118,12 +120,23 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'this', node: 'visit_date', result: '2021-01-01' },
     { expression: 'this', node: 'plot[0].plot_multiple_number[0]', result: 10 },
     { expression: 'this', node: 'plot[0].plot_multiple_number[1]', result: 20 },
+    { expression: 'parent(this).cluster_id', node: 'cluster_id', result: 12 },
     { expression: 'parent(this)', node: 'plot[0].plot_multiple_number[1]', result: () => getNode('cluster.plot[0]') },
     { expression: 'index(this)', node: 'plot[0].plot_multiple_number[1]', result: 1 },
+    { expression: 'parent(this).plot_id', node: 'plot[1].plot_location', result: 2 },
     {
       expression: 'this.invalidProp',
       node: 'plot[0].plot_multiple_number[1]',
       error: new SystemError('expression.invalidAttributeValuePropertyName'),
+    },
+    // $context variable
+    { expression: '$context.cluster_id', node: 'cluster_id', result: 12 },
+    { expression: '$context.plot_id', node: 'plot[1].plot_location', result: 2 },
+    { expression: 'sum(cluster.plot[plot_id == $context.plot_id].plot_id)', node: 'plot[1].plot_location', result: 2 },
+    {
+      expression: 'sum(cluster.plot[plot_id <= $context.plot_id].tree.tree_height)',
+      node: 'plot[1].plot_location',
+      result: 73,
     },
     // categoryItemProp
     { expression: `categoryItemProp('hierarchical_category', 'prop1', '1')`, result: 'Extra prop1 item 1' },
@@ -183,6 +196,10 @@ describe('RecordExpressionEvaluator', () => {
     {
       expression: 'sum(plot.tree.tree_height)',
       result: 150,
+    },
+    {
+      expression: 'sum(cluster.plot[plot_id <= 2].tree.tree_height)',
+      result: 73,
     },
     // global objects (Array)
     { expression: 'Array.of(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', result: [1, 2, 3] },

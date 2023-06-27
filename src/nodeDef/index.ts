@@ -20,7 +20,7 @@ export type { NodeDefBoolean, NodeDefBooleanProps } from './types/boolean'
 
 export type { NodeDefCode, NodeDefCodeLayout, NodeDefCodeProps } from './types/code'
 
-export type { NodeDefCoordinate } from './types/coordinate'
+export type { NodeDefCoordinate, NodeDefCoordinateProps } from './types/coordinate'
 
 export type { NodeDefDate } from './types/date'
 

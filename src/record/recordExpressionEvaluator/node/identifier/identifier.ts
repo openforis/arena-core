@@ -12,6 +12,8 @@ import { FieldValidators } from '../../../../validation'
 import { NodeValueExtractor } from '../../nodeValueExtractor'
 import { Record } from '../../../record'
 
+const CONTEXT_VARIABLE = '$context'
+
 const isValidNodeDefName = (nodeDefName: string) =>
   FieldValidators.name('expression.invalidNodeDefName')('name', { name: nodeDefName }).valid
 
@@ -100,6 +102,11 @@ const evaluateIdentifierOnNode = (params: {
 
 export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
+    if (expressionNode.name === CONTEXT_VARIABLE) {
+      return this.context.nodeContext
+    }
+
+    // try to find identifier among global or native properties
     try {
       const result = super.evaluate(expressionNode)
       return result
@@ -107,8 +114,8 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
       // ignore it
     }
 
-    // identifier not found
-    // identifier should be a node or a node value property
+    // identifier not found among global or native properties
+    // idenfifier should be a node or a node value property
     const { name: propName } = expressionNode
     const { survey, record, evaluateToNode, object: contextObject } = this.context
 

@@ -64,11 +64,13 @@ export type { ExtraPropDef, ExtraPropDataType } from './extraProp'
 export { PointFactory, Points } from './geo'
 export type { Point } from './geo'
 
-export { JobStatus } from './job'
-export type { Job, JobSummary } from './job'
+export { JobBase, JobMessageInType, JobMessageOutType, JobStatus } from './job'
+export type { Job, JobContext, JobSummary } from './job'
 
 export { LanguageCode, Languages } from './language'
 export type { Labels } from './language'
+
+export type { Logger } from './logger'
 
 export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
 export type { Node, NodePointer, NodeService } from './node'
@@ -79,35 +81,36 @@ export { NodeDefExpressionEvaluator, NodeDefExpressionValidator } from './nodeDe
 
 export type {
   NodeDef,
-  NodeDefService,
-  NodeDefValidations,
-  NodeDefExpression,
-  NodeDefPropsWithLayout,
-  NodeDefTaxon,
-  NodeDefEntity,
-  NodeDefBoolean,
-  NodeDefPropsAdvanced,
-  NodeDefDate,
+  NodeDefLayout,
   NodeDefMeta,
-  NodeDefCodeLayout,
-  NodeDefCoordinate,
+  NodeDefProps,
+  NodeDefPropsWithLayout,
+  NodeDefBoolean,
   NodeDefBooleanProps,
-  NodeDefCodeProps,
   NodeDefCode,
+  NodeDefCodeLayout,
+  NodeDefCodeProps,
+  NodeDefCoordinate,
+  NodeDefCoordinateProps,
+  NodeDefDate,
   NodeDefDecimal,
   NodeDefDecimalProps,
+  NodeDefEntity,
   NodeDefEntityChildPosition,
   NodeDefEntityLayout,
   NodeDefEntityProps,
   NodeDefFile,
   NodeDefFileProps,
   NodeDefInteger,
-  NodeDefLayout,
+  NodeDefPropsAdvanced,
+  NodeDefTaxon,
   NodeDefTaxonProps,
   NodeDefText,
   NodeDefTextProps,
   NodeDefTime,
-  NodeDefProps,
+  NodeDefExpression,
+  NodeDefService,
+  NodeDefValidations,
 } from './nodeDef'
 
 export {

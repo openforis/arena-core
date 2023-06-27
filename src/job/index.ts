@@ -1,3 +1,6 @@
 export type { Job } from './job'
+export { JobBase } from './JobBase'
+export type { JobContext } from './jobContext'
+export { JobMessageInType, JobMessageOutType } from './jobMessage'
 export { JobStatus } from './status'
 export type { JobSummary } from './summary'
