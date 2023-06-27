@@ -48,7 +48,7 @@ export const getNodeDefDependents = (params: {
       dependentUuids.add(dependentUuid)
     })
   })
-  return SurveyNodeDefs.getNodeDefsByUuids({ survey, uuids: [...dependentUuids] })
+  return dependentUuids.size > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: [...dependentUuids] }) : []
 }
 
 const getDependencies = (params: {
