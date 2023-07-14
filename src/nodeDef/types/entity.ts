@@ -14,11 +14,16 @@ export interface NodeDefEntityProps extends NodeDefPropsWithLayout<NodeDefEntity
   enumerate?: boolean
 }
 
+export enum NodeDefEntityRenderType {
+  form = 'form',
+  table = 'table',
+}
+
 export interface NodeDefEntityLayout extends NodeDefLayout {
   columnsNo?: number
   layoutChildren?: Array<NodeDefEntityChildPosition | string>
   pageUuid?: string
-  renderType: 'form' | 'table'
+  renderType: NodeDefEntityRenderType
 }
 
 export type NodeDefEntity = NodeDef<NodeDefType.entity, NodeDefEntityProps>

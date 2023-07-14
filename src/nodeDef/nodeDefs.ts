@@ -12,7 +12,7 @@ import {
 import { NodeDefCode } from './types/code'
 import { NodeDefCoordinate } from './types/coordinate'
 import { NodeDefDecimal } from './types/decimal'
-import { NodeDefEntity } from './types/entity'
+import { NodeDefEntity, NodeDefEntityChildPosition, NodeDefEntityRenderType } from './types/entity'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText } from './types/text'
 
@@ -97,6 +97,21 @@ const getLayoutRenderType =
   (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): string | undefined =>
     getLayoutProps(cycle)(nodeDef).renderType
 
+const isLayoutRenderTypeForm =
+  (cycle = '0') =>
+  (nodeDef: NodeDefEntity): boolean =>
+    getLayoutRenderType(cycle)(nodeDef) === NodeDefEntityRenderType.form
+
+const isLayoutRenderTypeTable =
+  (cycle = '0') =>
+  (nodeDef: NodeDefEntity): boolean =>
+    getLayoutRenderType(cycle)(nodeDef) === NodeDefEntityRenderType.table
+
+const getLayoutChildren =
+  (cycle = '0') =>
+  (nodeDef: NodeDefEntity): NodeDefEntityChildPosition[] | string[] | undefined =>
+    getLayoutProps(cycle)(nodeDef).layoutChildren
+
 const isHiddenWhenNotRelevant =
   (cycle = '0') =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
@@ -135,6 +150,9 @@ export const NodeDefs = {
   // layout
   getLayoutProps,
   getLayoutRenderType,
+  isLayoutRenderTypeForm,
+  isLayoutRenderTypeTable,
+  getLayoutChildren,
   isHiddenWhenNotRelevant,
   getLayoutCodeShown,
   // validations

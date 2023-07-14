@@ -17,6 +17,7 @@ import {
   getNodeDefsByUuids,
   getNodeDefByUuid,
   getNodeDefChildren,
+  getNodeDefChildrenSorted,
   getNodeDefParent,
   getNodeDefRoot,
   getNodeDefSource,
@@ -51,7 +52,7 @@ const getDefaultLanguage = (survey: Survey): LanguageCode => getLanguages(survey
 const getLabel =
   (langCode?: LanguageCode) =>
   (survey: Survey): string | undefined => {
-    const languageCode = langCode || getDefaultLanguage(survey)
+    const languageCode = langCode ?? getDefaultLanguage(survey)
     return survey.props.labels?.[languageCode]
   }
 
@@ -109,6 +110,7 @@ export const Surveys = {
   getNodeDefsByUuids,
   getNodeDefByUuid,
   getNodeDefChildren,
+  getNodeDefChildrenSorted,
   getNodeDefParent,
   getNodeDefRoot,
   getNodeDefSource,
