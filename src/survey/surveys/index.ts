@@ -1,4 +1,5 @@
 import { Category } from '../../category'
+import { LanguageCode } from '../../language'
 import { SRS, SRSIndex } from '../../srs'
 import { Taxonomy } from '../../taxonomy'
 import { Arrays, Objects } from '../../utils'
@@ -16,6 +17,7 @@ import {
   getNodeDefsByUuids,
   getNodeDefByUuid,
   getNodeDefChildren,
+  getNodeDefChildrenSorted,
   getNodeDefParent,
   getNodeDefRoot,
   getNodeDefSource,
@@ -40,6 +42,19 @@ import {
   getTaxonVernacularNameUuid,
   includesTaxonVernacularName,
 } from './refsData'
+
+const getName = (survey: Survey): string => survey.props.name
+
+const getLanguages = (survey: Survey): LanguageCode[] => survey.props.languages
+
+const getDefaultLanguage = (survey: Survey): LanguageCode => getLanguages(survey)[0]
+
+const getLabel =
+  (langCode?: LanguageCode) =>
+  (survey: Survey): string | undefined => {
+    const languageCode = langCode ?? getDefaultLanguage(survey)
+    return survey.props.labels?.[languageCode]
+  }
 
 const getCategoryByName = (params: { survey: Survey; categoryName: string }): Category | undefined => {
   const { survey, categoryName } = params
@@ -81,6 +96,10 @@ const getSRSByCode =
     getSRSIndex(survey)[code]
 
 export const Surveys = {
+  getName,
+  getLanguages,
+  getDefaultLanguage,
+  getLabel,
   getCycleKeys,
   getLastCycleKey,
   getDefaultCycleKey,
@@ -91,6 +110,7 @@ export const Surveys = {
   getNodeDefsByUuids,
   getNodeDefByUuid,
   getNodeDefChildren,
+  getNodeDefChildrenSorted,
   getNodeDefParent,
   getNodeDefRoot,
   getNodeDefSource,
