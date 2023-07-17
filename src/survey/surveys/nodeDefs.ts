@@ -1,5 +1,14 @@
 import { Survey } from '../survey'
-import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefEntity, NodeDefProps, NodeDefType } from '../../nodeDef'
+import {
+  NodeDef,
+  NodeDefCode,
+  NodeDefCodeProps,
+  NodeDefEntity,
+  NodeDefEntityChildPosition,
+  NodeDefProps,
+  NodeDefType,
+  NodeDefs,
+} from '../../nodeDef'
 import { Arrays } from '../../utils'
 import { SystemError } from '../../error'
 import * as NodeDefsReader from './_nodeDefs/nodeDefsReader'
@@ -111,6 +120,39 @@ export const getNodeDefChildren = (params: {
     childDefs = NodeDefsReader.calculateNodeDefChildren(nodeDef)(survey)
   }
   return includeAnalysis ? childDefs : childDefs.filter((childDef) => !childDef.analysis)
+}
+
+export const getNodeDefChildrenSorted = (params: {
+  survey: Survey
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  cycle: string
+  includeAnalysis?: boolean
+}): NodeDef<NodeDefType, NodeDefProps>[] => {
+  const { survey, nodeDef, cycle, includeAnalysis } = params
+
+  const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis })
+
+  const entityDef = nodeDef as NodeDefEntity
+
+  const layoutChildren = NodeDefs.getLayoutChildren(cycle)(entityDef)
+  if (!layoutChildren) {
+    return children
+  }
+  const sortedNodeDefUuids = NodeDefs.isLayoutRenderTypeTable(cycle)(entityDef)
+    ? (layoutChildren as string[])
+    : [...(layoutChildren as NodeDefEntityChildPosition[])]
+        .sort(
+          (gridItem1: NodeDefEntityChildPosition, gridItem2: NodeDefEntityChildPosition) =>
+            gridItem1.y - gridItem2.y || gridItem1.x - gridItem2.x
+        )
+        .map((gridItem) => gridItem.i)
+
+  return (
+    children
+      // exclude children not in specified cycle
+      .filter((child) => sortedNodeDefUuids.includes(child.uuid))
+      .sort((child1, child2) => sortedNodeDefUuids.indexOf(child1.uuid) - sortedNodeDefUuids.indexOf(child2.uuid))
+  )
 }
 
 // Node Def Code

@@ -28,6 +28,8 @@ export type { NodeDefDecimal, NodeDefDecimalProps } from './types/decimal'
 
 export type { NodeDefEntity, NodeDefEntityChildPosition, NodeDefEntityLayout, NodeDefEntityProps } from './types/entity'
 
+export { NodeDefEntityRenderType } from './types/entity'
+
 export type { NodeDefFile, NodeDefFileProps } from './types/file'
 
 export type { NodeDefInteger } from './types/integer'
