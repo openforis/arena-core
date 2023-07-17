@@ -76,6 +76,9 @@ const newCodeValue = (params: { itemUuid: string }) => {
 const getItemUuid = (node: Node): string | undefined =>
   getNodeValuePropRaw({ node, prop: valuePropsCode[valuePropsCode.itemUuid] })
 
+const getValueCode = (value: any): string | undefined =>
+  getValuePropRaw({ value, prop: valuePropsCode[valuePropsCode.code] })
+
 const getValueItemUuid = (value: any): string | undefined =>
   getValuePropRaw({ value, prop: valuePropsCode[valuePropsCode.itemUuid] })
 
@@ -157,6 +160,7 @@ export const NodeValues = {
   // code
   newCodeValue,
   getItemUuid,
+  getValueCode,
   getValueItemUuid,
 
   // taxon
