@@ -9,10 +9,18 @@ import { NodeValues } from './nodeValues'
 const formatters: { [key in NodeDefType]?: any } = {
   [NodeDefType.code]: (params: { survey: Survey; value: any; showLabel: boolean; lang: LanguageCode }) => {
     const { survey, value, showLabel, lang } = params
+
+    if (!showLabel) {
+      // item code already inside value, no need to get category item
+      const itemCode = NodeValues.getValueCode(value)
+      if (!Objects.isEmpty(itemCode)) return itemCode
+    }
     const itemUuid = NodeValues.getValueItemUuid(value)
     if (!itemUuid) return null
+
     const categoryItem = Surveys.getCategoryItemByUuid({ survey, itemUuid })
     if (!categoryItem) return null
+
     return showLabel ? CategoryItems.getLabelOrCode(categoryItem, lang) : CategoryItems.getCode(categoryItem)
   },
   [NodeDefType.date]: (params: { value: any }) => {
