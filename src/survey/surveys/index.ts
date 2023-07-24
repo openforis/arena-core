@@ -82,7 +82,14 @@ const getDefaultCycleKey = (survey: Survey) => {
   return Objects.isEmpty(defaultCycleKey) ? getLastCycleKey(survey) : defaultCycleKey
 }
 
-const getSRSs = (survey: Survey): SRS[] => survey.props.srs
+const getSRSs = (survey: Survey): SRS[] => {
+  const srss = survey.props?.srs
+  if (!srss) {
+    // backwards compatibility with Arena: srs stored in info in UI
+    return (survey as any).info?.props?.srs || []
+  }
+  return []
+}
 
 const getSRSIndex = (survey: Survey): SRSIndex =>
   getSRSs(survey).reduce((acc: SRSIndex, srs) => {

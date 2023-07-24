@@ -18,7 +18,9 @@ export enum DateFormats {
 
 const format = (date: number | Date, format: string): string => (date ? dateFnsFormat(date, format) : '')
 
-const nowFormattedForStorage = (): string => format(Date.now(), DateFormats.datetimeISO)
+const formatForStorage = (date: number | Date | string): string => new Date(date).toISOString()
+
+const nowFormattedForStorage = (): string => formatForStorage(new Date())
 const nowFormattedForExpression = (): string => format(Date.now(), DateFormats.datetimeDefault)
 
 const parse = (dateStr: string, format: DateFormats) => dateFnsParse(dateStr, format, new Date())
@@ -29,27 +31,15 @@ const isValidDateInFormat = (dateStr: string, format: DateFormats) => {
   return fnsIsValid(parsed)
 }
 
-const convertDate = (params: {
-  dateStr: string
-  formatFrom?: DateFormats
-  formatTo: DateFormats
-  adjustTimezoneDifference?: boolean
-}): any => {
-  const { dateStr, formatFrom = DateFormats.dateStorage, formatTo, adjustTimezoneDifference = false } = params
+const convertDate = (params: { dateStr: string; formatFrom?: DateFormats; formatTo: DateFormats }): any => {
+  const { dateStr, formatFrom = DateFormats.dateStorage, formatTo } = params
   if (Objects.isEmpty(dateStr)) return null
 
   const dateParsed = parse(dateStr, formatFrom)
   if (!fnsIsValid(dateParsed)) {
     return null
   }
-  let dateAdjusted
-  if (adjustTimezoneDifference) {
-    const timezoneOffset = dateParsed.getTimezoneOffset() * 60000
-    dateAdjusted = new Date(dateParsed.getTime() - timezoneOffset)
-  } else {
-    dateAdjusted = dateParsed
-  }
-  return format(dateAdjusted, formatTo)
+  return format(dateParsed, formatTo)
 }
 
 /**
@@ -84,6 +74,7 @@ export const Dates = {
   nowFormattedForExpression,
   convertDate,
   format,
+  formatForStorage,
   parse,
   parseISO,
 }
