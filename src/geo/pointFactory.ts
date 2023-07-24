@@ -6,11 +6,13 @@ export type PointFactoryParams = {
   srs?: string
   x: number
   y: number
+  accuracy?: number
+  elevation?: number
+  elevationAccuracy?: number
 }
 
 export const PointFactory: Factory<Point, PointFactoryParams> = {
   createInstance: (params: PointFactoryParams): Point => {
-    const { srs = DEFAULT_SRS.code, x, y } = params
-    return { srs, x, y }
+    return { ...params, srs: params.srs || DEFAULT_SRS.code }
   },
 }

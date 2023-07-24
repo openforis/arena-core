@@ -16,7 +16,7 @@ import { isFilled } from './isFilled'
 export const transform = (point: Point, srsCodeTo: string, srsIndex: SRSIndex = DEFAULT_SRS_INDEX): Point | null => {
   if (!isFilled(point)) return null
 
-  const { x, y, srs: srsCodeFrom } = point
+  const { srs: srsCodeFrom } = point
 
   if (srsCodeFrom === srsCodeTo) {
     // projection is not needed
@@ -34,9 +34,10 @@ export const transform = (point: Point, srsCodeTo: string, srsIndex: SRSIndex = 
     return null
   }
   try {
+    const { x, y } = point
     const [long, lat] = proj4(srsFrom.wkt, srsTo.wkt, [x, y])
 
-    return PointFactory.createInstance({ srs: srsCodeTo, x: long, y: lat })
+    return PointFactory.createInstance({ ...point, srs: srsCodeTo, x: long, y: lat })
   } catch (error) {
     return null
   }
