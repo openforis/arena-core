@@ -123,7 +123,7 @@ const updateAttributeValue = async (params: {
 
   const meta = attribute?.meta || {}
   const metaUpdated = sideEffect ? meta : { ...meta }
-  metaUpdated.defaultValueApplied = false
+  delete metaUpdated['defaultValueApplied']
 
   const attributeUpdated = sideEffect ? attribute : { ...attribute }
   attributeUpdated.meta = metaUpdated
