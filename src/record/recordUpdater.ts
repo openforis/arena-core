@@ -1,3 +1,4 @@
+import { SystemError } from '../error'
 import { Node } from '../node'
 import { NodeDef } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
@@ -109,19 +110,30 @@ const createRootEntity = async (params: {
   })
 }
 
-const updateNode = async (params: {
+const updateAttributeValue = async (params: {
   survey: Survey
   record: Record
-  node: Node
+  attributeUuid: string
+  value: any
   sideEffect?: boolean
 }): Promise<RecordUpdateResult> => {
-  const { node, record: _record, survey, sideEffect = false } = params
+  const { attributeUuid, record, survey, value, sideEffect = false } = params
+  const attribute = Records.getNodeByUuid(attributeUuid)(record)
+  if (!attribute) throw new SystemError('record.nodeNotFound')
 
-  const nodesUpdated = { [node.uuid]: node }
+  const meta = attribute?.meta || {}
+  const metaUpdated = sideEffect ? meta : { ...meta }
+  delete metaUpdated['defaultValueApplied']
 
-  const record = Records.addNode(node, { sideEffect })(_record)
+  const attributeUpdated = sideEffect ? attribute : { ...attribute }
+  attributeUpdated.meta = metaUpdated
+  attributeUpdated.value = value
 
-  return _onRecordNodesCreateOrUpdate({ survey, record, nodes: nodesUpdated, sideEffect })
+  const nodesUpdated = { [attributeUuid]: attributeUpdated }
+
+  const _record = Records.addNode(attributeUpdated, { sideEffect })(record)
+
+  return _onRecordNodesCreateOrUpdate({ survey, record: _record, nodes: nodesUpdated, sideEffect })
 }
 
 const deleteNodes = async (params: {
@@ -154,7 +166,7 @@ export const RecordUpdater = {
   createDescendants,
   createNodeAndDescendants,
   createRootEntity,
-  updateNode,
+  updateAttributeValue,
   deleteNode,
   deleteNodes,
 }
