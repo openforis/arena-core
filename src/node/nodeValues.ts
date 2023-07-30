@@ -1,42 +1,13 @@
 import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
 import { Node } from './node'
-
-enum valuePropsCode {
-  code,
-  itemUuid,
-  label,
-}
-
-enum valuePropsCoordinate {
-  x,
-  y,
-  srs,
-}
-
-enum valuePropsDate {
-  day,
-  month,
-  year,
-}
-
-enum valuePropsFile {
-  fileUuid,
-  fileName,
-  fileSize,
-}
-
-enum valuePropsTaxon {
-  code,
-  scientificName,
-  taxonUuid,
-  vernacularName,
-  vernacularNameUuid,
-}
-
-enum valuePropsTime {
-  hour,
-  minute,
-}
+import {
+  valuePropsCode,
+  valuePropsCoordinate,
+  valuePropsDate,
+  valuePropsFile,
+  valuePropsTaxon,
+  valuePropsTime,
+} from './nodeValueProps'
 
 /**
  * Props of node value indexed by node def type.
@@ -143,6 +114,7 @@ const getNodeValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>;
 
 export const NodeValues = {
   valuePropsCode,
+  valuePropsCoordinate,
   valuePropsTaxon,
 
   getNodeValueProp,
