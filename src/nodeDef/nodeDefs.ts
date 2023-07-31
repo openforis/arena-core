@@ -1,4 +1,5 @@
 import { LanguageCode } from '../language'
+import { valuePropsCoordinate } from '../node/nodeValueProps'
 import { Numbers, Objects, Strings } from '../utils'
 import {
   NodeDef,
@@ -59,6 +60,14 @@ const getVisibleFields = (nodeDef: NodeDef<NodeDefType>): string[] | undefined =
 
 // coordinate
 const isAllowOnlyDeviceCoordinate = (nodeDef: NodeDefCoordinate): boolean => !!nodeDef.props.allowOnlyDeviceCoordinate
+
+const getCoordinateAdditionalFields = (nodeDef: NodeDefCoordinate): string[] => {
+  const result = []
+  if (nodeDef.props.includeAccuracy) result.push(valuePropsCoordinate[valuePropsCoordinate.accuracy])
+  if (nodeDef.props.includeAltitude) result.push(valuePropsCoordinate[valuePropsCoordinate.altitude])
+  if (nodeDef.props.includeAltitudeAccuracy) result.push(valuePropsCoordinate[valuePropsCoordinate.altitudeAccuracy])
+  return result
+}
 
 // decimal
 const getMaxNumberDecimalDigits = (nodeDef: NodeDefDecimal) => {
@@ -143,6 +152,7 @@ export const NodeDefs = {
   getApplicable,
   getVisibleFields,
   isAllowOnlyDeviceCoordinate,
+  getCoordinateAdditionalFields,
   getMaxNumberDecimalDigits,
   getTaxonomyUuid,
   getTextTransform,

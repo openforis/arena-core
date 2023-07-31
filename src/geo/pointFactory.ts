@@ -7,8 +7,8 @@ export type PointFactoryParams = {
   x: number
   y: number
   accuracy?: number
-  elevation?: number
-  elevationAccuracy?: number
+  altitude?: number
+  altitudeAccuracy?: number
 }
 
 export const PointFactory: Factory<Point, PointFactoryParams> = {
