@@ -66,21 +66,24 @@ export const deleteNodes =
         record,
         node,
         visitor: (visitedNode) => {
-          if (nodesDeleted[visitedNode.uuid]) return
+          const visitedNodeUuid = visitedNode.uuid
+          if (nodesDeleted[visitedNodeUuid]) return
 
           // 1. delete node from 'nodes'
-          delete recordNodesUpdated[visitedNode.uuid]
+          delete recordNodesUpdated[visitedNodeUuid]
 
-          nodesDeleted[visitedNode.uuid] = visitedNode
+          const visitedNodeUpdated = sideEffect ? visitedNode : { ...visitedNode }
+          visitedNodeUpdated.deleted = true
+          nodesDeleted[visitedNodeUuid] = visitedNodeUpdated
 
           // 2. delete node from validation
           recordValidationUpdated = Validations.dissocFieldValidation(
-            visitedNode.uuid,
+            visitedNodeUuid,
             sideEffect
           )(recordValidationUpdated)
 
           recordValidationUpdated = Validations.dissocFieldValidationsStartingWith(
-            `${RecordValidations.prefixValidationFieldChildrenCount}${visitedNode.uuid}`,
+            `${RecordValidations.prefixValidationFieldChildrenCount}${visitedNodeUuid}`,
             sideEffect
           )(recordValidationUpdated)
 
@@ -99,7 +102,7 @@ export const deleteNodes =
     if (updateNodesIndex) {
       recordUpdated._nodesIndex = recordNodesIndex
     }
-    return new RecordUpdateResult({ record: recordUpdated, nodesDeleted })
+    return new RecordUpdateResult({ record: recordUpdated, nodes: nodesDeleted, nodesDeleted })
   }
 
 export const deleteNode =
