@@ -96,15 +96,14 @@ const mergeValidations =
 
 const dissocFieldValidation =
   (fieldKey: string, sideEffect = false) =>
-  (validation: Validation): Validation => {
-    const fieldsUpdated = sideEffect ? validation.fields : { ...validation.fields }
-    delete fieldsUpdated[fieldKey]
-    return sideEffect ? validation : { ...validation, fields: fieldsUpdated }
-  }
+  (validation: Validation): Validation =>
+    Objects.dissocPath({ obj: validation, path: ['fields', fieldKey], sideEffect })
 
 const dissocFieldValidationsStartingWith =
   (fieldStartsWith: string, sideEffect = false) =>
   (validation: Validation): Validation => {
+    if (!validation.fields) return validation
+
     const fieldsUpdated = sideEffect ? validation.fields : { ...validation.fields }
     Object.keys(fieldsUpdated).forEach((fieldKey: string) => {
       if (!fieldKey.startsWith(fieldStartsWith)) {
