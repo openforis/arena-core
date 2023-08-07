@@ -2,6 +2,8 @@ import {
   format as dateFnsFormat,
   parse as dateFnsParse,
   parseISO as dateFnsParseISO,
+  isAfter as dateFnsIsAfter,
+  isBefore as dateFnsIsBefore,
   isValid as fnsIsValid,
 } from 'date-fns'
 import { Objects } from './_objects'
@@ -61,12 +63,36 @@ const isValidDate = (year: any, month: any, day: any): boolean => {
   )
 }
 
-const isValidTime = (hour: any = '', minutes: any = '') =>
+const isValidTime = (hour: any = '', minutes: any = ''): boolean =>
   Objects.isEmpty(hour) || Objects.isEmpty(minutes)
     ? false
     : Number(hour) >= 0 && Number(hour) < 24 && Number(minutes) >= 0 && Number(minutes) < 60
 
+const toDate = (date: Date | number | string): Date | null => {
+  if (Objects.isEmpty(date)) return null
+  if (date instanceof Date) return date
+  if (typeof date === 'string') return parseISO(date)
+  if (typeof date === 'number') return new Date(date)
+  return null
+}
+
+const isAfter = (date: Date | number | string, dateToCompare: Date | number | string): boolean => {
+  const _date = toDate(date)
+  const _dateToCompare = toDate(dateToCompare)
+  if (!_date || !_dateToCompare) return false
+  return dateFnsIsAfter(_date, _dateToCompare)
+}
+
+const isBefore = (date: Date | number | string, dateToCompare: Date | number | string): boolean => {
+  const _date = toDate(date)
+  const _dateToCompare = toDate(dateToCompare)
+  if (!_date || !_dateToCompare) return false
+  return dateFnsIsBefore(_date, _dateToCompare)
+}
+
 export const Dates = {
+  isAfter,
+  isBefore,
   isValidDateInFormat,
   isValidDate,
   isValidTime,
