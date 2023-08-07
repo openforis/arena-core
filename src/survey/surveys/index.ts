@@ -56,6 +56,13 @@ const getLabel =
     return survey.props.labels?.[languageCode]
   }
 
+const getLabelOrName =
+  (langCode?: LanguageCode) =>
+  (survey: Survey): string => {
+    const label = getLabel(langCode)(survey)
+    return label ?? getName(survey)
+  }
+
 const getCategoryByName = (params: { survey: Survey; categoryName: string }): Category | undefined => {
   const { survey, categoryName } = params
   return survey.categories
@@ -104,6 +111,7 @@ export const Surveys = {
   getLanguages,
   getDefaultLanguage,
   getLabel,
+  getLabelOrName,
   getCycleKeys,
   getLastCycleKey,
   getDefaultCycleKey,
