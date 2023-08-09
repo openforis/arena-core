@@ -73,4 +73,23 @@ describe('Objects', () => {
     const o2 = { a: 1, b: '2' }
     expect(Objects.isEqual(o1, o2)).toBeTruthy()
   })
+
+  test('isEmpty', () => {
+    expect(Objects.isEmpty(null)).toBeTruthy()
+    expect(Objects.isEmpty(undefined)).toBeTruthy()
+    expect(Objects.isEmpty({})).toBeTruthy()
+    expect(Objects.isEmpty([])).toBeTruthy()
+    expect(Objects.isEmpty(NaN)).toBeTruthy()
+    expect(Objects.isEmpty(Date.parse('INVALID'))).toBeTruthy()
+
+    // number
+    expect(Objects.isEmpty(0)).toBeFalsy()
+    expect(Objects.isEmpty(100)).toBeFalsy()
+    // object
+    expect(Objects.isEmpty({ a: 'some value' })).toBeFalsy()
+    // date (valid)
+    expect(Objects.isEmpty(new Date())).toBeFalsy()
+    // function
+    expect(Objects.isEmpty(() => 1)).toBeFalsy()
+  })
 })
