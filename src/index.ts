@@ -114,6 +114,7 @@ export type {
 } from './nodeDef'
 
 export {
+  NodePointers,
   RecordFactory,
   Records,
   RECORD_STEP_DEFAULT,
@@ -132,7 +133,7 @@ export type { Service } from './registry'
 export { DEFAULT_SRS, DEFAULT_SRS_INDEX, SRSFactory, SRSs } from './srs'
 export type { SRS } from './srs'
 
-export { SurveyFactory, SurveyRefDataFactory, Surveys } from './survey'
+export { SurveyDependencyType, SurveyFactory, SurveyRefDataFactory, Surveys } from './survey'
 export type {
   Survey,
   SurveyService,
