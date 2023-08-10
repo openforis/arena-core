@@ -116,6 +116,11 @@ const isLayoutRenderTypeTable =
   (nodeDef: NodeDefEntity): boolean =>
     getLayoutRenderType(cycle)(nodeDef) === NodeDefEntityRenderType.table
 
+const getChildrenEntitiesInOwnPageUudis =
+  (cycle = '0') =>
+  (nodeDef: NodeDefEntity): string[] =>
+    getLayoutProps(cycle)(nodeDef).indexChildren
+
 const getLayoutChildren =
   (cycle = '0') =>
   (nodeDef: NodeDefEntity): NodeDefEntityChildPosition[] | string[] | undefined =>
@@ -162,6 +167,7 @@ export const NodeDefs = {
   getLayoutRenderType,
   isLayoutRenderTypeForm,
   isLayoutRenderTypeTable,
+  getChildrenEntitiesInOwnPageUudis,
   getLayoutChildren,
   isHiddenWhenNotRelevant,
   getLayoutCodeShown,

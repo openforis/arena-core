@@ -134,11 +134,13 @@ export const getNodeDefChildrenSorted = (params: {
 
   const entityDef = nodeDef as NodeDefEntity
 
-  const layoutChildren = NodeDefs.getLayoutChildren(cycle)(entityDef)
-  if (!layoutChildren) {
+  const childrenEntitiesInOwnPageUudis = NodeDefs.getChildrenEntitiesInOwnPageUudis(cycle)(entityDef) ?? []
+  const layoutChildren = NodeDefs.getLayoutChildren(cycle)(entityDef) ?? []
+
+  if (layoutChildren.length === 0 && childrenEntitiesInOwnPageUudis.length === 0) {
     return children
   }
-  const sortedNodeDefUuids = NodeDefs.isLayoutRenderTypeTable(cycle)(entityDef)
+  const sortedChildrenDefsInSamePageUuids = NodeDefs.isLayoutRenderTypeTable(cycle)(entityDef)
     ? (layoutChildren as string[])
     : [...(layoutChildren as NodeDefEntityChildPosition[])]
         .sort(
@@ -147,11 +149,13 @@ export const getNodeDefChildrenSorted = (params: {
         )
         .map((gridItem) => gridItem.i)
 
+  const sortedChildrenUuids = sortedChildrenDefsInSamePageUuids.concat(childrenEntitiesInOwnPageUudis)
+
   return (
     children
       // exclude children not in specified cycle
-      .filter((child) => sortedNodeDefUuids.includes(child.uuid))
-      .sort((child1, child2) => sortedNodeDefUuids.indexOf(child1.uuid) - sortedNodeDefUuids.indexOf(child2.uuid))
+      .filter((child) => sortedChildrenUuids.includes(child.uuid))
+      .sort((child1, child2) => sortedChildrenUuids.indexOf(child1.uuid) - sortedChildrenUuids.indexOf(child2.uuid))
   )
 }
 
