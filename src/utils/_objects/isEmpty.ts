@@ -11,5 +11,8 @@ export const isEmpty = (value: any): boolean =>
   value === '' ||
   Number.isNaN(value) ||
   (value instanceof Date && isNaN(value.getTime())) ||
-  (typeof value !== 'function' && value instanceof Object && Object.entries(value).length === 0) ||
+  (typeof value !== 'function' &&
+    value instanceof Object &&
+    !(value instanceof Date) &&
+    Object.entries(value).length === 0) ||
   (Array.isArray(value) && value.length === 0)
