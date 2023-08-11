@@ -27,8 +27,11 @@ const getNodesOrValues = (params: {
   const { survey, nodeDefReferenced, referencedNodes, propName, evaluateToNode } = params
   const single = !nodeDefReferenced.props.multiple
   if (single) {
-    if (referencedNodes.length === 0)
-      throw new SystemError('expression.nodeNotFoundForNodeDef', { nodeDefName: propName })
+    if (referencedNodes.length === 0) {
+      // do not throw error if node is missing, consider its value as null
+      // throw new SystemError('expression.nodeNotFoundForNodeDef', { nodeDefName: propName })
+      return []
+    }
     if (referencedNodes.length > 1)
       throw new SystemError('expression.multipleNodesFoundForNodeDef', { nodeDefName: propName })
   }
