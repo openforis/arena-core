@@ -38,9 +38,9 @@ const findActualContextNode = (params: {
 }
 
 const _getAvailableItemPropsFunctions: {
-  [key in NodeDefType]?: (params: { survey: Survey; nodeDef: NodeDef<?> }) => string[]
+  [key in NodeDefType]?: (params: { survey: Survey; nodeDef: NodeDef<any> }) => string[]
 } = {
-  [NodeDefType.code]: (params: { survey: Survey; nodeDef: NodeDef<?> }): string[] => {
+  [NodeDefType.code]: (params: { survey: Survey; nodeDef: NodeDef<any> }): string[] => {
     const { survey, nodeDef } = params
     const categoryUuid = NodeDefs.getCategoryUuid(nodeDef as NodeDefCode)
     if (!categoryUuid) return []
@@ -49,7 +49,7 @@ const _getAvailableItemPropsFunctions: {
     const extraPropNames = Categories.getExtraPropDefNames(category)
     return ['code', ...extraPropNames]
   },
-  [NodeDefType.taxon]: (params: { survey: Survey; nodeDef: NodeDef<?> }): string[] => {
+  [NodeDefType.taxon]: (params: { survey: Survey; nodeDef: NodeDef<any> }): string[] => {
     const { survey, nodeDef } = params
     const taxonomyUuid = NodeDefs.getTaxonomyUuid(nodeDef as NodeDefTaxon)
     if (!taxonomyUuid) return []
@@ -79,7 +79,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
       const exprName = expressionNode.name
 
       if (itemsFilter) {
-        this.findIndentifierAmongItemProps(exprName)
+        return this.findIndentifierAmongItemProps(exprName)
       }
 
       // check if identifier is a native property or function (e.g. String.length or String.toUpperCase())
@@ -128,6 +128,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
         contextObject: objectContext?.props?.name,
       })
     }
+    return 'THIS IS A VALID VALUE'
   }
 
   /**
