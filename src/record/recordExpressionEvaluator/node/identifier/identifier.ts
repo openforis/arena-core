@@ -117,7 +117,12 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     // identifier not found among global or native properties
     // idenfifier should be a node or a node value property
     const { name: propName } = expressionNode
-    const { survey, record, evaluateToNode, object: contextObject } = this.context
+    const { survey, record, evaluateToNode, object: contextObject, item } = this.context
+
+    if (contextObject && item) {
+      // evaluating category or taxon item prop
+      return item.props?.[propName] ?? item.extra?.[propName]
+    }
 
     if (Array.isArray(contextObject)) {
       const result = contextObject.reduce((acc, contextNode) => {

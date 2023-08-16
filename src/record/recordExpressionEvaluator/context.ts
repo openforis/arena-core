@@ -8,4 +8,5 @@ export interface RecordExpressionContext extends ExpressionContext {
   record: Record
   nodeContext: Node
   nodeCurrent?: Node
+  item?: any
 }

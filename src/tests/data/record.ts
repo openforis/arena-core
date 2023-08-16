@@ -20,6 +20,7 @@ export const createTestRecord = (params: { user: User; survey: Survey }): Record
         y: 12.489056,
       }),
       attribute('cluster_distance', 18),
+      attribute('cluster_region', '2'),
       attribute('visit_date', '2021-01-01'),
       attribute('visit_time', '10:30'),
       attribute('gps_model', 'ABC-123-xyz'),

@@ -3,8 +3,10 @@ import { NodeDefExpressionContext } from '../context'
 
 export class NodeDefThisEvaluator extends ThisEvaluator<NodeDefExpressionContext> {
   evaluate(): any {
-    const { nodeDefCurrent } = this.context
+    const { nodeDefCurrent, itemsFilter } = this.context
 
-    return nodeDefCurrent
+    return itemsFilter
+      ? {} // empty item
+      : nodeDefCurrent
   }
 }

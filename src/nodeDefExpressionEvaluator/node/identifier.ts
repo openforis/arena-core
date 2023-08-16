@@ -1,5 +1,5 @@
 import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef/nodeDef'
-import { Surveys } from '../../survey'
+import { Survey, Surveys } from '../../survey'
 import { NodeDefs } from '../../nodeDef/nodeDefs'
 import { Queue } from '../../utils'
 import { IdentifierEvaluator } from '../../expression/javascript/node/identifier'
@@ -9,6 +9,10 @@ import { SystemError } from '../../error'
 import { ValidatorErrorKeys } from '../../validation'
 import { NodeNativeProperties } from './nodeDefExpressionNativeProperties'
 import { NodeValues } from '../../node/nodeValues'
+import { Categories } from '../../category'
+import { NodeDefCode } from '../../nodeDef/types/code'
+import { NodeDefTaxon } from '../../nodeDef/types/taxon'
+import { Taxonomies } from '../../taxonomy'
 
 /**
  * Determines the actual context node def
@@ -33,6 +37,29 @@ const findActualContextNode = (params: {
   return nodeDefObjectContext
 }
 
+const _getAvailableItemPropsFunctions: {
+  [key in NodeDefType]?: (params: { survey: Survey; nodeDef: NodeDef<?> }) => string[]
+} = {
+  [NodeDefType.code]: (params: { survey: Survey; nodeDef: NodeDef<?> }): string[] => {
+    const { survey, nodeDef } = params
+    const categoryUuid = NodeDefs.getCategoryUuid(nodeDef as NodeDefCode)
+    if (!categoryUuid) return []
+    const category = Surveys.getCategoryByUuid({ survey, categoryUuid })
+    if (!category) return []
+    const extraPropNames = Categories.getExtraPropDefNames(category)
+    return ['code', ...extraPropNames]
+  },
+  [NodeDefType.taxon]: (params: { survey: Survey; nodeDef: NodeDef<?> }): string[] => {
+    const { survey, nodeDef } = params
+    const taxonomyUuid = NodeDefs.getTaxonomyUuid(nodeDef as NodeDefTaxon)
+    if (!taxonomyUuid) return []
+    const taxonomy = Surveys.getTaxonomyByUuid({ survey, taxonomyUuid })
+    if (!taxonomy) return []
+    const extraPropNames = Taxonomies.getExtraPropDefNames(taxonomy)
+    return ['code', 'scientificName', ...extraPropNames]
+  },
+}
+
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
     try {
@@ -41,9 +68,19 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     } catch (e) {
       const { context } = this
 
-      const { nodeDefCurrent, selfReferenceAllowed, object: objectContext, referencedNodeDefUuids } = context
+      const {
+        nodeDefCurrent,
+        selfReferenceAllowed,
+        object: objectContext,
+        referencedNodeDefUuids,
+        itemsFilter,
+      } = context
 
       const exprName = expressionNode.name
+
+      if (itemsFilter) {
+        this.findIndentifierAmongItemProps(exprName)
+      }
 
       // check if identifier is a native property or function (e.g. String.length or String.toUpperCase())
       if (NodeNativeProperties.hasNativeProperty({ nodeDefOrValue: objectContext, propName: exprName })) {
@@ -65,6 +102,27 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
 
         return referencedNodeDef
       }
+      throw new SystemError('expression.identifierNotFound', {
+        name: exprName,
+        contextObject: objectContext?.props?.name,
+      })
+    }
+  }
+
+  private findIndentifierAmongItemProps(exprName: string) {
+    const { context } = this
+    const { survey, nodeDefCurrent, object: objectContext } = context
+
+    if (!nodeDefCurrent) {
+      throw new SystemError('expression.currentNodeDefNotSpecified', {
+        name: exprName,
+        contextObject: objectContext?.props?.name,
+      })
+    }
+    const availableProps =
+      _getAvailableItemPropsFunctions[NodeDefs.getType(nodeDefCurrent)]?.({ survey, nodeDef: nodeDefCurrent }) || []
+
+    if (!availableProps.includes(exprName)) {
       throw new SystemError('expression.identifierNotFound', {
         name: exprName,
         contextObject: objectContext?.props?.name,

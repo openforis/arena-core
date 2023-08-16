@@ -27,6 +27,7 @@ export const createTestSurvey = (params: { user: User }): Survey =>
       integerDef('cluster_id').key(),
       codeDef('cluster_accessibility', 'accessibility').defaultValue('0'),
       coordinateDef('cluster_location'),
+      codeDef('cluster_region', 'hierarchical_category'),
       integerDef('cluster_distance'),
       dateDef('visit_date'),
       timeDef('visit_time'),

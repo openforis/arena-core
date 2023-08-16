@@ -5,10 +5,14 @@ import { Surveys } from '../../../survey'
 
 export class RecordThisEvaluator extends ThisEvaluator<RecordExpressionContext> {
   evaluate(): any {
-    const { survey, nodeCurrent, evaluateToNode } = this.context
+    const { survey, nodeCurrent, evaluateToNode, item } = this.context
 
     if (evaluateToNode) {
-      return nodeCurrent
+      return item ?? nodeCurrent
+    }
+
+    if (item) {
+      return item?.props?.code
     }
 
     if (nodeCurrent?.nodeDefUuid) {
