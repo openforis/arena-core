@@ -119,7 +119,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     const { name: propName } = expressionNode
     const { survey, record, evaluateToNode, object: contextObject, item } = this.context
 
-    if (contextObject && item) {
+    if (item && item === contextObject) {
       // evaluating category or taxon item prop
       return item.props?.[propName] ?? item.extra?.[propName]
     }
