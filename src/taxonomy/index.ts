@@ -10,3 +10,4 @@ export type { TaxonFactoryParams, TaxonomyFactoryParams, VernacularNameParams } 
 
 export { Taxa } from './taxa'
 export { Taxonomies } from './taxonomies'
+export { TaxonGenerator } from './taxonGenerator'

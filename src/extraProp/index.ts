@@ -12,3 +12,5 @@ export interface ExtraPropDef {
 export interface ExtraPropDefs {
   [key: string]: ExtraPropDef
 }
+
+export { ExtraPropsDataGenerator } from './extraPropsDataGenerator'
