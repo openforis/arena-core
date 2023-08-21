@@ -73,10 +73,7 @@ describe('RecordItemFilterExpressionEvaluator', () => {
             object: nodeContext,
             item,
           }
-          // const res = new RecordItemFilterExpressionEvaluator().evaluate(expression, context)
-          const res = new RecordExpressionEvaluator().evaluate(expression, context)
-
-          return res
+          return new RecordExpressionEvaluator().evaluate(expression, context)
         })
 
         const filteredItemCodes = filteredItems.map((item) => item.props.code)
