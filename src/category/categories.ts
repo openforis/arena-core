@@ -3,7 +3,7 @@ import { Category } from './category'
 
 const getExtraPropDefs = (category: Category): ExtraPropDefs | undefined => category.props.itemExtraDef
 
-const getExtraPropDefNames = (category: Category): string[] => Object.keys(getExtraPropDefs(category) || {})
+const getExtraPropDefNames = (category: Category): string[] => Object.keys(getExtraPropDefs(category) ?? {})
 
 const getExtraPropDefByName =
   (name: string) =>

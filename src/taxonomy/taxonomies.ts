@@ -3,7 +3,7 @@ import { Taxonomy } from './taxonomy'
 
 const getExtraPropDefs = (taxonomy: Taxonomy) => taxonomy.props.extraPropsDefs
 
-const getExtraPropDefNames = (taxonomy: Taxonomy): string[] => Object.keys(getExtraPropDefs(taxonomy) || {})
+const getExtraPropDefNames = (taxonomy: Taxonomy): string[] => Object.keys(getExtraPropDefs(taxonomy) ?? {})
 
 const getExtraPropDefByName =
   (name: string) =>

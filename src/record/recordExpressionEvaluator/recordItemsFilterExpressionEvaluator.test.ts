@@ -10,9 +10,9 @@ import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 
 type Query = {
   expression: string
-  result?: any
+  node: string
+  result: any
   error?: Error
-  node?: string
 }
 
 let survey: Survey
@@ -40,9 +40,9 @@ describe('RecordItemFilterExpressionEvaluator', () => {
   ]
 
   queries.forEach((query: Query) => {
-    const { expression, result, error: errorExpected = false, node } = query
+    const { expression, node, result, error: errorExpected = false } = query
 
-    test(`${expression}${node ? ` (node: ${node})` : ''}`, () => {
+    test(`${expression} (node: ${node})`, () => {
       try {
         const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
         if (!nodeCurrent) throw new Error(`Cannot find current node: ${node}`)
