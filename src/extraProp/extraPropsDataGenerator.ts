@@ -1,5 +1,6 @@
 import { ExtraPropDataType, ExtraPropDefs } from '.'
 import { PointFactory } from '../geo'
+import { ExtraProps } from './extraProps'
 
 const valueByDataType: { [key in ExtraPropDataType]: any } = {
   [ExtraPropDataType.geometryPoint]: PointFactory.createInstance({ x: 12.48904, y: 41.88304 }),
@@ -9,8 +10,8 @@ const valueByDataType: { [key in ExtraPropDataType]: any } = {
 
 const generateData = (params: { extraPropDefs: ExtraPropDefs }): { [key: string]: any } => {
   const { extraPropDefs } = params
-  return Object.values(extraPropDefs).reduce((acc: { [key: string]: any }, extraProp) => {
-    acc[extraProp.key] = valueByDataType[extraProp.dataType ?? ExtraPropDataType.text]
+  return Object.entries(extraPropDefs).reduce((acc: { [key: string]: any }, [key, extraProp]) => {
+    acc[key] = valueByDataType[ExtraProps.getDataType(extraProp)]
     return acc
   }, {})
 }
