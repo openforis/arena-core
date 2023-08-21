@@ -28,7 +28,16 @@ describe('RecordItemFilterExpressionEvaluator', () => {
 
     record = createTestRecord({ user, survey })
   }, 10000)
-  const queries: Query[] = [{ expression: 'this.code > 1', node: 'cluster_region', result: ['2', '3'] }]
+
+  const queries: Query[] = [
+    // "this" evaluated as code
+    { expression: 'Number(this) > 1', node: 'cluster_region', result: ['2', '3'] },
+    // use of item props
+    { expression: 'Number(this.code) > 2', node: 'cluster_region', result: ['3'] },
+    // use of item extra props
+    { expression: 'this.prop3 < 2', node: 'cluster_region', result: ['1'] },
+    { expression: 'this.prop3 > 10', node: 'cluster_region', result: ['3'] },
+  ]
 
   queries.forEach((query: Query) => {
     const { expression, result, error: errorExpected = false, node } = query
