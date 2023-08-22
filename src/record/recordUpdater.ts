@@ -2,6 +2,7 @@ import { SystemError } from '../error'
 import { Node } from '../node'
 import { NodeDef } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
+import { Dates, Objects } from '../utils'
 import { Validations } from '../validation/validations'
 import { Record } from './record'
 import { RecordNodesUpdater, RecordUpdateResult } from './recordNodesUpdater'
@@ -115,19 +116,25 @@ const updateAttributeValue = async (params: {
   record: Record
   attributeUuid: string
   value: any
+  dateModified?: string
   sideEffect?: boolean
 }): Promise<RecordUpdateResult> => {
-  const { attributeUuid, record, survey, value, sideEffect = false } = params
+  const {
+    attributeUuid,
+    record,
+    survey,
+    value,
+    dateModified = Dates.nowFormattedForExpression(),
+    sideEffect = false,
+  } = params
   const attribute = Records.getNodeByUuid(attributeUuid)(record)
   if (!attribute) throw new SystemError('record.nodeNotFound')
 
-  const meta = attribute?.meta || {}
-  const metaUpdated = sideEffect ? meta : { ...meta }
-  delete metaUpdated['defaultValueApplied']
-
-  const attributeUpdated = sideEffect ? attribute : { ...attribute }
-  attributeUpdated.meta = metaUpdated
+  let attributeUpdated = sideEffect ? attribute : { ...attribute }
   attributeUpdated.value = value
+  attributeUpdated.dateModified = dateModified
+  // reset defaultValueApplied flag
+  attributeUpdated = Objects.dissocPath({ obj: attributeUpdated, path: ['meta', 'defaultValueApplied'], sideEffect })
 
   const nodesUpdated = { [attributeUuid]: attributeUpdated }
 
