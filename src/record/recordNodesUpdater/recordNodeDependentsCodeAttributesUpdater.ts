@@ -4,6 +4,7 @@ import { Node, Nodes } from '../../node'
 import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
 import { NodeDefs } from '../../nodeDef'
+import { Dates } from '../../utils'
 
 export const updateDependentCodeAttributes = (params: {
   survey: Survey
@@ -28,7 +29,12 @@ export const updateDependentCodeAttributes = (params: {
       !Nodes.isDefaultValueApplied(dependentCodeAttribute) &&
       !Nodes.isValueBlank(dependentCodeAttribute)
     ) {
-      const nodeUpdated: Node = { ...dependentCodeAttribute, value: null, updated: true }
+      const nodeUpdated: Node = {
+        ...dependentCodeAttribute,
+        value: null,
+        updated: true,
+        dateModified: Dates.nowFormattedForStorage(),
+      }
       updateResult.addNode(nodeUpdated, { sideEffect })
     }
   })
