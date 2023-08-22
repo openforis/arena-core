@@ -3,7 +3,7 @@ import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from 
 import { Record } from '../record'
 import { Survey } from '../../survey'
 import { Node, NodePointer, Nodes } from '../../node'
-import { Objects } from '../../utils'
+import { Dates, Objects } from '../../utils'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
@@ -89,6 +89,7 @@ const updateDefaultValuesInNodes = (params: {
           value: null,
           meta: { defaultValueApplied: false },
           updated: true,
+          dateModified: Dates.nowFormattedForStorage(),
         })
         updateResult.addNode(nodeUpdated, { sideEffect })
         return
@@ -105,8 +106,8 @@ const updateDefaultValuesInNodes = (params: {
         value: exprValue,
         meta: { defaultValueApplied },
         updated: true,
+        dateModified: Dates.nowFormattedForStorage(),
       })
-
       updateResult.addNode(nodeUpdated, { sideEffect })
     })
   } catch (error) {

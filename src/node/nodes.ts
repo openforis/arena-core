@@ -1,4 +1,4 @@
-import { Objects } from '../utils'
+import { Dates, Objects } from '../utils'
 import { Node } from './node'
 
 const isRoot = (node: Node): boolean => !node.parentUuid
@@ -14,7 +14,12 @@ const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: bo
   } else {
     delete childApplicability[nodeDefUuid]
   }
-  return { ...node, meta: { ...node.meta, childApplicability } }
+  return {
+    ...node,
+    meta: { ...node.meta, childApplicability },
+    updated: true,
+    dateModified: Dates.nowFormattedForStorage(),
+  }
 }
 const getHierarchy = (node: Node) => [...(node.meta?.h || [])]
 
