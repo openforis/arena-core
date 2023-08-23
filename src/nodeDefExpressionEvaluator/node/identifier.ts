@@ -4,7 +4,7 @@ import { NodeDefs } from '../../nodeDef/nodeDefs'
 import { Objects, Queue } from '../../utils'
 import { IdentifierEvaluator } from '../../expression/javascript/node/identifier'
 import { NodeDefExpressionContext } from '../context'
-import { IdentifierExpression } from '../../expression'
+import { ExpressionVariable, IdentifierExpression } from '../../expression'
 import { SystemError } from '../../error'
 import { ValidatorErrorKeys } from '../../validation'
 import { NodeNativeProperties } from './nodeDefExpressionNativeProperties'
@@ -35,6 +35,12 @@ const findActualContextNode = (params: {
 
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
+    const { name: exprName } = expressionNode
+
+    if (exprName === ExpressionVariable.CONTEXT) {
+      return this.context.nodeDefContext
+    }
+
     try {
       // try to find the identifier among global objects or native properties
       return super.evaluate(expressionNode)
@@ -48,8 +54,6 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
         referencedNodeDefUuids,
         itemsFilter,
       } = context
-
-      const exprName = expressionNode.name
 
       if (itemsFilter) {
         const prop = objectContext?.props?.[exprName] || objectContext?.props?.extra?.[exprName]

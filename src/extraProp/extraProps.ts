@@ -9,7 +9,7 @@ const covertersByType: { [key in ExtraPropDataType]: (params: { survey: Survey; 
   [ExtraPropDataType.text]: (params: { value: any }) => String(params.value),
 }
 
-const getDataType = (extraPropDef: ExtraPropDef): ExtraPropDataType => extraPropDef.dataType || ExtraPropDataType.text
+const getDataType = (extraPropDef: ExtraPropDef): ExtraPropDataType => extraPropDef.dataType ?? ExtraPropDataType.text
 
 const convertValue = (params: { survey: Survey; extraPropDef: ExtraPropDef; value: any }) => {
   const { survey, extraPropDef, value } = params
