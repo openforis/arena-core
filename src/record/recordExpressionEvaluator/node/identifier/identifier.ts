@@ -1,4 +1,4 @@
-import { IdentifierExpression } from '../../../../expression'
+import { ExpressionVariable, IdentifierExpression } from '../../../../expression'
 import { IdentifierEvaluator } from '../../../../expression/javascript/node/identifier'
 import { Node } from '../../../../node'
 import { NodeDef, NodeDefs, NodeDefType } from '../../../../nodeDef'
@@ -11,8 +11,6 @@ import { SystemError } from '../../../../error'
 import { FieldValidators } from '../../../../validation'
 import { NodeValueExtractor } from '../../nodeValueExtractor'
 import { Record } from '../../../record'
-
-const CONTEXT_VARIABLE = '$context'
 
 const isValidNodeDefName = (nodeDefName: string) =>
   FieldValidators.name('expression.invalidNodeDefName')('name', { name: nodeDefName }).valid
@@ -105,7 +103,9 @@ const evaluateIdentifierOnNode = (params: {
 
 export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
-    if (expressionNode.name === CONTEXT_VARIABLE) {
+    const { name: propName } = expressionNode
+
+    if (propName === ExpressionVariable.CONTEXT) {
       return this.context.nodeContext
     }
 
@@ -119,8 +119,12 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
 
     // identifier not found among global or native properties
     // idenfifier should be a node or a node value property
-    const { name: propName } = expressionNode
-    const { survey, record, evaluateToNode, object: contextObject } = this.context
+    const { survey, record, evaluateToNode, object: contextObject, item } = this.context
+
+    if (item && item === contextObject) {
+      // evaluating category or taxon item prop or extra prop
+      return item.props?.[propName] ?? item.props?.extra?.[propName]
+    }
 
     if (Array.isArray(contextObject)) {
       const result = contextObject.reduce((acc, contextNode) => {
