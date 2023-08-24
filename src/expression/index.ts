@@ -21,5 +21,7 @@ export type {
 } from './node'
 export { ExpressionNodeType, ExpressionNodeEvaluator } from './node'
 
+export { ExpressionVariable } from './variable'
+
 export { JavascriptExpressionEvaluator } from './javascript/evaluator'
 export { JavascriptExpressionParser } from './javascript/parser/parser'

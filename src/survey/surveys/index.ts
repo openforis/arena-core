@@ -70,11 +70,21 @@ const getCategoryByName = (params: { survey: Survey; categoryName: string }): Ca
     : undefined
 }
 
+const getCategoryByUuid = (params: { survey: Survey; categoryUuid: string }): Category | undefined => {
+  const { survey, categoryUuid } = params
+  return survey.categories?.[categoryUuid]
+}
+
 const getTaxonomyByName = (params: { survey: Survey; taxonomyName: string }): Taxonomy | undefined => {
   const { survey, taxonomyName } = params
   return survey.taxonomies
     ? Object.values(survey.taxonomies).find((taxonomy) => taxonomy.props.name === taxonomyName)
     : undefined
+}
+
+const getTaxonomyByUuid = (params: { survey: Survey; taxonomyUuid: string }): Taxonomy | undefined => {
+  const { survey, taxonomyUuid } = params
+  return survey.taxonomies?.[taxonomyUuid]
 }
 
 const getCycleKeys = (survey: Survey): string[] => {
@@ -133,6 +143,7 @@ export const Surveys = {
 
   // ref data
   getCategoryByName,
+  getCategoryByUuid,
   getCategoryItemByCodePaths,
   getCategoryItemByUuid,
   getCategoryItemUuidByCode,
@@ -140,6 +151,7 @@ export const Surveys = {
   getTaxonByCode,
   getTaxonByUuid,
   getTaxonomyByName,
+  getTaxonomyByUuid,
   getTaxonVernacularNameUuid,
   includesTaxonVernacularName,
 

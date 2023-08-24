@@ -9,3 +9,5 @@ export { TaxonomyFactory, TaxonFactory, VernacularNameFactory } from './factory'
 export type { TaxonFactoryParams, TaxonomyFactoryParams, VernacularNameParams } from './factory'
 
 export { Taxa } from './taxa'
+export { Taxonomies } from './taxonomies'
+export { TaxonGenerator } from './taxonGenerator'

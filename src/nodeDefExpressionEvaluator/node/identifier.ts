@@ -1,10 +1,10 @@
 import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef/nodeDef'
 import { Surveys } from '../../survey'
 import { NodeDefs } from '../../nodeDef/nodeDefs'
-import { Queue } from '../../utils'
+import { Objects, Queue } from '../../utils'
 import { IdentifierEvaluator } from '../../expression/javascript/node/identifier'
 import { NodeDefExpressionContext } from '../context'
-import { IdentifierExpression } from '../../expression'
+import { ExpressionVariable, IdentifierExpression } from '../../expression'
 import { SystemError } from '../../error'
 import { ValidatorErrorKeys } from '../../validation'
 import { NodeNativeProperties } from './nodeDefExpressionNativeProperties'
@@ -35,41 +35,59 @@ const findActualContextNode = (params: {
 
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
+    const { context } = this
+    const {
+      nodeDefContext,
+      nodeDefCurrent,
+      selfReferenceAllowed,
+      object: objectContext,
+      referencedNodeDefUuids,
+      itemsFilter,
+    } = context
+    const { name: exprName } = expressionNode
+
+    if (exprName === ExpressionVariable.CONTEXT) {
+      return nodeDefContext
+    }
+
+    // try to find the identifier among global objects or native properties
     try {
-      // try to find the identifier among global objects or native properties
       return super.evaluate(expressionNode)
     } catch (e) {
-      const { context } = this
-
-      const { nodeDefCurrent, selfReferenceAllowed, object: objectContext, referencedNodeDefUuids } = context
-
-      const exprName = expressionNode.name
-
-      // check if identifier is a native property or function (e.g. String.length or String.toUpperCase())
-      if (NodeNativeProperties.hasNativeProperty({ nodeDefOrValue: objectContext, propName: exprName })) {
-        return NodeNativeProperties.evalNodeDefProperty({ nodeDefOrValue: objectContext, propName: exprName })
-      }
-
-      // check if identifier is a composite attribute value prop
-      if (NodeDefs.isAttribute(objectContext) && NodeValues.isValueProp({ nodeDef: objectContext, prop: exprName })) {
-        return objectContext
-      }
-
-      const referencedNodeDef = this.findIdentifierAmongReachableNodeDefs(expressionNode)
-      if (referencedNodeDef) {
-        context.referencedNodeDefUuids = (referencedNodeDefUuids || new Set()).add(referencedNodeDef.uuid)
-
-        if (!selfReferenceAllowed && referencedNodeDef.uuid === nodeDefCurrent?.uuid) {
-          throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: exprName })
-        }
-
-        return referencedNodeDef
-      }
-      throw new SystemError('expression.identifierNotFound', {
-        name: exprName,
-        contextObject: objectContext?.props?.name,
-      })
+      // ignore it
     }
+
+    if (itemsFilter) {
+      const prop = objectContext?.props?.[exprName] || objectContext?.props?.extra?.[exprName]
+      if (!Objects.isEmpty(prop)) {
+        return prop
+      }
+    }
+
+    // check if identifier is a native property or function (e.g. String.length or String.toUpperCase())
+    if (NodeNativeProperties.hasNativeProperty({ nodeDefOrValue: objectContext, propName: exprName })) {
+      return NodeNativeProperties.evalNodeDefProperty({ nodeDefOrValue: objectContext, propName: exprName })
+    }
+
+    // check if identifier is a composite attribute value prop
+    if (NodeDefs.isAttribute(objectContext) && NodeValues.isValueProp({ nodeDef: objectContext, prop: exprName })) {
+      return objectContext
+    }
+
+    const referencedNodeDef = this.findIdentifierAmongReachableNodeDefs(expressionNode)
+    if (referencedNodeDef) {
+      context.referencedNodeDefUuids = (referencedNodeDefUuids || new Set()).add(referencedNodeDef.uuid)
+
+      if (!selfReferenceAllowed && referencedNodeDef.uuid === nodeDefCurrent?.uuid) {
+        throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: exprName })
+      }
+
+      return referencedNodeDef
+    }
+    throw new SystemError('expression.identifierNotFound', {
+      name: exprName,
+      contextObject: objectContext?.props?.name,
+    })
   }
 
   /**
@@ -89,6 +107,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     }
     return undefined
   }
+
   /**
    * Get reachable node defs, i.e. the children of the node definition's ancestors.
    * NOTE: The root node def is excluded, but it _should_ be an entity, so that is fine.

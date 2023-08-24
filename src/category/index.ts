@@ -12,4 +12,6 @@ export type { CategoryItemService } from './itemService'
 export type { CategoryLevelService } from './levelService'
 
 export { CategoryImportColumnType } from './categoryImportSummary'
+
+export { Categories } from './categories'
 export { CategoryItems } from './categoryItems'

@@ -12,6 +12,7 @@ type Query = {
   validationResult: boolean
   referencedNodeDefNames?: Array<string>
   selfReferenceAllowed?: boolean
+  itemsFilter?: boolean
 }
 
 let survey: Survey
@@ -99,6 +100,19 @@ describe('NodeDefExpressionValidator', () => {
       nodeDef: 'tree_height',
       validationResult: false,
     },
+    // items filter
+    {
+      expression: `this.max_height < 100`,
+      nodeDef: 'species',
+      itemsFilter: true,
+      validationResult: true,
+    },
+    {
+      expression: `this.invalid_prop == 1`,
+      nodeDef: 'species',
+      itemsFilter: true,
+      validationResult: false,
+    },
     // global objects
     {
       expression: 'String(cluster_id)',
@@ -114,6 +128,7 @@ describe('NodeDefExpressionValidator', () => {
       referencedNodeDefNames: referencedNodeDefNamesExpected = [],
       nodeDef,
       selfReferenceAllowed = true,
+      itemsFilter = false,
     } = query
 
     test(`${expression}${nodeDef ? ` (nodeDef: ${nodeDef})` : ''}`, () => {
@@ -126,6 +141,7 @@ describe('NodeDefExpressionValidator', () => {
         survey,
         nodeDefCurrent,
         selfReferenceAllowed,
+        itemsFilter,
       })
 
       expect(validationResult.valid).toBe(validationResultExpected)

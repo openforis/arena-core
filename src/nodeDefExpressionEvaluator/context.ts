@@ -12,4 +12,6 @@ export interface NodeDefExpressionContext extends ExpressionContext {
    */
   referencedNodeDefUuids?: Set<string>
   selfReferenceAllowed?: boolean
+  // true when the expression is used to filter code or taxon items
+  itemsFilter?: boolean
 }
