@@ -58,6 +58,9 @@ const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => no
 
 const getVisibleFields = (nodeDef: NodeDef<NodeDefType>): string[] | undefined => nodeDef.props.visibleFields
 
+// code
+const getCategoryUuid = (nodeDef: NodeDefCode): string | undefined => nodeDef.props.categoryUuid
+
 // coordinate
 const isAllowOnlyDeviceCoordinate = (nodeDef: NodeDefCoordinate): boolean => !!nodeDef.props.allowOnlyDeviceCoordinate
 
@@ -156,6 +159,7 @@ export const NodeDefs = {
   isDefaultValueEvaluatedOneTime,
   getApplicable,
   getVisibleFields,
+  getCategoryUuid,
   isAllowOnlyDeviceCoordinate,
   getCoordinateAdditionalFields,
   getMaxNumberDecimalDigits,

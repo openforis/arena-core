@@ -9,6 +9,8 @@ import { Node } from '../../node'
 import { NodeDefExpression, NodeDefs } from '../../nodeDef'
 import { Objects } from '../../utils'
 import { Records } from '../records'
+import { CategoryItem } from '../../category'
+import { Taxon } from '../../taxonomy'
 
 export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<RecordExpressionContext> {
   constructor() {
@@ -18,12 +20,25 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
     })
   }
 
-  evalExpression(params: { survey: Survey; record: Record; node: Node; query: string }): any {
-    const { survey, record, node, query } = params
+  evalExpression(params: {
+    survey: Survey
+    record: Record
+    node: Node
+    query: string
+    item?: CategoryItem | Taxon
+  }): any {
+    const { survey, record, node, query, item } = params
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent(node)(record)
     if (!nodeContext) return null
-    const context: RecordExpressionContext = { survey, record, nodeContext, nodeCurrent: node, object: nodeContext }
+    const context: RecordExpressionContext = {
+      survey,
+      record,
+      nodeContext,
+      nodeCurrent: node,
+      object: nodeContext,
+      item,
+    }
     return this.evaluate(query, context)
   }
 

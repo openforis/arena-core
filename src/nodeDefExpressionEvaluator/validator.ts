@@ -25,6 +25,7 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
     nodeDefCurrent: NodeDef<any>
     nodeDefContext?: NodeDef<any>
     selfReferenceAllowed?: boolean
+    itemsFilter?: boolean
   }): { validationResult: ValidationResult; referencedNodeDefUuids: Set<string> } {
     const {
       expression,
@@ -32,6 +33,7 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
       nodeDefCurrent,
       nodeDefContext: nodeDefContextParam,
       selfReferenceAllowed = true,
+      itemsFilter = false,
     } = params
 
     try {
@@ -46,6 +48,7 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
         object: nodeDefCurrent,
         selfReferenceAllowed,
         referencedNodeDefUuids: new Set(),
+        itemsFilter,
       }
 
       this.evaluate(expression, context)

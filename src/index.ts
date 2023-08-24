@@ -16,7 +16,7 @@ export type {
   CategoryService,
 } from './category'
 
-export { CategoryItems } from './category'
+export { Categories, CategoryItems } from './category'
 
 export { ChainFactory, ChainStatusExec, ChainNodeDefFactory } from './chain'
 export type {
@@ -144,7 +144,7 @@ export type {
   SurveyProps,
 } from './survey'
 
-export { Taxa, TaxonomyFactory, TaxonFactory, VernacularNameFactory } from './taxonomy'
+export { Taxa, Taxonomies, TaxonomyFactory, TaxonFactory, VernacularNameFactory } from './taxonomy'
 export type {
   VernacularNameParams,
   TaxonomyFactoryParams,

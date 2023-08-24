@@ -22,8 +22,16 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
     nodeDef: NodeDef<any>
     isContextParent?: boolean
     selfReferenceAllowed?: boolean
+    itemsFilter?: boolean
   }): { result: any; referencedNodeDefUuids: Set<string> } {
-    const { expression, survey, nodeDef, isContextParent = true, selfReferenceAllowed = true } = params
+    const {
+      expression,
+      survey,
+      nodeDef,
+      isContextParent = true,
+      selfReferenceAllowed = true,
+      itemsFilter = false,
+    } = params
 
     const nodeDefContext = isContextParent ? Surveys.getNodeDefParent({ survey, nodeDef }) : nodeDef
 
@@ -36,6 +44,7 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
       object: nodeDef,
       selfReferenceAllowed,
       referencedNodeDefUuids,
+      itemsFilter,
     }
     const result = this.evaluate(expression, context)
     return { result, referencedNodeDefUuids }
@@ -62,6 +71,7 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
     nodeDef: NodeDef<any>
     isContextParent?: boolean
     selfReferenceAllowed?: boolean
+    itemsFilter?: boolean
   }): any {
     const { result } = this._eval(params)
     return result
