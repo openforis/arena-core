@@ -57,6 +57,12 @@ const queries: Query[] = [
   { expression: `isEmpty('')`, result: true },
   { expression: 'isEmpty(1)', result: false },
   { expression: 'isEmpty(0)', result: false },
+  // custom functions (uuid)
+  { expression: 'uuid().length == 36', result: true },
+  {
+    expression: '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid())',
+    result: true,
+  },
 ]
 
 describe('JavascriptExpressionEvaluator test', () => {
