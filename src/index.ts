@@ -130,7 +130,7 @@ export type { Record, RecordService, RecordUpdateOptions } from './record'
 export { ServiceRegistry, ServiceType } from './registry'
 export type { Service } from './registry'
 
-export { DEFAULT_SRS, DEFAULT_SRS_INDEX, SRSFactory, SRSs } from './srs'
+export { DEFAULT_SRS, DEFAULT_SRS_INDEX, SRSFactory } from './srs'
 export type { SRS } from './srs'
 
 export { SurveyDependencyType, SurveyFactory, SurveyRefDataFactory, Surveys } from './survey'
