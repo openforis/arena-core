@@ -11,9 +11,8 @@ import { Objects } from './_objects'
 export enum DateFormats {
   dateDisplay = 'dd/MM/yyyy',
   dateStorage = 'yyyy-MM-dd',
-  datetimeStorage = 'yyyy-MM-dd_HH-mm-ss',
   datetimeDisplay = 'dd/MM/yyyy HH:mm:ss',
-  datetimeISO = `yyyy-MM-dd'T'HH:mm:ss.SSS'Z'`,
+  datetimeStorage = `yyyy-MM-dd'T'HH:mm:ss.SSS'Z'`, // ISO
   timeStorage = 'HH:mm',
   datetimeDefault = 'yyyy-MM-dd_HH-mm-ss',
 }

@@ -13,9 +13,10 @@ const _onRecordNodesCreateOrUpdate = async (params: {
   survey: Survey
   record: Record
   nodes: { [x: string]: Node }
+  dateModified?: string
   sideEffect?: boolean
 }): Promise<RecordUpdateResult> => {
-  const { survey, record, nodes, sideEffect = false } = params
+  const { survey, record, nodes, dateModified = Dates.nowFormattedForStorage(), sideEffect = false } = params
 
   const { nodes: updatedNodes, record: updatedRecord } = RecordNodesUpdater.updateNodesDependents({
     survey,
@@ -32,6 +33,7 @@ const _onRecordNodesCreateOrUpdate = async (params: {
 
   const validation = Validations.mergeValidations(validationUpdatedNodes)(Validations.getValidation(record))
   updatedRecord.validation = validation
+  updatedRecord.dateModified = dateModified
 
   return new RecordUpdateResult({
     record: updatedRecord,
@@ -124,7 +126,7 @@ const updateAttributeValue = async (params: {
     record,
     survey,
     value,
-    dateModified = Dates.nowFormattedForExpression(),
+    dateModified = Dates.nowFormattedForStorage(),
     sideEffect = false,
   } = params
   const attribute = Records.getNodeByUuid(attributeUuid)(record)
@@ -140,7 +142,7 @@ const updateAttributeValue = async (params: {
 
   const _record = Records.addNode(attributeUpdated, { sideEffect })(record)
 
-  return _onRecordNodesCreateOrUpdate({ survey, record: _record, nodes: nodesUpdated, sideEffect })
+  return _onRecordNodesCreateOrUpdate({ survey, record: _record, nodes: nodesUpdated, dateModified, sideEffect })
 }
 
 const deleteNodes = async (params: {
