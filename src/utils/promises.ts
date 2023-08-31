@@ -30,7 +30,7 @@ const resolveGenerator = handleGeneratorNext([])
  */
 const each = async <T>(
   iterable: Iterable<T>,
-  callback: (item: T, index: number) => void,
+  callback: (item: T, index: number) => Promise<void>,
   stopIfFn?: (item: T) => boolean
 ): Promise<void> => {
   function* generator() {
