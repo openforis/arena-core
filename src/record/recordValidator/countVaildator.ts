@@ -5,6 +5,7 @@ import { Validation, ValidationFactory, ValidationResultFactory, ValidationSever
 import { Record } from '../record'
 import { Survey, Surveys } from '../../survey'
 import { RecordValidations } from '../recordValidations'
+import { ValidationFields } from '../../validation/validation'
 
 const _createValidationResult = (params: {
   nodeDefUuid: string
@@ -120,9 +121,9 @@ const validateChildrenCountNodes = (params: {
   survey: Survey
   record: Record
   nodes: { [key: string]: Node }
-}): { [key: string]: Validation } => {
+}): ValidationFields => {
   const { survey, record, nodes } = params
-  return Object.values(nodes).reduce((validationsAcc: { [key: string]: Validation }, node) => {
+  return Object.values(nodes).reduce((validationsAcc: ValidationFields, node) => {
     const nodePointersToValidate = _getNodePointersToValidate({ survey, record, node })
 
     nodePointersToValidate.forEach((nodePointer) => {
