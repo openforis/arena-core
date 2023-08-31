@@ -205,4 +205,68 @@ describe('RecordUpdater - attribute update', () => {
 
     expect(record).not.toBeNull()
   })
+
+  test('Validation: dependent attribute with relevancy valid default value', async () => {
+    const survey = new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        integerDef('int_attr')
+          .defaultValue('identifier + 10')
+          .validationExpressions('this > 30')
+          .applyIf('identifier > 10')
+      )
+    ).build()
+
+    let record = new RecordBuilder(
+      user,
+      survey,
+      entity('root_entity', attribute('identifier', 0), attribute('int_attr'))
+    ).build()
+
+    const validationNodePath = 'root_entity.int_attr'
+
+    // identifier = 1 =>  attribute not relevant, default value not applied
+    record = await updateAttributeAndExpectValidation({
+      survey,
+      record,
+      nodePath: 'root_entity.identifier',
+      value: 1,
+      validationNodePath,
+      expectedFieldValidation: true,
+      expectedValidationFieldsSize: 0,
+    })
+
+    let validationNode = TestUtils.getNodeByPath({ survey, record, path: validationNodePath })
+    expect(validationNode?.value).toBeNull()
+
+    // identifier = 11 => attribute relevant, default value applied (value not valid)
+    record = await updateAttributeAndExpectValidation({
+      survey,
+      record,
+      nodePath: 'root_entity.identifier',
+      value: 11,
+      validationNodePath,
+      expectedFieldValidation: false,
+      expectedValidationFieldsSize: 1,
+    })
+
+    validationNode = TestUtils.getNodeByPath({ survey, record, path: validationNodePath })
+    expect(validationNode?.value).toBe(21)
+
+    // identifier = 21 => attribute relevant, default value applied (value valid)
+    record = await updateAttributeAndExpectValidation({
+      survey,
+      record,
+      nodePath: 'root_entity.identifier',
+      value: 21,
+      validationNodePath,
+      expectedFieldValidation: true,
+      expectedValidationFieldsSize: 0,
+    })
+
+    validationNode = TestUtils.getNodeByPath({ survey, record, path: validationNodePath })
+    expect(validationNode?.value).toBe(31)
+  })
 })
