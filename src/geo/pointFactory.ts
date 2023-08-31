@@ -13,6 +13,6 @@ export type PointFactoryParams = {
 
 export const PointFactory: Factory<Point, PointFactoryParams> = {
   createInstance: (params: PointFactoryParams): Point => {
-    return { ...params, srs: params.srs || DEFAULT_SRS.code }
+    return { ...params, srs: params.srs ?? DEFAULT_SRS.code }
   },
 }

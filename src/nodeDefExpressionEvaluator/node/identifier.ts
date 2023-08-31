@@ -76,7 +76,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
 
     const referencedNodeDef = this.findIdentifierAmongReachableNodeDefs(expressionNode)
     if (referencedNodeDef) {
-      context.referencedNodeDefUuids = (referencedNodeDefUuids || new Set()).add(referencedNodeDef.uuid)
+      context.referencedNodeDefUuids = (referencedNodeDefUuids ?? new Set()).add(referencedNodeDef.uuid)
 
       if (!selfReferenceAllowed && referencedNodeDef.uuid === nodeDefCurrent?.uuid) {
         throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: exprName })

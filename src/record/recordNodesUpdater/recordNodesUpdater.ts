@@ -33,7 +33,7 @@ export const updateNodesDependents = (params: {
     const nodeUuid = nodeUuidsToVisit.dequeue()
     const node = updateResult.getNodeByUuid(nodeUuid)
 
-    const visitedCount = visitedCountByUuid[nodeUuid] || 0
+    const visitedCount = visitedCountByUuid[nodeUuid] ?? 0
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
       // Update dependents (applicability)

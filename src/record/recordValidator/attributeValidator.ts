@@ -40,7 +40,7 @@ const _getValidationMessagesWithDefault = (params: {
   defaultMessage?: string
 }): Labels => {
   const { survey, expression, defaultMessage } = params
-  const messages: Labels = expression.messages || {}
+  const messages: Labels = expression.messages ?? {}
 
   const languages = survey.props.languages
 

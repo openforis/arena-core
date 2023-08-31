@@ -55,10 +55,10 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
 
       return {
         validationResult: ValidationResultFactory.createInstance(),
-        referencedNodeDefUuids: context.referencedNodeDefUuids || new Set(),
+        referencedNodeDefUuids: context.referencedNodeDefUuids ?? new Set(),
       }
     } catch (error: any) {
-      const details = error.description || error.toString()
+      const details = error.description ?? error.toString()
       return {
         validationResult: ValidationResultFactory.createInstance({
           valid: false,

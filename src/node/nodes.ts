@@ -8,7 +8,7 @@ const isChildApplicable = (node: Node, nodeDefUuid: string) => {
   return node.meta?.childApplicability?.[nodeDefUuid] !== false
 }
 const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: boolean) => {
-  const childApplicability = { ...(node.meta?.childApplicability || {}) }
+  const childApplicability = { ...(node.meta?.childApplicability ?? {}) }
   if (!applicable) {
     childApplicability[nodeDefUuid] = applicable
   } else {
@@ -21,9 +21,9 @@ const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: bo
     dateModified: Dates.nowFormattedForStorage(),
   }
 }
-const getHierarchy = (node: Node) => [...(node.meta?.h || [])]
+const getHierarchy = (node: Node) => [...(node.meta?.h ?? [])]
 
-const getHierarchyCode = (node: Node) => [...(node.meta?.hCode || [])]
+const getHierarchyCode = (node: Node) => [...(node.meta?.hCode ?? [])]
 
 const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
   Objects.deepMerge(target, ...sources) as unknown as Node

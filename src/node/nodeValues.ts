@@ -55,7 +55,7 @@ const getValueItemUuid = (value: any): string | undefined =>
 
 const getDateTimePart = (params: { node: Node; index: number; separator: string }): number => {
   const { node, index, separator } = params
-  return Number((node.value || '').split(separator)[index]?.trim())
+  return Number((node.value ?? '').split(separator)[index]?.trim())
 }
 
 // Date
@@ -103,7 +103,7 @@ const _valuePropGetters: { [key in NodeDefType]?: (prop: string) => (node: Node)
 
 const isValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; prop: string }): boolean => {
   const { nodeDef, prop } = params
-  return Object.values(valuePropsByType[nodeDef.type] || {}).includes(prop)
+  return Object.values(valuePropsByType[nodeDef.type] ?? {}).includes(prop)
 }
 
 const getNodeValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; node: Node; prop: string }): any => {

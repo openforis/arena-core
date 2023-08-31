@@ -26,7 +26,7 @@ const newDependecyGraph = () => ({
   [SurveyDependencyType.validations]: {},
 })
 
-const getDependencyGraph = (survey: Survey): SurveyDependencyGraph => survey.dependencyGraph || newDependecyGraph()
+const getDependencyGraph = (survey: Survey): SurveyDependencyGraph => survey.dependencyGraph ?? newDependecyGraph()
 
 export const getNodeDefDependents = (params: {
   survey: Survey
@@ -43,7 +43,7 @@ export const getNodeDefDependents = (params: {
     : Object.values(SurveyDependencyType)
 
   dependencyTypes.forEach((depType: SurveyDependencyType) => {
-    const dependentUuidsTemp = dependencyGraph[depType]?.[nodeDefUuid] || []
+    const dependentUuidsTemp = dependencyGraph[depType]?.[nodeDefUuid] ?? []
     dependentUuidsTemp.forEach((dependentUuid) => {
       dependentUuids.add(dependentUuid)
     })
@@ -57,8 +57,8 @@ const getDependencies = (params: {
   nodeDefUuid: string
 }): Array<string> => {
   const { graphs, type, nodeDefUuid } = params
-  const graph = graphs[type] || {}
-  return graph[nodeDefUuid] || []
+  const graph = graphs[type] ?? {}
+  return graph[nodeDefUuid] ?? []
 }
 
 // UPDATE
@@ -153,7 +153,7 @@ export const addNodeDefDependencies = (params: {
   graphsUpdated = _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
   graphsUpdated = _addDependencies(
     SurveyDependencyType.validations,
-    NodeDefs.getValidations(nodeDef)?.expressions || []
+    NodeDefs.getValidations(nodeDef)?.expressions ?? []
   )
   if (sideEffect) {
     survey.dependencyGraph = graphsUpdated
@@ -172,7 +172,7 @@ const _removeNodeDefDependenciesOfType = (params: {
   const { graphs, nodeDefUuid, dependencyType } = params
 
   const graphsUpdated = { ...graphs }
-  let graphUpdated = { ...(graphsUpdated[dependencyType] || {}) }
+  let graphUpdated = { ...(graphsUpdated[dependencyType] ?? {}) }
   // dissoc nodeDefUuid dependency as dependent
   graphUpdated = Objects.dissoc({ obj: graphUpdated, prop: nodeDefUuid })
 

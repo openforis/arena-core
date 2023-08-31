@@ -76,7 +76,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     evaluateArgsToNodes: false,
     executor: (_context: RecordExpressionContext) => (nodeSet) => {
       if (!nodeSet) return 0
-      if (Array.isArray(nodeSet)) return nodeSet.reduce((acc, value) => acc + (Number(value) || 0), 0)
+      if (Array.isArray(nodeSet)) return nodeSet.reduce((acc, value) => acc + (Number(value) ?? 0), 0)
       return 0
     },
   },

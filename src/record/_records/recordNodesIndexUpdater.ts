@@ -71,7 +71,7 @@ const addNode =
   (index: RecordNodesIndex): RecordNodesIndex =>
     addNodes({ [node.uuid]: node })(index)
 
-const initializeIndex = (record: Record): RecordNodesIndex => addNodes(record.nodes || {}, true)({})
+const initializeIndex = (record: Record): RecordNodesIndex => addNodes(record.nodes ?? {}, true)({})
 
 const _removeNodeFromCodeDependentsIndex =
   (node: Node, sideEffect = false) =>

@@ -5,13 +5,13 @@ const getNodeRootUuid = (index: RecordNodesIndex): string | undefined => index.n
 const getNodeUuidsByDef =
   (nodeDefUuid: string) =>
   (index: RecordNodesIndex): string[] =>
-    Object.keys(index.nodesByDef?.[nodeDefUuid] || {})
+    Object.keys(index.nodesByDef?.[nodeDefUuid] ?? {})
 
 const getNodeUuidsByParentAndChildDef =
   (params: { parentNodeUuid: string; childDefUuid: string }) =>
   (index: RecordNodesIndex): string[] => {
     const { parentNodeUuid, childDefUuid } = params
-    return Object.keys(index.nodesByParentAndChildDef?.[parentNodeUuid]?.[childDefUuid] || {})
+    return Object.keys(index.nodesByParentAndChildDef?.[parentNodeUuid]?.[childDefUuid] ?? {})
   }
 
 const getNodeUuidsByParent =
@@ -24,7 +24,7 @@ const getNodeUuidsByParent =
 const getNodeCodeDependentUuids =
   (nodeUuid: string) =>
   (index: RecordNodesIndex): string[] =>
-    Object.keys(index.nodeCodeDependents?.[nodeUuid] || {})
+    Object.keys(index.nodeCodeDependents?.[nodeUuid] ?? {})
 
 export const RecordNodesIndexReader = {
   getNodeRootUuid,

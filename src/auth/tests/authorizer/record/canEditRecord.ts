@@ -12,7 +12,7 @@ const createRecord = (params: { user: User; survey: Survey; step?: string }) =>
   RecordFactory.createInstance({
     user: params.user,
     surveyUuid: params.survey.uuid,
-    step: params.step || RECORD_STEP_DEFAULT,
+    step: params.step ?? RECORD_STEP_DEFAULT,
   })
 
 export const canEditRecordQueries: Query[] = [

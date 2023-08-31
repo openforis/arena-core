@@ -88,7 +88,7 @@ const getTaxonomyByUuid = (params: { survey: Survey; taxonomyUuid: string }): Ta
 }
 
 const getCycleKeys = (survey: Survey): string[] => {
-  const cycles = survey.props?.cycles || {}
+  const cycles = survey.props?.cycles ?? {}
   return Object.keys(cycles)
 }
 

@@ -68,7 +68,7 @@ const evaluateIdentifierOnNode = (params: {
       return NodeValues.getNodeValueProp({ nodeDef: nodeDefObject, node: nodeObject, prop: propName })
     } else {
       throw new SystemError('expression.invalidAttributeValuePropertyName', {
-        attributeName: nodeDefObject.props.name || '',
+        attributeName: NodeDefs.getName(nodeDefObject),
         propName,
       })
     }
@@ -90,8 +90,8 @@ const evaluateIdentifierOnNode = (params: {
       return Records.getAncestor({ record, node: nodeObject, ancestorDefUuid: nodeDefReferenced.uuid })
     } catch (e) {
       throw new SystemError('expression.ancestorNotFound', {
-        ancestorDefName: nodeDefReferenced.props.name || '',
-        descendantDefName: nodeDefObject.props.name || '',
+        ancestorDefName: NodeDefs.getName(nodeDefReferenced),
+        descendantDefName: NodeDefs.getName(nodeDefObject),
       })
     }
   }

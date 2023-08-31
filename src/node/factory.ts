@@ -20,7 +20,7 @@ export const NodeFactory: Factory<Node, NodeFactoryParams> = {
       dateCreated: now,
       dateModified: now,
       meta: {
-        h: [...(parentNode?.meta?.h || []), ...(parentNode?.uuid ? [parentNode?.uuid] : [])],
+        h: [...(parentNode?.meta?.h ?? []), ...(parentNode?.uuid ? [parentNode?.uuid] : [])],
       },
       nodeDefUuid,
       parentUuid: parentNode?.uuid,

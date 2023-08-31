@@ -2,13 +2,13 @@ export class SystemError extends Error {
   private _key: string
   private _params: { [key: string]: any }
 
-  constructor(key: string, params?: { [key: string]: any  }) {
+  constructor(key: string, params?: { [key: string]: any }) {
     super(key)
 
     this.name = 'SystemError'
 
     this._key = key
-    this._params = params || {}
+    this._params = params ?? {}
 
     // Maintains proper stack trace (only available on V8)
     if (Error.captureStackTrace) {

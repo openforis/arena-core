@@ -49,7 +49,7 @@ const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ||
 const isEnumerate = (nodeDef: NodeDefEntity): boolean => nodeDef.props.enumerate || false
 
 const getDefaultValues = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
-  nodeDef.propsAdvanced?.defaultValues || []
+  nodeDef.propsAdvanced?.defaultValues ?? []
 
 const isDefaultValueEvaluatedOneTime = (nodeDef: NodeDef<NodeDefType>): boolean =>
   !!nodeDef.propsAdvanced?.defaultValueEvaluatedOneTime
@@ -102,7 +102,7 @@ const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>) =>
 const getLayoutProps =
   (cycle = '0') =>
   (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): any =>
-    nodeDef?.props?.layout?.[cycle] || {}
+    nodeDef?.props?.layout?.[cycle] ?? {}
 
 const getLayoutRenderType =
   (cycle = '0') =>
