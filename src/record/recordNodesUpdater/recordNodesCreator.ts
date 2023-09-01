@@ -9,7 +9,7 @@ import { RecordUpdateResult } from './recordUpdateResult'
 
 const getNodesToInsertCount = (nodeDef: NodeDef<any>): number => {
   if (NodeDefs.isSingle(nodeDef)) return 1
-  return NodeDefs.getMinCount(nodeDef) || 0
+  return NodeDefs.getMinCount(nodeDef) ?? 0
 }
 
 const getEnumeratingCategoryItems = (params: { survey: Survey; enumerator: NodeDefCode }): CategoryItem[] => {

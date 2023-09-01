@@ -74,19 +74,21 @@ export class AttributeBuilder extends NodeBuilder {
     return this.value
   }
 
-  private buildMeta(params: { nodeDef: NodeDef<any>; record: Record; parentNode?: Node }): NodeMeta | undefined {
+  private buildMeta(params: { nodeDef: NodeDef<any>; record: Record; parentNode?: Node }): NodeMeta {
     const { nodeDef, record, parentNode } = params
+
+    const meta: NodeMeta = {}
+
     if (nodeDef.type === NodeDefType.code) {
       const nodeDefCode = nodeDef as NodeDefCode
-      if (nodeDefCode.props.parentCodeDefUuid) {
-        if (parentNode) {
-          const parentCodeAttribute = Records.getParentCodeAttribute({ parentNode, nodeDef: nodeDefCode })(record)
-          if (!parentCodeAttribute) throw new Error('Could not find the parent code attibute')
-          return { hCode: [parentCodeAttribute.uuid] }
-        }
+      if (nodeDefCode.props.parentCodeDefUuid && parentNode) {
+        const parentCodeAttribute = Records.getParentCodeAttribute({ parentNode, nodeDef: nodeDefCode })(record)
+        if (!parentCodeAttribute) throw new Error('Could not find the parent code attibute')
+        return { ...meta, hCode: [parentCodeAttribute.uuid] }
       }
     }
-    return undefined
+
+    return meta
   }
 
   build(params: { survey: Survey; record: Record; parentNode?: Node }): Record {
@@ -102,10 +104,10 @@ export class AttributeBuilder extends NodeBuilder {
       recordUuid: record.uuid,
       value,
     })
-
-    const meta = this.buildMeta({ nodeDef, parentNode, record })
-    if (meta) attribute.meta = meta
-
+    attribute.meta = {
+      ...attribute.meta,
+      ...this.buildMeta({ nodeDef, parentNode, record }),
+    }
     return Records.addNode(attribute)(record)
   }
 }

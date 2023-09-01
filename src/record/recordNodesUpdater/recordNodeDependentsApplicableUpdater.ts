@@ -37,7 +37,7 @@ export const updateSelfAndDependentsApplicable = (params: {
     // 3. evaluate applicable expression
     const nodeCtxUuid = nodeCtxNodePointer.uuid
     // nodeCtx could have been updated in a previous iteration
-    const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) || nodeCtxNodePointer
+    const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
     const exprEval = new RecordExpressionEvaluator().evalApplicableExpression({
       survey,

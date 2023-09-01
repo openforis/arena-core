@@ -81,7 +81,7 @@ describe('NodeDefExpressionEvaluator', () => {
 
     test(`${expression}${nodeDef ? ` (nodeDef: ${nodeDef})` : ''}`, () => {
       try {
-        const nodeDefCurrent = Surveys.getNodeDefByName({ survey, name: nodeDef || 'cluster_id' })
+        const nodeDefCurrent = Surveys.getNodeDefByName({ survey, name: nodeDef ?? 'cluster_id' })
 
         const result = new NodeDefExpressionEvaluator().evalExpression({ survey, expression, nodeDef: nodeDefCurrent })
 

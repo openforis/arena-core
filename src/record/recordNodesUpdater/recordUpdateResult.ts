@@ -11,8 +11,8 @@ export class RecordUpdateResult {
 
   constructor(params: { record: Record; nodes?: NodesMap; nodesDeleted?: NodesMap; validation?: Validation }) {
     this.record = params.record
-    this.nodes = params.nodes || {}
-    this.nodesDeleted = params.nodesDeleted || {}
+    this.nodes = params.nodes ?? {}
+    this.nodesDeleted = params.nodesDeleted ?? {}
     this.validation = params.validation
   }
 
@@ -21,7 +21,7 @@ export class RecordUpdateResult {
   }
 
   addNode(node: Node, options?: { sideEffect: boolean }) {
-    const { sideEffect = false } = options || {}
+    const { sideEffect = false } = options ?? {}
     this.nodes[node.uuid] = node
     this.record = Records.addNode(node, { sideEffect })(this.record)
   }

@@ -30,7 +30,7 @@ export const addNodes =
       recordUpdated.nodes = Object.assign({}, recordNodes, nodes)
     }
     if (updateNodesIndex) {
-      recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(nodes, sideEffect)(recordUpdated._nodesIndex || {})
+      recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(nodes, sideEffect)(recordUpdated._nodesIndex ?? {})
     }
     return recordUpdated
   }
@@ -52,7 +52,7 @@ export const deleteNodes =
     const nodesDeleted: NodesMap = {}
     const recordNodesUpdated = sideEffect ? recordNodes : { ...recordNodes }
 
-    let recordNodesIndex = record._nodesIndex || {}
+    let recordNodesIndex = record._nodesIndex ?? {}
 
     const recordValidation = Validations.getValidation(record)
     let recordValidationUpdated = sideEffect

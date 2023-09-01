@@ -8,7 +8,7 @@ import { SystemError } from '../../error'
 import { NodeValues } from '../../node/nodeValues'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
 
-export const getNodes = (record: Record): { [key: string]: Node } => record.nodes || {}
+export const getNodes = (record: Record): { [key: string]: Node } => record.nodes ?? {}
 
 export const getNodesArray = (record: Record): Node[] => Object.values(getNodes(record))
 
@@ -317,7 +317,7 @@ export const getAncestorCodePath = (params: {
     const codeItemUuid = codeAttribute ? NodeValues.getItemUuid(codeAttribute) : undefined
     if (!codeItemUuid) return ''
     const item = Surveys.getCategoryItemByUuid({ survey, itemUuid: codeItemUuid })
-    return item?.props.code || ''
+    return item?.props.code ?? ''
   }
 
   const codePaths = []

@@ -58,7 +58,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
 
       if (
         Objects.isEmpty(applyIfExpr) ||
-        this.evalExpression({ survey, record, node: nodeCtx, query: applyIfExpr || '' })
+        this.evalExpression({ survey, record, node: nodeCtx, query: applyIfExpr ?? '' })
       ) {
         applicableExpressions.push(expression)
 
@@ -89,7 +89,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
 
     return applicableExpressions.map((expression) => ({
       expression,
-      value: this.evalExpression({ survey, record, node: nodeCtx, query: expression.expression || '' }),
+      value: this.evalExpression({ survey, record, node: nodeCtx, query: expression.expression ?? '' }),
     }))
   }
 
@@ -107,6 +107,6 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
       expressions,
       stopAtFirstFound: true,
     })
-    return expressionsEvaluated[0] || null
+    return expressionsEvaluated[0] ?? null
   }
 }

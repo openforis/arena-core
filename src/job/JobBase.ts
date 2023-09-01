@@ -78,7 +78,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
     } catch (error: any) {
       if (this.summary.status === JobStatus.running) {
         // Error found, change status only if not changed already
-        this.logger.error(error.stack || error)
+        this.logger.error(error.stack ?? error)
         this.addError({
           error: {
             valid: false,

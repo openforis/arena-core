@@ -20,10 +20,10 @@ const checkNode = (node: Node, nodeParams: NodeFactoryParams) => {
   expect(node.meta).toHaveProperty('h')
 
   const expectedHierarchy = [
-    ...(nodeParams.parentNode?.meta?.h || []),
+    ...(nodeParams.parentNode?.meta?.h ?? []),
     ...(nodeParams.parentNode?.uuid ? [nodeParams.parentNode?.uuid] : []),
   ]
-  const nodeHierarchy = [...(node.meta?.h || [])]
+  const nodeHierarchy = [...(node.meta?.h ?? [])]
   expect(nodeHierarchy.length).toBe(expectedHierarchy.length)
   expect(nodeHierarchy).toMatchObject(expectedHierarchy)
 }

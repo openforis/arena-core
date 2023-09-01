@@ -7,8 +7,8 @@ import { RecordNodesIndexUpdater } from '../_records/recordNodesIndexUpdater'
 export const removeNodes =
   (nodes: { [key: string]: Node }) =>
   (record: Record): Record => {
-    const recordUpdated = { ...record, nodes: record.nodes || {} }
-    let indexUpdated = { ...(record._nodesIndex || {}) }
+    const recordUpdated = { ...record, nodes: record.nodes ?? {} }
+    let indexUpdated = { ...(record._nodesIndex ?? {}) }
 
     Object.values(nodes).forEach((nodeToRemove) => {
       visitDescendantsAndSelf({

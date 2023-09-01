@@ -1,6 +1,6 @@
 import { ValidationFactory } from './factory'
 import { FieldValidator } from './fieldValidator'
-import { ValidationSeverity, Validation, ValidationResult } from './validation'
+import { ValidationSeverity, Validation, ValidationResult, ValidationFields } from './validation'
 
 interface ValidateOptions {
   removeValid: boolean
@@ -33,7 +33,7 @@ export class Validator {
         this.validateField(obj, field, fieldValidators)
       )
     )
-    const fields: { [key: string]: Validation } = {}
+    const fields: ValidationFields = {}
     let valid = true
     Object.keys(fieldsValidators).forEach((field, index) => {
       const fieldValidation: Validation = fieldsValidationArray[index]
