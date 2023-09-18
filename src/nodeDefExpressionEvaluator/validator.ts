@@ -4,6 +4,7 @@ import { ValidationResult, ValidationResultFactory } from '../validation'
 import { NodeDefs } from '../nodeDef/nodeDefs'
 import { NodeDefExpressionContext } from './context'
 import { NodeDefExpressionEvaluator } from './evaluator'
+import { SystemError } from '../error'
 
 const determineNodeDefContext = (params: { survey: Survey; nodeDefCurrent: NodeDef<any> }) => {
   const { survey, nodeDefCurrent } = params
@@ -56,13 +57,11 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
         referencedNodeDefUuids: context.referencedNodeDefUuids ?? new Set(),
       }
     } catch (error: any) {
-      const details = error.description ?? error.toString()
+      const isSystemError = error instanceof SystemError
+      const key = isSystemError ? error.key : 'expression.invalid'
+      const params = isSystemError ? error.params : { details: error.description ?? error.toString() }
       return {
-        validationResult: ValidationResultFactory.createInstance({
-          valid: false,
-          key: 'expression.invalid',
-          params: { details },
-        }),
+        validationResult: ValidationResultFactory.createInstance({ valid: false, key, params }),
         referencedNodeDefUuids: new Set(),
       }
     }
