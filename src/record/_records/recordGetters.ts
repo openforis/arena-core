@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefType, NodeDefs } from '../../nodeDef'
 import { Node, NodePointer, Nodes } from '../../node'
 import { Record } from '../record'
 import { Surveys } from '../../survey'
@@ -97,7 +97,7 @@ export const getParentCodeAttribute =
   (record: Record): Node | undefined => {
     const { parentNode, nodeDef } = params
 
-    const parentCodeDefUuid = nodeDef.props.parentCodeDefUuid
+    const parentCodeDefUuid = NodeDefs.getParentCodeDefUuid(nodeDef)
     if (!parentCodeDefUuid) return undefined
 
     const ancestors = getAncestorsAndSelf({ record, node: parentNode })

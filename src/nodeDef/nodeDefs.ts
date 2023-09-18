@@ -60,6 +60,7 @@ const getVisibleFields = (nodeDef: NodeDef<NodeDefType>): string[] | undefined =
 
 // code
 const getCategoryUuid = (nodeDef: NodeDefCode): string | undefined => nodeDef.props.categoryUuid
+const getParentCodeDefUuid = (nodeDef: NodeDefCode): string | undefined => nodeDef.props.parentCodeDefUuid
 
 // coordinate
 const isAllowOnlyDeviceCoordinate = (nodeDef: NodeDefCoordinate): boolean => !!nodeDef.props.allowOnlyDeviceCoordinate
@@ -83,6 +84,9 @@ const getTaxonomyUuid = (nodeDef: NodeDefTaxon): string | undefined => nodeDef.p
 
 // text
 const getTextTransform = (nodeDef: NodeDefText): string | undefined => nodeDef.props?.textTransform
+
+// code and taxon
+const getItemsFilter = (nodeDef: NodeDef<any>): string | undefined => nodeDef.propsAdvanced?.itemsFilter
 
 // Validations
 const getValidations = (nodeDef: NodeDef<NodeDefType>): NodeDefValidations | undefined =>
@@ -160,11 +164,13 @@ export const NodeDefs = {
   getApplicable,
   getVisibleFields,
   getCategoryUuid,
+  getParentCodeDefUuid,
   isAllowOnlyDeviceCoordinate,
   getCoordinateAdditionalFields,
   getMaxNumberDecimalDigits,
   getTaxonomyUuid,
   getTextTransform,
+  getItemsFilter,
 
   // layout
   getLayoutProps,
