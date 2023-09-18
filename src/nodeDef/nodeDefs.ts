@@ -23,7 +23,7 @@ const isAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => !isEntity(nodeDe
 
 const isEntity = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.entity
 
-const isMultiple = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.props.multiple || false
+const isMultiple = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.props.multiple ?? false
 
 const isSingle = (nodeDef: NodeDef<NodeDefType>): boolean => !isMultiple(nodeDef)
 
@@ -35,18 +35,18 @@ const isMultipleEntity = (nodeDef: NodeDef<NodeDefType>): boolean => isEntity(no
 
 const isMultipleAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => isAttribute(nodeDef) && isMultiple(nodeDef)
 
-const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.props.key || false
+const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.props.key ?? false
 
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
 
-const getName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): string => nodeDef.props.name || ''
+const getName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): string => nodeDef.props.name ?? ''
 
 const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
   Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.labels?.[lang])
 
-const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly || false
+const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ?? false
 
-const isEnumerate = (nodeDef: NodeDefEntity): boolean => nodeDef.props.enumerate || false
+const isEnumerate = (nodeDef: NodeDefEntity): boolean => nodeDef.props.enumerate ?? false
 
 const getDefaultValues = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
   nodeDef.propsAdvanced?.defaultValues ?? []
@@ -54,7 +54,7 @@ const getDefaultValues = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
 const isDefaultValueEvaluatedOneTime = (nodeDef: NodeDef<NodeDefType>): boolean =>
   !!nodeDef.propsAdvanced?.defaultValueEvaluatedOneTime
 
-const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.applicable || []
+const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.applicable ?? []
 
 const getVisibleFields = (nodeDef: NodeDef<NodeDefType>): string[] | undefined => nodeDef.props.visibleFields
 
@@ -92,7 +92,7 @@ const getItemsFilter = (nodeDef: NodeDef<any>): string | undefined => nodeDef.pr
 const getValidations = (nodeDef: NodeDef<NodeDefType>): NodeDefValidations | undefined =>
   nodeDef.propsAdvanced?.validations
 
-const isRequired = (nodeDef: NodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required || false
+const isRequired = (nodeDef: NodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required ?? false
 
 // // Min max
 const getMinCount = (nodeDef: NodeDef<NodeDefType>) => Numbers.toNumber(getValidations(nodeDef)?.count?.min)
@@ -136,12 +136,12 @@ const getLayoutChildren =
 const isHiddenWhenNotRelevant =
   (cycle = '0') =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
-    getLayoutProps(cycle)(nodeDef).hiddenWhenNotRelevant || false
+    getLayoutProps(cycle)(nodeDef).hiddenWhenNotRelevant ?? false
 
 const getLayoutCodeShown =
   (cycle = '0') =>
   (nodeDef: NodeDefCode): boolean =>
-    getLayoutProps(cycle)(nodeDef).codeShown || false
+    getLayoutProps(cycle)(nodeDef).codeShown ?? false
 
 export const NodeDefs = {
   isEntity,

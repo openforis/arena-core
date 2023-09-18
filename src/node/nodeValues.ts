@@ -27,13 +27,13 @@ export const valuePropsByType = {
   [NodeDefType.text]: null,
 }
 
-const getValuePropRaw = (params: { value: any; prop: string; defaultValue?: any }): any | undefined => {
+const getValuePropRaw = (params: { value: any; prop: string; defaultValue?: any }): any => {
   const { value, prop, defaultValue } = params
   const valueProp = value?.[prop]
   return valueProp === undefined ? defaultValue : valueProp
 }
 
-const getNodeValuePropRaw = (params: { node: Node; prop: string; defaultValue?: any }): any | undefined => {
+const getNodeValuePropRaw = (params: { node: Node; prop: string; defaultValue?: any }): any => {
   const { node, prop, defaultValue } = params
   return getValuePropRaw({ value: node.value, prop, defaultValue })
 }

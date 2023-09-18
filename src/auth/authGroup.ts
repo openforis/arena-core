@@ -7,8 +7,6 @@ export enum AuthGroupName {
   dataEditor = 'dataEditor',
   dataCleanser = 'dataCleanser',
   dataAnalyst = 'dataAnalyst',
-  // TODO enable surveyGuest auth group
-  // surveyGuest = 'surveyGuest',
 }
 
 export interface AuthGroup {
@@ -87,10 +85,4 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
       1: RecordStepPermission.own,
     },
   },
-  // ,
-  // {
-  //   name: groupNames.surveyGuest,
-  //   labels: {[lang]: 'Survey guest'},
-  //   descriptions: {[lang]: `Can view records`},
-  // },
 ]

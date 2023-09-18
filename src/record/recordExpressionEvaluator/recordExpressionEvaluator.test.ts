@@ -1,4 +1,4 @@
-import { NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Node } from '../../node'
 import { Record } from '../record'
@@ -20,6 +20,19 @@ let survey: Survey
 let record: Record
 
 const getNode = (path: string): Node => TestUtils.getNodeByPath({ survey, record, path })
+
+const determineContextNode = (params: {
+  nodeCurrentDef: NodeDef<NodeDefType, NodeDefProps>
+  nodeCurrent: Node
+  node: string | undefined
+}): Node => {
+  const { nodeCurrentDef, nodeCurrent, node } = params
+  const nodeContext = nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent(nodeCurrent)(record)
+  if (!nodeContext) {
+    throw new Error(`Cannot find context node: ${node}`)
+  }
+  return nodeContext
+}
 
 describe('RecordExpressionEvaluator', () => {
   beforeAll(async () => {
@@ -262,17 +275,15 @@ describe('RecordExpressionEvaluator', () => {
 
   queries.forEach((query: Query) => {
     const { expression, result, error: errorExpected = false, node } = query
-    test(`${expression}${node ? ` (node: ${node})` : ''}`, () => {
+    const testNameSuffix = node ? ` (node: ${node})` : ''
+
+    test(`${expression}${testNameSuffix}`, () => {
       try {
         const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
         if (!nodeCurrent) throw new Error(`Cannot find current node: ${node}`)
 
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid })
-        const nodeContext =
-          nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent(nodeCurrent)(record)
-        if (!nodeContext) {
-          throw new Error(`Cannot find context node: ${node}`)
-        }
+        const nodeContext = determineContextNode({ nodeCurrentDef, nodeCurrent, node })
         const context: RecordExpressionContext = { survey, record, nodeContext, nodeCurrent, object: nodeContext }
         const res = new RecordExpressionEvaluator().evaluate(expression, context)
         expect(res).toEqual(result instanceof Function ? result() : result)

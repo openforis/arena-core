@@ -20,6 +20,28 @@ const expectToBeNodeDef = (value: any): void => {
   expect(value).toHaveProperty(['props', 'name'])
 }
 
+const checkExpressionEvaluateResult = (params: {
+  result: any
+  expectedResultValue: any
+  resultIsNotNodeDef: boolean
+}): void => {
+  const { result, expectedResultValue, resultIsNotNodeDef } = params
+
+  if (expectedResultValue === null || expectedResultValue === undefined) {
+    expect(result).toBe(expectedResultValue)
+    return
+  }
+  expect(result).not.toBeNull()
+
+  if (resultIsNotNodeDef) {
+    expect(result).toBe(expectedResultValue)
+  } else {
+    expectToBeNodeDef(result)
+    const nodeDefResult: NodeDef<NodeDefType, NodeDefProps> = result
+    expect(nodeDefResult.props.name).toEqual(expectedResultValue)
+  }
+}
+
 describe('NodeDefExpressionEvaluator', () => {
   beforeAll(async () => {
     const user = createTestAdminUser()
@@ -78,25 +100,15 @@ describe('NodeDefExpressionEvaluator', () => {
   queries.forEach((query: Query) => {
     const { expression, result, resultIsNotNodeDef = false, error: errorExpected = false, nodeDef } = query
     const expectedResultValue = result instanceof Function ? result() : result
+    const testNameSuffix = nodeDef ? ` (nodeDef: ${nodeDef})` : ''
 
-    test(`${expression}${nodeDef ? ` (nodeDef: ${nodeDef})` : ''}`, () => {
+    test(`${expression}${testNameSuffix}`, () => {
       try {
         const nodeDefCurrent = Surveys.getNodeDefByName({ survey, name: nodeDef ?? 'cluster_id' })
 
         const result = new NodeDefExpressionEvaluator().evalExpression({ survey, expression, nodeDef: nodeDefCurrent })
 
-        if (expectedResultValue === null || expectedResultValue === undefined) {
-          expect(result).toBe(expectedResultValue)
-        } else {
-          expect(result).not.toBeNull()
-          if (resultIsNotNodeDef) {
-            expect(result).toBe(expectedResultValue)
-          } else {
-            expectToBeNodeDef(result)
-            const nodeDefResult: NodeDef<NodeDefType, NodeDefProps> = result
-            expect(nodeDefResult.props.name).toEqual(expectedResultValue)
-          }
-        }
+        checkExpressionEvaluateResult({ result, expectedResultValue, resultIsNotNodeDef })
       } catch (error) {
         if (errorExpected) {
           expect(error).toBeDefined()

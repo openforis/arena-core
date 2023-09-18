@@ -19,7 +19,7 @@ const RecordUpdateOptionsDefaults: RecordUpdateOptions = {
 export const addNodes =
   (nodes: { [key: string]: Node }, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: Record): Record => {
-    const { sideEffect, updateNodesIndex } = Object.assign({}, RecordUpdateOptionsDefaults, options)
+    const { sideEffect, updateNodesIndex } = { ...RecordUpdateOptionsDefaults, ...options }
 
     const recordUpdated = sideEffect ? record : { ...record }
     const recordNodes = RecordGetters.getNodes(recordUpdated)
@@ -27,7 +27,7 @@ export const addNodes =
     if (sideEffect) {
       recordUpdated.nodes = Object.assign(recordNodes, nodes)
     } else {
-      recordUpdated.nodes = Object.assign({}, recordNodes, nodes)
+      recordUpdated.nodes = { ...recordNodes, ...nodes }
     }
     if (updateNodesIndex) {
       recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(nodes, sideEffect)(recordUpdated._nodesIndex ?? {})
@@ -59,39 +59,39 @@ export const deleteNodes =
       ? recordValidation
       : { ...recordValidation, fields: { ...Validations.getFieldValidations(recordValidation) } }
 
+    const deleteDescendantNode = (visitedNode: Node): void => {
+      const visitedNodeUuid = visitedNode.uuid
+      if (nodesDeleted[visitedNodeUuid]) return
+
+      // 1. delete node from 'nodes'
+      delete recordNodesUpdated[visitedNodeUuid]
+
+      const visitedNodeUpdated = sideEffect ? visitedNode : { ...visitedNode }
+      visitedNodeUpdated.deleted = true
+      nodesDeleted[visitedNodeUuid] = visitedNodeUpdated
+
+      // 2. delete node from validation
+      recordValidationUpdated = Validations.dissocFieldValidation(visitedNodeUuid, sideEffect)(recordValidationUpdated)
+
+      recordValidationUpdated = Validations.dissocFieldValidationsStartingWith(
+        `${RecordValidations.prefixValidationFieldChildrenCount}${visitedNodeUuid}`,
+        sideEffect
+      )(recordValidationUpdated)
+
+      // 3. update nodes index
+      if (updateNodesIndex) {
+        recordNodesIndex = RecordNodesIndexUpdater.removeNode(visitedNode, sideEffect)(recordNodesIndex)
+      }
+    }
+
     nodeUuids.forEach((nodeUuid) => {
       const node = recordNodesUpdated[nodeUuid]
       if (!node) return
+
       RecordGetters.visitDescendantsAndSelf({
         record,
         node,
-        visitor: (visitedNode) => {
-          const visitedNodeUuid = visitedNode.uuid
-          if (nodesDeleted[visitedNodeUuid]) return
-
-          // 1. delete node from 'nodes'
-          delete recordNodesUpdated[visitedNodeUuid]
-
-          const visitedNodeUpdated = sideEffect ? visitedNode : { ...visitedNode }
-          visitedNodeUpdated.deleted = true
-          nodesDeleted[visitedNodeUuid] = visitedNodeUpdated
-
-          // 2. delete node from validation
-          recordValidationUpdated = Validations.dissocFieldValidation(
-            visitedNodeUuid,
-            sideEffect
-          )(recordValidationUpdated)
-
-          recordValidationUpdated = Validations.dissocFieldValidationsStartingWith(
-            `${RecordValidations.prefixValidationFieldChildrenCount}${visitedNodeUuid}`,
-            sideEffect
-          )(recordValidationUpdated)
-
-          // 3. update nodes index
-          if (updateNodesIndex) {
-            recordNodesIndex = RecordNodesIndexUpdater.removeNode(visitedNode, sideEffect)(recordNodesIndex)
-          }
-        },
+        visitor: deleteDescendantNode,
       })
     })
 

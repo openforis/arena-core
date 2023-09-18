@@ -264,6 +264,12 @@ export const getDependentNodePointers = (params: {
   const dependentDefs = Surveys.getNodeDefDependents({ survey, nodeDefUuid, dependencyType })
   const nodePointers: Array<NodePointer> = []
 
+  const addToNodePointers = (nodePointer: NodePointer): void => {
+    if (filterFn === null || filterFn(nodePointer)) {
+      nodePointers.push(nodePointer)
+    }
+  }
+
   for (const dependentDef of dependentDefs) {
     // 1 find common parent node
     const commonParentNode = getCommonParentNode({ record, node, nodeDef, dependentDef })
@@ -280,25 +286,19 @@ export const getDependentNodePointers = (params: {
     })
 
     dependentContextNodes.forEach((dependentContextNode) => {
-      const nodePointer = {
+      addToNodePointers({
         nodeCtx: dependentContextNode,
         nodeDef: dependentDef,
-      }
-      if (filterFn === null || filterFn(nodePointer)) {
-        nodePointers.push(nodePointer)
-      }
+      })
     })
   }
   if (includeSelf) {
     const parentNode = getParent(node)(record)
     if (parentNode) {
-      const nodePointerSelf: NodePointer = {
+      addToNodePointers({
         nodeCtx: parentNode,
         nodeDef,
-      }
-      if (filterFn === null || filterFn(nodePointerSelf)) {
-        nodePointers.push(nodePointerSelf)
-      }
+      })
     }
   }
 

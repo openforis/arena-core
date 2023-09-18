@@ -1,6 +1,5 @@
 import { Survey } from '../../../../survey'
-import { RECORD_STEP_DEFAULT } from '../../../../record'
-import { RecordFactory } from '../../../../record'
+import { RECORD_STEP_DEFAULT, RecordFactory } from '../../../../record'
 import { AuthGroupName } from '../../../authGroup'
 import { Authorizer } from '../../../authorizer'
 import { UserFactory } from '../../../factory'

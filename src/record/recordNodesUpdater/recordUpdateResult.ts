@@ -34,7 +34,7 @@ export class RecordUpdateResult {
    * @param {!RecordUpdateResult} recordUpdateResult - The record update result to merge with.
    * @returns {RecordUpdateResult} - The updated object.
    */
-  merge(recordUpdateResult: RecordUpdateResult): RecordUpdateResult {
+  merge(recordUpdateResult: RecordUpdateResult): this {
     this.record = recordUpdateResult.record
     Object.assign(this.nodes, recordUpdateResult.nodes)
     return this
