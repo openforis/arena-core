@@ -47,7 +47,7 @@ export class JavascriptExpressionEvaluator<C extends ExpressionContext> implemen
 
   evaluate(expression: string, context?: C): any {
     const parser = new JavascriptExpressionParser()
-    return this.evaluateNode(parser.parse(expression), context || ({} as C))
+    return this.evaluateNode(parser.parse(expression), context ?? ({} as C))
   }
 
   evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: C): any {

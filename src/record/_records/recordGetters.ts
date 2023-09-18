@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefType, NodeDefs } from '../../nodeDef'
 import { Node, NodePointer, Nodes } from '../../node'
 import { Record } from '../record'
 import { Surveys } from '../../survey'
@@ -97,7 +97,7 @@ export const getParentCodeAttribute =
   (record: Record): Node | undefined => {
     const { parentNode, nodeDef } = params
 
-    const parentCodeDefUuid = nodeDef.props.parentCodeDefUuid
+    const parentCodeDefUuid = NodeDefs.getParentCodeDefUuid(nodeDef)
     if (!parentCodeDefUuid) return undefined
 
     const ancestors = getAncestorsAndSelf({ record, node: parentNode })
@@ -264,6 +264,12 @@ export const getDependentNodePointers = (params: {
   const dependentDefs = Surveys.getNodeDefDependents({ survey, nodeDefUuid, dependencyType })
   const nodePointers: Array<NodePointer> = []
 
+  const addToNodePointers = (nodePointer: NodePointer): void => {
+    if (filterFn === null || filterFn(nodePointer)) {
+      nodePointers.push(nodePointer)
+    }
+  }
+
   for (const dependentDef of dependentDefs) {
     // 1 find common parent node
     const commonParentNode = getCommonParentNode({ record, node, nodeDef, dependentDef })
@@ -280,25 +286,19 @@ export const getDependentNodePointers = (params: {
     })
 
     dependentContextNodes.forEach((dependentContextNode) => {
-      const nodePointer = {
+      addToNodePointers({
         nodeCtx: dependentContextNode,
         nodeDef: dependentDef,
-      }
-      if (filterFn === null || filterFn(nodePointer)) {
-        nodePointers.push(nodePointer)
-      }
+      })
     })
   }
   if (includeSelf) {
     const parentNode = getParent(node)(record)
     if (parentNode) {
-      const nodePointerSelf: NodePointer = {
+      addToNodePointers({
         nodeCtx: parentNode,
         nodeDef,
-      }
-      if (filterFn === null || filterFn(nodePointerSelf)) {
-        nodePointers.push(nodePointerSelf)
-      }
+      })
     }
   }
 

@@ -28,7 +28,7 @@ export const _walk = (options: { object: any; skip?: string[] }): any => {
 
 export const camelize = (object: any, options: { skip?: string[] } = {}): any => {
   if (typeof object === 'string') {
-    return _camelCase(object as string)
+    return _camelCase(object)
   }
 
   const { skip } = options

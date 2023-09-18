@@ -13,12 +13,12 @@ export class TaxonomyBuilder {
     this._extraProps = {}
   }
 
-  taxa(...taxonBuilders: TaxonBuilder[]): TaxonomyBuilder {
+  taxa(...taxonBuilders: TaxonBuilder[]): this {
     this.taxonBuilders = [...taxonBuilders]
     return this
   }
 
-  extraProps(extraPropsDef: ExtraPropDefs): TaxonomyBuilder {
+  extraProps(extraPropsDef: ExtraPropDefs): this {
     this._extraProps = extraPropsDef
     return this
   }

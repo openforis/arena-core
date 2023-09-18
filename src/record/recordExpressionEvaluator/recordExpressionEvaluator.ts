@@ -51,9 +51,8 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
   }): NodeDefExpression[] {
     const { survey, record, nodeCtx, expressions, stopAtFirstFound = false } = params
     const applicableExpressions: NodeDefExpression[] = []
-    for (let i = 0; i < expressions.length; i += 1) {
-      const expression = expressions[i]
 
+    expressions.every((expression) => {
       const applyIfExpr = expression.applyIf
 
       if (
@@ -63,10 +62,12 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
         applicableExpressions.push(expression)
 
         if (stopAtFirstFound) {
-          return applicableExpressions
+          // break the loop
+          return false
         }
       }
-    }
+      return true
+    })
 
     return applicableExpressions
   }

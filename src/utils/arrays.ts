@@ -7,7 +7,7 @@ const last = <T>(array: T[] = []): T | undefined => (array.length > 0 ? array[ar
 const addItems =
   <T>(items: T[], options?: { sideEffect?: boolean }) =>
   (array: T[]): T[] => {
-    const { sideEffect = false } = options || {}
+    const { sideEffect = false } = options ?? {}
     if (sideEffect) {
       array.push(...items)
       return array

@@ -76,7 +76,7 @@ export const getTaxonVernacularNameUuid = (params: {
 }): string | undefined => {
   const { survey, taxonomyUuid, taxonCode, vernacularName } = params
   const taxon = getTaxonByCode({ survey, taxonomyUuid, taxonCode })
-  const vernacularNameObj = Object.values(taxon?.vernacularNames || {})
+  const vernacularNameObj = Object.values(taxon?.vernacularNames ?? {})
     .flat()
     .find((vernNameObj) => vernNameObj.props.name === vernacularName)
   return vernacularNameObj?.uuid
@@ -93,7 +93,7 @@ export const includesTaxonVernacularName = (params: {
   if (!taxonomyUuid) return false
 
   const taxon = getTaxonByCode({ survey, taxonomyUuid, taxonCode })
-  const vernacularNamesByLang = taxon?.vernacularNames || {}
+  const vernacularNamesByLang = taxon?.vernacularNames ?? {}
 
   return Object.values(vernacularNamesByLang).some((vernacularNames) =>
     vernacularNames.some((vernacularName) => vernacularName.uuid === vernacularNameUuid)

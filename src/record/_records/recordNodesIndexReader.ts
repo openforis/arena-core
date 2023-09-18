@@ -17,7 +17,7 @@ const getNodeUuidsByParentAndChildDef =
 const getNodeUuidsByParent =
   (parentNodeUuid: string) =>
   (index: RecordNodesIndex): string[] => {
-    const nodesPresenceByChildDefUuid = index.nodesByParentAndChildDef?.[parentNodeUuid] || {}
+    const nodesPresenceByChildDefUuid = index.nodesByParentAndChildDef?.[parentNodeUuid] ?? {}
     return Object.values(nodesPresenceByChildDefUuid).flatMap((nodesPresence) => Object.keys(nodesPresence))
   }
 

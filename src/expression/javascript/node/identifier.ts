@@ -4,7 +4,7 @@ import { ExpressionNodeEvaluator, IdentifierExpression } from '../../node'
 import { getGlobalObjectProperty } from '../global'
 
 const getNativeProperty = (name: string, object: any) => {
-  const prop = object && object[name]
+  const prop = object?.[name]
   if (prop === undefined) {
     return undefined
   }

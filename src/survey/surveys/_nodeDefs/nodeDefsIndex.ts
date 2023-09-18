@@ -51,20 +51,20 @@ export const deleteNodeDefIndex =
     let surveyUpdated: Survey = Objects.dissocPath({
       obj: survey,
       path: [keys.nodeDefsIndex, keys.childDefUuidPresenceByParentUuid, nodeDef.uuid],
-    }) as Survey
+    })
 
     const parentUuid = nodeDef.parentUuid
     if (parentUuid) {
       surveyUpdated = Objects.dissocPath({
         obj: surveyUpdated,
         path: [keys.nodeDefsIndex, keys.childDefUuidPresenceByParentUuid, parentUuid, nodeDef.uuid],
-      }) as Survey
+      })
     } else {
       // node def is root
       surveyUpdated = Objects.dissocPath({
         obj: surveyUpdated,
         path: [keys.nodeDefsIndex, keys.rootDefUuid],
-      }) as Survey
+      })
     }
     return surveyUpdated
   }
@@ -76,7 +76,7 @@ export const buildAndAssocNodeDefsIndex = (survey: Survey): Survey => {
     childDefUuidPresenceByParentUuid: {},
   }
   getNodeDefsArray(survey)
-    .sort((nodeDef1: NodeDef<any>, nodeDef2: NodeDef<any>) => (nodeDef1.id || 0) - (nodeDef2.id || 0))
+    .sort((nodeDef1: NodeDef<any>, nodeDef2: NodeDef<any>) => (nodeDef1.id ?? 0) - (nodeDef2.id ?? 0))
     .forEach((nodeDef) => addNodeDefToIndex(nodeDef, { sideEffect: true })(survey))
 
   return survey

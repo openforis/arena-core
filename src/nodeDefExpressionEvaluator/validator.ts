@@ -38,9 +38,7 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
     } = params
 
     try {
-      const nodeDefContext = nodeDefContextParam
-        ? nodeDefContextParam
-        : determineNodeDefContext({ survey, nodeDefCurrent })
+      const nodeDefContext = nodeDefContextParam ?? determineNodeDefContext({ survey, nodeDefCurrent })
 
       const context: NodeDefExpressionContext = {
         survey,

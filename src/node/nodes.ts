@@ -28,7 +28,7 @@ const getHierarchyCode = (node: Node) => [...(node.meta?.hCode ?? [])]
 const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
   Objects.deepMerge(target, ...sources) as unknown as Node
 
-const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueApplied || false
+const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueApplied ?? false
 
 const isValueBlank = (node: Node): boolean => Objects.isEmpty(node.value)
 

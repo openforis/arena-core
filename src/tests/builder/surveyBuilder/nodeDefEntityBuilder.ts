@@ -10,7 +10,7 @@ export class NodeDefEntityBuilder extends NodeDefBuilder {
     this.childBuilders = childBuilders
   }
 
-  enumerate(): NodeDefEntityBuilder {
+  enumerate(): this {
     const p = this.props as NodeDefEntityProps
     p.enumerate = true
     return this

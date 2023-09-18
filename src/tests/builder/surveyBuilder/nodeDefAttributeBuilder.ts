@@ -13,22 +13,22 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     return { [def.uuid]: def }
   }
 
-  key(): NodeDefAttributeBuilder {
+  key(): this {
     this.props.key = true
     return this
   }
 
-  readOnly(): NodeDefAttributeBuilder {
+  readOnly(): this {
     this.props.readOnly = true
     return this
   }
 
-  defaultValue(expression: string): NodeDefAttributeBuilder {
+  defaultValue(expression: string): this {
     this.propsAdvanced.defaultValues = [NodeDefExpressionFactory.createInstance({ expression })]
     return this
   }
 
-  defaultValues(...expressions: string[]): NodeDefAttributeBuilder {
+  defaultValues(...expressions: string[]): this {
     if (!this.propsAdvanced.defaultValues) this.propsAdvanced.defaultValues = []
     this.propsAdvanced.defaultValues = expressions.map((expression) =>
       NodeDefExpressionFactory.createInstance({ expression })
@@ -36,7 +36,7 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     return this
   }
 
-  validationExpressions(...expressions: (string | NodeDefExpression)[]): NodeDefAttributeBuilder {
+  validationExpressions(...expressions: (string | NodeDefExpression)[]): this {
     if (!this.propsAdvanced.validations) this.propsAdvanced.validations = {}
     this.propsAdvanced.validations.expressions = expressions.map((expression) =>
       typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression

@@ -13,17 +13,17 @@ export class CategoryItemBuilder {
     this.childItemBuilders = []
   }
 
-  label(label: string): CategoryItemBuilder {
+  label(label: string): this {
     this._label = label
     return this
   }
 
-  extra(extraProps: { [key: string]: any }): CategoryItemBuilder {
+  extra(extraProps: { [key: string]: any }): this {
     this.extraProps = extraProps
     return this
   }
 
-  items(...itemBuilders: CategoryItemBuilder[]): CategoryItemBuilder {
+  items(...itemBuilders: CategoryItemBuilder[]): this {
     this.childItemBuilders = [...itemBuilders]
     return this
   }
