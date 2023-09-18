@@ -59,7 +59,7 @@ const evaluateIdentifierOnNode = (params: {
   const nodeDefObject = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefObjectUuid })
 
   // node value prop (native)
-  if (value && value[propName] !== undefined) {
+  if (value?.[propName] !== undefined) {
     return value[propName]
   }
   if (NodeDefs.isAttribute(nodeDefObject)) {

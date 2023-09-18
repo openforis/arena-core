@@ -11,7 +11,7 @@ export abstract class NodeBuilder {
   }
 
   protected getNodeDef(params: { survey: Survey }): NodeDef<NodeDefType, NodeDefProps> {
-    const nodeDef = Object.values(params.survey.nodeDefs || {}).find((n) => n.props.name === this.nodeDefName)
+    const nodeDef = Object.values(params.survey.nodeDefs ?? {}).find((n) => n.props.name === this.nodeDefName)
 
     if (!nodeDef) {
       throw new Error(`Node def with name ${this.nodeDefName} not found in survey`)

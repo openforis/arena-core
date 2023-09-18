@@ -1,6 +1,6 @@
 const handleGeneratorNext =
   <T>(results: any[]) =>
-  async (generator: Iterator<T, any>): Promise<any> => {
+  async (generator: Iterator<T, Promise<any>>): Promise<any> => {
     const { done, value } = generator.next()
 
     if (done) {
@@ -36,7 +36,7 @@ const each = async <T>(
   function* generator() {
     let index = 0
     for (const item of iterable) {
-      if (stopIfFn && stopIfFn(item)) {
+      if (stopIfFn?.(item)) {
         return
       }
       yield callback(item, index)

@@ -34,17 +34,17 @@ export abstract class NodeDefBuilder {
 
   abstract build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> }
 
-  multiple(): NodeDefBuilder {
+  multiple(): this {
     this.props.multiple = true
     return this
   }
 
-  applyIf(expression: string): NodeDefBuilder {
+  applyIf(expression: string): this {
     this.propsAdvanced.applicable = [NodeDefExpressionFactory.createInstance({ expression })]
     return this
   }
 
-  minCount(count: number): NodeDefBuilder {
+  minCount(count: number): this {
     return Objects.assocPath({
       obj: this,
       path: ['propsAdvanced', 'validations', 'count', 'min'],

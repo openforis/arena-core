@@ -17,9 +17,11 @@ export enum DateFormats {
   datetimeDefault = 'yyyy-MM-dd_HH-mm-ss',
 }
 
+type DateType = Date | number | string
+
 const format = (date: number | Date, format: string): string => (date ? dateFnsFormat(date, format) : '')
 
-const formatForStorage = (date: number | Date | string): string => new Date(date).toISOString()
+const formatForStorage = (date: DateType): string => new Date(date).toISOString()
 
 const nowFormattedForStorage = (): string => formatForStorage(new Date())
 const nowFormattedForExpression = (): string => format(Date.now(), DateFormats.datetimeDefault)
@@ -67,7 +69,7 @@ const isValidTime = (hour: any = '', minutes: any = ''): boolean =>
     ? false
     : Number(hour) >= 0 && Number(hour) < 24 && Number(minutes) >= 0 && Number(minutes) < 60
 
-const toDate = (date: Date | number | string): Date | null => {
+const toDate = (date: DateType): Date | null => {
   if (Objects.isEmpty(date)) return null
   if (date instanceof Date) return date
   if (typeof date === 'string') return parseISO(date)
@@ -75,14 +77,14 @@ const toDate = (date: Date | number | string): Date | null => {
   return null
 }
 
-const isAfter = (date: Date | number | string, dateToCompare: Date | number | string): boolean => {
+const isAfter = (date: DateType, dateToCompare: DateType): boolean => {
   const _date = toDate(date)
   const _dateToCompare = toDate(dateToCompare)
   if (!_date || !_dateToCompare) return false
   return dateFnsIsAfter(_date, _dateToCompare)
 }
 
-const isBefore = (date: Date | number | string, dateToCompare: Date | number | string): boolean => {
+const isBefore = (date: DateType, dateToCompare: DateType): boolean => {
   const _date = toDate(date)
   const _dateToCompare = toDate(dateToCompare)
   if (!_date || !_dateToCompare) return false

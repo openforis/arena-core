@@ -17,14 +17,14 @@ export class TaxonBuilder {
     this.vernacularNames = {}
   }
 
-  vernacularName(lang: string, name: string): TaxonBuilder {
+  vernacularName(lang: string, name: string): this {
     const names = this.vernacularNames[lang] || []
     names.push(VernacularNameFactory.createInstance({ lang, name }))
     this.vernacularNames[lang] = names
     return this
   }
 
-  extra(extraProps: { [key: string]: any }): TaxonBuilder {
+  extra(extraProps: { [key: string]: any }): this {
     this.extraProps = extraProps
     return this
   }

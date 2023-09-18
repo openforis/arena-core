@@ -26,12 +26,12 @@ export class SurveyBuilder {
     this.taxonomyBuilders = []
   }
 
-  categories(...categoryBuilders: CategoryBuilder[]): SurveyBuilder {
+  categories(...categoryBuilders: CategoryBuilder[]): this {
     this.categoryBuilders = categoryBuilders
     return this
   }
 
-  taxonomies(...taxonomyBuilders: TaxonomyBuilder[]): SurveyBuilder {
+  taxonomies(...taxonomyBuilders: TaxonomyBuilder[]): this {
     this.taxonomyBuilders = taxonomyBuilders
     return this
   }

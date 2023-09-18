@@ -15,17 +15,17 @@ export class CategoryBuilder {
     this._extraProps = {}
   }
 
-  levels(...levelNames: string[]): CategoryBuilder {
+  levels(...levelNames: string[]): this {
     this.levelNames = levelNames
     return this
   }
 
-  items(...itemBuilders: CategoryItemBuilder[]): CategoryBuilder {
+  items(...itemBuilders: CategoryItemBuilder[]): this {
     this.itemBuilders = [...itemBuilders]
     return this
   }
 
-  extraProps(extraPropsDefs: ExtraPropDefs): CategoryBuilder {
+  extraProps(extraPropsDefs: ExtraPropDefs): this {
     this._extraProps = extraPropsDefs
     return this
   }
