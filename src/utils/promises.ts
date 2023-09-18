@@ -1,6 +1,6 @@
 const handleGeneratorNext =
   <T>(results: any[]) =>
-  async (generator: Iterator<T, any>): Promise<any> => {
+  async (generator: Iterator<Promise<T>, any>): Promise<any> => {
     const { done, value } = generator.next()
 
     if (done) {
