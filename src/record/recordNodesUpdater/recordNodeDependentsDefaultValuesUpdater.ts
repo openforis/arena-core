@@ -49,9 +49,10 @@ const updateDefaultValuesInNodes = (params: {
   survey: Survey
   nodePointer: NodePointer
   updateResult: RecordUpdateResult
+  timezoneOffset?: number
   sideEffect?: boolean
 }) => {
-  const { survey, nodePointer, updateResult, sideEffect = false } = params
+  const { survey, nodePointer, updateResult, timezoneOffset, sideEffect = false } = params
 
   const { nodeCtx, nodeDef } = nodePointer
 
@@ -69,6 +70,7 @@ const updateDefaultValuesInNodes = (params: {
       record,
       nodeCtx,
       expressions: expressionsToEvaluate,
+      timezoneOffset,
     })
 
     const exprEvalValue = exprEval?.value
@@ -125,9 +127,10 @@ export const updateSelfAndDependentsDefaultValues = (params: {
   survey: Survey
   record: Record
   node: Node
+  timezoneOffset?: number
   sideEffect?: boolean
 }) => {
-  const { survey, record, node, sideEffect = false } = params
+  const { survey, record, node, timezoneOffset, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -161,7 +164,7 @@ export const updateSelfAndDependentsDefaultValues = (params: {
 
   // 2. update expr to node and dependent nodes
   nodePointersToUpdate.forEach((nodePointer) => {
-    updateDefaultValuesInNodes({ survey, nodePointer, updateResult, sideEffect })
+    updateDefaultValuesInNodes({ survey, nodePointer, updateResult, timezoneOffset, sideEffect })
   })
 
   return updateResult

@@ -19,9 +19,10 @@ export const updateNodesDependents = (params: {
   survey: Survey
   record: Record
   nodes: { [key: string]: Node }
+  timezoneOffset?: number
   sideEffect?: boolean
 }): RecordUpdateResult => {
-  const { survey, record, nodes, sideEffect = false } = params
+  const { survey, record, nodes, timezoneOffset, sideEffect = false } = params
   const updateResult = new RecordUpdateResult({ record, nodes: sideEffect ? nodes : { ...nodes } })
 
   const nodeUuidsToVisit = new Queue(Object.keys(nodes))
@@ -41,6 +42,7 @@ export const updateNodesDependents = (params: {
         survey,
         record: updateResult.record,
         node,
+        timezoneOffset,
         sideEffect,
       })
 
@@ -51,6 +53,7 @@ export const updateNodesDependents = (params: {
         survey,
         record: updateResult.record,
         node,
+        timezoneOffset,
         sideEffect,
       })
 
