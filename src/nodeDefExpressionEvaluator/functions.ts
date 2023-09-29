@@ -72,7 +72,13 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 0,
     maxArity: 0,
     evaluateToNode: false,
-    executor: () => () => Dates.nowFormattedForExpression(),
+    executor: (context: NodeDefExpressionContext) => () => {
+      const now = new Date()
+      const localTimezoneOffset = now.getTimezoneOffset()
+      const timezoneOffsetDiff = localTimezoneOffset - (context.timezoneOffset ?? localTimezoneOffset)
+      const nowWithTimezoneOffset = timezoneOffsetDiff ? new Date(now.getTime() - timezoneOffsetDiff * 60 * 1000) : now
+      return Dates.formatForExpression(nowWithTimezoneOffset)
+    },
   },
   parent: {
     minArity: 1,

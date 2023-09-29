@@ -12,6 +12,12 @@ import { Records } from '../records'
 import { CategoryItem } from '../../category'
 import { Taxon } from '../../taxonomy'
 
+type ExpressionEvaluateParams = {
+  survey: Survey
+  record: Record
+  timezoneOffset?: number
+}
+
 export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<RecordExpressionContext> {
   constructor() {
     super(recordExpressionFunctions, {
@@ -20,14 +26,14 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
     })
   }
 
-  evalExpression(params: {
-    survey: Survey
-    record: Record
-    node: Node
-    query: string
-    item?: CategoryItem | Taxon
-  }): any {
-    const { survey, record, node, query, item } = params
+  evalExpression(
+    params: ExpressionEvaluateParams & {
+      node: Node
+      query: string
+      item?: CategoryItem | Taxon
+    }
+  ): any {
+    const { survey, record, node, query, item, timezoneOffset } = params
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent(node)(record)
     if (!nodeContext) return null
@@ -38,18 +44,19 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
       nodeCurrent: node,
       object: nodeContext,
       item,
+      timezoneOffset,
     }
     return this.evaluate(query, context)
   }
 
-  private _getApplicableExpressions(params: {
-    survey: Survey
-    record: Record
-    nodeCtx: Node
-    expressions: NodeDefExpression[]
-    stopAtFirstFound: boolean
-  }): NodeDefExpression[] {
-    const { survey, record, nodeCtx, expressions, stopAtFirstFound = false } = params
+  private _getApplicableExpressions(
+    params: ExpressionEvaluateParams & {
+      nodeCtx: Node
+      expressions: NodeDefExpression[]
+      stopAtFirstFound?: boolean
+    }
+  ): NodeDefExpression[] {
+    const { survey, record, nodeCtx, expressions, stopAtFirstFound = false, timezoneOffset } = params
     const applicableExpressions: NodeDefExpression[] = []
 
     expressions.every((expression) => {
@@ -57,7 +64,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
 
       if (
         Objects.isEmpty(applyIfExpr) ||
-        this.evalExpression({ survey, record, node: nodeCtx, query: applyIfExpr ?? '' })
+        this.evalExpression({ survey, record, node: nodeCtx, query: applyIfExpr ?? '', timezoneOffset })
       ) {
         applicableExpressions.push(expression)
 
@@ -72,42 +79,29 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
     return applicableExpressions
   }
 
-  evalApplicableExpressions = (params: {
-    survey: Survey
-    record: Record
-    nodeCtx: Node
-    expressions: NodeDefExpression[]
-    stopAtFirstFound?: boolean
-  }): { expression: NodeDefExpression; value: any }[] => {
-    const { survey, record, nodeCtx, expressions, stopAtFirstFound = true } = params
-    const applicableExpressions = this._getApplicableExpressions({
-      survey,
-      record,
-      nodeCtx,
-      expressions,
-      stopAtFirstFound,
-    })
+  evalApplicableExpressions = (
+    params: ExpressionEvaluateParams & {
+      nodeCtx: Node
+      expressions: NodeDefExpression[]
+      stopAtFirstFound?: boolean
+    }
+  ): { expression: NodeDefExpression; value: any }[] => {
+    const { nodeCtx } = params
+    const applicableExpressions = this._getApplicableExpressions(params)
 
     return applicableExpressions.map((expression) => ({
       expression,
-      value: this.evalExpression({ survey, record, node: nodeCtx, query: expression.expression ?? '' }),
+      value: this.evalExpression({ ...params, node: nodeCtx, query: expression.expression ?? '' }),
     }))
   }
 
-  evalApplicableExpression = (params: {
-    survey: Survey
-    record: Record
-    nodeCtx: Node
-    expressions: NodeDefExpression[]
-  }): { expression: NodeDefExpression; value: any } | null => {
-    const { survey, record, nodeCtx, expressions } = params
-    const expressionsEvaluated = this.evalApplicableExpressions({
-      survey,
-      record,
-      nodeCtx,
-      expressions,
-      stopAtFirstFound: true,
-    })
+  evalApplicableExpression = (
+    params: ExpressionEvaluateParams & {
+      nodeCtx: Node
+      expressions: NodeDefExpression[]
+    }
+  ): { expression: NodeDefExpression; value: any } | null => {
+    const expressionsEvaluated = this.evalApplicableExpressions({ ...params, stopAtFirstFound: true })
     return expressionsEvaluated[0] ?? null
   }
 }

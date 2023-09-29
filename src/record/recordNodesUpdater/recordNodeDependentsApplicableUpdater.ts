@@ -12,8 +12,9 @@ export const updateSelfAndDependentsApplicable = (params: {
   record: Record
   node: Node
   sideEffect?: boolean
+  timezoneOffset?: number
 }): RecordUpdateResult => {
-  const { survey, record, node, sideEffect = false } = params
+  const { survey, record, node, timezoneOffset, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -44,6 +45,7 @@ export const updateSelfAndDependentsApplicable = (params: {
       record: updateResult.record,
       nodeCtx,
       expressions: expressionsToEvaluate,
+      timezoneOffset,
     })
 
     const applicable = exprEval?.value || false

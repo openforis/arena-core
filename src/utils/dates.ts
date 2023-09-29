@@ -22,9 +22,10 @@ type DateType = Date | number | string
 const format = (date: number | Date, format: string): string => (date ? dateFnsFormat(date, format) : '')
 
 const formatForStorage = (date: DateType): string => new Date(date).toISOString()
+const formatForExpression = (date: DateType): string => format(new Date(date), DateFormats.datetimeDefault)
 
 const nowFormattedForStorage = (): string => formatForStorage(new Date())
-const nowFormattedForExpression = (): string => format(Date.now(), DateFormats.datetimeDefault)
+const nowFormattedForExpression = (): string => formatForExpression(Date.now())
 
 const parse = (dateStr: string, format: DateFormats) => dateFnsParse(dateStr, format, new Date())
 const parseISO = (dateStr: string) => dateFnsParseISO(dateStr)
@@ -91,6 +92,11 @@ const isBefore = (date: DateType, dateToCompare: DateType): boolean => {
   return dateFnsIsBefore(_date, _dateToCompare)
 }
 
+/**
+ * Gets the difference in minutes between the time on the local computer and Universal Coordinated Time (UTC).
+ */
+const getTimezoneOffset = (): number => new Date().getTimezoneOffset()
+
 export const Dates = {
   isAfter,
   isBefore,
@@ -102,6 +108,8 @@ export const Dates = {
   convertDate,
   format,
   formatForStorage,
+  formatForExpression,
   parse,
   parseISO,
+  getTimezoneOffset,
 }

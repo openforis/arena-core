@@ -7,6 +7,20 @@ import { Survey, Surveys } from '../../survey'
 import { Record } from '../record'
 import { RecordUpdateResult } from './recordUpdateResult'
 
+export type NodesUpdateParams = {
+  survey: Survey
+  record: Record
+  dateModified?: string
+  timezoneOffset?: number
+  sideEffect?: boolean
+}
+
+export type NodeCreateParams = NodesUpdateParams & {
+  parentNode?: Node
+  nodeDef: NodeDef<any>
+  createMultipleEntities?: boolean
+}
+
 const getNodesToInsertCount = (nodeDef: NodeDef<any>): number => {
   if (NodeDefs.isSingle(nodeDef)) return 1
   return NodeDefs.getMinCount(nodeDef) ?? 0
@@ -57,48 +71,35 @@ const createEnumeratedEntityNodes = (params: {
   return true
 }
 
-const createChildNodesBasedOnMinCount =
-  (params: {
-    survey: Survey
-    updateResult: RecordUpdateResult
-    parentNode: Node
-    createMultipleEntities?: boolean
-    sideEffect?: boolean
-  }) =>
-  (childDef: NodeDef<any>): void => {
-    const { survey, parentNode, updateResult, createMultipleEntities = true, sideEffect = false } = params
+const createChildNodesBasedOnMinCount = (params: NodeCreateParams & { updateResult: RecordUpdateResult }): void => {
+  const { survey, parentNode, nodeDef, updateResult, createMultipleEntities = true, sideEffect = false } = params
 
-    if (NodeDefs.isMultipleEntity(childDef) && NodeDefs.isEnumerate(childDef)) {
-      if (createEnumeratedEntityNodes({ survey, parentNode, entityDef: childDef, updateResult, sideEffect })) {
-        return
-      }
-    }
-
-    const nodesToInsertCount = getNodesToInsertCount(childDef)
-    if (nodesToInsertCount === 0 || (!createMultipleEntities && NodeDefs.isMultipleEntity(childDef))) {
-      return // do nothing
-    }
-    for (let index = 0; index < nodesToInsertCount; index++) {
-      const childUpdateResult = createNodeAndDescendants({
-        survey,
-        record: updateResult.record,
-        parentNode,
-        nodeDef: childDef,
-        sideEffect,
-      })
-      updateResult.merge(childUpdateResult)
+  if (NodeDefs.isMultipleEntity(nodeDef) && NodeDefs.isEnumerate(nodeDef)) {
+    if (
+      createEnumeratedEntityNodes({ survey, parentNode: parentNode!, entityDef: nodeDef, updateResult, sideEffect })
+    ) {
+      return
     }
   }
 
-export const createDescendants = (params: {
-  survey: Survey
-  record: Record
-  parentNode: Node
-  nodeDef: NodeDef<any>
-  createMultipleEntities?: boolean
-  sideEffect?: boolean
-}): RecordUpdateResult => {
-  const { survey, record, parentNode, nodeDef, createMultipleEntities, sideEffect = false } = params
+  const nodesToInsertCount = getNodesToInsertCount(nodeDef)
+  if (nodesToInsertCount === 0 || (!createMultipleEntities && NodeDefs.isMultipleEntity(nodeDef))) {
+    return // do nothing
+  }
+  for (let index = 0; index < nodesToInsertCount; index++) {
+    const childUpdateResult = createNodeAndDescendants({
+      survey,
+      record: updateResult.record,
+      parentNode,
+      nodeDef,
+      sideEffect,
+    })
+    updateResult.merge(childUpdateResult)
+  }
+}
+
+export const createDescendants = (params: NodeCreateParams): RecordUpdateResult => {
+  const { survey, record, nodeDef } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -106,22 +107,13 @@ export const createDescendants = (params: {
     const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef })
 
     // Add only child single nodes (it allows to apply default values)
-    childDefs.forEach(
-      createChildNodesBasedOnMinCount({ survey, parentNode, updateResult, createMultipleEntities, sideEffect })
-    )
+    childDefs.forEach((nodeDef) => createChildNodesBasedOnMinCount({ ...params, updateResult, nodeDef }))
   }
   return updateResult
 }
 
-export const createNodeAndDescendants = (params: {
-  survey: Survey
-  record: Record
-  parentNode?: Node
-  nodeDef: NodeDef<any>
-  createMultipleEntities?: boolean
-  sideEffect?: boolean
-}): RecordUpdateResult => {
-  const { survey, record, parentNode, nodeDef, createMultipleEntities, sideEffect = false } = params
+export const createNodeAndDescendants = (params: NodeCreateParams): RecordUpdateResult => {
+  const { survey, record, parentNode, nodeDef, sideEffect = false } = params
 
   const node = NodeFactory.createInstance({
     nodeDefUuid: nodeDef.uuid,
@@ -135,14 +127,7 @@ export const createNodeAndDescendants = (params: {
 
   // Add children if entity
   if (NodeDefs.isEntity(nodeDef)) {
-    const descendantsUpdateResult = createDescendants({
-      survey,
-      record: updateResult.record,
-      nodeDef,
-      parentNode: node,
-      createMultipleEntities,
-      sideEffect,
-    })
+    const descendantsUpdateResult = createDescendants({ ...params, record: updateResult.record, parentNode: node })
     updateResult.merge(descendantsUpdateResult)
   }
   return updateResult
