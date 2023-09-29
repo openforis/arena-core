@@ -49,10 +49,21 @@ const _toCoordinate = (params: { valueExpr: any }): Point | null => {
   return Points.parse(valueExpr)
 }
 
-const _toDateTime = (params: { valueExpr: any; format: DateFormats; formatsFrom: DateFormats[] }) => {
-  const { valueExpr, format, formatsFrom = [DateFormats.datetimeDefault] } = params
+const _toDateTime = (params: {
+  valueExpr: any
+  format: DateFormats
+  formatsFrom: DateFormats[]
+  timezoneOffset?: number
+}) => {
+  const { valueExpr, format, formatsFrom = [DateFormats.datetimeDefault], timezoneOffset } = params
   const formatFrom = formatsFrom.find((formt) => Dates.isValidDateInFormat(valueExpr, formt))
-  return formatFrom ? Dates.convertDate({ dateStr: valueExpr, formatFrom, formatTo: format }) : null
+  if (!formatFrom) return null
+
+  const date = Dates.parse(valueExpr, formatFrom)
+  const localTimezoneOffset = Dates.getTimezoneOffset()
+  const timezoneOffsetDiff = localTimezoneOffset - (timezoneOffset ?? localTimezoneOffset)
+  const dateWithTimezoneOffset = timezoneOffsetDiff ? new Date(date.getTime() - timezoneOffsetDiff * 60 * 1000) : date
+  return Dates.format(dateWithTimezoneOffset, format)
 }
 
 const _toTaxon = (params: { survey: Survey; nodeDef: NodeDef<any>; valueExpr: any }): NodeValueTaxon | null => {
@@ -70,24 +81,26 @@ const _valueExprToValueNodeFns = {
   [NodeDefType.boolean]: _toBoolean,
   [NodeDefType.code]: _toCode,
   [NodeDefType.coordinate]: _toCoordinate,
-  [NodeDefType.date]: (params: { valueExpr: any }) => {
-    const { valueExpr } = params
+  [NodeDefType.date]: (params: { valueExpr: any; timezoneOffset?: number }) => {
+    const { valueExpr, timezoneOffset } = params
     return _toDateTime({
       valueExpr,
       format: DateFormats.dateStorage,
-      formatsFrom: [DateFormats.datetimeDefault, DateFormats.dateStorage],
+      formatsFrom: [DateFormats.datetimeStorage, DateFormats.datetimeDefault, DateFormats.dateStorage],
+      timezoneOffset,
     })
   },
   [NodeDefType.decimal]: _toPrimitive(Number),
   [NodeDefType.integer]: _toPrimitive(Number),
   [NodeDefType.taxon]: _toTaxon,
   [NodeDefType.text]: _toPrimitive(String),
-  [NodeDefType.time]: (params: { valueExpr: any }) => {
-    const { valueExpr } = params
+  [NodeDefType.time]: (params: { valueExpr: any; timezoneOffset?: number }) => {
+    const { valueExpr, timezoneOffset } = params
     return _toDateTime({
       valueExpr,
       format: DateFormats.timeStorage,
-      formatsFrom: [DateFormats.datetimeDefault, DateFormats.timeStorage],
+      formatsFrom: [DateFormats.datetimeStorage, DateFormats.datetimeDefault, DateFormats.timeStorage],
+      timezoneOffset,
     })
   },
   // not supported types
@@ -101,12 +114,13 @@ const toNodeValue = (params: {
   nodeParent: Node
   nodeDef: NodeDef<any>
   valueExpr: string
+  timezoneOffset?: number
 }) => {
-  const { survey, record, nodeParent, nodeDef, valueExpr } = params
+  const { survey, record, nodeParent, nodeDef, valueExpr, timezoneOffset } = params
   if (Objects.isEmpty(valueExpr)) return null
 
   const fn = _valueExprToValueNodeFns[NodeDefs.getType(nodeDef)]
-  return fn({ survey, record, nodeParent, nodeDef, valueExpr })
+  return fn({ survey, record, nodeParent, nodeDef, valueExpr, timezoneOffset })
 }
 
 export const RecordExpressionValueConverter = {

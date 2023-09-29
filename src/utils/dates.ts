@@ -27,8 +27,9 @@ const formatForExpression = (date: DateType): string => format(new Date(date), D
 const nowFormattedForStorage = (): string => formatForStorage(new Date())
 const nowFormattedForExpression = (): string => formatForExpression(Date.now())
 
-const parse = (dateStr: string, format: DateFormats) => dateFnsParse(dateStr, format, new Date())
 const parseISO = (dateStr: string) => dateFnsParseISO(dateStr)
+const parse = (dateStr: string, format: DateFormats) =>
+  format == DateFormats.datetimeStorage ? parseISO(dateStr) : dateFnsParse(dateStr, format, new Date())
 
 const isValidDateInFormat = (dateStr: string, format: DateFormats) => {
   const parsed = parse(dateStr, format)
