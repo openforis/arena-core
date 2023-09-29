@@ -82,6 +82,7 @@ const updateDefaultValuesInNodes = (params: {
           nodeDef,
           nodeParent: nodeCtx,
           valueExpr: exprEvalValue,
+          timezoneOffset,
         })
 
     const nodesToUpdate = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
