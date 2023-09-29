@@ -62,7 +62,7 @@ const _toDateTime = (params: {
   const date = Dates.parse(valueExpr, formatFrom)
   const localTimezoneOffset = Dates.getTimezoneOffset()
   const timezoneOffsetDiff = localTimezoneOffset - (timezoneOffset ?? localTimezoneOffset)
-  const dateWithTimezoneOffset = timezoneOffsetDiff ? new Date(date.getTime() - timezoneOffsetDiff * 60 * 1000) : date
+  const dateWithTimezoneOffset = timezoneOffsetDiff ? new Date(date.getTime() + timezoneOffsetDiff * 60000) : date
   return Dates.format(dateWithTimezoneOffset, format)
 }
 
