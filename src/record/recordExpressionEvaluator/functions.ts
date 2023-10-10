@@ -45,16 +45,8 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       if (!node) {
         return -1
       }
-      if (Nodes.isRoot(node)) {
-        return 0
-      }
       const { record } = context
-      const parentNode = Records.getParent(node)(record)
-      if (!parentNode) {
-        return -1
-      }
-      const children = Records.getChildren(parentNode, node.nodeDefUuid)(record)
-      return children.findIndex((n) => Nodes.areEqual(n, node))
+      return Records.getNodeIndex({ record, node })
     },
   },
   parent: {

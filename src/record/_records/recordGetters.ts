@@ -232,6 +232,19 @@ export const getEntityKeyValues = (params: { survey: Survey; record: Record; ent
   return getEntityKeyNodes({ survey, record, entity }).map((node) => node.value)
 }
 
+export const getNodeIndex = (params: { record: Record; node: Node }) => {
+  const { record, node } = params
+  if (Nodes.isRoot(node)) {
+    return 0
+  }
+  const parentNode = getParent(node)(record)
+  if (!parentNode) {
+    return -1
+  }
+  const children = getChildren(parentNode, node.nodeDefUuid)(record)
+  return children.findIndex((n) => Nodes.areEqual(n, node))
+}
+
 export const getNodeSiblings = (params: {
   record: Record
   node: Node
