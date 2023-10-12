@@ -64,8 +64,10 @@ const typeValidatorFns: {
     const srs = Surveys.getSRSByCode(srsCode)(survey)
     if (!srs) return false
 
+    const srsIndex = Surveys.getSRSIndex(survey)
+
     const point = PointFactory.createInstance({ srs: srsCode, x, y })
-    return point && Points.isValid(point)
+    return point && Points.isValid(point, srsIndex)
   },
 
   [NodeDefType.date]: (params: { node: Node }): boolean => {
