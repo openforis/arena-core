@@ -44,7 +44,12 @@ const getName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): string => nodeDef
 const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
   Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.labels?.[lang])
 
+const getDescription = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
+  Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.descriptions?.[lang])
+
 const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ?? false
+
+const isHidden = (nodeDef: NodeDef<any>): boolean => nodeDef.props.hidden ?? false
 
 const isEnumerate = (nodeDef: NodeDefEntity): boolean => nodeDef.props.enumerate ?? false
 
@@ -133,6 +138,11 @@ const getLayoutChildren =
   (nodeDef: NodeDefEntity): NodeDefEntityChildPosition[] | string[] | undefined =>
     getLayoutProps(cycle)(nodeDef).layoutChildren
 
+const isHiddenInMobile =
+  (cycle = '0') =>
+  <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
+    getLayoutProps(cycle)(nodeDef).hiddenInMobile ?? false
+
 const isHiddenWhenNotRelevant =
   (cycle = '0') =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
@@ -154,11 +164,13 @@ export const NodeDefs = {
   isMultipleAttribute,
   isKey,
   isReadOnly,
+  isHidden,
   isEnumerate,
   isRoot,
   getType,
   getName,
   getLabelOrName,
+  getDescription,
   getDefaultValues,
   isDefaultValueEvaluatedOneTime,
   getApplicable,
@@ -179,6 +191,7 @@ export const NodeDefs = {
   isLayoutRenderTypeTable,
   getChildrenEntitiesInOwnPageUudis,
   getLayoutChildren,
+  isHiddenInMobile,
   isHiddenWhenNotRelevant,
   getLayoutCodeShown,
   // validations

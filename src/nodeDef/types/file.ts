@@ -1,7 +1,14 @@
 import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
 
+export enum NodeDefFileType {
+  audio = 'audio',
+  image = 'image',
+  video = 'video',
+  other = 'other',
+}
+
 export interface NodeDefFileProps extends NodeDefProps {
-  fileType?: 'audio' | 'image' | 'video' | 'other'
+  fileType?: NodeDefFileType
   maxFileSize?: number
 }
 
