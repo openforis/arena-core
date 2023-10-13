@@ -1,6 +1,6 @@
 import { CategoryItems } from '../category'
 import { LanguageCode } from '../language'
-import { NodeDef, NodeDefDecimal, NodeDefs, NodeDefType } from '../nodeDef'
+import { NodeDef, NodeDefCode, NodeDefDecimal, NodeDefs, NodeDefType } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Taxa } from '../taxonomy'
 import { DateFormats, Dates, Numbers, Objects, Strings } from '../utils'
@@ -18,17 +18,18 @@ const extractCategoryItem = (params: { survey: Survey; node?: Node; value: any }
 
 type FormatParams = {
   survey: Survey
+  cycle: string
   nodeDef: NodeDef<NodeDefType>
   node?: Node
   value: any
   showLabel?: boolean
-  quoteText?: boolean
+  quoteLabels?: boolean
   lang?: LanguageCode
 }
 
 const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
   [NodeDefType.code]: (params: FormatParams) => {
-    const { survey, node, value, showLabel, quoteText, lang } = params
+    const { survey, cycle, nodeDef, node, value, showLabel, quoteLabels, lang } = params
 
     if (!showLabel) {
       // item code already inside value, no need to get category item
@@ -39,8 +40,13 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
     if (!categoryItem) return null
 
     if (showLabel) {
-      const labelOrCode = CategoryItems.getLabelOrCode(categoryItem, lang!)
-      return quoteText ? Strings.quote(labelOrCode) : labelOrCode
+      let result
+      if (NodeDefs.isCodeShown(cycle)(nodeDef as NodeDefCode)) {
+        result = CategoryItems.getLabelWithCode(categoryItem, lang!)
+      } else {
+        result = CategoryItems.getLabelOrCode(categoryItem, lang!)
+      }
+      return quoteLabels ? Strings.quote(result) : result
     }
     return CategoryItems.getCode(categoryItem)
   },
@@ -65,8 +71,8 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
     return showLabel ? Taxa.getScientificName(taxon) : Taxa.getCode(taxon)
   },
   [NodeDefType.text]: (params: FormatParams) => {
-    const { value, quoteText } = params
-    return quoteText ? Strings.quote(value) : value
+    const { value, quoteLabels } = params
+    return quoteLabels ? Strings.quote(value) : value
   },
 }
 

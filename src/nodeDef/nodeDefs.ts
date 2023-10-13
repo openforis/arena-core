@@ -148,7 +148,7 @@ const isHiddenWhenNotRelevant =
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
     getLayoutProps(cycle)(nodeDef).hiddenWhenNotRelevant ?? false
 
-const getLayoutCodeShown =
+const isCodeShown =
   (cycle = '0') =>
   (nodeDef: NodeDefCode): boolean =>
     getLayoutProps(cycle)(nodeDef).codeShown ?? false
@@ -193,7 +193,7 @@ export const NodeDefs = {
   getLayoutChildren,
   isHiddenInMobile,
   isHiddenWhenNotRelevant,
-  getLayoutCodeShown,
+  isCodeShown,
   // validations
   getValidations,
   isRequired,
