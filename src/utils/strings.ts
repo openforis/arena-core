@@ -7,6 +7,8 @@ const defaultIfEmpty =
   (text: TextType): string =>
     Objects.isEmpty(text) ? defaultValue : (text as string)
 
+const quote = (text: TextType): string => (Objects.isEmpty(text) ? '' : `'${text}'`)
+
 const removePrefix =
   (prefix: string) =>
   (text: TextType): string => {
@@ -23,6 +25,7 @@ const removeSuffix =
 
 export const Strings = {
   defaultIfEmpty,
+  quote,
   removePrefix,
   removeSuffix,
 }
