@@ -23,6 +23,7 @@ export interface NodeDefMeta {
 
 export interface NodeDefProps {
   cycles?: Array<string>
+  descriptions?: Labels
   key?: boolean
   labels?: Labels
   multiple?: boolean
@@ -37,6 +38,7 @@ export interface NodeDefProps {
 
 export interface NodeDefLayout {
   hiddenWhenNotRelevant?: boolean
+  hiddenInMobile?: boolean
   // code
   codeShown?: boolean
 }

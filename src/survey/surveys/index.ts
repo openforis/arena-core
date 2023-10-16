@@ -13,6 +13,7 @@ import {
 } from './dependencies'
 
 import {
+  findNodeDefsByUuids,
   getNodeDefByName,
   getNodeDefsByUuids,
   getNodeDefByUuid,
@@ -117,6 +118,7 @@ const getSRSByCode =
     getSRSIndex(survey)[code]
 
 export const Surveys = {
+  findNodeDefsByUuids,
   getName,
   getLanguages,
   getDefaultLanguage,

@@ -75,7 +75,7 @@ export type { Logger } from './logger'
 export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
 export type { Node, NodePointer, NodeService } from './node'
 
-export { NodeDefType, NodeDefFactory, NodeDefs, NodeDefEntityRenderType } from './nodeDef'
+export { NodeDefType, NodeDefFactory, NodeDefs, NodeDefEntityRenderType, NodeDefFileType } from './nodeDef'
 
 export { NodeDefExpressionEvaluator, NodeDefExpressionValidator } from './nodeDefExpressionEvaluator'
 

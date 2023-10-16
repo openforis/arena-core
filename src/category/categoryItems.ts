@@ -1,13 +1,21 @@
 import { LanguageCode } from '../language'
-import { Strings } from '../utils'
 import { CategoryItem } from './item'
 
 const getCode = (item: CategoryItem): string => item.props.code ?? ''
 
-const getLabelOrCode = (item: CategoryItem, lang: LanguageCode) =>
-  Strings.defaultIfEmpty(getCode(item))(item.props.labels?.[lang])
+const getLabel = (item: CategoryItem, lang: LanguageCode, defaultToCode?: boolean): string => {
+  const label = item.props.labels?.[lang] ?? ''
+  return !label && defaultToCode ? getCode(item) : label
+}
+
+const getLabelWithCode = (item: CategoryItem, lang: LanguageCode): string => {
+  const code = getCode(item)
+  const label = getLabel(item, lang)
+  return label ? `${label} (${code})` : code
+}
 
 export const CategoryItems = {
   getCode,
-  getLabelOrCode,
+  getLabel,
+  getLabelWithCode,
 }

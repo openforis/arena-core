@@ -30,6 +30,7 @@ export type { NodeDefEntity, NodeDefEntityChildPosition, NodeDefEntityLayout, No
 
 export { NodeDefEntityRenderType } from './types/entity'
 
+export { NodeDefFileType } from './types/file'
 export type { NodeDefFile, NodeDefFileProps } from './types/file'
 
 export type { NodeDefInteger } from './types/integer'

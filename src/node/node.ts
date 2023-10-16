@@ -8,6 +8,11 @@ export interface NodeMeta {
   defaultValueApplied?: boolean
 }
 
+export interface NodeRefData {
+  categoryItem?: CategoryItem
+  taxon?: Taxon
+}
+
 export interface Node {
   dateCreated?: string
   dateModified?: string
@@ -16,7 +21,7 @@ export interface Node {
   nodeDefUuid: string
   parentUuid?: string
   recordUuid: string
-  refData?: CategoryItem | Taxon
+  refData?: NodeRefData
   uuid: string
   value?: any
   placeholder?: boolean
