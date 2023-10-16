@@ -1,4 +1,4 @@
-import { CategoryItems } from '../category'
+import { CategoryItem, CategoryItems } from '../category'
 import { LanguageCode } from '../language'
 import { NodeDef, NodeDefCode, NodeDefDecimal, NodeDefs, NodeDefType } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
@@ -7,11 +7,11 @@ import { DateFormats, Dates, Numbers, Objects, Strings } from '../utils'
 import { Node } from './node'
 import { NodeValues } from './nodeValues'
 
-const extractCategoryItem = (params: { survey: Survey; node?: Node; value: any }) => {
+const extractCategoryItem = (params: { survey: Survey; node?: Node; value: any }): CategoryItem | undefined => {
   const { survey, node, value } = params
 
   const itemUuid = NodeValues.getValueItemUuid(value)
-  if (!itemUuid) return null
+  if (!itemUuid) return undefined
 
   return node?.refData?.categoryItem ?? Surveys.getCategoryItemByUuid({ survey, itemUuid })
 }
@@ -44,7 +44,7 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
       if (NodeDefs.isCodeShown(cycle)(nodeDef as NodeDefCode)) {
         result = CategoryItems.getLabelWithCode(categoryItem, lang!)
       } else {
-        result = CategoryItems.getLabelOrCode(categoryItem, lang!)
+        result = CategoryItems.getLabel(categoryItem, lang!, true)
       }
       return quoteLabels ? Strings.quote(result) : result
     }
