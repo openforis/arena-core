@@ -1,9 +1,3 @@
-const intersection = <T>(array1: T[], array2: T[]): T[] => array1.filter((item) => array2.indexOf(item) !== -1)
-
-const startsWith = <T>(list: T[], start: T[]): boolean => start.every((item, index) => list[index] === item)
-
-const last = <T>(array: T[] = []): T | undefined => (array.length > 0 ? array[array.length - 1] : undefined)
-
 const addItems =
   <T>(items: T[], options?: { sideEffect?: boolean }) =>
   (array: T[]): T[] => {
@@ -19,6 +13,12 @@ const addItem =
   (array: T[]): T[] =>
     addItems([item], options)(array)
 
+const fromNumberOfElements = (numOfElements: number): number[] => Array.from(Array(numOfElements).keys())
+
+const intersection = <T>(array1: T[], array2: T[]): T[] => array1.filter((item) => array2.indexOf(item) !== -1)
+
+const last = <T>(array: T[] = []): T | undefined => (array.length > 0 ? array[array.length - 1] : undefined)
+
 const removeItem =
   <T>(item: T) =>
   (array: T[]): T[] => {
@@ -30,11 +30,14 @@ const removeItem =
     return result
   }
 
+const startsWith = <T>(list: T[], start: T[]): boolean => start.every((item, index) => list[index] === item)
+
 export const Arrays = {
-  intersection,
-  startsWith,
-  last,
   addItem,
   addItems,
+  fromNumberOfElements,
+  intersection,
+  last,
   removeItem,
+  startsWith,
 }

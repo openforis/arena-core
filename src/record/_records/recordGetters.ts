@@ -8,6 +8,11 @@ import { SystemError } from '../../error'
 import { NodeValues } from '../../node/nodeValues'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
 
+export enum TraverseMethod {
+  bfs = 'bfs',
+  dfs = 'dfs',
+}
+
 export const getNodes = (record: Record): { [key: string]: Node } => record.nodes ?? {}
 
 export const getNodesArray = (record: Record): Node[] => Object.values(getNodes(record))
@@ -189,19 +194,41 @@ export const visitDescendantsAndSelf = (params: {
   record: Record
   node: Node
   visitor: (node: Node) => void
+  traverseMethod?: TraverseMethod
 }): void => {
-  const { record, node, visitor } = params
-  const queue = new Queue()
+  const { record, node, visitor, traverseMethod = TraverseMethod.bfs } = params
 
-  queue.enqueue(node)
+  if (traverseMethod === TraverseMethod.bfs) {
+    const queue = new Queue()
 
-  while (!queue.isEmpty()) {
-    const visitedNode = queue.dequeue()
+    queue.enqueue(node)
 
-    visitor(visitedNode)
+    while (!queue.isEmpty()) {
+      const visitedNode = queue.dequeue()
 
-    const children = getChildren(visitedNode)(record)
-    queue.enqueueItems(children)
+      visitor(visitedNode)
+
+      const children = getChildren(visitedNode)(record)
+      queue.enqueueItems(children)
+    }
+  } else {
+    const stack = []
+
+    stack.push(node)
+
+    while (stack.length > 0) {
+      const visitedNode = stack.pop() as Node
+
+      visitor(visitedNode)
+
+      const children = getChildren(visitedNode)(record)
+
+      // add children to stack in reverse order
+      for (let index = children.length - 1; index >= 0; index--) {
+        const child = children[index]
+        stack.push(child)
+      }
+    }
   }
 }
 

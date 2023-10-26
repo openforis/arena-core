@@ -14,3 +14,5 @@ export { RecordValidations } from './recordValidations'
 
 export { RecordFactory } from './factory'
 export type { RecordService } from './service'
+
+export { RecordPrettyPrinter } from './recordPrettyPrinter'
