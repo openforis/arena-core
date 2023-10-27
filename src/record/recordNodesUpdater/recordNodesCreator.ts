@@ -2,7 +2,7 @@ import { CategoryItem } from '../../category'
 import { SystemError } from '../../error'
 import { Node, NodeFactory } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
-import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefs } from '../../nodeDef'
+import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Record } from '../record'
 import { RecordUpdateResult } from './recordUpdateResult'
@@ -23,6 +23,7 @@ export type NodeCreateParams = NodesUpdateParams & {
 
 const getNodesToInsertCount = (nodeDef: NodeDef<any>): number => {
   if (NodeDefs.isSingle(nodeDef)) return 1
+  if (nodeDef.type === NodeDefType.code) return 0 // never create nodes for multiple code attributes
   return NodeDefs.getMinCount(nodeDef) ?? 0
 }
 

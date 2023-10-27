@@ -106,7 +106,7 @@ const dissocFieldValidationsStartingWith =
 
     const fieldsUpdated = sideEffect ? validation.fields : { ...validation.fields }
     Object.keys(fieldsUpdated).forEach((fieldKey: string) => {
-      if (!fieldKey.startsWith(fieldStartsWith)) {
+      if (fieldKey.startsWith(fieldStartsWith)) {
         delete fieldsUpdated[fieldKey]
       }
     })

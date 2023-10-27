@@ -120,6 +120,7 @@ export {
   RECORD_STEP_DEFAULT,
   RecordExpressionEvaluator,
   RecordNodesUpdater,
+  RecordPrettyPrinter,
   RecordUpdater,
   RecordUpdateResult,
   RecordValidator,

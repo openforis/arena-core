@@ -23,9 +23,18 @@ const removeSuffix =
     return text?.endsWith(suffix) ? text.substring(0, text.length - suffix.length) : (text as string)
   }
 
+const repeat = (text: string, times: number): string => {
+  const parts = []
+  for (let i = 0; i < times; i++) {
+    parts.push(text)
+  }
+  return parts.join('')
+}
+
 export const Strings = {
   defaultIfEmpty,
   quote,
   removePrefix,
   removeSuffix,
+  repeat,
 }
