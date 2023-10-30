@@ -26,7 +26,7 @@ describe('RecordUpdater - attribute update => update dependent validations', () 
         entityDef(
           'table',
           integerDef('table_id').key(),
-          integerDef('percentage').validationExpressions(`sum(parent($context).table.percentage) == 100`)
+          integerDef('coverage').validationExpressions(`sum(parent($context).table.coverage) == 100`)
         ).multiple()
       )
     ).build()
@@ -37,15 +37,16 @@ describe('RecordUpdater - attribute update => update dependent validations', () 
       entity(
         'root_entity',
         attribute('identifier', 10),
-        entity('table', attribute('table_id', 1), attribute('percentage', 10)),
-        entity('table', attribute('table_id', 2), attribute('percentage', 90))
+        entity('table', attribute('table_id', 1), attribute('coverage', 10)),
+        entity('table', attribute('table_id', 2), attribute('coverage', 90))
       )
     ).build()
 
-    const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'table[0].percentage' })
-    const siblingNode = TestUtils.getNodeByPath({ survey, record, path: 'table[1].percentage' })
+    const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'table[0].coverage' })
+    const siblingNode = TestUtils.getNodeByPath({ survey, record, path: 'table[1].coverage' })
     expect(nodeToUpdate.uuid).not.toEqual(siblingNode.uuid)
 
+    // set table[0].coverage to 80 (sum = 170) => validations not valid
     let updateResult = await RecordUpdater.updateAttributeValue({
       survey,
       record,
@@ -54,13 +55,13 @@ describe('RecordUpdater - attribute update => update dependent validations', () 
     })
 
     record = updateResult.record
-
-    const fieldValidations = Validations.getFieldValidations(Validations.getValidation(record))
-
+    let validation = Validations.getValidation(record)
+    const fieldValidations = Validations.getFieldValidations(validation)
     expect(Object.keys(fieldValidations).length).toEqual(2)
-    expect(Object.keys(fieldValidations).includes(nodeToUpdate.uuid)).toBeTruthy()
-    expect(Object.keys(fieldValidations).includes(siblingNode.uuid)).toBeTruthy()
+    expect(Validations.getFieldValidation(nodeToUpdate.uuid)(validation).valid).toBeFalsy()
+    expect(Validations.getFieldValidation(siblingNode.uuid)(validation).valid).toBeFalsy()
 
+    // set table[0].coverage to 10 (sum = 100) => validation valid
     updateResult = await RecordUpdater.updateAttributeValue({
       survey,
       record,
@@ -68,8 +69,7 @@ describe('RecordUpdater - attribute update => update dependent validations', () 
       value: 10,
     })
     record = updateResult.record
-
-    const validation = Validations.getValidation(record)
+    validation = Validations.getValidation(record)
     expect(Validations.getFieldValidation(nodeToUpdate.uuid)(validation).valid).toBeTruthy()
     expect(Validations.getFieldValidation(siblingNode.uuid)(validation).valid).toBeTruthy()
   })
