@@ -50,6 +50,7 @@ export interface Survey extends ArenaObject<SurveyProps> {
   authGroups: Array<AuthGroup>
   dateCreated?: string
   dateModified?: string
+  datePublished?: string
   dependencyGraph?: SurveyDependencyGraph
   draft: boolean
   nodeDefs?: { [nodeDefUuid: string]: NodeDef<NodeDefType> }
