@@ -135,4 +135,126 @@ describe('RecordUpdater - node delete', () => {
     expect(multEntityCountValidation.valid).toBeFalsy()
     expect(multEntityCountValidation?.errors?.[0].key).toBe('record.nodes.count.minNotReached')
   })
+
+  test('Entity deletion: cleanup validation', async () => {
+    const survey = new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        integerDef('int_gt_5').validationExpressions('this > 5'),
+        entityDef(
+          'mult_entity',
+          integerDef('mult_entity_id').key(),
+          integerDef('mult_entity_int_gt_10').validationExpressions('this > 10')
+        ).multiple()
+      )
+    ).build()
+
+    let record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        attribute('int_gt_5', 6),
+        entity('mult_entity', attribute('mult_entity_id', 1), attribute('mult_entity_int_gt_10', 11)),
+        entity('mult_entity', attribute('mult_entity_id', 2), attribute('mult_entity_int_gt_10', 20))
+      )
+    ).build()
+
+    // set int_gt_5 to 4 => 1 error
+    const intGt5 = TestUtils.getNodeByPath({ survey, record, path: 'int_gt_5' })
+    let updateResult = await RecordUpdater.updateAttributeValue({
+      survey,
+      record,
+      attributeUuid: intGt5.uuid,
+      value: 4,
+    })
+    record = updateResult.record
+    expect(Validations.getValidation(record).valid).toBeFalsy()
+    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record))).length).toBe(1)
+
+    // set mult_entity[1].mult_entity_int_gt_10 to 7 => 2 errors
+    const multEntityIntGt10 = TestUtils.getNodeByPath({ survey, record, path: 'mult_entity[1].mult_entity_int_gt_10' })
+    updateResult = await RecordUpdater.updateAttributeValue({
+      survey,
+      record,
+      attributeUuid: multEntityIntGt10.uuid,
+      value: 7,
+    })
+    record = updateResult.record
+    expect(Validations.getValidation(record).valid).toBeFalsy()
+    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record))).length).toBe(2)
+
+    // delete mult_entity[1] => 1 error
+    const nodeToDeletePath = 'root_entity.mult_entity[1]'
+    const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
+
+    updateResult = await RecordUpdater.deleteNode({ survey, record, nodeUuid: nodeToDelete.uuid })
+    record = updateResult.record
+    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record))).length).toBe(1)
+
+    // set int_gt_5 to 6 => 0 errors
+    updateResult = await RecordUpdater.updateAttributeValue({
+      survey,
+      record,
+      attributeUuid: intGt5.uuid,
+      value: 6,
+    })
+    record = updateResult.record
+    expect(Validations.getValidation(record).valid).toBeTruthy()
+    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record))).length).toBe(0)
+  })
+
+  test('Entity deletion: nodes index consistency', async () => {
+    const survey = new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        integerDef('int_gt_5'),
+        entityDef('mult_entity', integerDef('mult_entity_id').key(), integerDef('mult_entity_int_gt_10')).multiple()
+      )
+    ).build()
+
+    let record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        attribute('int_gt_5', 6),
+        entity('mult_entity', attribute('mult_entity_id', 1), attribute('mult_entity_int_gt_10', 11)),
+        entity('mult_entity', attribute('mult_entity_id', 2), attribute('mult_entity_int_gt_10', 20))
+      )
+    ).build()
+
+    const initialRecordIndexStr = JSON.stringify(record._nodesIndex)
+
+    // add mult_entity (tot = 3 entities)
+    const rootNode = Records.getRoot(record)
+    const multEntityDef = Surveys.getNodeDefByName({ survey, name: 'mult_entity' })
+    let updateResult = await RecordUpdater.createNodeAndDescendants({
+      survey,
+      record,
+      parentNode: rootNode,
+      nodeDef: multEntityDef,
+    })
+    expect(Object.values(updateResult.record._nodesIndex?.nodesByDef?.[multEntityDef.uuid] ?? {}).length).toBe(3)
+
+    record = updateResult.record
+
+    // delete last mult_entity (tot = 2 entities)
+    const nodeToDeletePath = 'root_entity.mult_entity[2]'
+    const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
+
+    updateResult = await RecordUpdater.deleteNode({ survey, record, nodeUuid: nodeToDelete.uuid })
+    expect(Object.values(updateResult.record._nodesIndex?.nodesByDef?.[multEntityDef.uuid] ?? {}).length).toBe(2)
+
+    record = updateResult.record
+
+    // nodes index should have been turned back to how it was at the beginning
+    expect(JSON.stringify(record._nodesIndex)).toEqual(initialRecordIndexStr)
+  })
 })

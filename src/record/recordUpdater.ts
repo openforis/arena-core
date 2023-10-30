@@ -1,12 +1,29 @@
 import { SystemError } from '../error'
-import { Node } from '../node'
-import { Surveys } from '../survey'
+import { Node, NodesMap } from '../node'
+import { Survey, SurveyDependencyType, Surveys } from '../survey'
 import { Dates, Objects } from '../utils'
 import { Validations } from '../validation/validations'
+import { NodePointers } from './nodePointers'
+import { Record } from './record'
 import { RecordNodesUpdater, RecordUpdateResult } from './recordNodesUpdater'
 import { NodeCreateParams, NodesUpdateParams } from './recordNodesUpdater/recordNodesCreator'
 import { Records } from './records'
 import { RecordValidator } from './recordValidator'
+
+const _getDependentValidationNodes = (params: { survey: Survey; record: Record; nodes: NodesMap }): NodesMap => {
+  const { survey, record, nodes } = params
+  return Object.values(nodes).reduce((acc: NodesMap, updatedNode) => {
+    const nodePointers = Records.getDependentNodePointers({
+      survey,
+      record: record,
+      node: updatedNode,
+      dependencyType: SurveyDependencyType.validations,
+    })
+    const nodes = NodePointers.getNodesFromNodePointers({ record: record, nodePointers })
+    nodes.forEach((node) => (acc[node.uuid] = node))
+    return acc
+  }, {})
+}
 
 const _onRecordNodesCreateOrUpdate = async (
   params: NodesUpdateParams & { nodes: { [x: string]: Node } }
@@ -28,10 +45,16 @@ const _onRecordNodesCreateOrUpdate = async (
     sideEffect,
   })
 
+  const nodesToValidate = { ...updatedNodes }
+
+  const dependentValidationNodes = _getDependentValidationNodes({ survey, record: updatedRecord, nodes: updatedNodes })
+
+  Object.assign(nodesToValidate, dependentValidationNodes)
+
   const validationUpdatedNodes = await RecordValidator.validateNodes({
     survey,
     record: updatedRecord,
-    nodes: updatedNodes,
+    nodes: nodesToValidate,
   })
 
   const validation = Validations.mergeValidations(validationUpdatedNodes)(Validations.getValidation(record))
