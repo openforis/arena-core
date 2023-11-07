@@ -7,11 +7,7 @@ import { Survey, SurveyDependencyType } from '../../survey/survey'
 import { SystemError } from '../../error'
 import { NodeValues } from '../../node/nodeValues'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
-
-export enum TraverseMethod {
-  bfs = 'bfs',
-  dfs = 'dfs',
-}
+import { TraverseMethod } from '../../common'
 
 export const getNodes = (record: Record): { [key: string]: Node } => record.nodes ?? {}
 

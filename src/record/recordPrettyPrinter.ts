@@ -4,6 +4,7 @@ import { Survey, Surveys } from '../survey'
 import { Strings } from '../utils'
 import { Record } from './record'
 import * as RecordGetters from './_records/recordGetters'
+import { TraverseMethod } from '../common'
 
 const print = (params: { survey: Survey; record: Record }): string => {
   const { survey, record } = params
@@ -23,7 +24,7 @@ const print = (params: { survey: Survey; record: Record }): string => {
       const part = `${indentation}${NodeDefs.getName(nodeDef)}: ${value}`
       parts.push(part)
     },
-    traverseMethod: RecordGetters.TraverseMethod.dfs,
+    traverseMethod: TraverseMethod.dfs,
   })
   return parts.join('\n')
 }
