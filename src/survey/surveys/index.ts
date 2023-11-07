@@ -32,6 +32,8 @@ import {
   buildAndAssocNodeDefsIndex,
   addNodeDefToIndex,
   deleteNodeDefIndex,
+  visitDescendantsAndSelfNodeDef,
+  visitNodeDefs,
 } from './nodeDefs'
 import {
   getCategoryItemByCodePaths,
@@ -142,6 +144,8 @@ export const Surveys = {
   getNodeDefKeys,
   isNodeDefEnumerator,
   getNodeDefEnumerator,
+  visitDescendantsAndSelfNodeDef,
+  visitNodeDefs,
 
   // ref data
   getCategoryByName,

@@ -7,3 +7,8 @@ export interface ArenaObject<T> {
 }
 
 export type { Factory } from './factory'
+
+export enum TraverseMethod {
+  bfs = 'bfs',
+  dfs = 'dfs',
+}
