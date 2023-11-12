@@ -6,24 +6,27 @@ import { Records } from '../records'
 import { NodeDef, NodeDefType, NodeDefs, NodeDefCodeProps, NodeDefTaxon } from '../../nodeDef'
 import { Dates, DateFormats, Objects } from '../../utils'
 
-const _toPrimitive = (TypeTo: any) => (params: { valueExpr: any }) => {
+interface ToNodeValueParams {
+  survey: Survey
+  record: Record
+  nodeParent: Node
+  nodeDef: NodeDef<any>
+  valueExpr: string
+  timezoneOffset?: number
+}
+
+const _toPrimitive = (TypeTo: any) => (params: ToNodeValueParams) => {
   const { valueExpr: val } = params
   return TypeTo(val)
 }
 
-const _toBoolean = (params: { valueExpr: any }) => {
+const _toBoolean = (params: ToNodeValueParams) => {
   const { valueExpr } = params
   if (['true', 'false'].includes(String(valueExpr))) return String(valueExpr)
   return null
 }
 
-const _toCode = (params: {
-  survey: Survey
-  record: Record
-  nodeDef: NodeDef<any>
-  nodeParent: Node
-  valueExpr: any
-}): NodeValueCode | null => {
+const _toCode = (params: ToNodeValueParams): NodeValueCode | null => {
   const { survey, record, nodeDef, nodeParent, valueExpr } = params
 
   if (!nodeParent) return null
@@ -44,7 +47,7 @@ const _toCode = (params: {
   return categoryItemUuid ? { itemUuid: categoryItemUuid } : null
 }
 
-const _toCoordinate = (params: { valueExpr: any }): Point | null => {
+const _toCoordinate = (params: ToNodeValueParams): Point | null => {
   const { valueExpr } = params
   return Points.parse(valueExpr)
 }
@@ -66,7 +69,7 @@ const _toDateTime = (params: {
   return Dates.format(dateWithTimezoneOffset, format)
 }
 
-const _toTaxon = (params: { survey: Survey; nodeDef: NodeDef<any>; valueExpr: any }): NodeValueTaxon | null => {
+const _toTaxon = (params: ToNodeValueParams): NodeValueTaxon | null => {
   const { survey, nodeDef, valueExpr } = params
 
   // ValueExpr is the code of a taxon
@@ -77,7 +80,7 @@ const _toTaxon = (params: { survey: Survey; nodeDef: NodeDef<any>; valueExpr: an
   return taxon ? { taxonUuid: taxon.uuid } : null
 }
 
-const _valueExprToValueNodeFns = {
+const _valueExprToValueNodeFns: { [key in NodeDefType]?: (params: ToNodeValueParams) => any } = {
   [NodeDefType.boolean]: _toBoolean,
   [NodeDefType.code]: _toCode,
   [NodeDefType.coordinate]: _toCoordinate,
@@ -103,24 +106,14 @@ const _valueExprToValueNodeFns = {
       timezoneOffset,
     })
   },
-  // not supported types
-  [NodeDefType.file]: () => null,
-  [NodeDefType.entity]: () => null,
 }
 
-const toNodeValue = (params: {
-  survey: Survey
-  record: Record
-  nodeParent: Node
-  nodeDef: NodeDef<any>
-  valueExpr: string
-  timezoneOffset?: number
-}) => {
+const toNodeValue = (params: ToNodeValueParams) => {
   const { survey, record, nodeParent, nodeDef, valueExpr, timezoneOffset } = params
   if (Objects.isEmpty(valueExpr)) return null
 
   const fn = _valueExprToValueNodeFns[NodeDefs.getType(nodeDef)]
-  return fn({ survey, record, nodeParent, nodeDef, valueExpr, timezoneOffset })
+  return fn?.({ survey, record, nodeParent, nodeDef, valueExpr, timezoneOffset })
 }
 
 export const RecordExpressionValueConverter = {

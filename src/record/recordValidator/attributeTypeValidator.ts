@@ -47,7 +47,7 @@ const validateTaxon = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, N
 }
 
 const typeValidatorFns: {
-  [key in NodeDefType]: (params: {
+  [key in NodeDefType]?: (params: {
     survey: Survey
     nodeDef: NodeDef<NodeDefType, NodeDefProps>
     node: Node
@@ -82,10 +82,6 @@ const typeValidatorFns: {
 
   [NodeDefType.decimal]: validateDecimal,
 
-  [NodeDefType.entity]: () => true,
-
-  [NodeDefType.file]: () => true,
-
   [NodeDefType.integer]: (params: { value: any }): boolean => {
     const { value } = params
     return Numbers.isInteger(value)
@@ -113,7 +109,7 @@ const validateValueType =
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const typeValidatorFn = typeValidatorFns[nodeDef.type]
-    const valid = typeValidatorFn({ survey, nodeDef, node, value: node.value })
+    const valid = typeValidatorFn?.({ survey, nodeDef, node, value: node.value }) ?? true
     return ValidationResultFactory.createInstance({ key: 'record.attribute.valueInvalid', valid })
   }
 

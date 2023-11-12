@@ -11,7 +11,7 @@ interface ExtractorParams {
 
 type Extractor = (params: ExtractorParams) => any
 
-const extractorsByNodeDefType: { [key in NodeDefType]: Extractor } = {
+const extractorsByNodeDefType: { [key in NodeDefType]?: Extractor } = {
   [NodeDefType.boolean]: (params: ExtractorParams) => {
     const { node } = params
     return node.value === 'true'
@@ -69,7 +69,7 @@ const getNodeValue = (params: { survey: Survey; node: Node; nodeDef: NodeDef<any
     return null
   }
   const extractor = extractorsByNodeDefType[nodeDef.type as NodeDefType]
-  return extractor({ survey, node })
+  return extractor?.({ survey, node })
 }
 
 export const NodeValueExtractor = {

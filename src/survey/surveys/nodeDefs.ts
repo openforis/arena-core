@@ -105,8 +105,9 @@ export const getNodeDefChildren = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   includeAnalysis?: boolean
+  includeLayoutElements?: boolean
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, nodeDef, includeAnalysis = false } = params
+  const { survey, nodeDef, includeAnalysis = false, includeLayoutElements = false } = params
 
   if (!survey.nodeDefs) return []
 
@@ -119,7 +120,13 @@ export const getNodeDefChildren = (params: {
     // calculate children
     childDefs = NodeDefsReader.calculateNodeDefChildren(nodeDef)(survey)
   }
-  return includeAnalysis ? childDefs : childDefs.filter((childDef) => !childDef.analysis)
+  if (!includeAnalysis) {
+    childDefs = childDefs.filter((childDef) => !childDef.analysis)
+  }
+  if (!includeLayoutElements) {
+    childDefs.filter((childDef) => !NodeDefs.isLayoutElement(childDef))
+  }
+  return childDefs
 }
 
 export const getNodeDefChildrenSorted = (params: {
@@ -127,10 +134,11 @@ export const getNodeDefChildrenSorted = (params: {
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   cycle: string
   includeAnalysis?: boolean
+  includeLayoutElements?: boolean
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, nodeDef, cycle, includeAnalysis } = params
+  const { survey, nodeDef, cycle, includeAnalysis, includeLayoutElements } = params
 
-  const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis })
+  const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis, includeLayoutElements })
 
   const entityDef = nodeDef as NodeDefEntity
 
