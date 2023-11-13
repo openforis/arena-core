@@ -228,19 +228,26 @@ export const visitDescendantsAndSelf = (params: {
   }
 }
 
-export const getCommonParentNode = (params: {
+const getClosestAncestorNode = (params: {
   record: Record
   node: Node
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   dependentDef: NodeDef<NodeDefType, NodeDefProps>
 }): Node | undefined => {
   const { record, node, nodeDef, dependentDef } = params
-  // 1 find common parent def
-  const commonParentDefUuid = Arrays.last(Arrays.intersection(nodeDef.meta.h, dependentDef.meta.h))
-  if (!commonParentDefUuid) return undefined
+
+  // 1a if dependent def is the same as node def, potentially all nodes with
+  // nodeDefUuid === dependentDef.uuid in record could be dependent of nodeDef;
+  // consider the root node as the closest ancestor node
+  if (nodeDef.uuid === dependentDef.uuid) {
+    return getRoot(record)
+  }
+  // 1 find common ancestor def
+  const commonAncestorDefUuid = Arrays.last(Arrays.intersection(nodeDef.meta.h, dependentDef.meta.h))
+  if (!commonAncestorDefUuid) return undefined
 
   // 2 get ancestor node with common parent def
-  return getAncestor({ record, node, ancestorDefUuid: commonParentDefUuid })
+  return getAncestor({ record, node, ancestorDefUuid: commonAncestorDefUuid })
 }
 
 export const getEntityKeyNodes = (params: { survey: Survey; record: Record; entity: Node }): Node[] => {
@@ -294,9 +301,9 @@ export const getDependentNodePointers = (params: {
   }
 
   for (const dependentDef of dependentDefs) {
-    // 1 find common parent node
-    const commonParentNode = getCommonParentNode({ record, node, nodeDef, dependentDef })
-    if (!commonParentNode) continue
+    // 1 find common ancestor node
+    const commonAncestorNode = getClosestAncestorNode({ record, node, nodeDef, dependentDef })
+    if (!commonAncestorNode) continue
 
     const nodeDefDependentParent = Surveys.getNodeDefParent({ survey, nodeDef: dependentDef })
     if (!nodeDefDependentParent) throw new SystemError('record.nodes.dependents.dependencyOnRootFound')
@@ -304,7 +311,7 @@ export const getDependentNodePointers = (params: {
     // 2 find descendant nodes of common parent node with nodeDefUuid = dependentDef uuid
     const dependentContextNodes = getDescendantsOrSelf({
       record,
-      node: commonParentNode,
+      node: commonAncestorNode,
       nodeDefDescendant: nodeDefDependentParent,
     })
 

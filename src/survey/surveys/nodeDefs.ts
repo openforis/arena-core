@@ -9,10 +9,11 @@ import {
   NodeDefType,
   NodeDefs,
 } from '../../nodeDef'
-import { Arrays } from '../../utils'
+import { Arrays, Queue } from '../../utils'
 import { SystemError } from '../../error'
 import * as NodeDefsReader from './_nodeDefs/nodeDefsReader'
 import * as NodeDefsIndex from './_nodeDefs/nodeDefsIndex'
+import { TraverseMethod } from '../../common'
 
 export const getNodeDefsArray = NodeDefsReader.getNodeDefsArray
 
@@ -165,6 +166,64 @@ export const getNodeDefChildrenSorted = (params: {
       .filter((child) => sortedChildrenUuids.includes(child.uuid))
       .sort((child1, child2) => sortedChildrenUuids.indexOf(child1.uuid) - sortedChildrenUuids.indexOf(child2.uuid))
   )
+}
+
+export const visitDescendantsAndSelfNodeDef = (params: {
+  survey: Survey
+  cycle?: string
+  nodeDef: NodeDef<any>
+  visitor: (nodeDef: NodeDef<any>) => void
+  includeAnalysis?: boolean
+  traverseMethod?: TraverseMethod
+}) => {
+  const { survey, cycle, nodeDef, visitor, traverseMethod = TraverseMethod.bfs, includeAnalysis = false } = params
+  if (traverseMethod === TraverseMethod.bfs) {
+    const queue = new Queue()
+
+    queue.enqueue(nodeDef)
+
+    while (!queue.isEmpty()) {
+      const visitedNodeDef = queue.dequeue()
+
+      visitor(visitedNodeDef)
+
+      if (visitedNodeDef.type === NodeDefType.entity) {
+        const childrenDefs = cycle
+          ? getNodeDefChildrenSorted({ survey, nodeDef, cycle, includeAnalysis })
+          : getNodeDefChildren({ survey, nodeDef: visitedNodeDef, includeAnalysis })
+        queue.enqueueItems(childrenDefs)
+      }
+    }
+  } else {
+    const stack = []
+
+    stack.push(nodeDef)
+
+    while (stack.length > 0) {
+      const visitedNodeDef = stack.pop()!
+
+      visitor(visitedNodeDef)
+
+      const children = getNodeDefChildren({ survey, nodeDef: visitedNodeDef, includeAnalysis })
+
+      // add children to stack in reverse order
+      for (let index = children.length - 1; index >= 0; index--) {
+        const child = children[index]
+        stack.push(child)
+      }
+    }
+  }
+}
+
+export const visitNodeDefs = (params: {
+  survey: Survey
+  visitor: (nodeDef: NodeDef<any>) => void
+  includeAnalysis?: boolean
+  traverseMethod?: TraverseMethod
+}) => {
+  const { survey, visitor, traverseMethod = TraverseMethod.bfs, includeAnalysis = false } = params
+  const rootDef = getNodeDefRoot({ survey })
+  return visitDescendantsAndSelfNodeDef({ survey, nodeDef: rootDef, visitor, traverseMethod, includeAnalysis })
 }
 
 // Node Def Code

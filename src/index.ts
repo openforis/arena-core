@@ -30,7 +30,8 @@ export type {
   ChainNodeDefAggregateProps,
 } from './chain'
 
-export type { ArenaObject, Factory, TraverseMethod } from './common'
+export { TraverseMethod } from './common'
+export type { ArenaObject, Factory } from './common'
 
 export { SystemError } from './error'
 
