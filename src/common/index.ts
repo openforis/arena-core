@@ -7,3 +7,5 @@ export interface ArenaObject<T> {
 }
 
 export type { Factory } from './factory'
+
+export { TraverseMethod } from './traverseMethod'

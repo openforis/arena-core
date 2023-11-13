@@ -1,3 +1,4 @@
+import { TraverseMethod } from '../common'
 import { NodeValueFormatter, Nodes } from '../node'
 import { NodeDefs } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
@@ -23,7 +24,7 @@ const print = (params: { survey: Survey; record: Record }): string => {
       const part = `${indentation}${NodeDefs.getName(nodeDef)}: ${value}`
       parts.push(part)
     },
-    traverseMethod: RecordGetters.TraverseMethod.dfs,
+    traverseMethod: TraverseMethod.dfs,
   })
   return parts.join('\n')
 }
