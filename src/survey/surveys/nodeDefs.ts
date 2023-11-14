@@ -125,7 +125,7 @@ export const getNodeDefChildren = (params: {
     childDefs = childDefs.filter((childDef) => !childDef.analysis)
   }
   if (!includeLayoutElements) {
-    childDefs.filter((childDef) => !NodeDefs.isLayoutElement(childDef))
+    childDefs = childDefs.filter((childDef) => !NodeDefs.isLayoutElement(childDef))
   }
   return childDefs
 }
