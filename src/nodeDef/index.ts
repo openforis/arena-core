@@ -33,6 +33,9 @@ export { NodeDefEntityRenderType } from './types/entity'
 export { NodeDefFileType } from './types/file'
 export type { NodeDefFile, NodeDefFileProps } from './types/file'
 
+export { FormHeaderColor } from './types/formHeader'
+export type { NodeDefFormHeader, NodeDefFormHeaderProps } from './types/formHeader'
+
 export type { NodeDefInteger } from './types/integer'
 
 export type { NodeDefTaxon, NodeDefTaxonProps } from './types/taxon'

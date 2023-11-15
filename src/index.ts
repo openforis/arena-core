@@ -76,7 +76,14 @@ export type { Logger } from './logger'
 export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
 export type { Node, NodePointer, NodeService } from './node'
 
-export { NodeDefType, NodeDefFactory, NodeDefs, NodeDefEntityRenderType, NodeDefFileType } from './nodeDef'
+export {
+  NodeDefType,
+  NodeDefFactory,
+  NodeDefs,
+  NodeDefEntityRenderType,
+  NodeDefFileType,
+  FormHeaderColor,
+} from './nodeDef'
 
 export { NodeDefExpressionEvaluator, NodeDefExpressionValidator } from './nodeDefExpressionEvaluator'
 
@@ -102,6 +109,8 @@ export type {
   NodeDefEntityProps,
   NodeDefFile,
   NodeDefFileProps,
+  NodeDefFormHeader,
+  NodeDefFormHeaderProps,
   NodeDefInteger,
   NodeDefPropsAdvanced,
   NodeDefTaxon,
