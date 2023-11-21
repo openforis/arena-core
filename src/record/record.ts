@@ -1,3 +1,4 @@
+import { AppInfo } from '../app'
 import { Node } from '../node'
 import { Validation } from '../validation'
 
@@ -28,6 +29,11 @@ export interface RecordNodesIndex {
   nodeCodeDependents?: { [key: string]: NodeUuidsPresence }
 }
 
+export interface RecordInfo {
+  createdWith?: AppInfo
+  updatedWith?: AppInfo
+}
+
 export interface Record {
   cycle?: string
   dateCreated?: string
@@ -43,4 +49,6 @@ export interface Record {
   validation?: Validation
 
   _nodesIndex?: RecordNodesIndex
+
+  info?: RecordInfo
 }
