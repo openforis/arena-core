@@ -121,13 +121,14 @@ export const getNodeDefChildren = (params: {
     // calculate children
     childDefs = NodeDefsReader.calculateNodeDefChildren(nodeDef)(survey)
   }
-  if (!includeAnalysis) {
-    childDefs = childDefs.filter((childDef) => !childDef.analysis)
+  if (includeAnalysis && includeLayoutElements) {
+    return childDefs
   }
-  if (!includeLayoutElements) {
-    childDefs = childDefs.filter((childDef) => !NodeDefs.isLayoutElement(childDef))
-  }
-  return childDefs
+  return childDefs.filter((childDef) => {
+    if (!includeAnalysis && childDef.analysis) return false
+    if (!includeLayoutElements && NodeDefs.isLayoutElement(childDef)) return false
+    return true
+  })
 }
 
 export const getNodeDefChildrenSorted = (params: {
