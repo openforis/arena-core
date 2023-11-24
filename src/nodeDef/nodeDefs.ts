@@ -155,6 +155,12 @@ const isCodeShown =
   (nodeDef: NodeDefCode): boolean =>
     getLayoutProps(cycle)(nodeDef).codeShown ?? false
 
+// Analysis
+const getAreaBasedEstimatedOf = (nodeDef: NodeDef<any>): string | undefined =>
+  nodeDef.propsAdvancedDraft?.areaBasedEstimatedOf ?? nodeDef.propsAdvanced?.areaBasedEstimatedOf
+
+const getIndexInChain = (nodeDef: NodeDef<any>): number | undefined => nodeDef.propsAdvanced?.index
+
 export const NodeDefs = {
   isEntity,
   isMultiple,
@@ -204,4 +210,7 @@ export const NodeDefs = {
   hasMinOrMaxCount,
   getMaxCount,
   getMinCount,
+  // Analysis
+  getAreaBasedEstimatedOf,
+  getIndexInChain,
 }

@@ -91,6 +91,18 @@ export interface NodeDefPropsAdvanced {
   formula?: Array<NodeDefExpression>
   itemsFilter?: string
   validations?: NodeDefValidations
+
+  // Analysis
+  script?: string
+  chainUuid?: string
+  index?: number
+  active?: boolean
+  aggregateFunctions?: { [key: string]: object }
+
+  isBaseUnit?: boolean
+  isSampling?: boolean
+  hasAreaBasedEstimated?: boolean
+  areaBasedEstimatedOf?: string // uuid of area based estimated node def
 }
 
 export interface NodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDefProps> extends ArenaObject<P> {

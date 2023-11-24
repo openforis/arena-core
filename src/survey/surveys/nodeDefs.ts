@@ -131,16 +131,22 @@ export const getNodeDefChildren = (params: {
   })
 }
 
-export const getNodeDefChildrenSorted = (params: {
-  survey: Survey
+const getIndexInChain = (params: { survey: Survey; nodeDef: NodeDef<any> }): number => {
+  const { survey, nodeDef } = params
+  const areaBasedEstimatedOf = NodeDefs.getAreaBasedEstimatedOf(nodeDef)
+  const areaBasedEstimatedOfNodeDef = areaBasedEstimatedOf
+    ? getNodeDefByUuid({ survey, uuid: areaBasedEstimatedOf })
+    : null
+  const nodeDefToConsider = areaBasedEstimatedOfNodeDef ? areaBasedEstimatedOfNodeDef : nodeDef
+  return nodeDefToConsider?.propsAdvanced?.index ?? 0
+}
+
+const getNodeDefChildrenUuidsSortedByLayout = (params: {
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   cycle: string
-  includeAnalysis?: boolean
-  includeLayoutElements?: boolean
-}): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, nodeDef, cycle, includeAnalysis, includeLayoutElements } = params
-
-  const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis, includeLayoutElements })
+  children: NodeDef<any>[]
+}): string[] => {
+  const { nodeDef, cycle, children } = params
 
   const entityDef = nodeDef as NodeDefEntity
 
@@ -148,7 +154,7 @@ export const getNodeDefChildrenSorted = (params: {
   const layoutChildren = NodeDefs.getLayoutChildren(cycle)(entityDef) ?? []
 
   if (layoutChildren.length === 0 && childrenEntitiesInOwnPageUudis.length === 0) {
-    return children
+    return children.map((child) => child.uuid)
   }
   const sortedChildrenDefsInSamePageUuids = NodeDefs.isLayoutRenderTypeTable(cycle)(entityDef)
     ? (layoutChildren as string[])
@@ -159,13 +165,46 @@ export const getNodeDefChildrenSorted = (params: {
         )
         .map((gridItem) => gridItem.i)
 
-  const sortedChildrenUuids = sortedChildrenDefsInSamePageUuids.concat(childrenEntitiesInOwnPageUudis)
+  return sortedChildrenDefsInSamePageUuids.concat(childrenEntitiesInOwnPageUudis)
+}
+
+export const getNodeDefChildrenSorted = (params: {
+  survey: Survey
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  cycle: string
+  includeAnalysis?: boolean
+}): NodeDef<NodeDefType, NodeDefProps>[] => {
+  const { survey, nodeDef, cycle, includeAnalysis } = params
+
+  const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis })
+
+  const childrenUuidsSortedByLayout = getNodeDefChildrenUuidsSortedByLayout({ nodeDef, cycle, children })
 
   return (
     children
       // exclude children not in specified cycle
-      .filter((child) => sortedChildrenUuids.includes(child.uuid))
-      .sort((child1, child2) => sortedChildrenUuids.indexOf(child1.uuid) - sortedChildrenUuids.indexOf(child2.uuid))
+      .filter((child) => child.analysis || childrenUuidsSortedByLayout.includes(child.uuid))
+      .sort((child1, child2) => {
+        if (includeAnalysis && (child1.analysis || child2.analysis)) {
+          // analysis attribute at the end
+          if (child1.analysis && !child2.analysis) return 1
+          if (!child1.analysis && child2.analysis) return -1
+
+          // sort by chain index
+          const index1 = getIndexInChain({ survey, nodeDef: child1 })
+          const index2 = getIndexInChain({ survey, nodeDef: child2 })
+          if (index1 === index2) {
+            // one node def is the area base estimated of the other
+            if (NodeDefs.getAreaBasedEstimatedOf(child1)) return 1
+            if (NodeDefs.getAreaBasedEstimatedOf(child2)) return -1
+            // it should never happen: sort by internal id (creation time)
+            return (child1.id ?? 0) - (child2.id ?? 0)
+          }
+          return index1 - index2
+        }
+        // keep sorting as defined in layout props
+        return childrenUuidsSortedByLayout.indexOf(child1.uuid) - childrenUuidsSortedByLayout.indexOf(child2.uuid)
+      })
   )
 }
 
