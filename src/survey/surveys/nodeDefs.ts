@@ -130,7 +130,7 @@ const getIndexInChain = (params: { survey: Survey; nodeDef: NodeDef<any> }): num
     ? getNodeDefByUuid({ survey, uuid: areaBasedEstimatedOf })
     : null
   const nodeDefToConsider = areaBasedEstimatedOfNodeDef ? areaBasedEstimatedOfNodeDef : nodeDef
-  return nodeDefToConsider.propsAdvancedDraft?.index ?? nodeDefToConsider?.propsAdvanced?.index ?? 0
+  return nodeDefToConsider?.propsAdvanced?.index ?? 0
 }
 
 const getNodeDefChildrenUuidsSortedByLayout = (params: {

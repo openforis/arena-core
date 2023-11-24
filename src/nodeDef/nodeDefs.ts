@@ -157,8 +157,7 @@ const isCodeShown =
 const getAreaBasedEstimatedOf = (nodeDef: NodeDef<any>): string | undefined =>
   nodeDef.propsAdvancedDraft?.areaBasedEstimatedOf ?? nodeDef.propsAdvanced?.areaBasedEstimatedOf
 
-const getIndexInChain = (nodeDef: NodeDef<any>): number | undefined =>
-  nodeDef.propsAdvancedDraft?.index ?? nodeDef.propsAdvanced?.index
+const getIndexInChain = (nodeDef: NodeDef<any>): number | undefined => nodeDef.propsAdvanced?.index
 
 export const NodeDefs = {
   isEntity,
