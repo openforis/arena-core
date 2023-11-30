@@ -1,10 +1,10 @@
+import { TraverseMethod } from '../common'
 import { NodeValueFormatter, Nodes } from '../node'
 import { NodeDefs } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Strings } from '../utils'
 import { Record } from './record'
 import * as RecordGetters from './_records/recordGetters'
-import { TraverseMethod } from '../common'
 
 const print = (params: { survey: Survey; record: Record }): string => {
   const { survey, record } = params

@@ -15,6 +15,8 @@ export enum NodeDefType {
   taxon = 'taxon',
   text = 'text',
   time = 'time',
+  // layout elements
+  formHeader = 'formHeader',
 }
 
 export interface NodeDefMeta {

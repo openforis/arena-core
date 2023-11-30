@@ -39,6 +39,8 @@ const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.
 
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
 
+const isLayoutElement = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.formHeader
+
 const getName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): string => nodeDef.props.name ?? ''
 
 const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
@@ -174,6 +176,7 @@ export const NodeDefs = {
   isEnumerate,
   isRoot,
   getType,
+  isLayoutElement,
   getName,
   getLabelOrName,
   getDescription,

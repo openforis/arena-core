@@ -25,6 +25,8 @@ export const valuePropsByType = {
   [NodeDefType.taxon]: valuePropsTaxon,
   [NodeDefType.time]: valuePropsTime,
   [NodeDefType.text]: null,
+  // layout elements
+  [NodeDefType.formHeader]: null,
 }
 
 const getValuePropRaw = (params: { value: any; prop: string; defaultValue?: any }): any => {

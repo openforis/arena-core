@@ -106,8 +106,9 @@ export const getNodeDefChildren = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   includeAnalysis?: boolean
+  includeLayoutElements?: boolean
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, nodeDef, includeAnalysis = false } = params
+  const { survey, nodeDef, includeAnalysis = false, includeLayoutElements = false } = params
 
   if (!survey.nodeDefs) return []
 
@@ -120,7 +121,14 @@ export const getNodeDefChildren = (params: {
     // calculate children
     childDefs = NodeDefsReader.calculateNodeDefChildren(nodeDef)(survey)
   }
-  return includeAnalysis ? childDefs : childDefs.filter((childDef) => !childDef.analysis)
+  if (includeAnalysis && includeLayoutElements) {
+    return childDefs
+  }
+  return childDefs.filter((childDef) => {
+    if (!includeAnalysis && childDef.analysis) return false
+    if (!includeLayoutElements && NodeDefs.isLayoutElement(childDef)) return false
+    return true
+  })
 }
 
 const getIndexInChain = (params: { survey: Survey; nodeDef: NodeDef<any> }): number => {
