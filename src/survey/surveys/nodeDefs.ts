@@ -207,16 +207,17 @@ export const getNodeDefChildrenSorted = (params: {
       if (!child1.analysis && child2.analysis) return -1
 
       // sort by chain index
-      const index1 = getIndexInChain({ survey, nodeDef: child1 })
-      const index2 = getIndexInChain({ survey, nodeDef: child2 })
-      if (index1 === index2) {
-        // one node def is the area base estimated of the other
-        if (NodeDefs.getAreaBasedEstimatedOf(child1)) return 1
-        if (NodeDefs.getAreaBasedEstimatedOf(child2)) return -1
-        // it should never happen: sort by internal id (creation time)
-        return (child1.id ?? 0) - (child2.id ?? 0)
-      }
-      return index1 - index2
+      const indexInChainComparison =
+        getIndexInChain({ survey, nodeDef: child1 }) - getIndexInChain({ survey, nodeDef: child2 })
+
+      if (indexInChainComparison !== 0) return indexInChainComparison
+
+      // one node def is the area base estimated of the other
+      if (NodeDefs.getAreaBasedEstimatedOf(child1)) return 1
+      if (NodeDefs.getAreaBasedEstimatedOf(child2)) return -1
+
+      // it should never happen: sort by internal id (creation time)
+      return (child1.id ?? 0) - (child2.id ?? 0)
     }
     // keep sorting as defined in layout props
     return childrenUuidsSortedByLayout.indexOf(child1.uuid) - childrenUuidsSortedByLayout.indexOf(child2.uuid)
