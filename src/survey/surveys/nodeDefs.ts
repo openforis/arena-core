@@ -222,7 +222,6 @@ export const getNodeDefChildrenSorted = (params: {
       )
       if (areaBasedEstimatedOfComparison !== 0) return areaBasedEstimatedOfComparison
 
-      // it should never happen: sort by internal id (creation time)
       return (child1.id ?? 0) - (child2.id ?? 0)
     }
     // keep sorting as defined in layout props
