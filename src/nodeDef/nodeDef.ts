@@ -122,3 +122,7 @@ export interface NodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDef
   type: T
   virtual?: boolean
 }
+
+export interface NodeDefMap {
+  [key: string]: NodeDef<any>
+}

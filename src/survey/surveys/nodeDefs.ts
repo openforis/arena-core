@@ -5,6 +5,7 @@ import {
   NodeDefCodeProps,
   NodeDefEntity,
   NodeDefEntityChildPosition,
+  NodeDefMap,
   NodeDefProps,
   NodeDefType,
   NodeDefs,
@@ -152,9 +153,14 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
 
   const childrenEntitiesInOwnPageUudis = NodeDefs.getChildrenEntitiesInOwnPageUudis(cycle)(entityDef) ?? []
   const layoutChildren = NodeDefs.getLayoutChildren(cycle)(entityDef) ?? []
+  const childrenByUuids = children.reduce((acc: NodeDefMap, child) => {
+    acc[child.uuid] = child
+    return acc
+  }, {})
+  const childrenUuids = Object.keys(childrenByUuids)
 
   if (layoutChildren.length === 0 && childrenEntitiesInOwnPageUudis.length === 0) {
-    return children.map((child) => child.uuid)
+    return childrenUuids
   }
   const sortedChildrenDefsInSamePageUuids = NodeDefs.isLayoutRenderTypeTable(cycle)(entityDef)
     ? (layoutChildren as string[])
@@ -164,9 +170,27 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
             gridItem1.y - gridItem2.y || gridItem1.x - gridItem2.x
         )
         .map((gridItem) => gridItem.i)
+        .filter((nodeDefUuid) => !!childrenByUuids[nodeDefUuid])
 
-  return sortedChildrenDefsInSamePageUuids.concat(childrenEntitiesInOwnPageUudis)
+  const missingChildrenUuidsInLayout = childrenUuids.filter(
+    (childUuid) =>
+      !sortedChildrenDefsInSamePageUuids.includes(childUuid) &&
+      !childrenEntitiesInOwnPageUudis.includes(childUuid) &&
+      NodeDefs.isInCycle(cycle)
+  )
+
+  return (
+    sortedChildrenDefsInSamePageUuids
+      // add child uuids missing in layout at the end
+      .concat(missingChildrenUuidsInLayout)
+      // add child entities in own page at the very end
+      .concat(childrenEntitiesInOwnPageUudis)
+  )
 }
+
+const _booleanToNumber = (value: boolean | undefined): number => (value ? 1 : 0)
+const _compareBooleans = (value1: boolean | undefined, value2: boolean | undefined): number =>
+  _booleanToNumber(value1) - _booleanToNumber(value2)
 
 export const getNodeDefChildrenSorted = (params: {
   survey: Survey
@@ -180,32 +204,29 @@ export const getNodeDefChildrenSorted = (params: {
 
   const childrenUuidsSortedByLayout = getNodeDefChildrenUuidsSortedByLayout({ nodeDef, cycle, children })
 
-  return (
-    children
-      // exclude children not in specified cycle
-      .filter((child) => child.analysis || childrenUuidsSortedByLayout.includes(child.uuid))
-      .sort((child1, child2) => {
-        if (includeAnalysis && (child1.analysis || child2.analysis)) {
-          // analysis attribute at the end
-          if (child1.analysis && !child2.analysis) return 1
-          if (!child1.analysis && child2.analysis) return -1
+  return children.sort((child1, child2) => {
+    if (includeAnalysis && (child1.analysis || child2.analysis)) {
+      // analysis attribute at the end
+      const analysisComparison = _compareBooleans(child1.analysis, child2.analysis)
+      if (analysisComparison !== 0) return analysisComparison
 
-          // sort by chain index
-          const index1 = getIndexInChain({ survey, nodeDef: child1 })
-          const index2 = getIndexInChain({ survey, nodeDef: child2 })
-          if (index1 === index2) {
-            // one node def is the area base estimated of the other
-            if (NodeDefs.getAreaBasedEstimatedOf(child1)) return 1
-            if (NodeDefs.getAreaBasedEstimatedOf(child2)) return -1
-            // it should never happen: sort by internal id (creation time)
-            return (child1.id ?? 0) - (child2.id ?? 0)
-          }
-          return index1 - index2
-        }
-        // keep sorting as defined in layout props
-        return childrenUuidsSortedByLayout.indexOf(child1.uuid) - childrenUuidsSortedByLayout.indexOf(child2.uuid)
-      })
-  )
+      // sort by chain index
+      const indexInChainComparison =
+        getIndexInChain({ survey, nodeDef: child1 }) - getIndexInChain({ survey, nodeDef: child2 })
+      if (indexInChainComparison !== 0) return indexInChainComparison
+
+      // one node def is the area base estimated of the other
+      const areaBasedEstimatedOfComparison = _compareBooleans(
+        !!NodeDefs.getAreaBasedEstimatedOf(child1),
+        !!NodeDefs.getAreaBasedEstimatedOf(child2)
+      )
+      if (areaBasedEstimatedOfComparison !== 0) return areaBasedEstimatedOfComparison
+
+      return (child1.id ?? 0) - (child2.id ?? 0)
+    }
+    // keep sorting as defined in layout props
+    return childrenUuidsSortedByLayout.indexOf(child1.uuid) - childrenUuidsSortedByLayout.indexOf(child2.uuid)
+  })
 }
 
 export const visitDescendantsAndSelfNodeDef = (params: {

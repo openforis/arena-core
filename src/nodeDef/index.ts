@@ -9,6 +9,7 @@ export type {
   NodeDefExpression,
   NodeDefLayout,
   NodeDefValidations,
+  NodeDefMap,
 } from './nodeDef'
 export { NodeDefType } from './nodeDef'
 export { NodeDefs } from './nodeDefs'
