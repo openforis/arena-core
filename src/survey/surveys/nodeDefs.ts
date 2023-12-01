@@ -211,7 +211,6 @@ export const getNodeDefChildrenSorted = (params: {
       // sort by chain index
       const indexInChainComparison =
         getIndexInChain({ survey, nodeDef: child1 }) - getIndexInChain({ survey, nodeDef: child2 })
-
       if (indexInChainComparison !== 0) return indexInChainComparison
 
       // one node def is the area base estimated of the other
