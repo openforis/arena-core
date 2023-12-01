@@ -189,6 +189,8 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
 }
 
 const _booleanToNumber = (value: boolean | undefined): number => (value ? 1 : 0)
+const _compareBooleans = (value1: boolean | undefined, value2: boolean | undefined): number =>
+  _booleanToNumber(value1) - _booleanToNumber(value2)
 
 export const getNodeDefChildrenSorted = (params: {
   survey: Survey
@@ -205,7 +207,7 @@ export const getNodeDefChildrenSorted = (params: {
   return children.sort((child1, child2) => {
     if (includeAnalysis && (child1.analysis || child2.analysis)) {
       // analysis attribute at the end
-      const analysisComparison = _booleanToNumber(child1.analysis) - _booleanToNumber(child2.analysis)
+      const analysisComparison = _compareBooleans(child1.analysis, child2.analysis)
       if (analysisComparison !== 0) return analysisComparison
 
       // sort by chain index
@@ -214,9 +216,10 @@ export const getNodeDefChildrenSorted = (params: {
       if (indexInChainComparison !== 0) return indexInChainComparison
 
       // one node def is the area base estimated of the other
-      const areaBasedEstimatedOfComparison =
-        _booleanToNumber(!!NodeDefs.getAreaBasedEstimatedOf(child1)) -
-        _booleanToNumber(!!NodeDefs.getAreaBasedEstimatedOf(child2))
+      const areaBasedEstimatedOfComparison = _compareBooleans(
+        !!NodeDefs.getAreaBasedEstimatedOf(child1),
+        !!NodeDefs.getAreaBasedEstimatedOf(child2)
+      )
       if (areaBasedEstimatedOfComparison !== 0) return areaBasedEstimatedOfComparison
 
       // it should never happen: sort by internal id (creation time)
