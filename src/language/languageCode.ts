@@ -1,4 +1,4 @@
-export const enum LanguageCode {
+export enum LanguageCode {
   ab = 'ab',
   aa = 'aa',
   af = 'af',
