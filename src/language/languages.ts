@@ -8,615 +8,1531 @@ type LanguagesObject = {
   [key: string]: LanguageMap
 }
 
-const { en, fr, de } = LanguageCode
-
 export const LanguagesISO639part2: { [key: string]: LanguageMap } = {
-  aar: { [en]: 'Afar', [fr]: 'afar', [de]: 'Danakil-Sprache' },
-  abk: { [en]: 'Abkhazian', [fr]: 'abkhaze', [de]: 'Abchasisch' },
-  ace: { [en]: 'Achinese', [fr]: 'aceh', [de]: 'Aceh-Sprache' },
-  ach: { [en]: 'Acoli', [fr]: 'acoli', [de]: 'Acholi-Sprache' },
-  ada: { [en]: 'Adangme', [fr]: 'adangme', [de]: 'Adangme-Sprache' },
-  ady: { [en]: 'Adyghe; Adygei', [fr]: 'adyghé', [de]: 'Adygisch' },
-  afa: { [en]: 'Afro-Asiatic languages', [fr]: 'afro-asiatiques, langues', [de]: 'Hamitosemitische Sprachen (Andere)' },
-  afh: { [en]: 'Afrihili', [fr]: 'afrihili', [de]: 'Afrihili' },
-  afr: { [en]: 'Afrikaans', [fr]: 'afrikaans', [de]: 'Afrikaans' },
-  ain: { [en]: 'Ainu', [fr]: 'aïnou', [de]: 'Ainu-Sprache' },
-  aka: { [en]: 'Akan', [fr]: 'akan', [de]: 'Akan-Sprache' },
-  akk: { [en]: 'Akkadian', [fr]: 'akkadien', [de]: 'Akkadisch' },
-  alb: { [en]: 'Albanian', [fr]: 'albanais', [de]: 'Albanisch' },
-  ale: { [en]: 'Aleut', [fr]: 'aléoute', [de]: 'Aleutisch' },
-  alg: { [en]: 'Algonquian languages', [fr]: 'algonquines, langues', [de]: 'Algonkin-Sprachen (Andere)' },
-  alt: { [en]: 'Southern Altai', [fr]: 'altai du Sud', [de]: 'Altaisch' },
-  amh: { [en]: 'Amharic', [fr]: 'amharique', [de]: 'Amharisch' },
-  ang: { [en]: 'English, Old (ca.450-1100)', [fr]: 'anglo-saxon (ca.450-1100)', [de]: 'Altenglisch' },
-  anp: { [en]: 'Angika', [fr]: 'angika', [de]: 'Anga-Sprache' },
-  apa: { [en]: 'Apache languages', [fr]: 'apaches, langues', [de]: 'Apachen-Sprachen' },
-  ara: { [en]: 'Arabic', [fr]: 'arabe', [de]: 'Arabisch' },
+  aar: {
+    en: 'Afar',
+  },
+  abk: {
+    en: 'Abkhazian',
+  },
+  ace: {
+    en: 'Achinese',
+  },
+  ach: {
+    en: 'Acoli',
+  },
+  ada: {
+    en: 'Adangme',
+  },
+  ady: {
+    en: 'Adyghe; Adygei',
+  },
+  afa: {
+    en: 'Afro-Asiatic languages',
+  },
+  afh: {
+    en: 'Afrihili',
+  },
+  afr: {
+    en: 'Afrikaans',
+  },
+  ain: {
+    en: 'Ainu',
+  },
+  aka: {
+    en: 'Akan',
+  },
+  akk: {
+    en: 'Akkadian',
+  },
+  alb: {
+    en: 'Albanian',
+  },
+  ale: {
+    en: 'Aleut',
+  },
+  alg: {
+    en: 'Algonquian languages',
+  },
+  alt: {
+    en: 'Southern Altai',
+  },
+  amh: {
+    en: 'Amharic',
+  },
+  ang: {
+    en: 'English, Old (ca.450-1100)',
+  },
+  anp: {
+    en: 'Angika',
+  },
+  apa: {
+    en: 'Apache languages',
+  },
+  ara: {
+    en: 'Arabic',
+  },
   arc: {
-    [en]: 'Official Aramaic (700-300 BCE); Imperial Aramaic (700-300 BCE)',
-    [fr]: "araméen d'empire (700-300 BCE)",
-    [de]: 'Aramäisch',
+    en: 'Official Aramaic (700-300 BCE); Imperial Aramaic (700-300 BCE)',
   },
-  arg: { [en]: 'Aragonese', [fr]: 'aragonais', [de]: 'Aragonesisch' },
-  arm: { [en]: 'Armenian', [fr]: 'arménien', [de]: 'Armenisch' },
-  arn: { [en]: 'Mapudungun; Mapuche', [fr]: 'mapudungun; mapuche; mapuce', [de]: 'Arauka-Sprachen' },
-  arp: { [en]: 'Arapaho', [fr]: 'arapaho', [de]: 'Arapaho-Sprache' },
-  art: { [en]: 'Artificial languages', [fr]: 'artificielles, langues', [de]: 'Kunstsprachen (Andere)' },
-  arw: { [en]: 'Arawak', [fr]: 'arawak', [de]: 'Arawak-Sprachen' },
-  asm: { [en]: 'Assamese', [fr]: 'assamais', [de]: 'Assamesisch' },
+  arg: {
+    en: 'Aragonese',
+  },
+  arm: {
+    en: 'Armenian',
+  },
+  arn: {
+    en: 'Mapudungun; Mapuche',
+  },
+  arp: {
+    en: 'Arapaho',
+  },
+  art: {
+    en: 'Artificial languages',
+  },
+  arw: {
+    en: 'Arawak',
+  },
+  asm: {
+    en: 'Assamese',
+  },
   ast: {
-    [en]: 'Asturian; Bable; Leonese; Asturleonese',
-    [fr]: 'asturien; bable; léonais; asturoléonais',
-    [de]: 'Asturisch',
+    en: 'Asturian; Bable; Leonese; Asturleonese',
   },
-  ath: { [en]: 'Athapascan languages', [fr]: 'athapascanes, langues', [de]: 'Athapaskische Sprachen (Andere)' },
-  aus: { [en]: 'Australian languages', [fr]: 'australiennes, langues', [de]: 'Australische Sprachen' },
-  ava: { [en]: 'Avaric', [fr]: 'avar', [de]: 'Awarisch' },
-  ave: { [en]: 'Avestan', [fr]: 'avestique', [de]: 'Avestisch' },
-  awa: { [en]: 'Awadhi', [fr]: 'awadhi', [de]: 'Awadhi' },
-  aym: { [en]: 'Aymara', [fr]: 'aymara', [de]: 'Aymará-Sprache' },
-  aze: { [en]: 'Azerbaijani', [fr]: 'azéri', [de]: 'Aserbeidschanisch' },
-  bad: { [en]: 'Banda languages', [fr]: 'banda, langues', [de]: 'Banda-Sprachen (Ubangi-Sprachen)' },
-  bai: { [en]: 'Bamileke languages', [fr]: 'bamiléké, langues', [de]: 'Bamileke-Sprachen' },
-  bak: { [en]: 'Bashkir', [fr]: 'bachkir', [de]: 'Baschkirisch' },
-  bal: { [en]: 'Baluchi', [fr]: 'baloutchi', [de]: 'Belutschisch' },
-  bam: { [en]: 'Bambara', [fr]: 'bambara', [de]: 'Bambara-Sprache' },
-  ban: { [en]: 'Balinese', [fr]: 'balinais', [de]: 'Balinesisch' },
-  baq: { [en]: 'Basque', [fr]: 'basque', [de]: 'Baskisch' },
-  bas: { [en]: 'Basa', [fr]: 'basa', [de]: 'Basaa-Sprache' },
-  bat: { [en]: 'Baltic languages', [fr]: 'baltes, langues', [de]: 'Baltische Sprachen (Andere)' },
-  bej: { [en]: 'Beja; Bedawiyet', [fr]: 'bedja', [de]: 'Bedauye' },
-  bel: { [en]: 'Belarusian', [fr]: 'biélorusse', [de]: 'Weißrussisch' },
-  bem: { [en]: 'Bemba', [fr]: 'bemba', [de]: 'Bemba-Sprache' },
-  ben: { [en]: 'Bengali', [fr]: 'bengali', [de]: 'Bengali' },
-  ber: { [en]: 'Berber languages', [fr]: 'berbères, langues', [de]: 'Berbersprachen (Andere)' },
-  bho: { [en]: 'Bhojpuri', [fr]: 'bhojpuri', [de]: 'Bhojpuri' },
-  bih: { [en]: 'Bihari languages', [fr]: 'langues biharis', [de]: 'Bihari (Andere)' },
-  bik: { [en]: 'Bikol', [fr]: 'bikol', [de]: 'Bikol-Sprache' },
-  bin: { [en]: 'Bini; Edo', [fr]: 'bini; edo', [de]: 'Edo-Sprache' },
-  bis: { [en]: 'Bislama', [fr]: 'bichlamar', [de]: 'Beach-la-mar' },
-  bla: { [en]: 'Siksika', [fr]: 'blackfoot', [de]: 'Blackfoot-Sprache' },
-  bnt: { [en]: 'Bantu languages', [fr]: 'bantou, langues', [de]: 'Bantusprachen (Andere)' },
-  bod: { [en]: 'Tibetan', [fr]: 'tibétain', [de]: 'Tibetisch' },
-  bos: { [en]: 'Bosnian', [fr]: 'bosniaque', [de]: 'Bosnisch' },
-  bra: { [en]: 'Braj', [fr]: 'braj', [de]: 'Braj-Bhakha' },
-  bre: { [en]: 'Breton', [fr]: 'breton', [de]: 'Bretonisch' },
-  btk: { [en]: 'Batak languages', [fr]: 'batak, langues', [de]: 'Batak-Sprache' },
-  bua: { [en]: 'Buriat', [fr]: 'bouriate', [de]: 'Burjatisch' },
-  bug: { [en]: 'Buginese', [fr]: 'bugi', [de]: 'Bugi-Sprache' },
-  bul: { [en]: 'Bulgarian', [fr]: 'bulgare', [de]: 'Bulgarisch' },
-  bur: { [en]: 'Burmese', [fr]: 'birman', [de]: 'Birmanisch' },
-  byn: { [en]: 'Blin; Bilin', [fr]: 'blin; bilen', [de]: 'Bilin-Sprache' },
-  cad: { [en]: 'Caddo', [fr]: 'caddo', [de]: 'Caddo-Sprachen' },
+  ath: {
+    en: 'Athapascan languages',
+  },
+  aus: {
+    en: 'Australian languages',
+  },
+  ava: {
+    en: 'Avaric',
+  },
+  ave: {
+    en: 'Avestan',
+  },
+  awa: {
+    en: 'Awadhi',
+  },
+  aym: {
+    en: 'Aymara',
+  },
+  aze: {
+    en: 'Azerbaijani',
+  },
+  bad: {
+    en: 'Banda languages',
+  },
+  bai: {
+    en: 'Bamileke languages',
+  },
+  bak: {
+    en: 'Bashkir',
+  },
+  bal: {
+    en: 'Baluchi',
+  },
+  bam: {
+    en: 'Bambara',
+  },
+  ban: {
+    en: 'Balinese',
+  },
+  baq: {
+    en: 'Basque',
+  },
+  bas: {
+    en: 'Basa',
+  },
+  bat: {
+    en: 'Baltic languages',
+  },
+  bej: {
+    en: 'Beja; Bedawiyet',
+  },
+  bel: {
+    en: 'Belarusian',
+  },
+  bem: {
+    en: 'Bemba',
+  },
+  ben: {
+    en: 'Bengali',
+  },
+  ber: {
+    en: 'Berber languages',
+  },
+  bho: {
+    en: 'Bhojpuri',
+  },
+  bih: {
+    en: 'Bihari languages',
+  },
+  bik: {
+    en: 'Bikol',
+  },
+  bin: {
+    en: 'Bini; Edo',
+  },
+  bis: {
+    en: 'Bislama',
+  },
+  bla: {
+    en: 'Siksika',
+  },
+  bnt: {
+    en: 'Bantu languages',
+  },
+  bod: {
+    en: 'Tibetan',
+  },
+  bos: {
+    en: 'Bosnian',
+  },
+  bra: {
+    en: 'Braj',
+  },
+  bre: {
+    en: 'Breton',
+  },
+  btk: {
+    en: 'Batak languages',
+  },
+  bua: {
+    en: 'Buriat',
+  },
+  bug: {
+    en: 'Buginese',
+  },
+  bul: {
+    en: 'Bulgarian',
+  },
+  bur: {
+    en: 'Burmese',
+  },
+  byn: {
+    en: 'Blin; Bilin',
+  },
+  cad: {
+    en: 'Caddo',
+  },
   cai: {
-    [en]: 'Central American Indian languages',
-    [fr]: "amérindiennes de l'Amérique centrale, langues",
-    [de]: 'Indianersprachen, Zentralamerika (Andere)',
+    en: 'Central American Indian languages',
   },
-  car: { [en]: 'Galibi Carib', [fr]: 'karib; galibi; carib', [de]: 'Karibische Sprachen' },
-  cat: { [en]: 'Catalan; Valencian', [fr]: 'catalan; valencien', [de]: 'Katalanisch' },
-  cau: { [en]: 'Caucasian languages', [fr]: 'caucasiennes, langues', [de]: 'Kaukasische Sprachen (Andere)' },
-  ceb: { [en]: 'Cebuano', [fr]: 'cebuano', [de]: 'Cebuano' },
-  cel: { [en]: 'Celtic languages', [fr]: 'celtiques, langues; celtes, langues', [de]: 'Keltische Sprachen (Andere)' },
-  ces: { [en]: 'Czech', [fr]: 'tchèque', [de]: 'Tschechisch' },
-  cha: { [en]: 'Chamorro', [fr]: 'chamorro', [de]: 'Chamorro-Sprache' },
-  chb: { [en]: 'Chibcha', [fr]: 'chibcha', [de]: 'Chibcha-Sprachen' },
-  che: { [en]: 'Chechen', [fr]: 'tchétchène', [de]: 'Tschetschenisch' },
-  chg: { [en]: 'Chagatai', [fr]: 'djaghataï', [de]: 'Tschagataisch' },
-  chi: { [en]: 'Chinese', [fr]: 'chinois', [de]: 'Chinesisch' },
-  chk: { [en]: 'Chuukese', [fr]: 'chuuk', [de]: 'Trukesisch' },
-  chm: { [en]: 'Mari', [fr]: 'mari', [de]: 'Tscheremissisch' },
-  chn: { [en]: 'Chinook jargon', [fr]: 'chinook, jargon', [de]: 'Chinook-Jargon' },
-  cho: { [en]: 'Choctaw', [fr]: 'choctaw', [de]: 'Choctaw-Sprache' },
-  chp: { [en]: 'Chipewyan; Dene Suline', [fr]: 'chipewyan', [de]: 'Chipewyan-Sprache' },
-  chr: { [en]: 'Cherokee', [fr]: 'cherokee', [de]: 'Cherokee-Sprache' },
+  car: {
+    en: 'Galibi Carib',
+  },
+  cat: {
+    en: 'Catalan; Valencian',
+  },
+  cau: {
+    en: 'Caucasian languages',
+  },
+  ceb: {
+    en: 'Cebuano',
+  },
+  cel: {
+    en: 'Celtic languages',
+  },
+  ces: {
+    en: 'Czech',
+  },
+  cha: {
+    en: 'Chamorro',
+  },
+  chb: {
+    en: 'Chibcha',
+  },
+  che: {
+    en: 'Chechen',
+  },
+  chg: {
+    en: 'Chagatai',
+  },
+  chi: {
+    en: 'Chinese',
+  },
+  chk: {
+    en: 'Chuukese',
+  },
+  chm: {
+    en: 'Mari',
+  },
+  chn: {
+    en: 'Chinook jargon',
+  },
+  cho: {
+    en: 'Choctaw',
+  },
+  chp: {
+    en: 'Chipewyan; Dene Suline',
+  },
+  chr: {
+    en: 'Cherokee',
+  },
   chu: {
-    [en]: 'Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic',
-    [fr]: "slavon d'église; vieux slave; slavon liturgique; vieux bulgare",
-    [de]: 'Kirchenslawisch',
+    en: 'Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic',
   },
-  chv: { [en]: 'Chuvash', [fr]: 'tchouvache', [de]: 'Tschuwaschisch' },
-  chy: { [en]: 'Cheyenne', [fr]: 'cheyenne', [de]: 'Cheyenne-Sprache' },
-  cmc: { [en]: 'Chamic languages', [fr]: 'chames, langues', [de]: 'Cham-Sprachen' },
-  cnr: { [en]: 'Montenegrin', [fr]: 'monténégrin', [de]: 'Montenegrinisch' },
-  cop: { [en]: 'Coptic', [fr]: 'copte', [de]: 'Koptisch' },
-  cor: { [en]: 'Cornish', [fr]: 'cornique', [de]: 'Kornisch' },
-  cos: { [en]: 'Corsican', [fr]: 'corse', [de]: 'Korsisch' },
+  chv: {
+    en: 'Chuvash',
+  },
+  chy: {
+    en: 'Cheyenne',
+  },
+  cmc: {
+    en: 'Chamic languages',
+  },
+  cnr: {
+    en: 'Montenegrin',
+  },
+  cop: {
+    en: 'Coptic',
+  },
+  cor: {
+    en: 'Cornish',
+  },
+  cos: {
+    en: 'Corsican',
+  },
   cpe: {
-    [en]: 'Creoles and pidgins, English based',
-    [fr]: "créoles et pidgins basés sur l'anglais",
-    [de]: 'Kreolisch-Englisch (Andere)',
+    en: 'Creoles and pidgins, English based',
   },
   cpf: {
-    [en]: 'Creoles and pidgins, French-based',
-    [fr]: 'créoles et pidgins basés sur le français',
-    [de]: 'Kreolisch-Französisch (Andere)',
+    en: 'Creoles and pidgins, French-based',
   },
   cpp: {
-    [en]: 'Creoles and pidgins, Portuguese-based',
-    [fr]: 'créoles et pidgins basés sur le portugais',
-    [de]: 'Kreolisch-Portugiesisch (Andere)',
+    en: 'Creoles and pidgins, Portuguese-based',
   },
-  cre: { [en]: 'Cree', [fr]: 'cree', [de]: 'Cree-Sprache' },
-  crh: { [en]: 'Crimean Tatar; Crimean Turkish', [fr]: 'tatar de Crimé', [de]: 'Krimtatarisch' },
+  cre: {
+    en: 'Cree',
+  },
+  crh: {
+    en: 'Crimean Tatar; Crimean Turkish',
+  },
   crp: {
-    [en]: 'Creoles and pidgins',
-    [fr]: 'créoles et pidgins',
-    [de]: 'Kreolische Sprachen; Pidginsprachen (Andere)',
+    en: 'Creoles and pidgins',
   },
-  csb: { [en]: 'Kashubian', [fr]: 'kachoube', [de]: 'Kaschubisch' },
-  cus: { [en]: 'Cushitic languages', [fr]: 'couchitiques, langues', [de]: 'Kuschitische Sprachen (Andere)' },
-  cym: { [en]: 'Welsh', [fr]: 'gallois', [de]: 'Kymrisch' },
-  cze: { [en]: 'Czech', [fr]: 'tchèque', [de]: 'Tschechisch' },
-  dak: { [en]: 'Dakota', [fr]: 'dakota', [de]: 'Dakota-Sprache' },
-  dan: { [en]: 'Danish', [fr]: 'danois', [de]: 'Dänisch' },
-  dar: { [en]: 'Dargwa', [fr]: 'dargwa', [de]: 'Darginisch' },
-  day: { [en]: 'Land Dayak languages', [fr]: 'dayak, langues', [de]: 'Dajakisch' },
-  del: { [en]: 'Delaware', [fr]: 'delaware', [de]: 'Delaware-Sprache' },
-  den: { [en]: 'Slave (Athapascan)', [fr]: 'esclave (athapascan)', [de]: 'Slave-Sprache' },
-  deu: { [en]: 'German', [fr]: 'allemand', [de]: 'Deutsch' },
-  dgr: { [en]: 'Dogrib', [fr]: 'dogrib', [de]: 'Dogrib-Sprache' },
-  din: { [en]: 'Dinka', [fr]: 'dinka', [de]: 'Dinka-Sprache' },
-  div: { [en]: 'Divehi; Dhivehi; Maldivian', [fr]: 'maldivien', [de]: 'Maledivisch' },
-  doi: { [en]: 'Dogri', [fr]: 'dogri', [de]: 'Dogri' },
-  dra: { [en]: 'Dravidian languages', [fr]: 'dravidiennes, langues', [de]: 'Drawidische Sprachen (Andere)' },
-  dsb: { [en]: 'Lower Sorbian', [fr]: 'bas-sorabe', [de]: 'Niedersorbisch' },
-  dua: { [en]: 'Duala', [fr]: 'douala', [de]: 'Duala-Sprachen' },
+  csb: {
+    en: 'Kashubian',
+  },
+  cus: {
+    en: 'Cushitic languages',
+  },
+  cym: {
+    en: 'Welsh',
+  },
+  cze: {
+    en: 'Czech',
+  },
+  dak: {
+    en: 'Dakota',
+  },
+  dan: {
+    en: 'Danish',
+  },
+  dar: {
+    en: 'Dargwa',
+  },
+  day: {
+    en: 'Land Dayak languages',
+  },
+  del: {
+    en: 'Delaware',
+  },
+  den: {
+    en: 'Slave (Athapascan)',
+  },
+  deu: {
+    en: 'German',
+  },
+  dgr: {
+    en: 'Dogrib',
+  },
+  din: {
+    en: 'Dinka',
+  },
+  div: {
+    en: 'Divehi; Dhivehi; Maldivian',
+  },
+  doi: {
+    en: 'Dogri',
+  },
+  dra: {
+    en: 'Dravidian languages',
+  },
+  dsb: {
+    en: 'Lower Sorbian',
+  },
+  dua: {
+    en: 'Duala',
+  },
   dum: {
-    [en]: 'Dutch, Middle (ca.1050-1350)',
-    [fr]: 'néerlandais moyen (ca. 1050-1350)',
-    [de]: 'Mittelniederländisch',
+    en: 'Dutch, Middle (ca.1050-1350)',
   },
-  dut: { [en]: 'Dutch; Flemish', [fr]: 'néerlandais; flamand', [de]: 'Niederländisch' },
-  dyu: { [en]: 'Dyula', [fr]: 'dioula', [de]: 'Dyula-Sprache' },
-  dzo: { [en]: 'Dzongkha', [fr]: 'dzongkha', [de]: 'Dzongkha' },
-  efi: { [en]: 'Efik', [fr]: 'efik', [de]: 'Efik' },
-  egy: { [en]: 'Egyptian (Ancient)', [fr]: 'égyptien', [de]: 'Ägyptisch' },
-  eka: { [en]: 'Ekajuk', [fr]: 'ekajuk', [de]: 'Ekajuk' },
-  ell: { [en]: 'Greek, Modern (1453-)', [fr]: 'grec moderne (après 1453)', [de]: 'Neugriechisch' },
-  elx: { [en]: 'Elamite', [fr]: 'élamite', [de]: 'Elamisch' },
-  eng: { [en]: 'English', [fr]: 'anglais', [de]: 'Englisch' },
-  enm: { [en]: 'English, Middle (1100-1500)', [fr]: 'anglais moyen (1100-1500)', [de]: 'Mittelenglisch' },
-  epo: { [en]: 'Esperanto', [fr]: 'espéranto', [de]: 'Esperanto' },
-  est: { [en]: 'Estonian', [fr]: 'estonien', [de]: 'Estnisch' },
-  eus: { [en]: 'Basque', [fr]: 'basque', [de]: 'Baskisch' },
-  ewe: { [en]: 'Ewe', [fr]: 'éwé', [de]: 'Ewe-Sprache' },
-  ewo: { [en]: 'Ewondo', [fr]: 'éwondo', [de]: 'Ewondo' },
-  fan: { [en]: 'Fang', [fr]: 'fang', [de]: 'Pangwe-Sprache' },
-  fao: { [en]: 'Faroese', [fr]: 'féroïen', [de]: 'Färöisch' },
-  fas: { [en]: 'Persian', [fr]: 'persan', [de]: 'Persisch' },
-  fat: { [en]: 'Fanti', [fr]: 'fanti', [de]: 'Fante-Sprache' },
-  fij: { [en]: 'Fijian', [fr]: 'fidjien', [de]: 'Fidschi-Sprache' },
-  fil: { [en]: 'Filipino; Pilipino', [fr]: 'filipino; pilipino', [de]: 'Pilipino' },
-  fin: { [en]: 'Finnish', [fr]: 'finnois', [de]: 'Finnisch' },
-  fiu: { [en]: 'Finno-Ugrian languages', [fr]: 'finno-ougriennes, langues', [de]: 'Finnougrische Sprachen (Andere)' },
-  fon: { [en]: 'Fon', [fr]: 'fon', [de]: 'Fon-Sprache' },
-  fra: { [en]: 'French', [fr]: 'français', [de]: 'Französisch' },
-  fre: { [en]: 'French', [fr]: 'français', [de]: 'Französisch' },
-  frm: { [en]: 'French, Middle (ca.1400-1600)', [fr]: 'français moyen (1400-1600)', [de]: 'Mittelfranzösisch' },
-  fro: { [en]: 'French, Old (842-ca.1400)', [fr]: 'français ancien (842-ca.1400)', [de]: 'Altfranzösisch' },
-  frr: { [en]: 'Northern Frisian', [fr]: 'frison septentrional', [de]: 'Nordfriesisch' },
-  frs: { [en]: 'Eastern Frisian', [fr]: 'frison oriental', [de]: 'Ostfriesisch' },
-  fry: { [en]: 'Western Frisian', [fr]: 'frison occidental', [de]: 'Friesisch' },
-  ful: { [en]: 'Fulah', [fr]: 'peul', [de]: 'Ful' },
-  fur: { [en]: 'Friulian', [fr]: 'frioulan', [de]: 'Friulisch' },
-  gaa: { [en]: 'Ga', [fr]: 'ga', [de]: 'Ga-Sprache' },
-  gay: { [en]: 'Gayo', [fr]: 'gayo', [de]: 'Gayo-Sprache' },
-  gba: { [en]: 'Gbaya', [fr]: 'gbaya', [de]: 'Gbaya-Sprache' },
-  gem: { [en]: 'Germanic languages', [fr]: 'germaniques, langues', [de]: 'Germanische Sprachen (Andere)' },
-  geo: { [en]: 'Georgian', [fr]: 'géorgien', [de]: 'Georgisch' },
-  ger: { [en]: 'German', [fr]: 'allemand', [de]: 'Deutsch' },
-  gez: { [en]: 'Geez', [fr]: 'guèze', [de]: 'Altäthiopisch' },
-  gil: { [en]: 'Gilbertese', [fr]: 'kiribati', [de]: 'Gilbertesisch' },
-  gla: { [en]: 'Gaelic; Scottish Gaelic', [fr]: 'gaélique; gaélique écossais', [de]: 'Gälisch-Schottisch' },
-  gle: { [en]: 'Irish', [fr]: 'irlandais', [de]: 'Irisch' },
-  glg: { [en]: 'Galician', [fr]: 'galicien', [de]: 'Galicisch' },
-  glv: { [en]: 'Manx', [fr]: 'manx; mannois', [de]: 'Manx' },
+  dut: {
+    en: 'Dutch; Flemish',
+  },
+  dyu: {
+    en: 'Dyula',
+  },
+  dzo: {
+    en: 'Dzongkha',
+  },
+  efi: {
+    en: 'Efik',
+  },
+  egy: {
+    en: 'Egyptian (Ancient)',
+  },
+  eka: {
+    en: 'Ekajuk',
+  },
+  ell: {
+    en: 'Greek, Modern (1453-)',
+  },
+  elx: {
+    en: 'Elamite',
+  },
+  eng: {
+    en: 'English',
+  },
+  enm: {
+    en: 'English, Middle (1100-1500)',
+  },
+  epo: {
+    en: 'Esperanto',
+  },
+  est: {
+    en: 'Estonian',
+  },
+  eus: {
+    en: 'Basque',
+  },
+  ewe: {
+    en: 'Ewe',
+  },
+  ewo: {
+    en: 'Ewondo',
+  },
+  fan: {
+    en: 'Fang',
+  },
+  fao: {
+    en: 'Faroese',
+  },
+  fas: {
+    en: 'Persian',
+  },
+  fat: {
+    en: 'Fanti',
+  },
+  fij: {
+    en: 'Fijian',
+  },
+  fil: {
+    en: 'Filipino; Pilipino',
+  },
+  fin: {
+    en: 'Finnish',
+  },
+  fiu: {
+    en: 'Finno-Ugrian languages',
+  },
+  fon: {
+    en: 'Fon',
+  },
+  fra: {
+    en: 'French',
+  },
+  fre: {
+    en: 'French',
+  },
+  frm: {
+    en: 'French, Middle (ca.1400-1600)',
+  },
+  fro: {
+    en: 'French, Old (842-ca.1400)',
+  },
+  frr: {
+    en: 'Northern Frisian',
+  },
+  frs: {
+    en: 'Eastern Frisian',
+  },
+  fry: {
+    en: 'Western Frisian',
+  },
+  ful: {
+    en: 'Fulah',
+  },
+  fur: {
+    en: 'Friulian',
+  },
+  gaa: {
+    en: 'Ga',
+  },
+  gay: {
+    en: 'Gayo',
+  },
+  gba: {
+    en: 'Gbaya',
+  },
+  gem: {
+    en: 'Germanic languages',
+  },
+  geo: {
+    en: 'Georgian',
+  },
+  ger: {
+    en: 'German',
+  },
+  gez: {
+    en: 'Geez',
+  },
+  gil: {
+    en: 'Gilbertese',
+  },
+  gla: {
+    en: 'Gaelic; Scottish Gaelic',
+  },
+  gle: {
+    en: 'Irish',
+  },
+  glg: {
+    en: 'Galician',
+  },
+  glv: {
+    en: 'Manx',
+  },
   gmh: {
-    [en]: 'German, Middle High (ca.1050-1500)',
-    [fr]: 'allemand, moyen haut (ca. 1050-1500)',
-    [de]: 'Mittelhochdeutsch',
+    en: 'German, Middle High (ca.1050-1500)',
   },
-  goh: { [en]: 'German, Old High (ca.750-1050)', [fr]: 'allemand, vieux haut (ca. 750-1050)', [de]: 'Althochdeutsch' },
-  gon: { [en]: 'Gondi', [fr]: 'gond', [de]: 'Gondi-Sprache' },
-  gor: { [en]: 'Gorontalo', [fr]: 'gorontalo', [de]: 'Gorontalesisch' },
-  got: { [en]: 'Gothic', [fr]: 'gothique', [de]: 'Gotisch' },
-  grb: { [en]: 'Grebo', [fr]: 'grebo', [de]: 'Grebo-Sprache' },
-  grc: { [en]: 'Greek, Ancient (to 1453)', [fr]: "grec ancien (jusqu'à 1453)", [de]: 'Griechisch' },
-  gre: { [en]: 'Greek, Modern (1453-)', [fr]: 'grec moderne (après 1453)', [de]: 'Neugriechisch' },
-  grn: { [en]: 'Guarani', [fr]: 'guarani', [de]: 'Guaraní-Sprache' },
+  goh: {
+    en: 'German, Old High (ca.750-1050)',
+  },
+  gon: {
+    en: 'Gondi',
+  },
+  gor: {
+    en: 'Gorontalo',
+  },
+  got: {
+    en: 'Gothic',
+  },
+  grb: {
+    en: 'Grebo',
+  },
+  grc: {
+    en: 'Greek, Ancient (to 1453)',
+  },
+  gre: {
+    en: 'Greek, Modern (1453-)',
+  },
+  grn: {
+    en: 'Guarani',
+  },
   gsw: {
-    [en]: 'Swiss German; Alemannic; Alsatian',
-    [fr]: 'suisse alémanique; alémanique; alsacien',
-    [de]: 'Schweizerdeutsch',
+    en: 'Swiss German; Alemannic; Alsatian',
   },
-  guj: { [en]: 'Gujarati', [fr]: 'goudjrati', [de]: 'Gujarati-Sprache' },
-  gwi: { [en]: "Gwich'in", [fr]: "gwich'in", [de]: 'Kutchin-Sprache' },
-  hai: { [en]: 'Haida', [fr]: 'haida', [de]: 'Haida-Sprache' },
-  hat: { [en]: 'Haitian; Haitian Creole', [fr]: 'haïtien; créole haïtien', [de]: 'Haïtien (Haiti-Kreolisch)' },
-  hau: { [en]: 'Hausa', [fr]: 'haoussa', [de]: 'Haussa-Sprache' },
-  haw: { [en]: 'Hawaiian', [fr]: 'hawaïen', [de]: 'Hawaiisch' },
-  heb: { [en]: 'Hebrew', [fr]: 'hébreu', [de]: 'Hebräisch' },
-  her: { [en]: 'Herero', [fr]: 'herero', [de]: 'Herero-Sprache' },
-  hil: { [en]: 'Hiligaynon', [fr]: 'hiligaynon', [de]: 'Hiligaynon-Sprache' },
+  guj: {
+    en: 'Gujarati',
+  },
+  gwi: {
+    en: "Gwich'in",
+  },
+  hai: {
+    en: 'Haida',
+  },
+  hat: {
+    en: 'Haitian; Haitian Creole',
+  },
+  hau: {
+    en: 'Hausa',
+  },
+  haw: {
+    en: 'Hawaiian',
+  },
+  heb: {
+    en: 'Hebrew',
+  },
+  her: {
+    en: 'Herero',
+  },
+  hil: {
+    en: 'Hiligaynon',
+  },
   him: {
-    [en]: 'Himachali languages; Western Pahari languages',
-    [fr]: 'langues himachalis; langues paharis occidentales',
-    [de]: 'Himachali',
+    en: 'Himachali languages; Western Pahari languages',
   },
-  hin: { [en]: 'Hindi', [fr]: 'hindi', [de]: 'Hindi' },
-  hit: { [en]: 'Hittite', [fr]: 'hittite', [de]: 'Hethitisch' },
-  hmn: { [en]: 'Hmong; Mong', [fr]: 'hmong', [de]: 'Miao-Sprachen' },
-  hmo: { [en]: 'Hiri Motu', [fr]: 'hiri motu', [de]: 'Hiri-Motu' },
-  hrv: { [en]: 'Croatian', [fr]: 'croate', [de]: 'Kroatisch' },
-  hsb: { [en]: 'Upper Sorbian', [fr]: 'haut-sorabe', [de]: 'Obersorbisch' },
-  hun: { [en]: 'Hungarian', [fr]: 'hongrois', [de]: 'Ungarisch' },
-  hup: { [en]: 'Hupa', [fr]: 'hupa', [de]: 'Hupa-Sprache' },
-  hye: { [en]: 'Armenian', [fr]: 'arménien', [de]: 'Armenisch' },
-  iba: { [en]: 'Iban', [fr]: 'iban', [de]: 'Iban-Sprache' },
-  ibo: { [en]: 'Igbo', [fr]: 'igbo', [de]: 'Ibo-Sprache' },
-  ice: { [en]: 'Icelandic', [fr]: 'islandais', [de]: 'Isländisch' },
-  ido: { [en]: 'Ido', [fr]: 'ido', [de]: 'Ido' },
-  iii: { [en]: 'Sichuan Yi; Nuosu', [fr]: 'yi de Sichuan', [de]: 'Lalo-Sprache' },
-  ijo: { [en]: 'Ijo languages', [fr]: 'ijo, langues', [de]: 'Ijo-Sprache' },
-  iku: { [en]: 'Inuktitut', [fr]: 'inuktitut', [de]: 'Inuktitut' },
-  ile: { [en]: 'Interlingue; Occidental', [fr]: 'interlingue', [de]: 'Interlingue' },
-  ilo: { [en]: 'Iloko', [fr]: 'ilocano', [de]: 'Ilokano-Sprache' },
+  hin: {
+    en: 'Hindi',
+  },
+  hit: {
+    en: 'Hittite',
+  },
+  hmn: {
+    en: 'Hmong; Mong',
+  },
+  hmo: {
+    en: 'Hiri Motu',
+  },
+  hrv: {
+    en: 'Croatian',
+  },
+  hsb: {
+    en: 'Upper Sorbian',
+  },
+  hun: {
+    en: 'Hungarian',
+  },
+  hup: {
+    en: 'Hupa',
+  },
+  hye: {
+    en: 'Armenian',
+  },
+  iba: {
+    en: 'Iban',
+  },
+  ibo: {
+    en: 'Igbo',
+  },
+  ice: {
+    en: 'Icelandic',
+  },
+  ido: {
+    en: 'Ido',
+  },
+  iii: {
+    en: 'Sichuan Yi; Nuosu',
+  },
+  ijo: {
+    en: 'Ijo languages',
+  },
+  iku: {
+    en: 'Inuktitut',
+  },
+  ile: {
+    en: 'Interlingue; Occidental',
+  },
+  ilo: {
+    en: 'Iloko',
+  },
   ina: {
-    [en]: 'Interlingua (International Auxiliary Language Association)',
-    [fr]: 'interlingua (langue auxiliaire internationale)',
-    [de]: 'Interlingua',
+    en: 'Interlingua (International Auxiliary Language Association)',
   },
-  inc: { [en]: 'Indic languages', [fr]: 'indo-aryennes, langues', [de]: 'Indoarische Sprachen (Andere)' },
-  ind: { [en]: 'Indonesian', [fr]: 'indonésien', [de]: 'Bahasa Indonesia' },
+  inc: {
+    en: 'Indic languages',
+  },
+  ind: {
+    en: 'Indonesian',
+  },
   ine: {
-    [en]: 'Indo-European languages',
-    [fr]: 'indo-européennes, langues',
-    [de]: 'Indogermanische Sprachen (Andere)',
+    en: 'Indo-European languages',
   },
-  inh: { [en]: 'Ingush', [fr]: 'ingouche', [de]: 'Inguschisch' },
-  ipk: { [en]: 'Inupiaq', [fr]: 'inupiaq', [de]: 'Inupik' },
-  ira: { [en]: 'Iranian languages', [fr]: 'iraniennes, langues', [de]: 'Iranische Sprachen (Andere)' },
-  iro: { [en]: 'Iroquoian languages', [fr]: 'iroquoises, langues', [de]: 'Irokesische Sprachen' },
-  isl: { [en]: 'Icelandic', [fr]: 'islandais', [de]: 'Isländisch' },
-  ita: { [en]: 'Italian', [fr]: 'italien', [de]: 'Italienisch' },
-  jav: { [en]: 'Javanese', [fr]: 'javanais', [de]: 'Javanisch' },
-  jbo: { [en]: 'Lojban', [fr]: 'lojban', [de]: 'Lojban' },
-  jpn: { [en]: 'Japanese', [fr]: 'japonais', [de]: 'Japanisch' },
-  jpr: { [en]: 'Judeo-Persian', [fr]: 'judéo-persan', [de]: 'Jüdisch-Persisch' },
-  jrb: { [en]: 'Judeo-Arabic', [fr]: 'judéo-arabe', [de]: 'Jüdisch-Arabisch' },
-  kaa: { [en]: 'Kara-Kalpak', [fr]: 'karakalpak', [de]: 'Karakalpakisch' },
-  kab: { [en]: 'Kabyle', [fr]: 'kabyle', [de]: 'Kabylisch' },
-  kac: { [en]: 'Kachin; Jingpho', [fr]: 'kachin; jingpho', [de]: 'Kachin-Sprache' },
-  kal: { [en]: 'Kalaallisut; Greenlandic', [fr]: 'groenlandais', [de]: 'Grönländisch' },
-  kam: { [en]: 'Kamba', [fr]: 'kamba', [de]: 'Kamba-Sprache' },
-  kan: { [en]: 'Kannada', [fr]: 'kannada', [de]: 'Kannada' },
-  kar: { [en]: 'Karen languages', [fr]: 'karen, langues', [de]: 'Karenisch' },
-  kas: { [en]: 'Kashmiri', [fr]: 'kashmiri', [de]: 'Kaschmiri' },
-  kat: { [en]: 'Georgian', [fr]: 'géorgien', [de]: 'Georgisch' },
-  kau: { [en]: 'Kanuri', [fr]: 'kanouri', [de]: 'Kanuri-Sprache' },
-  kaw: { [en]: 'Kawi', [fr]: 'kawi', [de]: 'Kawi' },
-  kaz: { [en]: 'Kazakh', [fr]: 'kazakh', [de]: 'Kasachisch' },
-  kbd: { [en]: 'Kabardian', [fr]: 'kabardien', [de]: 'Kabardinisch' },
-  kha: { [en]: 'Khasi', [fr]: 'khasi', [de]: 'Khasi-Sprache' },
-  khi: { [en]: 'Khoisan languages', [fr]: 'khoïsan, langues', [de]: 'Khoisan-Sprachen (Andere)' },
-  khm: { [en]: 'Central Khmer', [fr]: 'khmer central', [de]: 'Kambodschanisch' },
-  kho: { [en]: 'Khotanese; Sakan', [fr]: 'khotanais; sakan', [de]: 'Sakisch' },
-  kik: { [en]: 'Kikuyu; Gikuyu', [fr]: 'kikuyu', [de]: 'Kikuyu-Sprache' },
-  kin: { [en]: 'Kinyarwanda', [fr]: 'rwanda', [de]: 'Rwanda-Sprache' },
-  kir: { [en]: 'Kirghiz; Kyrgyz', [fr]: 'kirghiz', [de]: 'Kirgisisch' },
-  kmb: { [en]: 'Kimbundu', [fr]: 'kimbundu', [de]: 'Kimbundu-Sprache' },
-  kok: { [en]: 'Konkani', [fr]: 'konkani', [de]: 'Konkani' },
-  kom: { [en]: 'Komi', [fr]: 'kom', [de]: 'Komi-Sprache' },
-  kon: { [en]: 'Kongo', [fr]: 'kongo', [de]: 'Kongo-Sprache' },
-  kor: { [en]: 'Korean', [fr]: 'coréen', [de]: 'Koreanisch' },
-  kos: { [en]: 'Kosraean', [fr]: 'kosrae', [de]: 'Kosraeanisch' },
-  kpe: { [en]: 'Kpelle', [fr]: 'kpellé', [de]: 'Kpelle-Sprache' },
-  krc: { [en]: 'Karachay-Balkar', [fr]: 'karatchai balkar', [de]: 'Karatschaiisch-Balkarisch' },
-  krl: { [en]: 'Karelian', [fr]: 'carélien', [de]: 'Karelisch' },
-  kro: { [en]: 'Kru languages', [fr]: 'krou, langues', [de]: 'Kru-Sprachen (Andere)' },
-  kru: { [en]: 'Kurukh', [fr]: 'kurukh', [de]: 'Oraon-Sprache' },
-  kua: { [en]: 'Kuanyama; Kwanyama', [fr]: 'kuanyama; kwanyama', [de]: 'Kwanyama-Sprache' },
-  kum: { [en]: 'Kumyk', [fr]: 'koumyk', [de]: 'Kumükisch' },
-  kur: { [en]: 'Kurdish', [fr]: 'kurde', [de]: 'Kurdisch' },
-  kut: { [en]: 'Kutenai', [fr]: 'kutenai', [de]: 'Kutenai-Sprache' },
-  lad: { [en]: 'Ladino', [fr]: 'judéo-espagnol', [de]: 'Judenspanisch' },
-  lah: { [en]: 'Lahnda', [fr]: 'lahnda', [de]: 'Lahnda' },
-  lam: { [en]: 'Lamba', [fr]: 'lamba', [de]: 'Lamba-Sprache (Bantusprache)' },
-  lao: { [en]: 'Lao', [fr]: 'lao', [de]: 'Laotisch' },
-  lat: { [en]: 'Latin', [fr]: 'latin', [de]: 'Latein' },
-  lav: { [en]: 'Latvian', [fr]: 'letton', [de]: 'Lettisch' },
-  lez: { [en]: 'Lezghian', [fr]: 'lezghien', [de]: 'Lesgisch' },
-  lim: { [en]: 'Limburgan; Limburger; Limburgish', [fr]: 'limbourgeois', [de]: 'Limburgisch' },
-  lin: { [en]: 'Lingala', [fr]: 'lingala', [de]: 'Lingala' },
-  lit: { [en]: 'Lithuanian', [fr]: 'lituanien', [de]: 'Litauisch' },
-  lol: { [en]: 'Mongo', [fr]: 'mongo', [de]: 'Mongo-Sprache' },
-  loz: { [en]: 'Lozi', [fr]: 'lozi', [de]: 'Rotse-Sprache' },
-  ltz: { [en]: 'Luxembourgish; Letzeburgesch', [fr]: 'luxembourgeois', [de]: 'Luxemburgisch' },
-  lua: { [en]: 'Luba-Lulua', [fr]: 'luba-lulua', [de]: 'Lulua-Sprache' },
-  lub: { [en]: 'Luba-Katanga', [fr]: 'luba-katanga', [de]: 'Luba-Katanga-Sprache' },
-  lug: { [en]: 'Ganda', [fr]: 'ganda', [de]: 'Ganda-Sprache' },
-  lui: { [en]: 'Luiseno', [fr]: 'luiseno', [de]: 'Luiseño-Sprache' },
-  lun: { [en]: 'Lunda', [fr]: 'lunda', [de]: 'Lunda-Sprache' },
-  luo: { [en]: 'Luo (Kenya and Tanzania)', [fr]: 'luo (Kenya et Tanzanie)', [de]: 'Luo-Sprache' },
-  lus: { [en]: 'Lushai', [fr]: 'lushai', [de]: 'Lushai-Sprache' },
-  mac: { [en]: 'Macedonian', [fr]: 'macédonien', [de]: 'Makedonisch' },
-  mad: { [en]: 'Madurese', [fr]: 'madourais', [de]: 'Maduresisch' },
-  mag: { [en]: 'Magahi', [fr]: 'magahi', [de]: 'Khotta' },
-  mah: { [en]: 'Marshallese', [fr]: 'marshall', [de]: 'Marschallesisch' },
-  mai: { [en]: 'Maithili', [fr]: 'maithili', [de]: 'Maithili' },
-  mak: { [en]: 'Makasar', [fr]: 'makassar', [de]: 'Makassarisch' },
-  mal: { [en]: 'Malayalam', [fr]: 'malayalam', [de]: 'Malayalam' },
-  man: { [en]: 'Mandingo', [fr]: 'mandingue', [de]: 'Malinke-Sprache' },
-  mao: { [en]: 'Maori', [fr]: 'maori', [de]: 'Maori-Sprache' },
-  map: { [en]: 'Austronesian languages', [fr]: 'austronésiennes, langues', [de]: 'Austronesische Sprachen (Andere)' },
-  mar: { [en]: 'Marathi', [fr]: 'marathe', [de]: 'Marathi' },
-  mas: { [en]: 'Masai', [fr]: 'massaï', [de]: 'Massai-Sprache' },
-  may: { [en]: 'Malay', [fr]: 'malais', [de]: 'Malaiisch' },
-  mdf: { [en]: 'Moksha', [fr]: 'moksa', [de]: 'Mokscha-Sprache' },
-  mdr: { [en]: 'Mandar', [fr]: 'mandar', [de]: 'Mandaresisch' },
-  men: { [en]: 'Mende', [fr]: 'mendé', [de]: 'Mende-Sprache' },
-  mga: { [en]: 'Irish, Middle (900-1200)', [fr]: 'irlandais moyen (900-1200)', [de]: 'Mittelirisch' },
-  mic: { [en]: "Mi'kmaq; Micmac", [fr]: "mi'kmaq; micmac", [de]: 'Micmac-Sprache' },
-  min: { [en]: 'Minangkabau', [fr]: 'minangkabau', [de]: 'Minangkabau-Sprache' },
-  mis: { [en]: 'Uncoded languages', [fr]: 'langues non codées', [de]: 'Einzelne andere Sprachen' },
-  mkd: { [en]: 'Macedonian', [fr]: 'macédonien', [de]: 'Makedonisch' },
-  mkh: { [en]: 'Mon-Khmer languages', [fr]: 'môn-khmer, langues', [de]: 'Mon-Khmer-Sprachen (Andere)' },
-  mlg: { [en]: 'Malagasy', [fr]: 'malgache', [de]: 'Malagassi-Sprache' },
-  mlt: { [en]: 'Maltese', [fr]: 'maltais', [de]: 'Maltesisch' },
-  mnc: { [en]: 'Manchu', [fr]: 'mandchou', [de]: 'Mandschurisch' },
-  mni: { [en]: 'Manipuri', [fr]: 'manipuri', [de]: 'Meithei-Sprache' },
-  mno: { [en]: 'Manobo languages', [fr]: 'manobo, langues', [de]: 'Manobo-Sprachen' },
-  moh: { [en]: 'Mohawk', [fr]: 'mohawk', [de]: 'Mohawk-Sprache' },
-  mon: { [en]: 'Mongolian', [fr]: 'mongol', [de]: 'Mongolisch' },
-  mos: { [en]: 'Mossi', [fr]: 'moré', [de]: 'Mossi-Sprache' },
-  mri: { [en]: 'Maori', [fr]: 'maori', [de]: 'Maori-Sprache' },
-  msa: { [en]: 'Malay', [fr]: 'malais', [de]: 'Malaiisch' },
-  mul: { [en]: 'Multiple languages', [fr]: 'multilingue', [de]: 'Mehrere Sprachen' },
-  mun: { [en]: 'Munda languages', [fr]: 'mounda, langues', [de]: 'Mundasprachen (Andere)' },
-  mus: { [en]: 'Creek', [fr]: 'muskogee', [de]: 'Muskogisch' },
-  mwl: { [en]: 'Mirandese', [fr]: 'mirandais', [de]: 'Mirandesisch' },
-  mwr: { [en]: 'Marwari', [fr]: 'marvari', [de]: 'Marwari' },
-  mya: { [en]: 'Burmese', [fr]: 'birman', [de]: 'Birmanisch' },
-  myn: { [en]: 'Mayan languages', [fr]: 'maya, langues', [de]: 'Maya-Sprachen' },
-  myv: { [en]: 'Erzya', [fr]: 'erza', [de]: 'Erza-Mordwinisch' },
-  nah: { [en]: 'Nahuatl languages', [fr]: 'nahuatl, langues', [de]: 'Nahuatl' },
+  inh: {
+    en: 'Ingush',
+  },
+  ipk: {
+    en: 'Inupiaq',
+  },
+  ira: {
+    en: 'Iranian languages',
+  },
+  iro: {
+    en: 'Iroquoian languages',
+  },
+  isl: {
+    en: 'Icelandic',
+  },
+  ita: {
+    en: 'Italian',
+  },
+  jav: {
+    en: 'Javanese',
+  },
+  jbo: {
+    en: 'Lojban',
+  },
+  jpn: {
+    en: 'Japanese',
+  },
+  jpr: {
+    en: 'Judeo-Persian',
+  },
+  jrb: {
+    en: 'Judeo-Arabic',
+  },
+  kaa: {
+    en: 'Kara-Kalpak',
+  },
+  kab: {
+    en: 'Kabyle',
+  },
+  kac: {
+    en: 'Kachin; Jingpho',
+  },
+  kal: {
+    en: 'Kalaallisut; Greenlandic',
+  },
+  kam: {
+    en: 'Kamba',
+  },
+  kan: {
+    en: 'Kannada',
+  },
+  kar: {
+    en: 'Karen languages',
+  },
+  kas: {
+    en: 'Kashmiri',
+  },
+  kat: {
+    en: 'Georgian',
+  },
+  kau: {
+    en: 'Kanuri',
+  },
+  kaw: {
+    en: 'Kawi',
+  },
+  kaz: {
+    en: 'Kazakh',
+  },
+  kbd: {
+    en: 'Kabardian',
+  },
+  kha: {
+    en: 'Khasi',
+  },
+  khi: {
+    en: 'Khoisan languages',
+  },
+  khm: {
+    en: 'Central Khmer',
+  },
+  kho: {
+    en: 'Khotanese; Sakan',
+  },
+  kik: {
+    en: 'Kikuyu; Gikuyu',
+  },
+  kin: {
+    en: 'Kinyarwanda',
+  },
+  kir: {
+    en: 'Kirghiz; Kyrgyz',
+  },
+  kmb: {
+    en: 'Kimbundu',
+  },
+  kok: {
+    en: 'Konkani',
+  },
+  kom: {
+    en: 'Komi',
+  },
+  kon: {
+    en: 'Kongo',
+  },
+  kor: {
+    en: 'Korean',
+  },
+  kos: {
+    en: 'Kosraean',
+  },
+  kpe: {
+    en: 'Kpelle',
+  },
+  krc: {
+    en: 'Karachay-Balkar',
+  },
+  krl: {
+    en: 'Karelian',
+  },
+  kro: {
+    en: 'Kru languages',
+  },
+  kru: {
+    en: 'Kurukh',
+  },
+  kua: {
+    en: 'Kuanyama; Kwanyama',
+  },
+  kum: {
+    en: 'Kumyk',
+  },
+  kur: {
+    en: 'Kurdish',
+  },
+  kut: {
+    en: 'Kutenai',
+  },
+  lad: {
+    en: 'Ladino',
+  },
+  lah: {
+    en: 'Lahnda',
+  },
+  lam: {
+    en: 'Lamba',
+  },
+  lao: {
+    en: 'Lao',
+  },
+  lat: {
+    en: 'Latin',
+  },
+  lav: {
+    en: 'Latvian',
+  },
+  lez: {
+    en: 'Lezghian',
+  },
+  lim: {
+    en: 'Limburgan; Limburger; Limburgish',
+  },
+  lin: {
+    en: 'Lingala',
+  },
+  lit: {
+    en: 'Lithuanian',
+  },
+  lol: {
+    en: 'Mongo',
+  },
+  loz: {
+    en: 'Lozi',
+  },
+  ltz: {
+    en: 'Luxembourgish; Letzeburgesch',
+  },
+  lua: {
+    en: 'Luba-Lulua',
+  },
+  lub: {
+    en: 'Luba-Katanga',
+  },
+  lug: {
+    en: 'Ganda',
+  },
+  lui: {
+    en: 'Luiseno',
+  },
+  lun: {
+    en: 'Lunda',
+  },
+  luo: {
+    en: 'Luo (Kenya and Tanzania)',
+  },
+  lus: {
+    en: 'Lushai',
+  },
+  mac: {
+    en: 'Macedonian',
+  },
+  mad: {
+    en: 'Madurese',
+  },
+  mag: {
+    en: 'Magahi',
+  },
+  mah: {
+    en: 'Marshallese',
+  },
+  mai: {
+    en: 'Maithili',
+  },
+  mak: {
+    en: 'Makasar',
+  },
+  mal: {
+    en: 'Malayalam',
+  },
+  man: {
+    en: 'Mandingo',
+  },
+  mao: {
+    en: 'Maori',
+  },
+  map: {
+    en: 'Austronesian languages',
+  },
+  mar: {
+    en: 'Marathi',
+  },
+  mas: {
+    en: 'Masai',
+  },
+  may: {
+    en: 'Malay',
+  },
+  mdf: {
+    en: 'Moksha',
+  },
+  mdr: {
+    en: 'Mandar',
+  },
+  men: {
+    en: 'Mende',
+  },
+  mga: {
+    en: 'Irish, Middle (900-1200)',
+  },
+  mic: {
+    en: "Mi'kmaq; Micmac",
+  },
+  min: {
+    en: 'Minangkabau',
+  },
+  mis: {
+    en: 'Uncoded languages',
+  },
+  mkd: {
+    en: 'Macedonian',
+  },
+  mkh: {
+    en: 'Mon-Khmer languages',
+  },
+  mlg: {
+    en: 'Malagasy',
+  },
+  mlt: {
+    en: 'Maltese',
+  },
+  mnc: {
+    en: 'Manchu',
+  },
+  mni: {
+    en: 'Manipuri',
+  },
+  mno: {
+    en: 'Manobo languages',
+  },
+  moh: {
+    en: 'Mohawk',
+  },
+  mon: {
+    en: 'Mongolian',
+  },
+  mos: {
+    en: 'Mossi',
+  },
+  mri: {
+    en: 'Maori',
+  },
+  msa: {
+    en: 'Malay',
+  },
+  mul: {
+    en: 'Multiple languages',
+  },
+  mun: {
+    en: 'Munda languages',
+  },
+  mus: {
+    en: 'Creek',
+  },
+  mwl: {
+    en: 'Mirandese',
+  },
+  mwr: {
+    en: 'Marwari',
+  },
+  mya: {
+    en: 'Burmese',
+  },
+  myn: {
+    en: 'Mayan languages',
+  },
+  myv: {
+    en: 'Erzya',
+  },
+  nah: {
+    en: 'Nahuatl languages',
+  },
   nai: {
-    [en]: 'North American Indian languages',
-    [fr]: 'nord-amérindiennes, langues',
-    [de]: 'Indianersprachen, Nordamerika (Andere)',
+    en: 'North American Indian languages',
   },
-  nap: { [en]: 'Neapolitan', [fr]: 'napolitain', [de]: 'Neapel / Mundart' },
-  nau: { [en]: 'Nauru', [fr]: 'nauruan', [de]: 'Nauruanisch' },
-  nav: { [en]: 'Navajo; Navaho', [fr]: 'navaho', [de]: 'Navajo-Sprache' },
-  nbl: { [en]: 'Ndebele, South; South Ndebele', [fr]: 'ndébélé du Sud', [de]: 'Ndebele-Sprache (Transvaal)' },
-  nde: { [en]: 'Ndebele, North; North Ndebele', [fr]: 'ndébélé du Nord', [de]: 'Ndebele-Sprache (Simbabwe)' },
-  ndo: { [en]: 'Ndonga', [fr]: 'ndonga', [de]: 'Ndonga' },
+  nap: {
+    en: 'Neapolitan',
+  },
+  nau: {
+    en: 'Nauru',
+  },
+  nav: {
+    en: 'Navajo; Navaho',
+  },
+  nbl: {
+    en: 'Ndebele, South; South Ndebele',
+  },
+  nde: {
+    en: 'Ndebele, North; North Ndebele',
+  },
+  ndo: {
+    en: 'Ndonga',
+  },
   nds: {
-    [en]: 'Low German; Low Saxon; German, Low; Saxon, Low',
-    [fr]: 'bas allemand; bas saxon; allemand, bas; saxon, bas',
-    [de]: 'Niederdeutsch',
+    en: 'Low German; Low Saxon; German, Low; Saxon, Low',
   },
-  nep: { [en]: 'Nepali', [fr]: 'népalais', [de]: 'Nepali' },
-  new: { [en]: 'Nepal Bhasa; Newari', [fr]: 'nepal bhasa; newari', [de]: 'Newari' },
-  nia: { [en]: 'Nias', [fr]: 'nias', [de]: 'Nias-Sprache' },
+  nep: {
+    en: 'Nepali',
+  },
+  new: {
+    en: 'Nepal Bhasa; Newari',
+  },
+  nia: {
+    en: 'Nias',
+  },
   nic: {
-    [en]: 'Niger-Kordofanian languages',
-    [fr]: 'nigéro-kordofaniennes, langues',
-    [de]: 'Nigerkordofanische Sprachen (Andere)',
+    en: 'Niger-Kordofanian languages',
   },
-  niu: { [en]: 'Niuean', [fr]: 'niué', [de]: 'Niue-Sprache' },
-  nld: { [en]: 'Dutch; Flemish', [fr]: 'néerlandais; flamand', [de]: 'Niederländisch' },
+  niu: {
+    en: 'Niuean',
+  },
+  nld: {
+    en: 'Dutch; Flemish',
+  },
   nno: {
-    [en]: 'Norwegian Nynorsk; Nynorsk, Norwegian',
-    [fr]: 'norvégien nynorsk; nynorsk, norvégien',
-    [de]: 'Nynorsk',
+    en: 'Norwegian Nynorsk; Nynorsk, Norwegian',
   },
-  nob: { [en]: 'Bokmål, Norwegian; Norwegian Bokmål', [fr]: 'norvégien bokmål', [de]: 'Bokmål' },
-  nog: { [en]: 'Nogai', [fr]: 'nogaï; nogay', [de]: 'Nogaisch' },
-  non: { [en]: 'Norse, Old', [fr]: 'norrois, vieux', [de]: 'Altnorwegisch' },
-  nor: { [en]: 'Norwegian', [fr]: 'norvégien', [de]: 'Norwegisch' },
-  nqo: { [en]: "N'Ko", [fr]: "n'ko", [de]: "N'Ko" },
-  nso: { [en]: 'Pedi; Sepedi; Northern Sotho', [fr]: 'pedi; sepedi; sotho du Nord', [de]: 'Pedi-Sprache' },
-  nub: { [en]: 'Nubian languages', [fr]: 'nubiennes, langues', [de]: 'Nubische Sprachen' },
-  nwc: { [en]: 'Classical Newari; Old Newari; Classical Nepal Bhasa', [fr]: 'newari classique', [de]: 'Alt-Newari' },
-  nya: { [en]: 'Chichewa; Chewa; Nyanja', [fr]: 'chichewa; chewa; nyanja', [de]: 'Nyanja-Sprache' },
-  nym: { [en]: 'Nyamwezi', [fr]: 'nyamwezi', [de]: 'Nyamwezi-Sprache' },
-  nyn: { [en]: 'Nyankole', [fr]: 'nyankolé', [de]: 'Nkole-Sprache' },
-  nyo: { [en]: 'Nyoro', [fr]: 'nyoro', [de]: 'Nyoro-Sprache' },
-  nzi: { [en]: 'Nzima', [fr]: 'nzema', [de]: 'Nzima-Sprache' },
-  oci: { [en]: 'Occitan (post 1500)', [fr]: 'occitan (après 1500)', [de]: 'Okzitanisch' },
-  oji: { [en]: 'Ojibwa', [fr]: 'ojibwa', [de]: 'Ojibwa-Sprache' },
-  ori: { [en]: 'Oriya', [fr]: 'oriya', [de]: 'Oriya-Sprache' },
-  orm: { [en]: 'Oromo', [fr]: 'galla', [de]: 'Galla-Sprache' },
-  osa: { [en]: 'Osage', [fr]: 'osage', [de]: 'Osage-Sprache' },
-  oss: { [en]: 'Ossetian; Ossetic', [fr]: 'ossète', [de]: 'Ossetisch' },
-  ota: { [en]: 'Turkish, Ottoman (1500-1928)', [fr]: 'turc ottoman (1500-1928)', [de]: 'Osmanisch' },
-  oto: { [en]: 'Otomian languages', [fr]: 'otomi, langues', [de]: 'Otomangue-Sprachen' },
-  paa: { [en]: 'Papuan languages', [fr]: 'papoues, langues', [de]: 'Papuasprachen (Andere)' },
-  pag: { [en]: 'Pangasinan', [fr]: 'pangasinan', [de]: 'Pangasinan-Sprache' },
-  pal: { [en]: 'Pahlavi', [fr]: 'pahlavi', [de]: 'Mittelpersisch' },
-  pam: { [en]: 'Pampanga; Kapampangan', [fr]: 'pampangan', [de]: 'Pampanggan-Sprache' },
-  pan: { [en]: 'Panjabi; Punjabi', [fr]: 'pendjabi', [de]: 'Pandschabi-Sprache' },
-  pap: { [en]: 'Papiamento', [fr]: 'papiamento', [de]: 'Papiamento' },
-  pau: { [en]: 'Palauan', [fr]: 'palau', [de]: 'Palau-Sprache' },
-  peo: { [en]: 'Persian, Old (ca.600-400 B.C.)', [fr]: 'perse, vieux (ca. 600-400 av. J.-C.)', [de]: 'Altpersisch' },
-  per: { [en]: 'Persian', [fr]: 'persan', [de]: 'Persisch' },
-  phi: { [en]: 'Philippine languages', [fr]: 'philippines, langues', [de]: 'Philippinisch-Austronesisch (Andere)' },
-  phn: { [en]: 'Phoenician', [fr]: 'phénicien', [de]: 'Phönikisch' },
-  pli: { [en]: 'Pali', [fr]: 'pali', [de]: 'Pali' },
-  pol: { [en]: 'Polish', [fr]: 'polonais', [de]: 'Polnisch' },
-  pon: { [en]: 'Pohnpeian', [fr]: 'pohnpei', [de]: 'Ponapeanisch' },
-  por: { [en]: 'Portuguese', [fr]: 'portugais', [de]: 'Portugiesisch' },
-  pra: { [en]: 'Prakrit languages', [fr]: 'prâkrit, langues', [de]: 'Prakrit' },
+  nob: {
+    en: 'Bokmål, Norwegian; Norwegian Bokmål',
+  },
+  nog: {
+    en: 'Nogai',
+  },
+  non: {
+    en: 'Norse, Old',
+  },
+  nor: {
+    en: 'Norwegian',
+  },
+  nqo: {
+    en: "N'Ko",
+  },
+  nso: {
+    en: 'Pedi; Sepedi; Northern Sotho',
+  },
+  nub: {
+    en: 'Nubian languages',
+  },
+  nwc: {
+    en: 'Classical Newari; Old Newari; Classical Nepal Bhasa',
+  },
+  nya: {
+    en: 'Chichewa; Chewa; Nyanja',
+  },
+  nym: {
+    en: 'Nyamwezi',
+  },
+  nyn: {
+    en: 'Nyankole',
+  },
+  nyo: {
+    en: 'Nyoro',
+  },
+  nzi: {
+    en: 'Nzima',
+  },
+  oci: {
+    en: 'Occitan (post 1500)',
+  },
+  oji: {
+    en: 'Ojibwa',
+  },
+  ori: {
+    en: 'Oriya',
+  },
+  orm: {
+    en: 'Oromo',
+  },
+  osa: {
+    en: 'Osage',
+  },
+  oss: {
+    en: 'Ossetian; Ossetic',
+  },
+  ota: {
+    en: 'Turkish, Ottoman (1500-1928)',
+  },
+  oto: {
+    en: 'Otomian languages',
+  },
+  paa: {
+    en: 'Papuan languages',
+  },
+  pag: {
+    en: 'Pangasinan',
+  },
+  pal: {
+    en: 'Pahlavi',
+  },
+  pam: {
+    en: 'Pampanga; Kapampangan',
+  },
+  pan: {
+    en: 'Panjabi; Punjabi',
+  },
+  pap: {
+    en: 'Papiamento',
+  },
+  pau: {
+    en: 'Palauan',
+  },
+  peo: {
+    en: 'Persian, Old (ca.600-400 B.C.)',
+  },
+  per: {
+    en: 'Persian',
+  },
+  phi: {
+    en: 'Philippine languages',
+  },
+  phn: {
+    en: 'Phoenician',
+  },
+  pli: {
+    en: 'Pali',
+  },
+  pol: {
+    en: 'Polish',
+  },
+  pon: {
+    en: 'Pohnpeian',
+  },
+  por: {
+    en: 'Portuguese',
+  },
+  pra: {
+    en: 'Prakrit languages',
+  },
   pro: {
-    [en]: 'Provençal, Old (to 1500);Occitan, Old (to 1500)',
-    [fr]: "provençal ancien (jusqu'à 1500); occitan ancien (jusqu'à 1500)",
-    [de]: 'Altokzitanisch',
+    en: 'Provençal, Old (to 1500);Occitan, Old (to 1500)',
   },
-  pus: { [en]: 'Pushto; Pashto', [fr]: 'pachto', [de]: 'Paschtu' },
+  pus: {
+    en: 'Pushto; Pashto',
+  },
   'qaa-qtz': {
-    [en]: 'Reserved for local use',
-    [fr]: "réservée à l'usage local",
-    [de]: 'Reserviert für lokale Verwendung',
+    en: 'Reserved for local use',
   },
-  que: { [en]: 'Quechua', [fr]: 'quechua', [de]: 'Quechua-Sprache' },
-  raj: { [en]: 'Rajasthani', [fr]: 'rajasthani', [de]: 'Rajasthani' },
-  rap: { [en]: 'Rapanui', [fr]: 'rapanui', [de]: 'Osterinsel-Sprache' },
-  rar: { [en]: 'Rarotongan; Cook Islands Maori', [fr]: 'rarotonga; maori des îles Cook', [de]: 'Rarotonganisch' },
-  roa: { [en]: 'Romance languages', [fr]: 'romanes, langues', [de]: 'Romanische Sprachen (Andere)' },
-  roh: { [en]: 'Romansh', [fr]: 'romanche', [de]: 'Rätoromanisch' },
-  rom: { [en]: 'Romany', [fr]: 'tsigane', [de]: 'Romani (Sprache)' },
-  ron: { [en]: 'Romanian; Moldavian; Moldovan', [fr]: 'roumain; moldave', [de]: 'Rumänisch' },
-  rum: { [en]: 'Romanian; Moldavian; Moldovan', [fr]: 'roumain; moldave', [de]: 'Rumänisch' },
-  run: { [en]: 'Rundi', [fr]: 'rundi', [de]: 'Rundi-Sprache' },
-  rup: { [en]: 'Aromanian; Arumanian; Macedo-Romanian', [fr]: 'aroumain; macédo-roumain', [de]: 'Aromunisch' },
-  rus: { [en]: 'Russian', [fr]: 'russe', [de]: 'Russisch' },
-  sad: { [en]: 'Sandawe', [fr]: 'sandawe', [de]: 'Sandawe-Sprache' },
-  sag: { [en]: 'Sango', [fr]: 'sango', [de]: 'Sango-Sprache' },
-  sah: { [en]: 'Yakut', [fr]: 'iakoute', [de]: 'Jakutisch' },
+  que: {
+    en: 'Quechua',
+  },
+  raj: {
+    en: 'Rajasthani',
+  },
+  rap: {
+    en: 'Rapanui',
+  },
+  rar: {
+    en: 'Rarotongan; Cook Islands Maori',
+  },
+  roa: {
+    en: 'Romance languages',
+  },
+  roh: {
+    en: 'Romansh',
+  },
+  rom: {
+    en: 'Romany',
+  },
+  ron: {
+    en: 'Romanian; Moldavian; Moldovan',
+  },
+  rum: {
+    en: 'Romanian; Moldavian; Moldovan',
+  },
+  run: {
+    en: 'Rundi',
+  },
+  rup: {
+    en: 'Aromanian; Arumanian; Macedo-Romanian',
+  },
+  rus: {
+    en: 'Russian',
+  },
+  sad: {
+    en: 'Sandawe',
+  },
+  sag: {
+    en: 'Sango',
+  },
+  sah: {
+    en: 'Yakut',
+  },
   sai: {
-    [en]: 'South American Indian languages',
-    [fr]: 'sud-amérindiennes, langues',
-    [de]: 'Indianersprachen, Südamerika (Andere)',
+    en: 'South American Indian languages',
   },
-  sal: { [en]: 'Salishan languages', [fr]: 'salishennes, langues', [de]: 'Salish-Sprache' },
-  sam: { [en]: 'Samaritan Aramaic', [fr]: 'samaritain', [de]: 'Samaritanisch' },
-  san: { [en]: 'Sanskrit', [fr]: 'sanskrit', [de]: 'Sanskrit' },
-  sas: { [en]: 'Sasak', [fr]: 'sasak', [de]: 'Sasak' },
-  sat: { [en]: 'Santali', [fr]: 'santal', [de]: 'Santali' },
-  scn: { [en]: 'Sicilian', [fr]: 'sicilien', [de]: 'Sizilianisch' },
-  sco: { [en]: 'Scots', [fr]: 'écossais', [de]: 'Schottisch' },
-  sel: { [en]: 'Selkup', [fr]: 'selkoupe', [de]: 'Selkupisch' },
-  sem: { [en]: 'Semitic languages', [fr]: 'sémitiques, langues', [de]: 'Semitische Sprachen (Andere)' },
-  sga: { [en]: 'Irish, Old (to 900)', [fr]: "irlandais ancien (jusqu'à 900)", [de]: 'Altirisch' },
-  sgn: { [en]: 'Sign Languages', [fr]: 'langues des signes', [de]: 'Zeichensprachen' },
-  shn: { [en]: 'Shan', [fr]: 'chan', [de]: 'Schan-Sprache' },
-  sid: { [en]: 'Sidamo', [fr]: 'sidamo', [de]: 'Sidamo-Sprache' },
-  sin: { [en]: 'Sinhala; Sinhalese', [fr]: 'singhalais', [de]: 'Singhalesisch' },
-  sio: { [en]: 'Siouan languages', [fr]: 'sioux, langues', [de]: 'Sioux-Sprachen (Andere)' },
-  sit: { [en]: 'Sino-Tibetan languages', [fr]: 'sino-tibétaines, langues', [de]: 'Sinotibetische Sprachen (Andere)' },
-  sla: { [en]: 'Slavic languages', [fr]: 'slaves, langues', [de]: 'Slawische Sprachen (Andere)' },
-  slk: { [en]: 'Slovak', [fr]: 'slovaque', [de]: 'Slowakisch' },
-  slo: { [en]: 'Slovak', [fr]: 'slovaque', [de]: 'Slowakisch' },
-  slv: { [en]: 'Slovenian', [fr]: 'slovène', [de]: 'Slowenisch' },
-  sma: { [en]: 'Southern Sami', [fr]: 'sami du Sud', [de]: 'Südsaamisch' },
-  sme: { [en]: 'Northern Sami', [fr]: 'sami du Nord', [de]: 'Nordsaamisch' },
-  smi: { [en]: 'Sami languages', [fr]: 'sames, langues', [de]: 'Saamisch' },
-  smj: { [en]: 'Lule Sami', [fr]: 'sami de Lule', [de]: 'Lulesaamisch' },
-  smn: { [en]: 'Inari Sami', [fr]: "sami d'Inari", [de]: 'Inarisaamisch' },
-  smo: { [en]: 'Samoan', [fr]: 'samoan', [de]: 'Samoanisch' },
-  sms: { [en]: 'Skolt Sami', [fr]: 'sami skolt', [de]: 'Skoltsaamisch' },
-  sna: { [en]: 'Shona', [fr]: 'shona', [de]: 'Schona-Sprache' },
-  snd: { [en]: 'Sindhi', [fr]: 'sindhi', [de]: 'Sindhi-Sprache' },
-  snk: { [en]: 'Soninke', [fr]: 'soninké', [de]: 'Soninke-Sprache' },
-  sog: { [en]: 'Sogdian', [fr]: 'sogdien', [de]: 'Sogdisch' },
-  som: { [en]: 'Somali', [fr]: 'somali', [de]: 'Somali' },
-  son: { [en]: 'Songhai languages', [fr]: 'songhai, langues', [de]: 'Songhai-Sprache' },
-  sot: { [en]: 'Sotho, Southern', [fr]: 'sotho du Sud', [de]: 'Süd-Sotho-Sprache' },
-  spa: { [en]: 'Spanish', [fr]: 'espagnol', [de]: 'Spanisch' },
-  sqi: { [en]: 'Albanian', [fr]: 'albanais', [de]: 'Albanisch' },
-  srd: { [en]: 'Sardinian', [fr]: 'sarde', [de]: 'Sardisch' },
-  srn: { [en]: 'Sranan Tongo', [fr]: 'sranan tongo', [de]: 'Sranantongo' },
-  srp: { [en]: 'Serbian', [fr]: 'serbe', [de]: 'Serbisch' },
-  srr: { [en]: 'Serer', [fr]: 'sérère', [de]: 'Serer-Sprache' },
+  sal: {
+    en: 'Salishan languages',
+  },
+  sam: {
+    en: 'Samaritan Aramaic',
+  },
+  san: {
+    en: 'Sanskrit',
+  },
+  sas: {
+    en: 'Sasak',
+  },
+  sat: {
+    en: 'Santali',
+  },
+  scn: {
+    en: 'Sicilian',
+  },
+  sco: {
+    en: 'Scots',
+  },
+  sel: {
+    en: 'Selkup',
+  },
+  sem: {
+    en: 'Semitic languages',
+  },
+  sga: {
+    en: 'Irish, Old (to 900)',
+  },
+  sgn: {
+    en: 'Sign Languages',
+  },
+  shn: {
+    en: 'Shan',
+  },
+  sid: {
+    en: 'Sidamo',
+  },
+  sin: {
+    en: 'Sinhala; Sinhalese',
+  },
+  sio: {
+    en: 'Siouan languages',
+  },
+  sit: {
+    en: 'Sino-Tibetan languages',
+  },
+  sla: {
+    en: 'Slavic languages',
+  },
+  slk: {
+    en: 'Slovak',
+  },
+  slo: {
+    en: 'Slovak',
+  },
+  slv: {
+    en: 'Slovenian',
+  },
+  sma: {
+    en: 'Southern Sami',
+  },
+  sme: {
+    en: 'Northern Sami',
+  },
+  smi: {
+    en: 'Sami languages',
+  },
+  smj: {
+    en: 'Lule Sami',
+  },
+  smn: {
+    en: 'Inari Sami',
+  },
+  smo: {
+    en: 'Samoan',
+  },
+  sms: {
+    en: 'Skolt Sami',
+  },
+  sna: {
+    en: 'Shona',
+  },
+  snd: {
+    en: 'Sindhi',
+  },
+  snk: {
+    en: 'Soninke',
+  },
+  sog: {
+    en: 'Sogdian',
+  },
+  som: {
+    en: 'Somali',
+  },
+  son: {
+    en: 'Songhai languages',
+  },
+  sot: {
+    en: 'Sotho, Southern',
+  },
+  spa: {
+    en: 'Spanish',
+  },
+  sqi: {
+    en: 'Albanian',
+  },
+  srd: {
+    en: 'Sardinian',
+  },
+  srn: {
+    en: 'Sranan Tongo',
+  },
+  srp: {
+    en: 'Serbian',
+  },
+  srr: {
+    en: 'Serer',
+  },
   ssa: {
-    [en]: 'Nilo-Saharan languages',
-    [fr]: 'nilo-sahariennes, langues',
-    [de]: 'Nilosaharanische Sprachen (Andere)',
+    en: 'Nilo-Saharan languages',
   },
-  ssw: { [en]: 'Swati', [fr]: 'swati', [de]: 'Swasi-Sprache' },
-  suk: { [en]: 'Sukuma', [fr]: 'sukuma', [de]: 'Sukuma-Sprache' },
-  sun: { [en]: 'Sundanese', [fr]: 'soundanais', [de]: 'Sundanesisch' },
-  sus: { [en]: 'Susu', [fr]: 'soussou', [de]: 'Susu' },
-  sux: { [en]: 'Sumerian', [fr]: 'sumérien', [de]: 'Sumerisch' },
-  swa: { [en]: 'Swahili', [fr]: 'swahili', [de]: 'Swahili' },
-  swe: { [en]: 'Swedish', [fr]: 'suédois', [de]: 'Schwedisch' },
-  syc: { [en]: 'Classical Syriac', [fr]: 'syriaque classique', [de]: 'Syrisch' },
-  syr: { [en]: 'Syriac', [fr]: 'syriaque', [de]: 'Neuostaramäisch' },
-  tah: { [en]: 'Tahitian', [fr]: 'tahitien', [de]: 'Tahitisch' },
-  tai: { [en]: 'Tai languages', [fr]: 'tai, langues', [de]: 'Thaisprachen (Andere)' },
-  tam: { [en]: 'Tamil', [fr]: 'tamoul', [de]: 'Tamil' },
-  tat: { [en]: 'Tatar', [fr]: 'tatar', [de]: 'Tatarisch' },
-  tel: { [en]: 'Telugu', [fr]: 'télougou', [de]: 'Telugu-Sprache' },
-  tem: { [en]: 'Timne', [fr]: 'temne', [de]: 'Temne-Sprache' },
-  ter: { [en]: 'Tereno', [fr]: 'tereno', [de]: 'Tereno-Sprache' },
-  tet: { [en]: 'Tetum', [fr]: 'tetum', [de]: 'Tetum-Sprache' },
-  tgk: { [en]: 'Tajik', [fr]: 'tadjik', [de]: 'Tadschikisch' },
-  tgl: { [en]: 'Tagalog', [fr]: 'tagalog', [de]: 'Tagalog' },
-  tha: { [en]: 'Thai', [fr]: 'thaï', [de]: 'Thailändisch' },
-  tib: { [en]: 'Tibetan', [fr]: 'tibétain', [de]: 'Tibetisch' },
-  tig: { [en]: 'Tigre', [fr]: 'tigré', [de]: 'Tigre-Sprache' },
-  tir: { [en]: 'Tigrinya', [fr]: 'tigrigna', [de]: 'Tigrinja-Sprache' },
-  tiv: { [en]: 'Tiv', [fr]: 'tiv', [de]: 'Tiv-Sprache' },
-  tkl: { [en]: 'Tokelau', [fr]: 'tokelau', [de]: 'Tokelauanisch' },
-  tlh: { [en]: 'Klingon; tlhIngan-Hol', [fr]: 'klingon', [de]: 'Klingonisch' },
-  tli: { [en]: 'Tlingit', [fr]: 'tlingit', [de]: 'Tlingit-Sprache' },
-  tmh: { [en]: 'Tamashek', [fr]: 'tamacheq', [de]: 'Tamašeq' },
-  tog: { [en]: 'Tonga (Nyasa)', [fr]: 'tonga (Nyasa)', [de]: 'Tonga (Bantusprache, Sambia)' },
-  ton: { [en]: 'Tonga (Tonga Islands)', [fr]: 'tongan (Îles Tonga)', [de]: 'Tongaisch' },
-  tpi: { [en]: 'Tok Pisin', [fr]: 'tok pisin', [de]: 'Neumelanesisch' },
-  tsi: { [en]: 'Tsimshian', [fr]: 'tsimshian', [de]: 'Tsimshian-Sprache' },
-  tsn: { [en]: 'Tswana', [fr]: 'tswana', [de]: 'Tswana-Sprache' },
-  tso: { [en]: 'Tsonga', [fr]: 'tsonga', [de]: 'Tsonga-Sprache' },
-  tuk: { [en]: 'Turkmen', [fr]: 'turkmène', [de]: 'Turkmenisch' },
-  tum: { [en]: 'Tumbuka', [fr]: 'tumbuka', [de]: 'Tumbuka-Sprache' },
-  tup: { [en]: 'Tupi languages', [fr]: 'tupi, langues', [de]: 'Tupi-Sprache' },
-  tur: { [en]: 'Turkish', [fr]: 'turc', [de]: 'Türkisch' },
-  tut: { [en]: 'Altaic languages', [fr]: 'altaïques, langues', [de]: 'Altaische Sprachen (Andere)' },
-  tvl: { [en]: 'Tuvalu', [fr]: 'tuvalu', [de]: 'Elliceanisch' },
-  twi: { [en]: 'Twi', [fr]: 'twi', [de]: 'Twi-Sprache' },
-  tyv: { [en]: 'Tuvinian', [fr]: 'touva', [de]: 'Tuwinisch' },
-  udm: { [en]: 'Udmurt', [fr]: 'oudmourte', [de]: 'Udmurtisch' },
-  uga: { [en]: 'Ugaritic', [fr]: 'ougaritique', [de]: 'Ugaritisch' },
-  uig: { [en]: 'Uighur; Uyghur', [fr]: 'ouïgour', [de]: 'Uigurisch' },
-  ukr: { [en]: 'Ukrainian', [fr]: 'ukrainien', [de]: 'Ukrainisch' },
-  umb: { [en]: 'Umbundu', [fr]: 'umbundu', [de]: 'Mbundu-Sprache' },
-  und: { [en]: 'Undetermined', [fr]: 'indéterminée', [de]: 'Nicht zu entscheiden' },
-  urd: { [en]: 'Urdu', [fr]: 'ourdou', [de]: 'Urdu' },
-  uzb: { [en]: 'Uzbek', [fr]: 'ouszbek', [de]: 'Usbekisch' },
-  vai: { [en]: 'Vai', [fr]: 'vaï', [de]: 'Vai-Sprache' },
-  ven: { [en]: 'Venda', [fr]: 'venda', [de]: 'Venda-Sprache' },
-  vie: { [en]: 'Vietnamese', [fr]: 'vietnamien', [de]: 'Vietnamesisch' },
-  vol: { [en]: 'Volapük', [fr]: 'volapük', [de]: 'Volapük' },
-  vot: { [en]: 'Votic', [fr]: 'vote', [de]: 'Wotisch' },
-  wak: { [en]: 'Wakashan languages', [fr]: 'wakashanes, langues', [de]: 'Wakash-Sprachen' },
-  wal: { [en]: 'Wolaitta; Wolaytta', [fr]: 'wolaitta; wolaytta', [de]: 'Walamo-Sprache' },
-  war: { [en]: 'Waray', [fr]: 'waray', [de]: 'Waray' },
-  was: { [en]: 'Washo', [fr]: 'washo', [de]: 'Washo-Sprache' },
-  wel: { [en]: 'Welsh', [fr]: 'gallois', [de]: 'Kymrisch' },
-  wen: { [en]: 'Sorbian languages', [fr]: 'sorabes, langues', [de]: 'Sorbisch (Andere)' },
-  wln: { [en]: 'Walloon', [fr]: 'wallon', [de]: 'Wallonisch' },
-  wol: { [en]: 'Wolof', [fr]: 'wolof', [de]: 'Wolof-Sprache' },
-  xal: { [en]: 'Kalmyk; Oirat', [fr]: 'kalmouk; oïrat', [de]: 'Kalmückisch' },
-  xho: { [en]: 'Xhosa', [fr]: 'xhosa', [de]: 'Xhosa-Sprache' },
-  yao: { [en]: 'Yao', [fr]: 'yao', [de]: 'Yao-Sprache (Bantusprache)' },
-  yap: { [en]: 'Yapese', [fr]: 'yapois', [de]: 'Yapesisch' },
-  yid: { [en]: 'Yiddish', [fr]: 'yiddish', [de]: 'Jiddisch' },
-  yor: { [en]: 'Yoruba', [fr]: 'yoruba', [de]: 'Yoruba-Sprache' },
-  ypk: { [en]: 'Yupik languages', [fr]: 'yupik, langues', [de]: 'Ypik-Sprachen' },
-  zap: { [en]: 'Zapotec', [fr]: 'zapotèque', [de]: 'Zapotekisch' },
-  zbl: { [en]: 'Blissymbols; Blissymbolics; Bliss', [fr]: 'symboles Bliss; Bliss', [de]: 'Bliss-Symbol' },
-  zen: { [en]: 'Zenaga', [fr]: 'zenaga', [de]: 'Zenaga' },
-  zgh: { [en]: 'Standard Moroccan Tamazight', [fr]: 'amazighe standard marocain', [de]: '' },
-  zha: { [en]: 'Zhuang; Chuang', [fr]: 'zhuang; chuang', [de]: 'Zhuang' },
-  zho: { [en]: 'Chinese', [fr]: 'chinois', [de]: 'Chinesisch' },
-  znd: { [en]: 'Zande languages', [fr]: 'zandé, langues', [de]: 'Zande-Sprachen' },
-  zul: { [en]: 'Zulu', [fr]: 'zoulou', [de]: 'Zulu-Sprache' },
-  zun: { [en]: 'Zuni', [fr]: 'zuni', [de]: 'Zuñi-Sprache' },
+  ssw: {
+    en: 'Swati',
+  },
+  suk: {
+    en: 'Sukuma',
+  },
+  sun: {
+    en: 'Sundanese',
+  },
+  sus: {
+    en: 'Susu',
+  },
+  sux: {
+    en: 'Sumerian',
+  },
+  swa: {
+    en: 'Swahili',
+  },
+  swe: {
+    en: 'Swedish',
+  },
+  syc: {
+    en: 'Classical Syriac',
+  },
+  syr: {
+    en: 'Syriac',
+  },
+  tah: {
+    en: 'Tahitian',
+  },
+  tai: {
+    en: 'Tai languages',
+  },
+  tam: {
+    en: 'Tamil',
+  },
+  tat: {
+    en: 'Tatar',
+  },
+  tel: {
+    en: 'Telugu',
+  },
+  tem: {
+    en: 'Timne',
+  },
+  ter: {
+    en: 'Tereno',
+  },
+  tet: {
+    en: 'Tetum',
+  },
+  tgk: {
+    en: 'Tajik',
+  },
+  tgl: {
+    en: 'Tagalog',
+  },
+  tha: {
+    en: 'Thai',
+  },
+  tib: {
+    en: 'Tibetan',
+  },
+  tig: {
+    en: 'Tigre',
+  },
+  tir: {
+    en: 'Tigrinya',
+  },
+  tiv: {
+    en: 'Tiv',
+  },
+  tkl: {
+    en: 'Tokelau',
+  },
+  tlh: {
+    en: 'Klingon; tlhIngan-Hol',
+  },
+  tli: {
+    en: 'Tlingit',
+  },
+  tmh: {
+    en: 'Tamashek',
+  },
+  tog: {
+    en: 'Tonga (Nyasa)',
+  },
+  ton: {
+    en: 'Tonga (Tonga Islands)',
+  },
+  tpi: {
+    en: 'Tok Pisin',
+  },
+  tsi: {
+    en: 'Tsimshian',
+  },
+  tsn: {
+    en: 'Tswana',
+  },
+  tso: {
+    en: 'Tsonga',
+  },
+  tuk: {
+    en: 'Turkmen',
+  },
+  tum: {
+    en: 'Tumbuka',
+  },
+  tup: {
+    en: 'Tupi languages',
+  },
+  tur: {
+    en: 'Turkish',
+  },
+  tut: {
+    en: 'Altaic languages',
+  },
+  tvl: {
+    en: 'Tuvalu',
+  },
+  twi: {
+    en: 'Twi',
+  },
+  tyv: {
+    en: 'Tuvinian',
+  },
+  udm: {
+    en: 'Udmurt',
+  },
+  uga: {
+    en: 'Ugaritic',
+  },
+  uig: {
+    en: 'Uighur; Uyghur',
+  },
+  ukr: {
+    en: 'Ukrainian',
+  },
+  umb: {
+    en: 'Umbundu',
+  },
+  und: {
+    en: 'Undetermined',
+  },
+  urd: {
+    en: 'Urdu',
+  },
+  uzb: {
+    en: 'Uzbek',
+  },
+  vai: {
+    en: 'Vai',
+  },
+  ven: {
+    en: 'Venda',
+  },
+  vie: {
+    en: 'Vietnamese',
+  },
+  vol: {
+    en: 'Volapük',
+  },
+  vot: {
+    en: 'Votic',
+  },
+  wak: {
+    en: 'Wakashan languages',
+  },
+  wal: {
+    en: 'Wolaitta; Wolaytta',
+  },
+  war: {
+    en: 'Waray',
+  },
+  was: {
+    en: 'Washo',
+  },
+  wel: {
+    en: 'Welsh',
+  },
+  wen: {
+    en: 'Sorbian languages',
+  },
+  wln: {
+    en: 'Walloon',
+  },
+  wol: {
+    en: 'Wolof',
+  },
+  xal: {
+    en: 'Kalmyk; Oirat',
+  },
+  xho: {
+    en: 'Xhosa',
+  },
+  yao: {
+    en: 'Yao',
+  },
+  yap: {
+    en: 'Yapese',
+  },
+  yid: {
+    en: 'Yiddish',
+  },
+  yor: {
+    en: 'Yoruba',
+  },
+  ypk: {
+    en: 'Yupik languages',
+  },
+  zap: {
+    en: 'Zapotec',
+  },
+  zbl: {
+    en: 'Blissymbols; Blissymbolics; Bliss',
+  },
+  zen: {
+    en: 'Zenaga',
+  },
+  zgh: {
+    en: 'Standard Moroccan Tamazight',
+  },
+  zha: {
+    en: 'Zhuang; Chuang',
+  },
+  zho: {
+    en: 'Chinese',
+  },
+  znd: {
+    en: 'Zande languages',
+  },
+  zul: {
+    en: 'Zulu',
+  },
+  zun: {
+    en: 'Zuni',
+  },
   zxx: {
-    [en]: 'No linguistic content; Not applicable',
-    [fr]: 'pas de contenu linguistique; non applicable',
-    [de]: 'Kein linguistischer Inhalt',
+    en: 'No linguistic content; Not applicable',
   },
   zza: {
-    [en]: 'Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki',
-    [fr]: 'zaza; dimili; dimli; kirdki; kirmanjki; zazaki',
-    [de]: 'Zazaki',
+    en: 'Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki',
   },
 }
 
-const iso_639_2_to_iso_639_1_code: LanguageMap = {
+const iso_639_1_to_iso_639_2_code: LanguageMap = {
   aa: 'aar',
   ab: 'abk',
   ae: 'ave',
@@ -803,7 +1719,7 @@ const iso_639_2_to_iso_639_1_code: LanguageMap = {
   zu: 'zul',
 }
 
-export const Languages: LanguagesObject = Object.entries(iso_639_2_to_iso_639_1_code).reduce(
+export const Languages: LanguagesObject = Object.entries(iso_639_1_to_iso_639_2_code).reduce(
   (acc, [iso639_1_code, iso639_2_code]) => {
     const langMap: LanguageMap = LanguagesISO639part2[iso639_2_code]
     acc[iso639_1_code] = langMap
@@ -811,5 +1727,3 @@ export const Languages: LanguagesObject = Object.entries(iso_639_2_to_iso_639_1_
   },
   {} as LanguagesObject
 )
-
-export const LanguageObjectLabelLanguages = [en, fr, de]
