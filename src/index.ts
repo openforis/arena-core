@@ -70,7 +70,7 @@ export type { Point } from './geo'
 export { JobBase, JobMessageInType, JobMessageOutType, JobStatus } from './job'
 export type { Job, JobContext, JobSummary } from './job'
 
-export { LanguageCode, Languages } from './language'
+export { LanguageCode, Languages, LanguagesISO639part2 } from './language'
 export type { Labels } from './language'
 
 export type { Logger } from './logger'
