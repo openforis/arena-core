@@ -110,6 +110,16 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'index(plot[0].plot_multiple_number[0])', result: 0 },
     { expression: 'index(plot[0].plot_multiple_number[1])', result: 1 },
     { expression: 'index(plot[0].plot_multiple_number[2])', result: -1 },
+    // first (multiple entity)
+    { expression: 'first(plot).plot_id', result: 1 },
+    { expression: 'first(plot[1].tree).tree_id', result: 1 },
+    // first (empty/null node set)
+    { expression: 'first(plot[4].tree).tree_id', result: null },
+    // last (multiple entity)
+    { expression: 'last(plot).plot_id', result: 3 },
+    { expression: 'last(plot[0].tree).tree_id', result: 2 },
+    // last (empty/null node set)
+    { expression: 'last(plot[4].tree).tree_id', result: null },
     // parent
     { expression: 'parent(cluster)', result: null },
     { expression: 'parent(remarks)', result: () => getNode('cluster') },

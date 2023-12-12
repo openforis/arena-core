@@ -69,9 +69,10 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
 
     const { minArity, maxArity, evaluateArgsToNodes, executor } = expressionFunction
 
-    if (numArgs < minArity) throw new SystemError('expression.functionHasTooFewArguments', { fnName, numArgs })
+    if (numArgs < minArity)
+      throw new SystemError('expression.functionHasTooFewArguments', { fnName, minArity, numArgs })
     if (maxArity !== undefined && maxArity >= 0 && numArgs > maxArity)
-      throw new SystemError('expression.functionHasTooManyArguments', { name: fnName })
+      throw new SystemError('expression.functionHasTooManyArguments', { fnName, maxArity, numArgs })
 
     // evaluate arguments
     const argsContext = { ...this.context, evaluateToNode: evaluateArgsToNodes }

@@ -37,6 +37,17 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       return 0
     },
   },
+  first: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: false,
+    executor: (_context: RecordExpressionContext) => (nodeSet) => {
+      if (nodeSet && Array.isArray(nodeSet) && nodeSet.length > 0) {
+        return nodeSet[0]
+      }
+      return null
+    },
+  },
   index: {
     minArity: 1,
     maxArity: 1,
@@ -55,6 +66,17 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       }
       const children = Records.getChildren(parentNode, node.nodeDefUuid)(record)
       return children.findIndex((n) => Nodes.areEqual(n, node))
+    },
+  },
+  last: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: false,
+    executor: (_context: RecordExpressionContext) => (nodeSet) => {
+      if (nodeSet && Array.isArray(nodeSet) && nodeSet.length > 0) {
+        return nodeSet[nodeSet.length - 1]
+      }
+      return null
     },
   },
   parent: {
