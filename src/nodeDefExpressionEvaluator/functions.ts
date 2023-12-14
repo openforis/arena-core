@@ -51,6 +51,14 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         return pointFrom && pointTo ? Points.distance(pointFrom, pointTo, srsIndex) : null
       },
   },
+  first: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (_context: NodeDefExpressionContext) => () => {
+      return null
+    },
+  },
   includes: {
     minArity: 2,
     maxArity: 2,
@@ -66,6 +74,14 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     evaluateArgsToNodes: true,
     executor: (_context: NodeDefExpressionContext) => () => {
       return -1
+    },
+  },
+  last: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (_context: NodeDefExpressionContext) => () => {
+      return null
     },
   },
   now: {
