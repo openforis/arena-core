@@ -3,6 +3,8 @@ import { NodeDef, NodeDefType } from '../../nodeDef'
 import { Node } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { Dates, Objects } from '../../utils'
+import { CategoryItem } from '../../category'
+import { Taxon } from '../../taxonomy'
 
 interface ExtractorParams {
   survey: Survey
@@ -11,15 +13,29 @@ interface ExtractorParams {
 
 type Extractor = (params: ExtractorParams) => any
 
+const extractCategoryItem = (params: ExtractorParams): CategoryItem | undefined => {
+  const { survey, node } = params
+  const item = node.refData?.categoryItem
+  if (item) return item
+  const itemUuid = NodeValues.getItemUuid(node)
+  return itemUuid ? Surveys.getCategoryItemByUuid({ survey, itemUuid }) : undefined
+}
+
+const extractTaxon = (params: ExtractorParams): Taxon | undefined => {
+  const { survey, node } = params
+  const taxon = node.refData?.taxon
+  if (taxon) return taxon
+  const taxonUuid = NodeValues.getTaxonUuid(node)
+  return taxonUuid ? Surveys.getTaxonByUuid({ survey, taxonUuid }) : undefined
+}
+
 const extractorsByNodeDefType: { [key in NodeDefType]?: Extractor } = {
   [NodeDefType.boolean]: (params: ExtractorParams) => {
     const { node } = params
     return node.value === 'true'
   },
   [NodeDefType.code]: (params: ExtractorParams) => {
-    const { survey, node } = params
-    const itemUuid = NodeValues.getItemUuid(node)
-    const item = itemUuid ? Surveys.getCategoryItemByUuid({ survey, itemUuid }) : null
+    const item = extractCategoryItem(params)
     return item ? item.props.code : null
   },
   [NodeDefType.coordinate]: (params: ExtractorParams) => params.node.value,
@@ -46,9 +62,7 @@ const extractorsByNodeDefType: { [key in NodeDefType]?: Extractor } = {
     return Number(node.value)
   },
   [NodeDefType.taxon]: (params: ExtractorParams) => {
-    const { survey, node } = params
-    const taxonUuid = NodeValues.getTaxonUuid(node)
-    const taxon = taxonUuid ? Surveys.getTaxonByUuid({ survey, taxonUuid }) : null
+    const taxon = extractTaxon(params)
     return taxon ? taxon.props.code : null
   },
   [NodeDefType.text]: (params: ExtractorParams) => params.node.value,
