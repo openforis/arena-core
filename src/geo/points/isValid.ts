@@ -3,6 +3,7 @@ import { Numbers } from '../../utils'
 import { Point } from '../point'
 import { PointFactory } from '../pointFactory'
 import { equals } from './equals'
+import { getSrs } from './getSrs'
 import { isFilled } from './isFilled'
 import { toLatLong } from './toLatLong'
 
@@ -11,7 +12,7 @@ const INVALID_LAT_LONG_POINT: Point = PointFactory.createInstance({ x: 0, y: 90 
 export const isValid = (point: Point, srsIndex: SRSIndex = DEFAULT_SRS_INDEX): boolean => {
   if (!point || !isFilled(point)) return false
 
-  if (!srsIndex[point.srs]) return false
+  if (!getSrs({ code: point.srs, srsIndex })) return false
 
   const pointLatLong = toLatLong(point, srsIndex)
   if (!pointLatLong || equals(pointLatLong, INVALID_LAT_LONG_POINT)) return false
