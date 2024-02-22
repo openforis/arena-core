@@ -4,6 +4,7 @@ import { DEFAULT_SRS_INDEX, SRSIndex } from '../../srs'
 import { Point } from '../point'
 import { PointFactory } from '../pointFactory'
 import { isFilled } from './isFilled'
+import { getSrs } from './getSrs'
 
 /**
  * Trasforms the specified point from one SRS into another.
@@ -22,13 +23,13 @@ export const transform = (point: Point, srsCodeTo: string, srsIndex: SRSIndex = 
     // projection is not needed
     return point
   }
-  const srsFrom = srsIndex[srsCodeFrom]
+  const srsFrom = getSrs({ code: srsCodeFrom, srsIndex })
   if (!srsFrom) {
     // invalid srs specified in point
     return null
   }
 
-  const srsTo = srsIndex[srsCodeTo]
+  const srsTo = getSrs({ code: srsCodeTo, srsIndex })
   if (!srsTo) {
     // invalid target srs code
     return null
