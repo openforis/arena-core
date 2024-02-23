@@ -1,4 +1,5 @@
 export interface AppInfo {
   appId: string
-  appVersion: string
+  version: string
+  platform?: string
 }
