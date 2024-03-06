@@ -41,6 +41,7 @@ export interface NodeDefProps {
 export interface NodeDefLayout {
   hiddenWhenNotRelevant?: boolean
   hiddenInMobile?: boolean
+  includedInMultipleEntitySummary?: boolean
   // code
   codeShown?: boolean
 }
