@@ -65,6 +65,11 @@ const getApplicable = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => no
 
 const getVisibleFields = (nodeDef: NodeDef<NodeDefType>): string[] | undefined => nodeDef.props.visibleFields
 
+const isFieldVisible = (field: string) => (nodeDef: NodeDef<any>) => {
+  const visibleFields = getVisibleFields(nodeDef)
+  return !visibleFields || visibleFields.includes(field)
+}
+
 const isInCycle =
   (cycle: string) =>
   (nodeDef: NodeDef<NodeDefType>): boolean =>
@@ -150,6 +155,11 @@ const isHiddenInMobile =
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
     getLayoutProps(cycle)(nodeDef).hiddenInMobile ?? false
 
+const isIncludedInMultipleEntitySummary =
+  (cycle = '0') =>
+  <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
+    getLayoutProps(cycle)(nodeDef).includedInMultipleEntitySummary ?? false
+
 const isHiddenWhenNotRelevant =
   (cycle = '0') =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
@@ -189,6 +199,7 @@ export const NodeDefs = {
   isDefaultValueEvaluatedOneTime,
   getApplicable,
   getVisibleFields,
+  isFieldVisible,
   isInCycle,
   getCategoryUuid,
   getParentCodeDefUuid,
@@ -207,6 +218,7 @@ export const NodeDefs = {
   getChildrenEntitiesInOwnPageUudis,
   getLayoutChildren,
   isHiddenInMobile,
+  isIncludedInMultipleEntitySummary,
   isHiddenWhenNotRelevant,
   isCodeShown,
   // validations
