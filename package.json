@@ -10,14 +10,14 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "devDependencies": {
-    "@babel/preset-typescript": "^7.22.15",
-    "@types/jest": "^29.5.5",
-    "@types/lodash.differencewith": "^4.5.7",
-    "@types/lodash.frompairs": "^4.0.7",
-    "@types/lodash.isequal": "^4.5.6",
-    "@types/lodash.topairs": "^4.3.7",
-    "@types/proj4": "^2.5.2",
-    "@types/uuid": "^9.0.4",
+    "@babel/preset-typescript": "^7.24.1",
+    "@types/jest": "^29.5.12",
+    "@types/lodash.differencewith": "^4.5.9",
+    "@types/lodash.frompairs": "^4.0.9",
+    "@types/lodash.isequal": "^4.5.8",
+    "@types/lodash.topairs": "^4.3.9",
+    "@types/proj4": "^2.5.5",
+    "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^6.7.0",
     "@typescript-eslint/parser": "^6.7.0",
     "eslint": "^8.49.0",
@@ -27,8 +27,8 @@
     "lint-staged": "^14.0.1",
     "npm-run-all": "^4.1.5",
     "prettier": "3.0.3",
-    "ts-jest": "^29.1.1",
-    "typescript": "^5.2.2"
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.4.3"
   },
   "dependencies": {
     "@jsep-plugin/regex": "^1.0.3",
@@ -39,7 +39,7 @@
     "lodash.frompairs": "^4.0.1",
     "lodash.isequal": "^4.5.0",
     "lodash.topairs": "^4.3.0",
-    "proj4": "^2.9.0",
+    "proj4": "^2.11.0",
     "uuid": "^9.0.1"
   },
   "scripts": {
