@@ -378,25 +378,40 @@ export const isNodeDefEnumerator = (params: { survey: Survey; nodeDef: NodeDef<N
   return enumerator?.uuid === nodeDef.uuid
 }
 
-export const getNodeDefsIncludedInMultipleEntitySummary = (params: {
+export const getDescendantsInSingleEntities = (params: {
   survey: Survey
   cycle: string
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  predicate?: (visitedNodeDef: NodeDef<NodeDefType, NodeDefProps>) => boolean
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, cycle, nodeDef } = params
+  const { survey, cycle, nodeDef, predicate } = params
   const result: NodeDef<any>[] = []
   visitDescendantsAndSelfNodeDef({
     survey,
     cycle,
     nodeDef,
     visitor: (visitedNodeDef) => {
-      if (NodeDefs.isIncludedInMultipleEntitySummary(cycle)(nodeDef)) {
+      if (!predicate || predicate(visitedNodeDef)) {
         result.push(visitedNodeDef)
       }
     },
     traverseOnlySingleEntities: true,
   })
   return result
+}
+
+export const getNodeDefsIncludedInMultipleEntitySummary = (params: {
+  survey: Survey
+  cycle: string
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+}): NodeDef<NodeDefType, NodeDefProps>[] => {
+  const { survey, cycle, nodeDef } = params
+  return getDescendantsInSingleEntities({
+    survey,
+    cycle,
+    nodeDef,
+    predicate: (visitedNodeDef) => NodeDefs.isIncludedInMultipleEntitySummary(cycle)(visitedNodeDef),
+  })
 }
 
 const { buildAndAssocNodeDefsIndex, addNodeDefToIndex, deleteNodeDefIndex } = NodeDefsIndex
