@@ -248,7 +248,7 @@ export const visitDescendantsAndSelfNodeDef = (params: {
     traverseOnlySingleEntities = false,
   } = params
 
-  const _getNodeDefChildrenInternal = (nodeDef: NodeDef<any>) =>
+  const getNodeDefChildrenInternal = (nodeDef: NodeDef<any>) =>
     cycle
       ? getNodeDefChildrenSorted({ survey, nodeDef, cycle, includeAnalysis })
       : getNodeDefChildren({ survey, nodeDef, includeAnalysis })
@@ -267,7 +267,7 @@ export const visitDescendantsAndSelfNodeDef = (params: {
       visitor(visitedNodeDef)
 
       if (shouldTraverse(visitedNodeDef)) {
-        const childrenDefs = _getNodeDefChildrenInternal(visitedNodeDef)
+        const childrenDefs = getNodeDefChildrenInternal(visitedNodeDef)
         queue.enqueueItems(childrenDefs)
       }
     }
@@ -282,7 +282,7 @@ export const visitDescendantsAndSelfNodeDef = (params: {
       visitor(visitedNodeDef)
 
       if (shouldTraverse(visitedNodeDef)) {
-        const children = _getNodeDefChildrenInternal(visitedNodeDef)
+        const children = getNodeDefChildrenInternal(visitedNodeDef)
         // add children to stack in reverse order
         for (let index = children.length - 1; index >= 0; index--) {
           const child = children[index]
