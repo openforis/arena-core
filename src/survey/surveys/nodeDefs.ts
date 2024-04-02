@@ -236,8 +236,26 @@ export const visitDescendantsAndSelfNodeDef = (params: {
   visitor: (nodeDef: NodeDef<any>) => void
   includeAnalysis?: boolean
   traverseMethod?: TraverseMethod
+  traverseOnlySingleEntities?: boolean
 }) => {
-  const { survey, cycle, nodeDef, visitor, traverseMethod = TraverseMethod.bfs, includeAnalysis = false } = params
+  const {
+    survey,
+    cycle,
+    nodeDef,
+    visitor,
+    includeAnalysis = false,
+    traverseMethod = TraverseMethod.bfs,
+    traverseOnlySingleEntities = false,
+  } = params
+
+  const getNodeDefChildrenInternal = (nodeDef: NodeDef<any>) =>
+    cycle
+      ? getNodeDefChildrenSorted({ survey, nodeDef, cycle, includeAnalysis })
+      : getNodeDefChildren({ survey, nodeDef, includeAnalysis })
+
+  const shouldTraverse = (nodeDef: NodeDef<any>): boolean =>
+    nodeDef.type === NodeDefType.entity && (!traverseOnlySingleEntities || NodeDefs.isMultiple(nodeDef))
+
   if (traverseMethod === TraverseMethod.bfs) {
     const queue = new Queue()
 
@@ -248,10 +266,8 @@ export const visitDescendantsAndSelfNodeDef = (params: {
 
       visitor(visitedNodeDef)
 
-      if (visitedNodeDef.type === NodeDefType.entity) {
-        const childrenDefs = cycle
-          ? getNodeDefChildrenSorted({ survey, nodeDef, cycle, includeAnalysis })
-          : getNodeDefChildren({ survey, nodeDef: visitedNodeDef, includeAnalysis })
+      if (shouldTraverse(visitedNodeDef)) {
+        const childrenDefs = getNodeDefChildrenInternal(visitedNodeDef)
         queue.enqueueItems(childrenDefs)
       }
     }
@@ -265,12 +281,13 @@ export const visitDescendantsAndSelfNodeDef = (params: {
 
       visitor(visitedNodeDef)
 
-      const children = getNodeDefChildren({ survey, nodeDef: visitedNodeDef, includeAnalysis })
-
-      // add children to stack in reverse order
-      for (let index = children.length - 1; index >= 0; index--) {
-        const child = children[index]
-        stack.push(child)
+      if (shouldTraverse(visitedNodeDef)) {
+        const children = getNodeDefChildrenInternal(visitedNodeDef)
+        // add children to stack in reverse order
+        for (let index = children.length - 1; index >= 0; index--) {
+          const child = children[index]
+          stack.push(child)
+        }
       }
     }
   }
@@ -351,6 +368,42 @@ export const isNodeDefEnumerator = (params: { survey: Survey; nodeDef: NodeDef<N
   if (!entityDef) return false
   const enumerator = getNodeDefEnumerator({ survey, entityDef })
   return enumerator?.uuid === nodeDef.uuid
+}
+
+export const getDescendantsInSingleEntities = (params: {
+  survey: Survey
+  cycle: string
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  predicate?: (visitedNodeDef: NodeDef<NodeDefType, NodeDefProps>) => boolean
+}): NodeDef<NodeDefType, NodeDefProps>[] => {
+  const { survey, cycle, nodeDef, predicate } = params
+  const result: NodeDef<any>[] = []
+  visitDescendantsAndSelfNodeDef({
+    survey,
+    cycle,
+    nodeDef,
+    visitor: (visitedNodeDef) => {
+      if (!predicate || predicate(visitedNodeDef)) {
+        result.push(visitedNodeDef)
+      }
+    },
+    traverseOnlySingleEntities: true,
+  })
+  return result
+}
+
+export const getNodeDefsIncludedInMultipleEntitySummary = (params: {
+  survey: Survey
+  cycle: string
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+}): NodeDef<NodeDefType, NodeDefProps>[] => {
+  const { survey, cycle, nodeDef } = params
+  return getDescendantsInSingleEntities({
+    survey,
+    cycle,
+    nodeDef,
+    predicate: (visitedNodeDef) => NodeDefs.isIncludedInMultipleEntitySummary(cycle)(visitedNodeDef),
+  })
 }
 
 const { buildAndAssocNodeDefsIndex, addNodeDefToIndex, deleteNodeDefIndex } = NodeDefsIndex

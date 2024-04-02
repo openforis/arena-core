@@ -24,6 +24,7 @@ import {
   getNodeDefSource,
   isNodeDefAncestor,
   getNodeDefKeys,
+  getNodeDefsIncludedInMultipleEntitySummary,
   getNodeDefParentCode,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
@@ -34,6 +35,7 @@ import {
   deleteNodeDefIndex,
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
+  getDescendantsInSingleEntities,
 } from './nodeDefs'
 import {
   getCategoryItemByCodePaths,
@@ -142,10 +144,12 @@ export const Surveys = {
   getNodeDefSource,
   isNodeDefAncestor,
   getNodeDefKeys,
+  getNodeDefsIncludedInMultipleEntitySummary,
   isNodeDefEnumerator,
   getNodeDefEnumerator,
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
+  getDescendantsInSingleEntities,
 
   // ref data
   getCategoryByName,
