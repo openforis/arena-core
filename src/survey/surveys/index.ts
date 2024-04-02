@@ -35,6 +35,7 @@ import {
   deleteNodeDefIndex,
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
+  getDescendantsInSingleEntities,
 } from './nodeDefs'
 import {
   getCategoryItemByCodePaths,
@@ -148,6 +149,7 @@ export const Surveys = {
   getNodeDefEnumerator,
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
+  getDescendantsInSingleEntities,
 
   // ref data
   getCategoryByName,
