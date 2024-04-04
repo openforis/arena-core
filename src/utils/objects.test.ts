@@ -41,6 +41,26 @@ describe('Objects', () => {
     expect(objectUpdated).toEqual(obj)
   })
 
+  test('camelize (no side effect)', () => {
+    const objectA = { p_1: 'A', p_2: 'B', p_3: 5 }
+    const objectAString = JSON.stringify(objectA)
+    const objectB = { prop_a: 1, prop_b: 2, prop_c: objectA }
+    const objectBCamelized = Objects.camelize(objectB, { sideEffect: false })
+    expect(objectAString).toEqual(JSON.stringify(objectA))
+    expect(objectBCamelized).not.toEqual(objectB)
+    expect(JSON.stringify(objectBCamelized)).not.toEqual(JSON.stringify(objectB))
+  })
+
+  test('camelize (side effect)', () => {
+    const objectA = { p_1: 'A', p_2: 'B', p_3: 5 }
+    const objectAString = JSON.stringify(objectA)
+    const objectB = { prop_a: 1, prop_b: 2, prop_c: objectA }
+    const objectBCamelized = Objects.camelize(objectB, { sideEffect: true })
+    expect(objectAString).not.toEqual(JSON.stringify(objectA))
+    expect(objectBCamelized).toEqual(objectB)
+    expect(JSON.stringify(objectBCamelized)).toEqual(JSON.stringify(objectB))
+  })
+
   test('dissocPath (simple path)', () => {
     const obj = { a: 1 }
     const path = ['a']
