@@ -1,19 +1,37 @@
 export const _camelCase = (str: string): string => str.replace(/[_.-](\w|$)/g, (_, x) => x.toUpperCase())
 
-export const _walk = (options: { object: any; skip?: string[] }): any => {
-  const { object, skip = [] } = options
+export const _walk = (options: { object: any; skip?: string[]; limitToLevel?: number; sideEffect?: boolean }): any => {
+  const { object, skip = [], limitToLevel = NaN, sideEffect } = options
   if (!object || !(object instanceof Object) || object instanceof Date || object instanceof RegExp) {
     return object
   }
   if (Array.isArray(object)) {
-    return object.map((item) => _walk({ object: item }))
+    return object.reduce(
+      (acc, item, index) => {
+        acc[index] = _walk({ object: item, limitToLevel, sideEffect })
+        return acc
+      },
+      sideEffect ? object : []
+    )
   }
-  return Object.entries(object).reduce((objAcc, [key, value]) => {
-    const skipped = skip.includes(key)
-    const keyTransformed = skipped ? key : _camelCase(key)
-    const valueTransformed: any = skipped ? value : _walk({ object: value })
-    return { ...objAcc, [keyTransformed]: valueTransformed }
-  }, {})
+  const nextLimitToLevel = limitToLevel ? limitToLevel - 1 : undefined
+
+  return Object.entries(object).reduce(
+    (objAcc: { [key: string]: any }, [key, value]) => {
+      const skipped = skip.includes(key)
+      const keyTransformed: string = skipped ? key : _camelCase(key)
+      const valueTranformed =
+        skipped || nextLimitToLevel === 0 ? value : _walk({ object: value, limitToLevel: nextLimitToLevel, sideEffect })
+
+      objAcc[keyTransformed] = valueTranformed
+
+      if (sideEffect && !skipped && keyTransformed !== key) {
+        delete objAcc[key]
+      }
+      return objAcc
+    },
+    sideEffect ? object : {}
+  )
 }
 
 /**
@@ -26,11 +44,14 @@ export const _walk = (options: { object: any; skip?: string[] }): any => {
  * @returns {any} - The object with keys in camel case or the value in camel case.
  */
 
-export const camelize = (object: any, options: { skip?: string[] } = {}): any => {
-  if (typeof object === 'string') {
-    return _camelCase(object)
+export const camelize = (
+  object: any,
+  options: { skip?: string[]; limitToLevel?: number; sideEffect?: boolean } = {}
+): any => {
+  if (typeof object === 'string' || object instanceof String) {
+    return _camelCase(object as string)
   }
 
-  const { skip } = options
-  return _walk({ object, skip })
+  const { skip, limitToLevel, sideEffect } = options
+  return _walk({ object, skip, limitToLevel, sideEffect })
 }
