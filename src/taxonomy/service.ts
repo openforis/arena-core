@@ -1,7 +1,8 @@
 import { User } from '../auth'
+import { Service } from '../registry'
 import { Taxonomy, TaxonomyProps } from './taxonomy'
 
-export interface TaxonomyService {
+export interface TaxonomyService extends Service {
   // ==== CREATE
   create(options: { user: User; surveyId: number; taxonomy: Taxonomy }): Promise<Taxonomy>
 

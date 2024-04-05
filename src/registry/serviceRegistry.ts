@@ -1,11 +1,10 @@
-import { ServiceType } from './serviceType'
 import { Service } from './service'
 
-export type ServiceKey = ServiceType | string
+export type ServiceKey = string
 
 export class ServiceRegistry {
   private static _instance: ServiceRegistry
-  private readonly services: { [type in ServiceKey]?: Service }
+  private readonly services: { [key: string]: Service }
 
   private constructor() {
     this.services = {}
@@ -18,13 +17,13 @@ export class ServiceRegistry {
     return ServiceRegistry._instance
   }
 
-  getService(type: ServiceKey): Service | any {
-    const service = this.services[type]
-    if (!service) throw new Error(`Service ${type} not registered`)
-    return service
+  getService<S extends Service>(key: ServiceKey): S {
+    const service = this.services[key]
+    if (!service) throw new Error(`Service ${key} not registered`)
+    return service as S
   }
 
-  registerService(type: ServiceKey, service: Service | any): ServiceRegistry {
+  registerService(type: ServiceKey, service: Service): ServiceRegistry {
     this.services[type] = service
     return this
   }

@@ -1,9 +1,10 @@
 import { User } from '../auth'
 import { JobSummary } from '../job'
 import { LanguageCode } from '../language'
+import { Service } from '../registry'
 import { Survey, SurveyProps } from './survey'
 
-export interface SurveyService {
+export interface SurveyService extends Service {
   // ==== CREATE
   create(options: { name: string; label: string; lang: LanguageCode; user: User }): Promise<Survey>
 

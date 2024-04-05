@@ -1,7 +1,8 @@
+import { Service } from '../registry'
 import { Chain } from './chain'
 import { User } from '../auth'
 
-export interface ChainService {
+export interface ChainService extends Service {
   // ==== CREATE
   create(options: { chain: Chain; surveyId: number; user: User }): Promise<Chain>
 
