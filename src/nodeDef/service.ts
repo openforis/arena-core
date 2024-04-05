@@ -1,8 +1,9 @@
 import { User } from '../auth'
 import { ChainNodeDef } from '../chain'
+import { Service } from '../registry'
 import { NodeDef, NodeDefType } from './nodeDef'
 
-export interface NodeDefService {
+export interface NodeDefService extends Service {
   // ==== CREATE
   create(options: {
     chainNodeDef?: ChainNodeDef

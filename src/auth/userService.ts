@@ -1,6 +1,7 @@
 import { User } from '../auth'
+import { Service } from '../registry'
 
-export interface UserService {
+export interface UserService extends Service {
   // ==== CREATE
   create(options: {
     user: User

@@ -1,8 +1,9 @@
 import { User } from '../auth'
+import { Service } from '../registry'
 import { Category } from './category'
 import { CategoryItem, CategoryItemProps } from './item'
 
-export interface CategoryItemService {
+export interface CategoryItemService extends Service {
   // ==== CREATE
   create(options: {
     categoryUuid: string

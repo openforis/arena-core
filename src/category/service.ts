@@ -2,8 +2,9 @@ import { User } from '../auth'
 import { Category, CategoryProps } from './category'
 import { CategoryImportSummary } from './categoryImportSummary'
 import { JobSummary } from '../job'
+import { Service } from '../registry'
 
-export interface CategoryService {
+export interface CategoryService extends Service {
   // ==== CREATE
   create(options: { surveyId: number; category: Category; user: User }): Promise<Category>
 

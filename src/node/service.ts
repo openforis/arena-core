@@ -1,7 +1,8 @@
 import { User } from '../auth'
 import { Node } from '../node'
+import { Service } from '../registry'
 
-export interface NodeService {
+export interface NodeService extends Service {
   // ==== CREATE
   create(options: { filePath?: string; node: Node; socketId: string; surveyId: number; user: User }): Promise<Node>
 

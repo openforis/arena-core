@@ -1,8 +1,9 @@
 import { User } from '../auth'
+import { Service } from '../registry'
 import { Category } from './category'
 import { CategoryLevel, CategoryLevelProps } from './level'
 
-export interface CategoryLevelService {
+export interface CategoryLevelService extends Service {
   // ==== CREATE
   create(options: { level: any; surveyId: number; user: User }): Promise<{ level: CategoryLevel; category: Category }>
 

@@ -1,9 +1,10 @@
 import { User } from '../auth'
 import { JobSummary } from '../job'
+import { Service } from '../registry'
 import { Taxon } from './taxon'
 import { VernacularName } from './taxonVernacularName'
 
-export interface TaxonService {
+export interface TaxonService extends Service {
   // ==== READ
   count(options: { surveyId: number; taxonomyUuid: string; draft?: boolean }): Promise<number>
 
