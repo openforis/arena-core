@@ -1,8 +1,8 @@
 import { User } from '../auth'
-import { Service } from '../registry'
+import { ArenaService } from '../common'
 import { ChainNodeDef } from './chainNodeDef'
 
-export interface ChainNodeDefService extends Service {
+export interface ChainNodeDefService extends ArenaService {
   // ==== READ
   count(options: { chainUuid: string; surveyId: number }): Promise<{ [entityDefUuid: string]: number }>
 

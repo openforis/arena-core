@@ -1,8 +1,8 @@
-import { Service } from '../registry'
-import { Chain } from './chain'
 import { User } from '../auth'
+import { ArenaService } from '../common'
+import { Chain } from './chain'
 
-export interface ChainService extends Service {
+export interface ChainService extends ArenaService {
   // ==== CREATE
   create(options: { chain: Chain; surveyId: number; user: User }): Promise<Chain>
 

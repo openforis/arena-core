@@ -1,6 +1,8 @@
 import { ExpressionFunctions } from '../expression'
 import { Objects } from '../utils'
-import { Surveys } from '../survey'
+import { getCategoryByName, getSRSIndex, getTaxonomyByName } from '../survey/surveys/surveysGetters'
+import { getNodeDefParent } from '../survey/surveys/nodeDefs'
+import { getCategoryItemByCodePaths, getTaxonByCode } from '../survey/surveys/refsData'
 import { Point, Points } from '../geo'
 import { Dates } from '../utils/dates'
 import { NodeDefExpressionContext } from './context'
@@ -18,13 +20,17 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         if (Objects.isEmpty(categoryName) || Objects.isEmpty(itemPropName) || Objects.isEmpty(codePaths))
           throw new SystemError('expression.missingFunctionParameters')
 
-        const category = Surveys.getCategoryByName({ survey, categoryName })
+        const category = getCategoryByName({ survey, categoryName })
         if (!category) throw new SystemError('expression.invalidCategoryName', { name: categoryName })
 
         const extraPropDef = category.props.itemExtraDef?.[itemPropName]
         if (!extraPropDef) throw new SystemError('expression.invalidCategoryExtraProp', { propName: itemPropName })
 
-        const categoryItem = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid: category.uuid, codePaths })
+        const categoryItem = getCategoryItemByCodePaths({
+          survey,
+          categoryUuid: category.uuid,
+          codePaths,
+        })
         if (!categoryItem) return null
 
         const value = categoryItem.props.extra?.[itemPropName]
@@ -43,7 +49,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       (context: NodeDefExpressionContext) =>
       (coordinateFrom: Point | string, coordinateTo: Point | string): number | null => {
         const { survey } = context
-        const srsIndex = Surveys.getSRSIndex(survey)
+        const srsIndex = getSRSIndex(survey)
 
         const pointFrom = Points.parse(coordinateFrom)
         const pointTo = Points.parse(coordinateTo)
@@ -97,7 +103,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     evaluateToNode: true,
     executor: (context: NodeDefExpressionContext) => (nodeDef) => {
       const { survey } = context
-      return Surveys.getNodeDefParent({ survey, nodeDef })
+      return getNodeDefParent({ survey, nodeDef })
     },
   },
   sum: {
@@ -117,7 +123,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(propName) || Objects.isEmpty(taxonCode))
         throw new SystemError('expression.missingFunctionParameters')
 
-      const taxonomy = Surveys.getTaxonomyByName({ survey, taxonomyName })
+      const taxonomy = getTaxonomyByName({ survey, taxonomyName })
       if (!taxonomy) throw new SystemError('expression.invalidTaxonomyName', { name: taxonomyName })
 
       const extraPropDef = taxonomy.props.extraPropsDefs?.[propName]
@@ -127,7 +133,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         return null // node def expression validator could call it passing a node def object
       }
 
-      const taxon = Surveys.getTaxonByCode({ survey, taxonomyUuid: taxonomy.uuid, taxonCode })
+      const taxon = getTaxonByCode({ survey, taxonomyUuid: taxonomy.uuid, taxonCode })
       if (!taxon) return null
 
       const value = taxon.props.extra?.[propName]

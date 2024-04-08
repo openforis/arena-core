@@ -1,5 +1,6 @@
 import { NodeDef } from '../nodeDef'
-import { Survey, Surveys } from '../survey'
+import { Survey } from '../survey'
+import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 import { ValidationResult, ValidationResultFactory } from '../validation'
 import { NodeDefs } from '../nodeDef/nodeDefs'
 import { NodeDefExpressionContext } from './context'
@@ -11,7 +12,7 @@ const determineNodeDefContext = (params: { survey: Survey; nodeDefCurrent: NodeD
 
   const nodeDefContext = NodeDefs.isRoot(nodeDefCurrent)
     ? nodeDefCurrent
-    : Surveys.getNodeDefParent({ survey, nodeDef: nodeDefCurrent })
+    : getNodeDefParent({ survey, nodeDef: nodeDefCurrent })
 
   if (!nodeDefContext) {
     throw new Error(`Cannot find context nodeDef: ${nodeDefCurrent?.props?.name}`)

@@ -1,7 +1,7 @@
 import { Node, NodesMap } from '../../node'
 import { Validation } from '../../validation'
 import { Record } from '../record'
-import { Records } from '../records'
+import { addNode } from '../_records/recordUpdater'
 
 export class RecordUpdateResult {
   record: Record
@@ -23,7 +23,7 @@ export class RecordUpdateResult {
   addNode(node: Node, options?: { sideEffect: boolean }) {
     const { sideEffect = false } = options ?? {}
     this.nodes[node.uuid] = node
-    this.record = Records.addNode(node, { sideEffect })(this.record)
+    this.record = addNode(node, { sideEffect })(this.record)
   }
 
   /**

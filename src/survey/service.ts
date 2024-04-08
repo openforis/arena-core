@@ -1,10 +1,10 @@
 import { User } from '../auth'
+import { ArenaService } from '../common'
 import { JobSummary } from '../job'
 import { LanguageCode } from '../language'
-import { Service } from '../registry'
 import { Survey, SurveyProps } from './survey'
 
-export interface SurveyService extends Service {
+export interface SurveyService extends ArenaService {
   // ==== CREATE
   create(options: { name: string; label: string; lang: LanguageCode; user: User }): Promise<Survey>
 

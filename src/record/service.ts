@@ -1,8 +1,8 @@
 import { User } from '../auth'
-import { Service } from '../registry'
+import { ArenaService } from '../common'
 import { Record } from './record'
 
-export interface RecordService extends Service {
+export interface RecordService extends ArenaService {
   // ==== CREATE
   create(options: { socketId: string; record: Record; surveyId: number; user: User }): Promise<Record>
 

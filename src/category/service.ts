@@ -1,10 +1,10 @@
 import { User } from '../auth'
+import { ArenaService } from '../common'
+import { JobSummary } from '../job'
 import { Category, CategoryProps } from './category'
 import { CategoryImportSummary } from './categoryImportSummary'
-import { JobSummary } from '../job'
-import { Service } from '../registry'
 
-export interface CategoryService extends Service {
+export interface CategoryService extends ArenaService {
   // ==== CREATE
   create(options: { surveyId: number; category: Category; user: User }): Promise<Category>
 

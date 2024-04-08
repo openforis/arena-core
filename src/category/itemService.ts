@@ -1,9 +1,9 @@
 import { User } from '../auth'
-import { Service } from '../registry'
+import { ArenaService } from '../common'
 import { Category } from './category'
 import { CategoryItem, CategoryItemProps } from './item'
 
-export interface CategoryItemService extends Service {
+export interface CategoryItemService extends ArenaService {
   // ==== CREATE
   create(options: {
     categoryUuid: string

@@ -1,12 +1,13 @@
 import { Categories } from './categories'
 import { CategoryItem } from './item'
 import { ExtraPropsDataGenerator } from '../extraProp'
-import { Survey, Surveys } from '../survey'
+import { Survey } from '../survey'
+import { getCategoryByUuid } from '../survey/surveys/surveysGetters'
 import { UUIDs } from '../utils'
 
 const generateItem = (params: { survey: Survey; categoryUuid: string }): CategoryItem | null => {
   const { survey, categoryUuid } = params
-  const category = categoryUuid ? Surveys.getCategoryByUuid({ survey, categoryUuid }) : null
+  const category = categoryUuid ? getCategoryByUuid({ survey, categoryUuid }) : null
   if (!category) return null
   const extraPropDefs = Categories.getExtraPropDefs(category)
 
