@@ -35,6 +35,9 @@ export type {
 export { TraverseMethod } from './common'
 export type { ArenaObject, ArenaService, Factory } from './common'
 
+export { DataQueryMode, DataQuerySummaries } from './dataQuery'
+export type { DataQuery, DataQuerySummary, DataQuerySummaryProps } from './dataQuery'
+
 export { SystemError } from './error'
 
 export {
