@@ -1,6 +1,6 @@
 import { Labels, LanguageCode } from '../language'
 import { Objects, UUIDs } from '../utils'
-import { DataQuery, DataQuerySummary } from './dataQuery'
+import { DataQuery, DataQuerySummary, DataQuerySummaryProps } from './dataQuery'
 
 const PropKeys = {
   name: 'name',
@@ -8,7 +8,10 @@ const PropKeys = {
   descriptions: 'descriptions',
 }
 
-const create = ({ content = undefined }): DataQuerySummary => ({ uuid: UUIDs.v4(), content })
+const create = (params: { props?: DataQuerySummaryProps; content?: DataQuery }): DataQuerySummary => {
+  const { props, content } = params ?? {}
+  return { uuid: UUIDs.v4(), content, props }
+}
 
 const getUuid = (querySummary: DataQuerySummary): string => querySummary?.uuid ?? ''
 
