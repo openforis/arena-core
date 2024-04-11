@@ -1,12 +1,13 @@
 import { ExtraPropsDataGenerator } from '../extraProp'
-import { Survey, Surveys } from '../survey'
+import { Survey } from '../survey'
+import { getTaxonomyByUuid } from '../survey/surveys/surveysGetters'
+import { UUIDs } from '../utils'
 import { Taxon } from './taxon'
 import { Taxonomies } from './taxonomies'
-import { UUIDs } from '../utils'
 
 const generateTaxon = (params: { survey: Survey; taxonomyUuid: string }): Taxon | null => {
   const { survey, taxonomyUuid } = params
-  const taxonomy = taxonomyUuid ? Surveys.getTaxonomyByUuid({ survey, taxonomyUuid }) : null
+  const taxonomy = taxonomyUuid ? getTaxonomyByUuid({ survey, taxonomyUuid }) : null
   if (!taxonomy) return null
   const extraPropDefs = Taxonomies.getExtraPropDefs(taxonomy)
 

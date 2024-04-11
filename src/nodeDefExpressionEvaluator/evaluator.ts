@@ -5,7 +5,8 @@ import { NodeDefThisEvaluator } from './node/thisEvaluator'
 import { nodeDefExpressionFunctions } from './functions'
 import { NodeDefExpressionContext } from './context'
 import { NodeDef } from '../nodeDef/nodeDef'
-import { Survey, Surveys } from '../survey'
+import { Survey } from '../survey'
+import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 
 export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<NodeDefExpressionContext> {
   constructor() {
@@ -33,7 +34,7 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
       itemsFilter = false,
     } = params
 
-    const nodeDefContext = isContextParent ? Surveys.getNodeDefParent({ survey, nodeDef }) : nodeDef
+    const nodeDefContext = isContextParent ? getNodeDefParent({ survey, nodeDef }) : nodeDef
 
     const referencedNodeDefUuids: Set<string> = new Set()
 

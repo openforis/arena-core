@@ -3,7 +3,9 @@ import { SystemError } from '../../error'
 import { Node, NodeFactory } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
-import { Survey, Surveys } from '../../survey'
+import { Survey } from '../../survey'
+import { getCategoryItems } from '../../survey/surveys/refsData'
+import { getNodeDefEnumerator, getNodeDefChildren } from '../../survey/surveys/nodeDefs'
 import { Record } from '../record'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -31,7 +33,7 @@ const getEnumeratingCategoryItems = (params: { survey: Survey; enumerator: NodeD
   const { survey, enumerator } = params
   const categoryUuid = enumerator.props.categoryUuid
   const category = survey.categories?.[categoryUuid]
-  return category ? Surveys.getCategoryItems({ survey, categoryUuid: category.uuid }) : []
+  return category ? getCategoryItems({ survey, categoryUuid: category.uuid }) : []
 }
 
 const createEnumeratedEntityNodes = (params: {
@@ -43,7 +45,7 @@ const createEnumeratedEntityNodes = (params: {
 }): boolean => {
   const { survey, parentNode, entityDef, updateResult, sideEffect } = params
 
-  const enumerator = Surveys.getNodeDefEnumerator({ survey, entityDef })
+  const enumerator = getNodeDefEnumerator({ survey, entityDef })
   if (!enumerator) return false
 
   const categoryItems = getEnumeratingCategoryItems({ survey, enumerator })
@@ -105,7 +107,7 @@ export const createDescendants = (params: NodeCreateParams): RecordUpdateResult 
   const updateResult = new RecordUpdateResult({ record })
 
   if (NodeDefs.isEntity(nodeDef)) {
-    const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef })
+    const childDefs = getNodeDefChildren({ survey, nodeDef })
 
     // Add only child single nodes (it allows to apply default values)
     childDefs.forEach((nodeDef) => createChildNodesBasedOnMinCount({ ...params, updateResult, nodeDef }))

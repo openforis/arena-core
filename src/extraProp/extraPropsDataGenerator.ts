@@ -1,4 +1,4 @@
-import { ExtraPropDataType, ExtraPropDefs } from '.'
+import { ExtraPropDataType, ExtraPropDefs } from './extraProp'
 import { PointFactory } from '../geo'
 import { ExtraProps } from './extraProps'
 

@@ -1,5 +1,5 @@
 import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef/nodeDef'
-import { Surveys } from '../../survey'
+import { getNodeDefChildren, getNodeDefParent, getNodeDefSource } from '../../survey/surveys/nodeDefs'
 import { NodeDefs } from '../../nodeDef/nodeDefs'
 import { Objects, Queue } from '../../utils'
 import { IdentifierEvaluator } from '../../expression/javascript/node/identifier'
@@ -25,10 +25,10 @@ const findActualContextNode = (params: {
   if (!nodeDefObjectContext) return undefined
 
   if (NodeDefs.isAttribute(nodeDefObjectContext)) {
-    return Surveys.getNodeDefParent({ survey, nodeDef: nodeDefObjectContext })
+    return getNodeDefParent({ survey, nodeDef: nodeDefObjectContext })
   }
   if (nodeDefObjectContext.virtual) {
-    return Surveys.getNodeDefSource({ survey, nodeDef: nodeDefObjectContext })
+    return getNodeDefSource({ survey, nodeDef: nodeDefObjectContext })
   }
   return nodeDefObjectContext
 }
@@ -129,7 +129,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
 
     while (!queue.isEmpty()) {
       const entityDefCurrent = queue.dequeue()
-      const entityDefCurrentChildren = Surveys.getNodeDefChildren({ survey, nodeDef: entityDefCurrent })
+      const entityDefCurrentChildren = getNodeDefChildren({ survey, nodeDef: entityDefCurrent })
       entityDefCurrentChildren.forEach((childDef) => (reachableNodeDefsByUuid[childDef.uuid] = childDef))
 
       // visit nodes inside single entities
@@ -137,7 +137,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
 
       // avoid visiting 2 times the same entity definition when traversing single entities
       if (!visitedUuids.includes(entityDefCurrent.uuid)) {
-        const entityDefCurrentParent = Surveys.getNodeDefParent({ survey, nodeDef: entityDefCurrent })
+        const entityDefCurrentParent = getNodeDefParent({ survey, nodeDef: entityDefCurrent })
         if (entityDefCurrentParent) {
           queue.enqueue(entityDefCurrentParent)
         }

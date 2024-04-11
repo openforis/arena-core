@@ -4,7 +4,7 @@ import { NodeDefType } from '../../nodeDef/nodeDef'
 import { NodeDefs } from '../../nodeDef/nodeDefs'
 import { NodeDefCode } from '../../nodeDef/types/code'
 import { NodeDefTaxon } from '../../nodeDef/types/taxon'
-import { TaxonGenerator } from '../../taxonomy'
+import { TaxonGenerator } from '../../taxonomy/taxonGenerator'
 import { NodeDefExpressionContext } from '../context'
 
 export class NodeDefThisEvaluator extends ThisEvaluator<NodeDefExpressionContext> {

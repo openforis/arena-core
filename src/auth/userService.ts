@@ -1,7 +1,7 @@
 import { User } from '../auth'
-import { Service } from '../registry'
+import { ArenaService } from '../common'
 
-export interface UserService extends Service {
+export interface UserService extends ArenaService {
   // ==== CREATE
   create(options: {
     user: User

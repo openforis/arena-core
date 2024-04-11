@@ -33,7 +33,10 @@ export type {
 } from './chain'
 
 export { TraverseMethod } from './common'
-export type { ArenaObject, Factory } from './common'
+export type { ArenaObject, ArenaService, Factory } from './common'
+
+export { DataQueryMode, DataQuerySummaries } from './dataQuery'
+export type { DataQuery, DataQuerySummary, DataQuerySummaryProps } from './dataQuery'
 
 export { SystemError } from './error'
 
@@ -141,7 +144,6 @@ export {
 export type { Record, RecordService, RecordUpdateOptions } from './record'
 
 export { ServiceRegistry, ServiceType } from './registry'
-export type { Service } from './registry'
 
 export { DEFAULT_SRS, DEFAULT_SRS_INDEX, SRSFactory } from './srs'
 export type { SRS } from './srs'

@@ -1,9 +1,9 @@
 import { User } from '../auth'
-import { Service } from '../registry'
+import { ArenaService } from '../common'
 import { Category } from './category'
 import { CategoryLevel, CategoryLevelProps } from './level'
 
-export interface CategoryLevelService extends Service {
+export interface CategoryLevelService extends ArenaService {
   // ==== CREATE
   create(options: { level: any; surveyId: number; user: User }): Promise<{ level: CategoryLevel; category: Category }>
 
