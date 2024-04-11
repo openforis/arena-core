@@ -1,5 +1,11 @@
 import { isEmpty } from './isEmpty'
 import { isNil } from './isNil'
+import { StringifyKeys } from './stringify'
+
+const collectionConstructorByValueType: { [key: string]: any } = {
+  Map,
+  Set,
+}
 
 /**
  * Converts a JavaScript Object Notation (JSON) string to an object.
@@ -15,8 +21,14 @@ export const parse = (text: string | null | undefined): object | Array<any> | nu
 
   return JSON.parse(text as string, (_key, value) => {
     if (isNil(value)) return null
-    if (value.__type === 'Map') return new Map(parse(value.__values) as Array<any>)
-    if (value.__type === 'Set') return new Set(parse(value.__values) as Array<any>)
+    const valueType = value[StringifyKeys.type]
+    if (valueType) {
+      const collectionConstructor = collectionConstructorByValueType[valueType]
+      if (collectionConstructor) {
+        const values = parse(value[StringifyKeys.values]) as Array<any>
+        return new collectionConstructor(values)
+      }
+    }
     return value
   })
 }

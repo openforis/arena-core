@@ -1,5 +1,10 @@
 import { isNil } from './isNil'
 
+export enum StringifyKeys {
+  type = '_type_',
+  values = '_values_',
+}
+
 /**
  * Converts a JavaScript value to a JavaScript Object Notation (JSON) string.
  * It handles objects, arrays, Map, Set, String, Number.
@@ -24,13 +29,13 @@ export const stringify = (
     }
     if (value.constructor === Map)
       return {
-        __type: 'Map',
-        __values: stringify(Array.from(value.entries())),
+        [StringifyKeys.type]: 'Map',
+        [StringifyKeys.values]: stringify(Array.from(value.entries())),
       }
     if (value.constructor === Set)
       return {
-        __type: 'Set',
-        __values: stringify([...value]),
+        [StringifyKeys.type]: 'Set',
+        [StringifyKeys.values]: stringify([...value]),
       }
     return value
   }

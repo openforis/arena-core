@@ -30,11 +30,11 @@ const tests = [
     expected: '[1,2,{"a":1,"b":"lorem"}]',
   },
 
-  { value: new Set(), valueText: 'new Set()', expected: '{"__type":"Set","__values":"[]"}' },
+  { value: new Set(), valueText: 'new Set()', expected: '{"_type_":"Set","_values_":"[]"}' },
 
-  { value: new Set([1, 2, 3]), valueText: 'new Set([1,2,3])', expected: '{"__type":"Set","__values":"[1,2,3]"}' },
+  { value: new Set([1, 2, 3]), valueText: 'new Set([1,2,3])', expected: '{"_type_":"Set","_values_":"[1,2,3]"}' },
 
-  { value: new Map(), valueText: 'new Map()', expected: '{"__type":"Map","__values":"[]"}' },
+  { value: new Map(), valueText: 'new Map()', expected: '{"_type_":"Map","_values_":"[]"}' },
 
   {
     value: new Map([
@@ -43,7 +43,7 @@ const tests = [
       [3, 'three'],
     ]),
     valueText: "new Map([[1, 'one'],[2, 'two'], [3, 'three']])",
-    expected: '{"__type":"Map","__values":"[[1,\\"one\\"],[2,\\"two\\"],[3,\\"three\\"]]"}',
+    expected: '{"_type_":"Map","_values_":"[[1,\\"one\\"],[2,\\"two\\"],[3,\\"three\\"]]"}',
   },
   {
     value: {
@@ -54,7 +54,7 @@ const tests = [
       ]),
     },
     valueText: "{a: new Map([[1, 'one'],[2, 'two'], [3, 'three']])}",
-    expected: '{"a":{"__type":"Map","__values":"[[1,\\"one\\"],[2,\\"two\\"],[3,\\"three\\"]]"}}',
+    expected: '{"a":{"_type_":"Map","_values_":"[[1,\\"one\\"],[2,\\"two\\"],[3,\\"three\\"]]"}}',
   },
 
   {
@@ -70,7 +70,7 @@ const tests = [
     },
     valueText: "{a: 1, b: 'b', c: {new Map([['1', 'one'],['2', 'two'], ['3', 'three']])}, d: new Set([1,2,3]}",
     expected:
-      '{"a":1,"b":"b","c":{"__type":"Map","__values":"[[\\"1\\",\\"one\\"],[\\"2\\",\\"two\\"],[\\"3\\",\\"three\\"]]"},"d":{"__type":"Set","__values":"[1,2,3]"}}',
+      '{"a":1,"b":"b","c":{"_type_":"Map","_values_":"[[\\"1\\",\\"one\\"],[\\"2\\",\\"two\\"],[\\"3\\",\\"three\\"]]"},"d":{"_type_":"Set","_values_":"[1,2,3]"}}',
   },
   { value: 0, valueText: '0', expected: '0' },
   { value: 10, valueText: '10', expected: '10' },
