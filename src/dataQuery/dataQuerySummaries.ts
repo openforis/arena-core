@@ -8,6 +8,10 @@ const PropKeys = {
   descriptions: 'descriptions',
 }
 
+const Keys = {
+  content: 'content',
+}
+
 const create = (params: { props?: DataQuerySummaryProps; content?: DataQuery }): DataQuerySummary => {
   const { props, content } = params ?? {}
   return { uuid: UUIDs.v4(), content, props }
@@ -53,6 +57,11 @@ const assocDescriptions =
   (querySummary: DataQuerySummary): DataQuerySummary =>
     assocProp(PropKeys.descriptions, value)(querySummary)
 
+const assocContent =
+  (content: DataQuery) =>
+  (querySummary: DataQuerySummary): DataQuerySummary =>
+    Objects.assoc({ obj: querySummary, prop: Keys.content, value: content })
+
 export const DataQuerySummaries = {
   // create
   create,
@@ -68,4 +77,5 @@ export const DataQuerySummaries = {
   assocName,
   assocLabels,
   assocDescriptions,
+  assocContent,
 }
