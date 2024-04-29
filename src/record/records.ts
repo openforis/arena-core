@@ -22,6 +22,8 @@ import {
   isDescendantOf,
   visitDescendantsAndSelf,
   getDependentNodePointers,
+  findEntityByKeyValues,
+  findEntityWithSameKeysInAnotherRecord,
   getCategoryItemUuid,
 } from './_records/recordGetters'
 
@@ -52,6 +54,8 @@ export const Records = {
   isDescendantOf,
   visitDescendantsAndSelf,
   getDependentNodePointers,
+  findEntityByKeyValues,
+  findEntityWithSameKeysInAnotherRecord,
   getCategoryItemUuid,
 
   // UPDATE

@@ -14,6 +14,7 @@ export enum DateFormats {
   datetimeDisplay = 'dd/MM/yyyy HH:mm:ss',
   datetimeStorage = `yyyy-MM-dd'T'HH:mm:ss.SSS'Z'`, // ISO
   timeStorage = 'HH:mm',
+  timeWithSeconds = 'HH:mm:ss',
   datetimeDefault = 'yyyy-MM-dd_HH-mm-ss',
 }
 

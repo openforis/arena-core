@@ -172,12 +172,14 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
         .map((gridItem) => gridItem.i)
         .filter((nodeDefUuid) => !!childrenByUuids[nodeDefUuid])
 
-  const missingChildrenUuidsInLayout = childrenUuids.filter(
-    (childUuid) =>
+  const missingChildrenUuidsInLayout = childrenUuids.filter((childUuid) => {
+    const childDef = childrenByUuids[childUuid]
+    return (
       !sortedChildrenDefsInSamePageUuids.includes(childUuid) &&
       !childrenEntitiesInOwnPageUudis.includes(childUuid) &&
-      NodeDefs.isInCycle(cycle)
-  )
+      NodeDefs.isInCycle(cycle)(childDef)
+    )
+  })
 
   return (
     sortedChildrenDefsInSamePageUuids
@@ -200,7 +202,7 @@ export const getNodeDefChildrenSorted = (params: {
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
   const { survey, nodeDef, cycle, includeAnalysis } = params
 
-  const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis })
+  const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis }).filter(NodeDefs.isInCycle(cycle))
 
   const childrenUuidsSortedByLayout = getNodeDefChildrenUuidsSortedByLayout({ nodeDef, cycle, children })
 
@@ -249,12 +251,13 @@ export const visitDescendantsAndSelfNodeDef = (params: {
   } = params
 
   const getNodeDefChildrenInternal = (nodeDef: NodeDef<any>) =>
-    cycle
-      ? getNodeDefChildrenSorted({ survey, nodeDef, cycle, includeAnalysis })
-      : getNodeDefChildren({ survey, nodeDef, includeAnalysis })
+    cycle === undefined
+      ? getNodeDefChildren({ survey, nodeDef, includeAnalysis })
+      : getNodeDefChildrenSorted({ survey, nodeDef, cycle, includeAnalysis })
 
   const shouldTraverse = (nodeDef: NodeDef<any>): boolean =>
-    nodeDef.type === NodeDefType.entity && (!traverseOnlySingleEntities || NodeDefs.isMultiple(nodeDef))
+    nodeDef.type === NodeDefType.entity &&
+    (NodeDefs.isRoot(nodeDef) || !traverseOnlySingleEntities || NodeDefs.isSingle(nodeDef))
 
   if (traverseMethod === TraverseMethod.bfs) {
     const queue = new Queue()
@@ -344,10 +347,19 @@ export const getNodeDefCategoryLevelIndex = (params: {
 export const getNodeDefKeys = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  cycle?: string
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, nodeDef } = params
-  const children = getNodeDefChildren({ survey, nodeDef })
-  return children.filter((childDef) => childDef.props.key && !childDef.deleted)
+  const { survey, cycle, nodeDef } = params
+
+  return getDescendantsInSingleEntities({
+    survey,
+    cycle,
+    nodeDef,
+    predicate: (visitedNodeDef) =>
+      (cycle === undefined || NodeDefs.isInCycle(cycle)(visitedNodeDef)) &&
+      NodeDefs.isKey(visitedNodeDef) &&
+      !visitedNodeDef.deleted,
+  })
 }
 
 export const getNodeDefEnumerator = (params: { survey: Survey; entityDef: NodeDefEntity }): NodeDefCode | undefined => {
@@ -372,7 +384,7 @@ export const isNodeDefEnumerator = (params: { survey: Survey; nodeDef: NodeDef<N
 
 export const getDescendantsInSingleEntities = (params: {
   survey: Survey
-  cycle: string
+  cycle?: string
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   predicate?: (visitedNodeDef: NodeDef<NodeDefType, NodeDefProps>) => boolean
 }): NodeDef<NodeDefType, NodeDefProps>[] => {

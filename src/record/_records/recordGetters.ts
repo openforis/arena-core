@@ -250,16 +250,21 @@ const getClosestAncestorNode = (params: {
   return getAncestor({ record, node, ancestorDefUuid: commonAncestorDefUuid })
 }
 
-export const getEntityKeyNodes = (params: { survey: Survey; record: Record; entity: Node }): Node[] => {
-  const { survey, record, entity } = params
+export const getEntityKeyNodes = (params: { survey: Survey; cycle?: string; record: Record; entity: Node }): Node[] => {
+  const { survey, cycle, record, entity } = params
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
-  const nodeDefKeys = Surveys.getNodeDefKeys({ survey, nodeDef })
+  const nodeDefKeys = Surveys.getNodeDefKeys({ survey, cycle, nodeDef })
   return nodeDefKeys.map((nodeDefKey) => getChild(entity, nodeDefKey.uuid)(record))
 }
 
-export const getEntityKeyValues = (params: { survey: Survey; record: Record; entity: Node }): Node[] => {
-  const { survey, record, entity } = params
-  return getEntityKeyNodes({ survey, record, entity }).map((node) => node.value)
+export const getEntityKeyValues = (params: {
+  survey: Survey
+  cycle?: string
+  record: Record
+  entity: Node
+}): Node[] => {
+  const { survey, cycle, record, entity } = params
+  return getEntityKeyNodes({ survey, cycle, record, entity }).map((node) => node.value)
 }
 
 export const getNodeSiblings = (params: {
@@ -278,6 +283,86 @@ export const getNodeSiblings = (params: {
     (siblingsAcc: Node[], siblingEntity) => [...siblingsAcc, ...getChildren(siblingEntity, nodeDef.uuid)(record)],
     []
   )
+}
+
+export const findEntityByKeyValues = (params: {
+  survey: Survey
+  cycle: string
+  record: Record
+  parentEntity: Node
+  entityDefUuid: string
+  keyValues: any[]
+}): Node | undefined => {
+  const { survey, cycle, record, parentEntity, entityDefUuid, keyValues } = params
+  const entityDef = Surveys.getNodeDefByUuid({ survey, uuid: entityDefUuid })
+  const siblingEntities = getChildren(parentEntity, entityDefUuid)(record)
+  if (NodeDefs.isSingle(entityDef)) {
+    return siblingEntities[0]
+  }
+  return siblingEntities.find((siblingEntity) => {
+    const siblingEntityKeyValues = getEntityKeyValues({
+      survey,
+      cycle,
+      record,
+      entity: siblingEntity,
+    })
+    const keyDefs = Surveys.getNodeDefKeys({ survey, cycle, nodeDef: entityDef })
+
+    return siblingEntityKeyValues.every((keyValue, index) => {
+      const keyValueSearch = keyValues[index]
+      const keyDef = keyDefs[index]
+
+      return NodeValues.isValueEqual({
+        survey,
+        nodeDef: keyDef,
+        value: keyValue,
+        valueSearch: keyValueSearch,
+      })
+    })
+  })
+}
+
+export const findEntityWithSameKeysInAnotherRecord = (params: {
+  survey: Survey
+  cycle: string
+  entityUuid: string
+  record: Record
+  recordOther: Record
+}): Node | undefined => {
+  const { survey, cycle, entityUuid, record, recordOther } = params
+  const entity = getNodeByUuid(entityUuid)(record)
+  if (!entity) return undefined
+
+  let otherRecordCurrentParentEntity = getRoot(recordOther)
+  if (!otherRecordCurrentParentEntity) return undefined
+
+  const entityAncestorsAndSelf = getAncestorsAndSelf({
+    record,
+    node: entity,
+  })
+  const ancestorDefUuidsAndKeys = entityAncestorsAndSelf.map((ancestor) => ({
+    entityDefUuid: ancestor.nodeDefUuid,
+    keyValues: getEntityKeyValues({
+      survey,
+      record,
+      entity: ancestor,
+    }),
+  }))
+
+  const ancestorDefUuidsAndKeysToVisit = [...ancestorDefUuidsAndKeys].reverse()
+
+  for (let index = 1; otherRecordCurrentParentEntity && index < ancestorDefUuidsAndKeysToVisit.length; index++) {
+    const { entityDefUuid, keyValues } = ancestorDefUuidsAndKeysToVisit[index]
+    otherRecordCurrentParentEntity = findEntityByKeyValues({
+      survey,
+      cycle,
+      record: recordOther,
+      parentEntity: otherRecordCurrentParentEntity,
+      entityDefUuid,
+      keyValues,
+    })
+  }
+  return otherRecordCurrentParentEntity
 }
 
 export const getDependentNodePointers = (params: {
