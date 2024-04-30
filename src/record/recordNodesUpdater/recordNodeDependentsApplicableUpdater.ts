@@ -24,7 +24,7 @@ export const updateSelfAndDependentsApplicable = (params: {
     record,
     node,
     dependencyType: SurveyDependencyType.applicable,
-    includeSelf: node.created,
+    includeSelf: true,
   })
 
   // 2. update expr to node and dependent nodes
