@@ -235,13 +235,14 @@ interface NodeValuesCompareParams {
   strict?: boolean
 }
 
-const isValueEqual = (params: NodeValuesCompareParams) => {
+const isValueEqual = (params: NodeValuesCompareParams): boolean => {
   const { survey, nodeDef, value, valueSearch, record = undefined, parentNode = undefined, strict = false } = params
   if (value === valueSearch) return true
   if (Objects.isEmpty(value) || Objects.isEmpty(valueSearch)) return false
 
   const valueComparator = valueComparatorByNodeDefType[nodeDef.type]
-  return valueComparator && valueComparator({ survey, nodeDef, record, parentNode, value, valueSearch, strict })
+  if (!valueComparator) return false
+  return valueComparator({ survey, nodeDef, record, parentNode, value, valueSearch, strict })
 }
 
 export const NodeValues = {
