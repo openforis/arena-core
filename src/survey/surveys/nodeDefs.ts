@@ -10,7 +10,7 @@ import {
   NodeDefType,
   NodeDefs,
 } from '../../nodeDef'
-import { Arrays, Queue } from '../../utils'
+import { Arrays, Objects, Queue } from '../../utils'
 import { SystemError } from '../../error'
 import * as NodeDefsReader from './_nodeDefs/nodeDefsReader'
 import * as NodeDefsIndex from './_nodeDefs/nodeDefsIndex'
@@ -250,14 +250,17 @@ export const visitDescendantsAndSelfNodeDef = (params: {
     traverseOnlySingleEntities = false,
   } = params
 
-  const getNodeDefChildrenInternal = (nodeDef: NodeDef<any>) =>
-    cycle === undefined
-      ? getNodeDefChildren({ survey, nodeDef, includeAnalysis })
-      : getNodeDefChildrenSorted({ survey, nodeDef, cycle, includeAnalysis })
+  const getNodeDefChildrenInternal = (visitedNodeDef: NodeDef<any>) =>
+    Objects.isEmpty(cycle)
+      ? getNodeDefChildren({ survey, nodeDef: visitedNodeDef, includeAnalysis })
+      : getNodeDefChildrenSorted({ survey, nodeDef: visitedNodeDef, cycle: cycle!, includeAnalysis })
 
-  const shouldTraverse = (nodeDef: NodeDef<any>): boolean =>
-    nodeDef.type === NodeDefType.entity &&
-    (NodeDefs.isRoot(nodeDef) || !traverseOnlySingleEntities || NodeDefs.isSingle(nodeDef))
+  const shouldTraverse = (visitedNodeDef: NodeDef<any>): boolean =>
+    visitedNodeDef.type === NodeDefType.entity &&
+    (visitedNodeDef === nodeDef ||
+      NodeDefs.isRoot(visitedNodeDef) ||
+      !traverseOnlySingleEntities ||
+      NodeDefs.isSingle(visitedNodeDef))
 
   if (traverseMethod === TraverseMethod.bfs) {
     const queue = new Queue()
@@ -356,9 +359,9 @@ export const getNodeDefKeys = (params: {
     cycle,
     nodeDef,
     predicate: (visitedNodeDef) =>
-      (cycle === undefined || NodeDefs.isInCycle(cycle)(visitedNodeDef)) &&
       NodeDefs.isKey(visitedNodeDef) &&
-      !visitedNodeDef.deleted,
+      !visitedNodeDef.deleted &&
+      (Objects.isEmpty(cycle) || NodeDefs.isInCycle(cycle!)(visitedNodeDef)),
   })
 }
 
