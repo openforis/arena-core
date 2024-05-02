@@ -10,7 +10,7 @@ import {
   NodeDefType,
   NodeDefs,
 } from '../../nodeDef'
-import { Arrays, Queue } from '../../utils'
+import { Arrays, Objects, Queue } from '../../utils'
 import { SystemError } from '../../error'
 import * as NodeDefsReader from './_nodeDefs/nodeDefsReader'
 import * as NodeDefsIndex from './_nodeDefs/nodeDefsIndex'
@@ -172,12 +172,14 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
         .map((gridItem) => gridItem.i)
         .filter((nodeDefUuid) => !!childrenByUuids[nodeDefUuid])
 
-  const missingChildrenUuidsInLayout = childrenUuids.filter(
-    (childUuid) =>
+  const missingChildrenUuidsInLayout = childrenUuids.filter((childUuid) => {
+    const childDef = childrenByUuids[childUuid]
+    return (
       !sortedChildrenDefsInSamePageUuids.includes(childUuid) &&
       !childrenEntitiesInOwnPageUudis.includes(childUuid) &&
-      NodeDefs.isInCycle(cycle)
-  )
+      NodeDefs.isInCycle(cycle)(childDef)
+    )
+  })
 
   return (
     sortedChildrenDefsInSamePageUuids
@@ -200,7 +202,7 @@ export const getNodeDefChildrenSorted = (params: {
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
   const { survey, nodeDef, cycle, includeAnalysis } = params
 
-  const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis })
+  const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis }).filter(NodeDefs.isInCycle(cycle))
 
   const childrenUuidsSortedByLayout = getNodeDefChildrenUuidsSortedByLayout({ nodeDef, cycle, children })
 
@@ -248,13 +250,17 @@ export const visitDescendantsAndSelfNodeDef = (params: {
     traverseOnlySingleEntities = false,
   } = params
 
-  const getNodeDefChildrenInternal = (nodeDef: NodeDef<any>) =>
-    cycle
-      ? getNodeDefChildrenSorted({ survey, nodeDef, cycle, includeAnalysis })
-      : getNodeDefChildren({ survey, nodeDef, includeAnalysis })
+  const getNodeDefChildrenInternal = (visitedNodeDef: NodeDef<any>) =>
+    Objects.isEmpty(cycle)
+      ? getNodeDefChildren({ survey, nodeDef: visitedNodeDef, includeAnalysis })
+      : getNodeDefChildrenSorted({ survey, nodeDef: visitedNodeDef, cycle: cycle!, includeAnalysis })
 
-  const shouldTraverse = (nodeDef: NodeDef<any>): boolean =>
-    nodeDef.type === NodeDefType.entity && (!traverseOnlySingleEntities || NodeDefs.isMultiple(nodeDef))
+  const shouldTraverse = (visitedNodeDef: NodeDef<any>): boolean =>
+    visitedNodeDef.type === NodeDefType.entity &&
+    (visitedNodeDef === nodeDef ||
+      NodeDefs.isRoot(visitedNodeDef) ||
+      !traverseOnlySingleEntities ||
+      NodeDefs.isSingle(visitedNodeDef))
 
   if (traverseMethod === TraverseMethod.bfs) {
     const queue = new Queue()
@@ -344,10 +350,19 @@ export const getNodeDefCategoryLevelIndex = (params: {
 export const getNodeDefKeys = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  cycle?: string
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, nodeDef } = params
-  const children = getNodeDefChildren({ survey, nodeDef })
-  return children.filter((childDef) => childDef.props.key && !childDef.deleted)
+  const { survey, cycle, nodeDef } = params
+
+  return getDescendantsInSingleEntities({
+    survey,
+    cycle,
+    nodeDef,
+    predicate: (visitedNodeDef) =>
+      NodeDefs.isKey(visitedNodeDef) &&
+      !visitedNodeDef.deleted &&
+      (Objects.isEmpty(cycle) || NodeDefs.isInCycle(cycle!)(visitedNodeDef)),
+  })
 }
 
 export const getNodeDefEnumerator = (params: { survey: Survey; entityDef: NodeDefEntity }): NodeDefCode | undefined => {
@@ -372,7 +387,7 @@ export const isNodeDefEnumerator = (params: { survey: Survey; nodeDef: NodeDef<N
 
 export const getDescendantsInSingleEntities = (params: {
   survey: Survey
-  cycle: string
+  cycle?: string
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   predicate?: (visitedNodeDef: NodeDef<NodeDefType, NodeDefProps>) => boolean
 }): NodeDef<NodeDefType, NodeDefProps>[] => {

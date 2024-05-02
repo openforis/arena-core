@@ -12,7 +12,9 @@ import {
   getDependentCodeAttributes,
   getAncestor,
   getEntityKeyNodes,
+  getEntityKeyNodesByDefUuid,
   getEntityKeyValues,
+  getEntityKeyValuesByDefUuid,
   getNodeSiblings,
   isNodeApplicable,
   visitAncestorsAndSelf,
@@ -22,6 +24,8 @@ import {
   isDescendantOf,
   visitDescendantsAndSelf,
   getDependentNodePointers,
+  findEntityByKeyValues,
+  findEntityWithSameKeysInAnotherRecord,
   getCategoryItemUuid,
 } from './_records/recordGetters'
 
@@ -42,7 +46,9 @@ export const Records = {
   getDependentCodeAttributes,
   getAncestor,
   getEntityKeyNodes,
+  getEntityKeyNodesByDefUuid,
   getEntityKeyValues,
+  getEntityKeyValuesByDefUuid,
   getNodeSiblings,
   isNodeApplicable,
   visitAncestorsAndSelf,
@@ -52,6 +58,8 @@ export const Records = {
   isDescendantOf,
   visitDescendantsAndSelf,
   getDependentNodePointers,
+  findEntityByKeyValues,
+  findEntityWithSameKeysInAnotherRecord,
   getCategoryItemUuid,
 
   // UPDATE

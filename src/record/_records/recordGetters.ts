@@ -1,6 +1,6 @@
 import { TraverseMethod } from '../../common'
 import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefType, NodeDefs } from '../../nodeDef'
-import { Node, NodePointer, Nodes } from '../../node'
+import { Node, NodePointer, Nodes, NodesMap } from '../../node'
 import { Record } from '../record'
 import { Surveys } from '../../survey'
 import { Arrays, Queue } from '../../utils'
@@ -250,17 +250,40 @@ const getClosestAncestorNode = (params: {
   return getAncestor({ record, node, ancestorDefUuid: commonAncestorDefUuid })
 }
 
-export const getEntityKeyNodes = (params: { survey: Survey; record: Record; entity: Node }): Node[] => {
-  const { survey, record, entity } = params
+export const getEntityKeyNodesByDefUuid = (params: {
+  survey: Survey
+  cycle?: string
+  record: Record
+  entity: Node
+}): NodesMap => {
+  const { survey, cycle, record, entity } = params
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
-  const nodeDefKeys = Surveys.getNodeDefKeys({ survey, nodeDef })
-  return nodeDefKeys.map((nodeDefKey) => getChild(entity, nodeDefKey.uuid)(record))
+  const nodeDefKeys = Surveys.getNodeDefKeys({ survey, cycle, nodeDef })
+  return nodeDefKeys.reduce((acc: NodesMap, nodeDefKey) => {
+    const nodeKey = getDescendant({ record, node: entity, nodeDefDescendant: nodeDefKey })
+    acc[nodeDefKey.uuid] = nodeKey
+    return acc
+  }, {})
 }
 
-export const getEntityKeyValues = (params: { survey: Survey; record: Record; entity: Node }): Node[] => {
-  const { survey, record, entity } = params
-  return getEntityKeyNodes({ survey, record, entity }).map((node) => node.value)
+export const getEntityKeyNodes = (params: { survey: Survey; cycle?: string; record: Record; entity: Node }): Node[] =>
+  Object.values(getEntityKeyNodesByDefUuid(params))
+
+export const getEntityKeyValuesByDefUuid = (params: {
+  survey: Survey
+  cycle?: string
+  record: Record
+  entity: Node
+}): { [key: string]: any } => {
+  const keyNodesByDefUuid = getEntityKeyNodesByDefUuid(params)
+  return Object.entries(keyNodesByDefUuid).reduce((acc: { [key: string]: any }, [uuid, keyNode]) => {
+    acc[uuid] = keyNode?.value
+    return acc
+  }, {})
 }
+
+export const getEntityKeyValues = (params: { survey: Survey; cycle?: string; record: Record; entity: Node }): any[] =>
+  Object.values(getEntityKeyValuesByDefUuid(params))
 
 export const getNodeSiblings = (params: {
   record: Record
@@ -278,6 +301,85 @@ export const getNodeSiblings = (params: {
     (siblingsAcc: Node[], siblingEntity) => [...siblingsAcc, ...getChildren(siblingEntity, nodeDef.uuid)(record)],
     []
   )
+}
+
+export const findEntityByKeyValues = (params: {
+  survey: Survey
+  cycle: string
+  record: Record
+  parentEntity: Node
+  entityDefUuid: string
+  keyValuesByDefUuid: { [key: string]: any }
+}): Node | undefined => {
+  const { survey, cycle, record, parentEntity, entityDefUuid, keyValuesByDefUuid } = params
+  const entityDef = Surveys.getNodeDefByUuid({ survey, uuid: entityDefUuid })
+  const siblingEntities = getChildren(parentEntity, entityDefUuid)(record)
+  if (NodeDefs.isSingle(entityDef)) {
+    return siblingEntities[0]
+  }
+  const keyDefs = Surveys.getNodeDefKeys({ survey, cycle, nodeDef: entityDef })
+
+  return siblingEntities.find((siblingEntity) => {
+    const siblingEntityKeyValuesByDefUuid = getEntityKeyValuesByDefUuid({
+      survey,
+      cycle,
+      record,
+      entity: siblingEntity,
+    })
+    return keyDefs.every((keyDef) => {
+      const keyValue = siblingEntityKeyValuesByDefUuid[keyDef.uuid]
+      const keyValueSearch = keyValuesByDefUuid[keyDef.uuid]
+      return NodeValues.isValueEqual({
+        survey,
+        nodeDef: keyDef,
+        value: keyValue,
+        valueSearch: keyValueSearch,
+      })
+    })
+  })
+}
+
+export const findEntityWithSameKeysInAnotherRecord = (params: {
+  survey: Survey
+  cycle: string
+  entityUuid: string
+  record: Record
+  recordOther: Record
+}): Node | undefined => {
+  const { survey, cycle, entityUuid, record, recordOther } = params
+  const entity = getNodeByUuid(entityUuid)(record)
+  if (!entity) return undefined
+
+  let otherRecordCurrentParentEntity = getRoot(recordOther)
+  if (!otherRecordCurrentParentEntity) return undefined
+
+  const entityAncestorsAndSelf = getAncestorsAndSelf({
+    record,
+    node: entity,
+  })
+  const ancestorDefUuidsAndKeys = entityAncestorsAndSelf.map((ancestor) => ({
+    entityDefUuid: ancestor.nodeDefUuid,
+    keyValuesByDefUuid: getEntityKeyValuesByDefUuid({
+      survey,
+      record,
+      entity: ancestor,
+    }),
+  }))
+
+  const ancestorDefUuidsAndKeysToVisit = [...ancestorDefUuidsAndKeys].reverse()
+
+  for (let index = 1; otherRecordCurrentParentEntity && index < ancestorDefUuidsAndKeysToVisit.length; index++) {
+    const { entityDefUuid, keyValuesByDefUuid } = ancestorDefUuidsAndKeysToVisit[index]
+    otherRecordCurrentParentEntity = findEntityByKeyValues({
+      survey,
+      cycle,
+      record: recordOther,
+      parentEntity: otherRecordCurrentParentEntity,
+      entityDefUuid,
+      keyValuesByDefUuid,
+    })
+  }
+  return otherRecordCurrentParentEntity
 }
 
 export const getDependentNodePointers = (params: {
