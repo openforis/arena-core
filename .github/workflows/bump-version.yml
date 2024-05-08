@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.ACCESS_TOKEN }}
       - name: Temporarily disable "include administrators" branch protection
@@ -26,12 +26,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         with:
           tag-prefix: 'v'
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           registry-url: https://npm.pkg.github.com/
           scope: '@openforis'
-          
+
       - run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.ACCESS_TOKEN }}" > .npmrc
       - run: echo "\"@openforis:registry\"" "\"https://npm.pkg.github.com\"" > .yarnrc
       - run: cat .npmrc
@@ -40,7 +40,7 @@ jobs:
       - run: npm publish
       - name: Enable "include administrators" branch protection
         uses: benjefferies/branch-protection-bot@master
-        if: always()  # Force to always run this step to ensure "include administrators" is always turned back on
+        if: always() # Force to always run this step to ensure "include administrators" is always turned back on
         with:
           access_token: ${{ secrets.ACCESS_TOKEN }}
           owner: openforis
