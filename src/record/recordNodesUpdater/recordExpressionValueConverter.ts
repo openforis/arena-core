@@ -57,12 +57,14 @@ const _toDateTime = (params: {
   format: DateFormats
   formatsFrom: DateFormats[]
   timezoneOffset?: number
-}) => {
+}): string | null => {
   const { valueExpr, format, formatsFrom = [DateFormats.datetimeDefault], timezoneOffset } = params
   const formatFrom = formatsFrom.find((formt) => Dates.isValidDateInFormat(valueExpr, formt))
   if (!formatFrom) return null
 
   const date = Dates.parse(valueExpr, formatFrom)
+  if (!date) return null
+
   const localTimezoneOffset = Dates.getTimezoneOffset()
   const timezoneOffsetDiff = localTimezoneOffset - (timezoneOffset ?? localTimezoneOffset)
   const dateWithTimezoneOffset = timezoneOffsetDiff ? new Date(date.getTime() + timezoneOffsetDiff * 60000) : date
