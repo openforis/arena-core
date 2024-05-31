@@ -11,6 +11,16 @@ export enum DateFormats {
   datetimeDefault = 'YYYY-MM-DD_HH-mm-ss',
 }
 
+export enum UnitOfTime {
+  years = 'years',
+  months = 'months',
+  weeks = 'weeks',
+  days = 'days',
+  hours = 'hours',
+  minutes = 'minutes',
+  seconds = 'seconds',
+}
+
 type DateType = Date | number | string
 
 const format = (date: number | Date | undefined, format: string): string => (date ? moment(date).format(format) : '')
@@ -94,35 +104,33 @@ const isBefore = (date: DateType, dateToCompare: DateType): boolean => {
   return moment(_date).isBefore(moment(_dateToCompare))
 }
 
-const add = (date: DateType, value: number, unit: moment.unitOfTime.Diff): Date =>
-  moment(date).add(value, unit).toDate()
-const addSeconds = (date: DateType, value: number): Date => add(date, value, 'seconds')
-const addMinutes = (date: DateType, value: number): Date => add(date, value, 'minutes')
-const addHours = (date: DateType, value: number): Date => add(date, value, 'hours')
-const addDays = (date: DateType, value: number): Date => add(date, value, 'days')
-const addWeeks = (date: DateType, value: number): Date => add(date, value, 'weeks')
-const addMonths = (date: DateType, value: number): Date => add(date, value, 'months')
-const addYears = (date: DateType, value: number): Date => add(date, value, 'years')
+const add = (date: DateType, value: number, unit: UnitOfTime): Date => moment(date).add(value, unit).toDate()
+const addSeconds = (date: DateType, value: number): Date => add(date, value, UnitOfTime.seconds)
+const addMinutes = (date: DateType, value: number): Date => add(date, value, UnitOfTime.minutes)
+const addHours = (date: DateType, value: number): Date => add(date, value, UnitOfTime.hours)
+const addDays = (date: DateType, value: number): Date => add(date, value, UnitOfTime.days)
+const addWeeks = (date: DateType, value: number): Date => add(date, value, UnitOfTime.weeks)
+const addMonths = (date: DateType, value: number): Date => add(date, value, UnitOfTime.months)
+const addYears = (date: DateType, value: number): Date => add(date, value, UnitOfTime.years)
 
-const diff = (dateA: DateType, dateB: DateType, unit: moment.unitOfTime.Diff): number =>
-  moment(dateA).diff(moment(dateB), unit, true)
-const diffInSeconds = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'seconds')
-const diffInMinutes = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'minutes')
-const diffInHours = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'hours')
-const diffInDays = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'days')
-const diffInWeeks = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'weeks')
-const diffInMonths = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'months')
-const diffInYears = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'years')
+const diff = (dateA: DateType, dateB: DateType, unit: UnitOfTime, precise?: boolean): number =>
+  moment(dateA).diff(moment(dateB), unit, precise)
+const diffInSeconds = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.seconds)
+const diffInMinutes = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.minutes)
+const diffInHours = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.hours)
+const diffInDays = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.days)
+const diffInWeeks = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.weeks)
+const diffInMonths = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.months)
+const diffInYears = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.years)
 
-const sub = (date: DateType, value: number, unit: moment.unitOfTime.Diff): Date =>
-  moment(date).subtract(value, unit).toDate()
-const subSeconds = (date: DateType, value: number): Date => sub(date, value, 'seconds')
-const subMinutes = (date: DateType, value: number): Date => sub(date, value, 'minutes')
-const subHours = (date: DateType, value: number): Date => sub(date, value, 'hours')
-const subDays = (date: DateType, value: number): Date => sub(date, value, 'days')
-const subWeeks = (date: DateType, value: number): Date => sub(date, value, 'weeks')
-const subMonths = (date: DateType, value: number): Date => sub(date, value, 'months')
-const subYears = (date: DateType, value: number): Date => sub(date, value, 'years')
+const sub = (date: DateType, value: number, unit: UnitOfTime): Date => moment(date).subtract(value, unit).toDate()
+const subSeconds = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.seconds)
+const subMinutes = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.minutes)
+const subHours = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.hours)
+const subDays = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.days)
+const subWeeks = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.weeks)
+const subMonths = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.months)
+const subYears = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.years)
 
 /**
  * Gets the difference in minutes between the time on the local computer and Universal Coordinated Time (UTC).
