@@ -104,15 +104,15 @@ const addWeeks = (date: DateType, value: number): Date => add(date, value, 'week
 const addMonths = (date: DateType, value: number): Date => add(date, value, 'months')
 const addYears = (date: DateType, value: number): Date => add(date, value, 'years')
 
-const difference = (dateA: DateType, dateB: DateType, unit: moment.unitOfTime.Diff): number =>
+const diff = (dateA: DateType, dateB: DateType, unit: moment.unitOfTime.Diff): number =>
   moment(dateA).diff(moment(dateB), unit, true)
-const differenceInSeconds = (dateA: DateType, dateB: DateType): number => difference(dateA, dateB, 'seconds')
-const differenceInMinutes = (dateA: DateType, dateB: DateType): number => difference(dateA, dateB, 'minutes')
-const differenceInHours = (dateA: DateType, dateB: DateType): number => difference(dateA, dateB, 'hours')
-const differenceInDays = (dateA: DateType, dateB: DateType): number => difference(dateA, dateB, 'days')
-const differenceInWeeks = (dateA: DateType, dateB: DateType): number => difference(dateA, dateB, 'weeks')
-const differenceInMonths = (dateA: DateType, dateB: DateType): number => difference(dateA, dateB, 'months')
-const differenceInYears = (dateA: DateType, dateB: DateType): number => difference(dateA, dateB, 'years')
+const diffInSeconds = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'seconds')
+const diffInMinutes = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'minutes')
+const diffInHours = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'hours')
+const diffInDays = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'days')
+const diffInWeeks = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'weeks')
+const diffInMonths = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'months')
+const diffInYears = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, 'years')
 
 const sub = (date: DateType, value: number, unit: moment.unitOfTime.Diff): Date =>
   moment(date).subtract(value, unit).toDate()
@@ -160,12 +160,12 @@ export const Dates = {
   subWeeks,
   subMonths,
   subYears,
-  difference,
-  differenceInSeconds,
-  differenceInMinutes,
-  differenceInHours,
-  differenceInDays,
-  differenceInWeeks,
-  differenceInMonths,
-  differenceInYears,
+  diff,
+  diffInSeconds,
+  diffInMinutes,
+  diffInHours,
+  diffInDays,
+  diffInWeeks,
+  diffInMonths,
+  diffInYears,
 }
