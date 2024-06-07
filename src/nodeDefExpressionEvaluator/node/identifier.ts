@@ -114,7 +114,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
    */
   protected getReachableNodeDefs(): NodeDef<NodeDefType, NodeDefProps>[] {
     const { context } = this
-    const { survey } = context
+    const { survey, includeAnalysis } = context
 
     const reachableNodeDefsByUuid: { [key: string]: NodeDef<any> } = {}
 
@@ -129,7 +129,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
 
     while (!queue.isEmpty()) {
       const entityDefCurrent = queue.dequeue()
-      const entityDefCurrentChildren = getNodeDefChildren({ survey, nodeDef: entityDefCurrent })
+      const entityDefCurrentChildren = getNodeDefChildren({ survey, nodeDef: entityDefCurrent, includeAnalysis })
       entityDefCurrentChildren.forEach((childDef) => (reachableNodeDefsByUuid[childDef.uuid] = childDef))
 
       // visit nodes inside single entities
