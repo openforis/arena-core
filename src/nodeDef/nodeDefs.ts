@@ -109,12 +109,15 @@ const getItemsFilter = (nodeDef: NodeDef<any>): string | undefined => nodeDef.pr
 const getValidations = (nodeDef: NodeDef<NodeDefType>): NodeDefValidations | undefined =>
   nodeDef.propsAdvanced?.validations
 
+const getValidationsExpressions = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
+  getValidations(nodeDef)?.expressions ?? []
+
 const isRequired = (nodeDef: NodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required ?? false
 
 // // Min max
-const getMinCount = (nodeDef: NodeDef<NodeDefType>) => Numbers.toNumber(getValidations(nodeDef)?.count?.min)
+const getMinCount = (nodeDef: NodeDef<NodeDefType>): string | undefined => getValidations(nodeDef)?.count?.min
 
-const getMaxCount = (nodeDef: NodeDef<NodeDefType>) => Numbers.toNumber(getValidations(nodeDef)?.count?.max)
+const getMaxCount = (nodeDef: NodeDef<NodeDefType>): string | undefined => getValidations(nodeDef)?.count?.max
 
 const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>) =>
   !Number.isNaN(getMinCount(nodeDef)) || !Number.isNaN(getMaxCount(nodeDef))
@@ -223,6 +226,7 @@ export const NodeDefs = {
   isCodeShown,
   // validations
   getValidations,
+  getValidationsExpressions,
   isRequired,
   // // Min Max
   hasMinOrMaxCount,

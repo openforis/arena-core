@@ -74,8 +74,8 @@ export const NodeDefExpressionFactory: Factory<NodeDefExpression, NodeDefExpress
 }
 
 export interface NodeDefCountValidations {
-  max?: number
-  min?: number
+  max?: string
+  min?: string
 }
 
 export interface NodeDefValidations {

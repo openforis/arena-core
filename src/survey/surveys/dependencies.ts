@@ -4,11 +4,14 @@ import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
 import { Arrays, Objects } from '../../utils'
+import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
 
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
   [SurveyDependencyType.defaultValues]: false,
   [SurveyDependencyType.formula]: false,
+  [SurveyDependencyType.maxCount]: true,
+  [SurveyDependencyType.minCount]: true,
   [SurveyDependencyType.validations]: false,
 }
 
@@ -16,6 +19,8 @@ const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.applicable]: false,
   [SurveyDependencyType.defaultValues]: false,
   [SurveyDependencyType.formula]: false,
+  [SurveyDependencyType.maxCount]: false,
+  [SurveyDependencyType.minCount]: false,
   [SurveyDependencyType.validations]: true,
 }
 
@@ -23,6 +28,8 @@ const newDependecyGraph = () => ({
   [SurveyDependencyType.applicable]: {},
   [SurveyDependencyType.defaultValues]: {},
   [SurveyDependencyType.formula]: {},
+  [SurveyDependencyType.maxCount]: {},
+  [SurveyDependencyType.minCount]: {},
   [SurveyDependencyType.validations]: {},
 })
 
@@ -149,11 +156,20 @@ export const addNodeDefDependencies = (params: {
       graphs: graphsUpdated,
       sideEffect,
     })
+  const singleExpressionToExpressions = (expression: string | undefined): NodeDefExpression[] => {
+    if (Objects.isEmpty(expression)) return []
+    return [NodeDefExpressionFactory.createInstance({ expression: expression! })]
+  }
   graphsUpdated = _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
   graphsUpdated = _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
+  graphsUpdated = _addDependencies(SurveyDependencyType.validations, NodeDefs.getValidationsExpressions(nodeDef))
   graphsUpdated = _addDependencies(
-    SurveyDependencyType.validations,
-    NodeDefs.getValidations(nodeDef)?.expressions ?? []
+    SurveyDependencyType.maxCount,
+    singleExpressionToExpressions(NodeDefs.getMinCount(nodeDef))
+  )
+  graphsUpdated = _addDependencies(
+    SurveyDependencyType.minCount,
+    singleExpressionToExpressions(NodeDefs.getMaxCount(nodeDef))
   )
   if (sideEffect) {
     survey.dependencyGraph = graphsUpdated
