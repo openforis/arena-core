@@ -20,9 +20,9 @@ export enum valuePropsDate {
 }
 
 export enum valuePropsFile {
-  fileUuid,
-  fileName,
-  fileSize,
+  fileUuid = 'fileUuid',
+  fileName = 'fileName',
+  fileSize = 'fileSize',
 }
 
 export enum valuePropsTaxon {

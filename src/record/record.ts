@@ -38,6 +38,7 @@ export interface Record {
   cycle?: string
   dateCreated?: string
   dateModified?: string
+  id?: number
   nodes?: { [uuid: string]: Node }
   ownerName: string
   ownerUuid: string
