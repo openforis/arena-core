@@ -3,10 +3,12 @@ import { Queue } from '../../utils'
 import * as DependentDefaultValuesUpdater from './recordNodeDependentsDefaultValuesUpdater'
 import * as DependentApplicableUpdater from './recordNodeDependentsApplicableUpdater'
 import * as DependentCodeAttributesUpdater from './recordNodeDependentsCodeAttributesUpdater'
+import * as DependentCountUpdater from './recordNodeDependentsCountUpdater'
 import { Survey } from '../../survey'
 import { Record } from '../record'
 import { Node } from '../../node'
 import { RecordUpdateResult } from './recordUpdateResult'
+import { NodeDefCountType } from '../../nodeDef'
 
 /**
  * Nodes can be visited maximum 2 times during the update of the dependent nodes, to avoid loops in the evaluation.
@@ -30,6 +32,14 @@ export const updateNodesDependents = (params: {
   // Avoid loops: visit the same node maximum 2 times (the second time the applicability could have been changed)
   const visitedCountByUuid: { [key: string]: number } = {}
 
+  const getCommonUpdaterParams = (node: Node) => ({
+    survey,
+    record: updateResult.record, // updateResult.record changes at every step (when sideEffect=false)
+    node,
+    timezoneOffset,
+    sideEffect,
+  })
+
   while (!nodeUuidsToVisit.isEmpty()) {
     const nodeUuid = nodeUuidsToVisit.dequeue()
     const node = updateResult.getNodeByUuid(nodeUuid)
@@ -37,35 +47,36 @@ export const updateNodesDependents = (params: {
     const visitedCount = visitedCountByUuid[nodeUuid] ?? 0
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
-      // Update dependents (applicability)
-      const applicabilityUpdateResult = DependentApplicableUpdater.updateSelfAndDependentsApplicable({
-        survey,
-        record: updateResult.record,
-        node,
-        timezoneOffset,
-        sideEffect,
+      const maxCountUpdateResult = DependentCountUpdater.updateSelfAndDependentsCount({
+        ...getCommonUpdaterParams(node),
+        countType: NodeDefCountType.max,
       })
+      updateResult.merge(maxCountUpdateResult)
+
+      const minCountUpdateResult = DependentCountUpdater.updateSelfAndDependentsCount({
+        ...getCommonUpdaterParams(node),
+        countType: NodeDefCountType.min,
+      })
+      updateResult.merge(minCountUpdateResult)
+
+      // Update dependents (applicability)
+      const applicabilityUpdateResult = DependentApplicableUpdater.updateSelfAndDependentsApplicable(
+        getCommonUpdaterParams(node)
+      )
 
       updateResult.merge(applicabilityUpdateResult)
 
       // Update dependents (default values)
-      const defaultValuesUpdateResult = DependentDefaultValuesUpdater.updateSelfAndDependentsDefaultValues({
-        survey,
-        record: updateResult.record,
-        node,
-        timezoneOffset,
-        sideEffect,
-      })
+      const defaultValuesUpdateResult = DependentDefaultValuesUpdater.updateSelfAndDependentsDefaultValues(
+        getCommonUpdaterParams(node)
+      )
 
       updateResult.merge(defaultValuesUpdateResult)
 
       // update depenent code attributes
-      const dependentCodeAttributesUpdateResult = DependentCodeAttributesUpdater.updateDependentCodeAttributes({
-        survey,
-        record: updateResult.record,
-        node,
-        sideEffect,
-      })
+      const dependentCodeAttributesUpdateResult = DependentCodeAttributesUpdater.updateDependentCodeAttributes(
+        getCommonUpdaterParams(node)
+      )
 
       updateResult.merge(dependentCodeAttributesUpdateResult)
 

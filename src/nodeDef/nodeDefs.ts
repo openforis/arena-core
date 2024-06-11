@@ -3,6 +3,7 @@ import { valuePropsCoordinate } from '../node/nodeValueProps'
 import { Objects, Strings } from '../utils'
 import {
   NodeDef,
+  NodeDefCountType,
   NodeDefExpression,
   NodeDefLayout,
   NodeDefProps,
@@ -16,6 +17,8 @@ import { NodeDefDecimal } from './types/decimal'
 import { NodeDefEntity, NodeDefEntityChildPosition, NodeDefEntityRenderType } from './types/entity'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText } from './types/text'
+
+const defaultCycle = '0'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
@@ -115,61 +118,67 @@ const getValidationsExpressions = (nodeDef: NodeDef<NodeDefType>): NodeDefExpres
 const isRequired = (nodeDef: NodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required ?? false
 
 // // Min max
-const getMinCount = (nodeDef: NodeDef<NodeDefType>): string | undefined => getValidations(nodeDef)?.count?.min
+const getCount = (nodeDef: NodeDef<NodeDefType>, countType: NodeDefCountType): string | undefined => {
+  const countValidations = getValidations(nodeDef)?.count
+  if (!countValidations) return undefined
+  return countType === NodeDefCountType.max ? countValidations.max : countValidations.min
+}
 
-const getMaxCount = (nodeDef: NodeDef<NodeDefType>): string | undefined => getValidations(nodeDef)?.count?.max
+const getMinCount = (nodeDef: NodeDef<NodeDefType>): string | undefined => getCount(nodeDef, NodeDefCountType.min)
 
-const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>) =>
-  !Number.isNaN(getMinCount(nodeDef)) || !Number.isNaN(getMaxCount(nodeDef))
+const getMaxCount = (nodeDef: NodeDef<NodeDefType>): string | undefined => getCount(nodeDef, NodeDefCountType.max)
+
+const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>): boolean =>
+  !Objects.isEmpty(getMinCount(nodeDef)) || !Objects.isEmpty(getMaxCount(nodeDef))
 
 // layout
 const getLayoutProps =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): any =>
     nodeDef?.props?.layout?.[cycle] ?? {}
 
 const getLayoutRenderType =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): string | undefined =>
     getLayoutProps(cycle)(nodeDef).renderType
 
 const isLayoutRenderTypeForm =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): boolean =>
     getLayoutRenderType(cycle)(nodeDef) === NodeDefEntityRenderType.form
 
 const isLayoutRenderTypeTable =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): boolean =>
     getLayoutRenderType(cycle)(nodeDef) === NodeDefEntityRenderType.table
 
 const getChildrenEntitiesInOwnPageUudis =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): string[] =>
     getLayoutProps(cycle)(nodeDef).indexChildren
 
 const getLayoutChildren =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): NodeDefEntityChildPosition[] | string[] | undefined =>
     getLayoutProps(cycle)(nodeDef).layoutChildren
 
 const isHiddenInMobile =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
     getLayoutProps(cycle)(nodeDef).hiddenInMobile ?? false
 
 const isIncludedInMultipleEntitySummary =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
     getLayoutProps(cycle)(nodeDef).includedInMultipleEntitySummary ?? false
 
 const isHiddenWhenNotRelevant =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
     getLayoutProps(cycle)(nodeDef).hiddenWhenNotRelevant ?? false
 
 const isCodeShown =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDefCode): boolean =>
     getLayoutProps(cycle)(nodeDef).codeShown ?? false
 
@@ -230,6 +239,7 @@ export const NodeDefs = {
   isRequired,
   // // Min Max
   hasMinOrMaxCount,
+  getCount,
   getMaxCount,
   getMinCount,
   // Analysis

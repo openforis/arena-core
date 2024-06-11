@@ -1,11 +1,6 @@
-import { NodeDef, NodeDefs } from '../nodeDef'
+import { NodeDef, NodeDefCountType, NodeDefs } from '../nodeDef'
 import { Dates, Objects } from '../utils'
 import { Node } from './node'
-
-enum CountType {
-  max,
-  min,
-}
 
 const isRoot = (node: Node): boolean => !node.parentUuid
 
@@ -15,23 +10,25 @@ const isChildApplicable = (node: Node, nodeDefUuid: string): boolean => {
   // if child applicability is not defined for a node definition, consider it applicable
   return node.meta?.childApplicability?.[nodeDefUuid] !== false
 }
-const getChildrenCount = (params: { parentNode: Node; nodeDef: NodeDef<any>; countType: CountType }): number => {
+const getChildrenCount = (params: { parentNode: Node; nodeDef: NodeDef<any>; countType: NodeDefCountType }): number => {
   const { parentNode, nodeDef, countType } = params
-  const countIndex = countType === CountType.max ? parentNode.meta?.childrenMaxCount : parentNode.meta?.childrenMinCount
+  const countIndex =
+    countType === NodeDefCountType.max ? parentNode.meta?.childrenMaxCount : parentNode.meta?.childrenMinCount
   const count = countIndex?.[nodeDef.uuid]
   if (Objects.isEmpty(count)) {
     // count can be a constant value, specified in the node def min/max count prop
-    const nodeDefCount = countType === CountType.max ? NodeDefs.getMaxCount(nodeDef) : NodeDefs.getMinCount(nodeDef)
+    const nodeDefCount =
+      countType === NodeDefCountType.max ? NodeDefs.getMaxCount(nodeDef) : NodeDefs.getMinCount(nodeDef)
     return nodeDefCount ? Number(nodeDefCount) : NaN
   }
   return NaN
 }
 
 const getChildrenMaxCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
-  getChildrenCount({ ...params, countType: CountType.max })
+  getChildrenCount({ ...params, countType: NodeDefCountType.max })
 
 const getChildrenMinCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
-  getChildrenCount({ ...params, countType: CountType.min })
+  getChildrenCount({ ...params, countType: NodeDefCountType.min })
 
 const getHierarchy = (node: Node): string[] => [...(node.meta?.h ?? [])]
 
@@ -59,10 +56,15 @@ const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: bo
   }
 }
 
-const assocChildrenCount = (params: { node: Node; nodeDefUuid: string; count: number; countType: CountType }): Node => {
+const assocChildrenCount = (params: {
+  node: Node
+  nodeDefUuid: string
+  count: number
+  countType: NodeDefCountType
+}): Node => {
   const { node, nodeDefUuid, count, countType } = params
   const countIndex = {
-    ...((countType === CountType.max ? node.meta?.childrenMaxCount : node.meta?.childrenMinCount) ?? {}),
+    ...((countType === NodeDefCountType.max ? node.meta?.childrenMaxCount : node.meta?.childrenMinCount) ?? {}),
   }
   if (isNaN(count)) {
     delete countIndex[nodeDefUuid]
@@ -70,7 +72,7 @@ const assocChildrenCount = (params: { node: Node; nodeDefUuid: string; count: nu
     countIndex[nodeDefUuid] = count
   }
   const metaUpdated = { ...node.meta }
-  if (countType === CountType.max) {
+  if (countType === NodeDefCountType.max) {
     metaUpdated.childrenMaxCount = countIndex
   } else {
     metaUpdated.childrenMinCount = countIndex
@@ -84,10 +86,10 @@ const assocChildrenCount = (params: { node: Node; nodeDefUuid: string; count: nu
 }
 
 const assocChildrenMaxCount = (params: { node: Node; nodeDefUuid: string; count: number }): Node =>
-  assocChildrenCount({ ...params, countType: CountType.max })
+  assocChildrenCount({ ...params, countType: NodeDefCountType.max })
 
 const assocChildrenMinCount = (params: { node: Node; nodeDefUuid: string; count: number }): Node =>
-  assocChildrenCount({ ...params, countType: CountType.min })
+  assocChildrenCount({ ...params, countType: NodeDefCountType.min })
 
 const removeStatusFlags = (node: Node): Node => {
   delete node['created']
@@ -100,6 +102,7 @@ export const Nodes = {
   isRoot,
   areEqual,
   isChildApplicable,
+  getChildrenCount,
   getChildrenMaxCount,
   getChildrenMinCount,
   getHierarchy,
@@ -108,6 +111,7 @@ export const Nodes = {
   isValueBlank,
   // update
   assocChildApplicability,
+  assocChildrenCount,
   assocChildrenMaxCount,
   assocChildrenMinCount,
   mergeNodes,

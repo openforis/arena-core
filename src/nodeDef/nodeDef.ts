@@ -19,6 +19,11 @@ export enum NodeDefType {
   formHeader = 'formHeader',
 }
 
+export enum NodeDefCountType {
+  max = 'max',
+  min = 'min',
+}
+
 export interface NodeDefMeta {
   h: Array<string>
 }

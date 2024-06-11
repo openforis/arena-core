@@ -128,18 +128,15 @@ const validateChildrenCountNodes = (params: {
     const nodePointersToValidate = _getNodePointersToValidate({ survey, record, node })
 
     nodePointersToValidate.forEach((nodePointer) => {
+      const { nodeCtx, nodeDef } = nodePointer
       // check if validated already
       const validationChildrenCountKey = RecordValidations.getValidationChildrenCountKey({
-        nodeParentUuid: nodePointer.nodeCtx.uuid,
-        nodeDefChildUuid: nodePointer.nodeDef.uuid,
+        nodeParentUuid: nodeCtx.uuid,
+        nodeDefChildUuid: nodeDef.uuid,
       })
       if (!(validationChildrenCountKey in validationsAcc)) {
         // validate the children count of this node pointer
-        const validationNodePointer = _validateNodePointer({
-          record,
-          nodeCtx: nodePointer.nodeCtx,
-          nodeDef: nodePointer.nodeDef,
-        })
+        const validationNodePointer = _validateNodePointer({ record, nodeCtx, nodeDef })
         validationsAcc[validationChildrenCountKey] = validationNodePointer
       }
     })
