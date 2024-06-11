@@ -165,11 +165,11 @@ export const addNodeDefDependencies = (params: {
   graphsUpdated = _addDependencies(SurveyDependencyType.validations, NodeDefs.getValidationsExpressions(nodeDef))
   graphsUpdated = _addDependencies(
     SurveyDependencyType.maxCount,
-    singleExpressionToExpressions(NodeDefs.getMinCount(nodeDef))
+    singleExpressionToExpressions(NodeDefs.getMaxCount(nodeDef))
   )
   graphsUpdated = _addDependencies(
     SurveyDependencyType.minCount,
-    singleExpressionToExpressions(NodeDefs.getMaxCount(nodeDef))
+    singleExpressionToExpressions(NodeDefs.getMinCount(nodeDef))
   )
   if (sideEffect) {
     survey.dependencyGraph = graphsUpdated

@@ -47,33 +47,35 @@ export const updateNodesDependents = (params: {
     const visitedCount = visitedCountByUuid[nodeUuid] ?? 0
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
-      const maxCountUpdateResult = DependentCountUpdater.updateSelfAndDependentsCount({
-        ...getCommonUpdaterParams(node),
-        countType: NodeDefCountType.max,
-      })
-      updateResult.merge(maxCountUpdateResult)
-
-      const minCountUpdateResult = DependentCountUpdater.updateSelfAndDependentsCount({
+      // min count
+      const minCountUpdateResult = DependentCountUpdater.updateDependentsCount({
         ...getCommonUpdaterParams(node),
         countType: NodeDefCountType.min,
       })
       updateResult.merge(minCountUpdateResult)
 
-      // Update dependents (applicability)
+      // max count
+      const maxCountUpdateResult = DependentCountUpdater.updateDependentsCount({
+        ...getCommonUpdaterParams(node),
+        countType: NodeDefCountType.max,
+      })
+      updateResult.merge(maxCountUpdateResult)
+
+      // applicability
       const applicabilityUpdateResult = DependentApplicableUpdater.updateSelfAndDependentsApplicable(
         getCommonUpdaterParams(node)
       )
 
       updateResult.merge(applicabilityUpdateResult)
 
-      // Update dependents (default values)
+      // default values
       const defaultValuesUpdateResult = DependentDefaultValuesUpdater.updateSelfAndDependentsDefaultValues(
         getCommonUpdaterParams(node)
       )
 
       updateResult.merge(defaultValuesUpdateResult)
 
-      // update depenent code attributes
+      // code attributes
       const dependentCodeAttributesUpdateResult = DependentCodeAttributesUpdater.updateDependentCodeAttributes(
         getCommonUpdaterParams(node)
       )
@@ -82,6 +84,8 @@ export const updateNodesDependents = (params: {
 
       const nodesUpdatedCurrent = {
         ...applicabilityUpdateResult.nodes,
+        ...minCountUpdateResult.nodes,
+        ...maxCountUpdateResult.nodes,
         ...defaultValuesUpdateResult.nodes,
         ...dependentCodeAttributesUpdateResult.nodes,
       }

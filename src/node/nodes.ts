@@ -14,14 +14,14 @@ const getChildrenCount = (params: { parentNode: Node; nodeDef: NodeDef<any>; cou
   const { parentNode, nodeDef, countType } = params
   const countIndex =
     countType === NodeDefCountType.max ? parentNode.meta?.childrenMaxCount : parentNode.meta?.childrenMinCount
+
   const count = countIndex?.[nodeDef.uuid]
-  if (Objects.isEmpty(count)) {
-    // count can be a constant value, specified in the node def min/max count prop
-    const nodeDefCount =
-      countType === NodeDefCountType.max ? NodeDefs.getMaxCount(nodeDef) : NodeDefs.getMinCount(nodeDef)
-    return nodeDefCount ? Number(nodeDefCount) : NaN
-  }
-  return NaN
+  if (!Objects.isEmpty(count)) return count!
+
+  // count can be a constant value, specified in the node def min/max count prop
+  const nodeDefCount =
+    countType === NodeDefCountType.max ? NodeDefs.getMaxCount(nodeDef) : NodeDefs.getMinCount(nodeDef)
+  return nodeDefCount ? Number(nodeDefCount) : NaN
 }
 
 const getChildrenMaxCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
