@@ -1,6 +1,6 @@
 import { LanguageCode } from '../language'
 import { valuePropsCoordinate } from '../node/nodeValueProps'
-import { Numbers, Objects, Strings } from '../utils'
+import { Objects, Strings } from '../utils'
 import {
   NodeDef,
   NodeDefExpression,

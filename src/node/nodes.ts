@@ -1,13 +1,50 @@
+import { NodeDef, NodeDefs } from '../nodeDef'
 import { Dates, Objects } from '../utils'
 import { Node } from './node'
 
+enum CountType {
+  max,
+  min,
+}
+
 const isRoot = (node: Node): boolean => !node.parentUuid
+
 const areEqual = (nodeA: Node, nodeB: Node): boolean => nodeA.uuid === nodeB.uuid
-const isChildApplicable = (node: Node, nodeDefUuid: string) => {
+
+const isChildApplicable = (node: Node, nodeDefUuid: string): boolean => {
   // if child applicability is not defined for a node definition, consider it applicable
   return node.meta?.childApplicability?.[nodeDefUuid] !== false
 }
-const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: boolean) => {
+const getChildrenCount = (params: { parentNode: Node; nodeDef: NodeDef<any>; countType: CountType }): number => {
+  const { parentNode, nodeDef, countType } = params
+  const countIndex = countType === CountType.max ? parentNode.meta?.childrenMaxCount : parentNode.meta?.childrenMinCount
+  const count = countIndex?.[nodeDef.uuid]
+  if (Objects.isEmpty(count)) {
+    // count can be a constant value, specified in the node def min/max count prop
+    const nodeDefCount = countType === CountType.max ? NodeDefs.getMaxCount(nodeDef) : NodeDefs.getMinCount(nodeDef)
+    return nodeDefCount ? Number(nodeDefCount) : NaN
+  }
+  return NaN
+}
+
+const getChildrenMaxCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
+  getChildrenCount({ ...params, countType: CountType.max })
+
+const getChildrenMinCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
+  getChildrenCount({ ...params, countType: CountType.min })
+
+const getHierarchy = (node: Node): string[] => [...(node.meta?.h ?? [])]
+
+const getHierarchyCode = (node: Node): string[] => [...(node.meta?.hCode ?? [])]
+
+const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
+  Objects.deepMerge(target, ...sources) as unknown as Node
+
+const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueApplied ?? false
+
+const isValueBlank = (node: Node): boolean => Objects.isEmpty(node.value)
+
+const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: boolean): Node => {
   const childApplicability = { ...(node.meta?.childApplicability ?? {}) }
   if (!applicable) {
     childApplicability[nodeDefUuid] = applicable
@@ -21,16 +58,36 @@ const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: bo
     dateModified: Dates.nowFormattedForStorage(),
   }
 }
-const getHierarchy = (node: Node) => [...(node.meta?.h ?? [])]
 
-const getHierarchyCode = (node: Node) => [...(node.meta?.hCode ?? [])]
+const assocChildrenCount = (params: { node: Node; nodeDefUuid: string; count: number; countType: CountType }): Node => {
+  const { node, nodeDefUuid, count, countType } = params
+  const countIndex = {
+    ...((countType === CountType.max ? node.meta?.childrenMaxCount : node.meta?.childrenMinCount) ?? {}),
+  }
+  if (isNaN(count)) {
+    delete countIndex[nodeDefUuid]
+  } else {
+    countIndex[nodeDefUuid] = count
+  }
+  const metaUpdated = { ...node.meta }
+  if (countType === CountType.max) {
+    metaUpdated.childrenMaxCount = countIndex
+  } else {
+    metaUpdated.childrenMinCount = countIndex
+  }
+  return {
+    ...node,
+    meta: metaUpdated,
+    updated: true,
+    dateModified: Dates.nowFormattedForStorage(),
+  }
+}
 
-const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
-  Objects.deepMerge(target, ...sources) as unknown as Node
+const assocChildrenMaxCount = (params: { node: Node; nodeDefUuid: string; count: number }): Node =>
+  assocChildrenCount({ ...params, countType: CountType.max })
 
-const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueApplied ?? false
-
-const isValueBlank = (node: Node): boolean => Objects.isEmpty(node.value)
+const assocChildrenMinCount = (params: { node: Node; nodeDefUuid: string; count: number }): Node =>
+  assocChildrenCount({ ...params, countType: CountType.min })
 
 const removeStatusFlags = (node: Node): Node => {
   delete node['created']
@@ -43,11 +100,16 @@ export const Nodes = {
   isRoot,
   areEqual,
   isChildApplicable,
-  assocChildApplicability,
-  mergeNodes,
+  getChildrenMaxCount,
+  getChildrenMinCount,
   getHierarchy,
   getHierarchyCode,
   isDefaultValueApplied,
   isValueBlank,
+  // update
+  assocChildApplicability,
+  assocChildrenMaxCount,
+  assocChildrenMinCount,
+  mergeNodes,
   removeStatusFlags,
 }
