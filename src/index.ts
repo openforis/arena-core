@@ -138,6 +138,7 @@ export {
   RecordPrettyPrinter,
   RecordUpdater,
   RecordUpdateResult,
+  RecordUuidsUpdater,
   RecordValidator,
   RecordValidations,
 } from './record'

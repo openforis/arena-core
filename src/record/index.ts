@@ -9,6 +9,7 @@ export type { RecordUpdateOptions } from './records'
 export { RecordExpressionEvaluator } from './recordExpressionEvaluator'
 export { RecordNodesUpdater, RecordUpdateResult } from './recordNodesUpdater'
 export { RecordUpdater } from './recordUpdater'
+export { RecordUuidsUpdater } from './recordUuidsUpdater'
 export { RecordValidator } from './recordValidator'
 export { RecordValidations } from './recordValidations'
 
