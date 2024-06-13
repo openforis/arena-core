@@ -187,7 +187,7 @@ const dateTimeComparator =
     }
     const dateTime = toDateTime(value)
     const dateTimeSearch = toDateTime(valueSearch)
-    return dateTime && dateTimeSearch && dateTime === dateTimeSearch
+    return !!dateTime && !!dateTimeSearch && dateTime === dateTimeSearch
   }
 
 const valueComparatorByNodeDefType: { [key in NodeDefType]?: (params: NodeValuesCompareParams) => boolean } = {

@@ -1,5 +1,5 @@
 export { Arrays } from './arrays'
-export { Dates, DateFormats } from './dates'
+export { Dates, DateFormats, UnitOfTime } from './dates'
 export { Numbers } from './numbers'
 export { Objects } from './_objects'
 export { Strings } from './strings'
