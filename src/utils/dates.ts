@@ -32,15 +32,18 @@ const nowFormattedForStorage = (): string => formatForStorage(new Date())
 const nowFormattedForExpression = (): string => formatForExpression(Date.now())
 
 const parseISO = (dateStr: string): Date | undefined => (dateStr ? moment(dateStr).toDate() : undefined)
-const parse = (dateStr: string, format: DateFormats): Date | undefined => {
+const parse = (dateStr: string, format: DateFormats, keepTimeZone = true): Date | undefined => {
   if (!dateStr) return undefined
   if (format == DateFormats.datetimeStorage) return parseISO(dateStr)
+  if (keepTimeZone) return moment.parseZone(dateStr, format).toDate()
   return moment(dateStr, format).toDate()
 }
 
+const isValidDateObject = (date: Date | undefined): boolean => !!date && moment(date).isValid()
+
 const isValidDateInFormat = (dateStr: string, format: DateFormats) => {
   const parsed = parse(dateStr, format)
-  return parsed && moment(parsed).isValid()
+  return isValidDateObject(parsed)
 }
 
 const convertDate = (params: {
@@ -140,8 +143,9 @@ const getTimezoneOffset = (): number => new Date().getTimezoneOffset()
 export const Dates = {
   isAfter,
   isBefore,
-  isValidDateInFormat,
   isValidDate,
+  isValidDateInFormat,
+  isValidDateObject,
   isValidTime,
   nowFormattedForStorage,
   nowFormattedForExpression,
