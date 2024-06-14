@@ -250,13 +250,9 @@ const getClosestAncestorNode = (params: {
   return getAncestor({ record, node, ancestorDefUuid: commonAncestorDefUuid })
 }
 
-export const getEntityKeyNodesByDefUuid = (params: {
-  survey: Survey
-  cycle?: string
-  record: Record
-  entity: Node
-}): NodesMap => {
-  const { survey, cycle, record, entity } = params
+export const getEntityKeyNodesByDefUuid = (params: { survey: Survey; record: Record; entity: Node }): NodesMap => {
+  const { survey, record, entity } = params
+  const { cycle } = record
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
   const nodeDefKeys = Surveys.getNodeDefKeys({ survey, cycle, nodeDef })
   return nodeDefKeys.reduce((acc: NodesMap, nodeDefKey) => {
@@ -266,12 +262,11 @@ export const getEntityKeyNodesByDefUuid = (params: {
   }, {})
 }
 
-export const getEntityKeyNodes = (params: { survey: Survey; cycle?: string; record: Record; entity: Node }): Node[] =>
+export const getEntityKeyNodes = (params: { survey: Survey; record: Record; entity: Node }): Node[] =>
   Object.values(getEntityKeyNodesByDefUuid(params))
 
 export const getEntityKeyValuesByDefUuid = (params: {
   survey: Survey
-  cycle?: string
   record: Record
   entity: Node
 }): { [key: string]: any } => {
@@ -282,7 +277,7 @@ export const getEntityKeyValuesByDefUuid = (params: {
   }, {})
 }
 
-export const getEntityKeyValues = (params: { survey: Survey; cycle?: string; record: Record; entity: Node }): any[] =>
+export const getEntityKeyValues = (params: { survey: Survey; record: Record; entity: Node }): any[] =>
   Object.values(getEntityKeyValuesByDefUuid(params))
 
 export const getNodeSiblings = (params: {
@@ -322,7 +317,6 @@ export const findEntityByKeyValues = (params: {
   return siblingEntities.find((siblingEntity) => {
     const siblingEntityKeyValuesByDefUuid = getEntityKeyValuesByDefUuid({
       survey,
-      cycle,
       record,
       entity: siblingEntity,
     })

@@ -365,6 +365,12 @@ export const getNodeDefKeys = (params: {
   })
 }
 
+export const getRootKeys = (params: { survey: Survey; cycle?: string }) => {
+  const { survey, cycle } = params
+  const rootDef = getNodeDefRoot({ survey })
+  return getNodeDefKeys({ survey, nodeDef: rootDef, cycle })
+}
+
 export const getNodeDefEnumerator = (params: { survey: Survey; entityDef: NodeDefEntity }): NodeDefCode | undefined => {
   const { survey, entityDef } = params
   if (!entityDef.props.enumerate) return undefined
