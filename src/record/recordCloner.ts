@@ -1,5 +1,7 @@
 import { Node, NodeValues } from '../node'
 import { NodeKeys, NodeMetaKeys } from '../node/node'
+import { NodeDefs } from '../nodeDef'
+import { Survey } from '../survey'
 import { Dates, Objects, UUIDs } from '../utils'
 import { Record } from './record'
 import { RecordValidations } from './recordValidations'
@@ -95,8 +97,6 @@ const assignNewUuids = (
   record: Record
 ): { newNodeUuidsByOldUuid: OldUuidToNewUuidMap; newFileUuidsByOldUuid: OldUuidToNewUuidMap } => {
   record.uuid = UUIDs.v4()
-  record.dateCreated = Dates.nowFormattedForStorage()
-  delete record.id
 
   const { newNodeUuidsByOldUuid, newFileUuidsByOldUuid } = assignNewUuidsToNodes({ record })
 
@@ -105,6 +105,35 @@ const assignNewUuids = (
   return { newNodeUuidsByOldUuid, newFileUuidsByOldUuid }
 }
 
-export const RecordUuidsUpdater = {
-  assignNewUuids,
+const getExcludedNodes = (params: { survey: Survey; record: Record }): Node[] => {
+  const { survey, record } = params
+  const excludedNodeDefs = Object.values(survey.nodeDefs ?? {}).filter(NodeDefs.isExcludedInClone)
+  return excludedNodeDefs.reduce((acc: Node[], excludedNodeDef) => {
+    acc.push(...Records.getNodesByDefUuid(excludedNodeDef.uuid)(record))
+    return acc
+  }, [])
+}
+
+const cloneRecord = (params: { survey: Survey; record: Record; cycleTo: string }) => {
+  const { survey, record, cycleTo } = params
+
+  record.cycle = cycleTo
+  record.dateCreated = record.dateModified = Dates.nowFormattedForStorage()
+  delete record.id
+
+  // delete nodes not included in clone
+  const excludedNodes = getExcludedNodes({ survey, record })
+  if (excludedNodes.length > 0) {
+    const nodeUuids = excludedNodes.map((node) => node.uuid)
+    Records.deleteNodes(nodeUuids, { sideEffect: true })(record)
+  }
+
+  // assign new UUIDs with side effect on record and nodes, faster when record is big
+  const { newNodeUuidsByOldUuid, newFileUuidsByOldUuid } = assignNewUuids(record)
+
+  return { record, newNodeUuidsByOldUuid, newFileUuidsByOldUuid }
+}
+
+export const RecordCloner = {
+  cloneRecord,
 }

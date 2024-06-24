@@ -26,6 +26,7 @@ export interface NodeDefMeta {
 export interface NodeDefProps {
   cycles?: Array<string>
   descriptions?: Labels
+  excludedInClone?: boolean
   key?: boolean
   labels?: Labels
   multiple?: boolean

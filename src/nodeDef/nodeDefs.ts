@@ -75,6 +75,8 @@ const isInCycle =
   (nodeDef: NodeDef<NodeDefType>): boolean =>
     !!nodeDef.props.cycles?.includes(cycle)
 
+const isExcludedInClone = (nodeDef: NodeDef<NodeDefType>): boolean => !!nodeDef.props.excludedInClone
+
 // code
 const getCategoryUuid = (nodeDef: NodeDefCode): string | undefined => nodeDef.props.categoryUuid
 const getParentCodeDefUuid = (nodeDef: NodeDefCode): string | undefined => nodeDef.props.parentCodeDefUuid
@@ -201,6 +203,7 @@ export const NodeDefs = {
   getVisibleFields,
   isFieldVisible,
   isInCycle,
+  isExcludedInClone,
   getCategoryUuid,
   getParentCodeDefUuid,
   isAllowOnlyDeviceCoordinate,
