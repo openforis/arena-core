@@ -1,9 +1,11 @@
-import { Node, NodeValues } from '../node'
+import { Node, NodeFactory, NodeValues } from '../node'
 import { NodeKeys, NodeMetaKeys } from '../node/node'
-import { NodeDefs } from '../nodeDef'
-import { Survey } from '../survey'
+import { NodeDef, NodeDefs } from '../nodeDef'
+import { Survey, Surveys } from '../survey'
 import { Dates, Objects, UUIDs } from '../utils'
+import { Validation } from '../validation'
 import { Record } from './record'
+import { RecordUpdateResult } from './recordNodesUpdater'
 import { RecordValidations } from './recordValidations'
 import { Records } from './records'
 
@@ -13,8 +15,9 @@ type OldUuidToNewUuidMap = {
 
 const assignNewUuidsToNodes = (params: {
   record: Record
-}): { newNodeUuidsByOldUuid: OldUuidToNewUuidMap; newFileUuidsByOldUuid: OldUuidToNewUuidMap } => {
-  const { record } = params
+  sideEffect: boolean
+}): { newNodeUuidsByOldUuid: OldUuidToNewUuidMap; newFileUuidsByOldUuid: OldUuidToNewUuidMap; record: Record } => {
+  const { record, sideEffect } = params
 
   // generate a new uuid for each node
   const newNodeUuidsByOldUuid: OldUuidToNewUuidMap = {}
@@ -25,54 +28,73 @@ const assignNewUuidsToNodes = (params: {
     (nodeA: Node, nodeB: Node): number => (nodeA.id ?? 0) - (nodeB.id ?? 0)
   )
 
+  const recordUpdated = sideEffect ? record : { ...record }
+
+  const nodes = recordUpdated.nodes ?? {}
+  const nodesUpdated = sideEffect ? nodes : { ...nodes }
+
   // update nodes recordUuid and properties (it does side effect on nodes)
   nodesArray.forEach((node) => {
-    node.recordUuid = record.uuid
-    node.dateCreated = node.dateModified = Dates.nowFormattedForStorage()
+    let nodeUpdated = sideEffect ? node : { ...node }
+    nodeUpdated.recordUuid = record.uuid
+    nodeUpdated.dateCreated = nodeUpdated.dateModified = Dates.nowFormattedForStorage()
 
     const oldUuid = node.uuid
     const newUuid = UUIDs.v4()
     newNodeUuidsByOldUuid[oldUuid] = newUuid
 
-    node.uuid = newUuid
+    nodeUpdated.uuid = newUuid
     // consider every node as just created node
-    delete node.id
-    node.created = true // this flag will be used by the RDB generator)
+    delete nodeUpdated.id
+    nodeUpdated.created = true // this flag will be used by the RDB generator)
 
-    if (!record.nodes) {
-      record.nodes = {}
-    }
-    delete record.nodes[oldUuid]
-    record.nodes[newUuid] = node
-  })
-
-  // update internal node uuids, meta hierarchy, file uuid (if any)
-  nodesArray.forEach((node) => {
-    if (node.parentUuid) {
-      node.parentUuid = newNodeUuidsByOldUuid[node.parentUuid]
+    // update internal node uuids, meta hierarchy, file uuid (if any)
+    const parentUuid = node.parentUuid
+    if (parentUuid) {
+      nodeUpdated.parentUuid = newNodeUuidsByOldUuid[parentUuid]
     }
     const hierarchy = node.meta?.h ?? []
     if (hierarchy.length > 0) {
       const hierarchyUpdated = hierarchy.map((ancestorUuid) => newNodeUuidsByOldUuid[ancestorUuid])
-      Objects.setInPath({ obj: node, path: [NodeKeys.meta, NodeMetaKeys.h], value: hierarchyUpdated })
+      nodeUpdated = Objects.assocPath({
+        obj: nodeUpdated,
+        path: [NodeKeys.meta, NodeMetaKeys.h],
+        value: hierarchyUpdated,
+        sideEffect,
+      })
     }
     // assign new file uuid (file should be cloned elsewhere)
     const fileUuid = NodeValues.getFileUuid(node)
     if (fileUuid) {
       const newFileUuid = UUIDs.v4()
-      Objects.setInPath({ obj: node, path: [NodeKeys.value, NodeValues.valuePropsFile.fileUuid], value: newFileUuid })
+      nodeUpdated = Objects.assocPath({
+        obj: nodeUpdated,
+        path: [NodeKeys.value, NodeValues.valuePropsFile.fileUuid],
+        value: newFileUuid,
+      })
       newFileUuidsByOldUuid[fileUuid] = newFileUuid
     }
+
+    delete nodesUpdated[oldUuid]
+    nodesUpdated[newUuid] = nodeUpdated
   })
 
-  return { newNodeUuidsByOldUuid, newFileUuidsByOldUuid }
+  recordUpdated.nodes = nodesUpdated
+
+  return { newNodeUuidsByOldUuid, newFileUuidsByOldUuid, record: recordUpdated }
 }
 
-const assignNewUuidsToValidation = (params: { record: Record; newNodeUuidsByOldUuid: OldUuidToNewUuidMap }) => {
-  const { record, newNodeUuidsByOldUuid } = params
+const assignNewUuidsToValidation = (params: {
+  validation: Validation
+  newNodeUuidsByOldUuid: OldUuidToNewUuidMap
+  sideEffect: boolean
+}): Validation => {
+  const { validation, newNodeUuidsByOldUuid, sideEffect } = params
 
-  const validationFields = record.validation?.fields
-  if (!validationFields) return
+  const validationFields = validation?.fields
+  if (!validationFields) return validation
+
+  const validationFieldsUpdated = sideEffect ? validationFields : { ...validationFields }
 
   Object.entries(validationFields).forEach(([oldFieldKey, validationField]) => {
     let newFieldKey
@@ -87,51 +109,133 @@ const assignNewUuidsToValidation = (params: { record: Record; newNodeUuidsByOldU
       newFieldKey = newNodeUuidsByOldUuid[oldFieldKey]
     }
     if (newFieldKey) {
-      validationFields[newFieldKey] = validationField
+      validationFieldsUpdated[newFieldKey] = validationField
     }
-    delete validationFields[oldFieldKey]
+    delete validationFieldsUpdated[oldFieldKey]
+  })
+  return Objects.assoc({
+    obj: validation,
+    prop: 'fields',
+    value: validationFieldsUpdated,
+    sideEffect,
   })
 }
 
-const assignNewUuids = (
+const assignNewUuids = (params: {
   record: Record
-): { newNodeUuidsByOldUuid: OldUuidToNewUuidMap; newFileUuidsByOldUuid: OldUuidToNewUuidMap } => {
-  record.uuid = UUIDs.v4()
+  sideEffect: boolean
+}): { newNodeUuidsByOldUuid: OldUuidToNewUuidMap; newFileUuidsByOldUuid: OldUuidToNewUuidMap; record: Record } => {
+  const { record, sideEffect } = params
+  let recordUpdated = sideEffect ? record : { ...record }
+  recordUpdated.uuid = UUIDs.v4()
 
-  const { newNodeUuidsByOldUuid, newFileUuidsByOldUuid } = assignNewUuidsToNodes({ record })
+  const {
+    newNodeUuidsByOldUuid,
+    newFileUuidsByOldUuid,
+    record: recordUpdatedUuids,
+  } = assignNewUuidsToNodes({ record: recordUpdated, sideEffect })
 
-  assignNewUuidsToValidation({ record, newNodeUuidsByOldUuid })
+  recordUpdated = recordUpdatedUuids
 
-  return { newNodeUuidsByOldUuid, newFileUuidsByOldUuid }
+  const { validation } = recordUpdated
+  if (validation) {
+    const validationUpdated = assignNewUuidsToValidation({
+      validation,
+      newNodeUuidsByOldUuid,
+      sideEffect,
+    })
+    recordUpdated = Objects.assoc({ obj: recordUpdated, prop: 'validation', value: validationUpdated, sideEffect })
+  }
+  return { newNodeUuidsByOldUuid, newFileUuidsByOldUuid, record: recordUpdated }
 }
 
-const getExcludedNodes = (params: { survey: Survey; record: Record }): Node[] => {
-  const { survey, record } = params
+const insertMissingSingleNode = (params: {
+  nodeDef: NodeDef<any>
+  record: Record
+  parentNode: Node
+  sideEffect: boolean
+}): RecordUpdateResult => {
+  const { nodeDef, record, parentNode, sideEffect } = params
+  if (!NodeDefs.isSingle(nodeDef)) {
+    // multiple node: don't insert it
+    return new RecordUpdateResult({ record })
+  }
+  const nodeDefUuid = nodeDef.uuid
+  const children = Records.getChildren(parentNode, nodeDef.uuid)(record)
+  if (!Objects.isEmpty(children)) {
+    // single node already inserted
+    return new RecordUpdateResult({ record })
+  }
+  // insert missing single node
+  const recordUuid = record.uuid
+  const node = NodeFactory.createInstance({ nodeDefUuid, recordUuid, parentNode })
+  const recordUpdated = Records.addNode(node, { sideEffect })(record)
+  return new RecordUpdateResult({ record: recordUpdated, nodes: { [node.uuid]: node } })
+}
+
+const insertMissingSingleNodes = (params: {
+  survey: Survey
+  record: Record
+  sideEffect: boolean
+}): RecordUpdateResult => {
+  const { survey, record, sideEffect } = params
+  const updateResult = new RecordUpdateResult({ record })
+  Surveys.visitNodeDefs({
+    survey,
+    visitor: (nodeDef) => {
+      const parentDefUuid = nodeDef.parentUuid
+      if (parentDefUuid) {
+        const parentNodes = Records.getNodesByDefUuid(parentDefUuid)(updateResult.record)
+        parentNodes.forEach((parentNode) => {
+          const partialUpdateResult = insertMissingSingleNode({ nodeDef, record, parentNode, sideEffect })
+          updateResult.merge(partialUpdateResult)
+        })
+      }
+    },
+  })
+  return updateResult
+}
+
+const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffect?: boolean }): RecordUpdateResult => {
+  const { survey, record, sideEffect = false } = params
+  const result = new RecordUpdateResult({ record })
   const excludedNodeDefs = Object.values(survey.nodeDefs ?? {}).filter(NodeDefs.isExcludedInClone)
-  return excludedNodeDefs.reduce((acc: Node[], excludedNodeDef) => {
-    acc.push(...Records.getNodesByDefUuid(excludedNodeDef.uuid)(record))
-    return acc
-  }, [])
+  excludedNodeDefs.forEach((excludedNodeDef) => {
+    const nodesToDelete = Records.getNodesByDefUuid(excludedNodeDef.uuid)(result.record)
+    if (nodesToDelete.length > 0) {
+      const partialUpdateResult = Records.deleteNodes(
+        nodesToDelete.map((node) => node.uuid),
+        { sideEffect }
+      )(result.record)
+      result.merge(partialUpdateResult)
+    }
+  })
+  return result
 }
 
-const cloneRecord = (params: { survey: Survey; record: Record; cycleTo: string }) => {
-  const { survey, record, cycleTo } = params
+const cloneRecord = (params: { survey: Survey; record: Record; cycleTo: string; sideEffect?: boolean }) => {
+  const { survey, record, cycleTo, sideEffect = false } = params
 
-  record.cycle = cycleTo
-  record.dateCreated = record.dateModified = Dates.nowFormattedForStorage()
-  delete record.id
+  const recordUpdated = sideEffect ? record : { ...record }
+  recordUpdated.cycle = cycleTo
+  recordUpdated.dateCreated = recordUpdated.dateModified = Dates.nowFormattedForStorage()
+  delete recordUpdated.id
 
   // delete nodes not included in clone
-  const excludedNodes = getExcludedNodes({ survey, record })
-  if (excludedNodes.length > 0) {
-    const nodeUuids = excludedNodes.map((node) => node.uuid)
-    Records.deleteNodes(nodeUuids, { sideEffect: true })(record)
-  }
+  const updateResult = new RecordUpdateResult({ record: recordUpdated })
+  updateResult.merge(removeExcludedNodes({ survey, record: updateResult.record, sideEffect }))
+  updateResult.merge(insertMissingSingleNodes({ survey, record: updateResult.record, sideEffect }))
 
   // assign new UUIDs with side effect on record and nodes, faster when record is big
-  const { newNodeUuidsByOldUuid, newFileUuidsByOldUuid } = assignNewUuids(record)
+  const {
+    newNodeUuidsByOldUuid,
+    newFileUuidsByOldUuid,
+    record: recordUpdatedUuids,
+  } = assignNewUuids({ record: updateResult.record, sideEffect })
 
-  return { record, newNodeUuidsByOldUuid, newFileUuidsByOldUuid }
+  updateResult.merge(new RecordUpdateResult({ record: recordUpdatedUuids }))
+
+  return { record: updateResult.record, newNodeUuidsByOldUuid, newFileUuidsByOldUuid }
 }
 
 export const RecordCloner = {
