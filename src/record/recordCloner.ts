@@ -196,8 +196,8 @@ const insertMissingSingleNodes = (params: {
   return updateResult
 }
 
-const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffect?: boolean }): RecordUpdateResult => {
-  const { survey, record, sideEffect = false } = params
+const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffect: boolean }): RecordUpdateResult => {
+  const { survey, record, sideEffect } = params
   const result = new RecordUpdateResult({ record })
   const excludedNodeDefs = Object.values(survey.nodeDefs ?? {}).filter(NodeDefs.isExcludedInClone)
   excludedNodeDefs.forEach((excludedNodeDef) => {
