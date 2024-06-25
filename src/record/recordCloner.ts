@@ -1,4 +1,4 @@
-import { Node, NodeFactory, NodeValues } from '../node'
+import { Node, NodeFactory, NodeValues, Nodes } from '../node'
 import { NodeKeys, NodeMetaKeys } from '../node/node'
 import { NodeDef, NodeDefs } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
@@ -25,7 +25,7 @@ const assignNewUuidsToNodes = (params: {
 
   // sort nodes before removing the id, to preserve their hierarchy (faster than comparing each meta.h property)
   const nodesArray = Records.getNodesArray(record).sort(
-    (nodeA: Node, nodeB: Node): number => (nodeA.id ?? 0) - (nodeB.id ?? 0)
+    (nodeA: Node, nodeB: Node): number => Nodes.getHierarchy(nodeA).length - Nodes.getHierarchy(nodeB).length
   )
 
   const recordUpdated = sideEffect ? record : { ...record }
@@ -154,17 +154,17 @@ const insertMissingSingleNode = (params: {
   record: Record
   parentNode: Node
   sideEffect: boolean
-}): RecordUpdateResult => {
+}): RecordUpdateResult | null => {
   const { nodeDef, record, parentNode, sideEffect } = params
   if (!NodeDefs.isSingle(nodeDef)) {
     // multiple node: don't insert it
-    return new RecordUpdateResult({ record })
+    return null
   }
   const nodeDefUuid = nodeDef.uuid
   const children = Records.getChildren(parentNode, nodeDef.uuid)(record)
   if (!Objects.isEmpty(children)) {
     // single node already inserted
-    return new RecordUpdateResult({ record })
+    return null
   }
   // insert missing single node
   const recordUuid = record.uuid
@@ -187,8 +187,15 @@ const insertMissingSingleNodes = (params: {
       if (parentDefUuid) {
         const parentNodes = Records.getNodesByDefUuid(parentDefUuid)(updateResult.record)
         parentNodes.forEach((parentNode) => {
-          const partialUpdateResult = insertMissingSingleNode({ nodeDef, record, parentNode, sideEffect })
-          updateResult.merge(partialUpdateResult)
+          const partialUpdateResult = insertMissingSingleNode({
+            nodeDef,
+            record: updateResult.record,
+            parentNode,
+            sideEffect,
+          })
+          if (partialUpdateResult) {
+            updateResult.merge(partialUpdateResult)
+          }
         })
       }
     },
