@@ -146,6 +146,12 @@ const assignNewUuids = (params: {
     })
     recordUpdated = Objects.assoc({ obj: recordUpdated, prop: 'validation', value: validationUpdated, sideEffect })
   }
+  // re-build nodes index
+  const nodes = recordUpdated.nodes!
+  delete recordUpdated._nodesIndex
+  delete recordUpdated.nodes
+  recordUpdated = Records.addNodes(nodes, { sideEffect })(recordUpdated)
+
   return { newNodeUuidsByOldUuid, newFileUuidsByOldUuid, record: recordUpdated }
 }
 
@@ -205,16 +211,18 @@ const insertMissingSingleNodes = (params: {
 
 const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffect: boolean }): RecordUpdateResult => {
   const { survey, record, sideEffect } = params
+  const cycle = record.cycle!
   const result = new RecordUpdateResult({ record })
-  const excludedNodeDefs = Object.values(survey.nodeDefs ?? {}).filter(NodeDefs.isExcludedInClone)
-  excludedNodeDefs.forEach((excludedNodeDef) => {
-    const nodesToDelete = Records.getNodesByDefUuid(excludedNodeDef.uuid)(result.record)
-    if (nodesToDelete.length > 0) {
-      const partialUpdateResult = Records.deleteNodes(
-        nodesToDelete.map((node) => node.uuid),
-        { sideEffect }
-      )(result.record)
-      result.merge(partialUpdateResult)
+  Object.values(survey.nodeDefs ?? {}).forEach((nodeDef) => {
+    if (!NodeDefs.isInCycle(cycle)(nodeDef) || NodeDefs.isExcludedInClone(nodeDef)) {
+      const nodesToDelete = Records.getNodesByDefUuid(nodeDef.uuid)(result.record)
+      if (nodesToDelete.length > 0) {
+        const partialUpdateResult = Records.deleteNodes(
+          nodesToDelete.map((node) => node.uuid),
+          { sideEffect }
+        )(result.record)
+        result.merge(partialUpdateResult)
+      }
     }
   })
   return result

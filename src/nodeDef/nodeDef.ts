@@ -26,7 +26,6 @@ export interface NodeDefMeta {
 export interface NodeDefProps {
   cycles?: Array<string>
   descriptions?: Labels
-  excludedInClone?: boolean
   key?: boolean
   labels?: Labels
   multiple?: boolean
@@ -90,6 +89,7 @@ export interface NodeDefPropsAdvanced {
   applicable?: Array<NodeDefExpression>
   defaultValues?: Array<NodeDefExpression>
   defaultValueEvaluatedOneTime?: boolean
+  excludedInClone?: boolean
   formula?: Array<NodeDefExpression>
   itemsFilter?: string
   validations?: NodeDefValidations

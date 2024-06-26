@@ -38,6 +38,9 @@ const getNodeByPath = (params: { survey: Survey; record: Record; path: string })
   return node
 }
 
+const getNodeUuidByPath = (params: { survey: Survey; record: Record; path: string }): string =>
+  getNodeByPath(params).uuid
+
 const getNodeName =
   (params: { survey: Survey }) =>
   (node: Node): string => {
@@ -62,6 +65,7 @@ const getCategoryItem = (params: { survey: Survey; categoryName: string; codePat
 export const TestUtils = {
   findNodeByPath,
   getNodeByPath,
+  getNodeUuidByPath,
   getNodeName,
   getCategoryItem,
 }
