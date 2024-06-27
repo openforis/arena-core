@@ -57,8 +57,8 @@ describe('Record cloner', () => {
     expect(clonedRecord.nodes).toBe(record.nodes)
     expect(clusterIdNode).toBe(oldClusterIdNode)
     // uuids updated
-    expect(oldRecordUuid).not.toBe(record.uuid)
-    expect(oldClusterIdNodeUuid).not.toBe(clusterIdNode.uuid)
+    expect(clonedRecord.uuid).not.toBe(oldRecordUuid)
+    expect(clusterIdNode.uuid).not.toBe(oldClusterIdNodeUuid)
   })
 
   test('(with side effect) excluding values', () => {
@@ -83,9 +83,9 @@ describe('Record cloner', () => {
     // side effect: reference to the same objects is not kept
     expect(clonedRecord).not.toBe(record)
     expect(clonedRecord.nodes).not.toBe(record.nodes)
-    expect(oldClusterIdNode).not.toBe(clusterIdNode)
+    expect(clusterIdNode).not.toBe(oldClusterIdNode)
     // uuids updated
-    expect(oldRecordUuid).not.toBe(record.uuid)
-    expect(oldClusterIdNodeUuid).not.toBe(clusterIdNode.uuid)
+    expect(clonedRecord.uuid).not.toBe(oldRecordUuid)
+    expect(clusterIdNode.uuid).not.toBe(oldClusterIdNodeUuid)
   })
 })
