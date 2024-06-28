@@ -130,6 +130,7 @@ export type {
 
 export {
   NodePointers,
+  RecordCloner,
   RecordFactory,
   Records,
   RECORD_STEP_DEFAULT,
@@ -138,7 +139,6 @@ export {
   RecordPrettyPrinter,
   RecordUpdater,
   RecordUpdateResult,
-  RecordUuidsUpdater,
   RecordValidator,
   RecordValidations,
 } from './record'
