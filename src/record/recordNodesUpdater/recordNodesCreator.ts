@@ -1,6 +1,6 @@
 import { CategoryItem } from '../../category'
 import { SystemError } from '../../error'
-import { Node, NodeFactory } from '../../node'
+import { Node, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
 import { Survey } from '../../survey'
@@ -23,10 +23,11 @@ export type NodeCreateParams = NodesUpdateParams & {
   createMultipleEntities?: boolean
 }
 
-const getNodesToInsertCount = (nodeDef: NodeDef<any>): number => {
-  if (NodeDefs.isSingle(nodeDef)) return 1
+const getNodesToInsertCount = (params: { parentNode: Node | undefined; nodeDef: NodeDef<any> }): number => {
+  const { nodeDef, parentNode } = params
+  if (!parentNode || NodeDefs.isSingle(nodeDef)) return 1
   if (nodeDef.type === NodeDefType.code) return 0 // never create nodes for multiple code attributes
-  return NodeDefs.getMinCount(nodeDef) ?? 0
+  return Nodes.getChildrenMinCount({ parentNode, nodeDef }) ?? 0
 }
 
 const getEnumeratingCategoryItems = (params: { survey: Survey; enumerator: NodeDefCode }): CategoryItem[] => {
@@ -85,7 +86,7 @@ const createChildNodesBasedOnMinCount = (params: NodeCreateParams & { updateResu
     }
   }
 
-  const nodesToInsertCount = getNodesToInsertCount(nodeDef)
+  const nodesToInsertCount = getNodesToInsertCount({ parentNode, nodeDef })
   if (nodesToInsertCount === 0 || (!createMultipleEntities && NodeDefs.isMultipleEntity(nodeDef))) {
     return // do nothing
   }
