@@ -5,7 +5,7 @@ import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilde
 import { TestUtils } from '../tests/testUtils'
 import { createTestAdminUser } from '../tests/data'
 
-const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
+const { booleanDef, category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
 import { Record } from './record'
@@ -25,9 +25,34 @@ describe('Record cloner', () => {
         integerDef('cluster_id').key(),
         booleanDef('cluster_boolean_attribute'),
         booleanDef('cluster_attr_excluded').excludeInClone(),
+        codeDef('parent_code', 'hierarchical_category'),
+        codeDef('dependent_code', 'hierarchical_category').parentCodeAttribute('parent_code'),
+        codeDef('parent_code_excluded', 'hierarchical_category').excludeInClone(),
+        codeDef('dependent_code_excluded', 'hierarchical_category').parentCodeAttribute('parent_code_excluded'),
         entityDef('plot', integerDef('plot_id').key(), integerDef('plot_attr_excluded').excludeInClone()).multiple()
       )
-    ).build()
+    )
+      .categories(
+        category('hierarchical_category')
+          .levels('level_1', 'level_2')
+          .items(
+            categoryItem('1').items(categoryItem('1a')),
+            categoryItem('2').items(categoryItem('2a'), categoryItem('2b'), categoryItem('2c')),
+            categoryItem('3').items(categoryItem('3a'))
+          )
+      )
+      .build()
+
+    const categoryItem1a = TestUtils.getCategoryItem({
+      survey,
+      categoryName: 'hierarchical_category',
+      codePaths: ['1', '1a'],
+    })
+    const categoryItem2b = TestUtils.getCategoryItem({
+      survey,
+      categoryName: 'hierarchical_category',
+      codePaths: ['2', '2b'],
+    })
 
     record = new RecordBuilder(
       user,
@@ -37,6 +62,10 @@ describe('Record cloner', () => {
         attribute('cluster_id', 10),
         attribute('cluster_boolean_attribute', 'true'),
         attribute('cluster_attr_excluded', 'true'),
+        attribute('parent_code', '1'),
+        attribute('dependent_code', { itemUuid: categoryItem1a.uuid }),
+        attribute('parent_code_excluded', '2'),
+        attribute('dependent_code_excluded', { itemUuid: categoryItem2b.uuid }),
         entity('plot', attribute('plot_id', 1), attribute('plot_attr_excluded', 10)),
         entity('plot', attribute('plot_id', 2), attribute('plot_attr_excluded', 20)),
         entity('plot', attribute('plot_id', 3), attribute('plot_attr_excluded', 30))
@@ -64,6 +93,25 @@ describe('Record cloner', () => {
   test('(with side effect) excluding values', () => {
     const { record: clonedRecord } = RecordCloner.cloneRecord({ survey, record, cycleTo: '0', sideEffect: true })
     expect(clonedRecord).toBe(record)
+
+    const clusterAttrIncluded = TestUtils.findNodeByPath({ survey, record, path: 'cluster_boolean_attribute' })
+    expect(clusterAttrIncluded?.value).not.toBeUndefined()
+
+    const codeAttrIncluded = TestUtils.findNodeByPath({ survey, record, path: 'parent_code' })
+    expect(codeAttrIncluded?.value).not.toBeUndefined()
+
+    const codeAttrDependentIncluded = TestUtils.findNodeByPath({ survey, record, path: 'dependent_code' })
+    expect(codeAttrDependentIncluded?.value).not.toBeUndefined()
+
+    const codeAttrExcluded = TestUtils.findNodeByPath({ survey, record, path: 'parent_code_excluded' })
+    expect(codeAttrExcluded?.value).toBeUndefined()
+
+    const codeAttrDependentExcluded = TestUtils.findNodeByPath({
+      survey,
+      record,
+      path: 'dependent_code_excluded',
+    })
+    expect(codeAttrDependentExcluded?.value).toBeUndefined()
 
     const clusterAttrExcluded = TestUtils.findNodeByPath({ survey, record, path: 'cluster_attr_excluded' })
     expect(clusterAttrExcluded?.value).toBeUndefined()

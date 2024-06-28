@@ -19,6 +19,7 @@ import {
   getNodeDefKeys,
   getNodeDefsIncludedInMultipleEntitySummary,
   getNodeDefParentCode,
+  getNodeDefAncestorCodes,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
   isNodeDefEnumerator,
@@ -106,6 +107,7 @@ export const Surveys = {
 
   // node def code
   getNodeDefParentCode,
+  getNodeDefAncestorCodes,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
 

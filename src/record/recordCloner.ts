@@ -1,6 +1,6 @@
 import { Node, NodeFactory, NodeValues, Nodes } from '../node'
 import { NodeKeys, NodeMetaKeys } from '../node/node'
-import { NodeDef, NodeDefs } from '../nodeDef'
+import { NodeDef, NodeDefCode, NodeDefType, NodeDefs } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Dates, Objects, UUIDs } from '../utils'
 import { Validation } from '../validation'
@@ -213,17 +213,30 @@ const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffec
   const { survey, record, sideEffect } = params
   const cycle = record.cycle!
   const result = new RecordUpdateResult({ record })
-  Object.values(survey.nodeDefs ?? {}).forEach((nodeDef) => {
-    if (!NodeDefs.isInCycle(cycle)(nodeDef) || NodeDefs.isExcludedInClone(nodeDef)) {
-      const nodesToDelete = Records.getNodesByDefUuid(nodeDef.uuid)(result.record)
-      if (nodesToDelete.length > 0) {
-        const partialUpdateResult = Records.deleteNodes(
-          nodesToDelete.map((node) => node.uuid),
-          { sideEffect }
-        )(result.record)
-        result.merge(partialUpdateResult)
+  Surveys.visitDescendantsAndSelfNodeDef({
+    survey,
+    cycle,
+    nodeDef: Surveys.getNodeDefRoot({ survey }),
+    visitor: (nodeDef) => {
+      const hasAncestorCodeDefExcludedInClone =
+        nodeDef.type === NodeDefType.code &&
+        !!Surveys.getNodeDefAncestorCodes({ survey, nodeDef: nodeDef as NodeDefCode }).find(NodeDefs.isExcludedInClone)
+
+      if (
+        !NodeDefs.isInCycle(cycle)(nodeDef) ||
+        NodeDefs.isExcludedInClone(nodeDef) ||
+        hasAncestorCodeDefExcludedInClone
+      ) {
+        const nodesToDelete = Records.getNodesByDefUuid(nodeDef.uuid)(result.record)
+        if (nodesToDelete.length > 0) {
+          const partialUpdateResult = Records.deleteNodes(
+            nodesToDelete.map((node) => node.uuid),
+            { sideEffect }
+          )(result.record)
+          result.merge(partialUpdateResult)
+        }
       }
-    }
+    },
   })
   return result
 }
