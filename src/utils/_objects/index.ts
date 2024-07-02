@@ -5,6 +5,7 @@ import { deepMerge } from './deepMerge'
 import { difference } from './difference'
 import { dissoc } from './dissoc'
 import { dissocPath } from './dissocPath'
+import { dissocPathIfEmpty } from './dissocPathIfEmpty'
 import { fromPairs } from './fromPairs'
 import { isEmpty } from './isEmpty'
 import { isEqual } from './isEqual'
@@ -24,6 +25,7 @@ export const Objects = {
   difference,
   dissoc,
   dissocPath,
+  dissocPathIfEmpty,
   fromPairs,
   isEmpty,
   isEqual,

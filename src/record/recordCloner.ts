@@ -1,10 +1,11 @@
-import { Node, NodeFactory, NodeValues, Nodes } from '../node'
+import { Node, NodeValues, Nodes } from '../node'
 import { NodeKeys, NodeMetaKeys } from '../node/node'
-import { NodeDef, NodeDefCode, NodeDefType, NodeDefs } from '../nodeDef'
+import { NodeDefCode, NodeDefType, NodeDefs } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Dates, Objects, UUIDs } from '../utils'
 import { Validation } from '../validation'
 import { Record } from './record'
+import { RecordFixer } from './recordFixer'
 import { RecordUpdateResult } from './recordNodesUpdater'
 import { RecordValidations } from './recordValidations'
 import { Records } from './records'
@@ -155,60 +156,6 @@ const assignNewUuids = (params: {
   return { newNodeUuidsByOldUuid, newFileUuidsByOldUuid, record: recordUpdated }
 }
 
-const insertMissingSingleNode = (params: {
-  nodeDef: NodeDef<any>
-  record: Record
-  parentNode: Node
-  sideEffect: boolean
-}): RecordUpdateResult | null => {
-  const { nodeDef, record, parentNode, sideEffect } = params
-  if (!NodeDefs.isSingle(nodeDef)) {
-    // multiple node: don't insert it
-    return null
-  }
-  const nodeDefUuid = nodeDef.uuid
-  const children = Records.getChildren(parentNode, nodeDef.uuid)(record)
-  if (!Objects.isEmpty(children)) {
-    // single node already inserted
-    return null
-  }
-  // insert missing single node
-  const recordUuid = record.uuid
-  const node = NodeFactory.createInstance({ nodeDefUuid, recordUuid, parentNode })
-  const recordUpdated = Records.addNode(node, { sideEffect })(record)
-  return new RecordUpdateResult({ record: recordUpdated, nodes: { [node.uuid]: node } })
-}
-
-const insertMissingSingleNodes = (params: {
-  survey: Survey
-  record: Record
-  sideEffect: boolean
-}): RecordUpdateResult => {
-  const { survey, record, sideEffect } = params
-  const updateResult = new RecordUpdateResult({ record })
-  Surveys.visitNodeDefs({
-    survey,
-    visitor: (nodeDef) => {
-      const parentDefUuid = nodeDef.parentUuid
-      if (parentDefUuid) {
-        const parentNodes = Records.getNodesByDefUuid(parentDefUuid)(updateResult.record)
-        parentNodes.forEach((parentNode) => {
-          const partialUpdateResult = insertMissingSingleNode({
-            nodeDef,
-            record: updateResult.record,
-            parentNode,
-            sideEffect,
-          })
-          if (partialUpdateResult) {
-            updateResult.merge(partialUpdateResult)
-          }
-        })
-      }
-    },
-  })
-  return updateResult
-}
-
 const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffect: boolean }): RecordUpdateResult => {
   const { survey, record, sideEffect } = params
   const cycle = record.cycle!
@@ -252,7 +199,7 @@ const cloneRecord = (params: { survey: Survey; record: Record; cycleTo: string; 
   // delete nodes not included in clone
   const updateResult = new RecordUpdateResult({ record: recordUpdated })
   updateResult.merge(removeExcludedNodes({ survey, record: updateResult.record, sideEffect }))
-  updateResult.merge(insertMissingSingleNodes({ survey, record: updateResult.record, sideEffect }))
+  updateResult.merge(RecordFixer.insertMissingSingleNodes({ survey, record: updateResult.record, sideEffect }))
 
   // assign new UUIDs with side effect on record and nodes, faster when record is big
   const {

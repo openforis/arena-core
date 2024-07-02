@@ -132,6 +132,7 @@ export {
   NodePointers,
   RecordCloner,
   RecordFactory,
+  RecordFixer,
   Records,
   RECORD_STEP_DEFAULT,
   RecordExpressionEvaluator,
