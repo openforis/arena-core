@@ -84,7 +84,7 @@ const fixRecord = (params: { survey: Survey; record: Record; sideEffect?: boolea
       updateResult.merge(nodesDeleteUpdateResult)
     }
   })
-  const missingNodesUpdateResult = insertMissingSingleNodes({ survey, record, sideEffect })
+  const missingNodesUpdateResult = insertMissingSingleNodes({ survey, record: updateResult.record, sideEffect })
   updateResult.merge(missingNodesUpdateResult)
   return updateResult
 }
