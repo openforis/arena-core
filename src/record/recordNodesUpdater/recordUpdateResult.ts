@@ -37,6 +37,7 @@ export class RecordUpdateResult {
   merge(recordUpdateResult: RecordUpdateResult): this {
     this.record = recordUpdateResult.record
     Object.assign(this.nodes, recordUpdateResult.nodes)
+    Object.assign(this.nodesDeleted, recordUpdateResult.nodesDeleted)
     return this
   }
 }

@@ -103,12 +103,16 @@ const removeNode =
         path: [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid],
         sideEffect,
       })
+      const nodesByParentAndChildDefPath = [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid]
+      indexUpdated = Objects.dissocPathIfEmpty({ obj: indexUpdated, path: nodesByParentAndChildDefPath, sideEffect })
     } else {
       // dissoc root entity
       indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeRootUuid], sideEffect })
     }
     // dissoc from nodes by def uuid
     indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodesByDef, nodeDefUuid, nodeUuid], sideEffect })
+    const nodesByDefPath = [keys.nodesByDef, nodeDefUuid]
+    indexUpdated = Objects.dissocPathIfEmpty({ obj: indexUpdated, path: nodesByDefPath, sideEffect })
 
     indexUpdated = _removeNodeFromCodeDependentsIndex(node, sideEffect)(indexUpdated)
 

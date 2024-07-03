@@ -6,6 +6,7 @@ import {
 } from './dependencies'
 
 import {
+  findNodeDefByUuid,
   findNodeDefsByUuids,
   getNodeDefByName,
   getNodeDefsByUuids,
@@ -61,6 +62,7 @@ import {
 } from './surveysGetters'
 
 export const Surveys = {
+  findNodeDefByUuid,
   findNodeDefsByUuids,
   getName,
   getLanguages,
