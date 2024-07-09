@@ -60,33 +60,43 @@ const insertMissingSingleNodes = (params: {
   return updateResult
 }
 
+const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sideEffect: boolean }) => {
+  const { record, nodeDefUuid, sideEffect } = params
+  const updateResult = new RecordUpdateResult({ record })
+
+  const nodesToDelete = Records.getNodesByDefUuid(nodeDefUuid)(updateResult.record)
+  nodesToDelete.forEach((nodeToDelete) => {
+    // cleanup child applicability
+    const parentNode = Records.getParent(nodeToDelete)(updateResult.record)
+    if (parentNode && !Nodes.isChildApplicable(parentNode, nodeDefUuid)) {
+      const parentNodeUpdated = Nodes.dissocChildApplicability(parentNode, nodeDefUuid)
+      const recordWithParentNodeUpdated = Records.addNode(parentNodeUpdated, { sideEffect })(updateResult.record)
+      updateResult.merge(new RecordUpdateResult({ record: recordWithParentNodeUpdated }))
+    }
+  })
+
+  const nodeUuidsToDelete = nodesToDelete.map((node) => node.uuid)
+  const nodesDeleteUpdateResult = Records.deleteNodes(nodeUuidsToDelete, { sideEffect })(updateResult.record)
+  updateResult.merge(nodesDeleteUpdateResult)
+
+  return updateResult
+}
+
 const fixRecord = (params: { survey: Survey; record: Record; sideEffect?: boolean }): RecordUpdateResult => {
   const { survey, record, sideEffect = false } = params
-  const updateResult = new RecordUpdateResult({ record })
+  const result = new RecordUpdateResult({ record })
+
   Records.getNodesArray(record).forEach((node) => {
     const { nodeDefUuid } = node
     const nodeDef = Surveys.findNodeDefByUuid({ survey, uuid: nodeDefUuid })
     if (!nodeDef) {
-      const nodesToDelete = Records.getNodesByDefUuid(nodeDefUuid)(updateResult.record)
-
-      nodesToDelete.forEach((nodeToDelete) => {
-        // cleanup child applicability
-        const parentNode = Records.getParent(nodeToDelete)(updateResult.record)
-        if (parentNode && !Nodes.isChildApplicable(parentNode, nodeDefUuid)) {
-          const parentNodeUpdated = Nodes.dissocChildApplicability(parentNode, nodeDefUuid)
-          const recordWithParentNodeUpdated = Records.addNode(parentNodeUpdated, { sideEffect })(updateResult.record)
-          updateResult.merge(new RecordUpdateResult({ record: recordWithParentNodeUpdated }))
-        }
-      })
-
-      const nodeUuidsToDelete = nodesToDelete.map((node) => node.uuid)
-      const nodesDeleteUpdateResult = Records.deleteNodes(nodeUuidsToDelete, { sideEffect })(updateResult.record)
-      updateResult.merge(nodesDeleteUpdateResult)
+      const nodesDeletedUpdatedResult = deleteNodesByDefUuid({ record: result.record, nodeDefUuid, sideEffect })
+      result.merge(nodesDeletedUpdatedResult)
     }
   })
-  const missingNodesUpdateResult = insertMissingSingleNodes({ survey, record: updateResult.record, sideEffect })
-  updateResult.merge(missingNodesUpdateResult)
-  return updateResult
+  const missingNodesUpdateResult = insertMissingSingleNodes({ survey, record: result.record, sideEffect })
+  result.merge(missingNodesUpdateResult)
+  return result
 }
 
 export const RecordFixer = {

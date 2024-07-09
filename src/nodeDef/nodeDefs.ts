@@ -1,5 +1,6 @@
 import { LanguageCode } from '../language'
 import { valuePropsCoordinate } from '../node/nodeValueProps'
+import { defaultCycle } from '../survey'
 import { Numbers, Objects, Strings } from '../utils'
 import {
   NodeDef,
@@ -16,8 +17,6 @@ import { NodeDefDecimal } from './types/decimal'
 import { NodeDefEntity, NodeDefEntityChildPosition, NodeDefEntityRenderType } from './types/entity'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText } from './types/text'
-
-const defaultCycle = '0'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 

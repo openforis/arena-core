@@ -1,6 +1,6 @@
 export type { Survey, SurveyProps, SurveyCycle, SurveyDependencyGraph, SurveyDependency } from './survey'
 
-export { SurveyDependencyType } from './survey'
+export { defaultCycle, SurveyDependencyType } from './survey'
 
 export { Surveys } from './surveys'
 

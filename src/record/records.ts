@@ -1,4 +1,5 @@
 import {
+  getCycle,
   getRoot,
   getNodes,
   getNodesArray,
@@ -33,6 +34,7 @@ import { addNode, addNodes, deleteNode, deleteNodes } from './_records/recordUpd
 
 export const Records = {
   // READ
+  getCycle,
   getRoot,
   getNodes,
   getNodesArray,
