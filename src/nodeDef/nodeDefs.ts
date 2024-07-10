@@ -14,7 +14,7 @@ import {
 import { NodeDefCode } from './types/code'
 import { NodeDefCoordinate } from './types/coordinate'
 import { NodeDefDecimal } from './types/decimal'
-import { NodeDefEntity, NodeDefEntityChildPosition, NodeDefEntityRenderType } from './types/entity'
+import { NodeDefEntity, NodeDefEntityChildPosition, NodeDefEntityLayout, NodeDefEntityRenderType } from './types/entity'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText } from './types/text'
 
@@ -148,12 +148,22 @@ const isLayoutRenderTypeTable =
 const getChildrenEntitiesInOwnPageUudis =
   (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): string[] =>
-    getLayoutProps(cycle)(nodeDef).indexChildren
+    (getLayoutProps(cycle)(nodeDef) as NodeDefEntityLayout).indexChildren ?? []
 
 const getLayoutChildren =
   (cycle = defaultCycle) =>
-  (nodeDef: NodeDefEntity): NodeDefEntityChildPosition[] | string[] | undefined =>
-    getLayoutProps(cycle)(nodeDef).layoutChildren
+  (nodeDef: NodeDefEntity): (NodeDefEntityChildPosition | string)[] =>
+    (getLayoutProps(cycle)(nodeDef) as NodeDefEntityLayout).layoutChildren ?? []
+
+const getPageUuid =
+  (cycle = defaultCycle) =>
+  (nodeDef: NodeDefEntity): string | undefined =>
+    (getLayoutProps(cycle)(nodeDef) as NodeDefEntityLayout).pageUuid
+
+const isDisplayInOwnPage =
+  (cycle = defaultCycle) =>
+  (nodeDef: NodeDefEntity): boolean =>
+    !!getPageUuid(cycle)(nodeDef)
 
 const isHiddenInMobile =
   (cycle = defaultCycle) =>
@@ -180,6 +190,9 @@ const getAreaBasedEstimatedOf = (nodeDef: NodeDef<any>): string | undefined =>
   nodeDef.propsAdvancedDraft?.areaBasedEstimatedOf ?? nodeDef.propsAdvanced?.areaBasedEstimatedOf
 
 const getIndexInChain = (nodeDef: NodeDef<any>): number | undefined => nodeDef.propsAdvanced?.index
+
+// Metadata
+const getMetaHieararchy = (nodeDef: NodeDef<any>): string[] => nodeDef.meta?.h ?? []
 
 export const NodeDefs = {
   isEntity,
@@ -223,6 +236,8 @@ export const NodeDefs = {
   isLayoutRenderTypeTable,
   getChildrenEntitiesInOwnPageUudis,
   getLayoutChildren,
+  getPageUuid,
+  isDisplayInOwnPage,
   isHiddenInMobile,
   isIncludedInMultipleEntitySummary,
   isHiddenWhenNotRelevant,
@@ -237,4 +252,6 @@ export const NodeDefs = {
   // Analysis
   getAreaBasedEstimatedOf,
   getIndexInChain,
+  // Metadata
+  getMetaHieararchy,
 }

@@ -22,7 +22,7 @@ export enum NodeDefEntityRenderType {
 export interface NodeDefEntityLayout extends NodeDefLayout {
   columnsNo?: number
   indexChildren?: string[] // sorted children pages uuids
-  layoutChildren?: Array<NodeDefEntityChildPosition | string>
+  layoutChildren?: (NodeDefEntityChildPosition | string)[] | undefined
   pageUuid?: string
   renderType: NodeDefEntityRenderType
 }
