@@ -29,6 +29,16 @@ const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: No
   return hiearchy
 }
 
+const fixHiearchy = (params: NodeDefFixParams): NodeDef<any> | null => {
+  const { nodeDefs, nodeDef, sideEffect } = params
+  let fixedNodeDef = null
+  const calculatedHierarchy = calculateNodeDefHierarchy({ nodeDefs, nodeDef })
+  if (calculatedHierarchy.length !== NodeDefs.getMetaHieararchy(nodeDef).length) {
+    fixedNodeDef = Objects.assocPath({ obj: nodeDef, path: ['meta', 'h'], value: calculatedHierarchy, sideEffect })
+  }
+  return fixedNodeDef
+}
+
 const fixLayoutProp = (
   params: LayoutPropFixParams & { fixerFn: (params: LayoutPropFixerFnParams) => any }
 ): NodeDef<any> | null => {
@@ -94,13 +104,9 @@ const fixLayoutChildren = (params: {
   })
 
 const fix = (params: NodeDefFixParams): NodeDef<any> | null => {
-  const { nodeDef, nodeDefs } = params
-  let fixedNodeDef = null
-  const calculatedHierarchy = calculateNodeDefHierarchy({ nodeDefs, nodeDef })
-  if (calculatedHierarchy.length !== NodeDefs.getMetaHieararchy(nodeDef).length) {
-    fixedNodeDef = Objects.assocPath({ obj: nodeDef, path: ['meta', 'h'], value: calculatedHierarchy, sideEffect })
-  }
-  fixedNodeDef = fixIndexChildren(params)
+  const { nodeDef } = params
+  let fixedNodeDef = fixHiearchy(params)
+  fixedNodeDef = fixIndexChildren({ ...params, nodeDef: fixedNodeDef ?? nodeDef })
   fixedNodeDef = fixLayoutChildren({ ...params, nodeDef: fixedNodeDef ?? nodeDef })
   return fixedNodeDef
 }
