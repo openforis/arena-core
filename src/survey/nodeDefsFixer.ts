@@ -1,13 +1,17 @@
-import { NodeDef, NodeDefEntity, NodeDefEntityChildPosition, NodeDefMap, NodeDefs } from '../../nodeDef'
-import { Objects } from '../../utils'
+import { NodeDef, NodeDefEntity, NodeDefEntityChildPosition, NodeDefMap, NodeDefs } from '../nodeDef'
+import { Objects } from '../utils'
 
 type NodeDefsFixParams = {
   nodeDefs: NodeDefMap
-  cycle: string
   sideEffect: boolean
+  cycles: string[]
 }
 
-type NodeDefFixParams = NodeDefsFixParams & {
+type NodeDefsInCycleFixParams = NodeDefsFixParams & {
+  cycle: string
+}
+
+type NodeDefFixParams = NodeDefsInCycleFixParams & {
   nodeDef: NodeDef<any>
 }
 
@@ -31,12 +35,10 @@ const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: No
 
 const fixHiearchy = (params: NodeDefFixParams): NodeDef<any> | null => {
   const { nodeDefs, nodeDef, sideEffect } = params
-  let fixedNodeDef = null
   const calculatedHierarchy = calculateNodeDefHierarchy({ nodeDefs, nodeDef })
-  if (calculatedHierarchy.length !== NodeDefs.getMetaHieararchy(nodeDef).length) {
-    fixedNodeDef = Objects.assocPath({ obj: nodeDef, path: ['meta', 'h'], value: calculatedHierarchy, sideEffect })
-  }
-  return fixedNodeDef
+  return calculatedHierarchy.length !== NodeDefs.getMetaHieararchy(nodeDef).length
+    ? Objects.assocPath({ obj: nodeDef, path: ['meta', 'h'], value: calculatedHierarchy, sideEffect })
+    : null
 }
 
 const fixLayoutProp = (
@@ -62,12 +64,7 @@ const fixLayoutProp = (
   })
 }
 
-const fixIndexChildren = (params: {
-  nodeDefs: NodeDefMap
-  cycle: string
-  nodeDef: NodeDefEntity
-  sideEffect: boolean
-}): NodeDef<any> | null =>
+const fixIndexChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
   fixLayoutProp({
     ...params,
     propName: 'indexChildren',
@@ -82,12 +79,7 @@ const fixIndexChildren = (params: {
       }),
   })
 
-const fixLayoutChildren = (params: {
-  nodeDefs: NodeDefMap
-  cycle: string
-  nodeDef: NodeDefEntity
-  sideEffect: boolean
-}): NodeDef<any> | null =>
+const fixLayoutChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
   fixLayoutProp({
     ...params,
     propName: 'layoutChildren',
@@ -105,23 +97,32 @@ const fixLayoutChildren = (params: {
 
 const fix = (params: NodeDefFixParams): NodeDef<any> | null => {
   const { nodeDef } = params
-  let fixedNodeDef = fixHiearchy(params)
-  fixedNodeDef = fixIndexChildren({ ...params, nodeDef: fixedNodeDef ?? nodeDef })
-  fixedNodeDef = fixLayoutChildren({ ...params, nodeDef: fixedNodeDef ?? nodeDef })
-  return fixedNodeDef
+  let nodeDefFixed = null
+  const nodeDefFixedHieararchy = fixHiearchy(params)
+  nodeDefFixed = nodeDefFixedHieararchy
+  if (NodeDefs.isEntity(nodeDef)) {
+    const nodeDefFixedIndexChildren = fixIndexChildren({ ...params, nodeDef: nodeDefFixed ?? nodeDef })
+    nodeDefFixed = nodeDefFixedIndexChildren ?? nodeDefFixed
+    const nodeDefFixedLayoutChildren = fixLayoutChildren({ ...params, nodeDef: nodeDefFixed ?? nodeDef })
+    nodeDefFixed = nodeDefFixedLayoutChildren ?? nodeDefFixed
+  }
+  return nodeDefFixed
 }
 
-const fixNodeDefs = (params: NodeDefsFixParams): { nodeDefs: NodeDef<any>[]; updatedNodeDefs: NodeDef<any>[] } => {
-  const { nodeDefs } = params
-  const nodeDefsResult = [] as NodeDef<any>[]
-  const updatedNodeDefs = [] as NodeDef<any>[]
+const fixNodeDefs = (params: NodeDefsFixParams): { nodeDefs: NodeDefMap; updatedNodeDefs: NodeDefMap } => {
+  const { nodeDefs, cycles } = params
+  const nodeDefsResult: NodeDefMap = {}
+  const updatedNodeDefs: NodeDefMap = {}
 
-  Object.values(nodeDefs).forEach((nodeDef) => {
-    const fixedNodeDef = fix({ ...params, nodeDef })
-    if (fixedNodeDef) {
-      updatedNodeDefs.push(fixedNodeDef)
-    }
-    nodeDefsResult.push(fixedNodeDef ?? nodeDef)
+  cycles.forEach((cycle) => {
+    Object.values(nodeDefs).forEach((nodeDef) => {
+      const nodeDefToFix = nodeDefsResult[nodeDef.uuid] ?? nodeDef
+      const fixedNodeDef = fix({ ...params, cycle, nodeDef: nodeDefToFix })
+      if (fixedNodeDef) {
+        updatedNodeDefs[nodeDef.uuid] = fixedNodeDef
+      }
+      nodeDefsResult[nodeDef.uuid] = fixedNodeDef ?? nodeDef
+    })
   })
   return {
     nodeDefs: nodeDefsResult,

@@ -150,7 +150,7 @@ export { ServiceRegistry, ServiceType } from './registry'
 export { DEFAULT_SRS, DEFAULT_SRS_INDEX, SRSFactory } from './srs'
 export type { SRS } from './srs'
 
-export { SurveyDependencyType, SurveyFactory, SurveyRefDataFactory, Surveys } from './survey'
+export { NodeDefsFixer, SurveyDependencyType, SurveyFactory, SurveyRefDataFactory, Surveys } from './survey'
 export type {
   Survey,
   SurveyService,
