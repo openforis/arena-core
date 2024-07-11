@@ -97,14 +97,10 @@ const fixLayoutChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
 
 const fix = (params: NodeDefFixParams): NodeDef<any> | null => {
   const { nodeDef } = params
-  let nodeDefFixed = null
-  const nodeDefFixedHieararchy = fixHiearchy(params)
-  nodeDefFixed = nodeDefFixedHieararchy
+  let nodeDefFixed: NodeDef<any> | null = fixHiearchy(params)
   if (NodeDefs.isEntity(nodeDef)) {
-    const nodeDefFixedIndexChildren = fixIndexChildren({ ...params, nodeDef: nodeDefFixed ?? nodeDef })
-    nodeDefFixed = nodeDefFixedIndexChildren ?? nodeDefFixed
-    const nodeDefFixedLayoutChildren = fixLayoutChildren({ ...params, nodeDef: nodeDefFixed ?? nodeDef })
-    nodeDefFixed = nodeDefFixedLayoutChildren ?? nodeDefFixed
+    nodeDefFixed = fixIndexChildren({ ...params, nodeDef: nodeDefFixed ?? nodeDef }) ?? nodeDefFixed
+    nodeDefFixed = fixLayoutChildren({ ...params, nodeDef: nodeDefFixed ?? nodeDef }) ?? nodeDefFixed
   }
   return nodeDefFixed
 }
