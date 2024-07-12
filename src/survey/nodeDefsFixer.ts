@@ -1,9 +1,10 @@
-import { NodeDef, NodeDefEntity, NodeDefEntityChildPosition, NodeDefMap, NodeDefs } from '../nodeDef'
+import { NodeDef, NodeDefEntity, NodeDefMap, NodeDefs } from '../nodeDef'
+import { NodeDefEntityLayoutChildItem } from '../nodeDef/types/entity'
 import { Objects } from '../utils'
 
 type NodeDefsFixParams = {
   nodeDefs: NodeDefMap
-  sideEffect: boolean
+  sideEffect?: boolean
   cycles: string[]
 }
 
@@ -84,7 +85,7 @@ const fixLayoutChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
     ...params,
     propName: 'layoutChildren',
     fixerFn: ({ nodeDefs, cycle, propOld: layoutChildren }) =>
-      layoutChildren.filter((item: string | NodeDefEntityChildPosition) => {
+      layoutChildren.filter((item: NodeDefEntityLayoutChildItem) => {
         const childDefUuid = typeof item === 'string' ? (item as string) : item.i
         const childDef = nodeDefs[childDefUuid]
         return (

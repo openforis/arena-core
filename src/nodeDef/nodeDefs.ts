@@ -14,7 +14,12 @@ import {
 import { NodeDefCode } from './types/code'
 import { NodeDefCoordinate } from './types/coordinate'
 import { NodeDefDecimal } from './types/decimal'
-import { NodeDefEntity, NodeDefEntityChildPosition, NodeDefEntityLayout, NodeDefEntityRenderType } from './types/entity'
+import {
+  NodeDefEntity,
+  NodeDefEntityLayout,
+  NodeDefEntityLayoutChildItem,
+  NodeDefEntityRenderType,
+} from './types/entity'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText } from './types/text'
 
@@ -152,7 +157,7 @@ const getChildrenEntitiesInOwnPageUudis =
 
 const getLayoutChildren =
   (cycle = defaultCycle) =>
-  (nodeDef: NodeDefEntity): (NodeDefEntityChildPosition | string)[] =>
+  (nodeDef: NodeDefEntity): NodeDefEntityLayoutChildItem[] =>
     (getLayoutProps(cycle)(nodeDef) as NodeDefEntityLayout).layoutChildren ?? []
 
 const getPageUuid =
