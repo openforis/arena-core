@@ -8,6 +8,8 @@ import { Category } from '../category'
 import { Taxonomy } from '../taxonomy'
 import { SurveyRefData } from './refData/refData'
 
+export const defaultCycle = '0'
+
 export interface SurveyDependency {
   [nodeDefUuid: string]: Array<string>
 }
