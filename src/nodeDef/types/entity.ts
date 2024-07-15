@@ -24,7 +24,7 @@ export enum NodeDefEntityRenderType {
 export interface NodeDefEntityLayout extends NodeDefLayout {
   columnsNo?: number
   indexChildren?: string[] // sorted children pages uuids
-  layoutChildren?: NodeDefEntityLayoutChildItem[] | undefined
+  layoutChildren?: NodeDefEntityLayoutChildItem[]
   pageUuid?: string
   renderType: NodeDefEntityRenderType
 }

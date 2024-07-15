@@ -86,7 +86,7 @@ const fixLayoutChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
     ...params,
     propName: 'layoutChildren',
     fixerFn: ({ nodeDefs, cycle, propOld: layoutChildren }) =>
-      layoutChildren.filter((item: NodeDefEntityLayoutChildItem) => {
+      (layoutChildren as NodeDefEntityLayoutChildItem[]).filter((item) => {
         const childDefUuid = typeof item === 'string' ? (item as string) : item.i
         const childDef = nodeDefs[childDefUuid]
         return (
