@@ -70,7 +70,7 @@ const fixIndexChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
     ...params,
     propName: 'indexChildren',
     fixerFn: ({ nodeDefs, cycle, propOld: indexChildren }) =>
-      indexChildren.filter((childDefUuid: string) => {
+      (indexChildren as string[]).filter((childDefUuid) => {
         const childDef = nodeDefs[childDefUuid]
         return (
           childDef &&
@@ -87,7 +87,7 @@ const fixLayoutChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
     propName: 'layoutChildren',
     fixerFn: ({ nodeDefs, cycle, propOld: layoutChildren }) =>
       (layoutChildren as NodeDefEntityLayoutChildItem[]).filter((item) => {
-        const childDefUuid = typeof item === 'string' ? (item as string) : item.i
+        const childDefUuid = typeof item === 'string' ? item : item.i
         const childDef = nodeDefs[childDefUuid]
         return (
           childDef &&
