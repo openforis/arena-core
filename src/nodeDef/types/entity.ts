@@ -1,14 +1,16 @@
 import { NodeDef, NodeDefLayout, NodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
 
 export interface NodeDefEntityChildPosition {
-  h: number
+  h?: number
   i: string
-  w: number
+  moved?: boolean
+  static?: number
+  w?: number
   x: number
   y: number
-  moved: boolean
-  static: number
 }
+
+export type NodeDefEntityLayoutChildItem = NodeDefEntityChildPosition | string
 
 export interface NodeDefEntityProps extends NodeDefPropsWithLayout<NodeDefEntityLayout> {
   enumerate?: boolean
@@ -22,7 +24,7 @@ export enum NodeDefEntityRenderType {
 export interface NodeDefEntityLayout extends NodeDefLayout {
   columnsNo?: number
   indexChildren?: string[] // sorted children pages uuids
-  layoutChildren?: (NodeDefEntityChildPosition | string)[] | undefined
+  layoutChildren?: NodeDefEntityLayoutChildItem[] | undefined
   pageUuid?: string
   renderType: NodeDefEntityRenderType
 }

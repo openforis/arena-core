@@ -80,7 +80,7 @@ export const isNodeDefAncestor = (params: {
   return Arrays.startsWith(nodeDefDescendant.meta.h, [...nodeDefAncestor.meta.h, nodeDefAncestor.uuid])
 }
 
-export const getNodeDefRoot = (params: { survey: Survey }): NodeDef<NodeDefType, NodeDefProps> => {
+export const getNodeDefRoot = (params: { survey: Survey }): NodeDefEntity => {
   const { survey } = params
   if (!survey.nodeDefs) throw new SystemError('survey.emptyNodeDefs')
 
@@ -92,7 +92,7 @@ export const getNodeDefRoot = (params: { survey: Survey }): NodeDef<NodeDefType,
 
   if (!rootDef) throw new SystemError('survey.rootDefNotFound')
 
-  return rootDef
+  return rootDef as NodeDefEntity
 }
 
 export const getNodeDefSource = (params: {
