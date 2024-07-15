@@ -74,7 +74,8 @@ const fixIndexChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
         return (
           childDef &&
           childDef.parentUuid === params.nodeDef.uuid &&
-          (!NodeDefs.isEntity(childDef) || NodeDefs.isDisplayInOwnPage(cycle)(childDef as NodeDefEntity))
+          NodeDefs.isEntity(childDef) &&
+          NodeDefs.isDisplayInOwnPage(cycle)(childDef as NodeDefEntity)
         )
       }),
   })
@@ -83,8 +84,8 @@ const fixLayoutChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
   fixLayoutProp({
     ...params,
     propName: 'layoutChildren',
-    fixerFn: ({ nodeDefs, cycle, propOld: layoutChildren }) =>
-      layoutChildren.filter((item: string | NodeDefEntityChildPosition) => {
+    fixerFn: ({ nodeDefs, cycle, propOld: layoutChildrenOld }) =>
+      layoutChildrenOld.filter((item: string | NodeDefEntityChildPosition) => {
         const childDefUuid = typeof item === 'string' ? (item as string) : item.i
         const childDef = nodeDefs[childDefUuid]
         return (
