@@ -9,6 +9,11 @@ export const functionsDefault: { [key: string]: ExpressionFunction<ExpressionCon
     maxArity: 1,
     executor: () => (value: any) => Objects.isEmpty(value),
   },
+  isNotEmpty: {
+    minArity: 1,
+    maxArity: 1,
+    executor: () => (value: any) => Objects.isNotEmpty(value),
+  },
   uuid: {
     minArity: 0,
     maxArity: 0,

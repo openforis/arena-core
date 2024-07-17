@@ -8,6 +8,7 @@ import { dissocPath } from './dissocPath'
 import { dissocPathIfEmpty } from './dissocPathIfEmpty'
 import { fromPairs } from './fromPairs'
 import { isEmpty } from './isEmpty'
+import { isNotEmpty } from './isNotEmpty'
 import { isEqual } from './isEqual'
 import { isNil } from './isNil'
 import { parse } from './parse'
@@ -30,6 +31,7 @@ export const Objects = {
   isEmpty,
   isEqual,
   isNil,
+  isNotEmpty,
   parse,
   path,
   propertyOf,
