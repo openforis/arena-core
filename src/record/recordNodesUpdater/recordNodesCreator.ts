@@ -8,6 +8,7 @@ import { getCategoryItems } from '../../survey/surveys/refsData'
 import { getNodeDefEnumerator, getNodeDefChildren } from '../../survey/surveys/nodeDefs'
 import { Record } from '../record'
 import { RecordUpdateResult } from './recordUpdateResult'
+import { getParentCodeAttribute } from '../_records/recordGetters'
 
 export type NodesUpdateParams = {
   survey: Survey
@@ -29,14 +30,21 @@ const getNodesToInsertCount = (nodeDef: NodeDef<any>): number => {
   return NodeDefs.getMinCount(nodeDef) ?? 0
 }
 
-const getEnumeratingCategoryItems = (params: { survey: Survey; enumerator: NodeDefCode }): CategoryItem[] => {
-  const { survey, enumerator } = params
+const getEnumeratingCategoryItems = (params: {
+  survey: Survey
+  enumerator: NodeDefCode
+  parentItemUuid?: string
+}): CategoryItem[] => {
+  const { survey, enumerator, parentItemUuid } = params
   const categoryUuid = enumerator.props.categoryUuid
   const category = survey.categories?.[categoryUuid]
-  return category ? getCategoryItems({ survey, categoryUuid: category.uuid }) : []
+  if (!category || (NodeDefs.getParentCodeDefUuid(enumerator) && !parentItemUuid)) {
+    return []
+  }
+  return getCategoryItems({ survey, categoryUuid: category.uuid, parentItemUuid })
 }
 
-const createEnumeratedEntityNodes = (params: {
+export const createEnumeratedEntityNodes = (params: {
   survey: Survey
   parentNode: Node
   entityDef: NodeDefEntity
@@ -48,7 +56,14 @@ const createEnumeratedEntityNodes = (params: {
   const enumerator = getNodeDefEnumerator({ survey, entityDef })
   if (!enumerator) return false
 
-  const categoryItems = getEnumeratingCategoryItems({ survey, enumerator })
+  let parentItemUuid = null
+  if (NodeDefs.getParentCodeDefUuid(enumerator)) {
+    const parentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: enumerator })(updateResult.record)
+    parentItemUuid = parentCodeAttribute?.value?.itemUuid
+    if (!parentItemUuid) return false
+  }
+
+  const categoryItems = getEnumeratingCategoryItems({ survey, enumerator, parentItemUuid })
   categoryItems.forEach((categoryItem) => {
     const { record } = updateResult
     const childUpdateResult = createNodeAndDescendants({
@@ -68,6 +83,7 @@ const createEnumeratedEntityNodes = (params: {
       })
     }
     enumeratorNode.value = NodeValues.newCodeValue({ itemUuid: categoryItem.uuid })
+    enumeratorNode.refData = { categoryItem }
 
     updateResult.merge(childUpdateResult)
   })

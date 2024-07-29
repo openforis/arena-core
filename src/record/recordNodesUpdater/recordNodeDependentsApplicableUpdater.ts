@@ -1,4 +1,4 @@
-import { NodeDefs } from '../../nodeDef'
+import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Record } from '../record'
 import { Survey } from '../../survey'
 import { Node, NodePointer, Nodes } from '../../node'
@@ -6,6 +6,7 @@ import { SurveyDependencyType } from '../../survey/survey'
 import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
+import { createEnumeratedEntityNodes } from './recordNodesCreator'
 
 export const updateSelfAndDependentsApplicable = (params: {
   survey: Survey
@@ -61,16 +62,32 @@ export const updateSelfAndDependentsApplicable = (params: {
       updateResult.addNode(nodeCtxUpdated, { sideEffect })
 
       const nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
-      nodeCtxChildren.forEach((nodeCtxChild) => {
-        // 6. add nodeCtxChild and its descendants to nodesUpdated
-        Records.visitDescendantsAndSelf({
-          record: updateResult.record,
-          node: nodeCtxChild,
-          visitor: (nodeDescendant) => {
-            updateResult.addNode(nodeDescendant, { sideEffect })
-          },
+
+      if (
+        NodeDefs.isMultipleEntity(nodeDefNodePointer) &&
+        NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity) &&
+        applicable &&
+        nodeCtxChildren.length === 0
+      ) {
+        createEnumeratedEntityNodes({
+          survey,
+          entityDef: nodeDefNodePointer as NodeDefEntity,
+          parentNode: nodeCtx,
+          updateResult,
+          sideEffect,
         })
-      })
+      } else {
+        nodeCtxChildren.forEach((nodeCtxChild) => {
+          // 6. add nodeCtxChild and its descendants to nodesUpdated
+          Records.visitDescendantsAndSelf({
+            record: updateResult.record,
+            node: nodeCtxChild,
+            visitor: (nodeDescendant) => {
+              updateResult.addNode(nodeDescendant, { sideEffect })
+            },
+          })
+        })
+      }
     }
   })
 
