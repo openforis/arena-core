@@ -61,33 +61,34 @@ export const updateSelfAndDependentsApplicable = (params: {
       const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
       updateResult.addNode(nodeCtxUpdated, { sideEffect })
 
-      const nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
+      let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
 
-      if (
-        NodeDefs.isMultipleEntity(nodeDefNodePointer) &&
-        NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity) &&
-        applicable &&
-        nodeCtxChildren.length === 0
-      ) {
-        createEnumeratedEntityNodes({
-          survey,
-          entityDef: nodeDefNodePointer as NodeDefEntity,
-          parentNode: nodeCtx,
-          updateResult,
-          sideEffect,
-        })
-      } else {
-        nodeCtxChildren.forEach((nodeCtxChild) => {
-          // 6. add nodeCtxChild and its descendants to nodesUpdated
-          Records.visitDescendantsAndSelf({
-            record: updateResult.record,
-            node: nodeCtxChild,
-            visitor: (nodeDescendant) => {
-              updateResult.addNode(nodeDescendant, { sideEffect })
-            },
+      if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
+        if (applicable && nodeCtxChildren.length === 0) {
+          createEnumeratedEntityNodes({
+            survey,
+            entityDef: nodeDefNodePointer as NodeDefEntity,
+            parentNode: nodeCtx,
+            updateResult,
+            sideEffect,
           })
-        })
+        } else {
+          if (!applicable) {
+            // TODO remove enumerated entities if empty
+          }
+        }
+        nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
       }
+      nodeCtxChildren.forEach((nodeCtxChild) => {
+        // 6. add nodeCtxChild and its descendants to nodesUpdated
+        Records.visitDescendantsAndSelf({
+          record: updateResult.record,
+          node: nodeCtxChild,
+          visitor: (nodeDescendant) => {
+            updateResult.addNode(nodeDescendant, { sideEffect })
+          },
+        })
+      })
     }
   })
 
