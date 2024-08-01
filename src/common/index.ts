@@ -1,3 +1,5 @@
+export type { Dictionary } from './Dictionary'
+
 import { Validation } from '../validation'
 
 export interface ArenaObject<T> {

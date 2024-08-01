@@ -1,8 +1,10 @@
+import { Dictionary } from '../common'
+
 export class SystemError extends Error {
   private _key: string
-  private _params: { [key: string]: any }
+  private _params: Dictionary<any>
 
-  constructor(key: string, params?: { [key: string]: any }) {
+  constructor(key: string, params?: Dictionary<any>) {
     super(key)
 
     this.name = 'SystemError'
@@ -20,12 +22,15 @@ export class SystemError extends Error {
     return this._key
   }
 
-  get params(): { [key: string]: string } {
+  get params(): Dictionary<any> {
     return this._params
   }
 
-  toJson() {
+  toJSON() {
     const { key, params } = this
-    return { key, params }
+    const { error: nestedError } = params ?? {}
+    const paramsAdjusted: Dictionary<any> =
+      nestedError && nestedError instanceof SystemError ? { ...params, error: nestedError?.toJSON() } : params
+    return { key, params: paramsAdjusted }
   }
 }

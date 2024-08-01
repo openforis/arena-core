@@ -28,7 +28,7 @@ const _throwError = (params: {
     expressionType,
     expressionsString,
     error: error.toString(),
-    errorJson: error instanceof SystemError ? error.toJson() : null,
+    errorJson: error instanceof SystemError ? error.toJSON() : null,
   })
 }
 
