@@ -23,4 +23,9 @@ export class SystemError extends Error {
   get params(): { [key: string]: string } {
     return this._params
   }
+
+  toJson() {
+    const { key, params } = this
+    return { key, params }
+  }
 }

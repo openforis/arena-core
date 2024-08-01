@@ -22,12 +22,13 @@ const _throwError = (params: {
   const nodeDefName = nodeDef.props.name
   const expressionsString = JSON.stringify(expressionsToEvaluate)
 
-  throw new SystemError('record.updateSelfAndDependentsDefaultValues.', {
+  throw new SystemError('record.updateSelfAndDependentsDefaultValues', {
     surveyName: survey.props.name,
     nodeDefName,
     expressionType,
     expressionsString,
     error: error.toString(),
+    errorJson: error instanceof SystemError ? error.toJson() : null,
   })
 }
 
