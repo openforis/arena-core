@@ -53,7 +53,7 @@ const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: Langu
   Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.labels?.[lang])
 
 const getDescription = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
-  Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.descriptions?.[lang])
+  nodeDef.props.descriptions?.[lang] ?? ''
 
 const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ?? false
 
