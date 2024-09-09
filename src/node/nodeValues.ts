@@ -81,6 +81,8 @@ const _datePropGetters: { [key in valuePropsDate]: (node: Node) => number } = {
 
 // File
 const getFileName = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: valuePropsFile.fileName })
+const getFileNameCalculated = (node: Node): string | undefined =>
+  getNodeValuePropRaw({ node, prop: valuePropsFile.fileNameCalculated })
 const getFileSize = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: valuePropsFile.fileSize })
 const getFileUuid = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: valuePropsFile.fileUuid })
 
@@ -276,6 +278,7 @@ export const NodeValues = {
 
   // file
   getFileName,
+  getFileNameCalculated,
   getFileSize,
   getFileUuid,
 

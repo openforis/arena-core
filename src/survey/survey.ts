@@ -17,6 +17,7 @@ export interface SurveyDependency {
 export enum SurveyDependencyType {
   applicable = 'applicable',
   defaultValues = 'defaultValues',
+  fileName = 'fileName',
   formula = 'formula',
   validations = 'validations',
 }

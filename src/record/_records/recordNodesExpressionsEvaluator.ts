@@ -5,8 +5,21 @@ import { FileNames, Objects } from '../../utils'
 import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 
-export const getFileName = (params: { survey: Survey; record: Record; node: Node }): string | undefined => {
-  const { survey, record, node } = params
+export const getFileName = (params: {
+  survey: Survey
+  record: Record
+  node: Node
+  defaultToOriginalFileName?: boolean
+  recordExpressionEvaluator?: RecordExpressionEvaluator
+}): string | undefined => {
+  const {
+    survey,
+    record,
+    node,
+    defaultToOriginalFileName = true,
+    recordExpressionEvaluator = new RecordExpressionEvaluator(),
+  } = params
+
   const nodeDef: NodeDefFile = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefFile
   const fileNameExpression = NodeDefs.getFileNameExpression(nodeDef)
   const { value } = node
@@ -14,8 +27,8 @@ export const getFileName = (params: { survey: Survey; record: Record; node: Node
 
   if (!fileNameExpression) return nodeFileName
 
-  let fileName = new RecordExpressionEvaluator().evalExpression({ survey, record, node, query: fileNameExpression })
-  if (Objects.isEmpty(fileName)) return nodeFileName
+  let fileName = recordExpressionEvaluator.evalExpression({ survey, record, node, query: fileNameExpression })
+  if (Objects.isEmpty(fileName)) return defaultToOriginalFileName ? nodeFileName : undefined
 
   fileName = String(fileName)
 
