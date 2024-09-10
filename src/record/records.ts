@@ -29,7 +29,6 @@ import {
   findEntityWithSameKeysInAnotherRecord,
   getCategoryItemUuid,
 } from './_records/recordGetters'
-import { getFileName } from './_records/recordNodesExpressionsEvaluator'
 import { addNode, addNodes, deleteNode, deleteNodes } from './_records/recordUpdater'
 
 export const Records = {
@@ -69,9 +68,6 @@ export const Records = {
   addNodes,
   deleteNode,
   deleteNodes,
-
-  // EXPRESSIONS
-  getFileName,
 }
 
 export type { RecordUpdateOptions } from './_records/recordUpdater'

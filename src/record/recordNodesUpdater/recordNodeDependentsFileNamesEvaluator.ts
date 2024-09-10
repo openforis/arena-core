@@ -1,9 +1,9 @@
-import { Node, NodePointer, Nodes, NodeValues } from '../../node'
+import { Node, NodePointer, Nodes, NodeValueFile, NodeValues } from '../../node'
 import { NodeDefFile, NodeDefs } from '../../nodeDef'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
-import { Survey } from '../../survey'
+import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
-import { Dates } from '../../utils'
+import { Dates, FileNames, Objects } from '../../utils'
 import { NodePointers } from '../nodePointers'
 import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
@@ -12,6 +12,29 @@ import { throwError } from './recordNodesDependentsUpdaterCommons'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 const recordExpressionEvaluator = new RecordExpressionEvaluator()
+
+const calculateFileName = (params: { survey: Survey; record: Record; node: Node }): string | undefined => {
+  const { survey, record, node } = params
+
+  const nodeDef: NodeDefFile = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefFile
+  const fileNameExpression = NodeDefs.getFileNameExpression(nodeDef)
+  if (!fileNameExpression) return undefined
+
+  const { value } = node
+
+  let fileNameCalculated = recordExpressionEvaluator.evalExpression({ survey, record, node, query: fileNameExpression })
+  if (!fileNameCalculated) return undefined
+
+  fileNameCalculated = String(fileNameCalculated)
+
+  // add extension from original file name
+  const originalFilaName = value ? (value as NodeValueFile).fileName : undefined
+  if (Objects.isNotEmpty(originalFilaName)) {
+    const originalExtension = FileNames.getExtension(originalFilaName!)
+    fileNameCalculated = FileNames.addExtensionIfMissing(fileNameCalculated, originalExtension)
+  }
+  return fileNameCalculated
+}
 
 const updateFileNamesInNodes = (params: {
   survey: Survey
@@ -34,21 +57,17 @@ const updateFileNamesInNodes = (params: {
 
   nodes.forEach((node) => {
     try {
-      // 1. evaluate file name expression
-      const fileNameCalculated = Records.getFileName({
-        survey,
-        record: updateResult.record,
-        node,
-        defaultToOriginalFileName: false,
-        recordExpressionEvaluator,
-      })
-
-      const nodeUpdated = Nodes.mergeNodes(node, {
-        value: { [NodeValues.valuePropsFile.fileNameCalculated]: fileNameCalculated },
-        updated: true,
-        dateModified: Dates.nowFormattedForStorage(),
-      })
-      updateResult.addNode(nodeUpdated, { sideEffect })
+      // evaluate file name expression
+      const fileNameCalculated = calculateFileName({ survey, record: updateResult.record, node })
+      const oldFileNameCalculated = NodeValues.getFileNameCalculated(node)
+      if (fileNameCalculated !== oldFileNameCalculated) {
+        const nodeUpdated = Nodes.mergeNodes(node, {
+          value: { [NodeValues.valuePropsFile.fileNameCalculated]: fileNameCalculated },
+          updated: true,
+          dateModified: Dates.nowFormattedForStorage(),
+        })
+        updateResult.addNode(nodeUpdated, { sideEffect })
+      }
     } catch (error) {
       const expressionsToEvaluate = [NodeDefExpressionFactory.createInstance({ expression: expressionToEvaluate })]
       throwError({

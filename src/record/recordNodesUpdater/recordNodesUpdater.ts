@@ -3,6 +3,7 @@ import { Queue } from '../../utils'
 import * as DependentDefaultValuesUpdater from './recordNodeDependentsDefaultValuesUpdater'
 import * as DependentApplicableUpdater from './recordNodeDependentsApplicableUpdater'
 import * as DependentCodeAttributesUpdater from './recordNodeDependentsCodeAttributesUpdater'
+import * as DependentFileNamesUpdater from './recordNodeDependentsFileNamesEvaluator'
 import { Survey } from '../../survey'
 import { Record } from '../record'
 import { Node } from '../../node'
@@ -15,7 +16,7 @@ import { RecordUpdateResult } from './recordUpdateResult'
  */
 const MAX_DEPENDENTS_VISITING_TIMES = 2
 
-interface ExpressionEvaluationContext {
+export interface ExpressionEvaluationContext {
   survey: Survey
   record: Record
   timezoneOffset?: number
@@ -52,7 +53,6 @@ export const updateNodesDependents = (
         ...getEvaluationContext(),
         node,
       })
-
       updateResult.merge(applicabilityUpdateResult)
 
       // Update dependents (default values)
@@ -60,7 +60,6 @@ export const updateNodesDependents = (
         ...getEvaluationContext(),
         node,
       })
-
       updateResult.merge(defaultValuesUpdateResult)
 
       // Update dependents (code attributes)
@@ -68,13 +67,20 @@ export const updateNodesDependents = (
         ...getEvaluationContext(),
         node,
       })
-
       updateResult.merge(dependentCodeAttributesUpdateResult)
+
+      // Update dependents (file names)
+      const dependentFileNamesUpdateResult = DependentFileNamesUpdater.updateSelfAndDependentsFileNames({
+        ...getEvaluationContext(),
+        node,
+      })
+      updateResult.merge(dependentFileNamesUpdateResult)
 
       const nodesUpdatedCurrent = {
         ...applicabilityUpdateResult.nodes,
         ...defaultValuesUpdateResult.nodes,
         ...dependentCodeAttributesUpdateResult.nodes,
+        ...dependentFileNamesUpdateResult.nodes,
       }
 
       // Mark updated nodes to visit
