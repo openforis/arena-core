@@ -13,6 +13,13 @@ import { RecordUpdateResult } from './recordUpdateResult'
 
 const recordExpressionEvaluator = new RecordExpressionEvaluator()
 
+const fileNameWithSuffixRegExp = /.+\s\[\d+\]/
+
+const addPositionSuffix = (params: { fileName: string; position: number }) => {
+  const { fileName, position } = params
+  return `${fileName} [${position}]`
+}
+
 const calculateFileName = (params: { survey: Survey; record: Record; node: Node }): string | undefined => {
   const { survey, record, node } = params
 
@@ -26,6 +33,10 @@ const calculateFileName = (params: { survey: Survey; record: Record; node: Node 
   if (!fileNameCalculated) return undefined
 
   fileNameCalculated = String(fileNameCalculated)
+  if (NodeDefs.isMultiple(nodeDef) && !fileNameWithSuffixRegExp.test(fileNameCalculated)) {
+    const index = Records.getNodeIndex({ record, node })
+    fileNameCalculated = addPositionSuffix({ fileName: fileNameCalculated, position: index + 1 })
+  }
 
   // add extension from original file name
   const originalFilaName = value ? (value as NodeValueFile).fileName : undefined

@@ -1,5 +1,12 @@
 import { Objects } from './_objects'
 
+const getName = (fileName: string | null | undefined): string => {
+  if (Objects.isEmpty(fileName)) return ''
+  const fileNameStr = String(fileName)
+  const lastIndexOfDot = fileNameStr.lastIndexOf('.')
+  return lastIndexOfDot > 0 ? fileNameStr.substring(0, lastIndexOfDot) : fileNameStr
+}
+
 const getExtension = (fileName: string | null | undefined): string => {
   if (Objects.isEmpty(fileName)) return ''
   const parts = String(fileName).split('.')
@@ -13,6 +20,7 @@ const addExtensionIfMissing = (fileName: string, defaultExtension: string): stri
 }
 
 export const FileNames = {
+  getName,
   getExtension,
   addExtensionIfMissing,
 }
