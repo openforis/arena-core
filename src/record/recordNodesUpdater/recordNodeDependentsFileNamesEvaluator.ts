@@ -13,7 +13,7 @@ import { RecordUpdateResult } from './recordUpdateResult'
 
 const recordExpressionEvaluator = new RecordExpressionEvaluator()
 
-const fileNameWithSuffixRegExp = /.+\s\[\d+\]/
+const fileNameWithSuffixRegExp = /^.+\s\[\d+\]$/ // file name like "name [1].test"
 
 const addPositionSuffix = (params: { fileName: string; position: number }) => {
   const { fileName, position } = params
