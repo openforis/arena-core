@@ -1,26 +1,29 @@
-import {
-  format as dateFnsFormat,
-  parse as dateFnsParse,
-  parseISO as dateFnsParseISO,
-  isAfter as dateFnsIsAfter,
-  isBefore as dateFnsIsBefore,
-  isValid as fnsIsValid,
-} from 'date-fns'
+import moment from 'moment'
 import { Objects } from './_objects'
 
 export enum DateFormats {
-  dateDisplay = 'dd/MM/yyyy',
-  dateStorage = 'yyyy-MM-dd',
-  datetimeDisplay = 'dd/MM/yyyy HH:mm:ss',
-  datetimeStorage = `yyyy-MM-dd'T'HH:mm:ss.SSS'Z'`, // ISO
+  dateDisplay = 'DD/MM/YYYY',
+  dateStorage = 'YYYY-MM-DD',
+  datetimeDisplay = 'DD/MM/YYYY HH:mm:ss',
+  datetimeStorage = `YYYY-MM-DD'T'HH:mm:ss.SSS'Z'`, // ISO
   timeStorage = 'HH:mm',
   timeWithSeconds = 'HH:mm:ss',
-  datetimeDefault = 'yyyy-MM-dd_HH-mm-ss',
+  datetimeDefault = 'YYYY-MM-DD_HH-mm-ss',
+}
+
+export enum UnitOfTime {
+  years = 'years',
+  months = 'months',
+  weeks = 'weeks',
+  days = 'days',
+  hours = 'hours',
+  minutes = 'minutes',
+  seconds = 'seconds',
 }
 
 type DateType = Date | number | string
 
-const format = (date: number | Date, format: string): string => (date ? dateFnsFormat(date, format) : '')
+const format = (date: number | Date | undefined, format: string): string => (date ? moment(date).format(format) : '')
 
 const formatForStorage = (date: DateType): string => new Date(date).toISOString()
 const formatForExpression = (date: DateType): string => format(new Date(date), DateFormats.datetimeDefault)
@@ -28,22 +31,32 @@ const formatForExpression = (date: DateType): string => format(new Date(date), D
 const nowFormattedForStorage = (): string => formatForStorage(new Date())
 const nowFormattedForExpression = (): string => formatForExpression(Date.now())
 
-const parseISO = (dateStr: string) => dateFnsParseISO(dateStr)
-const parse = (dateStr: string, format: DateFormats) =>
-  format == DateFormats.datetimeStorage ? parseISO(dateStr) : dateFnsParse(dateStr, format, new Date())
+const parseISO = (dateStr: string): Date | undefined => (dateStr ? moment(dateStr).toDate() : undefined)
+const parse = (dateStr: string, format: DateFormats, keepTimeZone = true): Date | undefined => {
+  if (!dateStr) return undefined
+  if (format == DateFormats.datetimeStorage) return parseISO(dateStr)
+  if (keepTimeZone) return moment.parseZone(dateStr, format).toDate()
+  return moment(dateStr, format).toDate()
+}
+
+const isValidDateObject = (date: Date | undefined): boolean => !!date && moment(date).isValid()
 
 const isValidDateInFormat = (dateStr: string, format: DateFormats) => {
   const parsed = parse(dateStr, format)
-  return fnsIsValid(parsed)
+  return isValidDateObject(parsed)
 }
 
-const convertDate = (params: { dateStr: string; formatFrom?: DateFormats; formatTo: DateFormats }): any => {
+const convertDate = (params: {
+  dateStr: string
+  formatFrom?: DateFormats
+  formatTo: DateFormats
+}): string | undefined => {
   const { dateStr, formatFrom = DateFormats.dateStorage, formatTo } = params
-  if (Objects.isEmpty(dateStr)) return null
+  if (Objects.isEmpty(dateStr)) return undefined
 
   const dateParsed = parse(dateStr, formatFrom)
-  if (!fnsIsValid(dateParsed)) {
-    return null
+  if (!dateParsed || !moment(dateParsed).isValid()) {
+    return undefined
   }
   return format(dateParsed, formatTo)
 }
@@ -60,7 +73,7 @@ const isValidDate = (year: any, month: any, day: any): boolean => {
   const date = new Date(year, month - 1, day)
 
   return (
-    Boolean(fnsIsValid(date)) &&
+    Boolean(moment(date).isValid()) &&
     date.getFullYear() === Number(year) &&
     date.getMonth() + 1 === Number(month) &&
     date.getDate() === Number(day)
@@ -72,27 +85,55 @@ const isValidTime = (hour: any = '', minutes: any = ''): boolean =>
     ? false
     : Number(hour) >= 0 && Number(hour) < 24 && Number(minutes) >= 0 && Number(minutes) < 60
 
-const toDate = (date: DateType): Date | null => {
-  if (Objects.isEmpty(date)) return null
+const toDate = (date: DateType): Date | undefined => {
+  if (Objects.isEmpty(date)) return undefined
   if (date instanceof Date) return date
   if (typeof date === 'string') return parseISO(date)
   if (typeof date === 'number') return new Date(date)
-  return null
+  return undefined
 }
 
 const isAfter = (date: DateType, dateToCompare: DateType): boolean => {
   const _date = toDate(date)
   const _dateToCompare = toDate(dateToCompare)
   if (!_date || !_dateToCompare) return false
-  return dateFnsIsAfter(_date, _dateToCompare)
+  return moment(_date).isAfter(moment(_dateToCompare))
 }
 
 const isBefore = (date: DateType, dateToCompare: DateType): boolean => {
   const _date = toDate(date)
   const _dateToCompare = toDate(dateToCompare)
   if (!_date || !_dateToCompare) return false
-  return dateFnsIsBefore(_date, _dateToCompare)
+  return moment(_date).isBefore(moment(_dateToCompare))
 }
+
+const add = (date: DateType, value: number, unit: UnitOfTime): Date => moment(date).add(value, unit).toDate()
+const addSeconds = (date: DateType, value: number): Date => add(date, value, UnitOfTime.seconds)
+const addMinutes = (date: DateType, value: number): Date => add(date, value, UnitOfTime.minutes)
+const addHours = (date: DateType, value: number): Date => add(date, value, UnitOfTime.hours)
+const addDays = (date: DateType, value: number): Date => add(date, value, UnitOfTime.days)
+const addWeeks = (date: DateType, value: number): Date => add(date, value, UnitOfTime.weeks)
+const addMonths = (date: DateType, value: number): Date => add(date, value, UnitOfTime.months)
+const addYears = (date: DateType, value: number): Date => add(date, value, UnitOfTime.years)
+
+const diff = (dateA: DateType, dateB: DateType, unit: UnitOfTime, precise?: boolean): number =>
+  moment(dateA).diff(moment(dateB), unit, precise)
+const diffInSeconds = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.seconds)
+const diffInMinutes = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.minutes)
+const diffInHours = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.hours)
+const diffInDays = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.days)
+const diffInWeeks = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.weeks)
+const diffInMonths = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.months)
+const diffInYears = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.years)
+
+const sub = (date: DateType, value: number, unit: UnitOfTime): Date => moment(date).subtract(value, unit).toDate()
+const subSeconds = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.seconds)
+const subMinutes = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.minutes)
+const subHours = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.hours)
+const subDays = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.days)
+const subWeeks = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.weeks)
+const subMonths = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.months)
+const subYears = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.years)
 
 /**
  * Gets the difference in minutes between the time on the local computer and Universal Coordinated Time (UTC).
@@ -102,8 +143,9 @@ const getTimezoneOffset = (): number => new Date().getTimezoneOffset()
 export const Dates = {
   isAfter,
   isBefore,
-  isValidDateInFormat,
   isValidDate,
+  isValidDateInFormat,
+  isValidDateObject,
   isValidTime,
   nowFormattedForStorage,
   nowFormattedForExpression,
@@ -114,4 +156,28 @@ export const Dates = {
   parse,
   parseISO,
   getTimezoneOffset,
+  add,
+  addSeconds,
+  addMinutes,
+  addHours,
+  addDays,
+  addWeeks,
+  addMonths,
+  addYears,
+  sub,
+  subSeconds,
+  subMinutes,
+  subHours,
+  subDays,
+  subWeeks,
+  subMonths,
+  subYears,
+  diff,
+  diffInSeconds,
+  diffInMinutes,
+  diffInHours,
+  diffInDays,
+  diffInWeeks,
+  diffInMonths,
+  diffInYears,
 }

@@ -6,6 +6,7 @@ import {
 } from './dependencies'
 
 import {
+  findNodeDefByUuid,
   findNodeDefsByUuids,
   getNodeDefByName,
   getNodeDefsByUuids,
@@ -19,6 +20,7 @@ import {
   getNodeDefKeys,
   getNodeDefsIncludedInMultipleEntitySummary,
   getNodeDefParentCode,
+  getNodeDefAncestorCodes,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
   isNodeDefEnumerator,
@@ -60,6 +62,7 @@ import {
 } from './surveysGetters'
 
 export const Surveys = {
+  findNodeDefByUuid,
   findNodeDefsByUuids,
   getName,
   getLanguages,
@@ -106,6 +109,7 @@ export const Surveys = {
 
   // node def code
   getNodeDefParentCode,
+  getNodeDefAncestorCodes,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
 

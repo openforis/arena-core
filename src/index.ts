@@ -130,7 +130,9 @@ export type {
 
 export {
   NodePointers,
+  RecordCloner,
   RecordFactory,
+  RecordFixer,
   Records,
   RECORD_STEP_DEFAULT,
   RecordExpressionEvaluator,
@@ -148,7 +150,7 @@ export { ServiceRegistry, ServiceType } from './registry'
 export { DEFAULT_SRS, DEFAULT_SRS_INDEX, SRSFactory } from './srs'
 export type { SRS } from './srs'
 
-export { SurveyDependencyType, SurveyFactory, SurveyRefDataFactory, Surveys } from './survey'
+export { NodeDefsFixer, SurveyDependencyType, SurveyFactory, SurveyRefDataFactory, Surveys } from './survey'
 export type {
   Survey,
   SurveyService,
@@ -177,7 +179,7 @@ export type {
 export { SurveyBuilder, SurveyObjectBuilders } from './tests/builder/surveyBuilder'
 export { RecordBuilder, RecordNodeBuilders } from './tests/builder/recordBuilder'
 
-export { Arrays, Dates, DateFormats, Numbers, Objects, Promises, Strings, UUIDs } from './utils'
+export { Arrays, Dates, DateFormats, UnitOfTime, Numbers, Objects, Promises, Strings, UUIDs } from './utils'
 
 export {
   FieldValidators,

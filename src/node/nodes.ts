@@ -21,6 +21,14 @@ const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: bo
     dateModified: Dates.nowFormattedForStorage(),
   }
 }
+const dissocChildApplicability = (node: Node, nodeDefUuid: string) => {
+  const childApplicability = { ...(node.meta?.childApplicability ?? {}) }
+  delete childApplicability[nodeDefUuid]
+  return {
+    ...node,
+    meta: { ...node.meta, childApplicability },
+  }
+}
 const getHierarchy = (node: Node) => [...(node.meta?.h ?? [])]
 
 const getHierarchyCode = (node: Node) => [...(node.meta?.hCode ?? [])]
@@ -44,6 +52,7 @@ export const Nodes = {
   areEqual,
   isChildApplicable,
   assocChildApplicability,
+  dissocChildApplicability,
   mergeNodes,
   getHierarchy,
   getHierarchyCode,

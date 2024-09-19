@@ -8,6 +8,8 @@ import { Category } from '../category'
 import { Taxonomy } from '../taxonomy'
 import { SurveyRefData } from './refData/refData'
 
+export const defaultCycle = '0'
+
 export interface SurveyDependency {
   [nodeDefUuid: string]: Array<string>
 }
@@ -43,7 +45,7 @@ export interface SurveyProps {
 
 export interface SurveyNodeDefsIndex {
   rootDefUuid?: string
-  childDefUuidPresenceByParentUuid?: { [parentUuid: string]: { [nodeDefUuid: string]: boolean }[] }
+  childDefUuidPresenceByParentUuid?: { [parentUuid: string]: { [nodeDefUuid: string]: boolean } }
 }
 
 export interface Survey extends ArenaObject<SurveyProps> {

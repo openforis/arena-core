@@ -23,6 +23,11 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     return this
   }
 
+  excludeInClone(): this {
+    this.propsAdvanced.excludedInClone = true
+    return this
+  }
+
   defaultValue(expression: string): this {
     this.propsAdvanced.defaultValues = [NodeDefExpressionFactory.createInstance({ expression })]
     return this

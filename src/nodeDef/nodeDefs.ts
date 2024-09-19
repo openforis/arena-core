@@ -1,5 +1,6 @@
 import { LanguageCode } from '../language'
 import { valuePropsCoordinate } from '../node/nodeValueProps'
+import { defaultCycle } from '../survey'
 import { Numbers, Objects, Strings } from '../utils'
 import {
   NodeDef,
@@ -13,7 +14,12 @@ import {
 import { NodeDefCode } from './types/code'
 import { NodeDefCoordinate } from './types/coordinate'
 import { NodeDefDecimal } from './types/decimal'
-import { NodeDefEntity, NodeDefEntityChildPosition, NodeDefEntityRenderType } from './types/entity'
+import {
+  NodeDefEntity,
+  NodeDefEntityLayout,
+  NodeDefEntityLayoutChildItem,
+  NodeDefEntityRenderType,
+} from './types/entity'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText } from './types/text'
 
@@ -47,7 +53,7 @@ const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: Langu
   Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.labels?.[lang])
 
 const getDescription = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
-  Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.descriptions?.[lang])
+  nodeDef.props.descriptions?.[lang] ?? ''
 
 const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ?? false
 
@@ -72,8 +78,12 @@ const isFieldVisible = (field: string) => (nodeDef: NodeDef<any>) => {
 
 const isInCycle =
   (cycle: string) =>
-  (nodeDef: NodeDef<NodeDefType>): boolean =>
-    !!nodeDef.props.cycles?.includes(cycle)
+  (nodeDef: NodeDef<NodeDefType>): boolean => {
+    const cycles = nodeDef.props.cycles ?? [defaultCycle]
+    return cycles.includes(cycle)
+  }
+
+const isExcludedInClone = (nodeDef: NodeDef<NodeDefType>): boolean => !!nodeDef.propsAdvanced?.excludedInClone
 
 // code
 const getCategoryUuid = (nodeDef: NodeDefCode): string | undefined => nodeDef.props.categoryUuid
@@ -121,52 +131,62 @@ const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>) =>
 
 // layout
 const getLayoutProps =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): any =>
     nodeDef?.props?.layout?.[cycle] ?? {}
 
 const getLayoutRenderType =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDef<any, NodeDefPropsWithLayout<any>>): string | undefined =>
     getLayoutProps(cycle)(nodeDef).renderType
 
 const isLayoutRenderTypeForm =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): boolean =>
     getLayoutRenderType(cycle)(nodeDef) === NodeDefEntityRenderType.form
 
 const isLayoutRenderTypeTable =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): boolean =>
     getLayoutRenderType(cycle)(nodeDef) === NodeDefEntityRenderType.table
 
 const getChildrenEntitiesInOwnPageUudis =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): string[] =>
-    getLayoutProps(cycle)(nodeDef).indexChildren
+    (getLayoutProps(cycle)(nodeDef) as NodeDefEntityLayout).indexChildren ?? []
 
 const getLayoutChildren =
-  (cycle = '0') =>
-  (nodeDef: NodeDefEntity): NodeDefEntityChildPosition[] | string[] | undefined =>
-    getLayoutProps(cycle)(nodeDef).layoutChildren
+  (cycle = defaultCycle) =>
+  (nodeDef: NodeDefEntity): NodeDefEntityLayoutChildItem[] =>
+    (getLayoutProps(cycle)(nodeDef) as NodeDefEntityLayout).layoutChildren ?? []
+
+const getPageUuid =
+  (cycle = defaultCycle) =>
+  (nodeDef: NodeDefEntity): string | undefined =>
+    (getLayoutProps(cycle)(nodeDef) as NodeDefEntityLayout).pageUuid
+
+const isDisplayInOwnPage =
+  (cycle = defaultCycle) =>
+  (nodeDef: NodeDefEntity): boolean =>
+    !!getPageUuid(cycle)(nodeDef)
 
 const isHiddenInMobile =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
     getLayoutProps(cycle)(nodeDef).hiddenInMobile ?? false
 
 const isIncludedInMultipleEntitySummary =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
     getLayoutProps(cycle)(nodeDef).includedInMultipleEntitySummary ?? false
 
 const isHiddenWhenNotRelevant =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
     getLayoutProps(cycle)(nodeDef).hiddenWhenNotRelevant ?? false
 
 const isCodeShown =
-  (cycle = '0') =>
+  (cycle = defaultCycle) =>
   (nodeDef: NodeDefCode): boolean =>
     getLayoutProps(cycle)(nodeDef).codeShown ?? false
 
@@ -175,6 +195,9 @@ const getAreaBasedEstimatedOf = (nodeDef: NodeDef<any>): string | undefined =>
   nodeDef.propsAdvancedDraft?.areaBasedEstimatedOf ?? nodeDef.propsAdvanced?.areaBasedEstimatedOf
 
 const getIndexInChain = (nodeDef: NodeDef<any>): number | undefined => nodeDef.propsAdvanced?.index
+
+// Metadata
+const getMetaHieararchy = (nodeDef: NodeDef<any>): string[] => nodeDef.meta?.h ?? []
 
 export const NodeDefs = {
   isEntity,
@@ -201,6 +224,7 @@ export const NodeDefs = {
   getVisibleFields,
   isFieldVisible,
   isInCycle,
+  isExcludedInClone,
   getCategoryUuid,
   getParentCodeDefUuid,
   isAllowOnlyDeviceCoordinate,
@@ -217,6 +241,8 @@ export const NodeDefs = {
   isLayoutRenderTypeTable,
   getChildrenEntitiesInOwnPageUudis,
   getLayoutChildren,
+  getPageUuid,
+  isDisplayInOwnPage,
   isHiddenInMobile,
   isIncludedInMultipleEntitySummary,
   isHiddenWhenNotRelevant,
@@ -231,4 +257,6 @@ export const NodeDefs = {
   // Analysis
   getAreaBasedEstimatedOf,
   getIndexInChain,
+  // Metadata
+  getMetaHieararchy,
 }

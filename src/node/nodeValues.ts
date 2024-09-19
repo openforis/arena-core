@@ -79,6 +79,11 @@ const _datePropGetters: { [key in valuePropsDate]: (node: Node) => number } = {
   [valuePropsDate.year]: getDateYear,
 }
 
+// File
+const getFileName = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: valuePropsFile.fileName })
+const getFileSize = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: valuePropsFile.fileSize })
+const getFileUuid = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: valuePropsFile.fileUuid })
+
 // Taxon
 const getTaxonUuid = (node: Node): string | undefined =>
   getNodeValuePropRaw({ node, prop: valuePropsTaxon[valuePropsTaxon.taxonUuid] })
@@ -182,7 +187,7 @@ const dateTimeComparator =
     }
     const dateTime = toDateTime(value)
     const dateTimeSearch = toDateTime(valueSearch)
-    return dateTime && dateTimeSearch && dateTime === dateTimeSearch
+    return !!dateTime && !!dateTimeSearch && dateTime === dateTimeSearch
   }
 
 const valueComparatorByNodeDefType: { [key in NodeDefType]?: (params: NodeValuesCompareParams) => boolean } = {
@@ -248,6 +253,7 @@ const isValueEqual = (params: NodeValuesCompareParams): boolean => {
 export const NodeValues = {
   valuePropsCode,
   valuePropsCoordinate,
+  valuePropsFile,
   valuePropsTaxon,
 
   getNodeValueProp,
@@ -267,6 +273,11 @@ export const NodeValues = {
   getItemUuid,
   getValueCode,
   getValueItemUuid,
+
+  // file
+  getFileName,
+  getFileSize,
+  getFileUuid,
 
   // taxon
   getTaxonUuid,

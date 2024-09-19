@@ -89,6 +89,7 @@ export interface NodeDefPropsAdvanced {
   applicable?: Array<NodeDefExpression>
   defaultValues?: Array<NodeDefExpression>
   defaultValueEvaluatedOneTime?: boolean
+  excludedInClone?: boolean
   formula?: Array<NodeDefExpression>
   itemsFilter?: string
   validations?: NodeDefValidations

@@ -80,7 +80,7 @@ export const isNodeDefAncestor = (params: {
   return Arrays.startsWith(nodeDefDescendant.meta.h, [...nodeDefAncestor.meta.h, nodeDefAncestor.uuid])
 }
 
-export const getNodeDefRoot = (params: { survey: Survey }): NodeDef<NodeDefType, NodeDefProps> => {
+export const getNodeDefRoot = (params: { survey: Survey }): NodeDefEntity => {
   const { survey } = params
   if (!survey.nodeDefs) throw new SystemError('survey.emptyNodeDefs')
 
@@ -92,7 +92,7 @@ export const getNodeDefRoot = (params: { survey: Survey }): NodeDef<NodeDefType,
 
   if (!rootDef) throw new SystemError('survey.rootDefNotFound')
 
-  return rootDef
+  return rootDef as NodeDefEntity
 }
 
 export const getNodeDefSource = (params: {
@@ -311,15 +311,23 @@ export const visitNodeDefs = (params: {
 }
 
 // Node Def Code
-export const getNodeDefParentCode = (params: {
-  survey: Survey
-  nodeDef: NodeDef<NodeDefType, NodeDefCodeProps>
-}): NodeDef<NodeDefType.code, NodeDefCodeProps> | undefined => {
+export const getNodeDefParentCode = (params: { survey: Survey; nodeDef: NodeDefCode }): NodeDefCode | undefined => {
   const { survey, nodeDef } = params
   const parentCodeDefUuid = nodeDef.props.parentCodeDefUuid
   if (!parentCodeDefUuid) return undefined
   const parentCodeDef = getNodeDefByUuid({ survey, uuid: parentCodeDefUuid })
-  return parentCodeDef as NodeDef<NodeDefType.code, NodeDefCodeProps>
+  return parentCodeDef as NodeDefCode
+}
+
+export const getNodeDefAncestorCodes = (params: { survey: Survey; nodeDef: NodeDefCode }): NodeDefCode[] => {
+  const { survey, nodeDef } = params
+  const ancestors = []
+  let currentParentCode = getNodeDefParentCode({ survey, nodeDef })
+  while (currentParentCode) {
+    ancestors.unshift(currentParentCode)
+    currentParentCode = getNodeDefParentCode({ survey, nodeDef: currentParentCode })
+  }
+  return ancestors
 }
 
 export const isNodeDefParentCode = (params: {

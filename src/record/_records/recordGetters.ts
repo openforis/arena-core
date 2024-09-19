@@ -2,12 +2,14 @@ import { TraverseMethod } from '../../common'
 import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefType, NodeDefs } from '../../nodeDef'
 import { Node, NodePointer, Nodes, NodesMap } from '../../node'
 import { Record } from '../record'
-import { Surveys } from '../../survey'
+import { defaultCycle, Surveys } from '../../survey'
 import { Arrays, Queue } from '../../utils'
 import { Survey, SurveyDependencyType } from '../../survey/survey'
 import { SystemError } from '../../error'
 import { NodeValues } from '../../node/nodeValues'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
+
+export const getCycle = (record: Record): string => record.cycle ?? defaultCycle
 
 export const getNodes = (record: Record): { [key: string]: Node } => record.nodes ?? {}
 
