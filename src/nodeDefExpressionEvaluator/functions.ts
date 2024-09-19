@@ -9,6 +9,22 @@ import { NodeDefExpressionContext } from './context'
 import { SystemError } from '../error'
 import { ExtraProps } from '../extraProp/extraProps'
 
+const sampleGeoJsonPolygon = {
+  type: 'Feature',
+  geometry: {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [100.0, 0.0],
+        [101.0, 0.0],
+        [101.0, 1.0],
+        [100.0, 1.0],
+        [100.0, 0.0],
+      ],
+    ],
+  },
+}
+
 export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
   categoryItemProp: {
     minArity: 3,
@@ -65,6 +81,12 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       return null
     },
   },
+  geoPolygon: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: () => () => sampleGeoJsonPolygon,
+  },
   includes: {
     minArity: 2,
     maxArity: 2,
@@ -78,7 +100,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: NodeDefExpressionContext) => () => {
+    executor: () => () => {
       return -1
     },
   },
@@ -86,7 +108,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: NodeDefExpressionContext) => () => {
+    executor: () => () => {
       return null
     },
   },

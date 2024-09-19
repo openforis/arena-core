@@ -1,11 +1,12 @@
-import { Records } from '../records'
-import { Nodes } from '../../node'
 import { ExpressionFunctions } from '../../expression'
-import { RecordExpressionContext } from './context'
-import { nodeDefExpressionFunctions } from '../../nodeDefExpressionEvaluator/functions'
-import { Objects } from '../../utils'
-import { Surveys } from '../../survey'
 import { ExtraProps } from '../../extraProp/extraProps'
+import { Point, Points } from '../../geo'
+import { Nodes, NodeValues } from '../../node'
+import { nodeDefExpressionFunctions } from '../../nodeDefExpressionEvaluator/functions'
+import { Surveys } from '../../survey'
+import { Objects } from '../../utils'
+import { Records } from '../records'
+import { RecordExpressionContext } from './context'
 
 export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionContext> = {
   ...nodeDefExpressionFunctions,
@@ -46,6 +47,38 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
         return nodeSet[0]
       }
       return null
+    },
+  },
+  geoPolygon: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (context: RecordExpressionContext) => (nodeSetOrPoints) => {
+      if (!nodeSetOrPoints || !Array.isArray(nodeSetOrPoints) || nodeSetOrPoints.length === 0) return null
+
+      const { survey } = context
+      const srsIndex = Surveys.getSRSIndex(survey)
+
+      const toPoint = (nodeOrPoint: any) => {
+        if (Points.isValid(nodeOrPoint)) return nodeOrPoint
+        return NodeValues.getValueAsPoint({ survey, node: nodeOrPoint })
+      }
+
+      const points: Point[] = nodeSetOrPoints.reduce((acc, node) => {
+        const pointLatLong = Points.toLatLong(toPoint(node), srsIndex)
+        if (pointLatLong) {
+          acc.push(pointLatLong)
+        }
+        return acc
+      }, [])
+
+      return {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: [points.map((point) => [point.y, point.x])],
+        },
+      }
     },
   },
   index: {
