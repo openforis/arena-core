@@ -64,10 +64,10 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
         return NodeValues.getValueAsPoint({ survey, node: nodeOrPoint })
       }
 
-      const points: Point[] = nodeSetOrPoints.reduce((acc, node) => {
-        const pointLatLong = Points.toLatLong(toPoint(node), srsIndex)
-        if (pointLatLong) {
-          acc.push(pointLatLong)
+      const pointsLatLon: Point[] = nodeSetOrPoints.reduce((acc, node) => {
+        const pointLatLon = Points.toLatLong(toPoint(node), srsIndex)
+        if (pointLatLon) {
+          acc.push(pointLatLon)
         }
         return acc
       }, [])
@@ -76,7 +76,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
         type: 'Feature',
         geometry: {
           type: 'Polygon',
-          coordinates: [points.map((point) => [point.y, point.x])],
+          coordinates: [pointsLatLon.map((point) => [point.x, point.y])],
         },
       }
     },
