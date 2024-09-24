@@ -4,7 +4,7 @@ import { Point, Points } from '../../geo'
 import { Nodes, NodeValues } from '../../node'
 import { nodeDefExpressionFunctions } from '../../nodeDefExpressionEvaluator/functions'
 import { Surveys } from '../../survey'
-import { Objects } from '../../utils'
+import { Arrays, Objects } from '../../utils'
 import { Records } from '../records'
 import { RecordExpressionContext } from './context'
 
@@ -51,35 +51,46 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
   },
   geoPolygon: {
     minArity: 1,
-    maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (context: RecordExpressionContext) => (nodeSetOrPoints) => {
-      if (!nodeSetOrPoints || !Array.isArray(nodeSetOrPoints) || nodeSetOrPoints.length === 0) return null
+    executor:
+      (context: RecordExpressionContext) =>
+      (...nodeSetOrPoints): object | null => {
+        if (!nodeSetOrPoints || !Array.isArray(nodeSetOrPoints) || nodeSetOrPoints.length === 0) return null
 
-      const { survey } = context
-      const srsIndex = Surveys.getSRSIndex(survey)
+        const { survey } = context
+        const srsIndex = Surveys.getSRSIndex(survey)
 
-      const toPoint = (nodeOrPoint: any) => {
-        if (Points.isValid(nodeOrPoint)) return nodeOrPoint
-        return NodeValues.getValueAsPoint({ survey, node: nodeOrPoint })
-      }
-
-      const pointsLatLon: Point[] = nodeSetOrPoints.reduce((acc, node) => {
-        const pointLatLon = Points.toLatLong(toPoint(node), srsIndex)
-        if (pointLatLon) {
-          acc.push(pointLatLon)
+        const toPoint = (nodeOrPoint: any): Point | null => {
+          if (typeof nodeOrPoint === 'string') {
+            const point = Points.parse(nodeOrPoint)
+            return point && Points.isValid(point, srsIndex) ? point : null
+          }
+          return Points.isValid(nodeOrPoint, srsIndex)
+            ? nodeOrPoint
+            : NodeValues.getValueAsPoint({ survey, node: nodeOrPoint })
         }
-        return acc
-      }, [])
 
-      return {
-        type: 'Feature',
-        geometry: {
-          type: 'Polygon',
-          coordinates: [pointsLatLon.map((point) => [point.x, point.y])],
-        },
-      }
-    },
+        const pointsLatLon: Point[] = nodeSetOrPoints.reduce((acc, nodeSetOrPoint) => {
+          Arrays.toArray(nodeSetOrPoint).forEach((nodeOrPoint) => {
+            const point = toPoint(nodeOrPoint)
+            const pointLatLon = point ? Points.toLatLong(point, srsIndex) : null
+            if (pointLatLon) {
+              acc.push(pointLatLon)
+            }
+          })
+          return acc
+        }, [])
+
+        if (pointsLatLon.length === 0) return null
+
+        return {
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [pointsLatLon.map((point) => [point.x, point.y])],
+          },
+        }
+      },
   },
   index: {
     minArity: 1,
