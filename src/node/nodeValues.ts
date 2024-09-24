@@ -257,12 +257,13 @@ const isValueEqual = (params: NodeValuesCompareParams): boolean => {
 
 const getValueAsPoint = (params: { survey: Survey; node: Node }): Point | null => {
   const { survey, node } = params
-  if (!node || !node.value) return null
+  const nodeValue = node?.value
+
+  if (!nodeValue) return null
 
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
   if (nodeDef.type === NodeDefType.coordinate) {
-    const nodeValue = node.value as NodeValueCoordinate
-    const { x, y, srs } = nodeValue
+    const { x, y, srs } = nodeValue as NodeValueCoordinate
 
     const srsObject = Surveys.getSRSByCode(srs)(survey)
     if (!srsObject) return null
