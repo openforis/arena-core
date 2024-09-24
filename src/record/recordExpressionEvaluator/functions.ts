@@ -55,7 +55,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     executor:
       (context: RecordExpressionContext) =>
       (...nodeSetOrPoints): object | null => {
-        if (!nodeSetOrPoints || !Array.isArray(nodeSetOrPoints) || nodeSetOrPoints.length === 0) return null
+        if (nodeSetOrPoints.length === 0) return null
 
         const { survey } = context
         const srsIndex = Surveys.getSRSIndex(survey)

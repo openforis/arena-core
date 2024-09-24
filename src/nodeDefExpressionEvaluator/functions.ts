@@ -83,7 +83,6 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
   },
   geoPolygon: {
     minArity: 1,
-    maxArity: 1,
     evaluateArgsToNodes: true,
     executor: () => () => sampleGeoJsonPolygon,
   },
