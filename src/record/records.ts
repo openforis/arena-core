@@ -17,6 +17,7 @@ import {
   getEntityKeyValues,
   getEntityKeyValuesByDefUuid,
   getNodeSiblings,
+  getNodeIndex,
   isNodeApplicable,
   visitAncestorsAndSelf,
   getAncestorsAndSelf,
@@ -29,7 +30,6 @@ import {
   findEntityWithSameKeysInAnotherRecord,
   getCategoryItemUuid,
 } from './_records/recordGetters'
-
 import { addNode, addNodes, deleteNode, deleteNodes } from './_records/recordUpdater'
 
 export const Records = {
@@ -52,6 +52,7 @@ export const Records = {
   getEntityKeyValues,
   getEntityKeyValuesByDefUuid,
   getNodeSiblings,
+  getNodeIndex,
   isNodeApplicable,
   visitAncestorsAndSelf,
   getAncestorsAndSelf,

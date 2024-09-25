@@ -3,6 +3,7 @@ import { Queue } from '../../utils'
 import * as DependentDefaultValuesUpdater from './recordNodeDependentsDefaultValuesUpdater'
 import * as DependentApplicableUpdater from './recordNodeDependentsApplicableUpdater'
 import * as DependentCodeAttributesUpdater from './recordNodeDependentsCodeAttributesUpdater'
+import * as DependentFileNamesUpdater from './recordNodeDependentsFileNamesEvaluator'
 import { Survey } from '../../survey'
 import { Record } from '../record'
 import { Node } from '../../node'
@@ -15,15 +16,25 @@ import { RecordUpdateResult } from './recordUpdateResult'
  */
 const MAX_DEPENDENTS_VISITING_TIMES = 2
 
-export const updateNodesDependents = (params: {
+export interface ExpressionEvaluationContext {
   survey: Survey
   record: Record
-  nodes: { [key: string]: Node }
   timezoneOffset?: number
   sideEffect?: boolean
-}): RecordUpdateResult => {
+}
+
+export const updateNodesDependents = (
+  params: ExpressionEvaluationContext & { nodes: { [key: string]: Node } }
+): RecordUpdateResult => {
   const { survey, record, nodes, timezoneOffset, sideEffect = false } = params
   const updateResult = new RecordUpdateResult({ record, nodes: sideEffect ? nodes : { ...nodes } })
+
+  const getEvaluationContext = (): ExpressionEvaluationContext => ({
+    survey,
+    record: updateResult.record,
+    timezoneOffset,
+    sideEffect,
+  })
 
   const nodeUuidsToVisit = new Queue(Object.keys(nodes))
 
@@ -39,40 +50,37 @@ export const updateNodesDependents = (params: {
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
       // Update dependents (applicability)
       const applicabilityUpdateResult = DependentApplicableUpdater.updateSelfAndDependentsApplicable({
-        survey,
-        record: updateResult.record,
+        ...getEvaluationContext(),
         node,
-        timezoneOffset,
-        sideEffect,
       })
-
       updateResult.merge(applicabilityUpdateResult)
 
       // Update dependents (default values)
       const defaultValuesUpdateResult = DependentDefaultValuesUpdater.updateSelfAndDependentsDefaultValues({
-        survey,
-        record: updateResult.record,
+        ...getEvaluationContext(),
         node,
-        timezoneOffset,
-        sideEffect,
       })
-
       updateResult.merge(defaultValuesUpdateResult)
 
-      // update depenent code attributes
+      // Update dependents (code attributes)
       const dependentCodeAttributesUpdateResult = DependentCodeAttributesUpdater.updateDependentCodeAttributes({
-        survey,
-        record: updateResult.record,
+        ...getEvaluationContext(),
         node,
-        sideEffect,
       })
-
       updateResult.merge(dependentCodeAttributesUpdateResult)
+
+      // Update dependents (file names)
+      const dependentFileNamesUpdateResult = DependentFileNamesUpdater.updateSelfAndDependentsFileNames({
+        ...getEvaluationContext(),
+        node,
+      })
+      updateResult.merge(dependentFileNamesUpdateResult)
 
       const nodesUpdatedCurrent = {
         ...applicabilityUpdateResult.nodes,
         ...defaultValuesUpdateResult.nodes,
         ...dependentCodeAttributesUpdateResult.nodes,
+        ...dependentFileNamesUpdateResult.nodes,
       }
 
       // Mark updated nodes to visit

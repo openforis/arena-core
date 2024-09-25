@@ -22,6 +22,7 @@ export enum valuePropsDate {
 export enum valuePropsFile {
   fileUuid = 'fileUuid',
   fileName = 'fileName',
+  fileNameCalculated = 'fileNameCalculated',
   fileSize = 'fileSize',
 }
 

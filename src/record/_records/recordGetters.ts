@@ -305,6 +305,14 @@ export const getNodeSiblings = (params: {
   )
 }
 
+export const getNodeIndex = (params: { record: Record; node: Node }) => {
+  const { record, node } = params
+  const parentEntity = getParent(node)(record)
+  if (!parentEntity) return 0 // root entity
+  const siblings = getChildren(parentEntity, node.nodeDefUuid)(record)
+  return siblings.indexOf(node)
+}
+
 export const findEntityByKeyValues = (params: {
   survey: Survey
   cycle: string

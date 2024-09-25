@@ -92,8 +92,11 @@ export interface NodeDefPropsAdvanced {
   defaultValueEvaluatedOneTime?: boolean
   excludedInClone?: boolean
   formula?: Array<NodeDefExpression>
-  itemsFilter?: string
   validations?: NodeDefValidations
+  // file attribute
+  fileNameExpression?: string
+  // code and taxon attribute
+  itemsFilter?: string
 
   // Analysis
   script?: string

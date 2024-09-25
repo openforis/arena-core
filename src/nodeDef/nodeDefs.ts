@@ -20,6 +20,7 @@ import {
   NodeDefEntityLayoutChildItem,
   NodeDefEntityRenderType,
 } from './types/entity'
+import { NodeDefFile, NodeDefFileType } from './types/file'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText } from './types/text'
 
@@ -105,6 +106,11 @@ const getMaxNumberDecimalDigits = (nodeDef: NodeDefDecimal) => {
   const decimalDigits = nodeDef.props.maxNumberDecimalDigits
   return Objects.isEmpty(decimalDigits) ? NaN : Number(decimalDigits)
 }
+
+// file
+const getFileType = (nodeDef: NodeDefFile): NodeDefFileType | undefined => nodeDef.props.fileType
+const getFileNameExpression = (nodeDef: NodeDefFile): string | undefined => nodeDef.propsAdvanced?.fileNameExpression
+const getFileMaxSize = (nodeDef: NodeDefFile): number | undefined => nodeDef.props.maxFileSize
 
 // taxon
 const getTaxonomyUuid = (nodeDef: NodeDefTaxon): string | undefined => nodeDef.props.taxonomyUuid
@@ -230,6 +236,9 @@ export const NodeDefs = {
   isAllowOnlyDeviceCoordinate,
   getCoordinateAdditionalFields,
   getMaxNumberDecimalDigits,
+  getFileNameExpression,
+  getFileType,
+  getFileMaxSize,
   getTaxonomyUuid,
   getTextTransform,
   getItemsFilter,

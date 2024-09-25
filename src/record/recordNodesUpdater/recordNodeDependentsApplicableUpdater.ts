@@ -7,6 +7,8 @@ import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 
+const recordExpressionEvaluator = new RecordExpressionEvaluator()
+
 export const updateSelfAndDependentsApplicable = (params: {
   survey: Survey
   record: Record
@@ -40,7 +42,7 @@ export const updateSelfAndDependentsApplicable = (params: {
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
-    const exprEval = new RecordExpressionEvaluator().evalApplicableExpression({
+    const exprEval = recordExpressionEvaluator.evalApplicableExpression({
       survey,
       record: updateResult.record,
       nodeCtx,
@@ -62,7 +64,7 @@ export const updateSelfAndDependentsApplicable = (params: {
 
       const nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
       nodeCtxChildren.forEach((nodeCtxChild) => {
-        // 6. add nodeCtxChild and its descendants to nodesUpdated
+        // add nodeCtxChild and its descendants to nodesUpdated
         Records.visitDescendantsAndSelf({
           record: updateResult.record,
           node: nodeCtxChild,
