@@ -1,9 +1,11 @@
 import { CategoryItems } from '../category'
+import { Point, PointFactory } from '../geo'
 import { NodeDef, NodeDefCode, NodeDefProps, NodeDefType } from '../nodeDef'
 import { Record, Records } from '../record'
 import { Survey, Surveys } from '../survey'
 import { DateFormats, Dates, Objects } from '../utils'
 import { Node } from './node'
+import { NodeValueCoordinate } from './nodeValue/coordinate'
 import {
   valuePropsCode,
   valuePropsCoordinate,
@@ -23,6 +25,7 @@ export const valuePropsByType = {
   [NodeDefType.coordinate]: valuePropsCoordinate,
   [NodeDefType.date]: valuePropsDate,
   [NodeDefType.decimal]: null,
+  [NodeDefType.geo]: null,
   [NodeDefType.entity]: null,
   [NodeDefType.file]: valuePropsFile,
   [NodeDefType.integer]: null,
@@ -248,8 +251,28 @@ const isValueEqual = (params: NodeValuesCompareParams): boolean => {
   if (Objects.isEmpty(value) || Objects.isEmpty(valueSearch)) return false
 
   const valueComparator = valueComparatorByNodeDefType[nodeDef.type]
-  if (!valueComparator) return false
+  if (!valueComparator) {
+    return Objects.isEqual(value, valueSearch)
+  }
   return valueComparator({ survey, nodeDef, record, parentNode, value, valueSearch, strict })
+}
+
+const getValueAsPoint = (params: { survey: Survey; node: Node }): Point | null => {
+  const { survey, node } = params
+  const nodeValue = node?.value
+
+  if (!nodeValue) return null
+
+  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
+  if (nodeDef.type === NodeDefType.coordinate) {
+    const { x, y, srs } = nodeValue as NodeValueCoordinate
+
+    const srsObject = Surveys.getSRSByCode(srs)(survey)
+    if (!srsObject) return null
+
+    return PointFactory.createInstance({ srs, x, y })
+  }
+  return null
 }
 
 export const NodeValues = {
@@ -261,20 +284,19 @@ export const NodeValues = {
   getNodeValueProp,
   isValueProp,
 
-  // time
-  getTimeHour,
-  getTimeMinute,
-
-  // date
-  getDateYear,
-  getDateMonth,
-  getDateDay,
+  // coordinate
+  getValueAsPoint,
 
   // code
   newCodeValue,
   getItemUuid,
   getValueCode,
   getValueItemUuid,
+
+  // date
+  getDateYear,
+  getDateMonth,
+  getDateDay,
 
   // file
   getFileName,
@@ -287,6 +309,10 @@ export const NodeValues = {
   getValueTaxonUuid,
   getVernacularNameUuid,
   getValueVernacularNameUuid,
+
+  // time
+  getTimeHour,
+  getTimeMinute,
 
   // utils
   isValueEqual,

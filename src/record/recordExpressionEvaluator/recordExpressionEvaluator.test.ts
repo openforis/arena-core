@@ -224,6 +224,71 @@ describe('RecordExpressionEvaluator', () => {
       expression: 'sum(cluster.plot[plot_id <= 2].tree.tree_height)',
       result: 73,
     },
+    // geoPolygon (error, parameters not specified)
+    {
+      expression: 'geoPolygon()',
+      error: new SystemError('expression.functionHasTooFewArguments'),
+    },
+    // geoPolygon (valid, multiple entity with coordinate attribute)
+    {
+      expression: 'geoPolygon(plot.plot_location)',
+      result: {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [41.803012, 12.409056],
+              [41.823012, 12.409056],
+              [42.00548, 12.89963],
+            ],
+          ],
+        },
+      },
+    },
+    // geoPolygon (valid, list of coordinates)
+    {
+      expression: 'geoPolygon(plot[2].plot_location, plot[1].plot_location, plot[0].plot_location)',
+      result: {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [42.00548, 12.89963],
+              [41.823012, 12.409056],
+              [41.803012, 12.409056],
+            ],
+          ],
+        },
+      },
+    },
+    // geoPolygon (valid, list of points)
+    {
+      expression: `geoPolygon(
+          "SRID=4326;POINT(42.00548 12.89963)", 
+          "SRID=4326;POINT(41.823012 12.409056)", 
+          "SRID=4326;POINT(41.803012 12.409056)"
+          )`,
+      result: {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [42.00548, 12.89963],
+              [41.823012, 12.409056],
+              [41.803012, 12.409056],
+            ],
+          ],
+        },
+      },
+    },
+    // geoPolygon (not valid or empty coordinates => null)
+    {
+      expression: 'geoPolygon(plot)',
+      result: null,
+    },
     // global objects (Array)
     { expression: 'Array.of(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', result: [1, 2, 3] },
     // global objects (Date)

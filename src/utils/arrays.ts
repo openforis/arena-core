@@ -32,6 +32,11 @@ const removeItem =
 
 const startsWith = <T>(list: T[], start: T[]): boolean => start.every((item, index) => list[index] === item)
 
+const toArray = (value: any): any[] => {
+  if (value === null || value === undefined) return []
+  return Array.isArray(value) ? value : [value]
+}
+
 export const Arrays = {
   addItem,
   addItems,
@@ -40,4 +45,5 @@ export const Arrays = {
   last,
   removeItem,
   startsWith,
+  toArray,
 }
