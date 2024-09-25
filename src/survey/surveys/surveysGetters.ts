@@ -11,12 +11,16 @@ export const getLanguages = (survey: Survey): LanguageCode[] => survey.props.lan
 
 export const getDefaultLanguage = (survey: Survey): LanguageCode => getLanguages(survey)[0]
 
-export const getLabel =
+const getMultilangPropValue =
+  (prop: 'labels' | 'descriptions' | 'fieldManualLinks') =>
   (langCode?: LanguageCode) =>
   (survey: Survey): string | undefined => {
     const languageCode = langCode ?? getDefaultLanguage(survey)
-    return survey.props.labels?.[languageCode]
+    return survey.props[prop]?.[languageCode]
   }
+export const getLabel = getMultilangPropValue('labels')
+export const getDescription = getMultilangPropValue('descriptions')
+export const getFieldManualLink = getMultilangPropValue('fieldManualLinks')
 
 export const getLabelOrName =
   (langCode?: LanguageCode) =>
