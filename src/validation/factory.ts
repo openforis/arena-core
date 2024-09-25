@@ -12,7 +12,7 @@ type ValidationFactoryParams = {
 }
 
 export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
-  createInstance: (params: ValidationFactoryParams): Validation => {
+  createInstance: (params?: ValidationFactoryParams): Validation => {
     const defaultParams = {
       valid: true,
       errors: new Array<ValidationResult>(),
@@ -21,7 +21,7 @@ export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
     }
     const { errors, fields, valid, warnings } = {
       ...defaultParams,
-      ...params,
+      ...(params ?? {}),
     }
     return {
       errors,

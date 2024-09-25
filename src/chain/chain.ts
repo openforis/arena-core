@@ -9,7 +9,6 @@ export enum ChainStatusExec {
 }
 
 export interface ChainProps {
-  cycles?: Array<string>
   descriptions?: Labels
   labels?: Labels
 }
