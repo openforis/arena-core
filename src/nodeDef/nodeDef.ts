@@ -9,6 +9,7 @@ export enum NodeDefType {
   coordinate = 'coordinate',
   date = 'date',
   decimal = 'decimal',
+  geo = 'geo',
   entity = 'entity',
   file = 'file',
   integer = 'integer',
