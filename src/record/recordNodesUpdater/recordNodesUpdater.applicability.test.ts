@@ -56,6 +56,7 @@ describe('Record nodes updater - applicability', () => {
       const recordUpdated = Records.addNode(nodeUpdated)(record)
 
       const updateResult = RecordNodesUpdater.updateNodesDependents({
+        user,
         survey,
         record: recordUpdated,
         nodes: { [nodeToUpdate.uuid]: nodeUpdated },

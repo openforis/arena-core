@@ -14,6 +14,7 @@ type Query = {
   nodeDef?: string
 }
 
+const user = createTestAdminUser()
 let survey: Survey
 
 const expectToBeNodeDef = (value: any): void => {
@@ -44,8 +45,6 @@ const checkExpressionEvaluateResult = (params: {
 
 describe('NodeDefExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = createTestAdminUser()
-
     survey = new SurveyBuilder(
       user,
       entityDef(
@@ -95,6 +94,10 @@ describe('NodeDefExpressionEvaluator', () => {
     { expression: 'parent(parent(this)).accessible', nodeDef: 'tree', result: 'accessible' },
     // regular exprssions
     { expression: '/[a-z\\s]+/i.test(remarks)', result: true, resultIsNotNodeDef: true },
+    // user properties
+    { expression: 'userName()', result: 'test', resultIsNotNodeDef: true },
+    { expression: 'userEmail()', result: 'test@openforis-arena.org', resultIsNotNodeDef: true },
+    { expression: 'userProp("property_1")', result: 'prop_1', resultIsNotNodeDef: true },
   ]
 
   queries.forEach((query: Query) => {
@@ -106,7 +109,12 @@ describe('NodeDefExpressionEvaluator', () => {
       try {
         const nodeDefCurrent = Surveys.getNodeDefByName({ survey, name: nodeDef ?? 'cluster_id' })
 
-        const result = new NodeDefExpressionEvaluator().evalExpression({ survey, expression, nodeDef: nodeDefCurrent })
+        const result = new NodeDefExpressionEvaluator().evalExpression({
+          user,
+          survey,
+          expression,
+          nodeDef: nodeDefCurrent,
+        })
 
         checkExpressionEvaluateResult({ result, expectedResultValue, resultIsNotNodeDef })
       } catch (error) {

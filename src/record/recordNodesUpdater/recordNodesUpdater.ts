@@ -8,6 +8,7 @@ import { Survey } from '../../survey'
 import { Record } from '../record'
 import { Node } from '../../node'
 import { RecordUpdateResult } from './recordUpdateResult'
+import { User } from '../../auth'
 
 /**
  * Nodes can be visited maximum 2 times during the update of the dependent nodes, to avoid loops in the evaluation.
@@ -17,6 +18,7 @@ import { RecordUpdateResult } from './recordUpdateResult'
 const MAX_DEPENDENTS_VISITING_TIMES = 2
 
 export interface ExpressionEvaluationContext {
+  user: User
   survey: Survey
   record: Record
   timezoneOffset?: number
@@ -26,10 +28,11 @@ export interface ExpressionEvaluationContext {
 export const updateNodesDependents = (
   params: ExpressionEvaluationContext & { nodes: { [key: string]: Node } }
 ): RecordUpdateResult => {
-  const { survey, record, nodes, timezoneOffset, sideEffect = false } = params
+  const { user, survey, record, nodes, timezoneOffset, sideEffect = false } = params
   const updateResult = new RecordUpdateResult({ record, nodes: sideEffect ? nodes : { ...nodes } })
 
   const getEvaluationContext = (): ExpressionEvaluationContext => ({
+    user,
     survey,
     record: updateResult.record,
     timezoneOffset,

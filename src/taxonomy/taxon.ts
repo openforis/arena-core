@@ -1,4 +1,4 @@
-import { ArenaObject } from '../common'
+import { ArenaObject, Dictionary } from '../common'
 import { VernacularName } from './taxonVernacularName'
 
 export interface TaxonProps {
@@ -6,7 +6,7 @@ export interface TaxonProps {
   family: string
   genus: string
   scientificName: string
-  extra?: { [key: string]: any }
+  extra?: Dictionary<any>
 }
 
 export interface Taxon extends ArenaObject<TaxonProps> {

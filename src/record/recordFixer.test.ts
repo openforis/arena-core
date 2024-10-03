@@ -14,6 +14,7 @@ import { Records } from './records'
 import { RecordUpdater } from './recordUpdater'
 import { Nodes } from '../node'
 
+const user = createTestAdminUser()
 let survey: Survey
 let record: Record
 
@@ -25,8 +26,6 @@ const deleteNodeDef = (params: { survey: Survey; parentUuid: string; uuid: strin
 
 describe('Record fixer', () => {
   beforeAll(async () => {
-    const user = createTestAdminUser()
-
     survey = new SurveyBuilder(
       user,
       entityDef(
@@ -55,6 +54,7 @@ describe('Record fixer', () => {
     // prepare record: update cluster_id = 6 => cluster_attr not applicable
     const clusterIdAttr = TestUtils.getNodeByPath({ survey, record, path: 'cluster.cluster_id' })
     const { record: recordUpdated } = await RecordUpdater.updateAttributeValue({
+      user,
       survey,
       record,
       attributeUuid: clusterIdAttr.uuid,

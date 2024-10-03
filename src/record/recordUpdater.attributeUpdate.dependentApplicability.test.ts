@@ -35,6 +35,7 @@ const updateAttributeAndExpectDependentApplicability = async (params: {
   const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: nodePath })
 
   const updateResult = await RecordUpdater.updateAttributeValue({
+    user,
     survey,
     record,
     attributeUuid: nodeToUpdate.uuid,
@@ -63,6 +64,7 @@ const addNodeAndExpectDependentApplicability = async (params: {
 }): Promise<Record> => {
   const { survey, record, parentNode, nodeDef, dependentNodePath, expectedDependentApplicability } = params
   const updateResult = await RecordUpdater.createNodeAndDescendants({
+    user,
     survey,
     record,
     parentNode,

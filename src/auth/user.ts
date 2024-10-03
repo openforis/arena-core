@@ -1,4 +1,4 @@
-import { ArenaObject } from '../common'
+import { ArenaObject, Dictionary } from '../common'
 import { AuthGroup } from './authGroup'
 
 export enum UserStatus {
@@ -23,6 +23,7 @@ export interface UserPrefs {
 }
 
 export interface UserProps {
+  extra?: Dictionary<any>
   title?: UserTitle
 }
 
