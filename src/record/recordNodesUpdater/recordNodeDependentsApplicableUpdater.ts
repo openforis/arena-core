@@ -6,17 +6,19 @@ import { SurveyDependencyType } from '../../survey/survey'
 import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
+import { User } from '../../auth'
 
 const recordExpressionEvaluator = new RecordExpressionEvaluator()
 
 export const updateSelfAndDependentsApplicable = (params: {
+  user: User
   survey: Survey
   record: Record
   node: Node
   sideEffect?: boolean
   timezoneOffset?: number
 }): RecordUpdateResult => {
-  const { survey, record, node, timezoneOffset, sideEffect = false } = params
+  const { user, survey, record, node, timezoneOffset, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -43,6 +45,7 @@ export const updateSelfAndDependentsApplicable = (params: {
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
     const exprEval = recordExpressionEvaluator.evalApplicableExpression({
+      user,
       survey,
       record: updateResult.record,
       nodeCtx,

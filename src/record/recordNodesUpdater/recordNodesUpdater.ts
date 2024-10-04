@@ -31,12 +31,13 @@ export const updateNodesDependents = (
   const { user, survey, record, nodes, timezoneOffset, sideEffect = false } = params
   const updateResult = new RecordUpdateResult({ record, nodes: sideEffect ? nodes : { ...nodes } })
 
-  const getEvaluationContext = (): ExpressionEvaluationContext => ({
+  const createEvaluationContext = (node: Node): ExpressionEvaluationContext & { node: Node } => ({
     user,
     survey,
     record: updateResult.record,
     timezoneOffset,
     sideEffect,
+    node,
   })
 
   const nodeUuidsToVisit = new Queue(Object.keys(nodes))
@@ -52,31 +53,28 @@ export const updateNodesDependents = (
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
       // Update dependents (applicability)
-      const applicabilityUpdateResult = DependentApplicableUpdater.updateSelfAndDependentsApplicable({
-        ...getEvaluationContext(),
-        node,
-      })
+
+      const applicabilityUpdateResult = DependentApplicableUpdater.updateSelfAndDependentsApplicable(
+        createEvaluationContext(node)
+      )
       updateResult.merge(applicabilityUpdateResult)
 
       // Update dependents (default values)
-      const defaultValuesUpdateResult = DependentDefaultValuesUpdater.updateSelfAndDependentsDefaultValues({
-        ...getEvaluationContext(),
-        node,
-      })
+      const defaultValuesUpdateResult = DependentDefaultValuesUpdater.updateSelfAndDependentsDefaultValues(
+        createEvaluationContext(node)
+      )
       updateResult.merge(defaultValuesUpdateResult)
 
       // Update dependents (code attributes)
-      const dependentCodeAttributesUpdateResult = DependentCodeAttributesUpdater.updateDependentCodeAttributes({
-        ...getEvaluationContext(),
-        node,
-      })
+      const dependentCodeAttributesUpdateResult = DependentCodeAttributesUpdater.updateDependentCodeAttributes(
+        createEvaluationContext(node)
+      )
       updateResult.merge(dependentCodeAttributesUpdateResult)
 
       // Update dependents (file names)
-      const dependentFileNamesUpdateResult = DependentFileNamesUpdater.updateSelfAndDependentsFileNames({
-        ...getEvaluationContext(),
-        node,
-      })
+      const dependentFileNamesUpdateResult = DependentFileNamesUpdater.updateSelfAndDependentsFileNames(
+        createEvaluationContext(node)
+      )
       updateResult.merge(dependentFileNamesUpdateResult)
 
       const nodesUpdatedCurrent = {

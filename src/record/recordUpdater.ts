@@ -54,6 +54,7 @@ const _onRecordNodesCreateOrUpdate = async (
   Object.assign(nodesToValidate, dependentValidationNodes)
 
   const validationUpdatedNodes = await RecordValidator.validateNodes({
+    user,
     survey,
     record: updatedRecord,
     nodes: nodesToValidate,

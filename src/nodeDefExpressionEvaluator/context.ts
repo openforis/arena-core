@@ -7,7 +7,7 @@ import { User } from '../auth'
 export interface NodeDefExpressionContext extends ExpressionContext {
   survey: Survey
   user?: User
-  nodeDefCurrent?: NodeDef<NodeDefType, NodeDefProps>
+  nodeDefCurrent: NodeDef<NodeDefType, NodeDefProps>
   nodeDefContext?: NodeDef<NodeDefType, NodeDefProps>
   /**
    * Unique UUIDs of node definitions being visited during expression evaluation.

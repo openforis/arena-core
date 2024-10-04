@@ -1,3 +1,5 @@
+import { Dictionary } from '../../common'
+import { User } from '../../auth'
 import { Node, Nodes } from '../../node'
 import { NodeDef, NodeDefType, NodeDefProps, NodeDefs, NodeDefExpression } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
@@ -73,15 +75,16 @@ const _validateRequired =
  * Returns 'null' if all are valid, a concatenated error message otherwise.
  */
 const _validateNodeValidations =
-  (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
+  (params: { user: User; survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
   (_propName: string, node: Node): ValidationResult => {
-    const { survey, record, nodeDef } = params
+    const { user, survey, record, nodeDef } = params
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const validations = NodeDefs.getValidations(nodeDef)
     if (!validations?.expressions?.length) return ValidationResultFactory.createInstance()
 
     const applicableExpressionsEval = new RecordExpressionEvaluator().evalApplicableExpressions({
+      user,
       survey,
       record,
       nodeCtx: node,
@@ -112,15 +115,15 @@ const _validateNodeValidations =
     return validationResult
   }
 
-const validateAttribute = async (params: { survey: Survey; record: Record; attribute: Node }) => {
-  const { survey, record, attribute } = params
+const validateAttribute = async (params: { user: User; survey: Survey; record: Record; attribute: Node }) => {
+  const { user, survey, record, attribute } = params
   if (Records.isNodeApplicable({ record, node: attribute })) {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: attribute.nodeDefUuid })
     return new Validator().validate(attribute, {
       ['value']: [
         _validateRequired({ nodeDef }),
         AttributeTypeValidator.validateValueType({ survey, nodeDef }),
-        _validateNodeValidations({ survey, record, nodeDef }),
+        _validateNodeValidations({ user, survey, record, nodeDef }),
         AttributeKeyValidator.validateAttributeKey({ survey, record, nodeDef }),
         AttributeUniqueValidator.validateAttributeUnique({ survey, record, nodeDef }),
       ],
@@ -131,11 +134,12 @@ const validateAttribute = async (params: { survey: Survey; record: Record; attri
 }
 
 const validateSelfAndDependentAttributes = async (params: {
+  user: User
   survey: Survey
   record: Record
-  nodes: { [key: string]: Node }
+  nodes: Dictionary<Node>
 }): Promise<ValidationFields> => {
-  const { survey, record, nodes } = params
+  const { user, survey, record, nodes } = params
 
   // Output
   const validationsByNodeUuid: ValidationFields = {}
@@ -171,7 +175,7 @@ const validateSelfAndDependentAttributes = async (params: {
 
       // Validate only attributes not deleted and not validated already
       if (!nodeToValidate.deleted && !validationsByNodeUuid[nodeUuid]) {
-        validationsByNodeUuid[nodeUuid] = await validateAttribute({ survey, record, attribute: nodeToValidate })
+        validationsByNodeUuid[nodeUuid] = await validateAttribute({ user, survey, record, attribute: nodeToValidate })
       }
     })
   })

@@ -1,3 +1,4 @@
+import { User } from '../../auth'
 import { Node, NodePointer, Nodes, NodeValueFile, NodeValues } from '../../node'
 import { NodeDefFile, NodeDefs } from '../../nodeDef'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
@@ -20,8 +21,8 @@ const addPositionSuffix = (params: { fileName: string; position: number }) => {
   return `${fileName} [${position}]`
 }
 
-const calculateFileName = (params: { survey: Survey; record: Record; node: Node }): string | undefined => {
-  const { survey, record, node } = params
+const calculateFileName = (params: { user: User; survey: Survey; record: Record; node: Node }): string | undefined => {
+  const { user, survey, record, node } = params
 
   const nodeDef: NodeDefFile = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefFile
   const fileNameExpression = NodeDefs.getFileNameExpression(nodeDef)
@@ -29,7 +30,13 @@ const calculateFileName = (params: { survey: Survey; record: Record; node: Node 
 
   const { value } = node
 
-  let fileNameCalculated = recordExpressionEvaluator.evalExpression({ survey, record, node, query: fileNameExpression })
+  let fileNameCalculated = recordExpressionEvaluator.evalExpression({
+    user,
+    survey,
+    record,
+    node,
+    query: fileNameExpression,
+  })
   if (!fileNameCalculated) return undefined
 
   fileNameCalculated = String(fileNameCalculated)
@@ -48,12 +55,13 @@ const calculateFileName = (params: { survey: Survey; record: Record; node: Node 
 }
 
 const updateFileNamesInNodes = (params: {
+  user: User
   survey: Survey
   nodePointer: NodePointer
   updateResult: RecordUpdateResult
   sideEffect?: boolean
 }) => {
-  const { survey, nodePointer, updateResult, sideEffect = false } = params
+  const { user, survey, nodePointer, updateResult, sideEffect = false } = params
 
   const { nodeCtx, nodeDef } = nodePointer
 
@@ -69,7 +77,7 @@ const updateFileNamesInNodes = (params: {
   nodes.forEach((node) => {
     try {
       // evaluate file name expression
-      const fileNameCalculated = calculateFileName({ survey, record: updateResult.record, node })
+      const fileNameCalculated = calculateFileName({ user, survey, record: updateResult.record, node })
       const oldFileNameCalculated = NodeValues.getFileNameCalculated(node)
       if (fileNameCalculated !== oldFileNameCalculated) {
         const nodeUpdated = Nodes.mergeNodes(node, {
@@ -94,12 +102,13 @@ const updateFileNamesInNodes = (params: {
 }
 
 export const updateSelfAndDependentsFileNames = (params: {
+  user: User
   survey: Survey
   record: Record
   node: Node
   sideEffect?: boolean
 }) => {
-  const { survey, record, node, sideEffect = false } = params
+  const { user, survey, record, node, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -115,7 +124,7 @@ export const updateSelfAndDependentsFileNames = (params: {
 
   // 2. update expr to node and dependent nodes
   nodePointersToUpdate.forEach((nodePointer) => {
-    updateFileNamesInNodes({ survey, nodePointer, updateResult, sideEffect })
+    updateFileNamesInNodes({ user, survey, nodePointer, updateResult, sideEffect })
   })
 
   return updateResult
