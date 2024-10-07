@@ -29,6 +29,7 @@ const _onRecordNodesCreateOrUpdate = async (
   params: NodesUpdateParams & { nodes: { [x: string]: Node } }
 ): Promise<RecordUpdateResult> => {
   const {
+    user,
     survey,
     record,
     nodes,
@@ -38,6 +39,7 @@ const _onRecordNodesCreateOrUpdate = async (
   } = params
 
   const { nodes: updatedNodes, record: updatedRecord } = RecordNodesUpdater.updateNodesDependents({
+    user,
     survey,
     record,
     nodes,
@@ -52,6 +54,7 @@ const _onRecordNodesCreateOrUpdate = async (
   Object.assign(nodesToValidate, dependentValidationNodes)
 
   const validationUpdatedNodes = await RecordValidator.validateNodes({
+    user,
     survey,
     record: updatedRecord,
     nodes: nodesToValidate,

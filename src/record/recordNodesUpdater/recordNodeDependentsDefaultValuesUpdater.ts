@@ -10,6 +10,7 @@ import { RecordExpressionValueConverter } from './recordExpressionValueConverter
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { NodePointers } from '../nodePointers'
 import { throwError } from './recordNodesDependentsUpdaterCommons'
+import { User } from '../../auth'
 
 const recordExpressionEvaluator = new RecordExpressionEvaluator()
 
@@ -28,13 +29,14 @@ const canApplyDefaultValue = (params: { record: Record; node: Node; nodeDef: Nod
 }
 
 const updateDefaultValuesInNodes = (params: {
+  user: User
   survey: Survey
   nodePointer: NodePointer
   updateResult: RecordUpdateResult
   timezoneOffset?: number
   sideEffect?: boolean
 }) => {
-  const { survey, nodePointer, updateResult, timezoneOffset, sideEffect = false } = params
+  const { user, survey, nodePointer, updateResult, timezoneOffset, sideEffect = false } = params
 
   const { nodeCtx, nodeDef } = nodePointer
 
@@ -48,6 +50,7 @@ const updateDefaultValuesInNodes = (params: {
   try {
     // 1. evaluate applicable default value expression
     const exprEval = recordExpressionEvaluator.evalApplicableExpression({
+      user,
       survey,
       record,
       nodeCtx,
@@ -108,13 +111,14 @@ const updateDefaultValuesInNodes = (params: {
 }
 
 export const updateSelfAndDependentsDefaultValues = (params: {
+  user: User
   survey: Survey
   record: Record
   node: Node
   timezoneOffset?: number
   sideEffect?: boolean
 }) => {
-  const { survey, record, node, timezoneOffset, sideEffect = false } = params
+  const { user, survey, record, node, timezoneOffset, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -148,7 +152,7 @@ export const updateSelfAndDependentsDefaultValues = (params: {
 
   // 2. update expr to node and dependent nodes
   nodePointersToUpdate.forEach((nodePointer) => {
-    updateDefaultValuesInNodes({ survey, nodePointer, updateResult, timezoneOffset, sideEffect })
+    updateDefaultValuesInNodes({ user, survey, nodePointer, updateResult, timezoneOffset, sideEffect })
   })
 
   return updateResult

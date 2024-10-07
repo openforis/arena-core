@@ -161,4 +161,19 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       return ExtraProps.convertValue({ survey, extraPropDef, value })
     },
   },
+  userEmail: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: NodeDefExpressionContext) => () => context.user?.email,
+  },
+  userName: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: NodeDefExpressionContext) => () => context.user?.name,
+  },
+  userProp: {
+    minArity: 1,
+    maxArity: 1,
+    executor: (context: NodeDefExpressionContext) => (propName: string) => context.user?.props.extra?.[propName],
+  },
 }

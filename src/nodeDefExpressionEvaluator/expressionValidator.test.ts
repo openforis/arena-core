@@ -1,8 +1,8 @@
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
-import { UserFactory } from '../auth'
 import { Survey, Surveys } from '../survey'
 import { NodeDefExpressionValidator } from './validator'
 import { ExtraPropDataType } from '../extraProp'
+import { createTestAdminUser } from '../tests/data'
 
 const { booleanDef, decimalDef, entityDef, integerDef, taxonDef, taxon, taxonomy, textDef } = SurveyObjectBuilders
 
@@ -15,12 +15,11 @@ type Query = {
   itemsFilter?: boolean
 }
 
+const user = createTestAdminUser()
 let survey: Survey
 
 describe('NodeDefExpressionValidator', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
-
     survey = new SurveyBuilder(
       user,
       entityDef(

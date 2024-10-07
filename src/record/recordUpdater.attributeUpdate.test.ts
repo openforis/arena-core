@@ -36,6 +36,7 @@ const updateAttributeAndExpectValidation = async (params: {
   const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: nodePath })
 
   const updateResult = await RecordUpdater.updateAttributeValue({
+    user,
     survey,
     record,
     attributeUuid: nodeToUpdate.uuid,

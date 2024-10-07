@@ -11,8 +11,10 @@ import { Objects } from '../../utils'
 import { Records } from '../records'
 import { CategoryItem } from '../../category'
 import { Taxon } from '../../taxonomy'
+import { User } from '../../auth'
 
 type ExpressionEvaluateParams = {
+  user: User
   survey: Survey
   record: Record
   timezoneOffset?: number
@@ -33,11 +35,12 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
       item?: CategoryItem | Taxon
     }
   ): any {
-    const { survey, record, node, query, item, timezoneOffset } = params
+    const { user, survey, record, node, query, item, timezoneOffset } = params
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent(node)(record)
     if (!nodeContext) return null
     const context: RecordExpressionContext = {
+      user,
       survey,
       record,
       nodeContext,
@@ -56,7 +59,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
       stopAtFirstFound?: boolean
     }
   ): NodeDefExpression[] {
-    const { survey, record, nodeCtx, expressions, stopAtFirstFound = false, timezoneOffset } = params
+    const { user, survey, record, nodeCtx, expressions, stopAtFirstFound = false, timezoneOffset } = params
     const applicableExpressions: NodeDefExpression[] = []
 
     expressions.every((expression) => {
@@ -64,7 +67,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
 
       if (
         Objects.isEmpty(applyIfExpr) ||
-        this.evalExpression({ survey, record, node: nodeCtx, query: applyIfExpr ?? '', timezoneOffset })
+        this.evalExpression({ user, survey, record, node: nodeCtx, query: applyIfExpr ?? '', timezoneOffset })
       ) {
         applicableExpressions.push(expression)
 

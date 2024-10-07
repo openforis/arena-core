@@ -1,9 +1,9 @@
-import { ArenaObject } from '../common'
+import { ArenaObject, Dictionary } from '../common'
 import { Labels } from '../language'
 
 export interface CategoryItemProps {
   code?: string
-  extra?: { [key: string]: any }
+  extra?: Dictionary<any>
   index?: number
   labels?: Labels
 }

@@ -16,6 +16,7 @@ type Query = {
   node?: string
 }
 
+const user = createTestAdminUser()
 let survey: Survey
 let record: Record
 
@@ -36,8 +37,6 @@ const determineContextNode = (params: {
 
 describe('RecordExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = createTestAdminUser()
-
     survey = createTestSurvey({ user })
 
     record = createTestRecord({ user, survey })
@@ -359,7 +358,7 @@ describe('RecordExpressionEvaluator', () => {
 
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid })
         const nodeContext = determineContextNode({ nodeCurrentDef, nodeCurrent, node })
-        const context: RecordExpressionContext = { survey, record, nodeContext, nodeCurrent, object: nodeContext }
+        const context: RecordExpressionContext = { user, survey, record, nodeContext, nodeCurrent, object: nodeContext }
         const res = new RecordExpressionEvaluator().evaluate(expression, context)
         expect(res).toEqual(result instanceof Function ? result() : result)
       } catch (error) {
