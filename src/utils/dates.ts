@@ -50,11 +50,12 @@ const convertDate = (params: {
   dateStr: string
   formatFrom?: DateFormats
   formatTo: DateFormats
+  keepTimeZone?: boolean
 }): string | undefined => {
-  const { dateStr, formatFrom = DateFormats.dateStorage, formatTo } = params
+  const { dateStr, formatFrom = DateFormats.dateStorage, formatTo, keepTimeZone = true } = params
   if (Objects.isEmpty(dateStr)) return undefined
 
-  const dateParsed = parse(dateStr, formatFrom)
+  const dateParsed = parse(dateStr, formatFrom, keepTimeZone)
   if (!dateParsed || !moment(dateParsed).isValid()) {
     return undefined
   }
