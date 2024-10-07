@@ -179,7 +179,19 @@ export type {
 export { SurveyBuilder, SurveyObjectBuilders } from './tests/builder/surveyBuilder'
 export { RecordBuilder, RecordNodeBuilders } from './tests/builder/recordBuilder'
 
-export { Arrays, Dates, DateFormats, FileNames, Numbers, Objects, Promises, Strings, UnitOfTime, UUIDs } from './utils'
+export {
+  Arrays,
+  Dates,
+  DateFormats,
+  FileNames,
+  Numbers,
+  Objects,
+  Promises,
+  Queue,
+  Strings,
+  UnitOfTime,
+  UUIDs,
+} from './utils'
 
 export {
   FieldValidators,
