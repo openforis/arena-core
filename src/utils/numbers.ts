@@ -5,7 +5,7 @@ import { Objects } from './_objects'
 BigNumber.config({
   FORMAT: {
     decimalSeparator: '.',
-    groupSeparator: ' ',
+    groupSeparator: ',',
     groupSize: 3,
   },
 })
