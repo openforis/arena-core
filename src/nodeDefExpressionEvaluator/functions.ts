@@ -8,6 +8,7 @@ import { Dates } from '../utils/dates'
 import { NodeDefExpressionContext } from './context'
 import { SystemError } from '../error'
 import { ExtraProps } from '../extraProp/extraProps'
+import { Users } from '../auth'
 
 const sampleGeoJsonPolygon = {
   type: 'Feature',
@@ -174,6 +175,12 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
   userProp: {
     minArity: 1,
     maxArity: 1,
-    executor: (context: NodeDefExpressionContext) => (propName: string) => context.user?.props.extra?.[propName],
+    executor: (context: NodeDefExpressionContext) => (propName: string) => {
+      const { user, survey } = context
+      if (!survey || !user) return undefined
+      const { uuid: surveyUuid } = survey
+      const combinedExtraProps = Users.getCombinedExtraProps(surveyUuid)(user)
+      return combinedExtraProps[propName]
+    },
   },
 }
