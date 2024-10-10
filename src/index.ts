@@ -1,7 +1,16 @@
 export type { AppInfo } from './app'
 
 export { Authorizer, AuthGroupName, UserStatus, Permission, UserTitle, UserFactory, Users } from './auth'
-export type { User, UserPrefs, UserPrefSurveys, UserProps, AuthGroup, UserService } from './auth'
+export type {
+  User,
+  UserAuthGroup,
+  UserAuthGroupProps,
+  UserPrefs,
+  UserPrefSurveys,
+  UserProps,
+  AuthGroup,
+  UserService,
+} from './auth'
 
 export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, CategoryLevelFactory } from './category'
 export type {

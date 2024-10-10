@@ -31,8 +31,16 @@ export interface UserInvitation {
   expired: boolean
 }
 
+export interface UserAuthGroupProps {
+  extra: Dictionary<any>
+}
+
+export interface UserAuthGroup extends AuthGroup {
+  props: UserAuthGroupProps
+}
+
 export interface User extends ArenaObject<UserProps> {
-  authGroups?: AuthGroup[]
+  authGroups?: UserAuthGroup[]
   email: string
   hasProfilePicture: boolean
   name: string
