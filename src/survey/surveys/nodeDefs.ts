@@ -231,6 +231,20 @@ export const getNodeDefChildrenSorted = (params: {
   })
 }
 
+export const visitAncestorsAndSelfNodeDef = (params: {
+  survey: Survey
+  nodeDef: NodeDef<any>
+  visitor: (nodeDef: NodeDef<any>) => void
+}): void => {
+  const { survey, nodeDef, visitor } = params
+  visitor(nodeDef)
+  let currentParent = getNodeDefParent({ survey, nodeDef })
+  while (currentParent) {
+    visitor(currentParent)
+    currentParent = getNodeDefParent({ survey, nodeDef: currentParent })
+  }
+}
+
 export const visitDescendantsAndSelfNodeDef = (params: {
   survey: Survey
   cycle?: string

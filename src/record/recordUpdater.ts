@@ -1,3 +1,4 @@
+import { Dictionary } from '../common'
 import { SystemError } from '../error'
 import { Node, NodesMap } from '../node'
 import { Survey, SurveyDependencyType, Surveys } from '../survey'
@@ -26,7 +27,7 @@ const _getDependentValidationNodes = (params: { survey: Survey; record: Record; 
 }
 
 const _onRecordNodesCreateOrUpdate = async (
-  params: NodesUpdateParams & { nodes: { [x: string]: Node } }
+  params: NodesUpdateParams & { nodes: Dictionary<Node> }
 ): Promise<RecordUpdateResult> => {
   const {
     user,
