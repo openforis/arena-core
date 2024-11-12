@@ -9,6 +9,7 @@ import { Record } from '../record'
 import { Node } from '../../node'
 import { RecordUpdateResult } from './recordUpdateResult'
 import { User } from '../../auth'
+import { Dictionary } from '../../common'
 
 /**
  * Nodes can be visited maximum 2 times during the update of the dependent nodes, to avoid loops in the evaluation.
@@ -26,7 +27,7 @@ export interface ExpressionEvaluationContext {
 }
 
 export const updateNodesDependents = (
-  params: ExpressionEvaluationContext & { nodes: { [key: string]: Node } }
+  params: ExpressionEvaluationContext & { nodes: Dictionary<Node> }
 ): RecordUpdateResult => {
   const { user, survey, record, nodes, timezoneOffset, sideEffect = false } = params
   const updateResult = new RecordUpdateResult({ record, nodes: sideEffect ? nodes : { ...nodes } })
@@ -43,7 +44,7 @@ export const updateNodesDependents = (
   const nodeUuidsToVisit = new Queue(Object.keys(nodes))
 
   // Avoid loops: visit the same node maximum 2 times (the second time the applicability could have been changed)
-  const visitedCountByUuid: { [key: string]: number } = {}
+  const visitedCountByUuid: Dictionary<number> = {}
 
   while (!nodeUuidsToVisit.isEmpty()) {
     const nodeUuid = nodeUuidsToVisit.dequeue()
@@ -53,7 +54,6 @@ export const updateNodesDependents = (
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
       // Update dependents (applicability)
-
       const applicabilityUpdateResult = DependentApplicableUpdater.updateSelfAndDependentsApplicable(
         createEvaluationContext(node)
       )
@@ -77,7 +77,7 @@ export const updateNodesDependents = (
       )
       updateResult.merge(dependentFileNamesUpdateResult)
 
-      const nodesUpdatedCurrent = {
+      const nodesUpdatedCurrent: Dictionary<Node> = {
         ...applicabilityUpdateResult.nodes,
         ...defaultValuesUpdateResult.nodes,
         ...dependentCodeAttributesUpdateResult.nodes,

@@ -1,6 +1,6 @@
 import { NodeDefs } from '../../nodeDef'
 import { Record } from '../record'
-import { Survey } from '../../survey'
+import { Survey, Surveys } from '../../survey'
 import { Node, NodePointer, Nodes } from '../../node'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordUpdateResult } from './recordUpdateResult'
@@ -22,13 +22,15 @@ export const updateSelfAndDependentsApplicable = (params: {
 
   const updateResult = new RecordUpdateResult({ record })
 
+  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
+
   // 1. fetch dependent nodes
   const nodePointersToUpdate = Records.getDependentNodePointers({
     survey,
     record,
     node,
     dependencyType: SurveyDependencyType.applicable,
-    includeSelf: true,
+    includeSelf: !NodeDefs.isEntity(nodeDef),
   })
 
   // 2. update expr to node and dependent nodes
