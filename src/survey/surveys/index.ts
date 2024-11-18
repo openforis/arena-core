@@ -66,9 +66,6 @@ import {
 } from './surveysGetters'
 
 export const Surveys = {
-  findNodeDefByName,
-  findNodeDefByUuid,
-  findNodeDefsByUuids,
   getName,
   getLanguages,
   getDefaultLanguage,
@@ -87,6 +84,9 @@ export const Surveys = {
   getTaxonomyByName,
   getTaxonomyByUuid,
 
+  findNodeDefByName,
+  findNodeDefByUuid,
+  findNodeDefsByUuids,
   getNodeDefByName,
   getNodeDefsByUuids,
   getNodeDefByUuid,
