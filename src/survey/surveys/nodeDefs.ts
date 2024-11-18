@@ -18,10 +18,40 @@ import { TraverseMethod } from '../../common'
 
 export const getNodeDefsArray = NodeDefsReader.getNodeDefsArray
 
+export const findNodeDefByUuid = (params: {
+  survey: Survey
+  uuid: string
+}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
+  const { survey, uuid } = params
+  return survey.nodeDefs?.[uuid]
+}
+
+export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): NodeDef<NodeDefType, NodeDefProps> => {
+  const { survey, uuid } = params
+  const nodeDef = findNodeDefByUuid({ survey, uuid })
+  if (!nodeDef) throw new SystemError('survey.nodeDefUuidNotFound', { uuid })
+  return nodeDef
+}
+
+export const findNodeDefByName = (params: {
+  survey: Survey
+  name: string
+}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
+  const { survey, name } = params
+  const nodeDefUuidByNameIndex = survey.nodeDefsIndex?.nodeDefUuidByName
+  if (nodeDefUuidByNameIndex) {
+    const uuid = nodeDefUuidByNameIndex[name]
+    return findNodeDefByUuid({ survey, uuid })
+  }
+  return getNodeDefsArray(survey).find((nodeDef) => nodeDef.props.name === name)
+}
+
 export const getNodeDefByName = (params: { survey: Survey; name: string }): NodeDef<NodeDefType, NodeDefProps> => {
   const { survey, name } = params
-  const nodeDef = getNodeDefsArray(survey).find((nodeDef) => nodeDef.props.name === name)
-  if (!nodeDef) throw new SystemError('survey.nodeDefNameNotFound', { name })
+  const nodeDef = findNodeDefByName({ survey, name })
+  if (!nodeDef) {
+    throw new SystemError('survey.nodeDefNameNotFound', { name })
+  }
   return nodeDef
 }
 
@@ -42,24 +72,6 @@ export const findNodeDefsByUuids = (params: {
     }
     return acc
   }, [])
-}
-
-export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): NodeDef<NodeDefType, NodeDefProps> => {
-  const { survey, uuid } = params
-  const nodeDef = survey.nodeDefs?.[uuid]
-  if (!nodeDef) throw new SystemError('survey.nodeDefUuidNotFound', { uuid })
-  return nodeDef
-}
-
-export const findNodeDefByUuid = (params: {
-  survey: Survey
-  uuid: string
-}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
-  try {
-    return getNodeDefByUuid(params)
-  } catch (error) {
-    return undefined
-  }
 }
 
 export const getNodeDefParent = (params: {
