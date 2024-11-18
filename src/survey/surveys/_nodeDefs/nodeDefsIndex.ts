@@ -68,7 +68,7 @@ export const deleteNodeDefIndex =
     })
 
     surveyUpdated = Objects.dissocPath({
-      obj: survey,
+      obj: surveyUpdated,
       path: [keys.nodeDefsIndex, keys.nodeDefUuidByName, name],
     })
 
