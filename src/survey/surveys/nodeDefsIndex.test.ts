@@ -3,7 +3,7 @@ import { Survey } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
 
-const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
+const { entityDef, integerDef } = SurveyObjectBuilders
 
 let survey: Survey
 
@@ -13,18 +13,7 @@ describe('Survey Node Definitionss index', () => {
 
     survey = new SurveyBuilder(
       user,
-      entityDef(
-        'cluster',
-        integerDef('cluster_id').key().defaultValue('1').validationExpressions('cluster_id > 0 && cluster_id <= 1000'),
-        booleanDef('accessible'),
-        entityDef(
-          'plot',
-          integerDef('plot_id').key(),
-          integerDef('plot_id_double').readOnly().defaultValue('plot_id * 2')
-        )
-          .multiple()
-          .applyIf('accessible')
-      )
+      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
     ).build()
   }, 10000)
 
