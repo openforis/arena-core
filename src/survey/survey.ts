@@ -73,7 +73,7 @@ export interface Survey extends ArenaObject<SurveyProps> {
    */
   taxonomies?: { [taxonomyUuid: string]: Taxonomy }
   /**
-   * Refernce data cache (category items and taxa).
+   * Reference data cache (category items and taxa).
    */
   refData?: SurveyRefData
 
