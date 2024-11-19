@@ -42,6 +42,7 @@ describe('RecordExpressionEvaluator', () => {
     record = createTestRecord({ user, survey })
   }, 10000)
   const queries: Query[] = [
+    { expression: 'invalid_node_name + 1', error: new SystemError('expression.identifierNotFound') },
     { expression: 'cluster_id + 1', result: 13 },
     { expression: 'cluster_id != 1', result: true },
     // !12 == null under strict logical negation semantics
@@ -75,6 +76,8 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'isEmpty(gps_model)', result: false },
     // remarks is empty
     { expression: 'isEmpty(remarks)', result: false },
+    // plot: invalid child name
+    { expression: 'plot.invalid_node_name + 1', error: new SystemError('expression.identifierNotFound') },
     // plot count is 3
     { expression: 'plot.length', result: 3 },
     // access multiple entities with index

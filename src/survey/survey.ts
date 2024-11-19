@@ -1,4 +1,4 @@
-import { ArenaObject } from '../common'
+import { ArenaObject, Dictionary } from '../common'
 import { AuthGroup } from '../auth'
 import { Labels, LanguageCode } from '../language'
 import { SRS } from '../srs'
@@ -48,6 +48,7 @@ export interface SurveyProps {
 export interface SurveyNodeDefsIndex {
   rootDefUuid?: string
   childDefUuidPresenceByParentUuid?: { [parentUuid: string]: { [nodeDefUuid: string]: boolean } }
+  nodeDefUuidByName?: Dictionary<string>
 }
 
 export interface Survey extends ArenaObject<SurveyProps> {
@@ -72,7 +73,7 @@ export interface Survey extends ArenaObject<SurveyProps> {
    */
   taxonomies?: { [taxonomyUuid: string]: Taxonomy }
   /**
-   * Refernce data cache (category items and taxa).
+   * Reference data cache (category items and taxa).
    */
   refData?: SurveyRefData
 

@@ -6,6 +6,7 @@ import {
 } from './dependencies'
 
 import {
+  findNodeDefByName,
   findNodeDefByUuid,
   findNodeDefsByUuids,
   getNodeDefByName,
@@ -65,8 +66,6 @@ import {
 } from './surveysGetters'
 
 export const Surveys = {
-  findNodeDefByUuid,
-  findNodeDefsByUuids,
   getName,
   getLanguages,
   getDefaultLanguage,
@@ -85,6 +84,9 @@ export const Surveys = {
   getTaxonomyByName,
   getTaxonomyByUuid,
 
+  findNodeDefByName,
+  findNodeDefByUuid,
+  findNodeDefsByUuids,
   getNodeDefByName,
   getNodeDefsByUuids,
   getNodeDefByUuid,
