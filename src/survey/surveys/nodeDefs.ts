@@ -455,5 +455,6 @@ export const getNodeDefsIncludedInMultipleEntitySummary = (params: {
   })
 }
 
-const { buildAndAssocNodeDefsIndex, addNodeDefToIndex, deleteNodeDefIndex } = NodeDefsIndex
-export { buildAndAssocNodeDefsIndex, addNodeDefToIndex, deleteNodeDefIndex }
+const { buildAndAssocNodeDefsIndex, addNodeDefToIndex, updateNodeDefUuidByNameIndex, deleteNodeDefIndex } =
+  NodeDefsIndex
+export { buildAndAssocNodeDefsIndex, addNodeDefToIndex, updateNodeDefUuidByNameIndex, deleteNodeDefIndex }
