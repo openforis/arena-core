@@ -36,10 +36,12 @@ describe('Survey Dependencies', () => {
         entityDef(
           'plot',
           integerDef('plot_id').key(),
-          integerDef('plot_id_double').readOnly().defaultValue('plot_id * 2')
+          integerDef('plot_id_double').readOnly().defaultValue('plot_id * 2'),
+          integerDef('plot_index').readOnly().defaultValue('index($context)').defaultValueEvaluatedOnlyOneTime()
         )
           .multiple()
-          .applyIf('accessible')
+          .applyIf('accessible'),
+        integerDef('plot_count').readOnly().defaultValue('plot.length')
       )
     ).build()
   }, 10000)
@@ -65,6 +67,14 @@ describe('Survey Dependencies', () => {
       sourceName: 'plot_id',
       dependencyType: SurveyDependencyType.defaultValues,
       expectedDependentNames: ['plot_id_double'],
+    })
+  })
+
+  test('Default values dependency ($context)', () => {
+    expectDependents({
+      sourceName: 'plot',
+      dependencyType: SurveyDependencyType.defaultValues,
+      expectedDependentNames: ['plot_index', 'plot_count'],
     })
   })
 
