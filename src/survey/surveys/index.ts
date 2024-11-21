@@ -28,6 +28,7 @@ import {
   getNodeDefEnumerator,
   buildAndAssocNodeDefsIndex,
   addNodeDefToIndex,
+  updateNodeDefUuidByNameIndex,
   deleteNodeDefIndex,
   visitAncestorsAndSelfNodeDef,
   visitDescendantsAndSelfNodeDef,
@@ -130,5 +131,6 @@ export const Surveys = {
   // index
   buildAndAssocNodeDefsIndex,
   addNodeDefToIndex,
+  updateNodeDefUuidByNameIndex,
   deleteNodeDefIndex,
 }

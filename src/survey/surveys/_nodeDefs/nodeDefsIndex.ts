@@ -54,6 +54,29 @@ export const addNodeDefToIndex =
     return surveyUpdated
   }
 
+export const updateNodeDefUuidByNameIndex =
+  (nodeDef: NodeDef<any>, nodeDefPrevious?: NodeDef<any>, options?: { sideEffect?: boolean }) =>
+  (survey: Survey): Survey => {
+    const { sideEffect } = options ?? {}
+    let surveyUpdated = survey
+    const currentName = NodeDefs.getName(nodeDef)
+    const previousName = nodeDefPrevious ? NodeDefs.getName(nodeDefPrevious) : ''
+    if (currentName !== previousName) {
+      surveyUpdated = Objects.dissocPath({
+        obj: surveyUpdated,
+        path: [keys.nodeDefsIndex, keys.nodeDefUuidByName, previousName],
+        sideEffect,
+      })
+      surveyUpdated = Objects.assocPath({
+        obj: surveyUpdated,
+        path: [keys.nodeDefsIndex, keys.nodeDefUuidByName, currentName],
+        value: nodeDef.uuid,
+        sideEffect,
+      })
+    }
+    return surveyUpdated
+  }
+
 // ==== DELETE
 
 export const deleteNodeDefIndex =
