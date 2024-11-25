@@ -36,17 +36,13 @@ const findActualContextNode = (params: {
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
   evaluate(expressionNode: IdentifierExpression): any {
     const { context } = this
-    const {
-      nodeDefContext,
-      nodeDefCurrent,
-      selfReferenceAllowed,
-      object: objectContext,
-      referencedNodeDefUuids,
-      itemsFilter,
-    } = context
+    const { nodeDefContext, nodeDefCurrent, selfReferenceAllowed, object: objectContext, itemsFilter } = context
     const { name: exprName } = expressionNode
 
     if (exprName === ExpressionVariable.CONTEXT) {
+      if (nodeDefContext) {
+        this.addReferencedNodeDefUuid(nodeDefContext.uuid)
+      }
       return nodeDefContext
     }
 
@@ -76,18 +72,22 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
 
     const referencedNodeDef = this.findIdentifierAmongReachableNodeDefs(expressionNode)
     if (referencedNodeDef) {
-      context.referencedNodeDefUuids = (referencedNodeDefUuids ?? new Set()).add(referencedNodeDef.uuid)
-
       if (!selfReferenceAllowed && referencedNodeDef.uuid === nodeDefCurrent?.uuid) {
         throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: exprName })
       }
-
+      this.addReferencedNodeDefUuid(referencedNodeDef.uuid)
       return referencedNodeDef
     }
     throw new SystemError('expression.identifierNotFound', {
       name: exprName,
       contextObject: objectContext?.props?.name,
     })
+  }
+
+  private addReferencedNodeDefUuid(uuid: string) {
+    const { context } = this
+    const { referencedNodeDefUuids = new Set() } = context
+    context.referencedNodeDefUuids = referencedNodeDefUuids.add(uuid)
   }
 
   /**

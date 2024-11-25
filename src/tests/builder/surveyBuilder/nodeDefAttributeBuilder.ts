@@ -41,6 +41,11 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     return this
   }
 
+  defaultValueEvaluatedOnlyOneTime(): this {
+    this.propsAdvanced.defaultValueEvaluatedOneTime = true
+    return this
+  }
+
   validationExpressions(...expressions: (string | NodeDefExpression)[]): this {
     if (!this.propsAdvanced.validations) this.propsAdvanced.validations = {}
     this.propsAdvanced.validations.expressions = expressions.map((expression) =>

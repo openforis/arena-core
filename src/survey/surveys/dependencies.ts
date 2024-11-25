@@ -8,10 +8,10 @@ import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
 
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
-  [SurveyDependencyType.defaultValues]: false,
+  [SurveyDependencyType.defaultValues]: true,
   [SurveyDependencyType.fileName]: true,
   [SurveyDependencyType.formula]: false,
-  [SurveyDependencyType.validations]: false,
+  [SurveyDependencyType.validations]: true,
 }
 
 const selfReferenceAllowedByDependencyType = {
