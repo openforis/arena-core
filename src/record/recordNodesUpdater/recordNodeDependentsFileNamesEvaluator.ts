@@ -75,28 +75,8 @@ const updateFileNamesInNodes = (params: {
   const nodes = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
 
   nodes.forEach((node) => {
-    try {
-      // evaluate file name expression
-      const fileNameCalculated = calculateFileName({ user, survey, record: updateResult.record, node })
-      const oldFileNameCalculated = NodeValues.getFileNameCalculated(node)
-      if (fileNameCalculated !== oldFileNameCalculated) {
-        const nodeUpdated = Nodes.mergeNodes(node, {
-          value: { [NodeValues.valuePropsFile.fileNameCalculated]: fileNameCalculated },
-          updated: true,
-          dateModified: Dates.nowFormattedForStorage(),
-        })
-        updateResult.addNode(nodeUpdated, { sideEffect })
-      }
-    } catch (error) {
-      const expressionsToEvaluate = [NodeDefExpressionFactory.createInstance({ expression: expressionToEvaluate })]
-      throwError({
-        error,
-        errorKey: 'record.updateSelfAndDependentsFileNames',
-        expressionType: SurveyDependencyType.fileName,
-        survey,
-        nodeDef,
-        expressionsToEvaluate,
-      })
+    if (!Nodes.isValueBlank(node)) {
+      updateFileNameInNode({ user, survey, updateResult, sideEffect, nodeDef: nodeDef as NodeDefFile, node })
     }
   })
 }
@@ -128,4 +108,38 @@ export const updateSelfAndDependentsFileNames = (params: {
   })
 
   return updateResult
+}
+
+const updateFileNameInNode = (params: {
+  user: User
+  survey: Survey
+  updateResult: RecordUpdateResult
+  sideEffect: boolean
+  nodeDef: NodeDefFile
+  node: Node
+}) => {
+  const { user, survey, updateResult, sideEffect, node, nodeDef } = params
+  const expressionToEvaluate = NodeDefs.getFileNameExpression(nodeDef)
+  try {
+    const fileNameCalculated = calculateFileName({ user, survey, record: updateResult.record, node })
+    const oldFileNameCalculated = NodeValues.getFileNameCalculated(node)
+    if (fileNameCalculated !== oldFileNameCalculated) {
+      const nodeUpdated = Nodes.mergeNodes(node, {
+        value: { [NodeValues.valuePropsFile.fileNameCalculated]: fileNameCalculated },
+        updated: true,
+        dateModified: Dates.nowFormattedForStorage(),
+      })
+      updateResult.addNode(nodeUpdated, { sideEffect })
+    }
+  } catch (error) {
+    const expressionsToEvaluate = [NodeDefExpressionFactory.createInstance({ expression: expressionToEvaluate! })]
+    throwError({
+      error,
+      errorKey: 'record.updateSelfAndDependentsFileNames',
+      expressionType: SurveyDependencyType.fileName,
+      survey,
+      nodeDef,
+      expressionsToEvaluate,
+    })
+  }
 }
