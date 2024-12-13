@@ -1,9 +1,11 @@
-import { Dictionary } from '../../common'
 import { User } from '../../auth'
+import { Dictionary } from '../../common'
+import { Labels } from '../../language'
 import { Node, Nodes } from '../../node'
-import { NodeDef, NodeDefType, NodeDefProps, NodeDefs, NodeDefExpression } from '../../nodeDef'
+import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
+import { Objects, Promises } from '../../utils'
 import {
   ValidationFactory,
   ValidationResult,
@@ -11,16 +13,14 @@ import {
   ValidationSeverity,
   Validator,
 } from '../../validation'
+import { ValidationFields } from '../../validation/validation'
+import { NodePointers } from '../nodePointers'
 import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
-import { NodePointers } from '../nodePointers'
-import { Labels } from '../../language'
-import { Objects, Promises } from '../../utils'
+import { AttributeKeyValidator } from './attributeKeyValidator'
 import { AttributeTypeValidator } from './attributeTypeValidator'
 import { AttributeUniqueValidator } from './attributeUniqueValidator'
-import { AttributeKeyValidator } from './attributeKeyValidator'
-import { ValidationFields } from '../../validation/validation'
 
 const _getSiblingNodeKeys = (params: { survey: Survey; record: Record; node: Node }): Node[] => {
   const { survey, record, node } = params
@@ -144,40 +144,36 @@ const validateSelfAndDependentAttributes = async (params: {
   // Output
   const validationsByNodeUuid: ValidationFields = {}
 
-  const attributes = Object.values(nodes).filter((node) => {
+  await Promises.each(Object.values(nodes), async (node) => {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
-    return NodeDefs.isAttribute(nodeDef)
-  })
-  await Promises.each(attributes, async (node: Node) => {
-    const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
+    if (NodeDefs.isAttribute(nodeDef)) {
+      // Get dependents and attribute itself
+      const nodePointersAttributeAndDependents = Records.getDependentNodePointers({
+        survey,
+        record,
+        node,
+        dependencyType: SurveyDependencyType.validations,
+        includeSelf: true,
+      })
 
-    // Get dependents and attribute itself
-    const nodePointersAttributeAndDependents = Records.getDependentNodePointers({
-      survey,
-      record,
-      node,
-      dependencyType: SurveyDependencyType.validations,
-      includeSelf: true,
-    })
+      const nodeParent = Records.getParent(node)(record)
 
-    const nodeParent = Records.getParent(node)(record)
+      const nodesToValidate = [
+        ...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }),
+        ...(NodeDefs.isKey(nodeDef) && nodeParent ? _getSiblingNodeKeys({ survey, record, node: nodeParent }) : []),
+        ...(NodeDefs.getValidations(nodeDef)?.unique ? Records.getNodeSiblings({ record, node, nodeDef }) : []),
+      ]
 
-    const nodesToValidate = [
-      ...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }),
-      ...(NodeDefs.isKey(nodeDef) && nodeParent ? _getSiblingNodeKeys({ survey, record, node: nodeParent }) : []),
-      ...(NodeDefs.getValidations(nodeDef)?.unique ? Records.getNodeSiblings({ record, node, nodeDef }) : []),
-    ]
+      // Call validateAttribute for each attribute
+      await Promises.each(nodesToValidate, async (nodeToValidate) => {
+        const nodeUuid = nodeToValidate.uuid
 
-    // Call validateAttribute for each attribute
-
-    await Promises.each<Node>(nodesToValidate, async (nodeToValidate) => {
-      const nodeUuid = nodeToValidate.uuid
-
-      // Validate only attributes not deleted and not validated already
-      if (!nodeToValidate.deleted && !validationsByNodeUuid[nodeUuid]) {
-        validationsByNodeUuid[nodeUuid] = await validateAttribute({ user, survey, record, attribute: nodeToValidate })
-      }
-    })
+        // Validate only attributes not deleted and not validated already
+        if (!nodeToValidate.deleted && !validationsByNodeUuid[nodeUuid]) {
+          validationsByNodeUuid[nodeUuid] = await validateAttribute({ user, survey, record, attribute: nodeToValidate })
+        }
+      })
+    }
   })
 
   return validationsByNodeUuid
