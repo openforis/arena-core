@@ -18,6 +18,11 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     return this
   }
 
+  autoIncrementalKey(): this {
+    this.props.autoIncrementalKey = true
+    return this
+  }
+
   readOnly(): this {
     this.props.readOnly = true
     return this

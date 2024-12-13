@@ -48,11 +48,9 @@ const _onRecordNodesCreateOrUpdate = async (
     sideEffect,
   })
 
-  const nodesToValidate = { ...updatedNodes }
-
   const dependentValidationNodes = _getDependentValidationNodes({ survey, record: updatedRecord, nodes: updatedNodes })
 
-  Object.assign(nodesToValidate, dependentValidationNodes)
+  const nodesToValidate = { ...updatedNodes, ...dependentValidationNodes }
 
   const validationUpdatedNodes = await RecordValidator.validateNodes({
     user,

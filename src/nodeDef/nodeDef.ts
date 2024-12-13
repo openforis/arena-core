@@ -28,6 +28,7 @@ export interface NodeDefProps {
   cycles?: Array<string>
   descriptions?: Labels
   key?: boolean
+  autoIncrementalKey?: boolean
   labels?: Labels
   multiple?: boolean
   name?: string
