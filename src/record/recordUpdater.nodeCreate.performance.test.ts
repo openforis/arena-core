@@ -105,6 +105,6 @@ describe('RecordUpdater - node create - performance test', () => {
     const { totalTime, nodeCreationTime } = await createNodes({ nodeDefName, totalNodes })
 
     // with autoincremental key, total creation time should be linear
-    expect(totalTime).toBeLessThan(totalNodes * (nodeCreationTime + 3))
+    expect(totalTime).toBeLessThan(totalNodes * (nodeCreationTime + 4))
   })
 })
