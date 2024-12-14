@@ -2,6 +2,7 @@ import { User } from '../../auth'
 import { Dictionary } from '../../common'
 import { Labels } from '../../language'
 import { Node, Nodes, NodeValues } from '../../node'
+import { NodeKeys } from '../../node/node'
 import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
@@ -121,7 +122,7 @@ const validateAttribute = async (params: { user: User; survey: Survey; record: R
   if (Records.isNodeApplicable({ record, node: attribute })) {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: attribute.nodeDefUuid })
     return new Validator().validate(attribute, {
-      ['value']: [
+      [NodeKeys.value]: [
         _validateRequired({ nodeDef }),
         AttributeTypeValidator.validateValueType({ survey, nodeDef }),
         _validateNodeValidations({ user, survey, record, nodeDef }),
