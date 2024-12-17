@@ -44,6 +44,9 @@ const isMultipleAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => isAttrib
 
 const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.props.key ?? false
 
+const isAutoIncrementalKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean =>
+  nodeDef.props.autoIncrementalKey ?? false
+
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
 
 const isLayoutElement = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.formHeader
@@ -215,6 +218,7 @@ export const NodeDefs = {
   isSingleAttribute,
   isMultipleAttribute,
   isKey,
+  isAutoIncrementalKey,
   isReadOnly,
   isHidden,
   isEnumerate,
