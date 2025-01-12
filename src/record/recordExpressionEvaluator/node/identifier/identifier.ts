@@ -8,12 +8,8 @@ import { Survey, Surveys } from '../../../../survey'
 import { RecordExpressionContext } from '../../context'
 import { NodesFinder } from './nodesFinder'
 import { SystemError } from '../../../../error'
-import { FieldValidators } from '../../../../validation'
 import { NodeValueExtractor } from '../../nodeValueExtractor'
 import { Record } from '../../../record'
-
-const isValidNodeDefName = (nodeDefName: string) =>
-  FieldValidators.name('expression.invalidNodeDefName')('name', { name: nodeDefName }).valid
 
 const getNodesOrValues = (params: {
   survey: Survey
@@ -59,8 +55,9 @@ const evaluateIdentifierOnNode = (params: {
   const nodeDefObject = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefObjectUuid })
 
   // node value prop (native)
-  if (value?.[propName] !== undefined) {
-    return value[propName]
+  const valueProp = value?.[propName]
+  if (valueProp !== undefined) {
+    return valueProp
   }
   if (NodeDefs.isAttribute(nodeDefObject)) {
     // node value prop (Arena specific value property)
@@ -74,11 +71,11 @@ const evaluateIdentifierOnNode = (params: {
     }
   }
 
-  if (!isValidNodeDefName(propName)) {
+  const nodeDefReferenced = Surveys.findNodeDefByName({ survey, name: propName })
+
+  if (!nodeDefReferenced) {
     throw new SystemError('expression.identifierNotFound', { name: propName })
   }
-
-  const nodeDefReferenced = Surveys.getNodeDefByName({ survey, name: propName })
 
   if (nodeObject.nodeDefUuid === nodeDefReferenced.uuid) {
     // the referenced node is the current node itself

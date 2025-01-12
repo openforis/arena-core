@@ -44,6 +44,7 @@ describe('Record nodes updater - default values', () => {
     const recordUpdated = Records.addNode(nodeUpdated)(record)
 
     const updateResult = RecordNodesUpdater.updateNodesDependents({
+      user,
       survey,
       record: recordUpdated,
       nodes: { [nodeToUpdate.uuid]: nodeUpdated },

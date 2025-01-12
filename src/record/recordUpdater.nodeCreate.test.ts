@@ -31,7 +31,7 @@ describe('RecordUpdater - node create', () => {
 
     let record = RecordFactory.createInstance({ surveyUuid: survey.uuid, user })
 
-    const updateResult = await RecordUpdater.createRootEntity({ survey, record })
+    const updateResult = await RecordUpdater.createRootEntity({ user, survey, record })
     expect(updateResult).not.toBeNull()
 
     record = updateResult.record
@@ -87,7 +87,7 @@ describe('RecordUpdater - node create', () => {
 
     let record = RecordFactory.createInstance({ surveyUuid: survey.uuid, user })
 
-    const updateResult = await RecordUpdater.createRootEntity({ survey, record })
+    const updateResult = await RecordUpdater.createRootEntity({ user, survey, record })
     record = updateResult.record
 
     const enumerator1 = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.enumerated[0].enumerator' })

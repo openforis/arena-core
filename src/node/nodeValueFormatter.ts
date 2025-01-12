@@ -52,7 +52,8 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
   },
   [NodeDefType.date]: (params: FormatParams) => {
     const { value } = params
-    return Dates.format(Dates.parseISO(value), DateFormats.dateDisplay)
+    const dateParsed = Dates.parseISO(value)
+    return Dates.format(dateParsed, DateFormats.dateDisplay)
   },
   [NodeDefType.decimal]: (params: FormatParams) => {
     const { value, nodeDef } = params

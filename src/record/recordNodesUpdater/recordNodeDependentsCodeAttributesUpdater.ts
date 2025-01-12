@@ -5,8 +5,10 @@ import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
 import { NodeDefs } from '../../nodeDef'
 import { Dates } from '../../utils'
+import { User } from '../../auth'
 
 export const updateDependentCodeAttributes = (params: {
+  user: User
   survey: Survey
   record: Record
   node: Node

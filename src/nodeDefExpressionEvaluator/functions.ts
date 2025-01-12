@@ -8,6 +8,23 @@ import { Dates } from '../utils/dates'
 import { NodeDefExpressionContext } from './context'
 import { SystemError } from '../error'
 import { ExtraProps } from '../extraProp/extraProps'
+import { Users } from '../auth'
+
+const sampleGeoJsonPolygon = {
+  type: 'Feature',
+  geometry: {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [100.0, 0.0],
+        [101.0, 0.0],
+        [101.0, 1.0],
+        [100.0, 1.0],
+        [100.0, 0.0],
+      ],
+    ],
+  },
+}
 
 export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
   categoryItemProp: {
@@ -65,6 +82,11 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       return null
     },
   },
+  geoPolygon: {
+    minArity: 1,
+    evaluateArgsToNodes: true,
+    executor: () => () => sampleGeoJsonPolygon,
+  },
   includes: {
     minArity: 2,
     maxArity: 2,
@@ -78,7 +100,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: NodeDefExpressionContext) => () => {
+    executor: () => () => {
       return -1
     },
   },
@@ -86,7 +108,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: NodeDefExpressionContext) => () => {
+    executor: () => () => {
       return null
     },
   },
@@ -138,6 +160,27 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
 
       const value = taxon.props.extra?.[propName]
       return ExtraProps.convertValue({ survey, extraPropDef, value })
+    },
+  },
+  userEmail: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: NodeDefExpressionContext) => () => context.user?.email,
+  },
+  userName: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: NodeDefExpressionContext) => () => context.user?.name,
+  },
+  userProp: {
+    minArity: 1,
+    maxArity: 1,
+    executor: (context: NodeDefExpressionContext) => (propName: string) => {
+      const { user, survey } = context
+      if (!survey || !user) return undefined
+      const { uuid: surveyUuid } = survey
+      const combinedExtraProps = Users.getCombinedExtraProps(surveyUuid)(user)
+      return combinedExtraProps[propName]
     },
   },
 }

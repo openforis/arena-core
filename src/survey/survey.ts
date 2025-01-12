@@ -1,4 +1,4 @@
-import { ArenaObject } from '../common'
+import { ArenaObject, Dictionary } from '../common'
 import { AuthGroup } from '../auth'
 import { Labels, LanguageCode } from '../language'
 import { SRS } from '../srs'
@@ -8,6 +8,8 @@ import { Category } from '../category'
 import { Taxonomy } from '../taxonomy'
 import { SurveyRefData } from './refData/refData'
 
+export const defaultCycle = '0'
+
 export interface SurveyDependency {
   [nodeDefUuid: string]: Array<string>
 }
@@ -15,6 +17,7 @@ export interface SurveyDependency {
 export enum SurveyDependencyType {
   applicable = 'applicable',
   defaultValues = 'defaultValues',
+  fileName = 'fileName',
   formula = 'formula',
   maxCount = 'maxCount',
   minCount = 'minCount',
@@ -36,6 +39,7 @@ export interface SurveyProps {
   }
   defaultCycleKey?: string
   descriptions?: Labels
+  fieldManualLinks?: Labels
   languages: LanguageCode[]
   labels?: Labels
   name: string
@@ -45,7 +49,8 @@ export interface SurveyProps {
 
 export interface SurveyNodeDefsIndex {
   rootDefUuid?: string
-  childDefUuidPresenceByParentUuid?: { [parentUuid: string]: { [nodeDefUuid: string]: boolean }[] }
+  childDefUuidPresenceByParentUuid?: { [parentUuid: string]: { [nodeDefUuid: string]: boolean } }
+  nodeDefUuidByName?: Dictionary<string>
 }
 
 export interface Survey extends ArenaObject<SurveyProps> {
@@ -70,7 +75,7 @@ export interface Survey extends ArenaObject<SurveyProps> {
    */
   taxonomies?: { [taxonomyUuid: string]: Taxonomy }
   /**
-   * Refernce data cache (category items and taxa).
+   * Reference data cache (category items and taxa).
    */
   refData?: SurveyRefData
 

@@ -1,3 +1,4 @@
+import { Dictionary } from '../common'
 import { SystemError } from '../error'
 import { Node, NodesMap } from '../node'
 import { Survey, SurveyDependencyType, Surveys } from '../survey'
@@ -26,9 +27,10 @@ const _getDependentValidationNodes = (params: { survey: Survey; record: Record; 
 }
 
 const _onRecordNodesCreateOrUpdate = async (
-  params: NodesUpdateParams & { nodes: { [x: string]: Node } }
+  params: NodesUpdateParams & { nodes: Dictionary<Node> }
 ): Promise<RecordUpdateResult> => {
   const {
+    user,
     survey,
     record,
     nodes,
@@ -38,6 +40,7 @@ const _onRecordNodesCreateOrUpdate = async (
   } = params
 
   const { nodes: updatedNodes, record: updatedRecord } = RecordNodesUpdater.updateNodesDependents({
+    user,
     survey,
     record,
     nodes,
@@ -45,13 +48,12 @@ const _onRecordNodesCreateOrUpdate = async (
     sideEffect,
   })
 
-  const nodesToValidate = { ...updatedNodes }
-
   const dependentValidationNodes = _getDependentValidationNodes({ survey, record: updatedRecord, nodes: updatedNodes })
 
-  Object.assign(nodesToValidate, dependentValidationNodes)
+  const nodesToValidate = { ...updatedNodes, ...dependentValidationNodes }
 
   const validationUpdatedNodes = await RecordValidator.validateNodes({
+    user,
     survey,
     record: updatedRecord,
     nodes: nodesToValidate,

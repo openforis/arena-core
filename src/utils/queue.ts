@@ -22,19 +22,19 @@ export class Queue {
     return this.items.pop()
   }
 
-  first(): any {
-    return this.items[this.size() - 1]
+  get first(): any {
+    return this.items[this.size - 1]
   }
 
-  last(): any {
+  get last(): any {
     return this.items[0]
   }
 
-  size(): number {
+  get size(): number {
     return this.items.length
   }
 
   isEmpty(): boolean {
-    return this.size() === 0
+    return this.size === 0
   }
 }

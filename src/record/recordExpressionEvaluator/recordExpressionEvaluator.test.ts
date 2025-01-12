@@ -16,6 +16,7 @@ type Query = {
   node?: string
 }
 
+const user = createTestAdminUser()
 let survey: Survey
 let record: Record
 
@@ -36,13 +37,12 @@ const determineContextNode = (params: {
 
 describe('RecordExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = createTestAdminUser()
-
     survey = createTestSurvey({ user })
 
     record = createTestRecord({ user, survey })
   }, 10000)
   const queries: Query[] = [
+    { expression: 'invalid_node_name + 1', error: new SystemError('expression.identifierNotFound') },
     { expression: 'cluster_id + 1', result: 13 },
     { expression: 'cluster_id != 1', result: true },
     // !12 == null under strict logical negation semantics
@@ -76,6 +76,8 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'isEmpty(gps_model)', result: false },
     // remarks is empty
     { expression: 'isEmpty(remarks)', result: false },
+    // plot: invalid child name
+    { expression: 'plot.invalid_node_name + 1', error: new SystemError('expression.identifierNotFound') },
     // plot count is 3
     { expression: 'plot.length', result: 3 },
     // access multiple entities with index
@@ -224,6 +226,71 @@ describe('RecordExpressionEvaluator', () => {
       expression: 'sum(cluster.plot[plot_id <= 2].tree.tree_height)',
       result: 73,
     },
+    // geoPolygon (error, parameters not specified)
+    {
+      expression: 'geoPolygon()',
+      error: new SystemError('expression.functionHasTooFewArguments'),
+    },
+    // geoPolygon (valid, multiple entity with coordinate attribute)
+    {
+      expression: 'geoPolygon(plot.plot_location)',
+      result: {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [41.803012, 12.409056],
+              [41.823012, 12.409056],
+              [42.00548, 12.89963],
+            ],
+          ],
+        },
+      },
+    },
+    // geoPolygon (valid, list of coordinates)
+    {
+      expression: 'geoPolygon(plot[2].plot_location, plot[1].plot_location, plot[0].plot_location)',
+      result: {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [42.00548, 12.89963],
+              [41.823012, 12.409056],
+              [41.803012, 12.409056],
+            ],
+          ],
+        },
+      },
+    },
+    // geoPolygon (valid, list of points)
+    {
+      expression: `geoPolygon(
+          "SRID=4326;POINT(42.00548 12.89963)", 
+          "SRID=4326;POINT(41.823012 12.409056)", 
+          "SRID=4326;POINT(41.803012 12.409056)"
+          )`,
+      result: {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [42.00548, 12.89963],
+              [41.823012, 12.409056],
+              [41.803012, 12.409056],
+            ],
+          ],
+        },
+      },
+    },
+    // geoPolygon (not valid or empty coordinates => null)
+    {
+      expression: 'geoPolygon(plot)',
+      result: null,
+    },
     // global objects (Array)
     { expression: 'Array.of(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', result: [1, 2, 3] },
     // global objects (Date)
@@ -294,7 +361,7 @@ describe('RecordExpressionEvaluator', () => {
 
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid })
         const nodeContext = determineContextNode({ nodeCurrentDef, nodeCurrent, node })
-        const context: RecordExpressionContext = { survey, record, nodeContext, nodeCurrent, object: nodeContext }
+        const context: RecordExpressionContext = { user, survey, record, nodeContext, nodeCurrent, object: nodeContext }
         const res = new RecordExpressionEvaluator().evaluate(expression, context)
         expect(res).toEqual(result instanceof Function ? result() : result)
       } catch (error) {

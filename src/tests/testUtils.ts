@@ -1,7 +1,16 @@
 import { Node } from '../node'
-import { NodeDefs } from '../nodeDef'
+import { NodeDef, NodeDefs } from '../nodeDef'
 import { Record, Records } from '../record'
 import { Survey, Surveys } from '../survey'
+
+const findNodeDefByName = (params: { survey: Survey; name: string }): NodeDef<any> | undefined => {
+  const { survey, name } = params
+  try {
+    return Surveys.getNodeDefByName({ survey, name })
+  } catch (error) {
+    return undefined
+  }
+}
 
 const findNodeByPath = (params: { survey: Survey; record: Record; path: string }): Node | undefined => {
   const { survey, record, path } = params
@@ -17,7 +26,9 @@ const findNodeByPath = (params: { survey: Survey; record: Record; path: string }
     if (!partMatch) return undefined
 
     const childName = partMatch[1]
-    const childDef = Surveys.getNodeDefByName({ survey, name: childName })
+    const childDef = findNodeDefByName({ survey, name: childName })
+    if (!childDef) return undefined
+
     if (index === 0 && !childDef.parentUuid) {
       // skip root
     } else {
@@ -37,6 +48,9 @@ const getNodeByPath = (params: { survey: Survey; record: Record; path: string })
   if (!node) throw new Error(`Cannot find node at path ${params.path}`)
   return node
 }
+
+const getNodeUuidByPath = (params: { survey: Survey; record: Record; path: string }): string =>
+  getNodeByPath(params).uuid
 
 const getNodeName =
   (params: { survey: Survey }) =>
@@ -62,6 +76,7 @@ const getCategoryItem = (params: { survey: Survey; categoryName: string; codePat
 export const TestUtils = {
   findNodeByPath,
   getNodeByPath,
+  getNodeUuidByPath,
   getNodeName,
   getCategoryItem,
 }

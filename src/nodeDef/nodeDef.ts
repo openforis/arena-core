@@ -9,6 +9,7 @@ export enum NodeDefType {
   coordinate = 'coordinate',
   date = 'date',
   decimal = 'decimal',
+  geo = 'geo',
   entity = 'entity',
   file = 'file',
   integer = 'integer',
@@ -32,6 +33,7 @@ export interface NodeDefProps {
   cycles?: Array<string>
   descriptions?: Labels
   key?: boolean
+  autoIncrementalKey?: boolean
   labels?: Labels
   multiple?: boolean
   name?: string
@@ -94,9 +96,13 @@ export interface NodeDefPropsAdvanced {
   applicable?: Array<NodeDefExpression>
   defaultValues?: Array<NodeDefExpression>
   defaultValueEvaluatedOneTime?: boolean
+  excludedInClone?: boolean
   formula?: Array<NodeDefExpression>
-  itemsFilter?: string
   validations?: NodeDefValidations
+  // file attribute
+  fileNameExpression?: string
+  // code and taxon attribute
+  itemsFilter?: string
 
   // Analysis
   script?: string

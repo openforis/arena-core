@@ -1,6 +1,15 @@
 import { CategoryItem } from '../category'
 import { Taxon } from '../taxonomy'
 
+export enum NodeKeys {
+  meta = 'meta',
+  value = 'value',
+}
+
+export enum NodeMetaKeys {
+  h = 'h',
+}
+
 export interface NodeMeta {
   childApplicability?: { [uuid: string]: boolean }
   childrenMaxCount?: { [uuid: string]: number }
@@ -18,7 +27,7 @@ export interface NodeRefData {
 export interface Node {
   dateCreated?: string
   dateModified?: string
-  id?: string
+  id?: number
   meta?: NodeMeta
   nodeDefUuid: string
   parentUuid?: string

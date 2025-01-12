@@ -1,9 +1,9 @@
 import { NodeDef, NodeDefProps, NodeDefTaxon, NodeDefType } from '../../nodeDef'
-import { Node, Nodes, NodeValueCoordinate } from '../../node'
+import { Node, Nodes } from '../../node'
 import { ValidationResult, ValidationResultFactory } from '../../validation'
 import { Survey, Surveys } from '../../survey'
 import { NodeValues } from '../../node/nodeValues'
-import { PointFactory, Points } from '../../geo'
+import { Points } from '../../geo'
 import { Numbers, Dates } from '../../utils'
 
 const validateDecimal = (params: { value: any }) => {
@@ -58,16 +58,13 @@ const typeValidatorFns: {
   [NodeDefType.code]: validateCode,
   [NodeDefType.coordinate]: (params: { survey: Survey; node: Node }): boolean => {
     const { survey, node } = params
-    const nodeValue = node.value as NodeValueCoordinate
-    const { x, y, srs: srsCode } = nodeValue
 
-    const srs = Surveys.getSRSByCode(srsCode)(survey)
-    if (!srs) return false
+    const point = NodeValues.getValueAsPoint({ survey, node })
+    if (!point) return false
 
     const srsIndex = Surveys.getSRSIndex(survey)
 
-    const point = PointFactory.createInstance({ srs: srsCode, x, y })
-    return point && Points.isValid(point, srsIndex)
+    return Points.isValid(point, srsIndex)
   },
 
   [NodeDefType.date]: (params: { node: Node }): boolean => {

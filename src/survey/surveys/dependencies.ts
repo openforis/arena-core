@@ -1,5 +1,5 @@
 import * as SurveyNodeDefs from './nodeDefs'
-import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefExpression, NodeDefFile, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
@@ -8,16 +8,18 @@ import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
 
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
-  [SurveyDependencyType.defaultValues]: false,
+  [SurveyDependencyType.defaultValues]: true,
+  [SurveyDependencyType.fileName]: true,
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: true,
   [SurveyDependencyType.minCount]: true,
-  [SurveyDependencyType.validations]: false,
+  [SurveyDependencyType.validations]: true,
 }
 
 const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.applicable]: false,
   [SurveyDependencyType.defaultValues]: false,
+  [SurveyDependencyType.fileName]: false,
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: false,
   [SurveyDependencyType.minCount]: false,
@@ -27,6 +29,7 @@ const selfReferenceAllowedByDependencyType = {
 const newDependecyGraph = () => ({
   [SurveyDependencyType.applicable]: {},
   [SurveyDependencyType.defaultValues]: {},
+  [SurveyDependencyType.fileName]: {},
   [SurveyDependencyType.formula]: {},
   [SurveyDependencyType.maxCount]: {},
   [SurveyDependencyType.minCount]: {},
@@ -171,6 +174,15 @@ export const addNodeDefDependencies = (params: {
     SurveyDependencyType.minCount,
     singleExpressionToExpressions(NodeDefs.getMinCount(nodeDef))
   )
+  // file name expression
+  if (NodeDefs.getType(nodeDef) === NodeDefType.file) {
+    const fileNameExpression = NodeDefs.getFileNameExpression(nodeDef as NodeDefFile)
+    if (fileNameExpression) {
+      graphsUpdated = _addDependencies(SurveyDependencyType.fileName, [
+        NodeDefExpressionFactory.createInstance({ expression: fileNameExpression }),
+      ])
+    }
+  }
   if (sideEffect) {
     survey.dependencyGraph = graphsUpdated
     return survey

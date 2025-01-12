@@ -21,44 +21,23 @@ const determineNodeDefContext = (params: { survey: Survey; nodeDefCurrent: NodeD
 }
 
 export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
-  validate(params: {
-    expression: string
-    survey: Survey
-    nodeDefCurrent: NodeDef<any>
-    nodeDefContext?: NodeDef<any>
-    selfReferenceAllowed?: boolean
-    itemsFilter?: boolean
-    includeAnalysis?: boolean
-  }): { validationResult: ValidationResult; referencedNodeDefUuids: Set<string> } {
-    const {
-      expression,
-      survey,
-      nodeDefCurrent,
-      nodeDefContext: nodeDefContextParam,
-      selfReferenceAllowed = true,
-      itemsFilter = false,
-      includeAnalysis = false,
-    } = params
-
+  validate(
+    params: NodeDefExpressionContext & {
+      expression: string
+    }
+  ): { validationResult: ValidationResult; referencedNodeDefUuids: Set<string> } {
+    const { expression, survey, nodeDefCurrent, nodeDefContext: nodeDefContextParam } = params
     try {
       const nodeDefContext = nodeDefContextParam ?? determineNodeDefContext({ survey, nodeDefCurrent })
 
-      const context: NodeDefExpressionContext = {
-        survey,
-        nodeDefContext,
-        nodeDefCurrent,
-        object: nodeDefCurrent,
-        selfReferenceAllowed,
-        referencedNodeDefUuids: new Set(),
-        itemsFilter,
-        includeAnalysis,
-      }
+      const referencedNodeDefUuids = new Set<string>()
+      const evaluationParams = { ...params, nodeDefContext, object: nodeDefCurrent, referencedNodeDefUuids }
 
-      this.evaluate(expression, context)
+      this.evaluate(expression, evaluationParams)
 
       return {
         validationResult: ValidationResultFactory.createInstance(),
-        referencedNodeDefUuids: context.referencedNodeDefUuids ?? new Set(),
+        referencedNodeDefUuids,
       }
     } catch (error: any) {
       const isSystemError = error instanceof SystemError

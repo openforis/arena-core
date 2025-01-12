@@ -2,12 +2,14 @@ import { TraverseMethod } from '../../common'
 import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefType, NodeDefs } from '../../nodeDef'
 import { Node, NodePointer, Nodes, NodesMap } from '../../node'
 import { Record } from '../record'
-import { Surveys } from '../../survey'
+import { defaultCycle, Surveys } from '../../survey'
 import { Arrays, Queue } from '../../utils'
 import { Survey, SurveyDependencyType } from '../../survey/survey'
 import { SystemError } from '../../error'
 import { NodeValues } from '../../node/nodeValues'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
+
+export const getCycle = (record: Record): string => record.cycle ?? defaultCycle
 
 export const getNodes = (record: Record): { [key: string]: Node } => record.nodes ?? {}
 
@@ -250,11 +252,18 @@ const getClosestAncestorNode = (params: {
   return getAncestor({ record, node, ancestorDefUuid: commonAncestorDefUuid })
 }
 
-export const getEntityKeyNodesByDefUuid = (params: { survey: Survey; record: Record; entity: Node }): NodesMap => {
-  const { survey, record, entity } = params
-  const { cycle } = record
+type EntityKeyNodesGetterParams = {
+  survey: Survey
+  cycle?: string
+  record: Record
+  entity: Node
+  keyDefs?: NodeDef<NodeDefType, NodeDefProps>[]
+}
+
+export const getEntityKeyNodesByDefUuid = (params: EntityKeyNodesGetterParams): NodesMap => {
+  const { survey, cycle, record, entity, keyDefs } = params
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
-  const nodeDefKeys = Surveys.getNodeDefKeys({ survey, cycle, nodeDef })
+  const nodeDefKeys = keyDefs ?? Surveys.getNodeDefKeys({ survey, cycle, nodeDef })
   return nodeDefKeys.reduce((acc: NodesMap, nodeDefKey) => {
     const nodeKey = getDescendant({ record, node: entity, nodeDefDescendant: nodeDefKey })
     acc[nodeDefKey.uuid] = nodeKey
@@ -262,14 +271,10 @@ export const getEntityKeyNodesByDefUuid = (params: { survey: Survey; record: Rec
   }, {})
 }
 
-export const getEntityKeyNodes = (params: { survey: Survey; record: Record; entity: Node }): Node[] =>
+export const getEntityKeyNodes = (params: EntityKeyNodesGetterParams): Node[] =>
   Object.values(getEntityKeyNodesByDefUuid(params))
 
-export const getEntityKeyValuesByDefUuid = (params: {
-  survey: Survey
-  record: Record
-  entity: Node
-}): { [key: string]: any } => {
+export const getEntityKeyValuesByDefUuid = (params: EntityKeyNodesGetterParams): { [key: string]: any } => {
   const keyNodesByDefUuid = getEntityKeyNodesByDefUuid(params)
   return Object.entries(keyNodesByDefUuid).reduce((acc: { [key: string]: any }, [uuid, keyNode]) => {
     acc[uuid] = keyNode?.value
@@ -277,7 +282,7 @@ export const getEntityKeyValuesByDefUuid = (params: {
   }, {})
 }
 
-export const getEntityKeyValues = (params: { survey: Survey; record: Record; entity: Node }): any[] =>
+export const getEntityKeyValues = (params: EntityKeyNodesGetterParams): any[] =>
   Object.values(getEntityKeyValuesByDefUuid(params))
 
 export const getNodeSiblings = (params: {
@@ -296,6 +301,14 @@ export const getNodeSiblings = (params: {
     (siblingsAcc: Node[], siblingEntity) => [...siblingsAcc, ...getChildren(siblingEntity, nodeDef.uuid)(record)],
     []
   )
+}
+
+export const getNodeIndex = (params: { record: Record; node: Node }) => {
+  const { record, node } = params
+  const parentEntity = getParent(node)(record)
+  if (!parentEntity) return 0 // root entity
+  const siblings = getChildren(parentEntity, node.nodeDefUuid)(record)
+  return siblings.indexOf(node)
 }
 
 export const findEntityByKeyValues = (params: {
@@ -319,6 +332,7 @@ export const findEntityByKeyValues = (params: {
       survey,
       record,
       entity: siblingEntity,
+      keyDefs,
     })
     return keyDefs.every((keyDef) => {
       const keyValue = siblingEntityKeyValuesByDefUuid[keyDef.uuid]

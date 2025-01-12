@@ -6,6 +6,8 @@ import {
 } from './dependencies'
 
 import {
+  findNodeDefByName,
+  findNodeDefByUuid,
   findNodeDefsByUuids,
   getNodeDefByName,
   getNodeDefsByUuids,
@@ -20,13 +22,16 @@ import {
   getRootKeys,
   getNodeDefsIncludedInMultipleEntitySummary,
   getNodeDefParentCode,
+  getNodeDefAncestorCodes,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
   isNodeDefEnumerator,
   getNodeDefEnumerator,
   buildAndAssocNodeDefsIndex,
   addNodeDefToIndex,
+  updateNodeDefUuidByNameIndex,
   deleteNodeDefIndex,
+  visitAncestorsAndSelfNodeDef,
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
   getDescendantsInSingleEntities,
@@ -48,6 +53,8 @@ import {
   getDefaultLanguage,
   getLabel,
   getLabelOrName,
+  getDescription,
+  getFieldManualLink,
   getCycleKeys,
   getLastCycleKey,
   getDefaultCycleKey,
@@ -61,12 +68,13 @@ import {
 } from './surveysGetters'
 
 export const Surveys = {
-  findNodeDefsByUuids,
   getName,
   getLanguages,
   getDefaultLanguage,
   getLabel,
   getLabelOrName,
+  getDescription,
+  getFieldManualLink,
   getCycleKeys,
   getLastCycleKey,
   getDefaultCycleKey,
@@ -78,6 +86,9 @@ export const Surveys = {
   getTaxonomyByName,
   getTaxonomyByUuid,
 
+  findNodeDefByName,
+  findNodeDefByUuid,
+  findNodeDefsByUuids,
   getNodeDefByName,
   getNodeDefsByUuids,
   getNodeDefByUuid,
@@ -92,6 +103,7 @@ export const Surveys = {
   getNodeDefsIncludedInMultipleEntitySummary,
   isNodeDefEnumerator,
   getNodeDefEnumerator,
+  visitAncestorsAndSelfNodeDef,
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
   getDescendantsInSingleEntities,
@@ -108,6 +120,7 @@ export const Surveys = {
 
   // node def code
   getNodeDefParentCode,
+  getNodeDefAncestorCodes,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
 
@@ -120,5 +133,6 @@ export const Surveys = {
   // index
   buildAndAssocNodeDefsIndex,
   addNodeDefToIndex,
+  updateNodeDefUuidByNameIndex,
   deleteNodeDefIndex,
 }

@@ -8,8 +8,10 @@ import { getCategoryItems } from '../../survey/surveys/refsData'
 import { getNodeDefEnumerator, getNodeDefChildren } from '../../survey/surveys/nodeDefs'
 import { Record } from '../record'
 import { RecordUpdateResult } from './recordUpdateResult'
+import { User } from '../../auth'
 
 export type NodesUpdateParams = {
+  user: User
   survey: Survey
   record: Record
   dateModified?: string
@@ -38,13 +40,14 @@ const getEnumeratingCategoryItems = (params: { survey: Survey; enumerator: NodeD
 }
 
 const createEnumeratedEntityNodes = (params: {
+  user: User
   survey: Survey
   parentNode: Node
   entityDef: NodeDefEntity
   updateResult: RecordUpdateResult
   sideEffect: boolean
 }): boolean => {
-  const { survey, parentNode, entityDef, updateResult, sideEffect } = params
+  const { user, survey, parentNode, entityDef, updateResult, sideEffect } = params
 
   const enumerator = getNodeDefEnumerator({ survey, entityDef })
   if (!enumerator) return false
@@ -53,6 +56,7 @@ const createEnumeratedEntityNodes = (params: {
   categoryItems.forEach((categoryItem) => {
     const { record } = updateResult
     const childUpdateResult = createNodeAndDescendants({
+      user,
       survey,
       record: updateResult.record,
       parentNode,
@@ -76,11 +80,18 @@ const createEnumeratedEntityNodes = (params: {
 }
 
 const createChildNodesBasedOnMinCount = (params: NodeCreateParams & { updateResult: RecordUpdateResult }): void => {
-  const { survey, parentNode, nodeDef, updateResult, createMultipleEntities = true, sideEffect = false } = params
+  const { user, survey, parentNode, nodeDef, updateResult, createMultipleEntities = true, sideEffect = false } = params
 
   if (NodeDefs.isMultipleEntity(nodeDef) && NodeDefs.isEnumerate(nodeDef)) {
     if (
-      createEnumeratedEntityNodes({ survey, parentNode: parentNode!, entityDef: nodeDef, updateResult, sideEffect })
+      createEnumeratedEntityNodes({
+        user,
+        survey,
+        parentNode: parentNode!,
+        entityDef: nodeDef,
+        updateResult,
+        sideEffect,
+      })
     ) {
       return
     }
@@ -92,6 +103,7 @@ const createChildNodesBasedOnMinCount = (params: NodeCreateParams & { updateResu
   }
   for (let index = 0; index < nodesToInsertCount; index++) {
     const childUpdateResult = createNodeAndDescendants({
+      user,
       survey,
       record: updateResult.record,
       parentNode,

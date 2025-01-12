@@ -15,6 +15,7 @@ type Query = {
   error?: Error
 }
 
+const user = createTestAdminUser()
 let survey: Survey
 let record: Record
 
@@ -22,8 +23,6 @@ const getNode = (path: string): Node => TestUtils.getNodeByPath({ survey, record
 
 describe('RecordItemFilterExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = createTestAdminUser()
-
     survey = createTestSurvey({ user })
 
     record = createTestRecord({ user, survey })
@@ -66,6 +65,7 @@ describe('RecordItemFilterExpressionEvaluator', () => {
         })
         const filteredItems = items.filter((item) => {
           const context: RecordExpressionContext = {
+            user,
             survey,
             record,
             nodeContext,

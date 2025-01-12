@@ -48,6 +48,7 @@ describe('RecordUpdater - attribute update => update dependent validations', () 
 
     // set table[0].coverage to 80 (sum = 170) => validations not valid
     let updateResult = await RecordUpdater.updateAttributeValue({
+      user,
       survey,
       record,
       attributeUuid: nodeToUpdate.uuid,
@@ -63,6 +64,7 @@ describe('RecordUpdater - attribute update => update dependent validations', () 
 
     // set table[0].coverage to 10 (sum = 100) => validation valid
     updateResult = await RecordUpdater.updateAttributeValue({
+      user,
       survey,
       record,
       attributeUuid: nodeToUpdate.uuid,

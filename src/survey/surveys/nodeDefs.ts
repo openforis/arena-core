@@ -18,10 +18,40 @@ import { TraverseMethod } from '../../common'
 
 export const getNodeDefsArray = NodeDefsReader.getNodeDefsArray
 
+export const findNodeDefByUuid = (params: {
+  survey: Survey
+  uuid: string
+}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
+  const { survey, uuid } = params
+  return survey.nodeDefs?.[uuid]
+}
+
+export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): NodeDef<NodeDefType, NodeDefProps> => {
+  const { survey, uuid } = params
+  const nodeDef = findNodeDefByUuid({ survey, uuid })
+  if (!nodeDef) throw new SystemError('survey.nodeDefUuidNotFound', { uuid })
+  return nodeDef
+}
+
+export const findNodeDefByName = (params: {
+  survey: Survey
+  name: string
+}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
+  const { survey, name } = params
+  const nodeDefUuidByNameIndex = survey.nodeDefsIndex?.nodeDefUuidByName
+  if (nodeDefUuidByNameIndex) {
+    const uuid = nodeDefUuidByNameIndex[name]
+    return findNodeDefByUuid({ survey, uuid })
+  }
+  return getNodeDefsArray(survey).find((nodeDef) => nodeDef.props.name === name)
+}
+
 export const getNodeDefByName = (params: { survey: Survey; name: string }): NodeDef<NodeDefType, NodeDefProps> => {
   const { survey, name } = params
-  const nodeDef = getNodeDefsArray(survey).find((nodeDef) => nodeDef.props.name === name)
-  if (!nodeDef) throw new SystemError('survey.nodeDefNameNotFound', { name })
+  const nodeDef = findNodeDefByName({ survey, name })
+  if (!nodeDef) {
+    throw new SystemError('survey.nodeDefNameNotFound', { name })
+  }
   return nodeDef
 }
 
@@ -44,24 +74,6 @@ export const findNodeDefsByUuids = (params: {
   }, [])
 }
 
-export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): NodeDef<NodeDefType, NodeDefProps> => {
-  const { survey, uuid } = params
-  const nodeDef = survey.nodeDefs?.[uuid]
-  if (!nodeDef) throw new SystemError('survey.nodeDefUuidNotFound', { uuid })
-  return nodeDef
-}
-
-export const findNodeDefByUuid = (params: {
-  survey: Survey
-  uuid: string
-}): NodeDef<NodeDefType, NodeDefProps> | undefined => {
-  try {
-    return getNodeDefByUuid(params)
-  } catch (error) {
-    return undefined
-  }
-}
-
 export const getNodeDefParent = (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
@@ -80,7 +92,7 @@ export const isNodeDefAncestor = (params: {
   return Arrays.startsWith(nodeDefDescendant.meta.h, [...nodeDefAncestor.meta.h, nodeDefAncestor.uuid])
 }
 
-export const getNodeDefRoot = (params: { survey: Survey }): NodeDef<NodeDefType, NodeDefProps> => {
+export const getNodeDefRoot = (params: { survey: Survey }): NodeDefEntity => {
   const { survey } = params
   if (!survey.nodeDefs) throw new SystemError('survey.emptyNodeDefs')
 
@@ -92,7 +104,7 @@ export const getNodeDefRoot = (params: { survey: Survey }): NodeDef<NodeDefType,
 
   if (!rootDef) throw new SystemError('survey.rootDefNotFound')
 
-  return rootDef
+  return rootDef as NodeDefEntity
 }
 
 export const getNodeDefSource = (params: {
@@ -231,6 +243,20 @@ export const getNodeDefChildrenSorted = (params: {
   })
 }
 
+export const visitAncestorsAndSelfNodeDef = (params: {
+  survey: Survey
+  nodeDef: NodeDef<any>
+  visitor: (nodeDef: NodeDef<any>) => void
+}): void => {
+  const { survey, nodeDef, visitor } = params
+  visitor(nodeDef)
+  let currentParent = getNodeDefParent({ survey, nodeDef })
+  while (currentParent) {
+    visitor(currentParent)
+    currentParent = getNodeDefParent({ survey, nodeDef: currentParent })
+  }
+}
+
 export const visitDescendantsAndSelfNodeDef = (params: {
   survey: Survey
   cycle?: string
@@ -311,15 +337,23 @@ export const visitNodeDefs = (params: {
 }
 
 // Node Def Code
-export const getNodeDefParentCode = (params: {
-  survey: Survey
-  nodeDef: NodeDef<NodeDefType, NodeDefCodeProps>
-}): NodeDef<NodeDefType.code, NodeDefCodeProps> | undefined => {
+export const getNodeDefParentCode = (params: { survey: Survey; nodeDef: NodeDefCode }): NodeDefCode | undefined => {
   const { survey, nodeDef } = params
   const parentCodeDefUuid = nodeDef.props.parentCodeDefUuid
   if (!parentCodeDefUuid) return undefined
   const parentCodeDef = getNodeDefByUuid({ survey, uuid: parentCodeDefUuid })
-  return parentCodeDef as NodeDef<NodeDefType.code, NodeDefCodeProps>
+  return parentCodeDef as NodeDefCode
+}
+
+export const getNodeDefAncestorCodes = (params: { survey: Survey; nodeDef: NodeDefCode }): NodeDefCode[] => {
+  const { survey, nodeDef } = params
+  const ancestors = []
+  let currentParentCode = getNodeDefParentCode({ survey, nodeDef })
+  while (currentParentCode) {
+    ancestors.unshift(currentParentCode)
+    currentParentCode = getNodeDefParentCode({ survey, nodeDef: currentParentCode })
+  }
+  return ancestors
 }
 
 export const isNodeDefParentCode = (params: {
@@ -427,5 +461,6 @@ export const getNodeDefsIncludedInMultipleEntitySummary = (params: {
   })
 }
 
-const { buildAndAssocNodeDefsIndex, addNodeDefToIndex, deleteNodeDefIndex } = NodeDefsIndex
-export { buildAndAssocNodeDefsIndex, addNodeDefToIndex, deleteNodeDefIndex }
+const { buildAndAssocNodeDefsIndex, addNodeDefToIndex, updateNodeDefUuidByNameIndex, deleteNodeDefIndex } =
+  NodeDefsIndex
+export { buildAndAssocNodeDefsIndex, addNodeDefToIndex, updateNodeDefUuidByNameIndex, deleteNodeDefIndex }

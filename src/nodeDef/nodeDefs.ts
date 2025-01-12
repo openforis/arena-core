@@ -1,5 +1,6 @@
 import { LanguageCode } from '../language'
 import { valuePropsCoordinate } from '../node/nodeValueProps'
+import { defaultCycle } from '../survey'
 import { Objects, Strings } from '../utils'
 import {
   NodeDef,
@@ -14,11 +15,15 @@ import {
 import { NodeDefCode } from './types/code'
 import { NodeDefCoordinate } from './types/coordinate'
 import { NodeDefDecimal } from './types/decimal'
-import { NodeDefEntity, NodeDefEntityChildPosition, NodeDefEntityRenderType } from './types/entity'
+import {
+  NodeDefEntity,
+  NodeDefEntityLayout,
+  NodeDefEntityLayoutChildItem,
+  NodeDefEntityRenderType,
+} from './types/entity'
+import { NodeDefFile, NodeDefFileType } from './types/file'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText } from './types/text'
-
-const defaultCycle = '0'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
@@ -40,6 +45,9 @@ const isMultipleAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => isAttrib
 
 const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.props.key ?? false
 
+const isAutoIncrementalKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean =>
+  nodeDef.props.autoIncrementalKey ?? false
+
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
 
 const isLayoutElement = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.formHeader
@@ -50,7 +58,7 @@ const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: Langu
   Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.labels?.[lang])
 
 const getDescription = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
-  Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.descriptions?.[lang])
+  nodeDef.props.descriptions?.[lang] ?? ''
 
 const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ?? false
 
@@ -75,8 +83,12 @@ const isFieldVisible = (field: string) => (nodeDef: NodeDef<any>) => {
 
 const isInCycle =
   (cycle: string) =>
-  (nodeDef: NodeDef<NodeDefType>): boolean =>
-    !!nodeDef.props.cycles?.includes(cycle)
+  (nodeDef: NodeDef<NodeDefType>): boolean => {
+    const cycles = nodeDef.props.cycles ?? [defaultCycle]
+    return cycles.includes(cycle)
+  }
+
+const isExcludedInClone = (nodeDef: NodeDef<NodeDefType>): boolean => !!nodeDef.propsAdvanced?.excludedInClone
 
 // code
 const getCategoryUuid = (nodeDef: NodeDefCode): string | undefined => nodeDef.props.categoryUuid
@@ -98,6 +110,11 @@ const getMaxNumberDecimalDigits = (nodeDef: NodeDefDecimal) => {
   const decimalDigits = nodeDef.props.maxNumberDecimalDigits
   return Objects.isEmpty(decimalDigits) ? NaN : Number(decimalDigits)
 }
+
+// file
+const getFileType = (nodeDef: NodeDefFile): NodeDefFileType | undefined => nodeDef.props.fileType
+const getFileNameExpression = (nodeDef: NodeDefFile): string | undefined => nodeDef.propsAdvanced?.fileNameExpression
+const getFileMaxSize = (nodeDef: NodeDefFile): number | undefined => nodeDef.props.maxFileSize
 
 // taxon
 const getTaxonomyUuid = (nodeDef: NodeDefTaxon): string | undefined => nodeDef.props.taxonomyUuid
@@ -155,12 +172,22 @@ const isLayoutRenderTypeTable =
 const getChildrenEntitiesInOwnPageUudis =
   (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): string[] =>
-    getLayoutProps(cycle)(nodeDef).indexChildren
+    (getLayoutProps(cycle)(nodeDef) as NodeDefEntityLayout).indexChildren ?? []
 
 const getLayoutChildren =
   (cycle = defaultCycle) =>
-  (nodeDef: NodeDefEntity): NodeDefEntityChildPosition[] | string[] | undefined =>
-    getLayoutProps(cycle)(nodeDef).layoutChildren
+  (nodeDef: NodeDefEntity): NodeDefEntityLayoutChildItem[] =>
+    (getLayoutProps(cycle)(nodeDef) as NodeDefEntityLayout).layoutChildren ?? []
+
+const getPageUuid =
+  (cycle = defaultCycle) =>
+  (nodeDef: NodeDefEntity): string | undefined =>
+    (getLayoutProps(cycle)(nodeDef) as NodeDefEntityLayout).pageUuid
+
+const isDisplayInOwnPage =
+  (cycle = defaultCycle) =>
+  (nodeDef: NodeDefEntity): boolean =>
+    !!getPageUuid(cycle)(nodeDef)
 
 const isHiddenInMobile =
   (cycle = defaultCycle) =>
@@ -188,6 +215,9 @@ const getAreaBasedEstimatedOf = (nodeDef: NodeDef<any>): string | undefined =>
 
 const getIndexInChain = (nodeDef: NodeDef<any>): number | undefined => nodeDef.propsAdvanced?.index
 
+// Metadata
+const getMetaHieararchy = (nodeDef: NodeDef<any>): string[] => nodeDef.meta?.h ?? []
+
 export const NodeDefs = {
   isEntity,
   isMultiple,
@@ -198,6 +228,7 @@ export const NodeDefs = {
   isSingleAttribute,
   isMultipleAttribute,
   isKey,
+  isAutoIncrementalKey,
   isReadOnly,
   isHidden,
   isEnumerate,
@@ -213,11 +244,15 @@ export const NodeDefs = {
   getVisibleFields,
   isFieldVisible,
   isInCycle,
+  isExcludedInClone,
   getCategoryUuid,
   getParentCodeDefUuid,
   isAllowOnlyDeviceCoordinate,
   getCoordinateAdditionalFields,
   getMaxNumberDecimalDigits,
+  getFileNameExpression,
+  getFileType,
+  getFileMaxSize,
   getTaxonomyUuid,
   getTextTransform,
   getItemsFilter,
@@ -229,6 +264,8 @@ export const NodeDefs = {
   isLayoutRenderTypeTable,
   getChildrenEntitiesInOwnPageUudis,
   getLayoutChildren,
+  getPageUuid,
+  isDisplayInOwnPage,
   isHiddenInMobile,
   isIncludedInMultipleEntitySummary,
   isHiddenWhenNotRelevant,
@@ -245,4 +282,6 @@ export const NodeDefs = {
   // Analysis
   getAreaBasedEstimatedOf,
   getIndexInChain,
+  // Metadata
+  getMetaHieararchy,
 }
