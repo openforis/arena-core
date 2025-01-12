@@ -134,16 +134,21 @@ const getValidationsExpressions = (nodeDef: NodeDef<NodeDefType>): NodeDefExpres
 
 const isRequired = (nodeDef: NodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required ?? false
 
-// // Min max
-const getCount = (nodeDef: NodeDef<NodeDefType>, countType: NodeDefCountType): string | undefined => {
+// // Min/max count
+const getCount = (
+  nodeDef: NodeDef<NodeDefType>,
+  countType: NodeDefCountType
+): string | NodeDefExpression[] | undefined => {
   const countValidations = getValidations(nodeDef)?.count
   if (!countValidations) return undefined
   return countType === NodeDefCountType.max ? countValidations.max : countValidations.min
 }
 
-const getMinCount = (nodeDef: NodeDef<NodeDefType>): string | undefined => getCount(nodeDef, NodeDefCountType.min)
+const getMinCount = (nodeDef: NodeDef<NodeDefType>): string | NodeDefExpression[] | undefined =>
+  getCount(nodeDef, NodeDefCountType.min)
 
-const getMaxCount = (nodeDef: NodeDef<NodeDefType>): string | undefined => getCount(nodeDef, NodeDefCountType.max)
+const getMaxCount = (nodeDef: NodeDef<NodeDefType>): string | NodeDefExpression[] | undefined =>
+  getCount(nodeDef, NodeDefCountType.max)
 
 const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>): boolean =>
   !Objects.isEmpty(getMinCount(nodeDef)) || !Objects.isEmpty(getMaxCount(nodeDef))

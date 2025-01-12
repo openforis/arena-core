@@ -37,22 +37,24 @@ export const updateDependentsCount = (params: {
   nodePointersToUpdate.forEach((nodePointer: NodePointer) => {
     const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
 
-    const expressionToEvaluate = NodeDefs.getCount(nodeDefNodePointer, countType)
-    if (Objects.isEmpty(expressionToEvaluate)) return
+    const expressionsToEvaluate = NodeDefs.getCount(nodeDefNodePointer, countType)
+    if (Objects.isEmpty(expressionsToEvaluate) || !Array.isArray(expressionsToEvaluate)) return
 
     // 3. evaluate applicable expression
     const nodeCtxUuid = nodeCtxNodePointer.uuid
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
-    const count = new RecordExpressionEvaluator().evalExpression({
+    const countResult = new RecordExpressionEvaluator().evalApplicableExpression({
       user,
       survey,
       record: updateResult.record,
-      node: nodeCtx,
-      query: expressionToEvaluate!,
+      nodeCtx,
+      expressions: expressionsToEvaluate,
       timezoneOffset,
     })
+
+    const count = Number(countResult)
 
     // 4. persist updated count if changed, and return updated nodes
     const nodeDefUuid = nodeDefNodePointer.uuid

@@ -1,4 +1,4 @@
-import { UUIDs } from '../utils'
+import { Objects, UUIDs } from '../utils'
 import { ArenaObject, Factory } from '../common'
 import { Labels } from '../language'
 import { ValidationSeverity } from '../validation'
@@ -75,14 +75,15 @@ export interface NodeDefExpressionFactoryParams {
 
 export const NodeDefExpressionFactory: Factory<NodeDefExpression, NodeDefExpressionFactoryParams> = {
   createInstance: (params: NodeDefExpressionFactoryParams): NodeDefExpression => {
-    const { applyIf, expression, severity } = params
-    return { applyIf, expression, severity, uuid: UUIDs.v4() }
+    const result = { uuid: UUIDs.v4() }
+    Object.assign(result, Objects.deleteEmptyProps({ ...params }))
+    return result
   },
 }
 
 export interface NodeDefCountValidations {
-  max?: string
-  min?: string
+  max?: string | NodeDefExpression[]
+  min?: string | NodeDefExpression[]
 }
 
 export interface NodeDefValidations {
@@ -93,11 +94,11 @@ export interface NodeDefValidations {
 }
 
 export interface NodeDefPropsAdvanced {
-  applicable?: Array<NodeDefExpression>
-  defaultValues?: Array<NodeDefExpression>
+  applicable?: NodeDefExpression[]
+  defaultValues?: NodeDefExpression[]
   defaultValueEvaluatedOneTime?: boolean
   excludedInClone?: boolean
-  formula?: Array<NodeDefExpression>
+  formula?: NodeDefExpression[]
   validations?: NodeDefValidations
   // file attribute
   fileNameExpression?: string
