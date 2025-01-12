@@ -159,21 +159,17 @@ export const addNodeDefDependencies = (params: {
       graphs: graphsUpdated,
       sideEffect,
     })
-  const singleExpressionToExpressions = (expression: string | undefined): NodeDefExpression[] => {
-    if (Objects.isEmpty(expression)) return []
-    return [NodeDefExpressionFactory.createInstance({ expression: expression! })]
-  }
   graphsUpdated = _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
   graphsUpdated = _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
   graphsUpdated = _addDependencies(SurveyDependencyType.validations, NodeDefs.getValidationsExpressions(nodeDef))
-  graphsUpdated = _addDependencies(
-    SurveyDependencyType.maxCount,
-    singleExpressionToExpressions(NodeDefs.getMaxCount(nodeDef))
-  )
-  graphsUpdated = _addDependencies(
-    SurveyDependencyType.minCount,
-    singleExpressionToExpressions(NodeDefs.getMinCount(nodeDef))
-  )
+  const maxCount = NodeDefs.getMaxCount(nodeDef)
+  if (Array.isArray(maxCount)) {
+    graphsUpdated = _addDependencies(SurveyDependencyType.maxCount, maxCount as NodeDefExpression[])
+  }
+  const minCount = NodeDefs.getMinCount(nodeDef)
+  if (Array.isArray(minCount)) {
+    graphsUpdated = _addDependencies(SurveyDependencyType.minCount, minCount as NodeDefExpression[])
+  }
   // file name expression
   if (NodeDefs.getType(nodeDef) === NodeDefType.file) {
     const fileNameExpression = NodeDefs.getFileNameExpression(nodeDef as NodeDefFile)
