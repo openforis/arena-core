@@ -64,7 +64,6 @@ const dissocChildApplicability = (node: Node, nodeDefUuid: string) => {
     meta: { ...node.meta, childApplicability },
   }
 }
-const getHierarchy = (node: Node) => [...(node.meta?.h ?? [])]
 
 const assocChildrenCount = (params: {
   node: Node

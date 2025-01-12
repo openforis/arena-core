@@ -1,3 +1,4 @@
+import { User } from '../../auth'
 import { NodeDefCountType, NodeDefs } from '../../nodeDef'
 import { Record } from '../record'
 import { Survey, SurveyDependencyType } from '../../survey'
@@ -8,6 +9,7 @@ import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Objects } from '../../utils'
 
 export const updateDependentsCount = (params: {
+  user: User
   survey: Survey
   record: Record
   node: Node
@@ -15,7 +17,7 @@ export const updateDependentsCount = (params: {
   sideEffect?: boolean
   timezoneOffset?: number
 }): RecordUpdateResult => {
-  const { survey, record, node, countType, timezoneOffset, sideEffect = false } = params
+  const { user, survey, record, node, countType, timezoneOffset, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -44,6 +46,7 @@ export const updateDependentsCount = (params: {
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
     const count = new RecordExpressionEvaluator().evalExpression({
+      user,
       survey,
       record: updateResult.record,
       node: nodeCtx,
