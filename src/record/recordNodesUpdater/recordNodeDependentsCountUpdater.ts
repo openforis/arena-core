@@ -34,6 +34,7 @@ export const updateDependentsCount = (params: {
 
   // 2. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
+  const expressionEvaluator = new RecordExpressionEvaluator()
   nodePointersToUpdate.forEach((nodePointer: NodePointer) => {
     const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
 
@@ -45,7 +46,7 @@ export const updateDependentsCount = (params: {
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
-    const countResult = new RecordExpressionEvaluator().evalApplicableExpression({
+    const countResult = expressionEvaluator.evalApplicableExpression({
       user,
       survey,
       record: updateResult.record,
@@ -54,7 +55,7 @@ export const updateDependentsCount = (params: {
       timezoneOffset,
     })
 
-    const count = Number(countResult)
+    const count = Number(countResult?.value)
 
     // 4. persist updated count if changed, and return updated nodes
     const nodeDefUuid = nodeDefNodePointer.uuid
