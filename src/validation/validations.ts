@@ -30,7 +30,7 @@ const recalculateValidity = (validation: Validation): Validation => {
 
   const fieldsWithValidationRecalculated: ValidationFields = {}
 
-  Object.entries(validation.fields).forEach(([fieldKey, fieldValidation]) => {
+  Object.entries(validation.fields ?? {}).forEach(([fieldKey, fieldValidation]) => {
     const fieldValidationUpdated = recalculateValidity(fieldValidation)
     fieldsWithValidationRecalculated[fieldKey] = fieldValidationUpdated
     if (!fieldValidationUpdated.valid) {
