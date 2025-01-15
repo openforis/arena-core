@@ -26,11 +26,11 @@ export enum NodeDefCountType {
 }
 
 export interface NodeDefMeta {
-  h: Array<string>
+  h: string[]
 }
 
 export interface NodeDefProps {
-  cycles?: Array<string>
+  cycles?: string[]
   descriptions?: Labels
   key?: boolean
   autoIncrementalKey?: boolean
@@ -81,14 +81,16 @@ export const NodeDefExpressionFactory: Factory<NodeDefExpression, NodeDefExpress
   },
 }
 
+export type NodeDefCountExpression = string | NodeDefExpression[]
+
 export interface NodeDefCountValidations {
-  max?: string | NodeDefExpression[]
-  min?: string | NodeDefExpression[]
+  max?: NodeDefCountExpression
+  min?: NodeDefCountExpression
 }
 
 export interface NodeDefValidations {
   count?: NodeDefCountValidations
-  expressions?: Array<NodeDefExpression>
+  expressions?: NodeDefExpression[]
   required?: boolean
   unique?: boolean
 }

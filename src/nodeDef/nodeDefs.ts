@@ -4,6 +4,7 @@ import { defaultCycle } from '../survey'
 import { Objects, Strings } from '../utils'
 import {
   NodeDef,
+  NodeDefCountExpression,
   NodeDefCountType,
   NodeDefExpression,
   NodeDefLayout,
@@ -135,19 +136,17 @@ const getValidationsExpressions = (nodeDef: NodeDef<NodeDefType>): NodeDefExpres
 const isRequired = (nodeDef: NodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required ?? false
 
 // // Min/max count
-const getCount = (
-  nodeDef: NodeDef<NodeDefType>,
-  countType: NodeDefCountType
-): string | NodeDefExpression[] | undefined => {
+
+const getCount = (nodeDef: NodeDef<NodeDefType>, countType: NodeDefCountType): NodeDefCountExpression | undefined => {
   const countValidations = getValidations(nodeDef)?.count
   if (!countValidations) return undefined
   return countType === NodeDefCountType.max ? countValidations.max : countValidations.min
 }
 
-const getMinCount = (nodeDef: NodeDef<NodeDefType>): string | NodeDefExpression[] | undefined =>
+const getMinCount = (nodeDef: NodeDef<NodeDefType>): NodeDefCountExpression | undefined =>
   getCount(nodeDef, NodeDefCountType.min)
 
-const getMaxCount = (nodeDef: NodeDef<NodeDefType>): string | NodeDefExpression[] | undefined =>
+const getMaxCount = (nodeDef: NodeDef<NodeDefType>): NodeDefCountExpression | undefined =>
   getCount(nodeDef, NodeDefCountType.max)
 
 const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>): boolean =>
