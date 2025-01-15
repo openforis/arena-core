@@ -1,9 +1,11 @@
 import { LanguageCode } from '../language'
 import { valuePropsCoordinate } from '../node/nodeValueProps'
 import { defaultCycle } from '../survey'
-import { Numbers, Objects, Strings } from '../utils'
+import { Objects, Strings } from '../utils'
 import {
   NodeDef,
+  NodeDefCountExpression,
+  NodeDefCountType,
   NodeDefExpression,
   NodeDefLayout,
   NodeDefProps,
@@ -128,15 +130,27 @@ const getItemsFilter = (nodeDef: NodeDef<any>): string | undefined => nodeDef.pr
 const getValidations = (nodeDef: NodeDef<NodeDefType>): NodeDefValidations | undefined =>
   nodeDef.propsAdvanced?.validations
 
+const getValidationsExpressions = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
+  getValidations(nodeDef)?.expressions ?? []
+
 const isRequired = (nodeDef: NodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required ?? false
 
-// // Min max
-const getMinCount = (nodeDef: NodeDef<NodeDefType>) => Numbers.toNumber(getValidations(nodeDef)?.count?.min)
+// // Min/max count
 
-const getMaxCount = (nodeDef: NodeDef<NodeDefType>) => Numbers.toNumber(getValidations(nodeDef)?.count?.max)
+const getCount = (nodeDef: NodeDef<NodeDefType>, countType: NodeDefCountType): NodeDefCountExpression | undefined => {
+  const countValidations = getValidations(nodeDef)?.count
+  if (!countValidations) return undefined
+  return countType === NodeDefCountType.max ? countValidations.max : countValidations.min
+}
 
-const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>) =>
-  !Number.isNaN(getMinCount(nodeDef)) || !Number.isNaN(getMaxCount(nodeDef))
+const getMinCount = (nodeDef: NodeDef<NodeDefType>): NodeDefCountExpression | undefined =>
+  getCount(nodeDef, NodeDefCountType.min)
+
+const getMaxCount = (nodeDef: NodeDef<NodeDefType>): NodeDefCountExpression | undefined =>
+  getCount(nodeDef, NodeDefCountType.max)
+
+const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>): boolean =>
+  !Objects.isEmpty(getMinCount(nodeDef)) || !Objects.isEmpty(getMaxCount(nodeDef))
 
 // layout
 const getLayoutProps =
@@ -262,9 +276,11 @@ export const NodeDefs = {
   isCodeShown,
   // validations
   getValidations,
+  getValidationsExpressions,
   isRequired,
   // // Min Max
   hasMinOrMaxCount,
+  getCount,
   getMaxCount,
   getMinCount,
   // Analysis

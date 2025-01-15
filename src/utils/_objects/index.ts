@@ -3,6 +3,7 @@ import { assocPath } from './assocPath'
 import { camelize } from './camelize'
 import { deepMerge } from './deepMerge'
 import { difference } from './difference'
+import { deleteEmptyProps } from './deleteEmptyProps'
 import { dissoc } from './dissoc'
 import { dissocPath } from './dissocPath'
 import { dissocPathIfEmpty } from './dissocPathIfEmpty'
@@ -23,6 +24,7 @@ export const Objects = {
   assocPath,
   camelize,
   deepMerge,
+  deleteEmptyProps,
   difference,
   dissoc,
   dissocPath,

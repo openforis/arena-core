@@ -19,6 +19,8 @@ export enum SurveyDependencyType {
   defaultValues = 'defaultValues',
   fileName = 'fileName',
   formula = 'formula',
+  maxCount = 'maxCount',
+  minCount = 'minCount',
   validations = 'validations',
 }
 

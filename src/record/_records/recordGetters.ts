@@ -330,7 +330,6 @@ export const findEntityByKeyValues = (params: {
   return siblingEntities.find((siblingEntity) => {
     const siblingEntityKeyValuesByDefUuid = getEntityKeyValuesByDefUuid({
       survey,
-      cycle,
       record,
       entity: siblingEntity,
       keyDefs,

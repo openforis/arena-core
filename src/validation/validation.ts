@@ -23,9 +23,9 @@ export interface ValidationFields {
 }
 
 export interface Validation {
-  errors: ValidationResult[]
-  fields: ValidationFields
+  errors?: ValidationResult[]
+  fields?: ValidationFields
   valid: boolean
-  warnings: ValidationResult[]
+  warnings?: ValidationResult[]
   counts?: ValidationCounts
 }

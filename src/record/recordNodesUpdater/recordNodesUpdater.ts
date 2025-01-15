@@ -3,11 +3,13 @@ import { Queue } from '../../utils'
 import * as DependentDefaultValuesUpdater from './recordNodeDependentsDefaultValuesUpdater'
 import * as DependentApplicableUpdater from './recordNodeDependentsApplicableUpdater'
 import * as DependentCodeAttributesUpdater from './recordNodeDependentsCodeAttributesUpdater'
+import * as DependentCountUpdater from './recordNodeDependentsCountUpdater'
 import * as DependentFileNamesUpdater from './recordNodeDependentsFileNamesEvaluator'
 import { Survey } from '../../survey'
 import { Record } from '../record'
 import { Node } from '../../node'
 import { RecordUpdateResult } from './recordUpdateResult'
+import { NodeDefCountType } from '../../nodeDef'
 import { User } from '../../auth'
 import { Dictionary } from '../../common'
 
@@ -35,7 +37,7 @@ export const updateNodesDependents = (
   const createEvaluationContext = (node: Node): ExpressionEvaluationContext & { node: Node } => ({
     user,
     survey,
-    record: updateResult.record,
+    record: updateResult.record, // updateResult.record changes at every step (when sideEffect=false)
     timezoneOffset,
     sideEffect,
     node,
@@ -53,19 +55,33 @@ export const updateNodesDependents = (
     const visitedCount = visitedCountByUuid[nodeUuid] ?? 0
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
-      // Update dependents (applicability)
+      // min count
+      const minCountUpdateResult = DependentCountUpdater.updateDependentsCount({
+        ...createEvaluationContext(node),
+        countType: NodeDefCountType.min,
+      })
+      updateResult.merge(minCountUpdateResult)
+
+      // max count
+      const maxCountUpdateResult = DependentCountUpdater.updateDependentsCount({
+        ...createEvaluationContext(node),
+        countType: NodeDefCountType.max,
+      })
+      updateResult.merge(maxCountUpdateResult)
+
+      // applicability
       const applicabilityUpdateResult = DependentApplicableUpdater.updateSelfAndDependentsApplicable(
         createEvaluationContext(node)
       )
       updateResult.merge(applicabilityUpdateResult)
 
-      // Update dependents (default values)
+      // default values
       const defaultValuesUpdateResult = DependentDefaultValuesUpdater.updateSelfAndDependentsDefaultValues(
         createEvaluationContext(node)
       )
       updateResult.merge(defaultValuesUpdateResult)
 
-      // Update dependents (code attributes)
+      // code attributes
       const dependentCodeAttributesUpdateResult = DependentCodeAttributesUpdater.updateDependentCodeAttributes(
         createEvaluationContext(node)
       )
@@ -78,6 +94,8 @@ export const updateNodesDependents = (
       updateResult.merge(dependentFileNamesUpdateResult)
 
       const nodesUpdatedCurrent: Dictionary<Node> = {
+        ...minCountUpdateResult.nodes,
+        ...maxCountUpdateResult.nodes,
         ...applicabilityUpdateResult.nodes,
         ...defaultValuesUpdateResult.nodes,
         ...dependentCodeAttributesUpdateResult.nodes,

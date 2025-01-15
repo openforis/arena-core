@@ -47,7 +47,7 @@
     "build": "tsc",
     "lint:fix": "npm run lint -- --fix",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "prepare": "yarn build && husky install",
+    "prepare": "yarn build && husky",
     "test": "jest"
   },
   "files": [

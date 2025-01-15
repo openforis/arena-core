@@ -46,11 +46,20 @@ export abstract class NodeDefBuilder {
     return this
   }
 
-  minCount(count: number): this {
+  maxCount(countExpr: string): this {
+    return Objects.assocPath({
+      obj: this,
+      path: ['propsAdvanced', 'validations', 'count', 'max'],
+      value: countExpr,
+      sideEffect: true,
+    })
+  }
+
+  minCount(countExpr: string): this {
     return Objects.assocPath({
       obj: this,
       path: ['propsAdvanced', 'validations', 'count', 'min'],
-      value: count,
+      value: countExpr,
       sideEffect: true,
     })
   }

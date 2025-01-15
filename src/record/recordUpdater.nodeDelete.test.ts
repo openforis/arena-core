@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
 
@@ -73,7 +72,7 @@ describe('RecordUpdater - node delete', () => {
         integerDef('identifier').key(),
         entityDef('mult_entity', integerDef('mult_entity_id').key(), integerDef('mult_entity_attr'))
           .multiple()
-          .minCount(2),
+          .minCount('2'),
         integerDef('mult_entity_count').readOnly().defaultValue('count(mult_entity)'),
         integerDef('mult_entity_attr_sum').readOnly().defaultValue('sum(mult_entity.mult_entity_attr)')
       )
