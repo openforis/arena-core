@@ -164,11 +164,11 @@ export const addNodeDefDependencies = (params: {
   graphsUpdated = _addDependencies(SurveyDependencyType.validations, NodeDefs.getValidationsExpressions(nodeDef))
   const maxCount = NodeDefs.getMaxCount(nodeDef)
   if (Array.isArray(maxCount)) {
-    graphsUpdated = _addDependencies(SurveyDependencyType.maxCount, maxCount as NodeDefExpression[])
+    graphsUpdated = _addDependencies(SurveyDependencyType.maxCount, maxCount)
   }
   const minCount = NodeDefs.getMinCount(nodeDef)
   if (Array.isArray(minCount)) {
-    graphsUpdated = _addDependencies(SurveyDependencyType.minCount, minCount as NodeDefExpression[])
+    graphsUpdated = _addDependencies(SurveyDependencyType.minCount, minCount)
   }
   // file name expression
   if (NodeDefs.getType(nodeDef) === NodeDefType.file) {
