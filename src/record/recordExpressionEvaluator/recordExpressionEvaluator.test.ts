@@ -195,6 +195,8 @@ describe('RecordExpressionEvaluator', () => {
       result: null,
     },
     { expression: `taxonProp('trees', 'max_dbh', 'AFZ/QUA/OTHER')`, result: null },
+    // dateTimeDiff
+    { expression: 'dateTimeDiff(end_date, end_time, visit_date, visit_time)', result: 1675 },
     // distance
     { expression: 'distance(plot[0].plot_location, plot[1].plot_location).toFixed(2)', result: '2171.94' },
     {

@@ -23,6 +23,8 @@ export const createTestRecord = (params: { user: User; survey: Survey }): Record
       attribute('cluster_region', '2'),
       attribute('visit_date', '2021-01-01'),
       attribute('visit_time', '10:30'),
+      attribute('end_date', '2021-01-02'),
+      attribute('end_time', '14:25'),
       attribute('gps_model', 'ABC-123-xyz'),
       attribute('remarks', 'No issues found'),
       entity(
