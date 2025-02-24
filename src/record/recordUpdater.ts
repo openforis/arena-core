@@ -11,17 +11,20 @@ import { NodeCreateParams, NodesUpdateParams } from './recordNodesUpdater/record
 import { Records } from './records'
 import { RecordValidator } from './recordValidator'
 
+const validationDependencyTypes = [
+  SurveyDependencyType.validations,
+  SurveyDependencyType.minCount,
+  SurveyDependencyType.maxCount,
+]
+
 const _getDependentValidationNodes = (params: { survey: Survey; record: Record; nodes: NodesMap }): NodesMap => {
   const { survey, record, nodes } = params
-  return Object.values(nodes).reduce((acc: NodesMap, updatedNode) => {
-    const nodePointers = Records.getDependentNodePointers({
-      survey,
-      record: record,
-      node: updatedNode,
-      dependencyType: SurveyDependencyType.validations,
+  return Object.values(nodes).reduce((acc: NodesMap, node) => {
+    validationDependencyTypes.forEach((dependencyType) => {
+      const nodePointers = Records.getDependentNodePointers({ survey, record, node, dependencyType })
+      const nodes = NodePointers.getNodesFromNodePointers({ record, nodePointers })
+      nodes.forEach((node) => (acc[node.uuid] = node))
     })
-    const nodes = NodePointers.getNodesFromNodePointers({ record: record, nodePointers })
-    nodes.forEach((node) => (acc[node.uuid] = node))
     return acc
   }, {})
 }

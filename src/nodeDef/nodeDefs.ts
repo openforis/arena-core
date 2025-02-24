@@ -150,7 +150,7 @@ const getMaxCount = (nodeDef: NodeDef<NodeDefType>): NodeDefCountExpression | un
   getCount(nodeDef, NodeDefCountType.max)
 
 const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>): boolean =>
-  !Objects.isEmpty(getMinCount(nodeDef)) || !Objects.isEmpty(getMaxCount(nodeDef))
+  Objects.isNotEmpty(getMinCount(nodeDef)) || Objects.isNotEmpty(getMaxCount(nodeDef))
 
 // layout
 const getLayoutProps =
