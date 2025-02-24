@@ -26,6 +26,8 @@ const sampleGeoJsonPolygon = {
   },
 }
 
+const isNotValidString = (value: string): boolean => Objects.isEmpty(value) || typeof value !== 'string'
+
 export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
   categoryItemProp: {
     minArity: 3,
@@ -65,7 +67,8 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     executor:
       (_context: NodeDefExpressionContext) =>
       (date1: string, time1: string, date2: string, time2: string): number | null => {
-        if (!date1 || !time1 || !date2 || !time2) return null
+        if (isNotValidString(date1) || isNotValidString(time1) || isNotValidString(date2) || isNotValidString(time2))
+          return null
         const [hours1, minutes1] = time1.split(':')
         const [hours2, minutes2] = time2.split(':')
         let dt1 = Dates.addHours(date1, Number(hours1))
