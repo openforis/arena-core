@@ -92,6 +92,16 @@ describe('NodeDefExpressionEvaluator', () => {
     { expression: 'this', nodeDef: 'plot', result: 'plot' },
     { expression: 'parent(this).plot_id', nodeDef: 'plot_id', result: 'plot_id' },
     { expression: 'parent(parent(this)).accessible', nodeDef: 'tree', result: 'accessible' },
+    {
+      expression: `dateTimeDiff('2025-01-01', '11:00', '2025-01-01', '10:00')`,
+      result: 60,
+      resultIsNotNodeDef: true,
+    },
+    {
+      expression: `dateTimeDiff('2025-01-02', '11:00', '2025-01-01', '10:10')`,
+      result: 1490,
+      resultIsNotNodeDef: true,
+    },
     // regular exprssions
     { expression: '/[a-z\\s]+/i.test(remarks)', result: true, resultIsNotNodeDef: true },
     // user properties

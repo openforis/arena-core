@@ -26,6 +26,8 @@ const sampleGeoJsonPolygon = {
   },
 }
 
+const isNotValidString = (value: string): boolean => Objects.isEmpty(value) || typeof value !== 'string'
+
 export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
   categoryItemProp: {
     minArity: 3,
@@ -58,6 +60,23 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     executor: (_context: NodeDefExpressionContext) => (_nodeSet) => 1,
+  },
+  dateTimeDiff: {
+    minArity: 4,
+    maxArity: 4,
+    executor:
+      (_context: NodeDefExpressionContext) =>
+      (date1: string, time1: string, date2: string, time2: string): number | null => {
+        if (isNotValidString(date1) || isNotValidString(time1) || isNotValidString(date2) || isNotValidString(time2))
+          return null
+        const [hours1, minutes1] = time1.split(':')
+        const [hours2, minutes2] = time2.split(':')
+        let dt1 = Dates.addHours(date1, Number(hours1))
+        dt1 = Dates.addMinutes(dt1, Number(minutes1))
+        let dt2 = Dates.addHours(date2, Number(hours2))
+        dt2 = Dates.addMinutes(dt2, Number(minutes2))
+        return Dates.diffInMinutes(dt1, dt2)
+      },
   },
   distance: {
     minArity: 2,
