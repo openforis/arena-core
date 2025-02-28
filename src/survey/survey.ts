@@ -33,18 +33,37 @@ export interface SurveyCycle {
   dateStart: string
 }
 
+export enum SurveySecurityProp {
+  dataEditorViewNotOwnedRecordsAllowed = 'dataEditorViewNotOwnedRecordsAllowed',
+  visibleInMobile = 'visibleInMobile',
+  allowRecordsDownloadInMobile = 'allowRecordsDownloadInMobile',
+  allowRecordsUploadFromMobile = 'allowRecordsUploadFromMobile',
+}
+
+export type SurveySecurity = {
+  [key in SurveySecurityProp]?: boolean
+}
+
+export const surveySecurityDefaults: SurveySecurity = {
+  [SurveySecurityProp.dataEditorViewNotOwnedRecordsAllowed]: true,
+  [SurveySecurityProp.visibleInMobile]: true,
+  [SurveySecurityProp.allowRecordsDownloadInMobile]: true,
+  [SurveySecurityProp.allowRecordsUploadFromMobile]: true,
+}
+
 export interface SurveyProps {
+  collectUri?: string
   cycles: {
     [key: string]: SurveyCycle
   }
   defaultCycleKey?: string
   descriptions?: Labels
   fieldManualLinks?: Labels
-  languages: LanguageCode[]
   labels?: Labels
+  languages: LanguageCode[]
   name: string
+  security?: SurveySecurity
   srs: SRS[]
-  collectUri?: string
 }
 
 export interface SurveyNodeDefsIndex {
