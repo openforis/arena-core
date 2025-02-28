@@ -166,6 +166,7 @@ export {
   SurveyRefDataFactory,
   SurveySecurityProp,
   Surveys,
+  surveySecurityDefaults,
 } from './survey'
 export type {
   Survey,

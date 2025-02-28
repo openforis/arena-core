@@ -68,6 +68,7 @@ import {
 } from './surveysGetters'
 
 import {
+  getSecurity,
   isDataEditorViewNotOwnedRecordsAllowed,
   isVisibleInMobile,
   isRecordsDownloadInMobileAllowed,
@@ -144,6 +145,7 @@ export const Surveys = {
   deleteNodeDefIndex,
 
   // security
+  getSecurity,
   isDataEditorViewNotOwnedRecordsAllowed,
   isVisibleInMobile,
   isRecordsDownloadInMobileAllowed,
