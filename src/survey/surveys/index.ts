@@ -67,6 +67,14 @@ import {
   getTaxonomyByUuid,
 } from './surveysGetters'
 
+import {
+  getSecurity,
+  isDataEditorViewNotOwnedRecordsAllowed,
+  isVisibleInMobile,
+  isRecordsDownloadInMobileAllowed,
+  isRecordsUploadFromMobileAllowed,
+} from './surveyGettersSecurity'
+
 export const Surveys = {
   getName,
   getLanguages,
@@ -135,4 +143,11 @@ export const Surveys = {
   addNodeDefToIndex,
   updateNodeDefUuidByNameIndex,
   deleteNodeDefIndex,
+
+  // security
+  getSecurity,
+  isDataEditorViewNotOwnedRecordsAllowed,
+  isVisibleInMobile,
+  isRecordsDownloadInMobileAllowed,
+  isRecordsUploadFromMobileAllowed,
 }

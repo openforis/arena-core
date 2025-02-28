@@ -1,8 +1,15 @@
 export { NodeDefsFixer } from './nodeDefsFixer'
 
-export type { Survey, SurveyProps, SurveyCycle, SurveyDependencyGraph, SurveyDependency } from './survey'
+export type {
+  Survey,
+  SurveyCycle,
+  SurveyDependencyGraph,
+  SurveyDependency,
+  SurveyProps,
+  SurveySecurity,
+} from './survey'
 
-export { defaultCycle, SurveyDependencyType } from './survey'
+export { defaultCycle, SurveyDependencyType, SurveySecurityProp, surveySecurityDefaults } from './survey'
 
 export { Surveys } from './surveys'
 
