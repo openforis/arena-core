@@ -203,6 +203,11 @@ const isIncludedInMultipleEntitySummary =
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
     getLayoutProps(cycle)(nodeDef).includedInMultipleEntitySummary ?? false
 
+const isIncludedInPreviousCycleLink =
+  (cycle = defaultCycle) =>
+  <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
+    getLayoutProps(cycle)(nodeDef).includedInPreviousCycleLink ?? true
+
 const isHiddenWhenNotRelevant =
   (cycle = defaultCycle) =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
@@ -272,6 +277,7 @@ export const NodeDefs = {
   isDisplayInOwnPage,
   isHiddenInMobile,
   isIncludedInMultipleEntitySummary,
+  isIncludedInPreviousCycleLink,
   isHiddenWhenNotRelevant,
   isCodeShown,
   // validations
