@@ -49,6 +49,7 @@ export interface NodeDefLayout {
   hiddenWhenNotRelevant?: boolean
   hiddenInMobile?: boolean
   includedInMultipleEntitySummary?: boolean
+  includedInPreviousCycleLink?: boolean
   // code
   codeShown?: boolean
 }
