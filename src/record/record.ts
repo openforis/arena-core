@@ -1,4 +1,5 @@
 import { AppInfo } from '../app'
+import { Dictionary } from '../common'
 import { Node } from '../node'
 import { Validation } from '../validation'
 
@@ -27,6 +28,10 @@ export interface RecordNodesIndex {
    * Code attribute uuids by ancenstor code attribute uuid
    */
   nodeCodeDependents?: { [key: string]: NodeUuidsPresence }
+
+  shortenUuidByUuid?: Dictionary<string>
+  uuidByShortenUuid?: Dictionary<string>
+  lastShortenUuid?: string
 }
 
 export interface RecordInfo {
