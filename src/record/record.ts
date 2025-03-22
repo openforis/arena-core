@@ -1,7 +1,7 @@
 import { AppInfo } from '../app'
-import { Dictionary } from '../common'
 import { Node } from '../node'
 import { Validation } from '../validation'
+import { InternalIdCache } from './internalIdCache'
 
 export const RECORD_STEP_DEFAULT = '1'
 
@@ -29,9 +29,7 @@ export interface RecordNodesIndex {
    */
   nodeCodeDependents?: { [key: string]: NodeUuidsPresence }
 
-  shortenUuidByUuid?: Dictionary<string>
-  uuidByShortenUuid?: Dictionary<string>
-  lastShortenUuid?: string
+  internalIdCache?: InternalIdCache
 }
 
 export interface RecordInfo {

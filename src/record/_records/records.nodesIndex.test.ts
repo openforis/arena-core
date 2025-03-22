@@ -52,8 +52,10 @@ describe('Record nodes index', () => {
   test('Record nodes index creation', () => {
     const index = record._nodesIndex ?? {}
 
+    const rootUuid = RecordNodesIndexReader.getNodeRootUuid(index)
+    expect(rootUuid).not.toBeUndefined()
     const clusterNode = TestUtils.getNodeByPath({ survey, record, path: 'cluster' })
-    expect(RecordNodesIndexReader.getNodeRootUuid(index)).toBe(clusterNode.uuid)
+    expect(rootUuid).toBe(clusterNode.uuid)
 
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
     const plotNode1 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[0]' })
