@@ -1,25 +1,29 @@
-import { NodeDefEntity, NodeDefs } from '../../nodeDef'
-import { Record } from '../record'
-import { Survey, Surveys } from '../../survey'
 import { Node, NodePointer, Nodes } from '../../node'
+import { NodeDefEntity, NodeDefs } from '../../nodeDef'
+import { Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
-import { RecordUpdateResult } from './recordUpdateResult'
-import { Records } from '../records'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
+import { Records } from '../records'
+import { ExpressionEvaluationContext } from './expressionEvaluationContext'
 import { createEnumeratedEntityNodes } from './recordNodesCreator'
-import { User } from '../../auth'
+import { RecordUpdateResult } from './recordUpdateResult'
 
 const recordExpressionEvaluator = new RecordExpressionEvaluator()
 
-export const updateSelfAndDependentsApplicable = (params: {
-  user: User
-  survey: Survey
-  record: Record
-  node: Node
-  sideEffect?: boolean
-  timezoneOffset?: number
-}): RecordUpdateResult => {
-  const { user, survey, record, node, timezoneOffset, sideEffect = false } = params
+export const updateSelfAndDependentsApplicable = (
+  params: ExpressionEvaluationContext & {
+    node: Node
+  }
+): RecordUpdateResult => {
+  const {
+    user,
+    survey,
+    record,
+    node,
+    timezoneOffset,
+    sideEffect = false,
+    deleteNotApplicableEnumeratedEntities = false,
+  } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -73,6 +77,7 @@ export const updateSelfAndDependentsApplicable = (params: {
       if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
         if (applicable && nodeCtxChildren.length === 0) {
           createEnumeratedEntityNodes({
+            user,
             survey,
             entityDef: nodeDefNodePointer as NodeDefEntity,
             parentNode: nodeCtx,
@@ -80,7 +85,7 @@ export const updateSelfAndDependentsApplicable = (params: {
             sideEffect,
           })
         } else {
-          if (!applicable) {
+          if (!applicable && deleteNotApplicableEnumeratedEntities) {
             // TODO remove enumerated entities if empty
           }
         }

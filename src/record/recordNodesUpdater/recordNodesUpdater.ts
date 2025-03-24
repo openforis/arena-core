@@ -1,17 +1,15 @@
 import { Queue } from '../../utils'
 
-import * as DependentDefaultValuesUpdater from './recordNodeDependentsDefaultValuesUpdater'
+import { Dictionary } from '../../common'
+import { Node } from '../../node'
+import { NodeDefCountType } from '../../nodeDef'
+import { ExpressionEvaluationContext } from './expressionEvaluationContext'
 import * as DependentApplicableUpdater from './recordNodeDependentsApplicableUpdater'
 import * as DependentCodeAttributesUpdater from './recordNodeDependentsCodeAttributesUpdater'
 import * as DependentCountUpdater from './recordNodeDependentsCountUpdater'
+import * as DependentDefaultValuesUpdater from './recordNodeDependentsDefaultValuesUpdater'
 import * as DependentFileNamesUpdater from './recordNodeDependentsFileNamesEvaluator'
-import { Survey } from '../../survey'
-import { Record } from '../record'
-import { Node } from '../../node'
 import { RecordUpdateResult } from './recordUpdateResult'
-import { NodeDefCountType } from '../../nodeDef'
-import { User } from '../../auth'
-import { Dictionary } from '../../common'
 
 /**
  * Nodes can be visited maximum 2 times during the update of the dependent nodes, to avoid loops in the evaluation.
@@ -20,18 +18,18 @@ import { Dictionary } from '../../common'
  */
 const MAX_DEPENDENTS_VISITING_TIMES = 2
 
-export interface ExpressionEvaluationContext {
-  user: User
-  survey: Survey
-  record: Record
-  timezoneOffset?: number
-  sideEffect?: boolean
-}
-
 export const updateNodesDependents = (
   params: ExpressionEvaluationContext & { nodes: Dictionary<Node> }
 ): RecordUpdateResult => {
-  const { user, survey, record, nodes, timezoneOffset, sideEffect = false } = params
+  const {
+    user,
+    survey,
+    record,
+    nodes,
+    timezoneOffset,
+    sideEffect = false,
+    deleteNotApplicableEnumeratedEntities = false,
+  } = params
   const updateResult = new RecordUpdateResult({ record, nodes: sideEffect ? nodes : { ...nodes } })
 
   const createEvaluationContext = (node: Node): ExpressionEvaluationContext & { node: Node } => ({
@@ -40,6 +38,7 @@ export const updateNodesDependents = (
     record: updateResult.record, // updateResult.record changes at every step (when sideEffect=false)
     timezoneOffset,
     sideEffect,
+    deleteNotApplicableEnumeratedEntities,
     node,
   })
 
