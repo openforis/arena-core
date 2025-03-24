@@ -1,7 +1,16 @@
 export type { AppInfo } from './app'
 
 export { Authorizer, AuthGroupName, UserStatus, Permission, UserTitle, UserFactory, Users } from './auth'
-export type { User, UserPrefs, UserPrefSurveys, UserProps, AuthGroup, UserService } from './auth'
+export type {
+  User,
+  UserAuthGroup,
+  UserAuthGroupProps,
+  UserPrefs,
+  UserPrefSurveys,
+  UserProps,
+  AuthGroup,
+  UserService,
+} from './auth'
 
 export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, CategoryLevelFactory } from './category'
 export type {
@@ -150,15 +159,24 @@ export { ServiceRegistry, ServiceType } from './registry'
 export { DEFAULT_SRS, DEFAULT_SRS_INDEX, SRSFactory } from './srs'
 export type { SRS } from './srs'
 
-export { NodeDefsFixer, SurveyDependencyType, SurveyFactory, SurveyRefDataFactory, Surveys } from './survey'
+export {
+  NodeDefsFixer,
+  SurveyDependencyType,
+  SurveyFactory,
+  SurveyRefDataFactory,
+  SurveySecurityProp,
+  Surveys,
+  surveySecurityDefaults,
+} from './survey'
 export type {
   Survey,
-  SurveyService,
-  SurveyRefData,
+  SurveyCycle,
   SurveyDependency,
   SurveyDependencyGraph,
-  SurveyCycle,
   SurveyProps,
+  SurveyRefData,
+  SurveySecurity,
+  SurveyService,
 } from './survey'
 
 export { Taxa, Taxonomies, TaxonomyFactory, TaxonFactory, VernacularNameFactory } from './taxonomy'
@@ -179,7 +197,19 @@ export type {
 export { SurveyBuilder, SurveyObjectBuilders } from './tests/builder/surveyBuilder'
 export { RecordBuilder, RecordNodeBuilders } from './tests/builder/recordBuilder'
 
-export { Arrays, Dates, DateFormats, UnitOfTime, Numbers, Objects, Promises, Strings, UUIDs } from './utils'
+export {
+  Arrays,
+  Dates,
+  DateFormats,
+  FileNames,
+  Numbers,
+  Objects,
+  Promises,
+  Queue,
+  Strings,
+  UnitOfTime,
+  UUIDs,
+} from './utils'
 
 export {
   FieldValidators,

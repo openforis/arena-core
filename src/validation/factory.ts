@@ -1,27 +1,22 @@
-import { Factory } from '../common'
+import { Dictionary, Factory } from '../common'
 import { Labels } from '../language'
 import { Validation, ValidationResult, ValidationSeverity } from './validation'
 
 type ValidationFactoryParams = {
-  errors?: Array<ValidationResult>
-  fields?: {
-    [name: string]: Validation
-  }
+  errors?: ValidationResult[]
+  fields?: Dictionary<Validation>
   valid?: boolean
-  warnings?: Array<ValidationResult>
+  warnings?: ValidationResult[]
 }
 
 export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
-  createInstance: (params: ValidationFactoryParams): Validation => {
+  createInstance: (params?: ValidationFactoryParams): Validation => {
     const defaultParams = {
       valid: true,
-      errors: new Array<ValidationResult>(),
-      warnings: new Array<ValidationResult>(),
-      fields: {},
     }
     const { errors, fields, valid, warnings } = {
       ...defaultParams,
-      ...params,
+      ...(params ?? {}),
     }
     return {
       errors,
@@ -35,7 +30,7 @@ export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
 type ValidationResultFactoryParams = {
   messages?: Labels
   key?: string
-  params?: { [key: string]: any }
+  params?: Dictionary<any>
   severity?: ValidationSeverity
   valid?: boolean
 }
@@ -45,8 +40,8 @@ export const ValidationResultFactory: Factory<ValidationResult, ValidationResult
     const defaultParams = {
       valid: true,
     }
-
-    const { severity, key, params: _params, messages, valid } = { ...defaultParams, ...params }
+    const { severity: severityParam, key, params: _params, messages, valid } = { ...defaultParams, ...params }
+    const severity = !severityParam && !valid ? ValidationSeverity.error : severityParam
     return {
       severity,
       key,

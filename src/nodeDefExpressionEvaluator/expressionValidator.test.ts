@@ -1,10 +1,11 @@
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
-import { UserFactory } from '../auth'
 import { Survey, Surveys } from '../survey'
 import { NodeDefExpressionValidator } from './validator'
 import { ExtraPropDataType } from '../extraProp'
+import { createTestAdminUser } from '../tests/data'
 
-const { booleanDef, decimalDef, entityDef, integerDef, taxonDef, taxon, taxonomy, textDef } = SurveyObjectBuilders
+const { booleanDef, dateDef, decimalDef, entityDef, integerDef, taxonDef, taxon, taxonomy, textDef } =
+  SurveyObjectBuilders
 
 type Query = {
   expression: string
@@ -15,18 +16,21 @@ type Query = {
   itemsFilter?: boolean
 }
 
+const user = createTestAdminUser()
 let survey: Survey
 
 describe('NodeDefExpressionValidator', () => {
   beforeAll(async () => {
-    const user = UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' })
-
     survey = new SurveyBuilder(
       user,
       entityDef(
         'cluster',
         integerDef('cluster_id').key(),
         booleanDef('accessible'),
+        dateDef('visit_date'),
+        dateDef('visit_date'),
+        dateDef('end_date'),
+        dateDef('end_date'),
         textDef('remarks'),
         entityDef(
           'plot',
@@ -113,6 +117,17 @@ describe('NodeDefExpressionValidator', () => {
       itemsFilter: true,
       validationResult: false,
     },
+    // dateTimeDiff
+    {
+      expression: `dateTimeDiff('2025-01-01')`,
+      nodeDef: 'visit_date',
+      validationResult: false,
+    },
+    {
+      expression: `dateTimeDiff('2025-01-02', '11:00', '2025-01-01', '10:10')`,
+      nodeDef: 'visit_date',
+      validationResult: true,
+    },
     // global objects
     {
       expression: 'String(cluster_id)',
@@ -143,7 +158,6 @@ describe('NodeDefExpressionValidator', () => {
         selfReferenceAllowed,
         itemsFilter,
       })
-
       expect(validationResult.valid).toBe(validationResultExpected)
 
       const rerencedNodeDefUuids = [...referencedNodeDefUuids.values()]

@@ -13,13 +13,12 @@ import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
 import { RecordNodesUpdater } from '../recordNodesUpdater'
 
+const user = createTestAdminUser()
 let survey: Survey
 let record: Record
 
 describe('Record nodes index', () => {
   beforeAll(async () => {
-    const user = createTestAdminUser()
-
     survey = new SurveyBuilder(
       user,
       entityDef(
@@ -79,6 +78,7 @@ describe('Record nodes index', () => {
     const plotNode3 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[2]' })
 
     const updateResult = RecordNodesUpdater.createNodeAndDescendants({
+      user,
       survey,
       record,
       parentNode: clusterNode,

@@ -24,12 +24,14 @@ export abstract class NodeDefBuilder {
   }
 
   protected createNodeDef(params: { nodeDefParent?: NodeDefEntity } = {}): NodeDef<NodeDefType, NodeDefProps> {
-    return NodeDefFactory.createInstance({
+    const nodeDef = NodeDefFactory.createInstance({
       nodeDefParent: params.nodeDefParent,
       type: this.type,
       props: this.props,
       propsAdvanced: this.propsAdvanced,
     })
+    nodeDef.temporary = false
+    return nodeDef
   }
 
   abstract build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> }
@@ -44,11 +46,20 @@ export abstract class NodeDefBuilder {
     return this
   }
 
-  minCount(count: number): this {
+  maxCount(countExpr: string): this {
+    return Objects.assocPath({
+      obj: this,
+      path: ['propsAdvanced', 'validations', 'count', 'max'],
+      value: countExpr,
+      sideEffect: true,
+    })
+  }
+
+  minCount(countExpr: string): this {
     return Objects.assocPath({
       obj: this,
       path: ['propsAdvanced', 'validations', 'count', 'min'],
-      value: count,
+      value: countExpr,
       sideEffect: true,
     })
   }

@@ -32,6 +32,8 @@ export const createTestSurvey = (params: { user: User }): Survey =>
       dateDef('visit_date'),
       timeDef('visit_time'),
       textDef('gps_model'),
+      dateDef('end_date'),
+      timeDef('end_time'),
       textDef('remarks'),
       entityDef(
         'plot',

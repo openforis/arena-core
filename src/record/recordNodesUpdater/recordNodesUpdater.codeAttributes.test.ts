@@ -73,6 +73,7 @@ describe('Record nodes updater - dependent code attributes', () => {
     const recordUpdated = Records.addNode(nodeUpdated)(record)
 
     const updateResult = RecordNodesUpdater.updateNodesDependents({
+      user,
       survey,
       record: recordUpdated,
       nodes: { [nodeToUpdate.uuid]: nodeUpdated },
@@ -189,6 +190,7 @@ describe('Record nodes updater - dependent code attributes', () => {
       const recordUpdated = Records.addNode(nodeUpdated)(record)
 
       const updateResult = RecordNodesUpdater.updateNodesDependents({
+        user,
         survey,
         record: recordUpdated,
         nodes: { [nodeToUpdate.uuid]: nodeUpdated },

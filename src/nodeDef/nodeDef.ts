@@ -1,4 +1,4 @@
-import { UUIDs } from '../utils'
+import { Objects, UUIDs } from '../utils'
 import { ArenaObject, Factory } from '../common'
 import { Labels } from '../language'
 import { ValidationSeverity } from '../validation'
@@ -9,6 +9,7 @@ export enum NodeDefType {
   coordinate = 'coordinate',
   date = 'date',
   decimal = 'decimal',
+  geo = 'geo',
   entity = 'entity',
   file = 'file',
   integer = 'integer',
@@ -19,14 +20,20 @@ export enum NodeDefType {
   formHeader = 'formHeader',
 }
 
+export enum NodeDefCountType {
+  max = 'max',
+  min = 'min',
+}
+
 export interface NodeDefMeta {
-  h: Array<string>
+  h: string[]
 }
 
 export interface NodeDefProps {
-  cycles?: Array<string>
+  cycles?: string[]
   descriptions?: Labels
   key?: boolean
+  autoIncrementalKey?: boolean
   labels?: Labels
   multiple?: boolean
   name?: string
@@ -42,6 +49,7 @@ export interface NodeDefLayout {
   hiddenWhenNotRelevant?: boolean
   hiddenInMobile?: boolean
   includedInMultipleEntitySummary?: boolean
+  includedInPreviousCycleLink?: boolean
   // code
   codeShown?: boolean
 }
@@ -68,31 +76,37 @@ export interface NodeDefExpressionFactoryParams {
 
 export const NodeDefExpressionFactory: Factory<NodeDefExpression, NodeDefExpressionFactoryParams> = {
   createInstance: (params: NodeDefExpressionFactoryParams): NodeDefExpression => {
-    const { applyIf, expression, severity } = params
-    return { applyIf, expression, severity, uuid: UUIDs.v4() }
+    const result = { uuid: UUIDs.v4() }
+    Object.assign(result, Objects.deleteEmptyProps({ ...params }))
+    return result
   },
 }
 
+export type NodeDefCountExpression = string | NodeDefExpression[]
+
 export interface NodeDefCountValidations {
-  max?: number
-  min?: number
+  max?: NodeDefCountExpression
+  min?: NodeDefCountExpression
 }
 
 export interface NodeDefValidations {
   count?: NodeDefCountValidations
-  expressions?: Array<NodeDefExpression>
+  expressions?: NodeDefExpression[]
   required?: boolean
   unique?: boolean
 }
 
 export interface NodeDefPropsAdvanced {
-  applicable?: Array<NodeDefExpression>
-  defaultValues?: Array<NodeDefExpression>
+  applicable?: NodeDefExpression[]
+  defaultValues?: NodeDefExpression[]
   defaultValueEvaluatedOneTime?: boolean
   excludedInClone?: boolean
-  formula?: Array<NodeDefExpression>
-  itemsFilter?: string
+  formula?: NodeDefExpression[]
   validations?: NodeDefValidations
+  // file attribute
+  fileNameExpression?: string
+  // code and taxon attribute
+  itemsFilter?: string
 
   // Analysis
   script?: string

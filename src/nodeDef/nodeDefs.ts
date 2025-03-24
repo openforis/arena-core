@@ -1,9 +1,11 @@
 import { LanguageCode } from '../language'
 import { valuePropsCoordinate } from '../node/nodeValueProps'
 import { defaultCycle } from '../survey'
-import { Numbers, Objects, Strings } from '../utils'
+import { Objects, Strings } from '../utils'
 import {
   NodeDef,
+  NodeDefCountExpression,
+  NodeDefCountType,
   NodeDefExpression,
   NodeDefLayout,
   NodeDefProps,
@@ -20,6 +22,7 @@ import {
   NodeDefEntityLayoutChildItem,
   NodeDefEntityRenderType,
 } from './types/entity'
+import { NodeDefFile, NodeDefFileType } from './types/file'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText } from './types/text'
 
@@ -43,6 +46,9 @@ const isMultipleAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => isAttrib
 
 const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.props.key ?? false
 
+const isAutoIncrementalKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean =>
+  nodeDef.props.autoIncrementalKey ?? false
+
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
 
 const isLayoutElement = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.formHeader
@@ -53,7 +59,7 @@ const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: Langu
   Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.labels?.[lang])
 
 const getDescription = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
-  Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.descriptions?.[lang])
+  nodeDef.props.descriptions?.[lang] ?? ''
 
 const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ?? false
 
@@ -106,6 +112,11 @@ const getMaxNumberDecimalDigits = (nodeDef: NodeDefDecimal) => {
   return Objects.isEmpty(decimalDigits) ? NaN : Number(decimalDigits)
 }
 
+// file
+const getFileType = (nodeDef: NodeDefFile): NodeDefFileType | undefined => nodeDef.props.fileType
+const getFileNameExpression = (nodeDef: NodeDefFile): string | undefined => nodeDef.propsAdvanced?.fileNameExpression
+const getFileMaxSize = (nodeDef: NodeDefFile): number | undefined => nodeDef.props.maxFileSize
+
 // taxon
 const getTaxonomyUuid = (nodeDef: NodeDefTaxon): string | undefined => nodeDef.props.taxonomyUuid
 
@@ -119,15 +130,27 @@ const getItemsFilter = (nodeDef: NodeDef<any>): string | undefined => nodeDef.pr
 const getValidations = (nodeDef: NodeDef<NodeDefType>): NodeDefValidations | undefined =>
   nodeDef.propsAdvanced?.validations
 
+const getValidationsExpressions = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
+  getValidations(nodeDef)?.expressions ?? []
+
 const isRequired = (nodeDef: NodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required ?? false
 
-// // Min max
-const getMinCount = (nodeDef: NodeDef<NodeDefType>) => Numbers.toNumber(getValidations(nodeDef)?.count?.min)
+// // Min/max count
 
-const getMaxCount = (nodeDef: NodeDef<NodeDefType>) => Numbers.toNumber(getValidations(nodeDef)?.count?.max)
+const getCount = (nodeDef: NodeDef<NodeDefType>, countType: NodeDefCountType): NodeDefCountExpression | undefined => {
+  const countValidations = getValidations(nodeDef)?.count
+  if (!countValidations) return undefined
+  return countType === NodeDefCountType.max ? countValidations.max : countValidations.min
+}
 
-const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>) =>
-  !Number.isNaN(getMinCount(nodeDef)) || !Number.isNaN(getMaxCount(nodeDef))
+const getMinCount = (nodeDef: NodeDef<NodeDefType>): NodeDefCountExpression | undefined =>
+  getCount(nodeDef, NodeDefCountType.min)
+
+const getMaxCount = (nodeDef: NodeDef<NodeDefType>): NodeDefCountExpression | undefined =>
+  getCount(nodeDef, NodeDefCountType.max)
+
+const hasMinOrMaxCount = (nodeDef: NodeDef<NodeDefType>): boolean =>
+  Objects.isNotEmpty(getMinCount(nodeDef)) || Objects.isNotEmpty(getMaxCount(nodeDef))
 
 // layout
 const getLayoutProps =
@@ -180,6 +203,11 @@ const isIncludedInMultipleEntitySummary =
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
     getLayoutProps(cycle)(nodeDef).includedInMultipleEntitySummary ?? false
 
+const isIncludedInPreviousCycleLink =
+  (cycle = defaultCycle) =>
+  <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
+    getLayoutProps(cycle)(nodeDef).includedInPreviousCycleLink ?? true
+
 const isHiddenWhenNotRelevant =
   (cycle = defaultCycle) =>
   <L extends NodeDefLayout>(nodeDef: NodeDef<any, NodeDefPropsWithLayout<L>>): boolean =>
@@ -209,6 +237,7 @@ export const NodeDefs = {
   isSingleAttribute,
   isMultipleAttribute,
   isKey,
+  isAutoIncrementalKey,
   isReadOnly,
   isHidden,
   isEnumerate,
@@ -230,6 +259,9 @@ export const NodeDefs = {
   isAllowOnlyDeviceCoordinate,
   getCoordinateAdditionalFields,
   getMaxNumberDecimalDigits,
+  getFileNameExpression,
+  getFileType,
+  getFileMaxSize,
   getTaxonomyUuid,
   getTextTransform,
   getItemsFilter,
@@ -245,13 +277,16 @@ export const NodeDefs = {
   isDisplayInOwnPage,
   isHiddenInMobile,
   isIncludedInMultipleEntitySummary,
+  isIncludedInPreviousCycleLink,
   isHiddenWhenNotRelevant,
   isCodeShown,
   // validations
   getValidations,
+  getValidationsExpressions,
   isRequired,
   // // Min Max
   hasMinOrMaxCount,
+  getCount,
   getMaxCount,
   getMinCount,
   // Analysis

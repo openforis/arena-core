@@ -8,6 +8,25 @@ import { Dates } from '../utils/dates'
 import { NodeDefExpressionContext } from './context'
 import { SystemError } from '../error'
 import { ExtraProps } from '../extraProp/extraProps'
+import { Users } from '../auth'
+
+const sampleGeoJsonPolygon = {
+  type: 'Feature',
+  geometry: {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [100.0, 0.0],
+        [101.0, 0.0],
+        [101.0, 1.0],
+        [100.0, 1.0],
+        [100.0, 0.0],
+      ],
+    ],
+  },
+}
+
+const isNotValidString = (value: string): boolean => Objects.isEmpty(value) || typeof value !== 'string'
 
 export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
   categoryItemProp: {
@@ -42,6 +61,23 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 1,
     executor: (_context: NodeDefExpressionContext) => (_nodeSet) => 1,
   },
+  dateTimeDiff: {
+    minArity: 4,
+    maxArity: 4,
+    executor:
+      (_context: NodeDefExpressionContext) =>
+      (date1: string, time1: string, date2: string, time2: string): number | null => {
+        if (isNotValidString(date1) || isNotValidString(time1) || isNotValidString(date2) || isNotValidString(time2))
+          return null
+        const [hours1, minutes1] = time1.split(':')
+        const [hours2, minutes2] = time2.split(':')
+        let dt1 = Dates.addHours(date1, Number(hours1))
+        dt1 = Dates.addMinutes(dt1, Number(minutes1))
+        let dt2 = Dates.addHours(date2, Number(hours2))
+        dt2 = Dates.addMinutes(dt2, Number(minutes2))
+        return Dates.diffInMinutes(dt1, dt2)
+      },
+  },
   distance: {
     minArity: 2,
     maxArity: 2,
@@ -65,6 +101,11 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       return null
     },
   },
+  geoPolygon: {
+    minArity: 1,
+    evaluateArgsToNodes: true,
+    executor: () => () => sampleGeoJsonPolygon,
+  },
   includes: {
     minArity: 2,
     maxArity: 2,
@@ -78,7 +119,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: NodeDefExpressionContext) => () => {
+    executor: () => () => {
       return -1
     },
   },
@@ -86,7 +127,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: NodeDefExpressionContext) => () => {
+    executor: () => () => {
       return null
     },
   },
@@ -138,6 +179,27 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
 
       const value = taxon.props.extra?.[propName]
       return ExtraProps.convertValue({ survey, extraPropDef, value })
+    },
+  },
+  userEmail: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: NodeDefExpressionContext) => () => context.user?.email,
+  },
+  userName: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: NodeDefExpressionContext) => () => context.user?.name,
+  },
+  userProp: {
+    minArity: 1,
+    maxArity: 1,
+    executor: (context: NodeDefExpressionContext) => (propName: string) => {
+      const { user, survey } = context
+      if (!survey || !user) return undefined
+      const { uuid: surveyUuid } = survey
+      const combinedExtraProps = Users.getCombinedExtraProps(surveyUuid)(user)
+      return combinedExtraProps[propName]
     },
   },
 }

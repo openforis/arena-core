@@ -1,4 +1,4 @@
-import { Factory } from '../common'
+import { Dictionary, Factory } from '../common'
 import { UUIDs } from '../utils'
 import { User, UserStatus, UserTitle } from './user'
 
@@ -7,6 +7,7 @@ export type UserFactoryParams = {
   name: string
   status?: UserStatus
   title?: UserTitle
+  extra?: Dictionary<any>
 }
 
 export const UserFactory: Factory<User, UserFactoryParams> = {
@@ -16,7 +17,7 @@ export const UserFactory: Factory<User, UserFactoryParams> = {
       status: UserStatus.INVITED,
     }
 
-    const { email, name, hasProfilePicture, status, title } = {
+    const { email, name, hasProfilePicture, status, title, extra } = {
       ...defaultProps,
       ...params,
     }
@@ -27,6 +28,7 @@ export const UserFactory: Factory<User, UserFactoryParams> = {
       name,
       props: {
         title,
+        extra,
       },
       status,
       uuid: UUIDs.v4(),

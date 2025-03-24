@@ -11,7 +11,7 @@ export type {
   NodeDefValidations,
   NodeDefMap,
 } from './nodeDef'
-export { NodeDefType } from './nodeDef'
+export { NodeDefCountType, NodeDefType } from './nodeDef'
 export { NodeDefs } from './nodeDefs'
 
 export type { NodeDefService } from './service'

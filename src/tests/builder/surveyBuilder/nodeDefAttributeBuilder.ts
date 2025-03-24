@@ -18,6 +18,11 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     return this
   }
 
+  autoIncrementalKey(): this {
+    this.props.autoIncrementalKey = true
+    return this
+  }
+
   readOnly(): this {
     this.props.readOnly = true
     return this
@@ -38,6 +43,11 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     this.propsAdvanced.defaultValues = expressions.map((expression) =>
       NodeDefExpressionFactory.createInstance({ expression })
     )
+    return this
+  }
+
+  defaultValueEvaluatedOnlyOneTime(): this {
+    this.propsAdvanced.defaultValueEvaluatedOneTime = true
     return this
   }
 

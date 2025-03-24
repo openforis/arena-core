@@ -1,23 +1,29 @@
 import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Record } from '../record'
-import { Survey } from '../../survey'
+import { Survey, Surveys } from '../../survey'
 import { Node, NodePointer, Nodes } from '../../node'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordUpdateResult } from './recordUpdateResult'
 import { Records } from '../records'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { createEnumeratedEntityNodes } from './recordNodesCreator'
+import { User } from '../../auth'
+
+const recordExpressionEvaluator = new RecordExpressionEvaluator()
 
 export const updateSelfAndDependentsApplicable = (params: {
+  user: User
   survey: Survey
   record: Record
   node: Node
   sideEffect?: boolean
   timezoneOffset?: number
 }): RecordUpdateResult => {
-  const { survey, record, node, timezoneOffset, sideEffect = false } = params
+  const { user, survey, record, node, timezoneOffset, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
+
+  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
 
   // 1. fetch dependent nodes
   const nodePointersToUpdate = Records.getDependentNodePointers({
@@ -25,7 +31,7 @@ export const updateSelfAndDependentsApplicable = (params: {
     record,
     node,
     dependencyType: SurveyDependencyType.applicable,
-    includeSelf: true,
+    includeSelf: !NodeDefs.isEntity(nodeDef),
   })
 
   // 2. update expr to node and dependent nodes
@@ -41,7 +47,8 @@ export const updateSelfAndDependentsApplicable = (params: {
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
-    const exprEval = new RecordExpressionEvaluator().evalApplicableExpression({
+    const exprEval = recordExpressionEvaluator.evalApplicableExpression({
+      user,
       survey,
       record: updateResult.record,
       nodeCtx,
@@ -80,7 +87,7 @@ export const updateSelfAndDependentsApplicable = (params: {
         nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
       }
       nodeCtxChildren.forEach((nodeCtxChild) => {
-        // 6. add nodeCtxChild and its descendants to nodesUpdated
+        // add nodeCtxChild and its descendants to nodesUpdated
         Records.visitDescendantsAndSelf({
           record: updateResult.record,
           node: nodeCtxChild,

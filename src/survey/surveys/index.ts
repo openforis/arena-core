@@ -6,6 +6,7 @@ import {
 } from './dependencies'
 
 import {
+  findNodeDefByName,
   findNodeDefByUuid,
   findNodeDefsByUuids,
   getNodeDefByName,
@@ -18,6 +19,7 @@ import {
   getNodeDefSource,
   isNodeDefAncestor,
   getNodeDefKeys,
+  getRootKeys,
   getNodeDefsIncludedInMultipleEntitySummary,
   getNodeDefParentCode,
   getNodeDefAncestorCodes,
@@ -27,7 +29,9 @@ import {
   getNodeDefEnumerator,
   buildAndAssocNodeDefsIndex,
   addNodeDefToIndex,
+  updateNodeDefUuidByNameIndex,
   deleteNodeDefIndex,
+  visitAncestorsAndSelfNodeDef,
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
   getDescendantsInSingleEntities,
@@ -49,6 +53,8 @@ import {
   getDefaultLanguage,
   getLabel,
   getLabelOrName,
+  getDescription,
+  getFieldManualLink,
   getCycleKeys,
   getLastCycleKey,
   getDefaultCycleKey,
@@ -61,14 +67,22 @@ import {
   getTaxonomyByUuid,
 } from './surveysGetters'
 
+import {
+  getSecurity,
+  isDataEditorViewNotOwnedRecordsAllowed,
+  isVisibleInMobile,
+  isRecordsDownloadInMobileAllowed,
+  isRecordsUploadFromMobileAllowed,
+} from './surveyGettersSecurity'
+
 export const Surveys = {
-  findNodeDefByUuid,
-  findNodeDefsByUuids,
   getName,
   getLanguages,
   getDefaultLanguage,
   getLabel,
   getLabelOrName,
+  getDescription,
+  getFieldManualLink,
   getCycleKeys,
   getLastCycleKey,
   getDefaultCycleKey,
@@ -80,6 +94,9 @@ export const Surveys = {
   getTaxonomyByName,
   getTaxonomyByUuid,
 
+  findNodeDefByName,
+  findNodeDefByUuid,
+  findNodeDefsByUuids,
   getNodeDefByName,
   getNodeDefsByUuids,
   getNodeDefByUuid,
@@ -90,9 +107,11 @@ export const Surveys = {
   getNodeDefSource,
   isNodeDefAncestor,
   getNodeDefKeys,
+  getRootKeys,
   getNodeDefsIncludedInMultipleEntitySummary,
   isNodeDefEnumerator,
   getNodeDefEnumerator,
+  visitAncestorsAndSelfNodeDef,
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
   getDescendantsInSingleEntities,
@@ -122,5 +141,13 @@ export const Surveys = {
   // index
   buildAndAssocNodeDefsIndex,
   addNodeDefToIndex,
+  updateNodeDefUuidByNameIndex,
   deleteNodeDefIndex,
+
+  // security
+  getSecurity,
+  isDataEditorViewNotOwnedRecordsAllowed,
+  isVisibleInMobile,
+  isRecordsDownloadInMobileAllowed,
+  isRecordsUploadFromMobileAllowed,
 }

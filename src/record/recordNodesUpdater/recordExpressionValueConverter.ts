@@ -96,6 +96,10 @@ const _valueExprToValueNodeFns: { [key in NodeDefType]?: (params: ToNodeValuePar
     })
   },
   [NodeDefType.decimal]: _toPrimitive(Number),
+  [NodeDefType.geo]: (params: { valueExpr: any }) => {
+    const { valueExpr } = params
+    return typeof valueExpr === 'string' ? JSON.parse(valueExpr) : valueExpr
+  },
   [NodeDefType.integer]: _toPrimitive(Number),
   [NodeDefType.taxon]: _toTaxon,
   [NodeDefType.text]: _toPrimitive(String),

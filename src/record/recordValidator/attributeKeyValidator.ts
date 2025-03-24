@@ -19,13 +19,19 @@ const _isEntityDuplicate = (params: { survey: Survey; record: Record; entity: No
   )(record).filter((node) => !Nodes.areEqual(entity, node))
 
   // 2. get key values
-  const keyValues = Records.getEntityKeyValues({ survey, entity, record })
+  const entityDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
+  const keyDefs = Surveys.getNodeDefKeys({ survey, nodeDef: entityDef })
 
-  return Objects.isEmpty(siblingEntities) || Objects.isEmpty(keyValues)
-    ? false
-    : siblingEntities.some((sibilingEntity) =>
-        Objects.isEqual(keyValues, Records.getEntityKeyValues({ survey, record, entity: sibilingEntity }))
-      )
+  if (Objects.isEmpty(siblingEntities) || Objects.isEmpty(keyDefs)) {
+    return false
+  }
+  const keyValues = Records.getEntityKeyValues({ survey, record, entity, keyDefs })
+  return (
+    !Objects.isEmpty(keyValues) &&
+    siblingEntities.some((sibilingEntity) =>
+      Objects.isEqual(keyValues, Records.getEntityKeyValues({ survey, record, entity: sibilingEntity, keyDefs }))
+    )
+  )
 }
 
 const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps> }): boolean => {
@@ -33,10 +39,8 @@ const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeD
   if (!NodeDefs.isKey(nodeDef)) return false
 
   const nodeDefParent = Surveys.getNodeDefParent({ survey, nodeDef })
-  if (!nodeDefParent || NodeDefs.isRoot(nodeDefParent)) {
-    return false // root entity key attributes will be validated by another validator
-  }
-  return true
+  // root entity key attributes will be validated by another validator
+  return !!nodeDefParent && !NodeDefs.isRoot(nodeDefParent)
 }
 
 const validateAttributeKey =

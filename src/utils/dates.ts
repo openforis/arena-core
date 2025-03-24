@@ -32,17 +32,21 @@ const nowFormattedForStorage = (): string => formatForStorage(new Date())
 const nowFormattedForExpression = (): string => formatForExpression(Date.now())
 
 const parseISO = (dateStr: string): Date | undefined => (dateStr ? moment(dateStr).toDate() : undefined)
-const parse = (dateStr: string, format: DateFormats, keepTimeZone = true): Date | undefined => {
+const parse = (
+  dateStr: string,
+  format: DateFormats,
+  { keepTimeZone = true, strict = false } = {}
+): Date | undefined => {
   if (!dateStr) return undefined
   if (format == DateFormats.datetimeStorage) return parseISO(dateStr)
-  if (keepTimeZone) return moment.parseZone(dateStr, format).toDate()
-  return moment(dateStr, format).toDate()
+  if (keepTimeZone) return moment.parseZone(dateStr, format, strict).toDate()
+  return moment(dateStr, format, strict).toDate()
 }
 
 const isValidDateObject = (date: Date | undefined): boolean => !!date && moment(date).isValid()
 
 const isValidDateInFormat = (dateStr: string, format: DateFormats) => {
-  const parsed = parse(dateStr, format)
+  const parsed = parse(dateStr, format, { strict: true })
   return isValidDateObject(parsed)
 }
 
@@ -50,11 +54,12 @@ const convertDate = (params: {
   dateStr: string
   formatFrom?: DateFormats
   formatTo: DateFormats
+  keepTimeZone?: boolean
 }): string | undefined => {
-  const { dateStr, formatFrom = DateFormats.dateStorage, formatTo } = params
+  const { dateStr, formatFrom = DateFormats.dateStorage, formatTo, keepTimeZone = true } = params
   if (Objects.isEmpty(dateStr)) return undefined
 
-  const dateParsed = parse(dateStr, formatFrom)
+  const dateParsed = parse(dateStr, formatFrom, { keepTimeZone })
   if (!dateParsed || !moment(dateParsed).isValid()) {
     return undefined
   }

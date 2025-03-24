@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
 
@@ -46,7 +45,7 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDeletePath = 'root_entity.mult_entity[1]'
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
-    const updateResult = await RecordUpdater.deleteNode({ survey, record, nodeUuid: nodeToDelete.uuid })
+    const updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeUuid: nodeToDelete.uuid })
     const { nodesDeleted, record: recordUpdated } = updateResult
 
     // check record updated is a new object
@@ -73,7 +72,7 @@ describe('RecordUpdater - node delete', () => {
         integerDef('identifier').key(),
         entityDef('mult_entity', integerDef('mult_entity_id').key(), integerDef('mult_entity_attr'))
           .multiple()
-          .minCount(2),
+          .minCount('2'),
         integerDef('mult_entity_count').readOnly().defaultValue('count(mult_entity)'),
         integerDef('mult_entity_attr_sum').readOnly().defaultValue('sum(mult_entity.mult_entity_attr)')
       )
@@ -95,7 +94,7 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDeletePath = 'root_entity.mult_entity[1]'
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
-    const updateResult = await RecordUpdater.deleteNode({ survey, record, nodeUuid: nodeToDelete.uuid })
+    const updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeUuid: nodeToDelete.uuid })
     const { nodes: nodesUpdated, record: recordUpdated } = updateResult
 
     // check updated nodes (including deleted ones)
@@ -166,6 +165,7 @@ describe('RecordUpdater - node delete', () => {
     // set int_gt_5 to 4 => 1 error
     const intGt5 = TestUtils.getNodeByPath({ survey, record, path: 'int_gt_5' })
     let updateResult = await RecordUpdater.updateAttributeValue({
+      user,
       survey,
       record,
       attributeUuid: intGt5.uuid,
@@ -178,6 +178,7 @@ describe('RecordUpdater - node delete', () => {
     // set mult_entity[1].mult_entity_int_gt_10 to 7 => 2 errors
     const multEntityIntGt10 = TestUtils.getNodeByPath({ survey, record, path: 'mult_entity[1].mult_entity_int_gt_10' })
     updateResult = await RecordUpdater.updateAttributeValue({
+      user,
       survey,
       record,
       attributeUuid: multEntityIntGt10.uuid,
@@ -191,12 +192,13 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDeletePath = 'root_entity.mult_entity[1]'
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
-    updateResult = await RecordUpdater.deleteNode({ survey, record, nodeUuid: nodeToDelete.uuid })
+    updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeUuid: nodeToDelete.uuid })
     record = updateResult.record
     expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record))).length).toBe(1)
 
     // set int_gt_5 to 6 => 0 errors
     updateResult = await RecordUpdater.updateAttributeValue({
+      user,
       survey,
       record,
       attributeUuid: intGt5.uuid,
@@ -236,6 +238,7 @@ describe('RecordUpdater - node delete', () => {
     const rootNode = Records.getRoot(record)
     const multEntityDef = Surveys.getNodeDefByName({ survey, name: 'mult_entity' })
     let updateResult = await RecordUpdater.createNodeAndDescendants({
+      user,
       survey,
       record,
       parentNode: rootNode,
@@ -249,7 +252,7 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDeletePath = 'root_entity.mult_entity[2]'
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
-    updateResult = await RecordUpdater.deleteNode({ survey, record, nodeUuid: nodeToDelete.uuid })
+    updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeUuid: nodeToDelete.uuid })
     expect(Object.values(updateResult.record._nodesIndex?.nodesByDef?.[multEntityDef.uuid] ?? {}).length).toBe(2)
 
     record = updateResult.record

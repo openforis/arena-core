@@ -1,28 +1,38 @@
 import * as SurveyNodeDefs from './nodeDefs'
-import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefExpression, NodeDefFile, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
 import { Arrays, Objects } from '../../utils'
+import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
 
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
-  [SurveyDependencyType.defaultValues]: false,
+  [SurveyDependencyType.defaultValues]: true,
+  [SurveyDependencyType.fileName]: true,
   [SurveyDependencyType.formula]: false,
-  [SurveyDependencyType.validations]: false,
+  [SurveyDependencyType.maxCount]: true,
+  [SurveyDependencyType.minCount]: true,
+  [SurveyDependencyType.validations]: true,
 }
 
 const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.applicable]: false,
   [SurveyDependencyType.defaultValues]: false,
+  [SurveyDependencyType.fileName]: false,
   [SurveyDependencyType.formula]: false,
+  [SurveyDependencyType.maxCount]: false,
+  [SurveyDependencyType.minCount]: false,
   [SurveyDependencyType.validations]: true,
 }
 
 const newDependecyGraph = () => ({
   [SurveyDependencyType.applicable]: {},
   [SurveyDependencyType.defaultValues]: {},
+  [SurveyDependencyType.fileName]: {},
   [SurveyDependencyType.formula]: {},
+  [SurveyDependencyType.maxCount]: {},
+  [SurveyDependencyType.minCount]: {},
   [SurveyDependencyType.validations]: {},
 })
 
@@ -151,10 +161,24 @@ export const addNodeDefDependencies = (params: {
     })
   graphsUpdated = _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
   graphsUpdated = _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
-  graphsUpdated = _addDependencies(
-    SurveyDependencyType.validations,
-    NodeDefs.getValidations(nodeDef)?.expressions ?? []
-  )
+  graphsUpdated = _addDependencies(SurveyDependencyType.validations, NodeDefs.getValidationsExpressions(nodeDef))
+  const maxCount = NodeDefs.getMaxCount(nodeDef)
+  if (Array.isArray(maxCount)) {
+    graphsUpdated = _addDependencies(SurveyDependencyType.maxCount, maxCount)
+  }
+  const minCount = NodeDefs.getMinCount(nodeDef)
+  if (Array.isArray(minCount)) {
+    graphsUpdated = _addDependencies(SurveyDependencyType.minCount, minCount)
+  }
+  // file name expression
+  if (NodeDefs.getType(nodeDef) === NodeDefType.file) {
+    const fileNameExpression = NodeDefs.getFileNameExpression(nodeDef as NodeDefFile)
+    if (fileNameExpression) {
+      graphsUpdated = _addDependencies(SurveyDependencyType.fileName, [
+        NodeDefExpressionFactory.createInstance({ expression: fileNameExpression }),
+      ])
+    }
+  }
   if (sideEffect) {
     survey.dependencyGraph = graphsUpdated
     return survey

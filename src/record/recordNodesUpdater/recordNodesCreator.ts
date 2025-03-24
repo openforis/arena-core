@@ -1,16 +1,18 @@
+import { User } from '../../auth'
 import { CategoryItem } from '../../category'
 import { SystemError } from '../../error'
-import { Node, NodeFactory } from '../../node'
+import { Node, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
 import { Survey } from '../../survey'
 import { getCategoryItems } from '../../survey/surveys/refsData'
 import { getNodeDefEnumerator, getNodeDefChildren } from '../../survey/surveys/nodeDefs'
 import { Record } from '../record'
-import { RecordUpdateResult } from './recordUpdateResult'
 import { getParentCodeAttribute } from '../_records/recordGetters'
+import { RecordUpdateResult } from './recordUpdateResult'
 
 export type NodesUpdateParams = {
+  user: User
   survey: Survey
   record: Record
   dateModified?: string
@@ -24,10 +26,11 @@ export type NodeCreateParams = NodesUpdateParams & {
   createMultipleEntities?: boolean
 }
 
-const getNodesToInsertCount = (nodeDef: NodeDef<any>): number => {
-  if (NodeDefs.isSingle(nodeDef)) return 1
+const getNodesToInsertCount = (params: { parentNode: Node | undefined; nodeDef: NodeDef<any> }): number => {
+  const { nodeDef, parentNode } = params
+  if (!parentNode || NodeDefs.isSingle(nodeDef)) return 1
   if (nodeDef.type === NodeDefType.code) return 0 // never create nodes for multiple code attributes
-  return NodeDefs.getMinCount(nodeDef) ?? 0
+  return Nodes.getChildrenMinCount({ parentNode, nodeDef }) ?? 0
 }
 
 const getEnumeratingCategoryItems = (params: {
@@ -45,13 +48,14 @@ const getEnumeratingCategoryItems = (params: {
 }
 
 export const createEnumeratedEntityNodes = (params: {
+  user: User
   survey: Survey
   parentNode: Node
   entityDef: NodeDefEntity
   updateResult: RecordUpdateResult
   sideEffect: boolean
 }): boolean => {
-  const { survey, parentNode, entityDef, updateResult, sideEffect } = params
+  const { user, survey, parentNode, entityDef, updateResult, sideEffect } = params
 
   const enumerator = getNodeDefEnumerator({ survey, entityDef })
   if (!enumerator) return false
@@ -67,6 +71,7 @@ export const createEnumeratedEntityNodes = (params: {
   categoryItems.forEach((categoryItem) => {
     const { record } = updateResult
     const childUpdateResult = createNodeAndDescendants({
+      user,
       survey,
       record: updateResult.record,
       parentNode,
@@ -91,22 +96,30 @@ export const createEnumeratedEntityNodes = (params: {
 }
 
 const createChildNodesBasedOnMinCount = (params: NodeCreateParams & { updateResult: RecordUpdateResult }): void => {
-  const { survey, parentNode, nodeDef, updateResult, createMultipleEntities = true, sideEffect = false } = params
+  const { user, survey, parentNode, nodeDef, updateResult, createMultipleEntities = true, sideEffect = false } = params
 
   if (NodeDefs.isMultipleEntity(nodeDef) && NodeDefs.isEnumerate(nodeDef)) {
     if (
-      createEnumeratedEntityNodes({ survey, parentNode: parentNode!, entityDef: nodeDef, updateResult, sideEffect })
+      createEnumeratedEntityNodes({
+        user,
+        survey,
+        parentNode: parentNode!,
+        entityDef: nodeDef,
+        updateResult,
+        sideEffect,
+      })
     ) {
       return
     }
   }
 
-  const nodesToInsertCount = getNodesToInsertCount(nodeDef)
+  const nodesToInsertCount = getNodesToInsertCount({ parentNode, nodeDef })
   if (nodesToInsertCount === 0 || (!createMultipleEntities && NodeDefs.isMultipleEntity(nodeDef))) {
     return // do nothing
   }
   for (let index = 0; index < nodesToInsertCount; index++) {
     const childUpdateResult = createNodeAndDescendants({
+      user,
       survey,
       record: updateResult.record,
       parentNode,

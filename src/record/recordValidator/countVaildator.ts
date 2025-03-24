@@ -40,13 +40,14 @@ const _createValidationResult = (params: {
 }
 
 const validateChildrenCount = (params: {
+  parentNode: Node
   nodeDefChild: NodeDef<NodeDefType, NodeDefProps>
   count: number
 }): Validation => {
-  const { nodeDefChild, count } = params
+  const { parentNode, nodeDefChild, count } = params
 
-  const minCount = NodeDefs.getMinCount(nodeDefChild)
-  const maxCount = NodeDefs.getMaxCount(nodeDefChild)
+  const minCount = Nodes.getChildrenMinCount({ parentNode, nodeDef: nodeDefChild })
+  const maxCount = Nodes.getChildrenMaxCount({ parentNode, nodeDef: nodeDefChild })
 
   const minCountValid = Number.isNaN(minCount) || count >= minCount
   const maxCountValid = Number.isNaN(maxCount) || count <= maxCount
@@ -84,7 +85,7 @@ const _validateNodePointer = (params: {
   if (Nodes.isChildApplicable(nodeCtx, nodeDef.uuid)) {
     if (NodeDefs.hasMinOrMaxCount(nodeDef)) {
       const count = _countChildren({ record, parentNode: nodeCtx, childDef: nodeDef })
-      return validateChildrenCount({ nodeDefChild: nodeDef, count })
+      return validateChildrenCount({ parentNode: nodeCtx, nodeDefChild: nodeDef, count })
     }
   }
   return ValidationFactory.createInstance()
@@ -127,18 +128,15 @@ const validateChildrenCountNodes = (params: {
     const nodePointersToValidate = _getNodePointersToValidate({ survey, record, node })
 
     nodePointersToValidate.forEach((nodePointer) => {
+      const { nodeCtx, nodeDef } = nodePointer
       // check if validated already
       const validationChildrenCountKey = RecordValidations.getValidationChildrenCountKey({
-        nodeParentUuid: nodePointer.nodeCtx.uuid,
-        nodeDefChildUuid: nodePointer.nodeDef.uuid,
+        nodeParentUuid: nodeCtx.uuid,
+        nodeDefChildUuid: nodeDef.uuid,
       })
       if (!(validationChildrenCountKey in validationsAcc)) {
         // validate the children count of this node pointer
-        const validationNodePointer = _validateNodePointer({
-          record,
-          nodeCtx: nodePointer.nodeCtx,
-          nodeDef: nodePointer.nodeDef,
-        })
+        const validationNodePointer = _validateNodePointer({ record, nodeCtx, nodeDef })
         validationsAcc[validationChildrenCountKey] = validationNodePointer
       }
     })

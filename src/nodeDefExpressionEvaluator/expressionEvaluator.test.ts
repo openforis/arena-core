@@ -14,6 +14,7 @@ type Query = {
   nodeDef?: string
 }
 
+const user = createTestAdminUser()
 let survey: Survey
 
 const expectToBeNodeDef = (value: any): void => {
@@ -44,8 +45,6 @@ const checkExpressionEvaluateResult = (params: {
 
 describe('NodeDefExpressionEvaluator', () => {
   beforeAll(async () => {
-    const user = createTestAdminUser()
-
     survey = new SurveyBuilder(
       user,
       entityDef(
@@ -93,8 +92,22 @@ describe('NodeDefExpressionEvaluator', () => {
     { expression: 'this', nodeDef: 'plot', result: 'plot' },
     { expression: 'parent(this).plot_id', nodeDef: 'plot_id', result: 'plot_id' },
     { expression: 'parent(parent(this)).accessible', nodeDef: 'tree', result: 'accessible' },
+    {
+      expression: `dateTimeDiff('2025-01-01', '11:00', '2025-01-01', '10:00')`,
+      result: 60,
+      resultIsNotNodeDef: true,
+    },
+    {
+      expression: `dateTimeDiff('2025-01-02', '11:00', '2025-01-01', '10:10')`,
+      result: 1490,
+      resultIsNotNodeDef: true,
+    },
     // regular exprssions
     { expression: '/[a-z\\s]+/i.test(remarks)', result: true, resultIsNotNodeDef: true },
+    // user properties
+    { expression: 'userName()', result: 'test', resultIsNotNodeDef: true },
+    { expression: 'userEmail()', result: 'test@openforis-arena.org', resultIsNotNodeDef: true },
+    { expression: 'userProp("property_1")', result: 'prop_1', resultIsNotNodeDef: true },
   ]
 
   queries.forEach((query: Query) => {
@@ -106,7 +119,12 @@ describe('NodeDefExpressionEvaluator', () => {
       try {
         const nodeDefCurrent = Surveys.getNodeDefByName({ survey, name: nodeDef ?? 'cluster_id' })
 
-        const result = new NodeDefExpressionEvaluator().evalExpression({ survey, expression, nodeDef: nodeDefCurrent })
+        const result = new NodeDefExpressionEvaluator().evalExpression({
+          user,
+          survey,
+          expression,
+          nodeDef: nodeDefCurrent,
+        })
 
         checkExpressionEvaluateResult({ result, expectedResultValue, resultIsNotNodeDef })
       } catch (error) {
