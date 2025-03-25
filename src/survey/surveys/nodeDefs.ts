@@ -211,10 +211,13 @@ export const getNodeDefChildrenSorted = (params: {
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   cycle: string
   includeAnalysis?: boolean
+  includeLayoutElements?: boolean
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, nodeDef, cycle, includeAnalysis } = params
+  const { survey, nodeDef, cycle, includeAnalysis, includeLayoutElements } = params
 
-  const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis }).filter(NodeDefs.isInCycle(cycle))
+  const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis, includeLayoutElements }).filter(
+    NodeDefs.isInCycle(cycle)
+  )
 
   const childrenUuidsSortedByLayout = getNodeDefChildrenUuidsSortedByLayout({ nodeDef, cycle, children })
 
