@@ -30,7 +30,8 @@ import {
   findEntityWithSameKeysInAnotherRecord,
   getCategoryItemUuid,
 } from './_records/recordGetters'
-import { addNode, addNodes, deleteNode, deleteNodes } from './_records/recordUpdater'
+import { addNode, addNodes } from './_records/recordUpdater'
+import { deleteNode, deleteNodes } from './recordNodesUpdater/recordNodesDeleter'
 
 export const Records = {
   // READ
@@ -72,4 +73,4 @@ export const Records = {
   deleteNodes,
 }
 
-export type { RecordUpdateOptions } from './_records/recordUpdater'
+export type { RecordUpdateOptions } from './_records/recordUpdateOptions'

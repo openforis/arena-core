@@ -1,3 +1,4 @@
+import { SystemError } from '../../error'
 import { Node, NodePointer, Nodes } from '../../node'
 import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
@@ -6,6 +7,7 @@ import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
 import { ExpressionEvaluationContext } from './expressionEvaluationContext'
 import { createEnumeratedEntityNodes } from './recordNodesCreator'
+import { deleteNodes } from './recordNodesDeleter'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 const recordExpressionEvaluator = new RecordExpressionEvaluator()
@@ -84,9 +86,17 @@ export const updateSelfAndDependentsApplicable = (
             updateResult,
             sideEffect,
           })
-        } else {
-          if (!applicable && deleteNotApplicableEnumeratedEntities) {
-            // TODO remove enumerated entities if empty
+        } else if (!applicable) {
+          if (deleteNotApplicableEnumeratedEntities) {
+            const nodesDeleteUpdatedResult = deleteNodes(
+              nodeCtxChildren.map((node) => node.uuid),
+              { sideEffect }
+            )(updateResult.record)
+            updateResult.merge(nodesDeleteUpdatedResult)
+          } else {
+            throw new SystemError('record.dependentEnumeratedEntitiesBecameNotRelevant', {
+              nodeDefName: NodeDefs.getName(nodeDef),
+            })
           }
         }
         nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)

@@ -1,27 +1,78 @@
-import { Node } from '../../node'
-import { Objects } from '../../utils'
-import { Record } from '../record'
-import { visitDescendantsAndSelf } from '../_records/recordGetters'
+import { Node, NodesMap } from '../../node'
+import { Validations } from '../../validation'
+import * as RecordGetters from '../_records/recordGetters'
 import { RecordNodesIndexUpdater } from '../_records/recordNodesIndexUpdater'
+import { RecordUpdateOptions, RecordUpdateOptionsDefaults } from '../_records/recordUpdateOptions'
+import { Record } from '../record'
+import { RecordValidations } from '../recordValidations'
+import { RecordUpdateResult } from './recordUpdateResult'
 
-export const removeNodes =
-  (nodes: { [key: string]: Node }) =>
-  (record: Record): Record => {
-    const recordUpdated = { ...record, nodes: record.nodes ?? {} }
-    let indexUpdated = { ...(record._nodesIndex ?? {}) }
+export const deleteNodes =
+  (nodeUuids: string[], options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+  (record: Record): RecordUpdateResult => {
+    const { sideEffect, updateNodesIndex } = Object.assign({}, RecordUpdateOptionsDefaults, options)
 
-    Object.values(nodes).forEach((nodeToRemove) => {
-      visitDescendantsAndSelf({
-        record: recordUpdated,
-        node: nodeToRemove,
-        visitor: (nodeToRemoveDescendant) => {
-          recordUpdated.nodes = Objects.dissoc({ obj: recordUpdated.nodes, prop: nodeToRemove.uuid })
-          indexUpdated = RecordNodesIndexUpdater.removeNode(nodeToRemoveDescendant)(indexUpdated)
-        },
+    const recordUpdated = sideEffect ? record : { ...record }
+
+    const recordNodes = RecordGetters.getNodes(recordUpdated)
+
+    const nodesDeleted: NodesMap = {}
+    const recordNodesUpdated = sideEffect ? recordNodes : { ...recordNodes }
+
+    let recordNodesIndex = record._nodesIndex ?? {}
+
+    const recordValidation = Validations.getValidation(record)
+    let recordValidationUpdated = sideEffect
+      ? recordValidation
+      : { ...recordValidation, fields: { ...Validations.getFieldValidations(recordValidation) } }
+
+    const deleteDescendantNode = (visitedNode: Node): void => {
+      const visitedNodeUuid = visitedNode.uuid
+      if (nodesDeleted[visitedNodeUuid]) return
+
+      // 1. delete node from 'nodes'
+      delete recordNodesUpdated[visitedNodeUuid]
+
+      const visitedNodeUpdated = sideEffect ? visitedNode : { ...visitedNode }
+      visitedNodeUpdated.deleted = true
+      nodesDeleted[visitedNodeUuid] = visitedNodeUpdated
+
+      // 2. delete node from validation
+      recordValidationUpdated = Validations.dissocFieldValidation(visitedNodeUuid, sideEffect)(recordValidationUpdated)
+
+      recordValidationUpdated = Validations.dissocFieldValidationsStartingWith(
+        `${RecordValidations.prefixValidationFieldChildrenCount}${visitedNodeUuid}`,
+        sideEffect
+      )(recordValidationUpdated)
+
+      // 3. update nodes index
+      if (updateNodesIndex) {
+        recordNodesIndex = RecordNodesIndexUpdater.removeNode(visitedNode, sideEffect)(recordNodesIndex)
+      }
+    }
+
+    nodeUuids.forEach((nodeUuid) => {
+      const node = recordNodesUpdated[nodeUuid]
+      if (!node) return
+
+      RecordGetters.visitDescendantsAndSelf({
+        record,
+        node,
+        visitor: deleteDescendantNode,
       })
     })
-    recordUpdated._nodesIndex = indexUpdated
-    return recordUpdated
+
+    recordValidationUpdated = Validations.cleanup(recordValidationUpdated)
+
+    recordUpdated.nodes = recordNodesUpdated
+    recordUpdated.validation = recordValidationUpdated
+    if (updateNodesIndex) {
+      recordUpdated._nodesIndex = recordNodesIndex
+    }
+    return new RecordUpdateResult({ record: recordUpdated, nodes: nodesDeleted, nodesDeleted })
   }
 
-export const removeNode = (node: Node) => (record: Record) => removeNodes({ [node.uuid]: node })(record)
+export const deleteNode =
+  (nodeUuid: string, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+  (record: Record): RecordUpdateResult =>
+    deleteNodes([nodeUuid], options)(record)

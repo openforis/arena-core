@@ -37,6 +37,12 @@ const toArray = (value: any): any[] => {
   return Array.isArray(value) ? value : [value]
 }
 
+const toUuidIndexedObject = (array: any[]) =>
+  array.reduce((acc, item) => {
+    acc[item.uuid] = item
+    return acc
+  }, {})
+
 export const Arrays = {
   addItem,
   addItems,
@@ -46,4 +52,5 @@ export const Arrays = {
   removeItem,
   startsWith,
   toArray,
+  toUuidIndexedObject,
 }
