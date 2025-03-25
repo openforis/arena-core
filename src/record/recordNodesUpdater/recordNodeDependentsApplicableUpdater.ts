@@ -1,6 +1,6 @@
 import { SystemError } from '../../error'
 import { Node, NodePointer, Nodes } from '../../node'
-import { NodeDefEntity, NodeDefs } from '../../nodeDef'
+import { NodeDef, NodeDefEntity, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
@@ -12,20 +12,59 @@ import { RecordUpdateResult } from './recordUpdateResult'
 
 const recordExpressionEvaluator = new RecordExpressionEvaluator()
 
+const createOrDeleteEnumeratedEntities = (
+  params: ExpressionEvaluationContext & {
+    applicable: any
+    nodeDefNodePointer: NodeDef<NodeDefType, NodeDefProps>
+    nodeDef: NodeDef<NodeDefType, NodeDefProps>
+    nodeCtx: Node
+    nodeCtxChildren: Node[]
+    updateResult: RecordUpdateResult
+  }
+) => {
+  const {
+    user,
+    survey,
+    applicable,
+    nodeDefNodePointer,
+    nodeDef,
+    nodeCtx,
+    nodeCtxChildren,
+    updateResult,
+    sideEffect,
+    deleteNotApplicableEnumeratedEntities,
+  } = params
+  const childrenCount = nodeCtxChildren.length
+  if (applicable && childrenCount === 0) {
+    createEnumeratedEntityNodes({
+      user,
+      survey,
+      entityDef: nodeDefNodePointer as NodeDefEntity,
+      parentNode: nodeCtx,
+      updateResult,
+      sideEffect,
+    })
+  } else if (!applicable && childrenCount > 0) {
+    if (deleteNotApplicableEnumeratedEntities) {
+      const nodesDeleteUpdatedResult = deleteNodes(
+        nodeCtxChildren.map((node) => node.uuid),
+        { sideEffect }
+      )(updateResult.record)
+      updateResult.merge(nodesDeleteUpdatedResult)
+    } else {
+      throw new SystemError('record.dependentEnumeratedEntitiesBecameNotRelevant', {
+        nodeDefName: NodeDefs.getName(nodeDef),
+      })
+    }
+  }
+}
+
 export const updateSelfAndDependentsApplicable = (
   params: ExpressionEvaluationContext & {
     node: Node
   }
 ): RecordUpdateResult => {
-  const {
-    user,
-    survey,
-    record,
-    node,
-    timezoneOffset,
-    sideEffect = false,
-    deleteNotApplicableEnumeratedEntities = false,
-  } = params
+  const { user, survey, record, node, timezoneOffset, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -77,28 +116,15 @@ export const updateSelfAndDependentsApplicable = (
       let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
 
       if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
-        if (applicable && nodeCtxChildren.length === 0) {
-          createEnumeratedEntityNodes({
-            user,
-            survey,
-            entityDef: nodeDefNodePointer as NodeDefEntity,
-            parentNode: nodeCtx,
-            updateResult,
-            sideEffect,
-          })
-        } else if (!applicable) {
-          if (deleteNotApplicableEnumeratedEntities) {
-            const nodesDeleteUpdatedResult = deleteNodes(
-              nodeCtxChildren.map((node) => node.uuid),
-              { sideEffect }
-            )(updateResult.record)
-            updateResult.merge(nodesDeleteUpdatedResult)
-          } else {
-            throw new SystemError('record.dependentEnumeratedEntitiesBecameNotRelevant', {
-              nodeDefName: NodeDefs.getName(nodeDef),
-            })
-          }
-        }
+        createOrDeleteEnumeratedEntities({
+          ...params,
+          applicable,
+          nodeDefNodePointer,
+          nodeCtx,
+          nodeDef,
+          nodeCtxChildren,
+          updateResult,
+        })
         nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
       }
       nodeCtxChildren.forEach((nodeCtxChild) => {

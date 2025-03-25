@@ -53,7 +53,7 @@ export const createEnumeratedEntityNodes = (params: {
   parentNode: Node
   entityDef: NodeDefEntity
   updateResult: RecordUpdateResult
-  sideEffect: boolean
+  sideEffect?: boolean
 }): boolean => {
   const { user, survey, parentNode, entityDef, updateResult, sideEffect } = params
 
