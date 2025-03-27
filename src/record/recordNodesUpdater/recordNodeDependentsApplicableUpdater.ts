@@ -1,6 +1,6 @@
 import { SystemError } from '../../error'
 import { Node, NodePointer, Nodes } from '../../node'
-import { NodeDef, NodeDefEntity, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
@@ -12,35 +12,24 @@ import { RecordUpdateResult } from './recordUpdateResult'
 
 const recordExpressionEvaluator = new RecordExpressionEvaluator()
 
-const createOrDeleteEnumeratedEntities = (
+export const createOrDeleteEnumeratedEntities = (
   params: ExpressionEvaluationContext & {
-    applicable: any
-    nodeDefNodePointer: NodeDef<NodeDefType, NodeDefProps>
-    nodeDef: NodeDef<NodeDefType, NodeDefProps>
-    nodeCtx: Node
-    nodeCtxChildren: Node[]
+    parentNode: Node
+    entityDef: NodeDefEntity
     updateResult: RecordUpdateResult
   }
 ) => {
-  const {
-    user,
-    survey,
-    applicable,
-    nodeDefNodePointer,
-    nodeDef,
-    nodeCtx,
-    nodeCtxChildren,
-    updateResult,
-    sideEffect,
-    deleteNotApplicableEnumeratedEntities,
-  } = params
+  const { user, survey, parentNode, entityDef, updateResult, sideEffect, deleteNotApplicableEnumeratedEntities } =
+    params
+  const nodeCtxChildren = Records.getChildren(parentNode, entityDef.uuid)(updateResult.record)
   const childrenCount = nodeCtxChildren.length
+  const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
   if (applicable && childrenCount === 0) {
     createEnumeratedEntityNodes({
       user,
       survey,
-      entityDef: nodeDefNodePointer as NodeDefEntity,
-      parentNode: nodeCtx,
+      entityDef,
+      parentNode,
       updateResult,
       sideEffect,
     })
@@ -53,7 +42,7 @@ const createOrDeleteEnumeratedEntities = (
       updateResult.merge(nodesDeleteUpdatedResult)
     } else {
       throw new SystemError('record.dependentEnumeratedEntitiesBecameNotRelevant', {
-        nodeDefName: NodeDefs.getName(nodeDef),
+        nodeDefName: NodeDefs.getName(entityDef),
       })
     }
   }
@@ -118,11 +107,8 @@ export const updateSelfAndDependentsApplicable = (
       if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
         createOrDeleteEnumeratedEntities({
           ...params,
-          applicable,
-          nodeDefNodePointer,
-          nodeCtx,
-          nodeDef,
-          nodeCtxChildren,
+          parentNode: nodeCtx,
+          entityDef: nodeDefNodePointer as NodeDefEntity,
           updateResult,
         })
         nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)

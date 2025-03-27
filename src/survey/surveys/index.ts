@@ -15,6 +15,7 @@ import {
   getNodeDefChildren,
   getNodeDefChildrenSorted,
   getNodeDefParent,
+  getNodeDefAncestorMultipleEntity,
   getNodeDefRoot,
   getNodeDefSource,
   isNodeDefAncestor,
@@ -25,6 +26,7 @@ import {
   getNodeDefAncestorCodes,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
+  getDependentCodeAttributeDefs,
   isNodeDefEnumerator,
   getNodeDefEnumerator,
   buildAndAssocNodeDefsIndex,
@@ -103,6 +105,7 @@ export const Surveys = {
   getNodeDefChildren,
   getNodeDefChildrenSorted,
   getNodeDefParent,
+  getNodeDefAncestorMultipleEntity,
   getNodeDefRoot,
   getNodeDefSource,
   isNodeDefAncestor,
@@ -131,6 +134,7 @@ export const Surveys = {
   getNodeDefAncestorCodes,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
+  getDependentCodeAttributeDefs,
 
   // dependencies
   buildAndAssocDependencyGraph,

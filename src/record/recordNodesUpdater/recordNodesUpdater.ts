@@ -4,11 +4,12 @@ import { Dictionary } from '../../common'
 import { Node } from '../../node'
 import { NodeDefCountType } from '../../nodeDef'
 import { ExpressionEvaluationContext } from './expressionEvaluationContext'
-import * as DependentApplicableUpdater from './recordNodeDependentsApplicableUpdater'
-import * as DependentCodeAttributesUpdater from './recordNodeDependentsCodeAttributesUpdater'
-import * as DependentCountUpdater from './recordNodeDependentsCountUpdater'
-import * as DependentDefaultValuesUpdater from './recordNodeDependentsDefaultValuesUpdater'
-import * as DependentFileNamesUpdater from './recordNodeDependentsFileNamesEvaluator'
+import { updateSelfAndDependentsApplicable } from './recordNodeDependentsApplicableUpdater'
+import { updateDependentCodeAttributes } from './recordNodeDependentsCodeAttributesUpdater'
+import { updateDependentsCount } from './recordNodeDependentsCountUpdater'
+import { updateSelfAndDependentsDefaultValues } from './recordNodeDependentsDefaultValuesUpdater'
+import { updateDependentEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
+import { updateSelfAndDependentsFileNames } from './recordNodeDependentsFileNamesEvaluator'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 /**
@@ -55,41 +56,37 @@ export const updateNodesDependents = (
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
       // min count
-      const minCountUpdateResult = DependentCountUpdater.updateDependentsCount({
+      const minCountUpdateResult = updateDependentsCount({
         ...createEvaluationContext(node),
         countType: NodeDefCountType.min,
       })
       updateResult.merge(minCountUpdateResult)
 
       // max count
-      const maxCountUpdateResult = DependentCountUpdater.updateDependentsCount({
+      const maxCountUpdateResult = updateDependentsCount({
         ...createEvaluationContext(node),
         countType: NodeDefCountType.max,
       })
       updateResult.merge(maxCountUpdateResult)
 
       // applicability
-      const applicabilityUpdateResult = DependentApplicableUpdater.updateSelfAndDependentsApplicable(
-        createEvaluationContext(node)
-      )
+      const applicabilityUpdateResult = updateSelfAndDependentsApplicable(createEvaluationContext(node))
       updateResult.merge(applicabilityUpdateResult)
 
       // default values
-      const defaultValuesUpdateResult = DependentDefaultValuesUpdater.updateSelfAndDependentsDefaultValues(
-        createEvaluationContext(node)
-      )
+      const defaultValuesUpdateResult = updateSelfAndDependentsDefaultValues(createEvaluationContext(node))
       updateResult.merge(defaultValuesUpdateResult)
 
       // code attributes
-      const dependentCodeAttributesUpdateResult = DependentCodeAttributesUpdater.updateDependentCodeAttributes(
-        createEvaluationContext(node)
-      )
+      const dependentCodeAttributesUpdateResult = updateDependentCodeAttributes(createEvaluationContext(node))
       updateResult.merge(dependentCodeAttributesUpdateResult)
 
+      // enumerated entities
+      const dependentEnumeratedEntitiesUpdateResult = updateDependentEnumeratedEntities(createEvaluationContext(node))
+      updateResult.merge(dependentEnumeratedEntitiesUpdateResult)
+
       // Update dependents (file names)
-      const dependentFileNamesUpdateResult = DependentFileNamesUpdater.updateSelfAndDependentsFileNames(
-        createEvaluationContext(node)
-      )
+      const dependentFileNamesUpdateResult = updateSelfAndDependentsFileNames(createEvaluationContext(node))
       updateResult.merge(dependentFileNamesUpdateResult)
 
       const nodesUpdatedCurrent: Dictionary<Node> = {

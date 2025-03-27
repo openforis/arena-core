@@ -115,13 +115,30 @@ export const getParentCodeAttribute =
 
 // ancestors
 export const visitAncestorsAndSelf =
-  (node: Node, visitor: (node: Node) => void) =>
+  (node: Node, visitor: (node: Node) => void, stopIfFn?: () => boolean) =>
   (record: Record): void => {
     let currentNode: Node | undefined = node
     while (currentNode) {
       visitor(currentNode)
+      if (stopIfFn?.()) break
       currentNode = getParent(currentNode)(record)
     }
+  }
+
+export const findAncestor =
+  (node: Node, predicate: (node: Node) => boolean) =>
+  (record: Record): Node | undefined => {
+    let result: Node | undefined = undefined
+    visitAncestorsAndSelf(
+      node,
+      (visitedNode) => {
+        if (predicate(visitedNode)) {
+          result = visitedNode
+        }
+      },
+      () => !!result
+    )(record)
+    return result
   }
 
 export const getAncestor = (params: { record: Record; node: Node; ancestorDefUuid: string }): Node | undefined => {

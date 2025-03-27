@@ -83,6 +83,18 @@ export const getNodeDefParent = (params: {
   return getNodeDefByUuid({ survey, uuid: nodeDef.parentUuid }) as NodeDefEntity
 }
 
+export const getNodeDefAncestorMultipleEntity = (params: {
+  survey: Survey
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+}): NodeDefEntity | undefined => {
+  const { survey, nodeDef } = params
+  return findAncestorNodeDef({
+    survey,
+    nodeDef,
+    predicate: (entityDef) => NodeDefs.isRoot(entityDef) || NodeDefs.isMultiple(entityDef),
+  })
+}
+
 export const isNodeDefAncestor = (params: {
   nodeDefAncestor: NodeDef<NodeDefType, NodeDefProps>
   nodeDefDescendant: NodeDef<NodeDefType, NodeDefProps>
@@ -247,14 +259,38 @@ export const visitAncestorsAndSelfNodeDef = (params: {
   survey: Survey
   nodeDef: NodeDef<any>
   visitor: (nodeDef: NodeDef<any>) => void
+  stopIfFn?: () => boolean
 }): void => {
-  const { survey, nodeDef, visitor } = params
+  const { survey, nodeDef, visitor, stopIfFn } = params
   visitor(nodeDef)
   let currentParent = getNodeDefParent({ survey, nodeDef })
   while (currentParent) {
     visitor(currentParent)
+    if (stopIfFn?.()) {
+      break
+    }
     currentParent = getNodeDefParent({ survey, nodeDef: currentParent })
   }
+}
+
+export const findAncestorNodeDef = (params: {
+  survey: Survey
+  nodeDef: NodeDef<any>
+  predicate: (entityDef: NodeDefEntity) => boolean
+}): NodeDefEntity | undefined => {
+  const { survey, nodeDef, predicate } = params
+  let result: NodeDefEntity | undefined = undefined
+  visitAncestorsAndSelfNodeDef({
+    survey,
+    nodeDef,
+    visitor: (entityDef) => {
+      if (predicate(entityDef)) {
+        result = entityDef
+      }
+    },
+    stopIfFn: () => !!result,
+  })
+  return result
 }
 
 export const visitDescendantsAndSelfNodeDef = (params: {
@@ -372,13 +408,19 @@ export const isNodeDefParentCode = (params: {
   })
 }
 
-export const getNodeDefCategoryLevelIndex = (params: {
-  survey: Survey
-  nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>
-}): number => {
+export const getNodeDefCategoryLevelIndex = (params: { survey: Survey; nodeDef: NodeDefCode }): number => {
   const { survey, nodeDef } = params
   const parentCodeNodeDef = getNodeDefParentCode({ survey, nodeDef })
   return parentCodeNodeDef ? 1 + getNodeDefCategoryLevelIndex({ survey, nodeDef: parentCodeNodeDef }) : 0
+}
+
+export const getDependentCodeAttributeDefs = (params: { survey: Survey; nodeDef: NodeDefCode }): NodeDefCode[] => {
+  const { survey, nodeDef } = params
+  const nodeDefsArray = getNodeDefsArray(survey)
+  return nodeDefsArray.filter((def) => {
+    if (def.type !== NodeDefType.code) return false
+    return NodeDefs.getParentCodeDefUuid(def as NodeDefCode) === nodeDef.uuid
+  }) as NodeDefCode[]
 }
 
 export const getNodeDefKeys = (params: {
