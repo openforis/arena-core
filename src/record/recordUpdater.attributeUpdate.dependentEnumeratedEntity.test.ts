@@ -31,6 +31,7 @@ const updateAttributeAndExpectDependentEnumeratedKeys = async (params: {
     record,
     attributeUuid: nodeToUpdate.uuid,
     value,
+    deleteNotApplicableEnumeratedEntities: true,
   })
 
   expect(updateResult).not.toBeNull()
@@ -87,11 +88,13 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       .build()
 
     const enumeratingCategory = Surveys.getCategoryByName({ survey, categoryName: 'hierarchical_category' })
-    const item1 = Surveys.getCategoryItemByCodePaths({
-      survey,
-      categoryUuid: enumeratingCategory!.uuid,
-      codePaths: ['1'],
-    })
+    const [item1, item2] = [['1'], ['2']].map((codePaths) =>
+      Surveys.getCategoryItemByCodePaths({
+        survey,
+        categoryUuid: enumeratingCategory!.uuid,
+        codePaths,
+      })
+    )
     let record = new RecordBuilder(
       user,
       survey,
@@ -106,7 +109,14 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       enumeratedKeysPath: 'root_entity.enumerated_entity.enumerated_entity_key',
       expectedKeys: ['1a'],
     })
-
+    record = await updateAttributeAndExpectDependentEnumeratedKeys({
+      survey,
+      record,
+      nodePath: 'root_entity.parent_code',
+      value: NodeValues.newCodeValue({ itemUuid: item2!.uuid }),
+      enumeratedKeysPath: 'root_entity.enumerated_entity.enumerated_entity_key',
+      expectedKeys: ['2a'],
+    })
     expect(record).not.toBeNull()
   })
 })

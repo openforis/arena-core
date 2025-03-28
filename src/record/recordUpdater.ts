@@ -32,24 +32,9 @@ const _getDependentValidationNodes = (params: { survey: Survey; record: Record; 
 const _onRecordNodesCreateOrUpdate = async (
   params: NodesUpdateParams & { nodes: Dictionary<Node> }
 ): Promise<RecordUpdateResult> => {
-  const {
-    user,
-    survey,
-    record,
-    nodes,
-    timezoneOffset,
-    dateModified = Dates.nowFormattedForStorage(),
-    sideEffect = false,
-  } = params
+  const { user, survey, record, dateModified = Dates.nowFormattedForStorage() } = params
 
-  const { nodes: updatedNodes, record: updatedRecord } = RecordNodesUpdater.updateNodesDependents({
-    user,
-    survey,
-    record,
-    nodes,
-    timezoneOffset,
-    sideEffect,
-  })
+  const { nodes: updatedNodes, record: updatedRecord } = RecordNodesUpdater.updateNodesDependents(params)
 
   const dependentValidationNodes = _getDependentValidationNodes({ survey, record: updatedRecord, nodes: updatedNodes })
 

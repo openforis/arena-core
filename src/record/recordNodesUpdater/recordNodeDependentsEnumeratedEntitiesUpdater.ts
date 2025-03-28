@@ -75,7 +75,7 @@ export const createOrDeleteEnumeratedEntities = (
       )(updateResult.record)
       updateResult.merge(nodesDeleteUpdatedResult)
     } else {
-      throw new SystemError('record.dependentEnumeratedEntitiesBecameNotRelevant', {
+      throw new SystemError('record.cannotDeleteNotApplicableEnumeratedEntities', {
         nodeDefName: NodeDefs.getName(entityDef),
       })
     }

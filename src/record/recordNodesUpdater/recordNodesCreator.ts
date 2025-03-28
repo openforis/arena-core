@@ -16,6 +16,7 @@ export type NodesUpdateParams = {
   dateModified?: string
   timezoneOffset?: number
   sideEffect?: boolean
+  deleteNotApplicableEnumeratedEntities?: boolean
 }
 
 export type NodeCreateParams = NodesUpdateParams & {
