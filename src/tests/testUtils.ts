@@ -30,7 +30,7 @@ const findNodesByPath = (params: { survey: Survey; record: Record; path: string 
     const childDef = findNodeDefByName({ survey, name: childName })
     if (!childDef) return undefined
 
-    if (index === 0 && !childDef.parentUuid) {
+    if (index === 0 && NodeDefs.isRoot(childDef)) {
       // skip root
     } else {
       const currentNode = currentNodes[0]

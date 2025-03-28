@@ -15,6 +15,7 @@ import { SystemError } from '../../error'
 import * as NodeDefsReader from './_nodeDefs/nodeDefsReader'
 import * as NodeDefsIndex from './_nodeDefs/nodeDefsIndex'
 import { TraverseMethod } from '../../common'
+import { getCategoryByUuid } from './surveysGetters'
 
 export const getNodeDefsArray = NodeDefsReader.getNodeDefsArray
 
@@ -416,11 +417,33 @@ export const getNodeDefCategoryLevelIndex = (params: { survey: Survey; nodeDef: 
 
 export const getDependentCodeAttributeDefs = (params: { survey: Survey; nodeDef: NodeDefCode }): NodeDefCode[] => {
   const { survey, nodeDef } = params
+
+  const categoryUuid = NodeDefs.getCategoryUuid(nodeDef)
+  if (!categoryUuid) return []
+
+  const category = getCategoryByUuid({ survey, categoryUuid })
+  const levelsCount = category?.levels?.length || 0
+  if (levelsCount <= 1) return []
+
   const nodeDefsArray = getNodeDefsArray(survey)
-  return nodeDefsArray.filter((def) => {
-    if (def.type !== NodeDefType.code) return false
-    return NodeDefs.getParentCodeDefUuid(def as NodeDefCode) === nodeDef.uuid
-  }) as NodeDefCode[]
+  return nodeDefsArray.filter(
+    (def) => def.type === NodeDefType.code && NodeDefs.getParentCodeDefUuid(def as NodeDefCode) === nodeDef.uuid
+  ) as NodeDefCode[]
+}
+
+export const getDependentEnumeratedEntityDefs = (params: { survey: Survey; nodeDef: NodeDefCode }): NodeDefEntity[] => {
+  const { survey, nodeDef } = params
+  const result: NodeDefEntity[] = []
+  const dependentCodeAttributeDefs = getDependentCodeAttributeDefs({ survey, nodeDef })
+  dependentCodeAttributeDefs.forEach((dependentCodeDef) => {
+    if (NodeDefs.isKey(dependentCodeDef)) {
+      const entityDef = getNodeDefAncestorMultipleEntity({ survey, nodeDef: dependentCodeDef })
+      if (entityDef && NodeDefs.isEnumerate(entityDef)) {
+        result.push(entityDef)
+      }
+    }
+  })
+  return result
 }
 
 export const getNodeDefKeys = (params: {

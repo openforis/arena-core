@@ -5,7 +5,7 @@ const { category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectB
 const { entity, attribute } = RecordNodeBuilders
 
 import { User } from '../auth'
-import { NodeValueFormatter } from '../node'
+import { NodeValueFormatter, NodeValues } from '../node'
 import { Survey, Surveys } from '../survey'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
@@ -67,9 +67,12 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
         codeDef('parent_code', 'hierarchical_category'),
         entityDef(
           'enumerated_entity',
-          codeDef('table_key', 'hierarchical_category').parentCodeAttribute('parent_code').key(),
+          codeDef('enumerated_entity_key', 'hierarchical_category').parentCodeAttribute('parent_code').key(),
           integerDef('table_num')
-        ).applyIf('isNotEmpty("parent_code")')
+        )
+          .multiple()
+          .enumerate()
+          .applyIf('isNotEmpty("parent_code")')
       )
     )
       .categories(
@@ -83,6 +86,12 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       )
       .build()
 
+    const enumeratingCategory = Surveys.getCategoryByName({ survey, categoryName: 'hierarchical_category' })
+    const item1 = Surveys.getCategoryItemByCodePaths({
+      survey,
+      categoryUuid: enumeratingCategory!.uuid,
+      codePaths: ['1'],
+    })
     let record = new RecordBuilder(
       user,
       survey,
@@ -93,8 +102,8 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       survey,
       record,
       nodePath: 'root_entity.parent_code',
-      value: '1',
-      enumeratedKeysPath: 'root_entity.enumerated_entity',
+      value: NodeValues.newCodeValue({ itemUuid: item1!.uuid }),
+      enumeratedKeysPath: 'root_entity.enumerated_entity.enumerated_entity_key',
       expectedKeys: ['1a'],
     })
 

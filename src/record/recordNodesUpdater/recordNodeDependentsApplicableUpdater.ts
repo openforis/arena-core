@@ -1,4 +1,3 @@
-import { SystemError } from '../../error'
 import { Node, NodePointer, Nodes } from '../../node'
 import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
@@ -6,47 +5,10 @@ import { SurveyDependencyType } from '../../survey/survey'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
 import { ExpressionEvaluationContext } from './expressionEvaluationContext'
-import { createEnumeratedEntityNodes } from './recordNodesCreator'
-import { deleteNodes } from './recordNodesDeleter'
+import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 const recordExpressionEvaluator = new RecordExpressionEvaluator()
-
-export const createOrDeleteEnumeratedEntities = (
-  params: ExpressionEvaluationContext & {
-    parentNode: Node
-    entityDef: NodeDefEntity
-    updateResult: RecordUpdateResult
-  }
-) => {
-  const { user, survey, parentNode, entityDef, updateResult, sideEffect, deleteNotApplicableEnumeratedEntities } =
-    params
-  const nodeCtxChildren = Records.getChildren(parentNode, entityDef.uuid)(updateResult.record)
-  const childrenCount = nodeCtxChildren.length
-  const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
-  if (applicable && childrenCount === 0) {
-    createEnumeratedEntityNodes({
-      user,
-      survey,
-      entityDef,
-      parentNode,
-      updateResult,
-      sideEffect,
-    })
-  } else if (!applicable && childrenCount > 0) {
-    if (deleteNotApplicableEnumeratedEntities) {
-      const nodesDeleteUpdatedResult = deleteNodes(
-        nodeCtxChildren.map((node) => node.uuid),
-        { sideEffect }
-      )(updateResult.record)
-      updateResult.merge(nodesDeleteUpdatedResult)
-    } else {
-      throw new SystemError('record.dependentEnumeratedEntitiesBecameNotRelevant', {
-        nodeDefName: NodeDefs.getName(entityDef),
-      })
-    }
-  }
-}
 
 export const updateSelfAndDependentsApplicable = (
   params: ExpressionEvaluationContext & {

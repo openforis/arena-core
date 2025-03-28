@@ -1,3 +1,7 @@
+import { Survey } from '../survey'
+import { NodeDefCode, NodeDefs } from '../../nodeDef'
+import { CategoryItem } from '../../category'
+
 import {
   buildAndAssocDependencyGraph,
   addNodeDefDependencies,
@@ -37,6 +41,7 @@ import {
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
   getDescendantsInSingleEntities,
+  getDependentEnumeratedEntityDefs,
 } from './nodeDefs'
 import {
   getCategoryItemByCodePaths,
@@ -76,6 +81,20 @@ import {
   isRecordsDownloadInMobileAllowed,
   isRecordsUploadFromMobileAllowed,
 } from './surveyGettersSecurity'
+
+const getEnumeratingCategoryItems = (params: {
+  survey: Survey
+  enumerator: NodeDefCode
+  parentItemUuid?: string
+}): CategoryItem[] => {
+  const { survey, enumerator, parentItemUuid } = params
+  const categoryUuid = enumerator.props.categoryUuid
+  const category = survey.categories?.[categoryUuid]
+  if (!category || (NodeDefs.getParentCodeDefUuid(enumerator) && !parentItemUuid)) {
+    return []
+  }
+  return getCategoryItems({ survey, categoryUuid: category.uuid, parentItemUuid })
+}
 
 export const Surveys = {
   getName,
@@ -128,6 +147,7 @@ export const Surveys = {
   getTaxonByUuid,
   getTaxonVernacularNameUuid,
   includesTaxonVernacularName,
+  getEnumeratingCategoryItems,
 
   // node def code
   getNodeDefParentCode,
@@ -135,6 +155,7 @@ export const Surveys = {
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
   getDependentCodeAttributeDefs,
+  getDependentEnumeratedEntityDefs,
 
   // dependencies
   buildAndAssocDependencyGraph,

@@ -1,14 +1,12 @@
 import { User } from '../../auth'
-import { CategoryItem } from '../../category'
 import { SystemError } from '../../error'
 import { Node, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
-import { Survey } from '../../survey'
-import { getCategoryItems } from '../../survey/surveys/refsData'
-import { getNodeDefEnumerator, getNodeDefChildren } from '../../survey/surveys/nodeDefs'
-import { Record } from '../record'
+import { Survey, Surveys } from '../../survey'
+import { getNodeDefChildren, getNodeDefEnumerator } from '../../survey/surveys/nodeDefs'
 import { getParentCodeAttribute } from '../_records/recordGetters'
+import { Record } from '../record'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 export type NodesUpdateParams = {
@@ -35,16 +33,18 @@ const getNodesToInsertCount = (params: { parentNode: Node | undefined; nodeDef: 
 
 const getEnumeratingCategoryItems = (params: {
   survey: Survey
-  enumerator: NodeDefCode
-  parentItemUuid?: string
-}): CategoryItem[] => {
-  const { survey, enumerator, parentItemUuid } = params
-  const categoryUuid = enumerator.props.categoryUuid
-  const category = survey.categories?.[categoryUuid]
-  if (!category || (NodeDefs.getParentCodeDefUuid(enumerator) && !parentItemUuid)) {
-    return []
+  enumeratorDef: NodeDefCode
+  record: Record
+  parentNode: Node
+}) => {
+  const { survey, enumeratorDef, record, parentNode } = params
+  let parentItemUuid
+  if (NodeDefs.getParentCodeDefUuid(enumeratorDef)) {
+    const parentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: enumeratorDef })(record)
+    parentItemUuid = parentCodeAttribute ? NodeValues.getItemUuid(parentCodeAttribute) : null
+    if (!parentItemUuid) return []
   }
-  return getCategoryItems({ survey, categoryUuid: category.uuid, parentItemUuid })
+  return Surveys.getEnumeratingCategoryItems({ survey, enumerator: enumeratorDef, parentItemUuid })
 }
 
 export const createEnumeratedEntityNodes = (params: {
@@ -57,17 +57,12 @@ export const createEnumeratedEntityNodes = (params: {
 }): boolean => {
   const { user, survey, parentNode, entityDef, updateResult, sideEffect } = params
 
-  const enumerator = getNodeDefEnumerator({ survey, entityDef })
-  if (!enumerator) return false
+  const enumeratorDef = getNodeDefEnumerator({ survey, entityDef })
+  if (!enumeratorDef) return false
 
-  let parentItemUuid = null
-  if (NodeDefs.getParentCodeDefUuid(enumerator)) {
-    const parentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: enumerator })(updateResult.record)
-    parentItemUuid = parentCodeAttribute?.value?.itemUuid
-    if (!parentItemUuid) return false
-  }
+  const categoryItems = getEnumeratingCategoryItems({ survey, enumeratorDef, record: updateResult.record, parentNode })
+  if (categoryItems.length === 0) return false
 
-  const categoryItems = getEnumeratingCategoryItems({ survey, enumerator, parentItemUuid })
   categoryItems.forEach((categoryItem) => {
     const { record } = updateResult
     const childUpdateResult = createNodeAndDescendants({
@@ -78,13 +73,15 @@ export const createEnumeratedEntityNodes = (params: {
       nodeDef: entityDef,
       sideEffect,
     })
-    const enumeratorNode = Object.values(childUpdateResult.nodes).find((node) => node.nodeDefUuid === enumerator.uuid)
+    const enumeratorNode = Object.values(childUpdateResult.nodes).find(
+      (node) => node.nodeDefUuid === enumeratorDef.uuid
+    )
     if (!enumeratorNode) {
       // it should never happen
       throw new SystemError('record.enumeratorNodeNotFound', {
         recordUuid: record.uuid,
         entityDef: NodeDefs.getName(entityDef),
-        enumerator: NodeDefs.getName(enumerator),
+        enumerator: NodeDefs.getName(enumeratorDef),
       })
     }
     enumeratorNode.value = NodeValues.newCodeValue({ itemUuid: categoryItem.uuid })
