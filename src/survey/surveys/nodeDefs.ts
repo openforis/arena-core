@@ -425,7 +425,7 @@ export const getDependentCodeAttributeDefs = (params: { survey: Survey; nodeDef:
   if (!categoryUuid) return []
 
   const category = getCategoryByUuid({ survey, categoryUuid })
-  const levelsCount = category?.levels?.length || 0
+  const levelsCount = Object.keys(category?.levels ?? {}).length
   if (levelsCount <= 1) return []
 
   const nodeDefsArray = getNodeDefsArray(survey)

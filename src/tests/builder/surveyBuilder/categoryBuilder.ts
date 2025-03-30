@@ -1,4 +1,5 @@
-import { Category, CategoryFactory, CategoryItem, CategoryLevelFactory } from '../../../category'
+import { Category, CategoryFactory, CategoryItem, CategoryLevel, CategoryLevelFactory } from '../../../category'
+import { Dictionary } from '../../../common'
 import { ExtraPropDefs } from '../../../extraProp'
 import { CategoryItemBuilder } from './categoryItemBuilder'
 
@@ -33,9 +34,10 @@ export class CategoryBuilder {
   build(): { category: Category; items: CategoryItem[] } {
     const category = CategoryFactory.createInstance({ props: { name: this.name, itemExtraDef: this._extraProps } })
     if (this.levelNames.length > 0) {
-      const levels = this.levelNames.map((name) =>
-        CategoryLevelFactory.createInstance({ categoryUuid: category.uuid, props: { name } })
-      )
+      const levels = this.levelNames.reduce((acc: Dictionary<CategoryLevel>, name, index) => {
+        acc[index] = CategoryLevelFactory.createInstance({ categoryUuid: category.uuid, props: { name } })
+        return acc
+      }, {})
       category.levels = levels
     }
     const items = this.itemBuilders.flatMap((itemBuilder) => itemBuilder.build(category))

@@ -1,4 +1,4 @@
-import { ArenaObject } from '../common'
+import { ArenaObject, Dictionary } from '../common'
 import { ExtraPropDefs } from '../extraProp'
 import { CategoryLevel } from './level'
 
@@ -9,6 +9,6 @@ export interface CategoryProps {
 
 export interface Category extends ArenaObject<CategoryProps> {
   id?: number
-  levels: CategoryLevel[]
+  levels: Dictionary<CategoryLevel>
   published?: boolean
 }
