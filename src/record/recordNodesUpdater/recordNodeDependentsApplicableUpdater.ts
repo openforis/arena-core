@@ -69,7 +69,7 @@ export const updateSelfAndDependentsApplicable = (
       if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
         createOrDeleteEnumeratedEntities({
           ...params,
-          parentNode: nodeCtx,
+          parentNode: nodeCtxUpdated,
           entityDef: nodeDefNodePointer as NodeDefEntity,
           updateResult,
         })
