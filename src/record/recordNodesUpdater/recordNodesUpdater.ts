@@ -29,7 +29,7 @@ export const updateNodesDependents = (
     nodes,
     timezoneOffset,
     sideEffect = false,
-    deleteNotApplicableEnumeratedEntities = false,
+    deleteNotApplicableEnumeratedEntities = true,
   } = params
   const updateResult = new RecordUpdateResult({ record, nodes: sideEffect ? nodes : { ...nodes } })
 
