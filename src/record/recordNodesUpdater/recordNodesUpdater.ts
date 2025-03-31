@@ -22,15 +22,7 @@ const MAX_DEPENDENTS_VISITING_TIMES = 2
 export const updateNodesDependents = (
   params: ExpressionEvaluationContext & { nodes: Dictionary<Node> }
 ): RecordUpdateResult => {
-  const {
-    user,
-    survey,
-    record,
-    nodes,
-    timezoneOffset,
-    sideEffect = false,
-    deleteNotApplicableEnumeratedEntities = true,
-  } = params
+  const { user, survey, record, nodes, timezoneOffset, sideEffect = false } = params
   const updateResult = new RecordUpdateResult({ record, nodes: sideEffect ? nodes : { ...nodes } })
 
   const createEvaluationContext = (node: Node): ExpressionEvaluationContext & { node: Node } => ({
@@ -39,7 +31,6 @@ export const updateNodesDependents = (
     record: updateResult.record, // updateResult.record changes at every step (when sideEffect=false)
     timezoneOffset,
     sideEffect,
-    deleteNotApplicableEnumeratedEntities,
     node,
   })
 

@@ -8,5 +8,4 @@ export interface ExpressionEvaluationContext {
   record: Record
   timezoneOffset?: number
   sideEffect?: boolean
-  deleteNotApplicableEnumeratedEntities?: boolean
 }

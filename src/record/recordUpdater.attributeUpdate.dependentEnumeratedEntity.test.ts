@@ -76,7 +76,6 @@ const updateAttributeAndExpectDependentEnumeratedKeys = async (params: {
     record,
     attributeUuid: nodeToUpdate.uuid,
     value,
-    deleteNotApplicableEnumeratedEntities: true,
   })
 
   expect(updateResult).not.toBeNull()
@@ -162,7 +161,6 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       record,
       attributeUuid: nodeToUpdate.uuid,
       value: false,
-      deleteNotApplicableEnumeratedEntities: true,
     })
     record = updateResult.record
 

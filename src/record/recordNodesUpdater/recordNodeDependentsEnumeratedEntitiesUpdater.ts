@@ -1,5 +1,4 @@
 import { User } from '../../auth'
-import { SystemError } from '../../error'
 import { Node, Nodes, NodeValues } from '../../node'
 import { NodeDefCode, NodeDefEntity, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
@@ -61,24 +60,15 @@ export const createOrDeleteEnumeratedEntities = (
     updateResult: RecordUpdateResult
   }
 ) => {
-  const { user, survey, parentNode, entityDef, updateResult, sideEffect, deleteNotApplicableEnumeratedEntities } =
-    params
+  const { user, survey, parentNode, entityDef, updateResult, sideEffect } = params
   const existingEntities = getChildren(parentNode, entityDef.uuid)(updateResult.record)
   const existingEntitiesCount = existingEntities.length
   const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
 
   const deleteExistingEntities = () => {
-    if (deleteNotApplicableEnumeratedEntities) {
-      const nodesDeleteUpdatedResult = deleteNodes(
-        existingEntities.map((node) => node.uuid),
-        { sideEffect }
-      )(updateResult.record)
-      updateResult.merge(nodesDeleteUpdatedResult)
-    } else {
-      throw new SystemError('record.cannotDeleteNotApplicableEnumeratedEntities', {
-        nodeDefName: NodeDefs.getName(entityDef),
-      })
-    }
+    const existingEntityUuids = existingEntities.map((node) => node.uuid)
+    const nodesDeleteUpdatedResult = deleteNodes(existingEntityUuids, { sideEffect })(updateResult.record)
+    updateResult.merge(nodesDeleteUpdatedResult)
   }
 
   if (applicable) {
