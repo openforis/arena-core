@@ -85,6 +85,7 @@ export const createEnumeratedEntityNodes = (params: {
       })
     }
     enumeratorNode.value = NodeValues.newCodeValue({ itemUuid: categoryItem.uuid })
+    enumeratorNode.meta = { ...(enumeratorNode.meta ?? {}), defaultValueApplied: true }
     enumeratorNode.refData = { categoryItem }
 
     updateResult.merge(childUpdateResult)

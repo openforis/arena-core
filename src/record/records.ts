@@ -29,6 +29,9 @@ import {
   findEntityByKeyValues,
   findEntityWithSameKeysInAnotherRecord,
   getCategoryItemUuid,
+  isNodeEmpty,
+  isNodeFilledByUser,
+  isEmpty,
 } from './_records/recordGetters'
 import { addNode, addNodes } from './_records/recordUpdater'
 import { deleteNode, deleteNodes } from './recordNodesUpdater/recordNodesDeleter'
@@ -65,7 +68,9 @@ export const Records = {
   findEntityByKeyValues,
   findEntityWithSameKeysInAnotherRecord,
   getCategoryItemUuid,
-
+  isNodeEmpty,
+  isNodeFilledByUser,
+  isEmpty,
   // UPDATE
   addNode,
   addNodes,

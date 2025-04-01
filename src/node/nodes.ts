@@ -41,6 +41,8 @@ const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueA
 
 const isValueBlank = (node: Node): boolean => Objects.isEmpty(node.value)
 
+const hasUserInputValue = (node: Node): boolean => node && !isValueBlank(node) && !isDefaultValueApplied(node)
+
 const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: boolean): Node => {
   const childApplicability = { ...(node.meta?.childApplicability ?? {}) }
   if (!applicable) {
@@ -118,6 +120,7 @@ export const Nodes = {
   getHierarchyCode,
   isDefaultValueApplied,
   isValueBlank,
+  hasUserInputValue,
   // update
   assocChildApplicability,
   dissocChildApplicability,
