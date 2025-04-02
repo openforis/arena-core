@@ -13,6 +13,17 @@ const findNodeDefByName = (params: { survey: Survey; name: string }): NodeDef<an
   }
 }
 
+const parsePathPart = (pathPart: string): { childName: string; childIndex: number | null } | undefined => {
+  const partMatch = /(\w+)(\[(\d+)\])?/.exec(pathPart)
+  if (!partMatch) {
+    return undefined
+  }
+  const childName = partMatch[1]
+  const indexStr = partMatch[3]
+  const childIndex = indexStr ? parseInt(indexStr, 10) : null
+  return { childName, childIndex }
+}
+
 const findNodesByPath = (params: { survey: Survey; record: Record; path: string }): Node[] | undefined => {
   const { survey, record, path } = params
   const root = Records.getRoot(record)
@@ -23,10 +34,10 @@ const findNodesByPath = (params: { survey: Survey; record: Record; path: string 
   const pathParts = path.split('.')
   for (let index = 0; index < pathParts.length; index++) {
     const pathPart = pathParts[index]
-    const partMatch = /(\w+)(\[(\d+)\])?/.exec(pathPart)
-    if (!partMatch) return undefined
+    const parsedPart = parsePathPart(pathPart)
+    if (!parsedPart) return undefined
 
-    const childName = partMatch[1]
+    const { childName, childIndex: partChildIndex } = parsedPart
     const childDef = findNodeDefByName({ survey, name: childName })
     if (!childDef) return undefined
 
@@ -37,7 +48,7 @@ const findNodesByPath = (params: { survey: Survey; record: Record; path: string 
       if (!currentNode) return undefined
       const singleDef = NodeDefs.isSingle(childDef)
       const children = Records.getChildren(currentNode, childDef.uuid)(record)
-      const childIndex = Number(partMatch[3] || (singleDef ? 0 : null))
+      const childIndex = partChildIndex ?? (singleDef ? 0 : NaN)
       const child = childIndex >= 0 ? children[childIndex] : null
       if (singleDef && !child) return undefined
       currentNodes = childIndex ? Arrays.toArray(child) : children

@@ -208,7 +208,7 @@ export const isDescendantOf = (params: { node: Node; ancestor: Node }): boolean 
 export const visitDescendantsAndSelf = (params: {
   record: Record
   node: Node
-  visitor: (node: Node) => boolean | undefined
+  visitor: (node: Node) => boolean | void
   traverseMethod?: TraverseMethod
 }): void => {
   const { record, node, visitor, traverseMethod = TraverseMethod.bfs } = params
