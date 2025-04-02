@@ -29,33 +29,46 @@ const parsePathPart = (
   return { childDef, childIndex }
 }
 
+const processFindNodesByPathPart = (params: {
+  survey: Survey
+  record: Record
+  pathPart: string
+  currentNodes: Node[]
+  partIndex: number
+}): Node[] | undefined => {
+  const { survey, record, pathPart, currentNodes, partIndex } = params
+  const parsedPart = parsePathPart(survey, pathPart)
+  if (!parsedPart) return undefined
+
+  const { childDef, childIndex: partChildIndex } = parsedPart
+
+  if (partIndex === 0 && NodeDefs.isRoot(childDef)) {
+    // skip root
+    return currentNodes
+  } else {
+    const currentNode = currentNodes[0]
+    if (!currentNode) return undefined
+    const singleDef = NodeDefs.isSingle(childDef)
+    const children = Records.getChildren(currentNode, childDef.uuid)(record)
+    const childIndex = partChildIndex ?? (singleDef ? 0 : NaN)
+    const child = childIndex >= 0 ? children[childIndex] : null
+    if (singleDef && !child) return undefined
+    return childIndex ? Arrays.toArray(child) : children
+  }
+}
+
 const findNodesByPath = (params: { survey: Survey; record: Record; path: string }): Node[] | undefined => {
   const { survey, record, path } = params
   const root = Records.getRoot(record)
   if (!root) throw new Error('Cannot find root node')
 
-  let currentNodes: Node[] = [root]
+  let currentNodes: Node[] | undefined = [root]
 
   const pathParts = path.split('.')
-  for (let index = 0; index < pathParts.length; index++) {
-    const pathPart = pathParts[index]
-    const parsedPart = parsePathPart(survey, pathPart)
-    if (!parsedPart) return undefined
-
-    const { childDef, childIndex: partChildIndex } = parsedPart
-
-    if (index === 0 && NodeDefs.isRoot(childDef)) {
-      // skip root
-    } else {
-      const currentNode = currentNodes[0]
-      if (!currentNode) return undefined
-      const singleDef = NodeDefs.isSingle(childDef)
-      const children = Records.getChildren(currentNode, childDef.uuid)(record)
-      const childIndex = partChildIndex ?? (singleDef ? 0 : NaN)
-      const child = childIndex >= 0 ? children[childIndex] : null
-      if (singleDef && !child) return undefined
-      currentNodes = childIndex ? Arrays.toArray(child) : children
-    }
+  for (let partIndex = 0; partIndex < pathParts.length; partIndex++) {
+    const pathPart = pathParts[partIndex]
+    currentNodes = processFindNodesByPathPart({ survey, record, pathPart, currentNodes: currentNodes!, partIndex })
+    if (!currentNodes) return undefined
   }
   return currentNodes
 }
