@@ -27,12 +27,9 @@ const shouldExistingEntitiesBeDeleted = (params: {
     })
     .sort()
 
-  const enumeratingCategoryItems = getEnumeratingCategoryItems({
-    survey,
-    enumeratorDef,
-    record: updateResult.record,
-    parentNode,
-  })
+  const enumeratingCategoryItems = getEnumeratingCategoryItems({ survey, enumeratorDef, parentNode })(
+    updateResult.record
+  )
   const newEnumeratingItemUuids = enumeratingCategoryItems.map((item) => item.uuid).sort()
 
   return !Objects.isEqual(newEnumeratingItemUuids, existingEnumeratingItemUuids)

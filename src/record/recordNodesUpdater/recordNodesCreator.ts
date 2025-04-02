@@ -44,7 +44,7 @@ export const createEnumeratedEntityNodes = (params: {
   const enumeratorDef = getNodeDefEnumerator({ survey, entityDef })
   if (!enumeratorDef) return false
 
-  const categoryItems = getEnumeratingCategoryItems({ survey, enumeratorDef, record: updateResult.record, parentNode })
+  const categoryItems = getEnumeratingCategoryItems({ survey, enumeratorDef, parentNode })(updateResult.record)
   if (categoryItems.length === 0) return false
 
   categoryItems.forEach((categoryItem) => {
