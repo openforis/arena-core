@@ -11,6 +11,8 @@ import { createEnumeratedEntityNodes } from './recordNodesCreator'
 import { deleteNodes } from './recordNodesDeleter'
 import { RecordUpdateResult } from './recordUpdateResult'
 
+const uuidsCompare = (uuidA: string, uuidB: string): number => uuidA.localeCompare(uuidB)
+
 const shouldExistingEntitiesBeDeleted = (params: {
   survey: Survey
   entityDef: NodeDefEntity
@@ -23,14 +25,14 @@ const shouldExistingEntitiesBeDeleted = (params: {
   const existingEnumeratingItemUuids = existingEntities
     .map((existingEntity) => {
       const existingEnumerator = getChild(existingEntity, enumeratorDef.uuid)(updateResult.record)
-      return NodeValues.getItemUuid(existingEnumerator)
+      return NodeValues.getItemUuid(existingEnumerator)!
     })
-    .sort()
+    .sort(uuidsCompare)
 
   const enumeratingCategoryItems = getEnumeratingCategoryItems({ survey, enumeratorDef, parentNode })(
     updateResult.record
   )
-  const newEnumeratingItemUuids = enumeratingCategoryItems.map((item) => item.uuid).sort()
+  const newEnumeratingItemUuids = enumeratingCategoryItems.map((item) => item.uuid).sort(uuidsCompare)
 
   return !Objects.isEqual(newEnumeratingItemUuids, existingEnumeratingItemUuids)
 }

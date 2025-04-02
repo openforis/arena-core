@@ -10,7 +10,7 @@ import { RecordUpdateResult } from './recordUpdateResult'
 export const deleteNodes =
   (nodeUuids: string[], options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: Record): RecordUpdateResult => {
-    const { sideEffect, updateNodesIndex } = Object.assign({}, RecordUpdateOptionsDefaults, options)
+    const { sideEffect, updateNodesIndex } = { ...RecordUpdateOptionsDefaults, ...options }
 
     const recordUpdated = sideEffect ? record : { ...record }
 
@@ -26,9 +26,9 @@ export const deleteNodes =
       ? recordValidation
       : { ...recordValidation, fields: { ...Validations.getFieldValidations(recordValidation) } }
 
-    const deleteDescendantNode = (visitedNode: Node): boolean => {
+    const deleteDescendantNode = (visitedNode: Node) => {
       const visitedNodeUuid = visitedNode.uuid
-      if (nodesDeleted[visitedNodeUuid]) return false
+      if (nodesDeleted[visitedNodeUuid]) return
 
       // 1. delete node from 'nodes'
       delete recordNodesUpdated[visitedNodeUuid]
@@ -49,7 +49,6 @@ export const deleteNodes =
       if (updateNodesIndex) {
         recordNodesIndex = RecordNodesIndexUpdater.removeNode(visitedNode, sideEffect)(recordNodesIndex)
       }
-      return false
     }
 
     nodeUuids.forEach((nodeUuid) => {
