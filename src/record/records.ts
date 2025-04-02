@@ -34,7 +34,7 @@ import {
   isEmpty,
 } from './_records/recordGetters'
 import { addNode, addNodes } from './_records/recordUpdater'
-import { findDependentEnumeratedEntityDefsNotEmpty } from './_records/recordUtils'
+import { getEnumeratingCategoryItems, findDependentEnumeratedEntityDefsNotEmpty } from './_records/recordUtils'
 import { deleteNode, deleteNodes } from './recordNodesUpdater/recordNodesDeleter'
 
 export const Records = {
@@ -78,6 +78,7 @@ export const Records = {
   deleteNode,
   deleteNodes,
   // Utils
+  getEnumeratingCategoryItems,
   findDependentEnumeratedEntityDefsNotEmpty,
 }
 

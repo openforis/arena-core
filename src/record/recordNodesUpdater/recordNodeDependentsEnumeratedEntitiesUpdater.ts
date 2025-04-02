@@ -1,30 +1,15 @@
 import { User } from '../../auth'
 import { Node, Nodes, NodeValues } from '../../node'
-import { NodeDefCode, NodeDefEntity, NodeDefs, NodeDefType } from '../../nodeDef'
+import { NodeDefCode, NodeDefEntity, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Objects } from '../../utils'
-import { getAncestor, getChild, getChildren, getParentCodeAttribute } from '../_records/recordGetters'
+import { getAncestor, getChild, getChildren } from '../_records/recordGetters'
+import { getEnumeratingCategoryItems } from '../_records/recordUtils'
 import { Record } from '../record'
 import { ExpressionEvaluationContext } from './expressionEvaluationContext'
 import { createEnumeratedEntityNodes } from './recordNodesCreator'
 import { deleteNodes } from './recordNodesDeleter'
 import { RecordUpdateResult } from './recordUpdateResult'
-
-const getEnumeratingCategoryItems = (params: {
-  survey: Survey
-  enumeratorDef: NodeDefCode
-  record: Record
-  parentNode: Node
-}) => {
-  const { survey, enumeratorDef, record, parentNode } = params
-  let parentItemUuid
-  if (NodeDefs.getParentCodeDefUuid(enumeratorDef)) {
-    const parentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: enumeratorDef })(record)
-    parentItemUuid = parentCodeAttribute ? NodeValues.getItemUuid(parentCodeAttribute) : null
-    if (!parentItemUuid) return []
-  }
-  return Surveys.getEnumeratingCategoryItems({ survey, enumerator: enumeratorDef, parentItemUuid })
-}
 
 const shouldExistingEntitiesBeDeleted = (params: {
   survey: Survey

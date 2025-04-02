@@ -2,10 +2,10 @@ import { User } from '../../auth'
 import { SystemError } from '../../error'
 import { Node, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
-import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
-import { Survey, Surveys } from '../../survey'
+import { NodeDef, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
+import { Survey } from '../../survey'
 import { getNodeDefChildren, getNodeDefEnumerator } from '../../survey/surveys/nodeDefs'
-import { getParentCodeAttribute } from '../_records/recordGetters'
+import { getEnumeratingCategoryItems } from '../_records/recordUtils'
 import { Record } from '../record'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -29,22 +29,6 @@ const getNodesToInsertCount = (params: { parentNode: Node | undefined; nodeDef: 
   if (!parentNode || NodeDefs.isSingle(nodeDef)) return 1
   if (nodeDef.type === NodeDefType.code) return 0 // never create nodes for multiple code attributes
   return Nodes.getChildrenMinCount({ parentNode, nodeDef }) ?? 0
-}
-
-const getEnumeratingCategoryItems = (params: {
-  survey: Survey
-  enumeratorDef: NodeDefCode
-  record: Record
-  parentNode: Node
-}) => {
-  const { survey, enumeratorDef, record, parentNode } = params
-  let parentItemUuid
-  if (NodeDefs.getParentCodeDefUuid(enumeratorDef)) {
-    const parentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: enumeratorDef })(record)
-    parentItemUuid = parentCodeAttribute ? NodeValues.getItemUuid(parentCodeAttribute) : null
-    if (!parentItemUuid) return []
-  }
-  return Surveys.getEnumeratingCategoryItems({ survey, enumerator: enumeratorDef, parentItemUuid })
 }
 
 export const createEnumeratedEntityNodes = (params: {

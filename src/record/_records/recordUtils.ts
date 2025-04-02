@@ -1,8 +1,15 @@
-import { Node } from '../../node'
+import { Node, NodeValues } from '../../node'
 import { NodeDef, NodeDefCode, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Record } from '../record'
-import { getChildren, getDescendantsOrSelf, getParent, getRoot, isNodeFilledByUser } from './recordGetters'
+import {
+  getChildren,
+  getDescendantsOrSelf,
+  getParent,
+  getParentCodeAttribute,
+  getRoot,
+  isNodeFilledByUser,
+} from './recordGetters'
 
 export const findDependentEnumeratedEntityDefsNotEmpty =
   (params: { survey: Survey; node: Node; nodeDef: NodeDef<any> }) => (record: Record) => {
@@ -31,3 +38,19 @@ export const findDependentEnumeratedEntityDefsNotEmpty =
       return dependentEntitiesNotEmpty.length > 0
     })
   }
+
+export const getEnumeratingCategoryItems = (params: {
+  survey: Survey
+  enumeratorDef: NodeDefCode
+  record: Record
+  parentNode: Node
+}) => {
+  const { survey, enumeratorDef, record, parentNode } = params
+  let parentItemUuid
+  if (NodeDefs.getParentCodeDefUuid(enumeratorDef)) {
+    const parentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: enumeratorDef })(record)
+    parentItemUuid = parentCodeAttribute ? NodeValues.getItemUuid(parentCodeAttribute) : null
+    if (!parentItemUuid) return []
+  }
+  return Surveys.getEnumeratingCategoryItems({ survey, enumerator: enumeratorDef, parentItemUuid })
+}
