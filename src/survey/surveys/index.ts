@@ -1,47 +1,43 @@
-import { Survey } from '../survey'
-import { NodeDefCode, NodeDefs } from '../../nodeDef'
-import { CategoryItem } from '../../category'
-
 import {
-  buildAndAssocDependencyGraph,
   addNodeDefDependencies,
+  buildAndAssocDependencyGraph,
   getNodeDefDependents,
   removeNodeDefDependencies,
 } from './dependencies'
 
 import {
+  addNodeDefToIndex,
+  buildAndAssocNodeDefsIndex,
+  deleteNodeDefIndex,
   findNodeDefByName,
   findNodeDefByUuid,
   findNodeDefsByUuids,
+  getDependentCodeAttributeDefs,
+  getDependentEnumeratedEntityDefs,
+  getDescendantsInSingleEntities,
+  getNodeDefAncestorCodes,
+  getNodeDefAncestorMultipleEntity,
   getNodeDefByName,
-  getNodeDefsByUuids,
   getNodeDefByUuid,
+  getNodeDefCategoryLevelIndex,
   getNodeDefChildren,
   getNodeDefChildrenSorted,
+  getNodeDefEnumerator,
+  getNodeDefKeys,
   getNodeDefParent,
-  getNodeDefAncestorMultipleEntity,
+  getNodeDefParentCode,
   getNodeDefRoot,
   getNodeDefSource,
-  isNodeDefAncestor,
-  getNodeDefKeys,
-  getRootKeys,
+  getNodeDefsByUuids,
   getNodeDefsIncludedInMultipleEntitySummary,
-  getNodeDefParentCode,
-  getNodeDefAncestorCodes,
-  isNodeDefParentCode,
-  getNodeDefCategoryLevelIndex,
-  getDependentCodeAttributeDefs,
+  getRootKeys,
+  isNodeDefAncestor,
   isNodeDefEnumerator,
-  getNodeDefEnumerator,
-  buildAndAssocNodeDefsIndex,
-  addNodeDefToIndex,
+  isNodeDefParentCode,
   updateNodeDefUuidByNameIndex,
-  deleteNodeDefIndex,
   visitAncestorsAndSelfNodeDef,
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
-  getDescendantsInSingleEntities,
-  getDependentEnumeratedEntityDefs,
 } from './nodeDefs'
 import {
   getCategoryItemByCodePaths,
@@ -55,21 +51,21 @@ import {
 } from './refsData'
 
 import {
-  getName,
-  getLanguages,
-  getDefaultLanguage,
-  getLabel,
-  getLabelOrName,
-  getDescription,
-  getFieldManualLink,
-  getCycleKeys,
-  getLastCycleKey,
-  getDefaultCycleKey,
-  getSRSs,
-  getSRSByCode,
-  getSRSIndex,
   getCategoryByName,
   getCategoryByUuid,
+  getCycleKeys,
+  getDefaultCycleKey,
+  getDefaultLanguage,
+  getDescription,
+  getFieldManualLink,
+  getLabel,
+  getLabelOrName,
+  getLanguages,
+  getLastCycleKey,
+  getName,
+  getSRSByCode,
+  getSRSIndex,
+  getSRSs,
   getTaxonomyByName,
   getTaxonomyByUuid,
 } from './surveysGetters'
@@ -77,24 +73,12 @@ import {
 import {
   getSecurity,
   isDataEditorViewNotOwnedRecordsAllowed,
-  isVisibleInMobile,
   isRecordsDownloadInMobileAllowed,
   isRecordsUploadFromMobileAllowed,
+  isVisibleInMobile,
 } from './surveyGettersSecurity'
 
-const getEnumeratingCategoryItems = (params: {
-  survey: Survey
-  enumerator: NodeDefCode
-  parentItemUuid?: string
-}): CategoryItem[] => {
-  const { survey, enumerator, parentItemUuid } = params
-  const categoryUuid = enumerator.props.categoryUuid
-  const category = survey.categories?.[categoryUuid]
-  if (!category || (NodeDefs.getParentCodeDefUuid(enumerator) && !parentItemUuid)) {
-    return []
-  }
-  return getCategoryItems({ survey, categoryUuid: category.uuid, parentItemUuid })
-}
+import { findApplicableDependentEnumeratedEntityDefs, getEnumeratingCategoryItems } from './surveysUtils'
 
 export const Surveys = {
   getName,
@@ -147,7 +131,6 @@ export const Surveys = {
   getTaxonByUuid,
   getTaxonVernacularNameUuid,
   includesTaxonVernacularName,
-  getEnumeratingCategoryItems,
 
   // node def code
   getNodeDefParentCode,
@@ -175,4 +158,8 @@ export const Surveys = {
   isVisibleInMobile,
   isRecordsDownloadInMobileAllowed,
   isRecordsUploadFromMobileAllowed,
+
+  // utils
+  getEnumeratingCategoryItems,
+  findApplicableDependentEnumeratedEntityDefs,
 }

@@ -26,9 +26,9 @@ export const deleteNodes =
       ? recordValidation
       : { ...recordValidation, fields: { ...Validations.getFieldValidations(recordValidation) } }
 
-    const deleteDescendantNode = (visitedNode: Node): void => {
+    const deleteDescendantNode = (visitedNode: Node): boolean => {
       const visitedNodeUuid = visitedNode.uuid
-      if (nodesDeleted[visitedNodeUuid]) return
+      if (nodesDeleted[visitedNodeUuid]) return false
 
       // 1. delete node from 'nodes'
       delete recordNodesUpdated[visitedNodeUuid]
@@ -49,6 +49,7 @@ export const deleteNodes =
       if (updateNodesIndex) {
         recordNodesIndex = RecordNodesIndexUpdater.removeNode(visitedNode, sideEffect)(recordNodesIndex)
       }
+      return false
     }
 
     nodeUuids.forEach((nodeUuid) => {

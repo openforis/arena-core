@@ -23,6 +23,7 @@ const print = (params: { survey: Survey; record: Record }): string => {
       const indentation = Strings.repeat(' ', depth)
       const part = `${indentation}${NodeDefs.getName(nodeDef)}: ${value}`
       parts.push(part)
+      return false
     },
     traverseMethod: TraverseMethod.dfs,
   })

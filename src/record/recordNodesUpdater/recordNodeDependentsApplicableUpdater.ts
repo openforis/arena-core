@@ -80,8 +80,9 @@ export const updateSelfAndDependentsApplicable = (
         Records.visitDescendantsAndSelf({
           record: updateResult.record,
           node: nodeCtxChild,
-          visitor: (nodeDescendant) => {
+          visitor: (nodeDescendant): boolean => {
             updateResult.addNode(nodeDescendant, { sideEffect })
+            return false
           },
         })
       })
