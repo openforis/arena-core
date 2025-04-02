@@ -13,15 +13,20 @@ const findNodeDefByName = (params: { survey: Survey; name: string }): NodeDef<an
   }
 }
 
-const parsePathPart = (pathPart: string): { childName: string; childIndex: number | null } | undefined => {
+const parsePathPart = (
+  survey: Survey,
+  pathPart: string
+): { childDef: NodeDef<any>; childIndex: number | null } | undefined => {
   const partMatch = /(\w+)(\[(\d+)\])?/.exec(pathPart)
-  if (!partMatch) {
-    return undefined
-  }
+  if (!partMatch) return undefined
+
   const childName = partMatch[1]
   const indexStr = partMatch[3]
   const childIndex = indexStr ? parseInt(indexStr, 10) : null
-  return { childName, childIndex }
+  const childDef = findNodeDefByName({ survey, name: childName })
+  if (!childDef) return undefined
+
+  return { childDef, childIndex }
 }
 
 const findNodesByPath = (params: { survey: Survey; record: Record; path: string }): Node[] | undefined => {
@@ -34,12 +39,10 @@ const findNodesByPath = (params: { survey: Survey; record: Record; path: string 
   const pathParts = path.split('.')
   for (let index = 0; index < pathParts.length; index++) {
     const pathPart = pathParts[index]
-    const parsedPart = parsePathPart(pathPart)
+    const parsedPart = parsePathPart(survey, pathPart)
     if (!parsedPart) return undefined
 
-    const { childName, childIndex: partChildIndex } = parsedPart
-    const childDef = findNodeDefByName({ survey, name: childName })
-    if (!childDef) return undefined
+    const { childDef, childIndex: partChildIndex } = parsedPart
 
     if (index === 0 && NodeDefs.isRoot(childDef)) {
       // skip root
