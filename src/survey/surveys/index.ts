@@ -1,40 +1,43 @@
 import {
-  buildAndAssocDependencyGraph,
   addNodeDefDependencies,
+  buildAndAssocDependencyGraph,
   getNodeDefDependents,
   removeNodeDefDependencies,
 } from './dependencies'
 
 import {
+  addNodeDefToIndex,
+  buildAndAssocNodeDefsIndex,
+  deleteNodeDefIndex,
   findNodeDefByName,
   findNodeDefByUuid,
   findNodeDefsByUuids,
+  getDependentCodeAttributeDefs,
+  getDependentEnumeratedEntityDefs,
+  getDescendantsInSingleEntities,
+  getNodeDefAncestorCodes,
+  getNodeDefAncestorMultipleEntity,
   getNodeDefByName,
-  getNodeDefsByUuids,
   getNodeDefByUuid,
+  getNodeDefCategoryLevelIndex,
   getNodeDefChildren,
   getNodeDefChildrenSorted,
+  getNodeDefEnumerator,
+  getNodeDefKeys,
   getNodeDefParent,
+  getNodeDefParentCode,
   getNodeDefRoot,
   getNodeDefSource,
-  isNodeDefAncestor,
-  getNodeDefKeys,
-  getRootKeys,
+  getNodeDefsByUuids,
   getNodeDefsIncludedInMultipleEntitySummary,
-  getNodeDefParentCode,
-  getNodeDefAncestorCodes,
-  isNodeDefParentCode,
-  getNodeDefCategoryLevelIndex,
+  getRootKeys,
+  isNodeDefAncestor,
   isNodeDefEnumerator,
-  getNodeDefEnumerator,
-  buildAndAssocNodeDefsIndex,
-  addNodeDefToIndex,
+  isNodeDefParentCode,
   updateNodeDefUuidByNameIndex,
-  deleteNodeDefIndex,
   visitAncestorsAndSelfNodeDef,
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
-  getDescendantsInSingleEntities,
 } from './nodeDefs'
 import {
   getCategoryItemByCodePaths,
@@ -48,21 +51,21 @@ import {
 } from './refsData'
 
 import {
-  getName,
-  getLanguages,
-  getDefaultLanguage,
-  getLabel,
-  getLabelOrName,
-  getDescription,
-  getFieldManualLink,
-  getCycleKeys,
-  getLastCycleKey,
-  getDefaultCycleKey,
-  getSRSs,
-  getSRSByCode,
-  getSRSIndex,
   getCategoryByName,
   getCategoryByUuid,
+  getCycleKeys,
+  getDefaultCycleKey,
+  getDefaultLanguage,
+  getDescription,
+  getFieldManualLink,
+  getLabel,
+  getLabelOrName,
+  getLanguages,
+  getLastCycleKey,
+  getName,
+  getSRSByCode,
+  getSRSIndex,
+  getSRSs,
   getTaxonomyByName,
   getTaxonomyByUuid,
 } from './surveysGetters'
@@ -70,10 +73,12 @@ import {
 import {
   getSecurity,
   isDataEditorViewNotOwnedRecordsAllowed,
-  isVisibleInMobile,
   isRecordsDownloadInMobileAllowed,
   isRecordsUploadFromMobileAllowed,
+  isVisibleInMobile,
 } from './surveyGettersSecurity'
+
+import { findApplicableDependentEnumeratedEntityDefs, getEnumeratingCategoryItems } from './surveysUtils'
 
 export const Surveys = {
   getName,
@@ -103,6 +108,7 @@ export const Surveys = {
   getNodeDefChildren,
   getNodeDefChildrenSorted,
   getNodeDefParent,
+  getNodeDefAncestorMultipleEntity,
   getNodeDefRoot,
   getNodeDefSource,
   isNodeDefAncestor,
@@ -131,6 +137,8 @@ export const Surveys = {
   getNodeDefAncestorCodes,
   isNodeDefParentCode,
   getNodeDefCategoryLevelIndex,
+  getDependentCodeAttributeDefs,
+  getDependentEnumeratedEntityDefs,
 
   // dependencies
   buildAndAssocDependencyGraph,
@@ -150,4 +158,8 @@ export const Surveys = {
   isVisibleInMobile,
   isRecordsDownloadInMobileAllowed,
   isRecordsUploadFromMobileAllowed,
+
+  // utils
+  getEnumeratingCategoryItems,
+  findApplicableDependentEnumeratedEntityDefs,
 }

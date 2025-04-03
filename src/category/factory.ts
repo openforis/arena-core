@@ -1,4 +1,4 @@
-import { Factory } from '../common'
+import { Dictionary, Factory } from '../common'
 import { UUIDs } from '../utils'
 import { Category, CategoryProps } from './category'
 import { CategoryItem, CategoryItemProps } from './item'
@@ -6,7 +6,7 @@ import { CategoryLevel, CategoryLevelProps } from './level'
 
 export type CategoryFactoryParams = {
   props?: CategoryProps
-  levels?: CategoryLevel[]
+  levels?: Dictionary<CategoryLevel>
   published?: boolean
 }
 
@@ -29,9 +29,9 @@ export const CategoryFactory: Factory<Category, CategoryFactoryParams> = {
     }
     return {
       ...category,
-      levels: levels ?? [
-        CategoryLevelFactory.createInstance({ categoryUuid: category.uuid, index: 0, props: { name: 'level_1' } }),
-      ],
+      levels: levels ?? {
+        0: CategoryLevelFactory.createInstance({ categoryUuid: category.uuid, index: 0, props: { name: 'level_1' } }),
+      },
     }
   },
 }

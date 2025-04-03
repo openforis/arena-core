@@ -21,9 +21,10 @@ test('ExpectedCategory === Category', () => {
   expect(category.props).toHaveProperty('name')
   expect(category.props.name).toBe(categoryParams.props?.name)
 
-  expect(category.levels?.length).toBe(1)
-  expect(category.levels?.[0].index).toBe(0)
-  expect(category.levels?.[0].props.name).toBe('level_1')
+  const levels = Object.values(category.levels || {})
+  expect(levels.length).toBe(1)
+  expect(levels[0].index).toBe(0)
+  expect(levels[0].props.name).toBe('level_1')
 })
 
 test('ExpectedCategory === Category', () => {

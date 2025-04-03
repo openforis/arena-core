@@ -1,14 +1,13 @@
-import { CategoryItem } from '../../category'
+import { User } from '../../auth'
 import { SystemError } from '../../error'
 import { Node, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
-import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
+import { NodeDef, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
 import { Survey } from '../../survey'
-import { getCategoryItems } from '../../survey/surveys/refsData'
-import { getNodeDefEnumerator, getNodeDefChildren } from '../../survey/surveys/nodeDefs'
+import { getNodeDefChildren, getNodeDefEnumerator } from '../../survey/surveys/nodeDefs'
+import { getEnumeratingCategoryItems } from '../_records/recordUtils'
 import { Record } from '../record'
 import { RecordUpdateResult } from './recordUpdateResult'
-import { User } from '../../auth'
 
 export type NodesUpdateParams = {
   user: User
@@ -32,27 +31,22 @@ const getNodesToInsertCount = (params: { parentNode: Node | undefined; nodeDef: 
   return Nodes.getChildrenMinCount({ parentNode, nodeDef }) ?? 0
 }
 
-const getEnumeratingCategoryItems = (params: { survey: Survey; enumerator: NodeDefCode }): CategoryItem[] => {
-  const { survey, enumerator } = params
-  const categoryUuid = enumerator.props.categoryUuid
-  const category = survey.categories?.[categoryUuid]
-  return category ? getCategoryItems({ survey, categoryUuid: category.uuid }) : []
-}
-
-const createEnumeratedEntityNodes = (params: {
+export const createEnumeratedEntityNodes = (params: {
   user: User
   survey: Survey
   parentNode: Node
   entityDef: NodeDefEntity
   updateResult: RecordUpdateResult
-  sideEffect: boolean
+  sideEffect?: boolean
 }): boolean => {
   const { user, survey, parentNode, entityDef, updateResult, sideEffect } = params
 
-  const enumerator = getNodeDefEnumerator({ survey, entityDef })
-  if (!enumerator) return false
+  const enumeratorDef = getNodeDefEnumerator({ survey, entityDef })
+  if (!enumeratorDef) return false
 
-  const categoryItems = getEnumeratingCategoryItems({ survey, enumerator })
+  const categoryItems = getEnumeratingCategoryItems({ survey, enumeratorDef, parentNode })(updateResult.record)
+  if (categoryItems.length === 0) return false
+
   categoryItems.forEach((categoryItem) => {
     const { record } = updateResult
     const childUpdateResult = createNodeAndDescendants({
@@ -63,16 +57,20 @@ const createEnumeratedEntityNodes = (params: {
       nodeDef: entityDef,
       sideEffect,
     })
-    const enumeratorNode = Object.values(childUpdateResult.nodes).find((node) => node.nodeDefUuid === enumerator.uuid)
+    const enumeratorNode = Object.values(childUpdateResult.nodes).find(
+      (node) => node.nodeDefUuid === enumeratorDef.uuid
+    )
     if (!enumeratorNode) {
       // it should never happen
       throw new SystemError('record.enumeratorNodeNotFound', {
         recordUuid: record.uuid,
         entityDef: NodeDefs.getName(entityDef),
-        enumerator: NodeDefs.getName(enumerator),
+        enumerator: NodeDefs.getName(enumeratorDef),
       })
     }
     enumeratorNode.value = NodeValues.newCodeValue({ itemUuid: categoryItem.uuid })
+    enumeratorNode.meta = { ...(enumeratorNode.meta ?? {}), defaultValueApplied: true }
+    enumeratorNode.refData = { categoryItem }
 
     updateResult.merge(childUpdateResult)
   })

@@ -1,23 +1,20 @@
-import { NodeDefs } from '../../nodeDef'
-import { Record } from '../record'
-import { Survey, Surveys } from '../../survey'
 import { Node, NodePointer, Nodes } from '../../node'
+import { NodeDefEntity, NodeDefs } from '../../nodeDef'
+import { Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
-import { RecordUpdateResult } from './recordUpdateResult'
-import { Records } from '../records'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { User } from '../../auth'
+import { Records } from '../records'
+import { ExpressionEvaluationContext } from './expressionEvaluationContext'
+import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
+import { RecordUpdateResult } from './recordUpdateResult'
 
 const recordExpressionEvaluator = new RecordExpressionEvaluator()
 
-export const updateSelfAndDependentsApplicable = (params: {
-  user: User
-  survey: Survey
-  record: Record
-  node: Node
-  sideEffect?: boolean
-  timezoneOffset?: number
-}): RecordUpdateResult => {
+export const updateSelfAndDependentsApplicable = (
+  params: ExpressionEvaluationContext & {
+    node: Node
+  }
+): RecordUpdateResult => {
   const { user, survey, record, node, timezoneOffset, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
@@ -67,14 +64,25 @@ export const updateSelfAndDependentsApplicable = (params: {
       const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
       updateResult.addNode(nodeCtxUpdated, { sideEffect })
 
-      const nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
+      let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
+
+      if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
+        createOrDeleteEnumeratedEntities({
+          ...params,
+          parentNode: nodeCtxUpdated,
+          entityDef: nodeDefNodePointer as NodeDefEntity,
+          updateResult,
+        })
+        nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
+      }
       nodeCtxChildren.forEach((nodeCtxChild) => {
         // add nodeCtxChild and its descendants to nodesUpdated
         Records.visitDescendantsAndSelf({
           record: updateResult.record,
           node: nodeCtxChild,
-          visitor: (nodeDescendant) => {
+          visitor: (nodeDescendant): boolean => {
             updateResult.addNode(nodeDescendant, { sideEffect })
+            return false
           },
         })
       })

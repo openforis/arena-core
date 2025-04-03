@@ -29,8 +29,13 @@ import {
   findEntityByKeyValues,
   findEntityWithSameKeysInAnotherRecord,
   getCategoryItemUuid,
+  isNodeEmpty,
+  isNodeFilledByUser,
+  isEmpty,
 } from './_records/recordGetters'
-import { addNode, addNodes, deleteNode, deleteNodes } from './_records/recordUpdater'
+import { addNode, addNodes } from './_records/recordUpdater'
+import { getEnumeratingCategoryItems, findDependentEnumeratedEntityDefsNotEmpty } from './_records/recordUtils'
+import { deleteNode, deleteNodes } from './recordNodesUpdater/recordNodesDeleter'
 
 export const Records = {
   // READ
@@ -64,12 +69,17 @@ export const Records = {
   findEntityByKeyValues,
   findEntityWithSameKeysInAnotherRecord,
   getCategoryItemUuid,
-
+  isNodeEmpty,
+  isNodeFilledByUser,
+  isEmpty,
   // UPDATE
   addNode,
   addNodes,
   deleteNode,
   deleteNodes,
+  // Utils
+  getEnumeratingCategoryItems,
+  findDependentEnumeratedEntityDefsNotEmpty,
 }
 
-export type { RecordUpdateOptions } from './_records/recordUpdater'
+export type { RecordUpdateOptions } from './_records/recordUpdateOptions'

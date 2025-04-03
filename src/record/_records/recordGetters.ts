@@ -115,13 +115,30 @@ export const getParentCodeAttribute =
 
 // ancestors
 export const visitAncestorsAndSelf =
-  (node: Node, visitor: (node: Node) => void) =>
+  (node: Node, visitor: (node: Node) => void, stopIfFn?: () => boolean) =>
   (record: Record): void => {
     let currentNode: Node | undefined = node
     while (currentNode) {
       visitor(currentNode)
+      if (stopIfFn?.()) break
       currentNode = getParent(currentNode)(record)
     }
+  }
+
+export const findAncestor =
+  (node: Node, predicate: (node: Node) => boolean) =>
+  (record: Record): Node | undefined => {
+    let result: Node | undefined = undefined
+    visitAncestorsAndSelf(
+      node,
+      (visitedNode) => {
+        if (predicate(visitedNode)) {
+          result = visitedNode
+        }
+      },
+      () => !!result
+    )(record)
+    return result
   }
 
 export const getAncestor = (params: { record: Record; node: Node; ancestorDefUuid: string }): Node | undefined => {
@@ -191,7 +208,7 @@ export const isDescendantOf = (params: { node: Node; ancestor: Node }): boolean 
 export const visitDescendantsAndSelf = (params: {
   record: Record
   node: Node
-  visitor: (node: Node) => void
+  visitor: (node: Node) => boolean | void
   traverseMethod?: TraverseMethod
 }): void => {
   const { record, node, visitor, traverseMethod = TraverseMethod.bfs } = params
@@ -204,7 +221,9 @@ export const visitDescendantsAndSelf = (params: {
     while (!queue.isEmpty()) {
       const visitedNode = queue.dequeue()
 
-      visitor(visitedNode)
+      if (visitor(visitedNode)) {
+        return
+      }
 
       const children = getChildren(visitedNode)(record)
       queue.enqueueItems(children)
@@ -229,6 +248,25 @@ export const visitDescendantsAndSelf = (params: {
     }
   }
 }
+
+export const findDescendantOrSelf =
+  (node: Node, predicate: (node: Node) => boolean) =>
+  (record: Record): Node | undefined => {
+    let found = undefined
+
+    visitDescendantsAndSelf({
+      record,
+      node,
+      visitor: (currentNode) => {
+        if (predicate(currentNode)) {
+          found = currentNode
+          return true
+        }
+        return false
+      },
+    })
+    return found
+  }
 
 const getClosestAncestorNode = (params: {
   record: Record
@@ -490,4 +528,19 @@ export const getCategoryItemUuid = (params: {
   const item = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid, codePaths })
 
   return item?.uuid
+}
+
+export const isNodeFilledByUser =
+  (node: Node) =>
+  (record: Record): boolean =>
+    !!findDescendantOrSelf(node, (visitedNode) => Nodes.hasUserInputValue(visitedNode))(record)
+
+export const isNodeEmpty =
+  (node: Node) =>
+  (record: Record): boolean =>
+    !isNodeFilledByUser(node)(record)
+
+export const isEmpty = (record: Record): boolean => {
+  const rootNode = getRoot(record)
+  return rootNode ? isNodeEmpty(rootNode)(record) : true
 }
