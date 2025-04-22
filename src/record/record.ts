@@ -40,7 +40,9 @@ export interface Record {
   dateModified?: string
   id?: number
   nodes?: { [uuid: string]: Node }
+  ownerEmail?: string
   ownerName: string
+  ownerRole?: string
   ownerUuid: string
   preview?: boolean
   step: string // in steps

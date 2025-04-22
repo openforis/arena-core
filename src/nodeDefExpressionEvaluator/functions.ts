@@ -186,6 +186,11 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 0,
     executor: (context: NodeDefExpressionContext) => () => context.user?.email,
   },
+  userIsRecordOwner: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: NodeDefExpressionContext) => () => context.user?.email,
+  },
   userName: {
     minArity: 0,
     maxArity: 0,

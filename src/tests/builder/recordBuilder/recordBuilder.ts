@@ -15,7 +15,8 @@ export class RecordBuilder {
   }
 
   build(): Record {
-    const record = RecordFactory.createInstance({ surveyUuid: this.survey.uuid, user: this.user })
-    return this.rootEntityBuilder.build({ survey: this.survey, record })
+    const { survey, user } = this
+    const record = RecordFactory.createInstance({ surveyUuid: survey.uuid, user })
+    return this.rootEntityBuilder.build({ survey, record })
   }
 }

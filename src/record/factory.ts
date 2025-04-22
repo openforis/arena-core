@@ -1,5 +1,5 @@
 import { Factory } from '../common'
-import { User } from '../auth'
+import { AuthGroupName, User, Users } from '../auth'
 import { Record, RECORD_STEP_DEFAULT } from './record'
 import { UUIDs } from '../utils'
 import { AppInfo } from '../app'
@@ -26,11 +26,16 @@ export const RecordFactory: Factory<Record, RecordFactoryParams> = {
       ...params,
     }
 
+    const surveyGroup = user.authGroups?.find((group) => group.surveyUuid === surveyUuid)
+    const ownerRole = (surveyGroup?.name ?? Users.isSystemAdmin(user)) ? AuthGroupName.systemAdmin : undefined
+
     return {
       cycle,
       dateCreated,
-      ownerUuid: user.uuid,
+      ownerEmail: user.email,
       ownerName: user.name,
+      ownerRole,
+      ownerUuid: user.uuid,
       preview,
       step,
       surveyUuid,
