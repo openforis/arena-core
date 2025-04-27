@@ -8,6 +8,7 @@ import { Records } from '../records'
 import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../tests/data'
 import { SystemError } from '../../error'
 import { TestUtils } from '../../tests/testUtils'
+import { AuthGroupName } from '../../auth'
 
 type Query = {
   expression: string
@@ -351,6 +352,11 @@ describe('RecordExpressionEvaluator', () => {
     // regular expressions
     { expression: '/^\\w+$/.test(remarks)', result: false },
     { expression: '/^[a-z\\s]{3,50}$/i.test(remarks)', result: true },
+    // record owner functions
+    { expression: 'recordOwnerEmail()', result: 'test@openforis-arena.org' },
+    { expression: 'recordOwnerName()', result: 'test' },
+    { expression: 'recordOwnerRole()', result: AuthGroupName.systemAdmin },
+    { expression: 'userIsRecordOwner()', result: true },
   ]
 
   queries.forEach((query: Query) => {

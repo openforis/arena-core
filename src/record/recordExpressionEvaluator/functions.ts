@@ -136,6 +136,21 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       return Records.getParent(node)(record)
     },
   },
+  recordOwnerEmail: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: RecordExpressionContext) => () => context.record.ownerEmail,
+  },
+  recordOwnerName: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: RecordExpressionContext) => () => context.record.ownerName,
+  },
+  recordOwnerRole: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: RecordExpressionContext) => () => context.record.ownerRole,
+  },
   sum: {
     minArity: 1,
     maxArity: 1,
@@ -172,5 +187,10 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       const value = taxon.props.extra?.[propName]
       return ExtraProps.convertValue({ survey, extraPropDef, value })
     },
+  },
+  userIsRecordOwner: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: RecordExpressionContext) => () => context.user?.uuid === context.record?.ownerUuid,
   },
 }

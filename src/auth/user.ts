@@ -36,7 +36,7 @@ export interface UserAuthGroupProps {
 }
 
 export interface UserAuthGroup extends AuthGroup {
-  props: UserAuthGroupProps
+  props?: UserAuthGroupProps
 }
 
 export interface User extends ArenaObject<UserProps> {

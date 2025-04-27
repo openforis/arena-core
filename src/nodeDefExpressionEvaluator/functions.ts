@@ -147,6 +147,21 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       return getNodeDefParent({ survey, nodeDef })
     },
   },
+  recordOwnerEmail: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (_context: NodeDefExpressionContext) => () => null,
+  },
+  recordOwnerName: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (_context: NodeDefExpressionContext) => () => null,
+  },
+  recordOwnerRole: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (_context: NodeDefExpressionContext) => () => null,
+  },
   sum: {
     minArity: 1,
     maxArity: 1,
@@ -185,6 +200,11 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 0,
     maxArity: 0,
     executor: (context: NodeDefExpressionContext) => () => context.user?.email,
+  },
+  userIsRecordOwner: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (_context: NodeDefExpressionContext) => () => false,
   },
   userName: {
     minArity: 0,
