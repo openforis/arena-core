@@ -1,15 +1,18 @@
+import { Objects } from './_objects'
+
 const addItems =
-  <T>(items: T[], options?: { sideEffect?: boolean }) =>
+  <T>(items: T[], options?: { sideEffect?: boolean; excludeNulls?: boolean }) =>
   (array: T[]): T[] => {
-    const { sideEffect = false } = options ?? {}
+    const { sideEffect = false, excludeNulls = false } = options ?? {}
+    const itemsToAdd = excludeNulls ? items.filter((item) => !Objects.isNil(item)) : items
     if (sideEffect) {
-      array.push(...items)
+      array.push(...itemsToAdd)
       return array
     }
-    return array.concat(items)
+    return array.concat(itemsToAdd)
   }
 const addItem =
-  <T>(item: T, options?: { sideEffect?: boolean }) =>
+  <T>(item: T, options?: { sideEffect?: boolean; excludeNulls?: boolean }) =>
   (array: T[]): T[] =>
     addItems([item], options)(array)
 
