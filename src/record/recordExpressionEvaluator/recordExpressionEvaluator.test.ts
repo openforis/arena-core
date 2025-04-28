@@ -357,6 +357,9 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'recordOwnerName()', result: 'test' },
     { expression: 'recordOwnerRole()', result: AuthGroupName.systemAdmin },
     { expression: 'userIsRecordOwner()', result: true },
+    // record functions
+    { expression: 'recordDateCreated()', result: () => record.dateCreated },
+    { expression: 'recordDateLastModified()', result: () => record.dateModified },
   ]
 
   queries.forEach((query: Query) => {

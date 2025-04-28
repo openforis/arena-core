@@ -136,6 +136,16 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       return Records.getParent(node)(record)
     },
   },
+  recordDateCreated: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: RecordExpressionContext) => () => context.record.dateCreated,
+  },
+  recordDateLastModified: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: RecordExpressionContext) => () => context.record.dateModified,
+  },
   recordOwnerEmail: {
     minArity: 0,
     maxArity: 0,
