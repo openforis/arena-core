@@ -22,6 +22,7 @@ export enum SurveyDependencyType {
   maxCount = 'maxCount',
   minCount = 'minCount',
   validations = 'validations',
+  onUpdate = 'onUpdate', // dependencies updated on every record update
 }
 
 export type SurveyDependencyGraph = {

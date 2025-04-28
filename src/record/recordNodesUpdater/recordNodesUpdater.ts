@@ -11,6 +11,8 @@ import { updateSelfAndDependentsDefaultValues } from './recordNodeDependentsDefa
 import { updateDependentEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
 import { updateSelfAndDependentsFileNames } from './recordNodeDependentsFileNamesEvaluator'
 import { RecordUpdateResult } from './recordUpdateResult'
+import { Surveys } from '../../survey'
+import { getNodesByDefUuid } from '../_records/recordGetters'
 
 /**
  * Nodes can be visited maximum 2 times during the update of the dependent nodes, to avoid loops in the evaluation.
@@ -35,6 +37,13 @@ export const updateNodesDependents = (
   })
 
   const nodeUuidsToVisit = new Queue(Object.keys(nodes))
+
+  const onUpdateDependentDefUuids = Surveys.getOnUpdateDependents({ survey })
+  if (onUpdateDependentDefUuids.length > 0) {
+    onUpdateDependentDefUuids.forEach((dependentDef) => {
+      nodeUuidsToVisit.enqueueItems(getNodesByDefUuid(dependentDef.uuid)(record))
+    })
+  }
 
   // Avoid loops: visit the same node maximum 2 times (the second time the applicability could have been changed)
   const visitedCountByUuid: Dictionary<number> = {}

@@ -13,6 +13,7 @@ const isContextParentByDependencyType = {
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: true,
   [SurveyDependencyType.minCount]: true,
+  [SurveyDependencyType.onUpdate]: true,
   [SurveyDependencyType.validations]: true,
 }
 
@@ -23,6 +24,7 @@ const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: false,
   [SurveyDependencyType.minCount]: false,
+  [SurveyDependencyType.onUpdate]: false,
   [SurveyDependencyType.validations]: true,
 }
 
@@ -33,6 +35,7 @@ const newDependecyGraph = () => ({
   [SurveyDependencyType.formula]: {},
   [SurveyDependencyType.maxCount]: {},
   [SurveyDependencyType.minCount]: {},
+  [SurveyDependencyType.onUpdate]: {},
   [SurveyDependencyType.validations]: {},
 })
 
@@ -48,7 +51,7 @@ export const getNodeDefDependents = (params: {
 
   const dependentUuids = new Set<string>()
 
-  const dependencyTypes: Array<SurveyDependencyType> = dependencyType
+  const dependencyTypes: SurveyDependencyType[] = dependencyType
     ? [dependencyType]
     : Object.values(SurveyDependencyType)
 
@@ -59,6 +62,13 @@ export const getNodeDefDependents = (params: {
     })
   })
   return dependentUuids.size > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: [...dependentUuids] }) : []
+}
+
+export const getOnUpdateDependents = (params: { survey: Survey }) => {
+  const { survey } = params
+  const dependencyGraph = getDependencyGraph(survey)
+  const sourceDefUuids = Object.keys(dependencyGraph[SurveyDependencyType.onUpdate] ?? {})
+  return sourceDefUuids.length > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: sourceDefUuids }) : []
 }
 
 const getDependencies = (params: {

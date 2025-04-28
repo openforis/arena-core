@@ -27,7 +27,7 @@ export const addNodeDefToIndex =
     const { analysis, parentUuid, temporary, uuid } = nodeDef
     const name = NodeDefs.getName(nodeDef)
 
-    const surveyUpdated: Survey = Objects.assocPath({
+    let surveyUpdated: Survey = Objects.assocPath({
       obj: survey,
       path: [keys.nodeDefsIndex, keys.nodeDefUuidByName, name],
       value: nodeDef.uuid,
@@ -35,23 +35,23 @@ export const addNodeDefToIndex =
     })
 
     if (parentUuid) {
-      return Objects.assocPath({
+      surveyUpdated = Objects.assocPath({
         obj: surveyUpdated,
         path: [keys.nodeDefsIndex, keys.childDefUuidPresenceByParentUuid, parentUuid, uuid],
         value: true,
         sideEffect,
       })
-    }
-    if (!temporary && !analysis) {
+    } else if (!temporary && !analysis) {
       // nodeDef is root
-      return Objects.assocPath({
+      surveyUpdated = Objects.assocPath({
         obj: surveyUpdated,
         path: [keys.nodeDefsIndex, keys.rootDefUuid],
         value: uuid,
         sideEffect,
       })
     }
-    return surveyUpdated
+
+    if (NodeDefs.getValidationsExpressions()) return surveyUpdated
   }
 
 export const updateNodeDefUuidByNameIndex =
