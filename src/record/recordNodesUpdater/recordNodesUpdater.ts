@@ -49,7 +49,7 @@ export const updateNodesDependents = (
     node,
   })
 
-  const nodeUuidsToVisit = new Queue(Object.keys(nodes))
+  const nodeUuidsToVisit = new Queue(Object.keys(initialNodesToVisit))
 
   // Avoid loops: visit the same node maximum 2 times (the second time the applicability could have been changed)
   const visitedCountByUuid: Dictionary<number> = {}

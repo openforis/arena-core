@@ -143,6 +143,11 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       return getNodeDefParent({ survey, nodeDef })
     },
   },
+  recordCycle: {
+    minArity: 0,
+    maxArity: 0,
+    executor: emptyExecutor,
+  },
   recordDateCreated: {
     minArity: 0,
     maxArity: 0,

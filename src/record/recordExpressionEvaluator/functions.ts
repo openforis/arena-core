@@ -136,6 +136,11 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       return Records.getParent(node)(record)
     },
   },
+  recordCycle: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: RecordExpressionContext) => () => Number(context.record.cycle ?? 0) + 1,
+  },
   recordDateCreated: {
     minArity: 0,
     maxArity: 0,
