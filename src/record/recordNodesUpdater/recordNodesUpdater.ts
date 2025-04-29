@@ -3,6 +3,8 @@ import { Queue } from '../../utils'
 import { Dictionary } from '../../common'
 import { Node } from '../../node'
 import { NodeDefCountType } from '../../nodeDef'
+import { Surveys } from '../../survey'
+import { getNodesByDefUuid } from '../_records/recordGetters'
 import { ExpressionEvaluationContext } from './expressionEvaluationContext'
 import { updateSelfAndDependentsApplicable } from './recordNodeDependentsApplicableUpdater'
 import { updateDependentCodeAttributes } from './recordNodeDependentsCodeAttributesUpdater'
@@ -23,7 +25,20 @@ export const updateNodesDependents = (
   params: ExpressionEvaluationContext & { nodes: Dictionary<Node> }
 ): RecordUpdateResult => {
   const { user, survey, record, nodes, timezoneOffset, sideEffect = false } = params
-  const updateResult = new RecordUpdateResult({ record, nodes: sideEffect ? nodes : { ...nodes } })
+  const initialNodesToVisit = sideEffect ? nodes : { ...nodes }
+
+  // include onUpdate dependents (always included in every record update)
+  const onUpdateDependentDefs = Surveys.getOnUpdateDependents({ survey })
+  if (onUpdateDependentDefs.length > 0) {
+    onUpdateDependentDefs.forEach((dependentDef) => {
+      const dependentNodes = getNodesByDefUuid(dependentDef.uuid)(record)
+      dependentNodes.forEach((node) => {
+        initialNodesToVisit[node.uuid] = node
+      })
+    })
+  }
+
+  const updateResult = new RecordUpdateResult({ record, nodes: initialNodesToVisit })
 
   const createEvaluationContext = (node: Node): ExpressionEvaluationContext & { node: Node } => ({
     user,
@@ -34,7 +49,7 @@ export const updateNodesDependents = (
     node,
   })
 
-  const nodeUuidsToVisit = new Queue(Object.keys(nodes))
+  const nodeUuidsToVisit = new Queue(Object.keys(initialNodesToVisit))
 
   // Avoid loops: visit the same node maximum 2 times (the second time the applicability could have been changed)
   const visitedCountByUuid: Dictionary<number> = {}

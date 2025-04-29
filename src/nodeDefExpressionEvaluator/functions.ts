@@ -28,6 +28,8 @@ const sampleGeoJsonPolygon = {
 
 const isNotValidString = (value: string): boolean => Objects.isEmpty(value) || typeof value !== 'string'
 
+const emptyExecutor = (_context: NodeDefExpressionContext) => () => null
+
 export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
   categoryItemProp: {
     minArity: 3,
@@ -97,9 +99,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: NodeDefExpressionContext) => () => {
-      return null
-    },
+    executor: emptyExecutor,
   },
   geoPolygon: {
     minArity: 1,
@@ -119,17 +119,13 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: () => () => {
-      return -1
-    },
+    executor: () => () => -1,
   },
   last: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: () => () => {
-      return null
-    },
+    executor: emptyExecutor,
   },
   now: {
     minArity: 0,
@@ -147,28 +143,41 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       return getNodeDefParent({ survey, nodeDef })
     },
   },
+  recordCycle: {
+    minArity: 0,
+    maxArity: 0,
+    executor: emptyExecutor,
+  },
+  recordDateCreated: {
+    minArity: 0,
+    maxArity: 0,
+    executor: emptyExecutor,
+  },
+  recordDateLastModified: {
+    minArity: 0,
+    maxArity: 0,
+    executor: emptyExecutor,
+  },
   recordOwnerEmail: {
     minArity: 0,
     maxArity: 0,
-    executor: (_context: NodeDefExpressionContext) => () => null,
+    executor: emptyExecutor,
   },
   recordOwnerName: {
     minArity: 0,
     maxArity: 0,
-    executor: (_context: NodeDefExpressionContext) => () => null,
+    executor: emptyExecutor,
   },
   recordOwnerRole: {
     minArity: 0,
     maxArity: 0,
-    executor: (_context: NodeDefExpressionContext) => () => null,
+    executor: emptyExecutor,
   },
   sum: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: NodeDefExpressionContext) => (_nodeSet) => {
-      return 1
-    },
+    executor: (_context: NodeDefExpressionContext) => (_nodeSet) => 1,
   },
   taxonProp: {
     minArity: 3,

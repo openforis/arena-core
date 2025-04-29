@@ -5,6 +5,9 @@ import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
 import { Arrays, Objects } from '../../utils'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
+import { Dictionary } from '../../common'
+
+const functionsRequiringOnUpdateDependency = ['recordDateLastModified']
 
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
@@ -13,6 +16,7 @@ const isContextParentByDependencyType = {
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: true,
   [SurveyDependencyType.minCount]: true,
+  [SurveyDependencyType.onUpdate]: true,
   [SurveyDependencyType.validations]: true,
 }
 
@@ -23,6 +27,7 @@ const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: false,
   [SurveyDependencyType.minCount]: false,
+  [SurveyDependencyType.onUpdate]: false,
   [SurveyDependencyType.validations]: true,
 }
 
@@ -33,6 +38,7 @@ const newDependecyGraph = () => ({
   [SurveyDependencyType.formula]: {},
   [SurveyDependencyType.maxCount]: {},
   [SurveyDependencyType.minCount]: {},
+  [SurveyDependencyType.onUpdate]: {},
   [SurveyDependencyType.validations]: {},
 })
 
@@ -48,7 +54,7 @@ export const getNodeDefDependents = (params: {
 
   const dependentUuids = new Set<string>()
 
-  const dependencyTypes: Array<SurveyDependencyType> = dependencyType
+  const dependencyTypes: SurveyDependencyType[] = dependencyType
     ? [dependencyType]
     : Object.values(SurveyDependencyType)
 
@@ -59,6 +65,13 @@ export const getNodeDefDependents = (params: {
     })
   })
   return dependentUuids.size > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: [...dependentUuids] }) : []
+}
+
+export const getOnUpdateDependents = (params: { survey: Survey }) => {
+  const { survey } = params
+  const dependencyGraph = getDependencyGraph(survey)
+  const sourceDefUuids = Object.keys(dependencyGraph[SurveyDependencyType.onUpdate] ?? {})
+  return sourceDefUuids.length > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: sourceDefUuids }) : []
 }
 
 const getDependencies = (params: {
@@ -113,18 +126,20 @@ const addDependencies = (params: {
       isContextParent,
       selfReferenceAllowed,
     })
-    return [...referencedNodeDefUuids.values()].reduce(
-      (acc, uuid) => ({ ...acc, [uuid]: SurveyNodeDefs.getNodeDefByUuid({ survey, uuid }) }),
-      {}
-    )
+    const referencedNodeDefsByUuid: Dictionary<NodeDef<any>> = {}
+    referencedNodeDefUuids.forEach((uuid) => {
+      referencedNodeDefsByUuid[uuid] = SurveyNodeDefs.getNodeDefByUuid({ survey, uuid })
+    })
+    return referencedNodeDefsByUuid
   }
 
   const referencedNodeDefs = expressions.reduce(
-    (referencedAcc, nodeDefExpr) => ({
-      ...referencedAcc,
-      ...findReferencedNodeDefs(nodeDefExpr.expression),
-      ...findReferencedNodeDefs(nodeDefExpr.applyIf),
-    }),
+    (referencedAcc, nodeDefExpr) =>
+      Object.assign(
+        referencedAcc,
+        findReferencedNodeDefs(nodeDefExpr.expression),
+        findReferencedNodeDefs(nodeDefExpr.applyIf)
+      ),
     {}
   )
 
@@ -150,8 +165,8 @@ export const addNodeDefDependencies = (params: {
   const graphs = getDependencyGraph(survey)
   let graphsUpdated = sideEffect ? graphs : { ...graphs }
 
-  const _addDependencies = (type: SurveyDependencyType, expressions: NodeDefExpression[]) =>
-    addDependencies({
+  const _addDependencies = (type: SurveyDependencyType, expressions: NodeDefExpression[]) => {
+    let _graphUpdated = addDependencies({
       survey,
       nodeDef,
       type,
@@ -159,6 +174,23 @@ export const addNodeDefDependencies = (params: {
       graphs: graphsUpdated,
       sideEffect,
     })
+    // add onUpdate dependencies
+    if (
+      expressions.some((expression) =>
+        functionsRequiringOnUpdateDependency.some(
+          (functionName) => expression.applyIf?.includes(functionName) || expression.expression?.includes(functionName)
+        )
+      )
+    ) {
+      _graphUpdated = Objects.assocPath({
+        obj: _graphUpdated,
+        path: [SurveyDependencyType.onUpdate, nodeDef.uuid],
+        value: true,
+        sideEffect,
+      })
+    }
+    return _graphUpdated
+  }
   graphsUpdated = _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
   graphsUpdated = _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
   graphsUpdated = _addDependencies(SurveyDependencyType.validations, NodeDefs.getValidationsExpressions(nodeDef))
