@@ -21,7 +21,7 @@ let survey: Survey
 
 describe('NodeDefExpressionValidator', () => {
   beforeAll(async () => {
-    survey = new SurveyBuilder(
+    survey = await new SurveyBuilder(
       user,
       entityDef(
         'cluster',
@@ -146,12 +146,12 @@ describe('NodeDefExpressionValidator', () => {
       itemsFilter = false,
     } = query
 
-    test(`${expression}${nodeDef ? ` (nodeDef: ${nodeDef})` : ''}`, () => {
+    test(`${expression}${nodeDef ? ` (nodeDef: ${nodeDef})` : ''}`, async () => {
       const nodeDefCurrent = nodeDef
         ? Surveys.getNodeDefByName({ survey, name: nodeDef })
         : Surveys.getNodeDefRoot({ survey })
 
-      const { validationResult, referencedNodeDefUuids } = new NodeDefExpressionValidator().validate({
+      const { validationResult, referencedNodeDefUuids } = await new NodeDefExpressionValidator().validate({
         expression,
         survey,
         nodeDefCurrent,

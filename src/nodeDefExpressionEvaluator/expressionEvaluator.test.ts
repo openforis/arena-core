@@ -45,7 +45,7 @@ const checkExpressionEvaluateResult = (params: {
 
 describe('NodeDefExpressionEvaluator', () => {
   beforeAll(async () => {
-    survey = new SurveyBuilder(
+    survey = await new SurveyBuilder(
       user,
       entityDef(
         'cluster',
@@ -115,11 +115,11 @@ describe('NodeDefExpressionEvaluator', () => {
     const expectedResultValue = result instanceof Function ? result() : result
     const testNameSuffix = nodeDef ? ` (nodeDef: ${nodeDef})` : ''
 
-    test(`${expression}${testNameSuffix}`, () => {
+    test(`${expression}${testNameSuffix}`, async () => {
       try {
         const nodeDefCurrent = Surveys.getNodeDefByName({ survey, name: nodeDef ?? 'cluster_id' })
 
-        const result = new NodeDefExpressionEvaluator().evalExpression({
+        const result = await new NodeDefExpressionEvaluator().evalExpression({
           user,
           survey,
           expression,

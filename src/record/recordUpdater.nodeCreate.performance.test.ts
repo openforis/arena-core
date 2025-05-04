@@ -52,7 +52,7 @@ describe('RecordUpdater - node create - performance test', () => {
   }, 10000)
 
   test('Multiple entity', async () => {
-    survey = new SurveyBuilder(
+    survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -75,7 +75,7 @@ describe('RecordUpdater - node create - performance test', () => {
   })
 
   test('Multiple entity with autoincrement', async () => {
-    survey = new SurveyBuilder(
+    survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',

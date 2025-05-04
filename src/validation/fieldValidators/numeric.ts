@@ -4,7 +4,7 @@ import { ValidationResult, ValidationSeverity } from '../validation'
 
 export const numeric =
   (messageKey = 'invalid_number', messageParams: any = {}) =>
-  (field: string, obj: any): ValidationResult => {
+  async (field: string, obj: any): Promise<ValidationResult> => {
     const value = Objects.path(field)(obj)
     const valid = Objects.isEmpty(value) || !isNaN(value)
 

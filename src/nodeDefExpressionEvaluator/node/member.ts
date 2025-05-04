@@ -5,10 +5,10 @@ import { NodeDefExpressionContext } from '../context'
 const isNodeDef = (obj: any) => obj && typeof obj === 'object' && 'uuid' in obj
 
 export class NodeDefMemberEvaluator extends MemberEvaluator<NodeDefExpressionContext> {
-  evaluate(expressionNode: MemberExpression): any {
+  async evaluate(expressionNode: MemberExpression): Promise<any> {
     const { object, property, computed } = expressionNode
 
-    const objectEval = this.evaluator.evaluateNode(object, this.context)
+    const objectEval = await this.evaluator.evaluateNode(object, this.context)
     if (objectEval === null) {
       return null
     }

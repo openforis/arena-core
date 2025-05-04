@@ -100,7 +100,7 @@ const typeValidatorFns: {
 
 const validateValueType =
   (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  (_propName: string, node: Node): ValidationResult => {
+  async (_propName: string, node: Node): Promise<ValidationResult> => {
     const { survey, nodeDef } = params
 
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()

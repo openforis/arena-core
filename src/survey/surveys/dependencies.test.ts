@@ -27,7 +27,7 @@ describe('Survey Dependencies', () => {
   beforeAll(async () => {
     const user = createTestAdminUser()
 
-    survey = new SurveyBuilder(
+    survey = await new SurveyBuilder(
       user,
       entityDef(
         'cluster',

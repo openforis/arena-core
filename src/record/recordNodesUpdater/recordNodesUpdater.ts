@@ -21,9 +21,9 @@ import { RecordUpdateResult } from './recordUpdateResult'
  */
 const MAX_DEPENDENTS_VISITING_TIMES = 2
 
-export const updateNodesDependents = (
+export const updateNodesDependents = async (
   params: ExpressionEvaluationContext & { nodes: Dictionary<Node> }
-): RecordUpdateResult => {
+): Promise<RecordUpdateResult> => {
   const { user, survey, record, nodes, timezoneOffset, sideEffect = false } = params
   const initialNodesToVisit = sideEffect ? nodes : { ...nodes }
 
@@ -62,25 +62,25 @@ export const updateNodesDependents = (
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
       // min count
-      const minCountUpdateResult = updateDependentsCount({
+      const minCountUpdateResult = await updateDependentsCount({
         ...createEvaluationContext(node),
         countType: NodeDefCountType.min,
       })
       updateResult.merge(minCountUpdateResult)
 
       // max count
-      const maxCountUpdateResult = updateDependentsCount({
+      const maxCountUpdateResult = await updateDependentsCount({
         ...createEvaluationContext(node),
         countType: NodeDefCountType.max,
       })
       updateResult.merge(maxCountUpdateResult)
 
       // applicability
-      const applicabilityUpdateResult = updateSelfAndDependentsApplicable(createEvaluationContext(node))
+      const applicabilityUpdateResult = await updateSelfAndDependentsApplicable(createEvaluationContext(node))
       updateResult.merge(applicabilityUpdateResult)
 
       // default values
-      const defaultValuesUpdateResult = updateSelfAndDependentsDefaultValues(createEvaluationContext(node))
+      const defaultValuesUpdateResult = await updateSelfAndDependentsDefaultValues(createEvaluationContext(node))
       updateResult.merge(defaultValuesUpdateResult)
 
       // code attributes
@@ -92,7 +92,7 @@ export const updateNodesDependents = (
       updateResult.merge(dependentEnumeratedEntitiesUpdateResult)
 
       // Update dependents (file names)
-      const dependentFileNamesUpdateResult = updateSelfAndDependentsFileNames(createEvaluationContext(node))
+      const dependentFileNamesUpdateResult = await updateSelfAndDependentsFileNames(createEvaluationContext(node))
       updateResult.merge(dependentFileNamesUpdateResult)
 
       const nodesUpdatedCurrent: Dictionary<Node> = {

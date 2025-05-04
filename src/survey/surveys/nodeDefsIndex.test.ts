@@ -11,7 +11,7 @@ describe('Survey Node Definitionss index', () => {
   beforeAll(async () => {
     const user = createTestAdminUser()
 
-    survey = new SurveyBuilder(
+    survey = await new SurveyBuilder(
       user,
       entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
     ).build()

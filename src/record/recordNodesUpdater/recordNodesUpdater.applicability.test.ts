@@ -19,8 +19,8 @@ describe('Record nodes updater - applicability', () => {
     user = createTestAdminUser()
   }, 10000)
 
-  test('Applicability update', () => {
-    const survey = new SurveyBuilder(
+  test('Applicability update', async () => {
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -44,18 +44,18 @@ describe('Record nodes updater - applicability', () => {
     const rootNode = Records.getRoot(record)
     if (!rootNode) throw new Error('root node undefined')
 
-    const updateSourceAndExpectDependentApplicabilityToBe = (params: {
+    const updateSourceAndExpectDependentApplicabilityToBe = async (params: {
       sourceValue: any
       expectDependentUpdate: boolean
       expectedApplicability: boolean
-    }): Record => {
+    }): Promise<Record> => {
       const { sourceValue, expectedApplicability, expectDependentUpdate } = params
       const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
 
       const nodeUpdated = { ...nodeToUpdate, value: sourceValue }
       const recordUpdated = Records.addNode(nodeUpdated)(record)
 
-      const updateResult = RecordNodesUpdater.updateNodesDependents({
+      const updateResult = await RecordNodesUpdater.updateNodesDependents({
         user,
         survey,
         record: recordUpdated,
@@ -82,22 +82,22 @@ describe('Record nodes updater - applicability', () => {
       return updateResult.record
     }
 
-    record = updateSourceAndExpectDependentApplicabilityToBe({
+    record = await updateSourceAndExpectDependentApplicabilityToBe({
       sourceValue: 30,
       expectDependentUpdate: false,
       expectedApplicability: true,
     })
-    record = updateSourceAndExpectDependentApplicabilityToBe({
+    record = await updateSourceAndExpectDependentApplicabilityToBe({
       sourceValue: 1,
       expectDependentUpdate: true,
       expectedApplicability: false,
     })
-    record = updateSourceAndExpectDependentApplicabilityToBe({
+    record = await updateSourceAndExpectDependentApplicabilityToBe({
       sourceValue: 9,
       expectDependentUpdate: false,
       expectedApplicability: false,
     })
-    record = updateSourceAndExpectDependentApplicabilityToBe({
+    record = await updateSourceAndExpectDependentApplicabilityToBe({
       sourceValue: 21,
       expectDependentUpdate: true,
       expectedApplicability: true,

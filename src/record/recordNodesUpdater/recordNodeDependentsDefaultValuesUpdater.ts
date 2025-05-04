@@ -28,14 +28,14 @@ const canApplyDefaultValue = (params: { record: Record; node: Node; nodeDef: Nod
   )
 }
 
-const updateDefaultValuesInNodes = (params: {
+const updateDefaultValuesInNodes = async (params: {
   user: User
   survey: Survey
   nodePointer: NodePointer
   updateResult: RecordUpdateResult
   timezoneOffset?: number
   sideEffect?: boolean
-}) => {
+}): Promise<void> => {
   const { user, survey, nodePointer, updateResult, timezoneOffset, sideEffect = false } = params
 
   const { nodeCtx, nodeDef } = nodePointer
@@ -49,7 +49,7 @@ const updateDefaultValuesInNodes = (params: {
 
   try {
     // 1. evaluate applicable default value expression
-    const exprEval = recordExpressionEvaluator.evalApplicableExpression({
+    const exprEval = await recordExpressionEvaluator.evalApplicableExpression({
       user,
       survey,
       record,
@@ -110,14 +110,14 @@ const updateDefaultValuesInNodes = (params: {
   }
 }
 
-export const updateSelfAndDependentsDefaultValues = (params: {
+export const updateSelfAndDependentsDefaultValues = async (params: {
   user: User
   survey: Survey
   record: Record
   node: Node
   timezoneOffset?: number
   sideEffect?: boolean
-}) => {
+}): Promise<RecordUpdateResult> => {
   const { user, survey, record, node, timezoneOffset, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
@@ -151,9 +151,8 @@ export const updateSelfAndDependentsDefaultValues = (params: {
   })
 
   // 2. update expr to node and dependent nodes
-  nodePointersToUpdate.forEach((nodePointer) => {
-    updateDefaultValuesInNodes({ user, survey, nodePointer, updateResult, timezoneOffset, sideEffect })
-  })
-
+  for await (const nodePointer of nodePointersToUpdate) {
+    await updateDefaultValuesInNodes({ user, survey, nodePointer, updateResult, timezoneOffset, sideEffect })
+  }
   return updateResult
 }

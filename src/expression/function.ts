@@ -3,7 +3,7 @@ import { ExpressionContext } from './context'
 export interface ExpressionFunction<C extends ExpressionContext> {
   minArity: number
   maxArity?: number
-  executor: (conxtext: C) => (...args: any[]) => any
+  executor: (conxtext: C) => (...args: any[]) => Promise<any>
   /**
    * True if the arguments of the function must be evaluated as nodes.
    * @default false

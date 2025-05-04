@@ -59,7 +59,7 @@ const _getValidationMessagesWithDefault = (params: {
 
 const _validateRequired =
   (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  (_field: string, node: any): ValidationResult => {
+  async (_field: string, node: any): Promise<ValidationResult> => {
     const { nodeDef } = params
     const valid = (!NodeDefs.isKey(nodeDef) && !NodeDefs.isRequired(nodeDef)) || !Nodes.isValueBlank(node)
     return valid
@@ -73,18 +73,17 @@ const _validateRequired =
 
 /**
  * Evaluates the validation expressions.
- * Returns 'null' if all are valid, a concatenated error message otherwise.
  */
 const _validateNodeValidations =
   (params: { user: User; survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  (_propName: string, node: Node): ValidationResult => {
+  async (_propName: string, node: Node): Promise<ValidationResult> => {
     const { user, survey, record, nodeDef } = params
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const validations = NodeDefs.getValidations(nodeDef)
     if (!validations?.expressions?.length) return ValidationResultFactory.createInstance()
 
-    const applicableExpressionsEval = new RecordExpressionEvaluator().evalApplicableExpressions({
+    const applicableExpressionsEval = await new RecordExpressionEvaluator().evalApplicableExpressions({
       user,
       survey,
       record,

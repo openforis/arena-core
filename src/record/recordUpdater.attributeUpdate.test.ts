@@ -64,7 +64,7 @@ describe('RecordUpdater - attribute update', () => {
   }, 10000)
 
   test('Validation: required value', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -125,7 +125,7 @@ describe('RecordUpdater - attribute update', () => {
   })
 
   test('Validation: attribute validation expression', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -164,7 +164,7 @@ describe('RecordUpdater - attribute update', () => {
   })
 
   test('Validation: attribute validation with multiple expressions', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -208,7 +208,7 @@ describe('RecordUpdater - attribute update', () => {
   })
 
   test('Validation: dependent attribute with relevancy valid default value', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',

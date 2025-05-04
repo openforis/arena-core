@@ -21,10 +21,10 @@ describe('Record nodes updater - dependent code attributes', () => {
     user = createTestAdminUser()
   }, 10000)
 
-  test('Dependent code attributes value reset', () => {
+  test('Dependent code attributes value reset', async () => {
     const categoryName = 'hierarchical_category'
 
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -72,7 +72,7 @@ describe('Record nodes updater - dependent code attributes', () => {
     const nodeUpdated = { ...nodeToUpdate, value: 2 }
     const recordUpdated = Records.addNode(nodeUpdated)(record)
 
-    const updateResult = RecordNodesUpdater.updateNodesDependents({
+    const updateResult = await RecordNodesUpdater.updateNodesDependents({
       user,
       survey,
       record: recordUpdated,
@@ -97,10 +97,10 @@ describe('Record nodes updater - dependent code attributes', () => {
     expect(dependentNodeUpdated.value).toBeNull()
   })
 
-  test('Hierarchical read-only code attributes evaluation', () => {
+  test('Hierarchical read-only code attributes evaluation', async () => {
     const categoryName = 'admin_unit'
 
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -182,14 +182,14 @@ describe('Record nodes updater - dependent code attributes', () => {
       const itemUuid = getItemUuid(categoryName, itemCodes)
       expect(codeAttr.value.itemUuid).toBe(itemUuid)
     }
-    const updateSourceValue = (value: string) => {
+    const updateSourceValue = async (value: string) => {
       const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.identifier' })
 
       const samplingPointDataItemUuid = getItemUuid('sampling_point_data', [value])
       const nodeUpdated = { ...nodeToUpdate, value: NodeValues.newCodeValue({ itemUuid: samplingPointDataItemUuid }) }
       const recordUpdated = Records.addNode(nodeUpdated)(record)
 
-      const updateResult = RecordNodesUpdater.updateNodesDependents({
+      const updateResult = await RecordNodesUpdater.updateNodesDependents({
         user,
         survey,
         record: recordUpdated,
@@ -200,12 +200,12 @@ describe('Record nodes updater - dependent code attributes', () => {
       record = updateResult.record
     }
 
-    updateSourceValue('11')
+    await updateSourceValue('11')
     expectCodeToBe({ path: 'root_entity.region', itemCodes: ['2'] })
     expectCodeToBe({ path: 'root_entity.province', itemCodes: ['2', '2_b'] })
     expectCodeToBe({ path: 'root_entity.city', itemCodes: ['2', '2_b', '2_b_2'] })
 
-    updateSourceValue('12')
+    await updateSourceValue('12')
     expectCodeToBe({ path: 'root_entity.region', itemCodes: ['3'] })
     expectCodeToBe({ path: 'root_entity.province', itemCodes: ['3', '3_a'] })
     expectCodeToBe({ path: 'root_entity.city', itemCodes: ['3', '3_a', '3_a_1'] })

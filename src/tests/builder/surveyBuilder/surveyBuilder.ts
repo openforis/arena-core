@@ -74,7 +74,7 @@ export class SurveyBuilder {
     return { taxonomiesByUuid, taxonIndex, taxonUuidIndex }
   }
 
-  build(): Survey {
+  async build(): Promise<Survey> {
     let survey = SurveyFactory.createInstance({
       name: this.name,
       ownerUuid: this.user.uuid,
@@ -94,7 +94,7 @@ export class SurveyBuilder {
 
     survey.refData = SurveyRefDataFactory.createInstance({ itemsByCategoryUuid, taxonIndex, taxonUuidIndex })
 
-    survey = Surveys.buildAndAssocDependencyGraph(survey)
+    survey = await Surveys.buildAndAssocDependencyGraph(survey)
     return survey
   }
 }

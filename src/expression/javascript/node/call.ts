@@ -6,7 +6,7 @@ import { CallExpression, ExpressionNodeEvaluator, ExpressionNodeType } from '../
 import { getGlobalObjectProperty } from '../global'
 
 export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, CallExpression> {
-  evaluate(expressionNode: CallExpression): any {
+  async evaluate(expressionNode: CallExpression): Promise<any> {
     const { callee } = expressionNode
 
     if (callee.type === ExpressionNodeType.Member) {
@@ -20,21 +20,22 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     throw new SystemError('expression.invalidCalleeType', { type: callee.type })
   }
 
-  evaluateMember(expressionNode: CallExpression): any {
+  async evaluateMember(expressionNode: CallExpression): Promise<any> {
     const { callee, arguments: exprArgs } = expressionNode
 
     // global function (e.g. Math.round(...))
-    const fn = this.evaluator.evaluateNode(callee, this.context)
+    const fn = await this.evaluator.evaluateNode(callee, this.context)
     if (fn) {
       const { object: calleeObj } = callee as MemberExpression
-      const fnObject = this.evaluator.evaluateNode(calleeObj, this.context)
-      const args = exprArgs.flatMap((arg) => this.evaluator.evaluateNode(arg, this.context))
+      const fnObject = await this.evaluator.evaluateNode(calleeObj, this.context)
+      const argsEvaluated = Promise.all(exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context)))
+      const args = (await argsEvaluated).flat()
       return fn.call(fnObject, ...args)
     }
     return null
   }
 
-  evaluateIdentifier(expressionNode: CallExpression): any {
+  async evaluateIdentifier(expressionNode: CallExpression): Promise<any> {
     // Arguments is a reserved word in strict mode
     const { callee, arguments: exprArgs } = expressionNode
     const { object: contextObject } = this.context
@@ -51,14 +52,14 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     if (globalFn !== null) {
       // global functions like String, Number, must be invoked passing node value as argument, not the node itself
       const contextArg = { ...this.context, evaluateToNode: false }
-      const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, contextArg))
+      const args = await Promise.all(exprArgs.map((arg) => this.evaluator.evaluateNode(arg, contextArg)))
       return globalFn(...args)
     }
 
     throw new SystemError('expression.undefinedFunction', { name: fnName })
   }
 
-  evaluateCustomIdentifier(expressionNode: CallExpression): any {
+  async evaluateCustomIdentifier(expressionNode: CallExpression): Promise<any> {
     // Arguments is a reserved word in strict mode
     const { callee, arguments: exprArgs } = expressionNode
 
@@ -76,7 +77,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
 
     // evaluate arguments
     const argsContext = { ...this.context, evaluateToNode: evaluateArgsToNodes }
-    const args = exprArgs.map((arg) => this.evaluator.evaluateNode(arg, argsContext))
+    const args = await Promise.all(exprArgs.map((arg) => this.evaluator.evaluateNode(arg, argsContext)))
 
     // Currently there are no side effects from function evaluation so it's
     // safe to call the function even when we're just parsing the expression

@@ -99,7 +99,7 @@ const evaluateIdentifierOnNode = (params: {
 }
 
 export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpressionContext> {
-  evaluate(expressionNode: IdentifierExpression): any {
+  async evaluate(expressionNode: IdentifierExpression): Promise<any> {
     const { name: propName } = expressionNode
 
     if (propName === ExpressionVariable.CONTEXT) {
@@ -108,7 +108,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
 
     // try to find identifier among global or native properties
     try {
-      const result = super.evaluate(expressionNode)
+      const result = await super.evaluate(expressionNode)
       return result
     } catch (e) {
       // ignore it

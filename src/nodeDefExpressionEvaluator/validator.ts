@@ -21,11 +21,11 @@ const determineNodeDefContext = (params: { survey: Survey; nodeDefCurrent: NodeD
 }
 
 export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
-  validate(
+  async validate(
     params: NodeDefExpressionContext & {
       expression: string
     }
-  ): { validationResult: ValidationResult; referencedNodeDefUuids: Set<string> } {
+  ): Promise<{ validationResult: ValidationResult; referencedNodeDefUuids: Set<string> }> {
     const { expression, survey, nodeDefCurrent, nodeDefContext: nodeDefContextParam } = params
     try {
       const nodeDefContext = nodeDefContextParam ?? determineNodeDefContext({ survey, nodeDefCurrent })
@@ -33,7 +33,7 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
       const referencedNodeDefUuids = new Set<string>()
       const evaluationParams = { ...params, nodeDefContext, object: nodeDefCurrent, referencedNodeDefUuids }
 
-      this.evaluate(expression, evaluationParams)
+      await this.evaluate(expression, evaluationParams)
 
       return {
         validationResult: ValidationResultFactory.createInstance(),

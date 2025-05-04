@@ -45,12 +45,12 @@ export class JavascriptExpressionEvaluator<C extends ExpressionContext> implemen
     this.functions = { ...functionsDefault, ...functions }
   }
 
-  evaluate(expression: string, context?: C): any {
+  async evaluate(expression: string, context?: C): Promise<any> {
     const parser = new JavascriptExpressionParser()
     return this.evaluateNode(parser.parse(expression), context ?? ({} as C))
   }
 
-  evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: C): any {
+  async evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: C): Promise<any> {
     const { type } = expressionNode
 
     const NodeEvaluator = this.evaluators[type]

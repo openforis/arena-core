@@ -13,9 +13,9 @@ const expectNodeDefToExist = (params: { survey: Survey; name: string }): void =>
 }
 
 describe('SurveyBuilder', () => {
-  test('simple survey build', () => {
+  test('simple survey build', async () => {
     const user = createTestAdminUser()
-    const survey: Survey = new SurveyBuilder(
+    const survey: Survey = await new SurveyBuilder(
       user,
       entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
     ).build()

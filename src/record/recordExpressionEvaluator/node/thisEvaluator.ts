@@ -4,7 +4,7 @@ import { NodeValueExtractor } from '../nodeValueExtractor'
 import { Surveys } from '../../../survey'
 
 export class RecordThisEvaluator extends ThisEvaluator<RecordExpressionContext> {
-  evaluate(): any {
+  async evaluate(): Promise<any> {
     const { survey, nodeCurrent, evaluateToNode, item } = this.context
 
     if (evaluateToNode) {
