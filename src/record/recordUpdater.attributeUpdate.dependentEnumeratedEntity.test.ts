@@ -10,11 +10,13 @@ import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 import { Record } from './record'
 import { RecordUpdater } from './recordUpdater'
+import { Category, CategoryItem } from '../category'
 
 const user = createTestAdminUser()
 let survey: Survey
-let enumeratingCategory
-let item1, item2
+let enumeratingCategory: Category
+let item1: CategoryItem, item2: CategoryItem
+let record: Record
 
 const initTestSurvey = async () => {
   survey = await new SurveyBuilder(
@@ -45,17 +47,18 @@ const initTestSurvey = async () => {
     )
     .build()
 
-  enumeratingCategory = Surveys.getCategoryByName({ survey, categoryName: 'hierarchical_category' })
+  enumeratingCategory = Surveys.getCategoryByName({ survey, categoryName: 'hierarchical_category' })!
   item1 = Surveys.getCategoryItemByCodePaths({
     survey,
     categoryUuid: enumeratingCategory!.uuid,
     codePaths: ['1'],
-  })
+  })!
   item2 = Surveys.getCategoryItemByCodePaths({
     survey,
     categoryUuid: enumeratingCategory!.uuid,
     codePaths: ['2'],
-  })
+  })!
+  record = createRecord()
 }
 
 const createRecord = (): Record =>
@@ -64,8 +67,6 @@ const createRecord = (): Record =>
     survey,
     entity('root_entity', attribute('root_key', 10), attribute('accessible', true), attribute('parent_code'))
   ).build()
-
-let record = createRecord()
 
 const updateAttributeAndExpectDependentEnumeratedKeys = async (params: {
   survey: Survey
