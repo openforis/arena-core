@@ -48,7 +48,8 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
 
     // try to find the identifier among global objects or native properties
     try {
-      return super.evaluate(expressionNode)
+      const identifierAsGlobalObject = await super.evaluate(expressionNode)
+      return identifierAsGlobalObject
     } catch (e) {
       // ignore it
     }

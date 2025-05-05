@@ -28,8 +28,8 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     if (fn) {
       const { object: calleeObj } = callee as MemberExpression
       const fnObject = await this.evaluator.evaluateNode(calleeObj, this.context)
-      const argsEvaluated = Promise.all(exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context)))
-      const args = (await argsEvaluated).flat()
+      const argsEvaluated = await Promise.all(exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context)))
+      const args = argsEvaluated.flat()
       return fn.call(fnObject, ...args)
     }
     return null
