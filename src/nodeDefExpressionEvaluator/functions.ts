@@ -30,6 +30,24 @@ const isNotValidString = (value: string): boolean => Objects.isEmpty(value) || t
 
 const emptyExecutor = (_context: NodeDefExpressionContext) => async () => null
 
+const getOrFetchCategoryItem = async (params: {
+  context: NodeDefExpressionContext
+  categoryUuid: string
+  codePaths: string[]
+}): Promise<any> => {
+  const { context, categoryUuid, codePaths } = params
+  const { survey, categoryItemProvider } = context
+  const categoryItem = getCategoryItemByCodePaths({ survey, categoryUuid, codePaths })
+  return (
+    categoryItem ??
+    categoryItemProvider?.getCategoryItemByCodePaths({
+      survey,
+      categoryUuid,
+      codePaths,
+    })
+  )
+}
+
 export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
   categoryItemProp: {
     minArity: 3,
@@ -47,11 +65,8 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         const extraPropDef = category.props.itemExtraDef?.[itemPropName]
         if (!extraPropDef) throw new SystemError('expression.invalidCategoryExtraProp', { propName: itemPropName })
 
-        const categoryItem = getCategoryItemByCodePaths({
-          survey,
-          categoryUuid: category.uuid,
-          codePaths,
-        })
+        const { uuid: categoryUuid } = category
+        const categoryItem = await getOrFetchCategoryItem({ context, categoryUuid, codePaths })
         if (!categoryItem) return null
 
         const value = categoryItem.props.extra?.[itemPropName]

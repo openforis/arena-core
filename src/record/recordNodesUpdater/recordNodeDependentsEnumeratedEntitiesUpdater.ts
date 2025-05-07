@@ -1,12 +1,11 @@
-import { User } from '../../auth'
 import { Node, Nodes, NodeValues } from '../../node'
 import { NodeDefCode, NodeDefEntity, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Objects } from '../../utils'
 import { getAncestor, getChild, getChildren } from '../_records/recordGetters'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
-import { Record } from '../record'
 import { ExpressionEvaluationContext } from './expressionEvaluationContext'
+import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { createEnumeratedEntityNodes } from './recordNodesCreator'
 import { deleteNodes } from './recordNodesDeleter'
 import { RecordUpdateResult } from './recordUpdateResult'
@@ -75,13 +74,7 @@ export const createOrDeleteEnumeratedEntities = (
   }
 }
 
-export const updateDependentEnumeratedEntities = (params: {
-  user: User
-  survey: Survey
-  record: Record
-  node: Node
-  sideEffect?: boolean
-}) => {
+export const updateDependentEnumeratedEntities = (params: RecordNodeDependentsUpdateParams) => {
   const { survey, record, node } = params
 
   const updateResult = new RecordUpdateResult({ record })

@@ -5,13 +5,14 @@ import { Node } from '../../node'
 import { NodeDefCountType } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { getNodesByDefUuid } from '../_records/recordGetters'
-import { ExpressionEvaluationContext } from './expressionEvaluationContext'
 import { updateSelfAndDependentsApplicable } from './recordNodeDependentsApplicableUpdater'
 import { updateDependentCodeAttributes } from './recordNodeDependentsCodeAttributesUpdater'
 import { updateDependentsCount } from './recordNodeDependentsCountUpdater'
 import { updateSelfAndDependentsDefaultValues } from './recordNodeDependentsDefaultValuesUpdater'
 import { updateDependentEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
 import { updateSelfAndDependentsFileNames } from './recordNodeDependentsFileNamesEvaluator'
+import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
+import { NodesUpdateParams } from './recordNodesCreator'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 /**
@@ -22,9 +23,9 @@ import { RecordUpdateResult } from './recordUpdateResult'
 const MAX_DEPENDENTS_VISITING_TIMES = 2
 
 export const updateNodesDependents = async (
-  params: ExpressionEvaluationContext & { nodes: Dictionary<Node> }
+  params: NodesUpdateParams & { nodes: Dictionary<Node> }
 ): Promise<RecordUpdateResult> => {
-  const { user, survey, record, nodes, timezoneOffset, sideEffect = false } = params
+  const { survey, record, nodes, sideEffect = false } = params
   const initialNodesToVisit = sideEffect ? nodes : { ...nodes }
 
   // include onUpdate dependents (always included in every record update)
@@ -40,12 +41,9 @@ export const updateNodesDependents = async (
 
   const updateResult = new RecordUpdateResult({ record, nodes: initialNodesToVisit })
 
-  const createEvaluationContext = (node: Node): ExpressionEvaluationContext & { node: Node } => ({
-    user,
-    survey,
+  const createNodeUpdateParams = (node: Node): RecordNodeDependentsUpdateParams => ({
+    ...params,
     record: updateResult.record, // updateResult.record changes at every step (when sideEffect=false)
-    timezoneOffset,
-    sideEffect,
     node,
   })
 
@@ -63,36 +61,36 @@ export const updateNodesDependents = async (
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
       // min count
       const minCountUpdateResult = await updateDependentsCount({
-        ...createEvaluationContext(node),
+        ...createNodeUpdateParams(node),
         countType: NodeDefCountType.min,
       })
       updateResult.merge(minCountUpdateResult)
 
       // max count
       const maxCountUpdateResult = await updateDependentsCount({
-        ...createEvaluationContext(node),
+        ...createNodeUpdateParams(node),
         countType: NodeDefCountType.max,
       })
       updateResult.merge(maxCountUpdateResult)
 
       // applicability
-      const applicabilityUpdateResult = await updateSelfAndDependentsApplicable(createEvaluationContext(node))
+      const applicabilityUpdateResult = await updateSelfAndDependentsApplicable(createNodeUpdateParams(node))
       updateResult.merge(applicabilityUpdateResult)
 
       // default values
-      const defaultValuesUpdateResult = await updateSelfAndDependentsDefaultValues(createEvaluationContext(node))
+      const defaultValuesUpdateResult = await updateSelfAndDependentsDefaultValues(createNodeUpdateParams(node))
       updateResult.merge(defaultValuesUpdateResult)
 
       // code attributes
-      const dependentCodeAttributesUpdateResult = updateDependentCodeAttributes(createEvaluationContext(node))
+      const dependentCodeAttributesUpdateResult = updateDependentCodeAttributes(createNodeUpdateParams(node))
       updateResult.merge(dependentCodeAttributesUpdateResult)
 
       // enumerated entities
-      const dependentEnumeratedEntitiesUpdateResult = updateDependentEnumeratedEntities(createEvaluationContext(node))
+      const dependentEnumeratedEntitiesUpdateResult = updateDependentEnumeratedEntities(createNodeUpdateParams(node))
       updateResult.merge(dependentEnumeratedEntitiesUpdateResult)
 
       // Update dependents (file names)
-      const dependentFileNamesUpdateResult = await updateSelfAndDependentsFileNames(createEvaluationContext(node))
+      const dependentFileNamesUpdateResult = await updateSelfAndDependentsFileNames(createNodeUpdateParams(node))
       updateResult.merge(dependentFileNamesUpdateResult)
 
       const nodesUpdatedCurrent: Dictionary<Node> = {

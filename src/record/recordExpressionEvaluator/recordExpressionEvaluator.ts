@@ -35,20 +35,11 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
       item?: CategoryItem | Taxon
     }
   ): Promise<any> {
-    const { user, survey, record, node, query, item, timezoneOffset } = params
+    const { survey, record, node, query, item } = params
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent(node)(record)
     if (!nodeContext) return null
-    const context: RecordExpressionContext = {
-      user,
-      survey,
-      record,
-      nodeContext,
-      nodeCurrent: node,
-      object: nodeContext,
-      item,
-      timezoneOffset,
-    }
+    const context: RecordExpressionContext = { ...params, nodeContext, nodeCurrent: node, object: nodeContext, item }
     return this.evaluate(query, context)
   }
 
@@ -59,7 +50,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
       stopAtFirstFound?: boolean
     }
   ): Promise<NodeDefExpression[]> {
-    const { user, survey, record, nodeCtx, expressions, stopAtFirstFound = false, timezoneOffset } = params
+    const { nodeCtx, expressions, stopAtFirstFound = false } = params
     const applicableExpressions: NodeDefExpression[] = []
 
     for await (const expression of expressions) {
@@ -67,7 +58,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
 
       if (
         Objects.isEmpty(applyIfExpr) ||
-        (await this.evalExpression({ user, survey, record, node: nodeCtx, query: applyIfExpr ?? '', timezoneOffset }))
+        (await this.evalExpression({ ...params, node: nodeCtx, query: applyIfExpr ?? '' }))
       ) {
         applicableExpressions.push(expression)
 

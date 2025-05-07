@@ -23,6 +23,8 @@ import { AttributeKeyValidator } from './attributeKeyValidator'
 import { AttributeTypeValidator } from './attributeTypeValidator'
 import { AttributeUniqueValidator } from './attributeUniqueValidator'
 
+const expressionEvaluator = new RecordExpressionEvaluator()
+
 const _getSiblingNodeKeys = (params: { survey: Survey; record: Record; node: Node }): Node[] => {
   const { survey, record, node } = params
 
@@ -83,7 +85,7 @@ const _validateNodeValidations =
     const validations = NodeDefs.getValidations(nodeDef)
     if (!validations?.expressions?.length) return ValidationResultFactory.createInstance()
 
-    const applicableExpressionsEval = await new RecordExpressionEvaluator().evalApplicableExpressions({
+    const applicableExpressionsEval = await expressionEvaluator.evalApplicableExpressions({
       user,
       survey,
       record,

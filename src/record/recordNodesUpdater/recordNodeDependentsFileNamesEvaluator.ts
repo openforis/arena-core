@@ -9,10 +9,11 @@ import { NodePointers } from '../nodePointers'
 import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
+import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { throwError } from './recordNodesDependentsUpdaterCommons'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-const recordExpressionEvaluator = new RecordExpressionEvaluator()
+const expressionEvaluator = new RecordExpressionEvaluator()
 
 const fileNameWithPositionSuffixRegExp = /^.+\s\[\d+\]$/ // file name like "name [1].test"
 
@@ -35,7 +36,7 @@ const calculateFileName = async (params: {
 
   const { value } = node
 
-  let fileNameCalculated = await recordExpressionEvaluator.evalExpression({
+  let fileNameCalculated = await expressionEvaluator.evalExpression({
     user,
     survey,
     record,
@@ -86,13 +87,9 @@ const updateFileNamesInNodes = async (params: {
   }
 }
 
-export const updateSelfAndDependentsFileNames = async (params: {
-  user: User
-  survey: Survey
-  record: Record
-  node: Node
-  sideEffect?: boolean
-}): Promise<RecordUpdateResult> => {
+export const updateSelfAndDependentsFileNames = async (
+  params: RecordNodeDependentsUpdateParams
+): Promise<RecordUpdateResult> => {
   const { user, survey, record, node, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })

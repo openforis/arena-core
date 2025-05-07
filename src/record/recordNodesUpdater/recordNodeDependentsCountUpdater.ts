@@ -1,23 +1,20 @@
-import { User } from '../../auth'
-import { Node, Nodes } from '../../node'
+import { Nodes } from '../../node'
 import { NodeDefCountType, NodeDefs } from '../../nodeDef'
-import { Survey, SurveyDependencyType } from '../../survey'
+import { SurveyDependencyType } from '../../survey'
 import { Objects } from '../../utils'
-import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
+import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-export const updateDependentsCount = async (params: {
-  user: User
-  survey: Survey
-  record: Record
-  node: Node
-  countType: NodeDefCountType
-  sideEffect?: boolean
-  timezoneOffset?: number
-}): Promise<RecordUpdateResult> => {
-  const { user, survey, record, node, countType, timezoneOffset, sideEffect = false } = params
+const expressionEvaluator = new RecordExpressionEvaluator()
+
+export const updateDependentsCount = async (
+  params: RecordNodeDependentsUpdateParams & {
+    countType: NodeDefCountType
+  }
+): Promise<RecordUpdateResult> => {
+  const { survey, record, node, countType, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -34,7 +31,6 @@ export const updateDependentsCount = async (params: {
 
   // 2. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
-  const expressionEvaluator = new RecordExpressionEvaluator()
   for await (const nodePointer of nodePointersToUpdate) {
     const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
 
@@ -47,12 +43,10 @@ export const updateDependentsCount = async (params: {
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
     const countResult = await expressionEvaluator.evalApplicableExpression({
-      user,
-      survey,
+      ...params,
       record: updateResult.record,
       nodeCtx,
       expressions: expressionsToEvaluate,
-      timezoneOffset,
     })
 
     const count = Number(countResult?.value)
