@@ -80,7 +80,7 @@ const updateFileNamesInNodes = async (params: {
 
   const nodes = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
 
-  for await (const node of nodes) {
+  for (const node of nodes) {
     if (!Nodes.isValueBlank(node)) {
       await updateFileNameInNode({ user, survey, updateResult, sideEffect, nodeDef: nodeDef as NodeDefFile, node })
     }
@@ -105,7 +105,7 @@ export const updateSelfAndDependentsFileNames = async (
   })
 
   // 2. update expr to node and dependent nodes
-  for await (const nodePointer of nodePointersToUpdate) {
+  for (const nodePointer of nodePointersToUpdate) {
     updateFileNamesInNodes({ user, survey, nodePointer, updateResult, sideEffect })
   }
   return updateResult

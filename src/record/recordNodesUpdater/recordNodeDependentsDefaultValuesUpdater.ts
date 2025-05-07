@@ -141,7 +141,7 @@ export const updateSelfAndDependentsDefaultValues = async (
   })
 
   // 2. update expr to node and dependent nodes
-  for await (const nodePointer of nodePointersToUpdate) {
+  for (const nodePointer of nodePointersToUpdate) {
     await updateDefaultValuesInNodes({ ...params, nodePointer, updateResult, sideEffect })
   }
   return updateResult

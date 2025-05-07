@@ -30,7 +30,7 @@ export const updateSelfAndDependentsApplicable = async (
 
   // 2. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
-  for await (const nodePointer of nodePointersToUpdate) {
+  for (const nodePointer of nodePointersToUpdate) {
     const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
 
     const expressionsToEvaluate = NodeDefs.getApplicable(nodeDefNodePointer)

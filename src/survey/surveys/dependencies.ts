@@ -136,7 +136,7 @@ const addDependencies = async (params: {
   }
 
   const referencedNodeDefs = {}
-  for await (const nodeDefExpr of expressions) {
+  for (const nodeDefExpr of expressions) {
     Object.assign(
       referencedNodeDefs,
       await findReferencedNodeDefs(nodeDefExpr.expression),
@@ -265,7 +265,7 @@ export const buildAndAssocDependencyGraph = async (survey: Survey): Promise<Surv
 
   // add dependencies for every node def
   let surveyUpdated = survey
-  for await (const nodeDef of SurveyNodeDefs.getNodeDefsArray(survey)) {
+  for (const nodeDef of SurveyNodeDefs.getNodeDefsArray(survey)) {
     surveyUpdated = await addNodeDefDependencies({ nodeDef, survey: surveyUpdated, sideEffect })
   }
   return surveyUpdated

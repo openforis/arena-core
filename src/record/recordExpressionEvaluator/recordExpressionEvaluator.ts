@@ -53,7 +53,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
     const { nodeCtx, expressions, stopAtFirstFound = false } = params
     const applicableExpressions: NodeDefExpression[] = []
 
-    for await (const expression of expressions) {
+    for (const expression of expressions) {
       const applyIfExpr = expression.applyIf
 
       if (

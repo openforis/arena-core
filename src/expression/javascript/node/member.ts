@@ -19,7 +19,7 @@ export class MemberEvaluator<C extends ExpressionContext> extends ExpressionNode
       // expressions where the member property is a filter function (e.g. plot[plot_id == 1])
 
       const filtered = []
-      for await (const objectEvalItem of objectEval) {
+      for (const objectEvalItem of objectEval) {
         if (
           await this.evaluator.evaluateNode(property, {
             ...this.context,
