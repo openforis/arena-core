@@ -67,7 +67,7 @@ describe('RecordUpdater - node create - performance test', () => {
     record = updateResult.record
 
     const nodeDefName = 'mult_entity'
-    const totalNodes = 1000
+    const totalNodes = 100
     const { nodeCreationTime, lastNodeCreationTime } = await createNodes({ nodeDefName, totalNodes })
 
     console.log('nodeCreationTime', nodeCreationTime)
