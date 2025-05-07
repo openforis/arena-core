@@ -3,6 +3,7 @@ import { Dictionary } from '../../common'
 import { Labels } from '../../language'
 import { Node, NodeKeys, Nodes, NodeValues } from '../../node'
 import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { Objects, Promises } from '../../utils'
@@ -25,11 +26,26 @@ import { AttributeUniqueValidator } from './attributeUniqueValidator'
 
 const expressionEvaluator = new RecordExpressionEvaluator()
 
-const _getSiblingNodeKeys = (params: { survey: Survey; record: Record; node: Node }): Node[] => {
-  const { survey, record, node } = params
+interface AttributeValidatorParamsCommon {
+  user: User
+  survey: Survey
+  categoryItemProvider?: CategoryItemProvider
+  record: Record
+}
 
-  const parentNode = Records.getParent(node)(record) || Records.getRoot(record)
-  const siblingNodes = parentNode ? Records.getChildren(parentNode, node.nodeDefUuid)(record) : []
+interface AttributeValidatorParams extends AttributeValidatorParamsCommon {
+  attribute: Node
+}
+
+export interface AttributesValidatorParams extends AttributeValidatorParamsCommon {
+  nodes: Dictionary<Node>
+}
+
+const _getSiblingNodeKeys = (params: AttributeValidatorParams): Node[] => {
+  const { survey, record, attribute } = params
+
+  const parentNode = Records.getParent(attribute)(record) || Records.getRoot(record)
+  const siblingNodes = parentNode ? Records.getChildren(parentNode, attribute.nodeDefUuid)(record) : []
 
   const siblingKeyNodes = siblingNodes.reduce(
     (acc: Node[], sibling) => [...acc, ...Records.getEntityKeyNodes({ survey, record, entity: sibling })],
@@ -117,39 +133,39 @@ const _validateNodeValidations =
     return validationResult
   }
 
-const validateAttribute = async (params: { user: User; survey: Survey; record: Record; attribute: Node }) => {
-  const { user, survey, record, attribute } = params
+const validateAttribute = async (params: AttributeValidatorParams) => {
+  const { survey, record, attribute } = params
   if (Records.isNodeApplicable({ record, node: attribute })) {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: attribute.nodeDefUuid })
+    const validatorParams = { ...params, nodeDef }
     return new Validator().validate(attribute, {
       [NodeKeys.value]: [
         _validateRequired({ nodeDef }),
-        AttributeTypeValidator.validateValueType({ survey, nodeDef }),
-        _validateNodeValidations({ user, survey, record, nodeDef }),
-        AttributeKeyValidator.validateAttributeKey({ survey, record, nodeDef }),
-        AttributeUniqueValidator.validateAttributeUnique({ survey, record, nodeDef }),
+        AttributeTypeValidator.validateValueType(validatorParams),
+        _validateNodeValidations(validatorParams),
+        AttributeKeyValidator.validateAttributeKey(validatorParams),
+        AttributeUniqueValidator.validateAttributeUnique(validatorParams),
       ],
     })
   }
   return ValidationFactory.createInstance()
 }
 
-const findSiblingKeyNodesToValidate = (params: {
-  survey: Survey
-  record: Record
-  nodeDef: NodeDef<NodeDefType, NodeDefProps>
-  nodeParent?: Node
-  node: Node
-}) => {
-  const { survey, record, nodeDef, nodeParent, node } = params
-  if (!NodeDefs.isKey(nodeDef) || !nodeParent || (NodeDefs.isAutoIncrementalKey(nodeDef) && node.created)) {
+const findSiblingKeyNodesToValidate = (
+  params: AttributeValidatorParams & {
+    nodeDef: NodeDef<NodeDefType, NodeDefProps>
+    nodeParent?: Node
+  }
+) => {
+  const { survey, record, nodeDef, nodeParent, attribute } = params
+  if (!NodeDefs.isKey(nodeDef) || !nodeParent || (NodeDefs.isAutoIncrementalKey(nodeDef) && attribute.created)) {
     // when a new node is created and the key is autoincremental, its value will be unique
     // and the validation of sibling key attributes is not necessary
     return []
   }
   // when a key attribute is updated, a sibling key attribute with the same value
   // or a sibling attribute with a validation error (duplicate key) should be re-validated
-  const siblingNodeKeys = _getSiblingNodeKeys({ survey, record, node: nodeParent })
+  const siblingNodeKeys = _getSiblingNodeKeys(params)
   const siblingNodeKeysWithSameValue: Node[] = []
   const siblingNodeKeysWithErrors: Node[] = []
   siblingNodeKeys.forEach((nodeKey) => {
@@ -159,7 +175,7 @@ const findSiblingKeyNodesToValidate = (params: {
         nodeDef,
         parentNode: nodeParent,
         value: nodeKey.value,
-        valueSearch: node.value,
+        valueSearch: attribute.value,
       })
     ) {
       siblingNodeKeysWithSameValue.push(nodeKey)
@@ -173,7 +189,7 @@ const findSiblingKeyNodesToValidate = (params: {
   return [...siblingNodeKeysWithSameValue, ...siblingNodeKeysWithErrors]
 }
 
-const findNodesToValidate = (params: { survey: Survey; record: Record; nodes: Dictionary<Node> }): Node[] => {
+const findNodesToValidate = (params: AttributesValidatorParams): Node[] => {
   const { survey, record, nodes } = params
 
   return Object.values(nodes).reduce((acc: Node[], node) => {
@@ -193,7 +209,7 @@ const findNodesToValidate = (params: { survey: Survey; record: Record; nodes: Di
     const nodeParent = Records.getParent(node)(record)
 
     acc.push(...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }))
-    acc.push(...findSiblingKeyNodesToValidate({ survey, record, nodeDef, nodeParent, node }))
+    acc.push(...findSiblingKeyNodesToValidate({ ...params, nodeDef, nodeParent, attribute: node }))
 
     if (NodeDefs.getValidations(nodeDef)?.unique) {
       acc.push(...Records.getNodeSiblings({ record, node, nodeDef }))
@@ -202,22 +218,15 @@ const findNodesToValidate = (params: { survey: Survey; record: Record; nodes: Di
   }, [])
 }
 
-const validateSelfAndDependentAttributes = async (params: {
-  user: User
-  survey: Survey
-  record: Record
-  nodes: Dictionary<Node>
-}): Promise<ValidationFields> => {
-  const { user, survey, record, nodes } = params
-
-  const nodesToValidate: Node[] = findNodesToValidate({ survey, record, nodes })
+const validateSelfAndDependentAttributes = async (params: AttributesValidatorParams): Promise<ValidationFields> => {
+  const nodesToValidate: Node[] = findNodesToValidate(params)
   const validationsByNodeUuid: ValidationFields = {}
 
   await Promises.each(nodesToValidate, async (nodeToValidate) => {
     const nodeUuid = nodeToValidate.uuid
     // Validate only attributes not deleted and not validated already
     if (!nodeToValidate.deleted && !validationsByNodeUuid[nodeUuid]) {
-      validationsByNodeUuid[nodeUuid] = await validateAttribute({ user, survey, record, attribute: nodeToValidate })
+      validationsByNodeUuid[nodeUuid] = await validateAttribute({ ...params, attribute: nodeToValidate })
     }
   })
   return validationsByNodeUuid

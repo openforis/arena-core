@@ -2,9 +2,14 @@ import { CategoryItem } from '../category'
 import { Survey } from '../survey'
 
 export interface CategoryItemProvider {
-  getCategoryItemByCodePaths: (params: {
+  getItemByCodePaths: (params: {
     survey: Survey
     categoryUuid: string
     codePaths: string[]
-  }) => CategoryItem | undefined
+  }) => Promise<CategoryItem | undefined>
+  getItemByUuid: (params: {
+    survey: Survey
+    categoryUuid: string
+    itemUuid: string
+  }) => Promise<CategoryItem | undefined>
 }

@@ -181,7 +181,7 @@ describe('RecordExpressionEvaluator', () => {
       error: new SystemError('expression.invalidCategoryExtraProp'),
     },
     {
-      expression: `categoryItemProp('simple_category', 'prop1', '999')`,
+      expression: `categoryItemProp('hierarchical_category', 'prop1', '999')`,
       result: null,
     },
     // taxonProp
@@ -194,6 +194,7 @@ describe('RecordExpressionEvaluator', () => {
     {
       expression: `taxonProp('trees', 'unexisting_prop', 'AFZ/QUA')`,
       result: null,
+      error: new SystemError('expression.invalidTaxonomyExtraProp'),
     },
     { expression: `taxonProp('trees', 'max_dbh', 'AFZ/QUA/OTHER')`, result: null },
     // dateTimeDiff

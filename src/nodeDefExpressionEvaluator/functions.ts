@@ -40,7 +40,7 @@ const getOrFetchCategoryItem = async (params: {
   const categoryItem = getCategoryItemByCodePaths({ survey, categoryUuid, codePaths })
   return (
     categoryItem ??
-    categoryItemProvider?.getCategoryItemByCodePaths({
+    categoryItemProvider?.getItemByCodePaths({
       survey,
       categoryUuid,
       codePaths,
