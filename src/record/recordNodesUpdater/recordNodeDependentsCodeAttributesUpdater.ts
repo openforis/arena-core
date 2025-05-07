@@ -1,19 +1,12 @@
-import { Record } from '../record'
-import { Survey, Surveys } from '../../survey'
 import { Node, Nodes } from '../../node'
-import { RecordUpdateResult } from './recordUpdateResult'
-import { Records } from '../records'
 import { NodeDefs } from '../../nodeDef'
+import { Surveys } from '../../survey'
 import { Dates } from '../../utils'
-import { User } from '../../auth'
+import { Records } from '../records'
+import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
+import { RecordUpdateResult } from './recordUpdateResult'
 
-export const updateDependentCodeAttributes = (params: {
-  user: User
-  survey: Survey
-  record: Record
-  node: Node
-  sideEffect?: boolean
-}) => {
+export const updateDependentCodeAttributes = (params: RecordNodeDependentsUpdateParams) => {
   const { survey, record, node, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })

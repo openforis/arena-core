@@ -10,45 +10,56 @@ import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 import { Record } from './record'
 import { RecordUpdater } from './recordUpdater'
+import { Category, CategoryItem } from '../category'
 
 const user = createTestAdminUser()
+let survey: Survey
+let enumeratingCategory: Category
+let item1: CategoryItem, item2: CategoryItem
+let record: Record
 
-const survey = new SurveyBuilder(
-  user,
-  entityDef(
-    'root_entity',
-    integerDef('root_key').key(),
-    booleanDef('accessible'),
-    codeDef('parent_code', 'hierarchical_category'),
+const initTestSurvey = async () => {
+  survey = await new SurveyBuilder(
+    user,
     entityDef(
-      'enumerated_entity',
-      codeDef('enumerated_entity_key', 'hierarchical_category').parentCodeAttribute('parent_code').key(),
-      integerDef('table_num')
-    )
-      .multiple()
-      .enumerate()
-      .applyIf('accessible')
-  )
-)
-  .categories(
-    category('hierarchical_category')
-      .levels('level_1', 'level_2')
-      .items(
-        categoryItem('1').items(categoryItem('1a')),
-        categoryItem('2').items(categoryItem('2a'), categoryItem('2b'), categoryItem('2c')),
-        categoryItem('3').items(categoryItem('3a'))
+      'root_entity',
+      integerDef('root_key').key(),
+      booleanDef('accessible'),
+      codeDef('parent_code', 'hierarchical_category'),
+      entityDef(
+        'enumerated_entity',
+        codeDef('enumerated_entity_key', 'hierarchical_category').parentCodeAttribute('parent_code').key(),
+        integerDef('table_num')
       )
+        .multiple()
+        .enumerate()
+        .applyIf('accessible')
+    )
   )
-  .build()
+    .categories(
+      category('hierarchical_category')
+        .levels('level_1', 'level_2')
+        .items(
+          categoryItem('1').items(categoryItem('1a')),
+          categoryItem('2').items(categoryItem('2a'), categoryItem('2b'), categoryItem('2c')),
+          categoryItem('3').items(categoryItem('3a'))
+        )
+    )
+    .build()
 
-const enumeratingCategory = Surveys.getCategoryByName({ survey, categoryName: 'hierarchical_category' })
-const [item1, item2] = [['1'], ['2']].map((codePaths) =>
-  Surveys.getCategoryItemByCodePaths({
+  enumeratingCategory = Surveys.getCategoryByName({ survey, categoryName: 'hierarchical_category' })!
+  item1 = Surveys.getCategoryItemByCodePaths({
     survey,
     categoryUuid: enumeratingCategory!.uuid,
-    codePaths,
-  })
-)
+    codePaths: ['1'],
+  })!
+  item2 = Surveys.getCategoryItemByCodePaths({
+    survey,
+    categoryUuid: enumeratingCategory!.uuid,
+    codePaths: ['2'],
+  })!
+  record = createRecord()
+}
 
 const createRecord = (): Record =>
   new RecordBuilder(
@@ -56,8 +67,6 @@ const createRecord = (): Record =>
     survey,
     entity('root_entity', attribute('root_key', 10), attribute('accessible', true), attribute('parent_code'))
   ).build()
-
-let record = createRecord()
 
 const updateAttributeAndExpectDependentEnumeratedKeys = async (params: {
   survey: Survey
@@ -99,6 +108,9 @@ const updateAttributeAndExpectDependentEnumeratedKeys = async (params: {
 }
 
 describe('RecordUpdater - attribute update => update dependent enumerated entity', () => {
+  beforeAll(async () => {
+    await initTestSurvey()
+  }, 10000)
   test('Hieararchical code attribute update -> enumerated entities updated', async () => {
     record = createRecord()
 

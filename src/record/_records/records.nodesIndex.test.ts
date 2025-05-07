@@ -19,7 +19,7 @@ let record: Record
 
 describe('Record nodes index', () => {
   beforeAll(async () => {
-    survey = new SurveyBuilder(
+    survey = await new SurveyBuilder(
       user,
       entityDef(
         'cluster',

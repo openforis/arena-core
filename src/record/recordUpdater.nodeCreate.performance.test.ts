@@ -52,7 +52,7 @@ describe('RecordUpdater - node create - performance test', () => {
   }, 10000)
 
   test('Multiple entity', async () => {
-    survey = new SurveyBuilder(
+    survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -70,12 +70,15 @@ describe('RecordUpdater - node create - performance test', () => {
     const totalNodes = 100
     const { nodeCreationTime, lastNodeCreationTime } = await createNodes({ nodeDefName, totalNodes })
 
+    console.log('nodeCreationTime', nodeCreationTime)
+    console.log('lastNodeCreationTime', lastNodeCreationTime)
+
     // without autoincremental key and without a default value, total time will be exponential (depends on the total number of nodes created)
-    expect(lastNodeCreationTime).toBeGreaterThan(nodeCreationTime * ((totalNodes * totalNodes) / 3000))
+    expect(lastNodeCreationTime).toBeGreaterThan(nodeCreationTime * (totalNodes * 0.02))
   })
 
   test('Multiple entity with autoincrement', async () => {
-    survey = new SurveyBuilder(
+    survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',

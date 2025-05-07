@@ -1,12 +1,13 @@
-import { NodeDef, NodeDefProps, NodeDefTaxon, NodeDefType } from '../../nodeDef'
+import { NodeDef, NodeDefCode, NodeDefProps, NodeDefs, NodeDefTaxon, NodeDefType } from '../../nodeDef'
 import { Node, Nodes } from '../../node'
 import { ValidationResult, ValidationResultFactory } from '../../validation'
 import { Survey, Surveys } from '../../survey'
 import { NodeValues } from '../../node/nodeValues'
 import { Points } from '../../geo'
 import { Numbers, Dates } from '../../utils'
+import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 
-const validateDecimal = (params: { value: any }) => {
+const validateDecimal = async (params: { value: any }): Promise<boolean> => {
   const { value } = params
   return Numbers.isFloat(value)
   // TODO validate max number of decimal digits as warning?
@@ -15,17 +16,29 @@ const validateDecimal = (params: { value: any }) => {
   // return numberDecimalDigits <= maxNumberDecimalDigits
 }
 
-const validateCode = (params: { survey: Survey; node: Node }) => {
-  const { survey, node } = params
+const validateCode = async (params: { survey: Survey; node: Node; categoryItemProvider?: CategoryItemProvider }) => {
+  const { survey, node, categoryItemProvider } = params
   const itemUuid = NodeValues.getItemUuid(node)
   if (!itemUuid) return true
 
-  // Item not found
-  const item = Surveys.getCategoryItemByUuid({ survey, itemUuid })
+  let item = Surveys.getCategoryItemByUuid({ survey, itemUuid })
+  if (item) return true
+
+  if (!categoryItemProvider) return false
+
+  // loookup item in with categoryItemProvider
+  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefCode
+  const categoryUuid = NodeDefs.getCategoryUuid(nodeDef)
+  if (!categoryUuid) return false
+  item = await categoryItemProvider.getItemByUuid({ survey, categoryUuid, itemUuid })
   return Boolean(item)
 }
 
-const validateTaxon = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps>; node: Node }) => {
+const validateTaxon = async (params: {
+  survey: Survey
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  node: Node
+}): Promise<boolean> => {
   const { survey, nodeDef, node } = params
   const taxonUuid = NodeValues.getTaxonUuid(node)
   if (!taxonUuid) return true
@@ -49,14 +62,15 @@ const validateTaxon = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, N
 const typeValidatorFns: {
   [key in NodeDefType]?: (params: {
     survey: Survey
+    categoryItemProvider?: CategoryItemProvider
     nodeDef: NodeDef<NodeDefType, NodeDefProps>
     node: Node
     value: any
-  }) => boolean
+  }) => Promise<boolean>
 } = {
-  [NodeDefType.boolean]: (params: { value?: any }): boolean => ['true', 'false'].includes(params.value),
+  [NodeDefType.boolean]: async (params: { value?: any }): Promise<boolean> => ['true', 'false'].includes(params.value),
   [NodeDefType.code]: validateCode,
-  [NodeDefType.coordinate]: (params: { survey: Survey; node: Node }): boolean => {
+  [NodeDefType.coordinate]: async (params: { survey: Survey; node: Node }): Promise<boolean> => {
     const { survey, node } = params
 
     const point = NodeValues.getValueAsPoint({ survey, node })
@@ -67,7 +81,7 @@ const typeValidatorFns: {
     return Points.isValid(point, srsIndex)
   },
 
-  [NodeDefType.date]: (params: { node: Node }): boolean => {
+  [NodeDefType.date]: async (params: { node: Node }): Promise<boolean> => {
     const { node } = params
     const [year, month, day] = [
       NodeValues.getDateYear(node),
@@ -79,19 +93,19 @@ const typeValidatorFns: {
 
   [NodeDefType.decimal]: validateDecimal,
 
-  [NodeDefType.integer]: (params: { value: any }): boolean => {
+  [NodeDefType.integer]: async (params: { value: any }): Promise<boolean> => {
     const { value } = params
     return Numbers.isInteger(value)
   },
 
   [NodeDefType.taxon]: validateTaxon,
 
-  [NodeDefType.text]: (params: { value: any }): boolean => {
+  [NodeDefType.text]: async (params: { value: any }): Promise<boolean> => {
     const { value } = params
     return typeof value === 'string' || value instanceof String
   },
 
-  [NodeDefType.time]: (params: { node: Node }): boolean => {
+  [NodeDefType.time]: async (params: { node: Node }): Promise<boolean> => {
     const { node } = params
     const [hour, minute] = [NodeValues.getTimeHour(node), NodeValues.getTimeMinute(node)]
     return Dates.isValidTime(hour, minute)
@@ -99,14 +113,18 @@ const typeValidatorFns: {
 }
 
 const validateValueType =
-  (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  (_propName: string, node: Node): ValidationResult => {
-    const { survey, nodeDef } = params
+  (params: {
+    survey: Survey
+    nodeDef: NodeDef<NodeDefType, NodeDefProps>
+    categoryItemProvider?: CategoryItemProvider
+  }) =>
+  async (_propName: string, node: Node): Promise<ValidationResult> => {
+    const { survey, nodeDef, categoryItemProvider } = params
 
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const typeValidatorFn = typeValidatorFns[nodeDef.type]
-    const valid = typeValidatorFn?.({ survey, nodeDef, node, value: node.value }) ?? true
+    const valid = (await typeValidatorFn?.({ survey, categoryItemProvider, nodeDef, node, value: node.value })) ?? true
     return ValidationResultFactory.createInstance({ key: 'record.attribute.valueInvalid', valid })
   }
 

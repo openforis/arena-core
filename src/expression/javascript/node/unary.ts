@@ -18,7 +18,7 @@ const unaryOperators: { [key: string]: (x: any) => any } = {
 }
 
 export class UnaryEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, UnaryExpression> {
-  evaluate(expressionNode: UnaryExpression): any {
+  async evaluate(expressionNode: UnaryExpression): Promise<any> {
     const { argument, operator } = expressionNode
     const fn = unaryOperators[operator]
 
@@ -26,7 +26,7 @@ export class UnaryEvaluator<C extends ExpressionContext> extends ExpressionNodeE
       throw new SystemError('expression.unaryOperatorNotSupported', { operator })
     }
 
-    const res = this.evaluator.evaluateNode(argument, this.context)
+    const res = await this.evaluator.evaluateNode(argument, this.context)
     return fn(res)
   }
 }

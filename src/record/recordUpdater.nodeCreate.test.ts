@@ -19,7 +19,7 @@ describe('RecordUpdater - node create', () => {
   }, 10000)
 
   test('Root entity creation', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -59,7 +59,7 @@ describe('RecordUpdater - node create', () => {
   })
 
   test('Enumerated entity creation', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',

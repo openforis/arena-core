@@ -17,8 +17,8 @@ describe('Record nodes updater - default values', () => {
     user = createTestAdminUser()
   }, 10000)
 
-  test('Default value update (read-only attribute)', () => {
-    const survey = new SurveyBuilder(
+  test('Default value update (read-only attribute)', async () => {
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -43,7 +43,7 @@ describe('Record nodes updater - default values', () => {
     const nodeUpdated = { ...nodeToUpdate, value: 4 }
     const recordUpdated = Records.addNode(nodeUpdated)(record)
 
-    const updateResult = RecordNodesUpdater.updateNodesDependents({
+    const updateResult = await RecordNodesUpdater.updateNodesDependents({
       user,
       survey,
       record: recordUpdated,

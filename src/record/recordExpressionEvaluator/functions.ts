@@ -1,38 +1,18 @@
 import { ExpressionFunctions } from '../../expression'
-import { ExtraProps } from '../../extraProp/extraProps'
 import { Point, Points } from '../../geo'
 import { Nodes, NodeValues } from '../../node'
 import { nodeDefExpressionFunctions } from '../../nodeDefExpressionEvaluator/functions'
 import { Surveys } from '../../survey'
-import { Arrays, Objects } from '../../utils'
+import { Arrays } from '../../utils'
 import { Records } from '../records'
 import { RecordExpressionContext } from './context'
 
 export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionContext> = {
   ...nodeDefExpressionFunctions,
-  categoryItemProp: {
-    minArity: 3,
-    executor:
-      (context: RecordExpressionContext) =>
-      (categoryName: string, itemPropName: string, ...codePaths: string[]) => {
-        const { survey } = context
-        const category = Surveys.getCategoryByName({ survey, categoryName })
-        if (!category) return null
-
-        const extraPropDef = category.props.itemExtraDef?.[itemPropName]
-        if (!extraPropDef) return null
-
-        const categoryItem = Surveys.getCategoryItemByCodePaths({ survey, categoryUuid: category.uuid, codePaths })
-        if (!categoryItem) return null
-
-        const value = categoryItem.props.extra?.[itemPropName]
-        return ExtraProps.convertValue({ survey, extraPropDef, value })
-      },
-  },
   count: {
     minArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: RecordExpressionContext) => (nodeSet) => {
+    executor: (_context: RecordExpressionContext) => async (nodeSet) => {
       if (!nodeSet) return 0
       if (Array.isArray(nodeSet)) return nodeSet.length
       return 0
@@ -42,7 +22,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: false,
-    executor: (_context: RecordExpressionContext) => (nodeSet) => {
+    executor: (_context: RecordExpressionContext) => async (nodeSet) => {
       if (nodeSet && Array.isArray(nodeSet) && nodeSet.length > 0) {
         return nodeSet[0]
       }
@@ -54,7 +34,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     evaluateArgsToNodes: true,
     executor:
       (context: RecordExpressionContext) =>
-      (...nodeSetOrPoints): object | null => {
+      async (...nodeSetOrPoints): Promise<object | null> => {
         if (nodeSetOrPoints.length === 0) return null
 
         const { survey } = context
@@ -96,7 +76,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (context: RecordExpressionContext) => (node) => {
+    executor: (context: RecordExpressionContext) => async (node) => {
       if (!node) {
         return -1
       }
@@ -116,7 +96,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: false,
-    executor: (_context: RecordExpressionContext) => (nodeSet) => {
+    executor: (_context: RecordExpressionContext) => async (nodeSet) => {
       if (nodeSet && Array.isArray(nodeSet) && nodeSet.length > 0) {
         return nodeSet[nodeSet.length - 1]
       }
@@ -128,7 +108,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     maxArity: 1,
     evaluateArgsToNodes: true,
     evaluateToNode: true,
-    executor: (context: RecordExpressionContext) => (node) => {
+    executor: (context: RecordExpressionContext) => async (node) => {
       if (!node || Nodes.isRoot(node)) {
         return null
       }
@@ -139,73 +119,46 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
   recordCycle: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => () => Number(context.record.cycle ?? 0) + 1,
+    executor: (context: RecordExpressionContext) => async () => Number(context.record.cycle ?? 0) + 1,
   },
   recordDateCreated: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => () => context.record.dateCreated,
+    executor: (context: RecordExpressionContext) => async () => context.record.dateCreated,
   },
   recordDateLastModified: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => () => context.record.dateModified,
+    executor: (context: RecordExpressionContext) => async () => context.record.dateModified,
   },
   recordOwnerEmail: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => () => context.record.ownerEmail,
+    executor: (context: RecordExpressionContext) => async () => context.record.ownerEmail,
   },
   recordOwnerName: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => () => context.record.ownerName,
+    executor: (context: RecordExpressionContext) => async () => context.record.ownerName,
   },
   recordOwnerRole: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => () => context.record.ownerRole,
+    executor: (context: RecordExpressionContext) => async () => context.record.ownerRole,
   },
   sum: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: false,
-    executor: (_context: RecordExpressionContext) => (nodeSet) => {
+    executor: (_context: RecordExpressionContext) => async (nodeSet) => {
       if (!nodeSet) return 0
       if (Array.isArray(nodeSet)) return nodeSet.reduce((acc, value) => acc + (Number(value) || 0), 0)
       return 0
     },
   },
-  taxonProp: {
-    minArity: 3,
-    maxArity: 3,
-    executor: (context: RecordExpressionContext) => (taxonomyName: string, propName: string, taxonCode: string) => {
-      const { survey } = context
-
-      if (
-        Objects.isEmpty(taxonomyName) ||
-        Objects.isEmpty(propName) ||
-        Objects.isEmpty(taxonCode) ||
-        typeof taxonCode !== 'string' // node def expression validator could call it passing a node def object
-      )
-        return null
-
-      const taxonomy = Surveys.getTaxonomyByName({ survey, taxonomyName })
-      if (!taxonomy) return null
-
-      const extraPropDef = taxonomy.props.extraPropsDefs?.[propName]
-      if (!extraPropDef) return null
-
-      const taxon = Surveys.getTaxonByCode({ survey, taxonomyUuid: taxonomy.uuid, taxonCode })
-      if (!taxon) return null
-
-      const value = taxon.props.extra?.[propName]
-      return ExtraProps.convertValue({ survey, extraPropDef, value })
-    },
-  },
   userIsRecordOwner: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => () => context.user?.uuid === context.record?.ownerUuid,
+    executor: (context: RecordExpressionContext) => async () => context.user?.uuid === context.record?.ownerUuid,
   },
 }

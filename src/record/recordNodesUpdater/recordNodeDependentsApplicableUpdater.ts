@@ -1,21 +1,19 @@
-import { Node, NodePointer, Nodes } from '../../node'
+import { Nodes } from '../../node'
 import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
-import { ExpressionEvaluationContext } from './expressionEvaluationContext'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
+import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-const recordExpressionEvaluator = new RecordExpressionEvaluator()
+const expressionEvaluator = new RecordExpressionEvaluator()
 
-export const updateSelfAndDependentsApplicable = (
-  params: ExpressionEvaluationContext & {
-    node: Node
-  }
-): RecordUpdateResult => {
-  const { user, survey, record, node, timezoneOffset, sideEffect = false } = params
+export const updateSelfAndDependentsApplicable = async (
+  params: RecordNodeDependentsUpdateParams
+): Promise<RecordUpdateResult> => {
+  const { survey, record, node, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -32,24 +30,22 @@ export const updateSelfAndDependentsApplicable = (
 
   // 2. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
-  nodePointersToUpdate.forEach((nodePointer: NodePointer) => {
+  for (const nodePointer of nodePointersToUpdate) {
     const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
 
     const expressionsToEvaluate = NodeDefs.getApplicable(nodeDefNodePointer)
-    if (expressionsToEvaluate.length === 0) return
+    if (expressionsToEvaluate.length === 0) continue
 
     // 3. evaluate applicable expression
     const nodeCtxUuid = nodeCtxNodePointer.uuid
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
-    const exprEval = recordExpressionEvaluator.evalApplicableExpression({
-      user,
-      survey,
+    const exprEval = await expressionEvaluator.evalApplicableExpression({
+      ...params,
       record: updateResult.record,
       nodeCtx,
       expressions: expressionsToEvaluate,
-      timezoneOffset,
     })
 
     const applicable = exprEval?.value || false
@@ -87,7 +83,6 @@ export const updateSelfAndDependentsApplicable = (
         })
       })
     }
-  })
-
+  }
   return updateResult
 }

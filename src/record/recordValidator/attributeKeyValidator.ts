@@ -45,7 +45,7 @@ const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeD
 
 const validateAttributeKey =
   (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  (_propName: string, node: Node): ValidationResult => {
+  async (_propName: string, node: Node): Promise<ValidationResult> => {
     const { survey, nodeDef, record } = params
 
     if (isNodeDefToBeValidated({ survey, nodeDef })) {

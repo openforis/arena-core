@@ -18,7 +18,7 @@ type ValidationTest = {
 
 const greaterThan10 =
   (severity: ValidationSeverity) =>
-  (field: string, obj: any): ValidationResult => {
+  async (field: string, obj: any): Promise<ValidationResult> => {
     const value = Objects.path(field)(obj)
     return ValidationResultFactory.createInstance({ valid: value >= 10, key: 'less_or_equal_to_10', severity })
   }

@@ -89,7 +89,7 @@ describe('RecordUpdater - attribute update => update dependent applicability', (
   }, 10000)
 
   test('Dependent Applicable', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -132,7 +132,7 @@ describe('RecordUpdater - attribute update => update dependent applicability', (
   })
 
   test('Dependent Not Applicable by default', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',

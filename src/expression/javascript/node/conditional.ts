@@ -6,7 +6,7 @@ export class ConditionalEvaluator<C extends ExpressionContext> extends Expressio
   C,
   ConditionalExpression
 > {
-  evaluate(): any {
+  async evaluate(): Promise<any> {
     throw new SystemError('expression.notSupported', { type: 'conditional' })
   }
 }

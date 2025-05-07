@@ -16,7 +16,7 @@ describe('ReferencedNodes', () => {
   beforeAll(async () => {
     const user = createTestAdminUser()
 
-    survey = createTestSurvey({ user })
+    survey = await createTestSurvey({ user })
 
     record = createTestRecord({ user, survey })
   }, 10000)

@@ -9,10 +9,10 @@ const { entityDef, integerDef } = SurveyObjectBuilders
 const { attribute, entity } = RecordNodeBuilders
 
 describe('RecordBuilder', () => {
-  test('simple record build', () => {
+  test('simple record build', async () => {
     const user = createTestAdminUser()
 
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
     ).build()

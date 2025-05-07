@@ -12,7 +12,7 @@ const getNativeProperty = (name: string, object: any) => {
 }
 
 export class IdentifierEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, IdentifierExpression> {
-  evaluate(expressionNode: IdentifierExpression): any {
+  async evaluate(expressionNode: IdentifierExpression): Promise<any> {
     const { name } = expressionNode
     const { object: contextObject } = this.context
 

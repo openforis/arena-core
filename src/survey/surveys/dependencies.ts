@@ -99,14 +99,14 @@ const addDependency = (params: {
   return Objects.assocPath({ obj: graphs, path: [type, nodeDefUuid], value: depsUpdated, sideEffect })
 }
 
-const addDependencies = (params: {
+const addDependencies = async (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType>
   type: SurveyDependencyType
   graphs: SurveyDependencyGraph
   expressions: NodeDefExpression[]
   sideEffect?: boolean
-}): SurveyDependencyGraph => {
+}): Promise<SurveyDependencyGraph> => {
   const { survey, nodeDef, type, expressions, graphs: graphsParam, sideEffect = false } = params
 
   let graphsUpdated = sideEffect ? graphsParam : { ...graphsParam }
@@ -116,10 +116,12 @@ const addDependencies = (params: {
   const isContextParent = isContextParentByDependencyType[type]
   const selfReferenceAllowed = selfReferenceAllowedByDependencyType[type]
 
-  const findReferencedNodeDefs = (expression: string | undefined): { [key: string]: NodeDef<NodeDefType> } => {
+  const findReferencedNodeDefs = async (
+    expression: string | undefined
+  ): Promise<{ [key: string]: NodeDef<NodeDefType> }> => {
     if (!expression) return {}
 
-    const referencedNodeDefUuids = new NodeDefExpressionEvaluator().findReferencedNodeDefUuids({
+    const referencedNodeDefUuids = await new NodeDefExpressionEvaluator().findReferencedNodeDefUuids({
       expression,
       survey,
       nodeDef,
@@ -133,15 +135,14 @@ const addDependencies = (params: {
     return referencedNodeDefsByUuid
   }
 
-  const referencedNodeDefs = expressions.reduce(
-    (referencedAcc, nodeDefExpr) =>
-      Object.assign(
-        referencedAcc,
-        findReferencedNodeDefs(nodeDefExpr.expression),
-        findReferencedNodeDefs(nodeDefExpr.applyIf)
-      ),
-    {}
-  )
+  const referencedNodeDefs = {}
+  for (const nodeDefExpr of expressions) {
+    Object.assign(
+      referencedNodeDefs,
+      await findReferencedNodeDefs(nodeDefExpr.expression),
+      await findReferencedNodeDefs(nodeDefExpr.applyIf)
+    )
+  }
 
   Object.values(referencedNodeDefs).forEach((nodeDefRef: any) => {
     graphsUpdated = addDependency({
@@ -156,17 +157,17 @@ const addDependencies = (params: {
   return graphsUpdated
 }
 
-export const addNodeDefDependencies = (params: {
+export const addNodeDefDependencies = async (params: {
   nodeDef: NodeDef<NodeDefType>
   survey: Survey
   sideEffect?: boolean
-}): Survey => {
+}): Promise<Survey> => {
   const { nodeDef, survey, sideEffect = false } = params
   const graphs = getDependencyGraph(survey)
   let graphsUpdated = sideEffect ? graphs : { ...graphs }
 
-  const _addDependencies = (type: SurveyDependencyType, expressions: NodeDefExpression[]) => {
-    let _graphUpdated = addDependencies({
+  const _addDependencies = async (type: SurveyDependencyType, expressions: NodeDefExpression[]) => {
+    let _graphUpdated = await addDependencies({
       survey,
       nodeDef,
       type,
@@ -191,22 +192,22 @@ export const addNodeDefDependencies = (params: {
     }
     return _graphUpdated
   }
-  graphsUpdated = _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
-  graphsUpdated = _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
-  graphsUpdated = _addDependencies(SurveyDependencyType.validations, NodeDefs.getValidationsExpressions(nodeDef))
+  graphsUpdated = await _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
+  graphsUpdated = await _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
+  graphsUpdated = await _addDependencies(SurveyDependencyType.validations, NodeDefs.getValidationsExpressions(nodeDef))
   const maxCount = NodeDefs.getMaxCount(nodeDef)
   if (Array.isArray(maxCount)) {
-    graphsUpdated = _addDependencies(SurveyDependencyType.maxCount, maxCount)
+    graphsUpdated = await _addDependencies(SurveyDependencyType.maxCount, maxCount)
   }
   const minCount = NodeDefs.getMinCount(nodeDef)
   if (Array.isArray(minCount)) {
-    graphsUpdated = _addDependencies(SurveyDependencyType.minCount, minCount)
+    graphsUpdated = await _addDependencies(SurveyDependencyType.minCount, minCount)
   }
   // file name expression
   if (NodeDefs.getType(nodeDef) === NodeDefType.file) {
     const fileNameExpression = NodeDefs.getFileNameExpression(nodeDef as NodeDefFile)
     if (fileNameExpression) {
-      graphsUpdated = _addDependencies(SurveyDependencyType.fileName, [
+      graphsUpdated = await _addDependencies(SurveyDependencyType.fileName, [
         NodeDefExpressionFactory.createInstance({ expression: fileNameExpression }),
       ])
     }
@@ -257,14 +258,15 @@ export const removeNodeDefDependencies = (params: {
   return { ...survey, dependencyGraph: graphsUpdated }
 }
 
-export const buildAndAssocDependencyGraph = (survey: Survey): Survey => {
+export const buildAndAssocDependencyGraph = async (survey: Survey): Promise<Survey> => {
   survey.dependencyGraph = newDependecyGraph()
 
   const sideEffect = true // when the dependency graph is built from scratch, do side effect to avoid re-creating objects
 
   // add dependencies for every node def
-  return SurveyNodeDefs.getNodeDefsArray(survey).reduce(
-    (surveyAcc, nodeDef) => addNodeDefDependencies({ nodeDef, survey: surveyAcc, sideEffect }),
-    survey
-  )
+  let surveyUpdated = survey
+  for (const nodeDef of SurveyNodeDefs.getNodeDefsArray(survey)) {
+    surveyUpdated = await addNodeDefDependencies({ nodeDef, survey: surveyUpdated, sideEffect })
+  }
+  return surveyUpdated
 }

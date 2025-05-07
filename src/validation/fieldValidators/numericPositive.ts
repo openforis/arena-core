@@ -5,8 +5,8 @@ import { numeric } from './numeric'
 
 export const numericPositive =
   (messageKey: string, messageParams: any = {}) =>
-  (field: string, obj: any): ValidationResult => {
-    const validateNumberResult = numeric(messageKey, messageParams)(field, obj)
+  async (field: string, obj: any): Promise<ValidationResult> => {
+    const validateNumberResult = await numeric(messageKey, messageParams)(field, obj)
     if (!validateNumberResult.valid) {
       return validateNumberResult
     }

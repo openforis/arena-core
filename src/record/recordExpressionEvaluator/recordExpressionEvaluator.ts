@@ -28,83 +28,75 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
     })
   }
 
-  evalExpression(
+  async evalExpression(
     params: ExpressionEvaluateParams & {
       node: Node
       query: string
       item?: CategoryItem | Taxon
     }
-  ): any {
-    const { user, survey, record, node, query, item, timezoneOffset } = params
+  ): Promise<any> {
+    const { survey, record, node, query, item } = params
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent(node)(record)
     if (!nodeContext) return null
-    const context: RecordExpressionContext = {
-      user,
-      survey,
-      record,
-      nodeContext,
-      nodeCurrent: node,
-      object: nodeContext,
-      item,
-      timezoneOffset,
-    }
+    const context: RecordExpressionContext = { ...params, nodeContext, nodeCurrent: node, object: nodeContext, item }
     return this.evaluate(query, context)
   }
 
-  private _getApplicableExpressions(
+  private async _getApplicableExpressions(
     params: ExpressionEvaluateParams & {
       nodeCtx: Node
       expressions: NodeDefExpression[]
       stopAtFirstFound?: boolean
     }
-  ): NodeDefExpression[] {
-    const { user, survey, record, nodeCtx, expressions, stopAtFirstFound = false, timezoneOffset } = params
+  ): Promise<NodeDefExpression[]> {
+    const { nodeCtx, expressions, stopAtFirstFound = false } = params
     const applicableExpressions: NodeDefExpression[] = []
 
-    expressions.every((expression) => {
+    for (const expression of expressions) {
       const applyIfExpr = expression.applyIf
 
       if (
         Objects.isEmpty(applyIfExpr) ||
-        this.evalExpression({ user, survey, record, node: nodeCtx, query: applyIfExpr ?? '', timezoneOffset })
+        (await this.evalExpression({ ...params, node: nodeCtx, query: applyIfExpr ?? '' }))
       ) {
         applicableExpressions.push(expression)
 
         if (stopAtFirstFound) {
-          // break the loop
-          return false
+          break
         }
       }
-      return true
-    })
-
+    }
     return applicableExpressions
   }
 
-  evalApplicableExpressions = (
+  async evalApplicableExpressions(
     params: ExpressionEvaluateParams & {
       nodeCtx: Node
       expressions: NodeDefExpression[]
       stopAtFirstFound?: boolean
     }
-  ): { expression: NodeDefExpression; value: any }[] => {
+  ): Promise<{ expression: NodeDefExpression; value: any }[]> {
     const { nodeCtx } = params
-    const applicableExpressions = this._getApplicableExpressions(params)
+    const applicableExpressions = await this._getApplicableExpressions(params)
 
-    return applicableExpressions.map((expression) => ({
-      expression,
-      value: this.evalExpression({ ...params, node: nodeCtx, query: expression.expression ?? '' }),
-    }))
+    const result = []
+    for (const expression of applicableExpressions) {
+      result.push({
+        expression,
+        value: await this.evalExpression({ ...params, node: nodeCtx, query: expression.expression ?? '' }),
+      })
+    }
+    return result
   }
 
-  evalApplicableExpression = (
+  async evalApplicableExpression(
     params: ExpressionEvaluateParams & {
       nodeCtx: Node
       expressions: NodeDefExpression[]
     }
-  ): { expression: NodeDefExpression; value: any } | null => {
-    const expressionsEvaluated = this.evalApplicableExpressions({ ...params, stopAtFirstFound: true })
+  ): Promise<{ expression: NodeDefExpression; value: any } | null> {
+    const expressionsEvaluated = await this.evalApplicableExpressions({ ...params, stopAtFirstFound: true })
     return expressionsEvaluated[0] ?? null
   }
 }

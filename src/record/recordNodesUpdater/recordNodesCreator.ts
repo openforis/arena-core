@@ -3,6 +3,7 @@ import { SystemError } from '../../error'
 import { Node, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { NodeDef, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
+import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { Survey } from '../../survey'
 import { getNodeDefChildren, getNodeDefEnumerator } from '../../survey/surveys/nodeDefs'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
@@ -16,6 +17,7 @@ export type NodesUpdateParams = {
   dateModified?: string
   timezoneOffset?: number
   sideEffect?: boolean
+  categoryItemProvider?: CategoryItemProvider
 }
 
 export type NodeCreateParams = NodesUpdateParams & {

@@ -28,14 +28,32 @@ const sampleGeoJsonPolygon = {
 
 const isNotValidString = (value: string): boolean => Objects.isEmpty(value) || typeof value !== 'string'
 
-const emptyExecutor = (_context: NodeDefExpressionContext) => () => null
+const emptyExecutor = (_context: NodeDefExpressionContext) => async () => null
+
+const getOrFetchCategoryItem = async (params: {
+  context: NodeDefExpressionContext
+  categoryUuid: string
+  codePaths: string[]
+}): Promise<any> => {
+  const { context, categoryUuid, codePaths } = params
+  const { survey, categoryItemProvider } = context
+  const categoryItem = getCategoryItemByCodePaths({ survey, categoryUuid, codePaths })
+  return (
+    categoryItem ??
+    categoryItemProvider?.getItemByCodePaths({
+      survey,
+      categoryUuid,
+      codePaths,
+    })
+  )
+}
 
 export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
   categoryItemProp: {
     minArity: 3,
     executor:
       (context: NodeDefExpressionContext) =>
-      (categoryName: string, itemPropName: string, ...codePaths: string[]) => {
+      async (categoryName: string, itemPropName: string, ...codePaths: string[]): Promise<any> => {
         const { survey } = context
 
         if (Objects.isEmpty(categoryName) || Objects.isEmpty(itemPropName) || Objects.isEmpty(codePaths))
@@ -47,11 +65,8 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         const extraPropDef = category.props.itemExtraDef?.[itemPropName]
         if (!extraPropDef) throw new SystemError('expression.invalidCategoryExtraProp', { propName: itemPropName })
 
-        const categoryItem = getCategoryItemByCodePaths({
-          survey,
-          categoryUuid: category.uuid,
-          codePaths,
-        })
+        const { uuid: categoryUuid } = category
+        const categoryItem = await getOrFetchCategoryItem({ context, categoryUuid, codePaths })
         if (!categoryItem) return null
 
         const value = categoryItem.props.extra?.[itemPropName]
@@ -61,14 +76,17 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
   count: {
     minArity: 1,
     maxArity: 1,
-    executor: (_context: NodeDefExpressionContext) => (_nodeSet) => 1,
+    executor:
+      (_context: NodeDefExpressionContext) =>
+      async (_nodeSet): Promise<any> =>
+        1,
   },
   dateTimeDiff: {
     minArity: 4,
     maxArity: 4,
     executor:
       (_context: NodeDefExpressionContext) =>
-      (date1: string, time1: string, date2: string, time2: string): number | null => {
+      async (date1: string, time1: string, date2: string, time2: string): Promise<number | null> => {
         if (isNotValidString(date1) || isNotValidString(time1) || isNotValidString(date2) || isNotValidString(time2))
           return null
         const [hours1, minutes1] = time1.split(':')
@@ -85,7 +103,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 2,
     executor:
       (context: NodeDefExpressionContext) =>
-      (coordinateFrom: Point | string, coordinateTo: Point | string): number | null => {
+      async (coordinateFrom: Point | string, coordinateTo: Point | string): Promise<number | null> => {
         const { survey } = context
         const srsIndex = getSRSIndex(survey)
 
@@ -104,7 +122,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
   geoPolygon: {
     minArity: 1,
     evaluateArgsToNodes: true,
-    executor: () => () => sampleGeoJsonPolygon,
+    executor: () => async () => sampleGeoJsonPolygon,
   },
   includes: {
     minArity: 2,
@@ -112,14 +130,14 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     evaluateArgsToNodes: false,
     executor:
       () =>
-      (items: any, value: any): boolean =>
+      async (items: any, value: any): Promise<boolean> =>
         Array.isArray(items) && items.map(String).includes(String(value)),
   },
   index: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: () => () => -1,
+    executor: () => async () => -1,
   },
   last: {
     minArity: 1,
@@ -131,14 +149,14 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 0,
     maxArity: 0,
     evaluateToNode: false,
-    executor: () => () => Dates.nowFormattedForStorage(),
+    executor: () => async () => Dates.nowFormattedForStorage(),
   },
   parent: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
     evaluateToNode: true,
-    executor: (context: NodeDefExpressionContext) => (nodeDef) => {
+    executor: (context: NodeDefExpressionContext) => async (nodeDef) => {
       const { survey } = context
       return getNodeDefParent({ survey, nodeDef })
     },
@@ -177,53 +195,54 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: NodeDefExpressionContext) => (_nodeSet) => 1,
+    executor: (_context: NodeDefExpressionContext) => async (_nodeSet) => 1,
   },
   taxonProp: {
     minArity: 3,
     maxArity: 3,
-    executor: (context: NodeDefExpressionContext) => (taxonomyName: string, propName: string, taxonCode: string) => {
-      const { survey } = context
+    executor:
+      (context: NodeDefExpressionContext) => async (taxonomyName: string, propName: string, taxonCode: string) => {
+        const { survey } = context
 
-      if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(propName) || Objects.isEmpty(taxonCode))
-        throw new SystemError('expression.missingFunctionParameters')
+        if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(propName) || Objects.isEmpty(taxonCode))
+          throw new SystemError('expression.missingFunctionParameters')
 
-      const taxonomy = getTaxonomyByName({ survey, taxonomyName })
-      if (!taxonomy) throw new SystemError('expression.invalidTaxonomyName', { name: taxonomyName })
+        const taxonomy = getTaxonomyByName({ survey, taxonomyName })
+        if (!taxonomy) throw new SystemError('expression.invalidTaxonomyName', { name: taxonomyName })
 
-      const extraPropDef = taxonomy.props.extraPropsDefs?.[propName]
-      if (!extraPropDef) throw new SystemError('expression.invalidTaxonomyExtraProp', { propName })
+        const extraPropDef = taxonomy.props.extraPropsDefs?.[propName]
+        if (!extraPropDef) throw new SystemError('expression.invalidTaxonomyExtraProp', { propName })
 
-      if (typeof taxonCode !== 'string') {
-        return null // node def expression validator could call it passing a node def object
-      }
+        if (typeof taxonCode !== 'string') {
+          return null // node def expression validator could call it passing a node def object
+        }
 
-      const taxon = getTaxonByCode({ survey, taxonomyUuid: taxonomy.uuid, taxonCode })
-      if (!taxon) return null
+        const taxon = getTaxonByCode({ survey, taxonomyUuid: taxonomy.uuid, taxonCode })
+        if (!taxon) return null
 
-      const value = taxon.props.extra?.[propName]
-      return ExtraProps.convertValue({ survey, extraPropDef, value })
-    },
+        const value = taxon.props.extra?.[propName]
+        return ExtraProps.convertValue({ survey, extraPropDef, value })
+      },
   },
   userEmail: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: NodeDefExpressionContext) => () => context.user?.email,
+    executor: (context: NodeDefExpressionContext) => async () => context.user?.email,
   },
   userIsRecordOwner: {
     minArity: 0,
     maxArity: 0,
-    executor: (_context: NodeDefExpressionContext) => () => false,
+    executor: (_context: NodeDefExpressionContext) => async () => false,
   },
   userName: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: NodeDefExpressionContext) => () => context.user?.name,
+    executor: (context: NodeDefExpressionContext) => async () => context.user?.name,
   },
   userProp: {
     minArity: 1,
     maxArity: 1,
-    executor: (context: NodeDefExpressionContext) => (propName: string) => {
+    executor: (context: NodeDefExpressionContext) => async (propName: string) => {
       const { user, survey } = context
       if (!survey || !user) return undefined
       const { uuid: surveyUuid } = survey

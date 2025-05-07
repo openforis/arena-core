@@ -18,7 +18,7 @@ describe('RecordUpdater - attribute update => update dependent validations', () 
   }, 10000)
 
   test('Self dependent validation rule (e.g. sum of sibling values)', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',

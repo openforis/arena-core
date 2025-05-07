@@ -50,7 +50,7 @@ const isNumber = (value: any) => !Objects.isNil(value) && value.constructor === 
 const isString = (value: any) => !Objects.isNil(value) && value.constructor === String
 
 export class BinaryEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, BinaryExpression> {
-  evaluate(expressionNode: BinaryExpression): any {
+  async evaluate(expressionNode: BinaryExpression): Promise<any> {
     const { left, right, operator } = expressionNode
 
     const fn = binaryOperators[operator]
@@ -58,8 +58,8 @@ export class BinaryEvaluator<C extends ExpressionContext> extends ExpressionNode
       throw new SystemError('expression.booleanOperatorNotSupported', { operator })
     }
 
-    const leftResult = this.evaluator.evaluateNode(left, this.context)
-    const rightResult = this.evaluator.evaluateNode(right, this.context)
+    const leftResult = await this.evaluator.evaluateNode(left, this.context)
+    const rightResult = await this.evaluator.evaluateNode(right, this.context)
 
     // string operators
     if (operator in stringOperators) {

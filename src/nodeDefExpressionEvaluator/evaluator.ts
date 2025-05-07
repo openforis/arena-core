@@ -28,7 +28,7 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
     })
   }
 
-  _eval(params: ExpressionEvaluatorParams): { result: any; referencedNodeDefUuids: Set<string> } {
+  async _eval(params: ExpressionEvaluatorParams): Promise<{ result: any; referencedNodeDefUuids: Set<string> }> {
     const {
       expression,
       user,
@@ -53,21 +53,21 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
       referencedNodeDefUuids,
       itemsFilter,
     }
-    const result = this.evaluate(expression, context)
+    const result = await this.evaluate(expression, context)
     return { result, referencedNodeDefUuids }
   }
 
-  findReferencedNodeDefUuids(params: ExpressionEvaluatorParams): Set<string> {
+  async findReferencedNodeDefUuids(params: ExpressionEvaluatorParams): Promise<Set<string>> {
     try {
-      const { referencedNodeDefUuids } = this._eval(params)
+      const { referencedNodeDefUuids } = await this._eval(params)
       return referencedNodeDefUuids
     } catch (error) {
       return new Set()
     }
   }
 
-  evalExpression(params: ExpressionEvaluatorParams): any {
-    const { result } = this._eval(params)
+  async evalExpression(params: ExpressionEvaluatorParams): Promise<any> {
+    const { result } = await this._eval(params)
     return result
   }
 }

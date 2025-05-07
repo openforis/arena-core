@@ -9,10 +9,11 @@ import { NodePointers } from '../nodePointers'
 import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
+import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { throwError } from './recordNodesDependentsUpdaterCommons'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-const recordExpressionEvaluator = new RecordExpressionEvaluator()
+const expressionEvaluator = new RecordExpressionEvaluator()
 
 const fileNameWithPositionSuffixRegExp = /^.+\s\[\d+\]$/ // file name like "name [1].test"
 
@@ -21,7 +22,12 @@ const addPositionSuffix = (params: { fileName: string; position: number }) => {
   return `${fileName} [${position}]`
 }
 
-const calculateFileName = (params: { user: User; survey: Survey; record: Record; node: Node }): string | undefined => {
+const calculateFileName = async (params: {
+  user: User
+  survey: Survey
+  record: Record
+  node: Node
+}): Promise<string | undefined> => {
   const { user, survey, record, node } = params
 
   const nodeDef: NodeDefFile = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefFile
@@ -30,7 +36,7 @@ const calculateFileName = (params: { user: User; survey: Survey; record: Record;
 
   const { value } = node
 
-  let fileNameCalculated = recordExpressionEvaluator.evalExpression({
+  let fileNameCalculated = await expressionEvaluator.evalExpression({
     user,
     survey,
     record,
@@ -54,13 +60,13 @@ const calculateFileName = (params: { user: User; survey: Survey; record: Record;
   return fileNameCalculated
 }
 
-const updateFileNamesInNodes = (params: {
+const updateFileNamesInNodes = async (params: {
   user: User
   survey: Survey
   nodePointer: NodePointer
   updateResult: RecordUpdateResult
   sideEffect?: boolean
-}) => {
+}): Promise<void> => {
   const { user, survey, nodePointer, updateResult, sideEffect = false } = params
 
   const { nodeCtx, nodeDef } = nodePointer
@@ -74,20 +80,16 @@ const updateFileNamesInNodes = (params: {
 
   const nodes = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
 
-  nodes.forEach((node) => {
+  for (const node of nodes) {
     if (!Nodes.isValueBlank(node)) {
-      updateFileNameInNode({ user, survey, updateResult, sideEffect, nodeDef: nodeDef as NodeDefFile, node })
+      await updateFileNameInNode({ user, survey, updateResult, sideEffect, nodeDef: nodeDef as NodeDefFile, node })
     }
-  })
+  }
 }
 
-export const updateSelfAndDependentsFileNames = (params: {
-  user: User
-  survey: Survey
-  record: Record
-  node: Node
-  sideEffect?: boolean
-}) => {
+export const updateSelfAndDependentsFileNames = async (
+  params: RecordNodeDependentsUpdateParams
+): Promise<RecordUpdateResult> => {
   const { user, survey, record, node, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
@@ -103,25 +105,24 @@ export const updateSelfAndDependentsFileNames = (params: {
   })
 
   // 2. update expr to node and dependent nodes
-  nodePointersToUpdate.forEach((nodePointer) => {
+  for (const nodePointer of nodePointersToUpdate) {
     updateFileNamesInNodes({ user, survey, nodePointer, updateResult, sideEffect })
-  })
-
+  }
   return updateResult
 }
 
-const updateFileNameInNode = (params: {
+const updateFileNameInNode = async (params: {
   user: User
   survey: Survey
   updateResult: RecordUpdateResult
   sideEffect: boolean
   nodeDef: NodeDefFile
   node: Node
-}) => {
+}): Promise<void> => {
   const { user, survey, updateResult, sideEffect, node, nodeDef } = params
   const expressionToEvaluate = NodeDefs.getFileNameExpression(nodeDef)
   try {
-    const fileNameCalculated = calculateFileName({ user, survey, record: updateResult.record, node })
+    const fileNameCalculated = await calculateFileName({ user, survey, record: updateResult.record, node })
     const oldFileNameCalculated = NodeValues.getFileNameCalculated(node)
     if (fileNameCalculated !== oldFileNameCalculated) {
       const nodeUpdated = Nodes.mergeNodes(node, {

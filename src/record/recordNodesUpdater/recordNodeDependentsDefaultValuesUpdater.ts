@@ -1,18 +1,17 @@
-import { NodeDef, NodeDefs } from '../../nodeDef'
-import { Record } from '../record'
-import { Survey } from '../../survey'
 import { Node, NodePointer, Nodes } from '../../node'
-import { Dates, Objects } from '../../utils'
+import { NodeDef, NodeDefs } from '../../nodeDef'
 import { SurveyDependencyType } from '../../survey/survey'
-import { RecordUpdateResult } from './recordUpdateResult'
+import { Dates, Objects } from '../../utils'
+import { NodePointers } from '../nodePointers'
+import { Record } from '../record'
+import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
 import { RecordExpressionValueConverter } from './recordExpressionValueConverter'
-import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { NodePointers } from '../nodePointers'
+import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { throwError } from './recordNodesDependentsUpdaterCommons'
-import { User } from '../../auth'
+import { RecordUpdateResult } from './recordUpdateResult'
 
-const recordExpressionEvaluator = new RecordExpressionEvaluator()
+const expressionEvaluator = new RecordExpressionEvaluator()
 
 const shouldResetDefaultValue = (params: { record: Record; node: Node }): boolean => {
   const { record, node } = params
@@ -28,15 +27,13 @@ const canApplyDefaultValue = (params: { record: Record; node: Node; nodeDef: Nod
   )
 }
 
-const updateDefaultValuesInNodes = (params: {
-  user: User
-  survey: Survey
-  nodePointer: NodePointer
-  updateResult: RecordUpdateResult
-  timezoneOffset?: number
-  sideEffect?: boolean
-}) => {
-  const { user, survey, nodePointer, updateResult, timezoneOffset, sideEffect = false } = params
+const updateDefaultValuesInNodes = async (
+  params: RecordNodeDependentsUpdateParams & {
+    nodePointer: NodePointer
+    updateResult: RecordUpdateResult
+  }
+): Promise<void> => {
+  const { survey, nodePointer, updateResult, timezoneOffset, sideEffect = false } = params
 
   const { nodeCtx, nodeDef } = nodePointer
 
@@ -49,13 +46,11 @@ const updateDefaultValuesInNodes = (params: {
 
   try {
     // 1. evaluate applicable default value expression
-    const exprEval = recordExpressionEvaluator.evalApplicableExpression({
-      user,
-      survey,
+    const exprEval = await expressionEvaluator.evalApplicableExpression({
+      ...params,
       record,
       nodeCtx,
       expressions: expressionsToEvaluate,
-      timezoneOffset,
     })
 
     const exprEvalValue = exprEval?.value
@@ -110,15 +105,10 @@ const updateDefaultValuesInNodes = (params: {
   }
 }
 
-export const updateSelfAndDependentsDefaultValues = (params: {
-  user: User
-  survey: Survey
-  record: Record
-  node: Node
-  timezoneOffset?: number
-  sideEffect?: boolean
-}) => {
-  const { user, survey, record, node, timezoneOffset, sideEffect = false } = params
+export const updateSelfAndDependentsDefaultValues = async (
+  params: RecordNodeDependentsUpdateParams
+): Promise<RecordUpdateResult> => {
+  const { survey, record, node, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -151,9 +141,8 @@ export const updateSelfAndDependentsDefaultValues = (params: {
   })
 
   // 2. update expr to node and dependent nodes
-  nodePointersToUpdate.forEach((nodePointer) => {
-    updateDefaultValuesInNodes({ user, survey, nodePointer, updateResult, timezoneOffset, sideEffect })
-  })
-
+  for (const nodePointer of nodePointersToUpdate) {
+    await updateDefaultValuesInNodes({ ...params, nodePointer, updateResult, sideEffect })
+  }
   return updateResult
 }

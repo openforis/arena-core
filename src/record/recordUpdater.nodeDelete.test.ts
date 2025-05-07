@@ -22,7 +22,7 @@ describe('RecordUpdater - node delete', () => {
   }, 10000)
 
   test('Entity deletion: no side effect', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -65,7 +65,7 @@ describe('RecordUpdater - node delete', () => {
   })
 
   test('Entity deletion: update dependent attributes', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -136,7 +136,7 @@ describe('RecordUpdater - node delete', () => {
   })
 
   test('Entity deletion: cleanup validation', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',
@@ -210,7 +210,7 @@ describe('RecordUpdater - node delete', () => {
   })
 
   test('Entity deletion: nodes index consistency', async () => {
-    const survey = new SurveyBuilder(
+    const survey = await new SurveyBuilder(
       user,
       entityDef(
         'root_entity',

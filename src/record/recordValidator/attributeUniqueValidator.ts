@@ -35,7 +35,7 @@ const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeD
 
 export const validateAttributeUnique =
   (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  (_propName: string, node: Node): ValidationResult => {
+  async (_propName: string, node: Node): Promise<ValidationResult> => {
     const { survey, record, nodeDef } = params
 
     if (isNodeDefToBeValidated({ survey, nodeDef }) && _isAttributeDuplicate({ record, attribute: node, nodeDef })) {

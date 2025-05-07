@@ -2,10 +2,10 @@ import { ExpressionContext } from '../../context'
 import { ExpressionNode, ExpressionNodeEvaluator, MemberExpression } from '../../node'
 
 export class MemberEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, MemberExpression> {
-  evaluateComputedProperty(property: ExpressionNode<any>, objectEval: any): any {
+  async evaluateComputedProperty(property: ExpressionNode<any>, objectEval: any): Promise<any> {
     // expressions like plot[1] or plot[plot_id == 1]
 
-    const propertyEval = this.evaluator.evaluateNode(property, {
+    const propertyEval = await this.evaluator.evaluateNode(property, {
       ...this.context,
       object: this.context.object,
     })
@@ -18,29 +18,35 @@ export class MemberEvaluator<C extends ExpressionContext> extends ExpressionNode
     if (Array.isArray(objectEval)) {
       // expressions where the member property is a filter function (e.g. plot[plot_id == 1])
 
-      return objectEval.filter((objectEvalItem) =>
-        this.evaluator.evaluateNode(property, {
-          ...this.context,
-          object: objectEvalItem,
-          evaluateToNode: false,
-        })
-      )
+      const filtered = []
+      for (const objectEvalItem of objectEval) {
+        if (
+          await this.evaluator.evaluateNode(property, {
+            ...this.context,
+            object: objectEvalItem,
+            evaluateToNode: false,
+          })
+        ) {
+          filtered.push(objectEvalItem)
+        }
+      }
+      return filtered
     } else {
       return propertyEval
     }
   }
 
-  evaluate(expressionNode: MemberExpression): any {
+  async evaluate(expressionNode: MemberExpression): Promise<any> {
     const { object, property, computed } = expressionNode
 
-    const objectEval = this.evaluator.evaluateNode(object, { ...this.context, evaluateToNode: true })
+    const objectEval = await this.evaluator.evaluateNode(object, { ...this.context, evaluateToNode: true })
     if (!objectEval) return null
 
     if (computed) {
       return this.evaluateComputedProperty(property, objectEval)
     }
 
-    const propertyEval = this.evaluator.evaluateNode(property, {
+    const propertyEval = await this.evaluator.evaluateNode(property, {
       ...this.context,
       object: objectEval,
     })

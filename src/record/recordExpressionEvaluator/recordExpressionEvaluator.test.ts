@@ -38,7 +38,7 @@ const determineContextNode = (params: {
 
 describe('RecordExpressionEvaluator', () => {
   beforeAll(async () => {
-    survey = createTestSurvey({ user })
+    survey = await createTestSurvey({ user })
 
     record = createTestRecord({ user, survey })
   }, 10000)
@@ -181,7 +181,7 @@ describe('RecordExpressionEvaluator', () => {
       error: new SystemError('expression.invalidCategoryExtraProp'),
     },
     {
-      expression: `categoryItemProp('simple_category', 'prop1', '999')`,
+      expression: `categoryItemProp('hierarchical_category', 'prop1', '999')`,
       result: null,
     },
     // taxonProp
@@ -194,6 +194,7 @@ describe('RecordExpressionEvaluator', () => {
     {
       expression: `taxonProp('trees', 'unexisting_prop', 'AFZ/QUA')`,
       result: null,
+      error: new SystemError('expression.invalidTaxonomyExtraProp'),
     },
     { expression: `taxonProp('trees', 'max_dbh', 'AFZ/QUA/OTHER')`, result: null },
     // dateTimeDiff
@@ -366,7 +367,7 @@ describe('RecordExpressionEvaluator', () => {
     const { expression, result, error: errorExpected = false, node } = query
     const testNameSuffix = node ? ` (node: ${node})` : ''
 
-    test(`${expression}${testNameSuffix}`, () => {
+    test(`${expression}${testNameSuffix}`, async () => {
       try {
         const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
         if (!nodeCurrent) throw new Error(`Cannot find current node: ${node}`)
@@ -374,7 +375,7 @@ describe('RecordExpressionEvaluator', () => {
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid })
         const nodeContext = determineContextNode({ nodeCurrentDef, nodeCurrent, node })
         const context: RecordExpressionContext = { user, survey, record, nodeContext, nodeCurrent, object: nodeContext }
-        const res = new RecordExpressionEvaluator().evaluate(expression, context)
+        const res = await new RecordExpressionEvaluator().evaluate(expression, context)
         expect(res).toEqual(result instanceof Function ? result() : result)
       } catch (error) {
         if (errorExpected) {

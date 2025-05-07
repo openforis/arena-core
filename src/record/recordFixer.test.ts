@@ -26,7 +26,7 @@ const deleteNodeDef = (params: { survey: Survey; parentUuid: string; uuid: strin
 
 describe('Record fixer', () => {
   beforeAll(async () => {
-    survey = new SurveyBuilder(
+    survey = await new SurveyBuilder(
       user,
       entityDef(
         'cluster',

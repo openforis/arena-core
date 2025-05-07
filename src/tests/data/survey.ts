@@ -19,7 +19,7 @@ const {
   timeDef,
 } = SurveyObjectBuilders
 
-export const createTestSurvey = (params: { user: User }): Survey =>
+export const createTestSurvey = async (params: { user: User }): Promise<Survey> =>
   new SurveyBuilder(
     params.user,
     entityDef(

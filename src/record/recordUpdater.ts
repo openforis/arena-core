@@ -34,7 +34,7 @@ const _onRecordNodesCreateOrUpdate = async (
 ): Promise<RecordUpdateResult> => {
   const { user, survey, record, dateModified = Dates.nowFormattedForStorage() } = params
 
-  const { nodes: updatedNodes, record: updatedRecord } = RecordNodesUpdater.updateNodesDependents(params)
+  const { nodes: updatedNodes, record: updatedRecord } = await RecordNodesUpdater.updateNodesDependents(params)
 
   const dependentValidationNodes = _getDependentValidationNodes({ survey, record: updatedRecord, nodes: updatedNodes })
 
