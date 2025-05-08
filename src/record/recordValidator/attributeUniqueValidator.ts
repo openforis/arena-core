@@ -1,9 +1,9 @@
+import { Node } from '../../node'
+import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { Survey, Surveys } from '../../survey'
+import { ValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { Record } from '../record'
 import { Records } from '../records'
-import { NodeDef, NodeDefs, NodeDefProps, NodeDefType } from '../../nodeDef'
-import { Node, Nodes } from '../../node'
-import { ValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
-import { Survey, Surveys } from '../../survey'
 
 import { Objects } from '../../utils'
 
@@ -13,11 +13,8 @@ const _isAttributeDuplicate = (params: {
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
 }): boolean => {
   const { attribute, record, nodeDef } = params
-  const nodeSiblings = Records.getNodeSiblings({ record, node: attribute, nodeDef })
-
-  return nodeSiblings.some(
-    (sibling) => !Nodes.areEqual(attribute, sibling) && Objects.isEqual(sibling.value, attribute.value)
-  )
+  const nodeSiblings = Records.getAttributeSiblings({ record, node: attribute, nodeDef })
+  return nodeSiblings.some((sibling) => Objects.isEqual(sibling.value, attribute.value))
 }
 
 const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps> }): boolean => {

@@ -1,7 +1,7 @@
 import { Record } from '../record'
 import { Records } from '../records'
 import { NodeDef, NodeDefs, NodeDefProps, NodeDefType } from '../../nodeDef'
-import { Node, Nodes } from '../../node'
+import { Node, Nodes, NodeValues } from '../../node'
 import { ValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { Survey, Surveys } from '../../survey'
 
@@ -25,12 +25,27 @@ const _isEntityDuplicate = (params: { survey: Survey; record: Record; entity: No
   if (Objects.isEmpty(siblingEntities) || Objects.isEmpty(keyDefs)) {
     return false
   }
-  const keyValues = Records.getEntityKeyValues({ survey, record, entity, keyDefs })
+  const keyValuesByDefUuid = Records.getEntityKeyValuesByDefUuid({ survey, record, entity, keyDefs })
   return (
-    !Objects.isEmpty(keyValues) &&
-    siblingEntities.some((sibilingEntity) =>
-      Objects.isEqual(keyValues, Records.getEntityKeyValues({ survey, record, entity: sibilingEntity, keyDefs }))
-    )
+    !Objects.isEmpty(keyValuesByDefUuid) &&
+    siblingEntities.some((sibilingEntity) => {
+      const siblingKeyValuesByDefUuid = Records.getEntityKeyValuesByDefUuid({
+        survey,
+        record,
+        entity: sibilingEntity,
+        keyDefs,
+      })
+      return keyDefs.every((keyDef) => {
+        const keyValue = keyValuesByDefUuid[keyDef.uuid]
+        const siblingKeyValue = siblingKeyValuesByDefUuid[keyDef.uuid]
+        return NodeValues.isValueEqual({
+          survey,
+          nodeDef: keyDef,
+          value: keyValue,
+          valueSearch: siblingKeyValue,
+        })
+      })
+    })
   )
 }
 
