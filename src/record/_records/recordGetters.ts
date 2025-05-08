@@ -1,4 +1,4 @@
-import { TraverseMethod } from '../../common'
+import { Dictionary, TraverseMethod } from '../../common'
 import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefType, NodeDefs } from '../../nodeDef'
 import { Node, NodePointer, Nodes, NodesMap } from '../../node'
 import { Record } from '../record'
@@ -11,7 +11,7 @@ import { RecordNodesIndexReader } from './recordNodesIndexReader'
 
 export const getCycle = (record: Record): string => record.cycle ?? defaultCycle
 
-export const getNodes = (record: Record): { [key: string]: Node } => record.nodes ?? {}
+export const getNodes = (record: Record): Dictionary<Node> => record.nodes ?? {}
 
 export const getNodesArray = (record: Record): Node[] => Object.values(getNodes(record))
 
@@ -312,9 +312,9 @@ export const getEntityKeyNodesByDefUuid = (params: EntityKeyNodesGetterParams): 
 export const getEntityKeyNodes = (params: EntityKeyNodesGetterParams): Node[] =>
   Object.values(getEntityKeyNodesByDefUuid(params))
 
-export const getEntityKeyValuesByDefUuid = (params: EntityKeyNodesGetterParams): { [key: string]: any } => {
+export const getEntityKeyValuesByDefUuid = (params: EntityKeyNodesGetterParams): Dictionary<any> => {
   const keyNodesByDefUuid = getEntityKeyNodesByDefUuid(params)
-  return Object.entries(keyNodesByDefUuid).reduce((acc: { [key: string]: any }, [uuid, keyNode]) => {
+  return Object.entries(keyNodesByDefUuid).reduce((acc: Dictionary<any>, [uuid, keyNode]) => {
     acc[uuid] = keyNode?.value
     return acc
   }, {})
@@ -323,7 +323,15 @@ export const getEntityKeyValuesByDefUuid = (params: EntityKeyNodesGetterParams):
 export const getEntityKeyValues = (params: EntityKeyNodesGetterParams): any[] =>
   Object.values(getEntityKeyValuesByDefUuid(params))
 
-export const getNodeSiblings = (params: {
+export const getEntitySiblings = (params: { record: Record; entity: Node; includeSelf?: boolean }) => {
+  const { record, entity, includeSelf = false } = params
+  const parentEntity = getParent(entity)(record)
+  if (!parentEntity) return []
+  const siblingEntities = getChildren(parentEntity, entity.nodeDefUuid)(record)
+  return includeSelf ? siblingEntities : siblingEntities.filter((sibling) => !Nodes.areEqual(sibling, entity))
+}
+
+export const getAttributeSiblings = (params: {
   record: Record
   node: Node
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
@@ -331,14 +339,11 @@ export const getNodeSiblings = (params: {
   const { record, node, nodeDef } = params
   const parentEntity = getParent(node)(record)
   if (!parentEntity) return []
-  const ancestorEntity = getParent(parentEntity)(record)
-  if (!ancestorEntity) return []
-  const siblingParentEntities = getChildren(ancestorEntity, nodeDef.parentUuid)(record)
-
-  return siblingParentEntities.reduce(
-    (siblingsAcc: Node[], siblingEntity) => [...siblingsAcc, ...getChildren(siblingEntity, nodeDef.uuid)(record)],
-    []
-  )
+  const siblingParentEntities = getEntitySiblings({ record, entity: parentEntity })
+  return siblingParentEntities.reduce((siblingsAcc: Node[], siblingEntity) => {
+    siblingsAcc.push(...getChildren(siblingEntity, nodeDef.uuid)(record))
+    return siblingsAcc
+  }, [])
 }
 
 export const getNodeIndex = (params: { record: Record; node: Node }) => {
@@ -355,7 +360,7 @@ export const findEntityByKeyValues = (params: {
   record: Record
   parentEntity: Node
   entityDefUuid: string
-  keyValuesByDefUuid: { [key: string]: any }
+  keyValuesByDefUuid: Dictionary<any>
 }): Node | undefined => {
   const { survey, cycle, record, parentEntity, entityDefUuid, keyValuesByDefUuid } = params
   const entityDef = Surveys.getNodeDefByUuid({ survey, uuid: entityDefUuid })

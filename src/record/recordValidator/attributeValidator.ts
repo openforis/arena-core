@@ -44,15 +44,23 @@ export interface AttributesValidatorParams extends AttributeValidatorParamsCommo
 const _getSiblingNodeKeys = (params: AttributeValidatorParams): Node[] => {
   const { survey, record, attribute } = params
 
-  const parentNode = Records.getParent(attribute)(record) || Records.getRoot(record)
-  const siblingNodes = parentNode ? Records.getChildren(parentNode, attribute.nodeDefUuid)(record) : []
+  const attributeDef = Surveys.getNodeDefByUuid({ survey, uuid: attribute.nodeDefUuid })
+  const ancestorMultipleEntityDef = Surveys.getNodeDefAncestorMultipleEntity({ survey, nodeDef: attributeDef })
+  if (!ancestorMultipleEntityDef) {
+    return []
+  }
+  const ancestorMultipleEntity = Records.getAncestor({
+    record,
+    node: attribute,
+    ancestorDefUuid: ancestorMultipleEntityDef.uuid,
+  })
+  if (!ancestorMultipleEntity) return []
 
-  const siblingKeyNodes = siblingNodes.reduce(
-    (acc: Node[], sibling) => [...acc, ...Records.getEntityKeyNodes({ survey, record, entity: sibling })],
-    []
-  )
-
-  return siblingKeyNodes
+  const siblingAncestorEntities = Records.getEntitySiblings({ record, entity: ancestorMultipleEntity })
+  return siblingAncestorEntities.reduce((acc, siblingAncestorEntity) => {
+    acc.push(...Records.getEntityKeyNodes({ survey, record, entity: siblingAncestorEntity }))
+    return acc
+  }, [] as Node[])
 }
 
 const _getValidationMessagesWithDefault = (params: {
@@ -157,8 +165,12 @@ const findSiblingKeyNodesToValidate = (
     nodeParent?: Node
   }
 ) => {
-  const { survey, record, nodeDef, nodeParent, attribute } = params
-  if (!NodeDefs.isKey(nodeDef) || !nodeParent || (NodeDefs.isAutoIncrementalKey(nodeDef) && attribute.created)) {
+  const { survey, record, nodeDef, nodeParent: parentNode, attribute } = params
+  if (
+    !NodeDefs.isKey(nodeDef) ||
+    !parentNode ||
+    (NodeDefs.isAutoIncrementalKey(nodeDef) && attribute.created && Nodes.isDefaultValueApplied(attribute))
+  ) {
     // when a new node is created and the key is autoincremental, its value will be unique
     // and the validation of sibling key attributes is not necessary
     return []
@@ -169,15 +181,7 @@ const findSiblingKeyNodesToValidate = (
   const siblingNodeKeysWithSameValue: Node[] = []
   const siblingNodeKeysWithErrors: Node[] = []
   siblingNodeKeys.forEach((nodeKey) => {
-    if (
-      NodeValues.isValueEqual({
-        survey,
-        nodeDef,
-        parentNode: nodeParent,
-        value: nodeKey.value,
-        valueSearch: attribute.value,
-      })
-    ) {
+    if (NodeValues.isValueEqual({ survey, nodeDef, parentNode, value: nodeKey.value, valueSearch: attribute.value })) {
       siblingNodeKeysWithSameValue.push(nodeKey)
     }
     const nodeValidation =
@@ -212,7 +216,7 @@ const findNodesToValidate = (params: AttributesValidatorParams): Node[] => {
     acc.push(...findSiblingKeyNodesToValidate({ ...params, nodeDef, nodeParent, attribute: node }))
 
     if (NodeDefs.getValidations(nodeDef)?.unique) {
-      acc.push(...Records.getNodeSiblings({ record, node, nodeDef }))
+      acc.push(...Records.getAttributeSiblings({ record, node, nodeDef }))
     }
     return acc
   }, [])
