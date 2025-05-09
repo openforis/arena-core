@@ -106,7 +106,7 @@ export const updateSelfAndDependentsFileNames = async (
 
   // 2. update expr to node and dependent nodes
   for (const nodePointer of nodePointersToUpdate) {
-    updateFileNamesInNodes({ user, survey, nodePointer, updateResult, sideEffect })
+    await updateFileNamesInNodes({ user, survey, nodePointer, updateResult, sideEffect })
   }
   return updateResult
 }
