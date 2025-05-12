@@ -62,7 +62,10 @@ export const getLastCycleKey = (survey: Survey): string => Arrays.last(getCycleK
 
 export const getDefaultCycleKey = (survey: Survey) => {
   const defaultCycleKey = survey.props?.defaultCycleKey
-  return Objects.isEmpty(defaultCycleKey) ? getLastCycleKey(survey) : defaultCycleKey
+  const lastCycleKey = getLastCycleKey(survey)
+  return Objects.isEmpty(defaultCycleKey) || Number(defaultCycleKey) > Number(lastCycleKey)
+    ? lastCycleKey
+    : defaultCycleKey
 }
 
 export const getSRSs = (survey: Survey): SRS[] =>
