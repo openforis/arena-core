@@ -120,6 +120,8 @@ const getFileMaxSize = (nodeDef: NodeDefFile): number | undefined => nodeDef.pro
 // taxon
 const getTaxonomyUuid = (nodeDef: NodeDefTaxon): string | undefined => nodeDef.props.taxonomyUuid
 
+const isVernacularNameSelectionKept = (nodeDef: NodeDefTaxon): boolean => !!nodeDef.props.vernacularNameSelectionKept
+
 // text
 const getTextTransform = (nodeDef: NodeDefText): string | undefined => nodeDef.props?.textTransform
 
@@ -263,6 +265,7 @@ export const NodeDefs = {
   getFileType,
   getFileMaxSize,
   getTaxonomyUuid,
+  isVernacularNameSelectionKept,
   getTextTransform,
   getItemsFilter,
 
