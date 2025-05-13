@@ -99,6 +99,7 @@ export const updateNodesDependents = async (
         ...applicabilityUpdateResult.nodes,
         ...defaultValuesUpdateResult.nodes,
         ...dependentCodeAttributesUpdateResult.nodes,
+        ...dependentEnumeratedEntitiesUpdateResult.nodes,
         ...dependentFileNamesUpdateResult.nodes,
       }
 
