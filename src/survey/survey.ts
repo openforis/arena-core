@@ -11,7 +11,7 @@ import { SurveyRefData } from './refData/refData'
 export const defaultCycle = '0'
 
 export interface SurveyDependency {
-  [nodeDefUuid: string]: Array<string>
+  [nodeDefUuid: string]: string[] | boolean
 }
 
 export enum SurveyDependencyType {
@@ -22,7 +22,7 @@ export enum SurveyDependencyType {
   maxCount = 'maxCount',
   minCount = 'minCount',
   validations = 'validations',
-  onUpdate = 'onUpdate', // dependencies updated on every record update
+  onUpdate = 'onUpdate', // dependencies updated on every record update, stored as dictionary of booleans
 }
 
 export type SurveyDependencyGraph = {
