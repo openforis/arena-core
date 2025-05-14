@@ -44,6 +44,19 @@ const newDependecyGraph = () => ({
 
 const getDependencyGraph = (survey: Survey): SurveyDependencyGraph => survey.dependencyGraph ?? newDependecyGraph()
 
+const getDependencies = (params: {
+  graphs: SurveyDependencyGraph
+  type: SurveyDependencyType
+  nodeDefUuid: string
+}): Array<string> => {
+  const { graphs, type, nodeDefUuid } = params
+  if (type === SurveyDependencyType.onUpdate) {
+    return []
+  }
+  const graph = graphs[type]
+  return (graph[nodeDefUuid] ?? []) as string[]
+}
+
 export const getNodeDefDependents = (params: {
   survey: Survey
   nodeDefUuid: string
@@ -59,7 +72,7 @@ export const getNodeDefDependents = (params: {
     : Object.values(SurveyDependencyType)
 
   dependencyTypes.forEach((depType: SurveyDependencyType) => {
-    const dependentUuidsTemp = dependencyGraph[depType]?.[nodeDefUuid] ?? []
+    const dependentUuidsTemp = getDependencies({ graphs: dependencyGraph, type: depType, nodeDefUuid })
     dependentUuidsTemp.forEach((dependentUuid) => {
       dependentUuids.add(dependentUuid)
     })
@@ -72,16 +85,6 @@ export const getOnUpdateDependents = (params: { survey: Survey }) => {
   const dependencyGraph = getDependencyGraph(survey)
   const sourceDefUuids = Object.keys(dependencyGraph[SurveyDependencyType.onUpdate] ?? {})
   return sourceDefUuids.length > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: sourceDefUuids }) : []
-}
-
-const getDependencies = (params: {
-  graphs: SurveyDependencyGraph
-  type: SurveyDependencyType
-  nodeDefUuid: string
-}): Array<string> => {
-  const { graphs, type, nodeDefUuid } = params
-  const graph = graphs[type] ?? {}
-  return graph[nodeDefUuid] ?? []
 }
 
 // UPDATE
@@ -233,10 +236,12 @@ const _removeNodeDefDependenciesOfType = (params: {
   // dissoc nodeDefUuid dependency as dependent
   graphUpdated = Objects.dissoc({ obj: graphUpdated, prop: nodeDefUuid })
 
-  // dissoc nodeDefUuid dependency from sources (if any)
-  Object.entries(graphUpdated).forEach(([key, dependentUuids]) => {
-    graphUpdated[key] = Arrays.removeItem(nodeDefUuid)(dependentUuids)
-  })
+  if (dependencyType !== SurveyDependencyType.onUpdate) {
+    // dissoc nodeDefUuid dependency from sources (if any)
+    Object.entries(graphUpdated).forEach(([key, dependentUuids]) => {
+      graphUpdated[key] = Arrays.removeItem(nodeDefUuid)(dependentUuids as string[])
+    })
+  }
 
   graphsUpdated[dependencyType] = graphUpdated
   return graphsUpdated
