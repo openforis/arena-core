@@ -67,14 +67,11 @@ describe('RecordUpdater - node create - performance test', () => {
     record = updateResult.record
 
     const nodeDefName = 'mult_entity'
-    const totalNodes = 100
+    const totalNodes = 500
     const { nodeCreationTime, lastNodeCreationTime } = await createNodes({ nodeDefName, totalNodes })
 
-    console.log('nodeCreationTime', nodeCreationTime)
-    console.log('lastNodeCreationTime', lastNodeCreationTime)
-
     // without autoincremental key and without a default value, total time will be exponential (depends on the total number of nodes created)
-    expect(lastNodeCreationTime).toBeGreaterThan(nodeCreationTime * (totalNodes * 0.02))
+    expect(lastNodeCreationTime).toBeGreaterThan(nodeCreationTime * (totalNodes * 0.005))
   })
 
   test('Multiple entity with autoincrement', async () => {
