@@ -6,6 +6,8 @@ import { NodeValues } from '../../node/nodeValues'
 import { Points } from '../../geo'
 import { Numbers, Dates } from '../../utils'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
+import { Taxa } from '../../taxonomy'
 
 const validateDecimal = async (params: { value: any }): Promise<boolean> => {
   const { value } = params
@@ -26,7 +28,7 @@ const validateCode = async (params: { survey: Survey; node: Node; categoryItemPr
 
   if (!categoryItemProvider) return false
 
-  // loookup item in with categoryItemProvider
+  // loookup item with categoryItemProvider
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefCode
   const categoryUuid = NodeDefs.getCategoryUuid(nodeDef)
   if (!categoryUuid) return false
@@ -38,31 +40,34 @@ const validateTaxon = async (params: {
   survey: Survey
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   node: Node
+  taxonProvider?: TaxonProvider
 }): Promise<boolean> => {
-  const { survey, nodeDef, node } = params
+  const { survey, node, taxonProvider } = params
   const taxonUuid = NodeValues.getTaxonUuid(node)
   if (!taxonUuid) return true
 
-  // Taxon not found
-  const taxon = Surveys.getTaxonByUuid({ survey, taxonUuid })
+  let taxon = Surveys.getTaxonByUuid({ survey, taxonUuid })
+  if (!taxon && taxonProvider) {
+    // lookup taxon with taxonProvider
+    const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefTaxon
+    const taxonomyUuid = NodeDefs.getTaxonomyUuid(nodeDef)
+    if (!taxonomyUuid) return false
+    taxon = await taxonProvider.getTaxonByUuid({ survey, taxonomyUuid, taxonUuid })
+  }
   if (!taxon) return false
 
   const vernacularNameUuid = NodeValues.getVernacularNameUuid(node)
   if (!vernacularNameUuid) return true
 
-  // Vernacular name not found
-  return Surveys.includesTaxonVernacularName({
-    survey,
-    nodeDef: nodeDef as NodeDefTaxon,
-    taxonCode: taxon.props.code,
-    vernacularNameUuid,
-  })
+  const vernacularName = Taxa.getVernacularNameByUuid(vernacularNameUuid)(taxon)
+  return !!vernacularName
 }
 
 const typeValidatorFns: {
   [key in NodeDefType]?: (params: {
     survey: Survey
     categoryItemProvider?: CategoryItemProvider
+    taxonProvider?: TaxonProvider
     nodeDef: NodeDef<NodeDefType, NodeDefProps>
     node: Node
     value: any
@@ -117,14 +122,17 @@ const validateValueType =
     survey: Survey
     nodeDef: NodeDef<NodeDefType, NodeDefProps>
     categoryItemProvider?: CategoryItemProvider
+    taxonProvider?: TaxonProvider
   }) =>
   async (_propName: string, node: Node): Promise<ValidationResult> => {
-    const { survey, nodeDef, categoryItemProvider } = params
+    const { survey, nodeDef, categoryItemProvider, taxonProvider } = params
 
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const typeValidatorFn = typeValidatorFns[nodeDef.type]
-    const valid = (await typeValidatorFn?.({ survey, categoryItemProvider, nodeDef, node, value: node.value })) ?? true
+    const valid =
+      (await typeValidatorFn?.({ survey, categoryItemProvider, taxonProvider, nodeDef, node, value: node.value })) ??
+      true
     return ValidationResultFactory.createInstance({ key: 'record.attribute.valueInvalid', valid })
   }
 

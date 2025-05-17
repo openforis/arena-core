@@ -1,14 +1,17 @@
+import { Users } from '../auth'
+import { CategoryItem } from '../category'
+import { SystemError } from '../error'
 import { ExpressionFunctions } from '../expression'
-import { Objects } from '../utils'
-import { getCategoryByName, getSRSIndex, getTaxonomyByName } from '../survey/surveys/surveysGetters'
+import { ExtraProps } from '../extraProp/extraProps'
+import { Point, Points } from '../geo'
+import { LanguagesISO639part2 } from '../language'
 import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 import { getCategoryItemByCodePaths, getTaxonByCode } from '../survey/surveys/refsData'
-import { Point, Points } from '../geo'
+import { getCategoryByName, getSRSIndex, getTaxonomyByName } from '../survey/surveys/surveysGetters'
+import { Taxon } from '../taxonomy'
+import { Objects } from '../utils'
 import { Dates } from '../utils/dates'
 import { NodeDefExpressionContext } from './context'
-import { SystemError } from '../error'
-import { ExtraProps } from '../extraProp/extraProps'
-import { Users } from '../auth'
 
 const sampleGeoJsonPolygon = {
   type: 'Feature',
@@ -34,7 +37,7 @@ const getOrFetchCategoryItem = async (params: {
   context: NodeDefExpressionContext
   categoryUuid: string
   codePaths: string[]
-}): Promise<any> => {
+}): Promise<CategoryItem | undefined> => {
   const { context, categoryUuid, codePaths } = params
   const { survey, categoryItemProvider } = context
   const categoryItem = getCategoryItemByCodePaths({ survey, categoryUuid, codePaths })
@@ -44,6 +47,27 @@ const getOrFetchCategoryItem = async (params: {
       survey,
       categoryUuid,
       codePaths,
+    })
+  )
+}
+
+const getOrFetchTaxon = async (params: {
+  context: NodeDefExpressionContext
+  taxonomyUuid: string
+  taxonCode: string
+}): Promise<Taxon | undefined> => {
+  const { context, taxonomyUuid, taxonCode } = params
+  if (typeof taxonCode !== 'string' && typeof taxonCode !== 'number') {
+    return undefined // node def expression validator could call it passing a node def object
+  }
+  const { survey, taxonProvider } = context
+  const taxon = getTaxonByCode({ survey, taxonomyUuid, taxonCode })
+  return (
+    taxon ??
+    taxonProvider?.getTaxonByCode({
+      survey,
+      taxonomyUuid,
+      taxonCode,
     })
   )
 }
@@ -202,26 +226,47 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 3,
     executor:
       (context: NodeDefExpressionContext) => async (taxonomyName: string, propName: string, taxonCode: string) => {
-        const { survey } = context
-
         if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(propName) || Objects.isEmpty(taxonCode))
           throw new SystemError('expression.missingFunctionParameters')
 
+        const { survey } = context
         const taxonomy = getTaxonomyByName({ survey, taxonomyName })
         if (!taxonomy) throw new SystemError('expression.invalidTaxonomyName', { name: taxonomyName })
 
         const extraPropDef = taxonomy.props.extraPropsDefs?.[propName]
         if (!extraPropDef) throw new SystemError('expression.invalidTaxonomyExtraProp', { propName })
 
-        if (typeof taxonCode !== 'string') {
-          return null // node def expression validator could call it passing a node def object
-        }
-
-        const taxon = getTaxonByCode({ survey, taxonomyUuid: taxonomy.uuid, taxonCode })
+        const taxon = await getOrFetchTaxon({ context, taxonomyUuid: taxonomy.uuid, taxonCode })
         if (!taxon) return null
 
         const value = taxon.props.extra?.[propName]
         return ExtraProps.convertValue({ survey, extraPropDef, value })
+      },
+  },
+  taxonVernacularName: {
+    minArity: 3,
+    maxArity: 3,
+    executor:
+      (context: NodeDefExpressionContext) =>
+      async (taxonomyName: string, vernacularLangCode: string, taxonCode: string) => {
+        if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(vernacularLangCode) || Objects.isEmpty(taxonCode))
+          throw new SystemError('expression.missingFunctionParameters')
+
+        const { survey } = context
+        const taxonomy = getTaxonomyByName({ survey, taxonomyName })
+        if (!taxonomy) throw new SystemError('expression.invalidTaxonomyName', { name: taxonomyName })
+
+        if (!LanguagesISO639part2[vernacularLangCode]) {
+          throw new SystemError('expression.invalidTaxonVernacularNameLanguageCode', { vernacularLangCode })
+        }
+
+        const taxon = await getOrFetchTaxon({ context, taxonomyUuid: taxonomy.uuid, taxonCode })
+        if (!taxon) return null
+
+        const vernacularNameArray = taxon.vernacularNames?.[vernacularLangCode]
+        // consider first vernacular name object only
+        const firstVernacularName = vernacularNameArray?.[0]
+        return firstVernacularName?.props?.name
       },
   },
   userEmail: {

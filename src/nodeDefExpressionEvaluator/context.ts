@@ -4,6 +4,7 @@ import { NodeDef } from '../nodeDef'
 import { NodeDefProps, NodeDefType } from '../nodeDef/nodeDef'
 import { Survey } from '../survey'
 import { CategoryItemProvider } from './categoryItemProvider'
+import { TaxonProvider } from './taxonProvider'
 
 export interface NodeDefExpressionContext extends ExpressionContext {
   survey: Survey
@@ -19,4 +20,5 @@ export interface NodeDefExpressionContext extends ExpressionContext {
   itemsFilter?: boolean
 
   categoryItemProvider?: CategoryItemProvider
+  taxonProvider?: TaxonProvider
 }
