@@ -5,12 +5,12 @@ import { ExpressionFunctions } from '../expression'
 import { ExtraProps } from '../extraProp/extraProps'
 import { Point, Points } from '../geo'
 import { LanguagesISO639part2 } from '../language'
+import { Record } from '../record'
 import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 import { getCategoryItemByCodePaths, getTaxonByCode } from '../survey/surveys/refsData'
 import { getCategoryByName, getSRSIndex, getTaxonomyByName } from '../survey/surveys/surveysGetters'
 import { Taxon } from '../taxonomy'
-import { Objects } from '../utils'
-import { Dates } from '../utils/dates'
+import { Dates, Objects } from '../utils'
 import { NodeDefExpressionContext } from './context'
 
 const sampleGeoJsonPolygon = {
@@ -33,6 +33,12 @@ const isNotValidString = (value: string): boolean => Objects.isEmpty(value) || t
 
 const emptyExecutor = (_context: NodeDefExpressionContext) => async () => null
 
+const isUsingDraftProps = (context: NodeDefExpressionContext) => {
+  // use draft props when validating expression or previewing record
+  const record: Record = (context as any).record
+  return !record || !!record.preview
+}
+
 const getOrFetchCategoryItem = async (params: {
   context: NodeDefExpressionContext
   categoryUuid: string
@@ -41,14 +47,8 @@ const getOrFetchCategoryItem = async (params: {
   const { context, categoryUuid, codePaths } = params
   const { survey, categoryItemProvider } = context
   const categoryItem = getCategoryItemByCodePaths({ survey, categoryUuid, codePaths })
-  return (
-    categoryItem ??
-    categoryItemProvider?.getItemByCodePaths({
-      survey,
-      categoryUuid,
-      codePaths,
-    })
-  )
+  const draft = isUsingDraftProps(context)
+  return categoryItem ?? categoryItemProvider?.getItemByCodePaths({ survey, categoryUuid, codePaths, draft })
 }
 
 const getOrFetchTaxon = async (params: {
@@ -62,14 +62,10 @@ const getOrFetchTaxon = async (params: {
   }
   const { survey, taxonProvider } = context
   const taxon = getTaxonByCode({ survey, taxonomyUuid, taxonCode })
-  return (
-    taxon ??
-    taxonProvider?.getTaxonByCode({
-      survey,
-      taxonomyUuid,
-      taxonCode,
-    })
-  )
+  // fetch draft props when validating expression or previewing record
+  const record: Record = (context as any).record
+  const draft = !record || !!record.preview
+  return taxon ?? taxonProvider?.getTaxonByCode({ survey, taxonomyUuid, taxonCode, draft })
 }
 
 export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
@@ -226,8 +222,9 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 3,
     executor:
       (context: NodeDefExpressionContext) => async (taxonomyName: string, propName: string, taxonCode: string) => {
-        if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(propName) || Objects.isEmpty(taxonCode))
+        if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(propName))
           throw new SystemError('expression.missingFunctionParameters')
+        if (Objects.isEmpty(taxonCode)) return null
 
         const { survey } = context
         const taxonomy = getTaxonomyByName({ survey, taxonomyName })
@@ -249,8 +246,9 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     executor:
       (context: NodeDefExpressionContext) =>
       async (taxonomyName: string, vernacularLangCode: string, taxonCode: string) => {
-        if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(vernacularLangCode) || Objects.isEmpty(taxonCode))
+        if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(vernacularLangCode))
           throw new SystemError('expression.missingFunctionParameters')
+        if (Objects.isEmpty(taxonCode)) return null
 
         const { survey } = context
         const taxonomy = getTaxonomyByName({ survey, taxonomyName })

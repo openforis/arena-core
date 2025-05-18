@@ -6,10 +6,12 @@ export interface CategoryItemProvider {
     survey: Survey
     categoryUuid: string
     codePaths: string[]
+    draft: boolean
   }) => Promise<CategoryItem | undefined>
   getItemByUuid: (params: {
     survey: Survey
     categoryUuid: string
     itemUuid: string
+    draft: boolean
   }) => Promise<CategoryItem | undefined>
 }
