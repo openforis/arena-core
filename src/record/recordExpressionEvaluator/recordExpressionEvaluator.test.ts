@@ -197,6 +197,14 @@ describe('RecordExpressionEvaluator', () => {
       error: new SystemError('expression.invalidTaxonomyExtraProp'),
     },
     { expression: `taxonProp('trees', 'max_dbh', 'AFZ/QUA/OTHER')`, result: null },
+    // taxonVernacularName
+    { expression: `taxonVernacularName('trees', 'swa', 'AFZ/QUA')`, result: 'Mbambakofi' },
+    {
+      expression: `taxonVernacularName('trees', 'invalid_lang_code', 'AFZ/QUA')`,
+      result: null,
+      error: new SystemError('expression.invalidTaxonVernacularNameLanguageCode'),
+    },
+    { expression: `taxonVernacularName('trees', 'swa', 'AFZ/QUA/OTHER')`, result: null },
     // dateTimeDiff
     { expression: 'dateTimeDiff(end_date, end_time, visit_date, visit_time)', result: 1675 },
     { expression: 'dateTimeDiff(end_date, end_time, "2021-01-01", "10:10")', result: 1695 },

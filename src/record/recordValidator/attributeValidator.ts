@@ -4,6 +4,7 @@ import { Labels } from '../../language'
 import { Node, NodeKeys, Nodes, NodeValues } from '../../node'
 import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { Objects, Promises } from '../../utils'
@@ -30,6 +31,7 @@ interface AttributeValidatorParamsCommon {
   user: User
   survey: Survey
   categoryItemProvider?: CategoryItemProvider
+  taxonProvider?: TaxonProvider
   record: Record
 }
 

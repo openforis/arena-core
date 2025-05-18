@@ -4,6 +4,7 @@ import { Node, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { NodeDef, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Survey } from '../../survey'
 import { getNodeDefChildren, getNodeDefEnumerator } from '../../survey/surveys/nodeDefs'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
@@ -18,6 +19,7 @@ export type NodesUpdateParams = {
   timezoneOffset?: number
   sideEffect?: boolean
   categoryItemProvider?: CategoryItemProvider
+  taxonProvider?: TaxonProvider
 }
 
 export type NodeCreateParams = NodesUpdateParams & {
