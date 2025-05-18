@@ -46,7 +46,7 @@ const validateCode = async (params: AttributeTypeValidatorInternalParams) => {
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefCode
   const categoryUuid = NodeDefs.getCategoryUuid(nodeDef)
   if (!categoryUuid) return false
-  const draft = !record.preview
+  const draft = !!record.preview
   item = await categoryItemProvider.getItemByUuid({ survey, categoryUuid, itemUuid, draft })
   return Boolean(item)
 }
@@ -62,7 +62,7 @@ const validateTaxon = async (params: AttributeTypeValidatorInternalParams): Prom
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefTaxon
     const taxonomyUuid = NodeDefs.getTaxonomyUuid(nodeDef)
     if (!taxonomyUuid) return false
-    const draft = !record.preview
+    const draft = !!record.preview
     taxon = await taxonProvider.getTaxonByUuid({ survey, taxonomyUuid, taxonUuid, draft })
   }
   if (!taxon) return false
