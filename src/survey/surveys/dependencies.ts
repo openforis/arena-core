@@ -50,11 +50,7 @@ const getDependencies = (params: {
   nodeDefUuid: string
 }): Array<string> => {
   const { graphs, type, nodeDefUuid } = params
-  if (type === SurveyDependencyType.onUpdate) {
-    return []
-  }
-  const graph = graphs[type]
-  return (graph[nodeDefUuid] ?? []) as string[]
+  return type === SurveyDependencyType.onUpdate ? [] : ((graphs?.[type]?.[nodeDefUuid] ?? []) as string[])
 }
 
 export const getNodeDefDependents = (params: {
