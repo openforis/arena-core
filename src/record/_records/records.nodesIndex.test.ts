@@ -68,7 +68,7 @@ describe('Record nodes index', () => {
     ).toEqual([plotNode1.uuid, plotNode2.uuid, plotNode3.uuid])
   })
 
-  test('Record nodes index update (nodes added)', () => {
+  test('Record nodes index update (nodes added)', async () => {
     const index = record._nodesIndex ?? {}
 
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
@@ -77,7 +77,7 @@ describe('Record nodes index', () => {
     const plotNode2 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[1]' })
     const plotNode3 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[2]' })
 
-    const updateResult = RecordNodesUpdater.createNodeAndDescendants({
+    const updateResult = await RecordNodesUpdater.createNodeAndDescendants({
       user,
       survey,
       record,

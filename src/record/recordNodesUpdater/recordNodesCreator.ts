@@ -4,22 +4,14 @@ import { Node, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { NodeDef, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
-import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Survey } from '../../survey'
 import { getNodeDefChildren, getNodeDefEnumerator } from '../../survey/surveys/nodeDefs'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
-import { Record } from '../record'
+import { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-export type NodesUpdateParams = {
-  user: User
-  survey: Survey
-  record: Record
+export type NodesUpdateParams = RecordExpressionEvaluationContext & {
   dateModified?: string
-  timezoneOffset?: number
-  sideEffect?: boolean
-  categoryItemProvider?: CategoryItemProvider
-  taxonProvider?: TaxonProvider
 }
 
 export type NodeCreateParams = NodesUpdateParams & {
@@ -35,30 +27,33 @@ const getNodesToInsertCount = (params: { parentNode: Node | undefined; nodeDef: 
   return Nodes.getChildrenMinCount({ parentNode, nodeDef }) ?? 0
 }
 
-export const createEnumeratedEntityNodes = (params: {
+export const createEnumeratedEntityNodes = async (params: {
   user: User
   survey: Survey
   parentNode: Node
-  entityDef: NodeDefEntity
+  nodeDef: NodeDefEntity
   updateResult: RecordUpdateResult
+  categoryItemProvider?: CategoryItemProvider
   sideEffect?: boolean
-}): boolean => {
-  const { user, survey, parentNode, entityDef, updateResult, sideEffect } = params
+}): Promise<boolean> => {
+  const { user, survey, parentNode, nodeDef, updateResult, sideEffect, categoryItemProvider } = params
 
-  const enumeratorDef = getNodeDefEnumerator({ survey, entityDef })
+  const enumeratorDef = getNodeDefEnumerator({ survey, entityDef: nodeDef })
   if (!enumeratorDef) return false
 
-  const categoryItems = getEnumeratingCategoryItems({ survey, enumeratorDef, parentNode })(updateResult.record)
+  const categoryItems = await getEnumeratingCategoryItems({ survey, enumeratorDef, parentNode, categoryItemProvider })(
+    updateResult.record
+  )
   if (categoryItems.length === 0) return false
 
-  categoryItems.forEach((categoryItem) => {
+  for (const categoryItem of categoryItems) {
     const { record } = updateResult
-    const childUpdateResult = createNodeAndDescendants({
+    const childUpdateResult = await createNodeAndDescendants({
       user,
       survey,
       record: updateResult.record,
       parentNode,
-      nodeDef: entityDef,
+      nodeDef,
       sideEffect,
     })
     const enumeratorNode = Object.values(childUpdateResult.nodes).find(
@@ -68,7 +63,7 @@ export const createEnumeratedEntityNodes = (params: {
       // it should never happen
       throw new SystemError('record.enumeratorNodeNotFound', {
         recordUuid: record.uuid,
-        entityDef: NodeDefs.getName(entityDef),
+        entityDef: NodeDefs.getName(nodeDef),
         enumerator: NodeDefs.getName(enumeratorDef),
       })
     }
@@ -77,24 +72,17 @@ export const createEnumeratedEntityNodes = (params: {
     enumeratorNode.refData = { categoryItem }
 
     updateResult.merge(childUpdateResult)
-  })
+  }
   return true
 }
 
-const createChildNodesBasedOnMinCount = (params: NodeCreateParams & { updateResult: RecordUpdateResult }): void => {
-  const { user, survey, parentNode, nodeDef, updateResult, createMultipleEntities = true, sideEffect = false } = params
+const createChildNodesBasedOnMinCount = async (
+  params: NodeCreateParams & { updateResult: RecordUpdateResult }
+): Promise<void> => {
+  const { parentNode, nodeDef, updateResult, createMultipleEntities = true } = params
 
   if (NodeDefs.isMultipleEntity(nodeDef) && NodeDefs.isEnumerate(nodeDef)) {
-    if (
-      createEnumeratedEntityNodes({
-        user,
-        survey,
-        parentNode: parentNode!,
-        entityDef: nodeDef,
-        updateResult,
-        sideEffect,
-      })
-    ) {
+    if (await createEnumeratedEntityNodes({ ...params, parentNode: parentNode! })) {
       return
     }
   }
@@ -104,19 +92,12 @@ const createChildNodesBasedOnMinCount = (params: NodeCreateParams & { updateResu
     return // do nothing
   }
   for (let index = 0; index < nodesToInsertCount; index++) {
-    const childUpdateResult = createNodeAndDescendants({
-      user,
-      survey,
-      record: updateResult.record,
-      parentNode,
-      nodeDef,
-      sideEffect,
-    })
+    const childUpdateResult = await createNodeAndDescendants({ ...params, record: updateResult.record })
     updateResult.merge(childUpdateResult)
   }
 }
 
-export const createDescendants = (params: NodeCreateParams): RecordUpdateResult => {
+export const createDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
   const { survey, record, nodeDef } = params
 
   const updateResult = new RecordUpdateResult({ record })
@@ -125,12 +106,14 @@ export const createDescendants = (params: NodeCreateParams): RecordUpdateResult 
     const childDefs = getNodeDefChildren({ survey, nodeDef })
 
     // Add only child single nodes (it allows to apply default values)
-    childDefs.forEach((nodeDef) => createChildNodesBasedOnMinCount({ ...params, updateResult, nodeDef }))
+    for (const childDef of childDefs) {
+      await createChildNodesBasedOnMinCount({ ...params, updateResult, nodeDef: childDef })
+    }
   }
   return updateResult
 }
 
-export const createNodeAndDescendants = (params: NodeCreateParams): RecordUpdateResult => {
+export const createNodeAndDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
   const { survey, record, parentNode, nodeDef, sideEffect = false } = params
 
   const node = NodeFactory.createInstance({
@@ -145,7 +128,11 @@ export const createNodeAndDescendants = (params: NodeCreateParams): RecordUpdate
 
   // Add children if entity
   if (NodeDefs.isEntity(nodeDef)) {
-    const descendantsUpdateResult = createDescendants({ ...params, record: updateResult.record, parentNode: node })
+    const descendantsUpdateResult = await createDescendants({
+      ...params,
+      record: updateResult.record,
+      parentNode: node,
+    })
     updateResult.merge(descendantsUpdateResult)
   }
   return updateResult

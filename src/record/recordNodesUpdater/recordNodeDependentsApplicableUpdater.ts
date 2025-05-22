@@ -63,7 +63,7 @@ export const updateSelfAndDependentsApplicable = async (
       let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
 
       if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
-        createOrDeleteEnumeratedEntities({
+        await createOrDeleteEnumeratedEntities({
           ...params,
           parentNode: nodeCtxUpdated,
           entityDef: nodeDefNodePointer as NodeDefEntity,

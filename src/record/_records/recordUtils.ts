@@ -1,6 +1,7 @@
 import { CategoryItem } from '../../category'
 import { Node, NodeValues } from '../../node'
 import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefs, NodeDefType } from '../../nodeDef'
+import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { Survey, Surveys } from '../../survey'
 import { Record } from '../record'
 import {
@@ -56,14 +57,35 @@ export const findDependentEnumeratedEntityDefsNotEmpty =
   }
 
 export const getEnumeratingCategoryItems =
-  (params: { survey: Survey; enumeratorDef: NodeDefCode; parentNode: Node }) =>
-  (record: Record): CategoryItem[] => {
-    const { survey, enumeratorDef, parentNode } = params
+  (params: {
+    survey: Survey
+    enumeratorDef: NodeDefCode
+    parentNode: Node
+    categoryItemProvider?: CategoryItemProvider
+  }) =>
+  async (record: Record): Promise<CategoryItem[]> => {
+    const { survey, enumeratorDef, parentNode, categoryItemProvider } = params
+    const categoryUuid = NodeDefs.getCategoryUuid(enumeratorDef)
+    if (!categoryUuid) return []
+    const category = Surveys.getCategoryByUuid({ survey, categoryUuid })
+    if (!category) return []
+
     let parentItemUuid
-    if (NodeDefs.getParentCodeDefUuid(enumeratorDef)) {
+    const parentCodeDefUuid = NodeDefs.getParentCodeDefUuid(enumeratorDef)
+    if (parentCodeDefUuid) {
       const parentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: enumeratorDef })(record)
       parentItemUuid = parentCodeAttribute ? NodeValues.getItemUuid(parentCodeAttribute) : null
       if (!parentItemUuid) return []
     }
-    return Surveys.getEnumeratingCategoryItems({ survey, enumerator: enumeratorDef, parentItemUuid })
+    const items = Surveys.getEnumeratingCategoryItems({
+      survey,
+      enumerator: enumeratorDef,
+      parentItemUuid,
+    })
+    if (items.length > 0) return items
+    if (!categoryItemProvider) return []
+    const draft = !!record.preview
+    return items.length > 0
+      ? items
+      : ((await categoryItemProvider?.getItems({ survey, categoryUuid, parentItemUuid, draft })) ?? [])
   }
