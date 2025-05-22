@@ -11,7 +11,7 @@ export const getEnumeratingCategoryItems = (params: {
   parentItemUuid?: string
 }): CategoryItem[] => {
   const { survey, enumerator, parentItemUuid } = params
-  const categoryUuid = enumerator.props.categoryUuid
+  const categoryUuid = NodeDefs.getCategoryUuid(enumerator)!
   const category = survey.categories?.[categoryUuid]
   if (!category || (NodeDefs.getParentCodeDefUuid(enumerator) && !parentItemUuid)) {
     return []

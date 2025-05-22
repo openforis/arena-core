@@ -86,7 +86,9 @@ export const updateNodesDependents = async (
       updateResult.merge(dependentCodeAttributesUpdateResult)
 
       // enumerated entities
-      const dependentEnumeratedEntitiesUpdateResult = updateDependentEnumeratedEntities(createNodeUpdateParams(node))
+      const dependentEnumeratedEntitiesUpdateResult = await updateDependentEnumeratedEntities(
+        createNodeUpdateParams(node)
+      )
       updateResult.merge(dependentEnumeratedEntitiesUpdateResult)
 
       // Update dependents (file names)
