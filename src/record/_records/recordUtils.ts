@@ -77,15 +77,8 @@ export const getEnumeratingCategoryItems =
       parentItemUuid = parentCodeAttribute ? NodeValues.getItemUuid(parentCodeAttribute) : null
       if (!parentItemUuid) return []
     }
-    const items = Surveys.getEnumeratingCategoryItems({
-      survey,
-      enumerator: enumeratorDef,
-      parentItemUuid,
-    })
+    const items = Surveys.getEnumeratingCategoryItems({ survey, enumerator: enumeratorDef, parentItemUuid })
     if (items.length > 0) return items
     if (!categoryItemProvider) return []
-    const draft = !!record.preview
-    return items.length > 0
-      ? items
-      : ((await categoryItemProvider?.getItems({ survey, categoryUuid, parentItemUuid, draft })) ?? [])
+    return categoryItemProvider.getItems({ survey, categoryUuid, parentItemUuid, draft: !!record.preview })
   }
