@@ -3,8 +3,10 @@ import { Node, NodeValueCode, NodeValueTaxon } from '../../node'
 import { Survey, Surveys } from '../../survey'
 import { Record } from '../record'
 import { Records } from '../records'
-import { NodeDef, NodeDefType, NodeDefs, NodeDefCodeProps, NodeDefTaxon } from '../../nodeDef'
+import { NodeDef, NodeDefType, NodeDefs, NodeDefCodeProps, NodeDefTaxon, NodeDefCode } from '../../nodeDef'
 import { Dates, DateFormats, Objects } from '../../utils'
+import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 
 interface ToNodeValueParams {
   survey: Survey
@@ -13,6 +15,8 @@ interface ToNodeValueParams {
   nodeDef: NodeDef<any>
   valueExpr: string
   timezoneOffset?: number
+  categoryItemProvider?: CategoryItemProvider
+  taxonProvider?: TaxonProvider
 }
 
 const _toPrimitive = (TypeTo: any) => (params: ToNodeValueParams) => {
@@ -26,14 +30,15 @@ const _toBoolean = (params: ToNodeValueParams) => {
   return null
 }
 
-const _toCode = (params: ToNodeValueParams): NodeValueCode | null => {
-  const { survey, record, nodeDef, nodeParent, valueExpr } = params
-
-  if (!nodeParent) return null
-
-  // ValueExpr is the code of a category item
-  const code = String(valueExpr)
-
+const _findCategoryItemUuidByCode = async (params: {
+  survey: Survey
+  record: Record
+  nodeDef: NodeDefCode
+  nodeParent: Node
+  code: string
+  categoryItemProvider?: CategoryItemProvider
+}): Promise<string | undefined> => {
+  const { survey, record, nodeDef, nodeParent, code, categoryItemProvider } = params
   const codeNodeDef = nodeDef as NodeDef<NodeDefType.code, NodeDefCodeProps>
 
   const categoryItemUuid = Records.getCategoryItemUuid({
@@ -42,6 +47,33 @@ const _toCode = (params: ToNodeValueParams): NodeValueCode | null => {
     nodeDef: codeNodeDef,
     parentNode: nodeParent,
     code,
+  })
+  if (categoryItemUuid) return categoryItemUuid
+  if (!categoryItemProvider) return undefined
+
+  const categoryUuid = NodeDefs.getCategoryUuid(nodeDef)
+  if (!categoryUuid) return undefined
+  const codePaths = [...Records.getAncestorCodePath({ survey, record, parentNode: nodeParent, nodeDef }), code]
+  const draft = !!record.preview
+  const item = await categoryItemProvider.getItemByCodePaths({ survey, categoryUuid, codePaths, draft })
+  return item?.uuid
+}
+
+const _toCode = async (params: ToNodeValueParams): Promise<NodeValueCode | null> => {
+  const { survey, record, nodeDef, nodeParent, valueExpr, categoryItemProvider } = params
+
+  if (!nodeParent) return null
+
+  // ValueExpr is the code of a category item
+  const code = String(valueExpr)
+
+  const categoryItemUuid = await _findCategoryItemUuidByCode({
+    survey,
+    record,
+    nodeDef: nodeDef as NodeDefCode,
+    nodeParent,
+    code,
+    categoryItemProvider,
   })
 
   return categoryItemUuid ? { itemUuid: categoryItemUuid } : null
@@ -71,14 +103,30 @@ const _toDateTime = (params: {
   return Dates.format(dateWithTimezoneOffset, format)
 }
 
-const _toTaxon = (params: ToNodeValueParams): NodeValueTaxon | null => {
-  const { survey, nodeDef, valueExpr } = params
+const findTaxonByCode = async (params: {
+  survey: Survey
+  nodeDef: NodeDefTaxon
+  taxonCode: string
+  draft: boolean
+  taxonProvider?: TaxonProvider
+}) => {
+  const { survey, nodeDef, taxonCode, taxonProvider, draft } = params
+  const taxonomyUuid = NodeDefs.getTaxonomyUuid(nodeDef)!
+  const taxon = Surveys.getTaxonByCode({ survey, taxonomyUuid, taxonCode })
+  if (taxon) return taxon
+  if (!taxonProvider) return null
+  return taxonProvider.getTaxonByCode({ survey, taxonomyUuid, taxonCode, draft })
+}
+
+const _toTaxon = async (params: ToNodeValueParams): Promise<NodeValueTaxon | null> => {
+  const { survey, record, nodeDef, valueExpr, taxonProvider } = params
 
   // ValueExpr is the code of a taxon
   const taxonCode = String(valueExpr)
 
   const taxonNodeDef = nodeDef as NodeDefTaxon
-  const taxon = Surveys.getTaxonByCode({ survey, taxonomyUuid: taxonNodeDef.props.taxonomyUuid, taxonCode })
+  const draft = !!record.preview
+  const taxon = await findTaxonByCode({ survey, nodeDef: taxonNodeDef, taxonCode, taxonProvider, draft })
   return taxon ? { taxonUuid: taxon.uuid } : null
 }
 
@@ -114,12 +162,12 @@ const _valueExprToValueNodeFns: { [key in NodeDefType]?: (params: ToNodeValuePar
   },
 }
 
-const toNodeValue = (params: ToNodeValueParams) => {
-  const { survey, record, nodeParent, nodeDef, valueExpr, timezoneOffset } = params
+const toNodeValue = async (params: ToNodeValueParams): Promise<any> => {
+  const { nodeDef, valueExpr } = params
   if (Objects.isEmpty(valueExpr)) return null
 
   const fn = _valueExprToValueNodeFns[NodeDefs.getType(nodeDef)]
-  return fn?.({ survey, record, nodeParent, nodeDef, valueExpr, timezoneOffset })
+  return fn?.(params)
 }
 
 export const RecordExpressionValueConverter = {
