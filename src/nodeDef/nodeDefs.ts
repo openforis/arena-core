@@ -218,7 +218,7 @@ const isHiddenWhenNotRelevant =
 const isCodeShown =
   (cycle = defaultCycle) =>
   (nodeDef: NodeDefCode): boolean =>
-    getLayoutProps(cycle)(nodeDef).codeShown ?? false
+    !!(getLayoutProps(cycle)(nodeDef).codeShown ?? true)
 
 // Analysis
 const getAreaBasedEstimatedOf = (nodeDef: NodeDef<any>): string | undefined =>
