@@ -33,7 +33,7 @@ const updateDefaultValuesInNodes = async (
     updateResult: RecordUpdateResult
   }
 ): Promise<void> => {
-  const { survey, nodePointer, updateResult, timezoneOffset, sideEffect = false } = params
+  const { survey, nodePointer, updateResult, timezoneOffset, categoryItemProvider, sideEffect = false } = params
 
   const { nodeCtx, nodeDef } = nodePointer
 
@@ -56,13 +56,14 @@ const updateDefaultValuesInNodes = async (
     const exprEvalValue = exprEval?.value
     const exprValue = Objects.isEmpty(exprEvalValue)
       ? null
-      : RecordExpressionValueConverter.toNodeValue({
+      : await RecordExpressionValueConverter.toNodeValue({
           survey,
           record,
           nodeDef,
           nodeParent: nodeCtx,
           valueExpr: exprEvalValue,
           timezoneOffset,
+          categoryItemProvider,
         })
 
     const nodesToUpdate = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })

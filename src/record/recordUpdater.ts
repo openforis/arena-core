@@ -59,13 +59,13 @@ const _onRecordNodesCreateOrUpdate = async (
 }
 
 const createDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
-  const { record: updatedRecord, nodes: createdNodes } = RecordNodesUpdater.createDescendants(params)
+  const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.createDescendants(params)
 
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
 }
 
 const _createNodeAndDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
-  const { record: updatedRecord, nodes: createdNodes } = RecordNodesUpdater.createNodeAndDescendants(params)
+  const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.createNodeAndDescendants(params)
 
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
 }

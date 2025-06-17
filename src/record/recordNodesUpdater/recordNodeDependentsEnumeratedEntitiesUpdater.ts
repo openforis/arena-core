@@ -1,10 +1,11 @@
 import { Node, Nodes, NodeValues } from '../../node'
 import { NodeDefCode, NodeDefEntity, NodeDefType } from '../../nodeDef'
+import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { Survey, Surveys } from '../../survey'
 import { Objects } from '../../utils'
 import { getAncestor, getChild, getChildren } from '../_records/recordGetters'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
-import { ExpressionEvaluationContext } from './expressionEvaluationContext'
+import { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { createEnumeratedEntityNodes } from './recordNodesCreator'
 import { deleteNodes } from './recordNodesDeleter'
@@ -12,14 +13,15 @@ import { RecordUpdateResult } from './recordUpdateResult'
 
 const uuidsCompare = (uuidA: string, uuidB: string): number => uuidA.localeCompare(uuidB)
 
-const shouldExistingEntitiesBeDeleted = (params: {
+const shouldExistingEntitiesBeDeleted = async (params: {
   survey: Survey
   entityDef: NodeDefEntity
   existingEntities: Node[]
   parentNode: Node
   updateResult: RecordUpdateResult
+  categoryItemProvider?: CategoryItemProvider
 }) => {
-  const { survey, entityDef, existingEntities, parentNode, updateResult } = params
+  const { survey, entityDef, existingEntities, parentNode, updateResult, categoryItemProvider } = params
   const enumeratorDef = Surveys.getNodeDefEnumerator({ survey, entityDef })!
   const existingEnumeratingItemUuids = existingEntities
     .map((existingEntity) => {
@@ -28,22 +30,25 @@ const shouldExistingEntitiesBeDeleted = (params: {
     })
     .sort(uuidsCompare)
 
-  const enumeratingCategoryItems = getEnumeratingCategoryItems({ survey, enumeratorDef, parentNode })(
-    updateResult.record
-  )
+  const enumeratingCategoryItems = await getEnumeratingCategoryItems({
+    survey,
+    enumeratorDef,
+    parentNode,
+    categoryItemProvider,
+  })(updateResult.record)
   const newEnumeratingItemUuids = enumeratingCategoryItems.map((item) => item.uuid).sort(uuidsCompare)
 
   return !Objects.isEqual(newEnumeratingItemUuids, existingEnumeratingItemUuids)
 }
 
-export const createOrDeleteEnumeratedEntities = (
-  params: ExpressionEvaluationContext & {
+export const createOrDeleteEnumeratedEntities = async (
+  params: RecordExpressionEvaluationContext & {
     parentNode: Node
     entityDef: NodeDefEntity
     updateResult: RecordUpdateResult
   }
 ) => {
-  const { user, survey, parentNode, entityDef, updateResult, sideEffect } = params
+  const { survey, parentNode, entityDef, categoryItemProvider, updateResult, sideEffect } = params
   const existingEntities = getChildren(parentNode, entityDef.uuid)(updateResult.record)
   const existingEntitiesCount = existingEntities.length
   const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
@@ -57,24 +62,26 @@ export const createOrDeleteEnumeratedEntities = (
   if (applicable) {
     if (
       existingEntitiesCount > 0 &&
-      shouldExistingEntitiesBeDeleted({ survey, entityDef, existingEntities, parentNode, updateResult })
+      (await shouldExistingEntitiesBeDeleted({
+        survey,
+        entityDef,
+        existingEntities,
+        parentNode,
+        updateResult,
+        categoryItemProvider,
+      }))
     ) {
       deleteExistingEntities()
     }
-    createEnumeratedEntityNodes({
-      user,
-      survey,
-      entityDef,
-      parentNode,
-      updateResult,
-      sideEffect,
-    })
+    await createEnumeratedEntityNodes({ ...params, nodeDef: entityDef, parentNode })
   } else if (!applicable && existingEntitiesCount > 0) {
     deleteExistingEntities()
   }
 }
 
-export const updateDependentEnumeratedEntities = (params: RecordNodeDependentsUpdateParams) => {
+export const updateDependentEnumeratedEntities = async (
+  params: RecordNodeDependentsUpdateParams
+): Promise<RecordUpdateResult> => {
   const { survey, record, node } = params
 
   const updateResult = new RecordUpdateResult({ record })
@@ -92,8 +99,8 @@ export const updateDependentEnumeratedEntities = (params: RecordNodeDependentsUp
   const ancestorMultipleEntity = getAncestor({ record, node, ancestorDefUuid: ancestorMultipleEntityDef.uuid })!
 
   // 2. update enumerated entities
-  dependentEnumeratedEntityDefs.forEach((entityDef) => {
-    createOrDeleteEnumeratedEntities({ ...params, entityDef, parentNode: ancestorMultipleEntity, updateResult })
-  })
+  for (const entityDef of dependentEnumeratedEntityDefs) {
+    await createOrDeleteEnumeratedEntities({ ...params, entityDef, parentNode: ancestorMultipleEntity, updateResult })
+  }
   return updateResult
 }
