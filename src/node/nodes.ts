@@ -10,7 +10,11 @@ const isChildApplicable = (node: Node, nodeDefUuid: string): boolean => {
   // if child applicability is not defined for a node definition, consider it applicable
   return node.meta?.childApplicability?.[nodeDefUuid] !== false
 }
-const getChildrenCount = (params: { parentNode: Node; nodeDef: NodeDef<any>; countType: NodeDefCountType }): number => {
+const getChildrenMinOrMaxCount = (params: {
+  parentNode: Node
+  nodeDef: NodeDef<any>
+  countType: NodeDefCountType
+}): number => {
   const { parentNode, nodeDef, countType } = params
   const countIndex =
     countType === NodeDefCountType.max ? parentNode.meta?.childrenMaxCount : parentNode.meta?.childrenMinCount
@@ -25,10 +29,10 @@ const getChildrenCount = (params: { parentNode: Node; nodeDef: NodeDef<any>; cou
 }
 
 const getChildrenMaxCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
-  getChildrenCount({ ...params, countType: NodeDefCountType.max })
+  getChildrenMinOrMaxCount({ ...params, countType: NodeDefCountType.max })
 
 const getChildrenMinCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
-  getChildrenCount({ ...params, countType: NodeDefCountType.min })
+  getChildrenMinOrMaxCount({ ...params, countType: NodeDefCountType.min })
 
 const getHierarchy = (node: Node): string[] => [...(node.meta?.h ?? [])]
 
@@ -113,7 +117,7 @@ export const Nodes = {
   isRoot,
   areEqual,
   isChildApplicable,
-  getChildrenCount,
+  getChildrenMinOrMaxCount,
   getChildrenMaxCount,
   getChildrenMinCount,
   getHierarchy,
