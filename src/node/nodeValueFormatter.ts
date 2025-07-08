@@ -15,7 +15,7 @@ const extractCategoryItem = (params: { survey: Survey; node?: Node; value: any }
 
   const item = node?.refData?.categoryItem ?? Surveys.getCategoryItemByUuid({ survey, itemUuid })
   // check the validity of the reference data category item
-  return item && item.props && Objects.isNotEmpty(CategoryItems.getCode(item)) ? item : undefined
+  return item?.props && Objects.isNotEmpty(CategoryItems.getCode(item)) ? item : undefined
 }
 
 type FormatParams = {
