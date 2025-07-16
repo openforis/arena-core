@@ -9,6 +9,8 @@ const defaultIfEmpty =
 
 const quote = (text: TextType): string => (Objects.isEmpty(text) ? '' : `'${text}'`)
 
+const quoteDouble = (text: TextType): string => (Objects.isEmpty(text) ? '' : `"${text}"`)
+
 const removePrefix =
   (prefix: string) =>
   (text: TextType): string => {
@@ -31,10 +33,27 @@ const repeat = (text: string, times: number): string => {
   return parts.join('')
 }
 
+const _unquoteInternal = (text: TextType, quoteSymbol = "'"): string => {
+  if (Objects.isEmpty(text)) return ''
+  let result = text as string
+  if (result.length > 1 && result.startsWith(quoteSymbol) && result.endsWith(quoteSymbol)) {
+    result = removePrefix(quoteSymbol)(result)
+    result = removeSuffix(quoteSymbol)(result)
+  }
+  return result
+}
+
+const unquote = (text: TextType): string => _unquoteInternal(text, `'`)
+
+const unquoteDouble = (text: TextType): string => _unquoteInternal(text, `"`)
+
 export const Strings = {
   defaultIfEmpty,
   quote,
+  quoteDouble,
   removePrefix,
   removeSuffix,
   repeat,
+  unquote,
+  unquoteDouble,
 }
