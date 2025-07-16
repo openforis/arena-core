@@ -9,6 +9,8 @@ const defaultIfEmpty =
 
 const quote = (text: TextType): string => (Objects.isEmpty(text) ? '' : `'${text}'`)
 
+const quoteDouble = (text: TextType): string => (Objects.isEmpty(text) ? '' : `"${text}"`)
+
 const removePrefix =
   (prefix: string) =>
   (text: TextType): string => {
@@ -48,6 +50,7 @@ const unquoteDouble = (text: TextType): string => _unquoteInternal(text, `"`)
 export const Strings = {
   defaultIfEmpty,
   quote,
+  quoteDouble,
   removePrefix,
   removeSuffix,
   repeat,
