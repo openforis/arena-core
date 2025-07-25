@@ -116,6 +116,7 @@ const getMaxNumberDecimalDigits = (nodeDef: NodeDefDecimal) => {
 const getFileType = (nodeDef: NodeDefFile): NodeDefFileType | undefined => nodeDef.props.fileType
 const getFileNameExpression = (nodeDef: NodeDefFile): string | undefined => nodeDef.propsAdvanced?.fileNameExpression
 const getFileMaxSize = (nodeDef: NodeDefFile): number | undefined => nodeDef.props.maxFileSize
+const isGeotagInformationShown = (nodeDef: NodeDefFile): boolean => !!nodeDef.props.geotagInformationShown
 
 // taxon
 const getTaxonomyUuid = (nodeDef: NodeDefTaxon): string | undefined => nodeDef.props.taxonomyUuid
@@ -264,6 +265,7 @@ export const NodeDefs = {
   getFileNameExpression,
   getFileType,
   getFileMaxSize,
+  isGeotagInformationShown,
   getTaxonomyUuid,
   isVernacularNameSelectionKept,
   getTextTransform,
