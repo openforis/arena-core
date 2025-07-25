@@ -10,6 +10,7 @@ export enum NodeDefFileType {
 export interface NodeDefFileProps extends NodeDefProps {
   fileType?: NodeDefFileType
   maxFileSize?: number
+  geotagInformationShown?: boolean
 }
 
 export type NodeDefFile = NodeDef<NodeDefType.file, NodeDefFileProps>
