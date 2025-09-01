@@ -45,6 +45,10 @@ const getOrFetchCategoryItem = async (params: {
   codePaths: string[]
 }): Promise<CategoryItem | undefined> => {
   const { context, categoryUuid, codePaths } = params
+  // if any code path is empty, return null (no category item can be found)
+  if (Objects.isEmpty(codePaths) || codePaths.some(Objects.isEmpty)) {
+    return undefined
+  }
   const { survey, categoryItemProvider } = context
   const categoryItem = getCategoryItemByCodePaths({ survey, categoryUuid, codePaths })
   const draft = isUsingDraftProps(context)
@@ -59,6 +63,10 @@ const getOrFetchTaxon = async (params: {
   const { context, taxonomyUuid, taxonCode } = params
   if (typeof taxonCode !== 'string' && typeof taxonCode !== 'number') {
     return undefined // node def expression validator could call it passing a node def object
+  }
+  // if taxonCode is empty, return undefined
+  if (Objects.isEmpty(taxonCode)) {
+    return undefined
   }
   const { survey, taxonProvider } = context
   const taxon = getTaxonByCode({ survey, taxonomyUuid, taxonCode })
