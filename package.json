@@ -4,7 +4,7 @@
     "name": "OpenForis",
     "email": "openforis.arena@gmail.com"
   },
-  "version": "1.0.33",
+  "version": "1.0.34",
   "description": "Arena core module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
