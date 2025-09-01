@@ -165,6 +165,10 @@ describe('RecordExpressionEvaluator', () => {
       result: 73,
     },
     // categoryItemProp
+    { expression: `categoryItemProp('hierarchical_category', 'prop1', null)`, result: null },
+    { expression: `categoryItemProp('hierarchical_category', 'prop1', '')`, result: null },
+    { expression: `categoryItemProp('hierarchical_category', 'prop1', '1', null)`, result: null },
+    { expression: `categoryItemProp('hierarchical_category', 'prop1', null, '1')`, result: null },
     { expression: `categoryItemProp('hierarchical_category', 'prop1', '1')`, result: 'Extra prop1 item 1' },
     { expression: `categoryItemProp('hierarchical_category', 'prop2', '3')`, result: 'Extra prop2 item 3' },
     { expression: `categoryItemProp('hierarchical_category', 'prop1', '2', '1')`, result: 'Extra prop1 item 2-1' },
