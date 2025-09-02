@@ -1,6 +1,7 @@
+import { Dictionary } from '../../common'
 import { SystemError } from '../../error'
 
-const globalObjects: { [key: string]: any } = {
+const globalObjectsDictionary: Dictionary<any> = {
   Array,
   Boolean,
   Date,
@@ -8,13 +9,14 @@ const globalObjects: { [key: string]: any } = {
   Number,
   String,
 }
+const globalObjectsArray = Object.values(globalObjectsDictionary)
 
 export const getGlobalObjectProperty = (name: string, object: any): any => {
-  if (name in globalObjects) {
-    return globalObjects[name]
+  const globalObject = globalObjectsDictionary[name]
+  if (globalObject) {
+    return globalObject
   }
-
-  if (Object.values(globalObjects).includes(object)) {
+  if (globalObjectsArray.includes(object)) {
     const property = object[name]
 
     if (!property) {
@@ -22,6 +24,5 @@ export const getGlobalObjectProperty = (name: string, object: any): any => {
     }
     return property
   }
-
   return null
 }
