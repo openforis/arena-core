@@ -16,7 +16,7 @@ export const getGlobalObjectProperty = (name: string, object: any): any => {
   if (globalObject) {
     return globalObject
   }
-  if (globalObjectsArray.includes(object)) {
+  if (object && globalObjectsArray.includes(object)) {
     const property = object[name]
 
     if (!property) {
