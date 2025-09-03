@@ -132,7 +132,12 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
           evaluateToNode,
           propName,
         })
-        return Array.isArray(evaluationResult) ? [...acc, ...evaluationResult] : [...acc, evaluationResult]
+        if (Array.isArray(evaluationResult)) {
+          evaluationResult.forEach((item) => acc.push(item))
+        } else {
+          acc.push(evaluationResult)
+        }
+        return acc
       }, [])
       return result
     } else {
