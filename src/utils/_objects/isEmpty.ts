@@ -14,7 +14,7 @@ export const isEmpty = (value: any): boolean => {
     return value.length === 0
   }
   if (value instanceof Date) {
-    return isNaN(value.getTime())
+    return Number.isNaN(value.getTime())
   }
   if (value instanceof Function) {
     return false
