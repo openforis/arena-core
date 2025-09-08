@@ -39,6 +39,7 @@ export enum SurveySecurityProp {
   visibleInMobile = 'visibleInMobile',
   allowRecordsDownloadInMobile = 'allowRecordsDownloadInMobile',
   allowRecordsUploadFromMobile = 'allowRecordsUploadFromMobile',
+  allowRecordsWithErrorsUploadFromMobile = 'allowRecordsWithErrorsUploadFromMobile',
 }
 
 export type SurveySecurity = {
@@ -50,6 +51,7 @@ export const surveySecurityDefaults: SurveySecurity = {
   [SurveySecurityProp.visibleInMobile]: true,
   [SurveySecurityProp.allowRecordsDownloadInMobile]: true,
   [SurveySecurityProp.allowRecordsUploadFromMobile]: true,
+  [SurveySecurityProp.allowRecordsWithErrorsUploadFromMobile]: true,
 }
 
 export interface SurveyProps {
