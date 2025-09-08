@@ -5,13 +5,22 @@ export const getSecurity = (survey: Survey): SurveySecurity => ({
   ...(survey?.props?.security ?? {}),
 })
 
-export const isDataEditorViewNotOwnedRecordsAllowed = (survey: Survey): boolean =>
-  !!getSecurity(survey)[SurveySecurityProp.dataEditorViewNotOwnedRecordsAllowed]
+export const isSecurityPropEnabled =
+  (prop: SurveySecurityProp) =>
+  (survey: Survey): boolean =>
+    !!getSecurity(survey)[prop]
 
-export const isVisibleInMobile = (survey: Survey): boolean => !!getSecurity(survey)[SurveySecurityProp.visibleInMobile]
+export const isDataEditorViewNotOwnedRecordsAllowed = (survey: Survey): boolean =>
+  isSecurityPropEnabled(SurveySecurityProp.dataEditorViewNotOwnedRecordsAllowed)(survey)
+
+export const isVisibleInMobile = (survey: Survey): boolean =>
+  isSecurityPropEnabled(SurveySecurityProp.visibleInMobile)(survey)
 
 export const isRecordsDownloadInMobileAllowed = (survey: Survey): boolean =>
-  !!getSecurity(survey)[SurveySecurityProp.allowRecordsDownloadInMobile]
+  isSecurityPropEnabled(SurveySecurityProp.allowRecordsDownloadInMobile)(survey)
 
 export const isRecordsUploadFromMobileAllowed = (survey: Survey): boolean =>
-  !!getSecurity(survey)[SurveySecurityProp.allowRecordsUploadFromMobile]
+  isSecurityPropEnabled(SurveySecurityProp.allowRecordsUploadFromMobile)(survey)
+
+export const isRecordsWithErrorsUploadFromMobileAllowed = (survey: Survey): boolean =>
+  isSecurityPropEnabled(SurveySecurityProp.allowRecordsWithErrorsUploadFromMobile)(survey)
