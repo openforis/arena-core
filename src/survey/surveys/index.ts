@@ -76,6 +76,7 @@ import {
   isDataEditorViewNotOwnedRecordsAllowed,
   isRecordsDownloadInMobileAllowed,
   isRecordsUploadFromMobileAllowed,
+  isRecordsWithErrorsUploadFromMobileAllowed,
   isVisibleInMobile,
 } from './surveyGettersSecurity'
 
@@ -160,6 +161,7 @@ export const Surveys = {
   isVisibleInMobile,
   isRecordsDownloadInMobileAllowed,
   isRecordsUploadFromMobileAllowed,
+  isRecordsWithErrorsUploadFromMobileAllowed,
 
   // utils
   getEnumeratingCategoryItems,
