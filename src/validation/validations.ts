@@ -1,19 +1,19 @@
 import { Objects } from '../utils'
 import { ValidationFactory } from './factory'
-import { Validation, ValidationFields, ValidationResult } from './validation'
+import { Validation, ValidationCounts, ValidationFields, ValidationResult } from './validation'
 
 const getValidation = (obj: any): Validation => obj.validation || ValidationFactory.createInstance()
 
-const getFieldValidations = (validation: Validation): ValidationFields => validation.fields || {}
+const getFieldValidations = (validation: Validation): ValidationFields => validation.fields ?? {}
 
 const getFieldValidation =
   (field: string) =>
   (validation: Validation): Validation =>
     getFieldValidations(validation)[field] || ValidationFactory.createInstance()
 
-const getErrors = (validation: Validation): ValidationResult[] => validation.errors || []
+const getErrors = (validation: Validation): ValidationResult[] => validation.errors ?? []
 
-const getWarnings = (validation: Validation): ValidationResult[] => validation.warnings || []
+const getWarnings = (validation: Validation): ValidationResult[] => validation.warnings ?? []
 
 const hasErrors = (validation: Validation): boolean => {
   const errors = getErrors(validation)
@@ -24,6 +24,12 @@ const hasWarnings = (validation: Validation): boolean => {
   const warnings = getWarnings(validation)
   return !Objects.isEmpty(warnings) || Object.values(getFieldValidations(validation)).some(hasWarnings)
 }
+
+const isValid = (validation: Validation): boolean => Objects.isEmpty(validation) || validation.valid
+const isNotValid = (validation: Validation): boolean => !isValid(validation)
+
+const getErrorsCount = (validation: Validation): number => validation?.counts?.errors ?? 0
+const getWarningsCount = (validation: Validation): number => validation?.counts?.warnings ?? 0
 
 const recalculateValidity = (validation: Validation): Validation => {
   let allFieldsValid = true
@@ -46,6 +52,42 @@ const recalculateValidity = (validation: Validation): Validation => {
     warnings: getWarnings(validation),
   })
 }
+
+const traverse = (visitor: (visitedItem: Validation) => void) => (validation: Validation) => {
+  const stack: Validation[] = []
+  stack.push(validation)
+
+  while (stack.length) {
+    const validationCurrent = stack.pop()!
+    visitor(validationCurrent)
+    // Add field validations to stack
+    const validationFields = getFieldValidations(validationCurrent)
+    stack.push(...Object.values(validationFields))
+  }
+}
+
+const calculateCounts = (validation: Validation): ValidationCounts => {
+  let errors = 0
+  let warnings = 0
+
+  traverse((validationCurrent) => {
+    errors += getErrors(validationCurrent).length
+    warnings += getWarnings(validationCurrent).length
+  })(validation)
+
+  return {
+    errors,
+    warnings,
+  }
+}
+
+const updateCounts = (validation: Validation): Validation => ({
+  ...validation,
+  counts: calculateCounts(validation),
+})
+
+const calculateHasNestedErrors = (validation: Validation): boolean => calculateCounts(validation).errors > 0
+const calculateHasNestedWarnings = (validation: Validation): boolean => calculateCounts(validation).warnings > 0
 
 const cleanup = (validation: Validation): Validation => {
   let allFieldsValid = true
@@ -121,7 +163,18 @@ export const Validations = {
   getValidation,
   getFieldValidations,
   getFieldValidation,
+  getErrors,
+  getWarnings,
+  isValid,
+  isNotValid,
+  getErrorsCount,
+  getWarningsCount,
   recalculateValidity,
+  traverse,
+  calculateCounts,
+  calculateHasNestedErrors,
+  calculateHasNestedWarnings,
+  updateCounts,
   cleanup,
   mergeValidations,
   dissocFieldValidation,
