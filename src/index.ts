@@ -199,13 +199,15 @@ export { RecordBuilder, RecordNodeBuilders } from './tests/builder/recordBuilder
 
 export {
   Arrays,
-  Dates,
   DateFormats,
+  Dates,
   FileNames,
+  FileProcessor,
   Numbers,
   Objects,
   Promises,
   Queue,
+  RetryProcessor,
   Strings,
   UnitOfTime,
   UUIDs,
