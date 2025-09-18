@@ -12,15 +12,15 @@ interface FileProcessorArgs {
 }
 
 export class FileProcessor {
-  static defaultChunkSize = 1024 * 1024 * 10 // 10MB
-  static defaultMaxTryings = 5
+  static readonly defaultChunkSize = 1024 * 1024 * 10 // 10MB
+  static readonly defaultMaxTryings = 5
 
-  protected file?: File
-  protected filePath?: string
-  protected chunkProcessor: ChunkProcessor
-  protected chunkSize: number
-  protected maxTryings: number
-  protected onError?: (error: Error) => void
+  private readonly file?: File
+  private readonly filePath?: string
+  private readonly chunkProcessor: ChunkProcessor
+  private readonly chunkSize: number
+  private readonly maxTryings: number
+  private readonly onError?: (error: Error) => void
 
   // State properties
   protected running: boolean = false
@@ -45,8 +45,7 @@ export class FileProcessor {
     this.reset()
   }
 
-  // Private helper method
-  private reset(): void {
+  protected reset(): void {
     this.running = false
     this.totalChunks = 0
     this.currentChunkNumber = 0

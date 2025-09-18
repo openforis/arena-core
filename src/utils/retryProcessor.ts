@@ -6,10 +6,10 @@ interface RetryProcessorArgs<ProcessorResult> {
 }
 
 export class RetryProcessor<ProcessorResult> {
-  private processor: () => Promise<ProcessorResult>
-  private onSuccess: (result: ProcessorResult) => void
-  private onFail: (error: Error) => void
-  private maxTryings: number
+  private readonly processor: () => Promise<ProcessorResult>
+  private readonly onSuccess: (result: ProcessorResult) => void
+  private readonly onFail: (error: Error) => void
+  private readonly maxTryings: number
 
   // State properties
   private currentTrying: number = 0
