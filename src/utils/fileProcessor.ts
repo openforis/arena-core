@@ -42,6 +42,10 @@ export class FileProcessor {
     this.maxTryings = maxTryings
     this.onError = onError
 
+    if (!this.file && !this.filePath) {
+      throw new Error('File or filePath not specified')
+    }
+
     this.reset()
   }
 
