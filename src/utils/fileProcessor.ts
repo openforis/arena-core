@@ -55,52 +55,55 @@ export class FileProcessor {
     this.currentChunkNumber = 0
   }
 
-  protected calculateFileSize(): number {
-    return this.file?.size ?? 0
+  protected async calculateFileSize(): Promise<number> {
+    return Promise.resolve(this.file?.size ?? 0)
   }
 
   protected onFail(error: Error): void {
     this.onError?.(error)
   }
 
-  protected extractCurrentFileChunk(): Blob | string {
+  protected async extractCurrentFileChunk(): Promise<Blob | string> {
     const { file, currentChunkNumber, totalChunks, chunkSize } = this
     if (!file) {
       throw new Error('File property not initialized')
     }
-    return file.slice(
-      (currentChunkNumber - 1) * chunkSize,
-      currentChunkNumber === totalChunks ? undefined : currentChunkNumber * chunkSize
+    return Promise.resolve(
+      file.slice(
+        (currentChunkNumber - 1) * chunkSize,
+        currentChunkNumber === totalChunks ? undefined : currentChunkNumber * chunkSize
+      )
     )
   }
 
   protected processNextChunk(): void {
     const { chunkProcessor, currentChunkNumber, totalChunks, maxTryings } = this
 
-    const content = this.extractCurrentFileChunk()
-
-    const retryProcessor = new RetryProcessor<void>({
-      processor: async () => chunkProcessor({ chunk: currentChunkNumber, totalChunks, content }),
-      onSuccess: () => {
-        if (this.running && this.currentChunkNumber < totalChunks) {
-          this.currentChunkNumber += 1
-          this.processNextChunk()
-        }
-      },
-      onFail: (error: Error) => {
-        this.onFail(error)
-      },
-      maxTryings,
+    this.extractCurrentFileChunk().then((content) => {
+      const retryProcessor = new RetryProcessor<void>({
+        processor: async () => chunkProcessor({ chunk: currentChunkNumber, totalChunks, content }),
+        onSuccess: () => {
+          if (this.running && this.currentChunkNumber < totalChunks) {
+            this.currentChunkNumber += 1
+            this.processNextChunk()
+          }
+        },
+        onFail: (error: Error) => {
+          this.onFail(error)
+        },
+        maxTryings,
+      })
+      retryProcessor.start()
     })
-    retryProcessor.start()
   }
 
   start(startFromChunk: number = 1): void {
     this.running = true
-    const fileSize = this.calculateFileSize()
-    this.totalChunks = Math.ceil(fileSize / this.chunkSize)
-    this.currentChunkNumber = startFromChunk
-    this.processNextChunk()
+    this.calculateFileSize().then((fileSize) => {
+      this.totalChunks = Math.ceil(fileSize / this.chunkSize)
+      this.currentChunkNumber = startFromChunk
+      this.processNextChunk()
+    })
   }
 
   stop(): void {
