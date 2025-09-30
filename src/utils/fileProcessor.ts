@@ -60,7 +60,7 @@ export class FileProcessor {
   }
 
   protected async calculateFileSize(): Promise<number> {
-    return Promise.resolve(this.file?.size ?? 0)
+    return this.file?.size ?? 0
   }
 
   protected onFail(error: Error): void {
@@ -72,11 +72,9 @@ export class FileProcessor {
     if (!file) {
       throw new Error('File property not initialized')
     }
-    return Promise.resolve(
-      file.slice(
-        (currentChunkNumber - 1) * chunkSize,
-        currentChunkNumber === totalChunks ? undefined : currentChunkNumber * chunkSize
-      )
+    return file.slice(
+      (currentChunkNumber - 1) * chunkSize,
+      currentChunkNumber === totalChunks ? undefined : currentChunkNumber * chunkSize
     )
   }
 
