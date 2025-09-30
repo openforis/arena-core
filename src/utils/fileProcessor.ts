@@ -7,6 +7,7 @@ interface FileProcessorArgs {
   filePath?: string
   chunkProcessor: ChunkProcessor
   onError?: (error: Error) => void
+  onComplete?: (result: any) => void
   chunkSize?: number
   maxTryings?: number
 }
@@ -21,6 +22,7 @@ export class FileProcessor {
   private readonly chunkSize: number
   private readonly maxTryings: number
   private readonly onError?: (error: Error) => void
+  private readonly onComplete?: (result?: any) => void
 
   // State properties
   protected running: boolean = false
@@ -32,6 +34,7 @@ export class FileProcessor {
     filePath,
     chunkProcessor,
     onError,
+    onComplete,
     chunkSize = FileProcessor.defaultChunkSize,
     maxTryings = FileProcessor.defaultMaxTryings,
   }: FileProcessorArgs) {
@@ -41,6 +44,7 @@ export class FileProcessor {
     this.chunkSize = chunkSize
     this.maxTryings = maxTryings
     this.onError = onError
+    this.onComplete = onComplete
 
     if (!this.file && !this.filePath) {
       throw new Error('File or filePath not specified')
@@ -79,31 +83,49 @@ export class FileProcessor {
   protected processNextChunk(): void {
     const { chunkProcessor, currentChunkNumber, totalChunks, maxTryings } = this
 
-    this.extractCurrentFileChunk().then((content) => {
-      const retryProcessor = new RetryProcessor<void>({
-        processor: async () => chunkProcessor({ chunk: currentChunkNumber, totalChunks, content }),
-        onSuccess: () => {
-          if (this.running && this.currentChunkNumber < totalChunks) {
-            this.currentChunkNumber += 1
-            this.processNextChunk()
-          }
-        },
-        onFail: (error: Error) => {
-          this.onFail(error)
-        },
-        maxTryings,
+    this.extractCurrentFileChunk()
+      .then((content) => {
+        const retryProcessor = new RetryProcessor<void>({
+          processor: async () => {
+            const chunkResult = await chunkProcessor({ chunk: currentChunkNumber, totalChunks, content })
+            if (this.currentChunkNumber === totalChunks && this.onComplete) {
+              this.onComplete(chunkResult)
+            }
+          },
+          onSuccess: () => {
+            if (this.running && this.currentChunkNumber < totalChunks) {
+              this.currentChunkNumber += 1
+              this.processNextChunk()
+            }
+          },
+          onFail: (error: Error) => {
+            this.onFail(error)
+            this.running = false
+          },
+          maxTryings,
+        })
+        retryProcessor.start()
       })
-      retryProcessor.start()
-    })
+      .catch((error) => {
+        this.onFail(error)
+        this.running = false
+      })
   }
 
   start(startFromChunk: number = 1): void {
     this.running = true
-    this.calculateFileSize().then((fileSize) => {
-      this.totalChunks = Math.ceil(fileSize / this.chunkSize)
-      this.currentChunkNumber = startFromChunk
-      this.processNextChunk()
-    })
+    this.currentChunkNumber = startFromChunk
+    this.calculateFileSize()
+      .then((fileSize) => {
+        this.totalChunks = Math.ceil(fileSize / this.chunkSize)
+        if (this.totalChunks > 0) {
+          this.processNextChunk()
+        }
+      })
+      .catch((error) => {
+        this.onFail(error)
+        this.running = false
+      })
   }
 
   stop(): void {

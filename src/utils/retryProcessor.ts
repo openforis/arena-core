@@ -15,7 +15,7 @@ export class RetryProcessor<ProcessorResult> {
   private currentTrying: number = 0
   private running: boolean = false
 
-  constructor({ processor, onSuccess, onFail, maxTryings = 10 }: RetryProcessorArgs<ProcessorResult>) {
+  constructor({ processor, onSuccess, onFail, maxTryings = 2 }: RetryProcessorArgs<ProcessorResult>) {
     this.processor = processor
     this.onSuccess = onSuccess
     this.onFail = onFail
