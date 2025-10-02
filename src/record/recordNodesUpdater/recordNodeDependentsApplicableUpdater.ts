@@ -30,11 +30,10 @@ export const updateSelfAndDependentsApplicable = async (
 
   if (NodeDefs.isEntity(nodeDef)) {
     // include children multiple nodes (to update their applicability too, in case they are empty)
-    Surveys.getNodeDefChildren({ survey, nodeDef })
-      .filter(NodeDefs.isMultiple)
-      .forEach((childDef) => {
-        nodePointersToUpdate.push({ nodeCtx: node, nodeDef: childDef })
-      })
+    const multipleNodeDefs = Surveys.getNodeDefChildren({ survey, nodeDef }).filter(NodeDefs.isMultiple)
+    for (const childDef of multipleNodeDefs) {
+      nodePointersToUpdate.push({ nodeCtx: node, nodeDef: childDef })
+    }
   }
 
   // 2. update expr to node and dependent nodes
