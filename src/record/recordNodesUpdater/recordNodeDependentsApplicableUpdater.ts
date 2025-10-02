@@ -1,7 +1,8 @@
-import { Nodes } from '../../node'
+import { Node, Nodes } from '../../node'
 import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
-import { SurveyDependencyType } from '../../survey/survey'
+import { Survey, SurveyDependencyType } from '../../survey/survey'
+import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
@@ -10,16 +11,11 @@ import { RecordUpdateResult } from './recordUpdateResult'
 
 const expressionEvaluator = new RecordExpressionEvaluator()
 
-export const updateSelfAndDependentsApplicable = async (
-  params: RecordNodeDependentsUpdateParams
-): Promise<RecordUpdateResult> => {
-  const { survey, record, node, sideEffect = false } = params
-
-  const updateResult = new RecordUpdateResult({ record })
+const extractNodePointersToUpdate = (params: { survey: Survey; record: Record; node: Node }) => {
+  const { survey, record, node } = params
 
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
 
-  // 1. fetch dependent nodes
   const nodePointersToUpdate = Records.getDependentNodePointers({
     survey,
     record,
@@ -28,13 +24,25 @@ export const updateSelfAndDependentsApplicable = async (
     includeSelf: !NodeDefs.isEntity(nodeDef),
   })
 
-  if (NodeDefs.isEntity(nodeDef)) {
-    // include children multiple nodes (to update their applicability too, in case they are empty)
+  if (NodeDefs.isEntity(nodeDef) && node.created) {
+    // for new entities, include children multiple nodes (to update their applicability too, in case they are empty)
     const multipleNodeDefs = Surveys.getNodeDefChildren({ survey, nodeDef }).filter(NodeDefs.isMultiple)
     for (const childDef of multipleNodeDefs) {
       nodePointersToUpdate.push({ nodeCtx: node, nodeDef: childDef })
     }
   }
+  return nodePointersToUpdate
+}
+
+export const updateSelfAndDependentsApplicable = async (
+  params: RecordNodeDependentsUpdateParams
+): Promise<RecordUpdateResult> => {
+  const { survey, record, node, sideEffect = false } = params
+
+  const updateResult = new RecordUpdateResult({ record })
+
+  // 1. fetch dependent nodes
+  const nodePointersToUpdate = extractNodePointersToUpdate({ survey, record, node })
 
   // 2. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
@@ -79,7 +87,7 @@ export const updateSelfAndDependentsApplicable = async (
         })
         nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
       }
-      nodeCtxChildren.forEach((nodeCtxChild) => {
+      for (const nodeCtxChild of nodeCtxChildren) {
         // add nodeCtxChild and its descendants to nodesUpdated
         Records.visitDescendantsAndSelf({
           record: updateResult.record,
@@ -89,7 +97,7 @@ export const updateSelfAndDependentsApplicable = async (
             return false
           },
         })
-      })
+      }
     }
   }
   return updateResult
