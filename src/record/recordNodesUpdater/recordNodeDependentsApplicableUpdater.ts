@@ -28,8 +28,8 @@ export const updateSelfAndDependentsApplicable = async (
     includeSelf: !NodeDefs.isEntity(nodeDef),
   })
 
-  if (NodeDefs.isEntity(nodeDef)) {
-    // include children multiple nodes (to update their applicability too, in case they are empty)
+  if (NodeDefs.isEntity(nodeDef) && node.created) {
+    // for new entities, include children multiple nodes (to update their applicability too, in case they are empty)
     const multipleNodeDefs = Surveys.getNodeDefChildren({ survey, nodeDef }).filter(NodeDefs.isMultiple)
     for (const childDef of multipleNodeDefs) {
       nodePointersToUpdate.push({ nodeCtx: node, nodeDef: childDef })
@@ -79,7 +79,7 @@ export const updateSelfAndDependentsApplicable = async (
         })
         nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
       }
-      nodeCtxChildren.forEach((nodeCtxChild) => {
+      for (const nodeCtxChild of nodeCtxChildren) {
         // add nodeCtxChild and its descendants to nodesUpdated
         Records.visitDescendantsAndSelf({
           record: updateResult.record,
@@ -89,7 +89,7 @@ export const updateSelfAndDependentsApplicable = async (
             return false
           },
         })
-      })
+      }
     }
   }
   return updateResult
