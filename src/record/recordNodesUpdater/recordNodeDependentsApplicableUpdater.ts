@@ -28,6 +28,14 @@ export const updateSelfAndDependentsApplicable = async (
     includeSelf: !NodeDefs.isEntity(nodeDef),
   })
 
+  if (NodeDefs.isEntity(nodeDef)) {
+    // include children multiple nodes (to update their applicability too, in case they are empty)
+    const multipleNodeDefs = Surveys.getNodeDefChildren({ survey, nodeDef }).filter(NodeDefs.isMultiple)
+    for (const childDef of multipleNodeDefs) {
+      nodePointersToUpdate.push({ nodeCtx: node, nodeDef: childDef })
+    }
+  }
+
   // 2. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
   for (const nodePointer of nodePointersToUpdate) {
