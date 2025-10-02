@@ -1,15 +1,17 @@
-import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
-
-const { category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectBuilders
-
-import { createTestAdminUser } from '../tests/data'
-import { TestUtils } from '../tests/testUtils'
-
 import { User } from '../auth'
 import { Validations } from '../validation/validations'
 import { RecordFactory } from './factory'
 import { RecordUpdater } from './recordUpdater'
 import { Surveys } from '../survey'
+import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
+import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
+import { createTestAdminUser } from '../tests/data'
+import { TestUtils } from '../tests/testUtils'
+import { Records } from './records'
+import { Nodes } from '../node'
+
+const { category, categoryItem, codeDef, dateDef, entityDef, integerDef } = SurveyObjectBuilders
+const { entity, attribute } = RecordNodeBuilders
 
 let user: User
 
@@ -102,5 +104,54 @@ describe('RecordUpdater - node create', () => {
     // expect only 3 enumerated nodes
     const enumerator4 = TestUtils.findNodeByPath({ survey, record, path: 'root_entity.enumerated[3].enumerator' })
     expect(enumerator4).toBeUndefined()
+  })
+
+  test('Applicability initialization', async () => {
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        dateDef('source_attribute'),
+        entityDef(
+          'child_entity',
+          integerDef('child_entity_key').key(),
+          entityDef('nested_entity', integerDef('nested_entity_key').key())
+            .multiple()
+            .applyIf('source_attribute > "2025-01-01"')
+        ).multiple()
+      )
+    ).build()
+
+    const childEntityDef = Surveys.getNodeDefByName({ survey, name: 'child_entity' })
+
+    const nestedEntityDef = Surveys.getNodeDefByName({ survey, name: 'nested_entity' })
+    const nestedEntityDefUuid = nestedEntityDef.uuid
+
+    let record = new RecordBuilder(
+      user,
+      survey,
+      entity('root_entity', attribute('identifier', 10), attribute('source_attribute', '2024-12-31'))
+    ).build()
+
+    const rootNode = Records.getRoot(record)
+
+    // add new child entity: nested entity should not be applicable
+    const updateResult = await RecordUpdater.createNodeAndDescendants({
+      user,
+      survey,
+      record,
+      parentNode: rootNode,
+      nodeDef: childEntityDef,
+    })
+    record = updateResult.record
+
+    const childEntity = TestUtils.getNodeByPath({
+      survey,
+      record,
+      path: 'root_entity.child_entity[0]',
+    })
+    const secondNestedEntityApplicable = Nodes.isChildApplicable(childEntity, nestedEntityDefUuid)
+    expect(secondNestedEntityApplicable).toBeFalsy()
   })
 })
