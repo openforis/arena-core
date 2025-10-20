@@ -27,13 +27,24 @@ export interface NodeRefData {
 export interface Node {
   dateCreated?: string
   dateModified?: string
+  /**
+   * ID used when node is stored (unique relatively to the entire survey; e.g. DB table PK).
+   */
   id?: number
+  /**
+   * Internal ID (unique relatively to the record).
+   */
+  iId?: number
   meta?: NodeMeta
   nodeDefUuid: string
   parentUuid?: string
+  /**
+   * Parent node internal ID.
+   */
+  pIId?: number
   recordUuid: string
   refData?: NodeRefData
-  uuid: string
+  uuid?: string
   value?: any
   placeholder?: boolean
   surveyUuid?: string

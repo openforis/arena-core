@@ -18,12 +18,17 @@ export const addNodes =
       recordUpdated.nodes = { ...recordNodes, ...nodes }
     }
     if (updateNodesIndex) {
-      recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(nodes, sideEffect)(recordUpdated._nodesIndex ?? {})
+      const { nodesIndex, lastInternalId } = RecordNodesIndexUpdater.addNodes(
+        nodes,
+        sideEffect
+      )(recordUpdated._nodesIndex ?? {})
+      recordUpdated._nodesIndex = nodesIndex
+      recordUpdated.lastInternalId = lastInternalId
     }
     return recordUpdated
   }
 
 export const addNode =
   (node: Node, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
-  (record: Record) =>
+  (record: Record): Record =>
     addNodes({ [node.uuid]: node }, options)(record)

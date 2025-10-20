@@ -25,9 +25,16 @@ const _addNodeToCodeDependents =
 
 const _addNodeToIndex =
   (node: Node, sideEffect = false) =>
-  (index: RecordNodesIndex): RecordNodesIndex => {
-    const { uuid: nodeUuid, nodeDefUuid } = node
-
+  (index: RecordNodesIndex, lastInternalId?: number): RecordNodesIndex => {
+    const { uuid: nodeUuid, iId: nodeIId, nodeDefUuid } = node
+    let lastInternalIdUpdated: number
+    let iId: number
+    if (nodeIId) {
+      iId = nodeIId
+    } else {
+      lastInternalIdUpdated = (lastInternalId ?? 0) + 1
+      iId = lastInternalIdUpdated
+    }
     let indexUpdated = sideEffect ? index : { ...index }
 
     const parentUuid = node.parentUuid
@@ -35,7 +42,7 @@ const _addNodeToIndex =
       // nodes by parent and child def uuid
       indexUpdated = Objects.assocPath({
         obj: indexUpdated,
-        path: [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid],
+        path: [keys.nodesByParentAndChildDef, parentId, nodeDefUuid, iId],
         value: true,
         sideEffect,
       })
@@ -59,12 +66,14 @@ const _addNodeToIndex =
   }
 
 const addNodes =
-  (nodes: { [key: string]: Node }, sideEffect = false) =>
-  (index: RecordNodesIndex): RecordNodesIndex =>
-    Object.values(nodes).reduce(
-      (indexAcc: RecordNodesIndex, node: Node) => _addNodeToIndex(node, sideEffect)(indexAcc),
-      index
-    )
+  (nodes: { [internalId: number]: Node }, sideEffect = false) =>
+  (nodesIndex: RecordNodesIndex): { indexUpdated: RecordNodesIndex; lastInternalId: number } => {
+    let result = { indexUpdated: nodesIndex, lastInternalId: 0 }
+    for (const node of Object.values(nodes)) {
+      result = _addNodeToIndex(node, sideEffect)(result.indexUpdated)
+    }
+    return result
+  }
 
 const addNode =
   (node: Node) =>
