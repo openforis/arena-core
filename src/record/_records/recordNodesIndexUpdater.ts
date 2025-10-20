@@ -3,7 +3,7 @@ import { Objects } from '../../utils'
 import { Record, RecordNodesIndex } from '../record'
 
 const keys = {
-  nodeRootUuid: 'nodeRootUuid',
+  nodeRootId: 'nodeRootId',
   nodesByParentAndChildDef: 'nodesByParentAndChildDef',
   nodesByDef: 'nodesByDef',
   nodeCodeDependents: 'nodeCodeDependents',
@@ -16,7 +16,7 @@ const _addNodeToCodeDependents =
       (indexAcc, ancestorCodeAttributeUuid) =>
         Objects.assocPath({
           obj: indexAcc,
-          path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.uuid],
+          path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, String(node.iId)],
           value: true,
           sideEffect,
         }),
@@ -25,36 +25,29 @@ const _addNodeToCodeDependents =
 
 const _addNodeToIndex =
   (node: Node, sideEffect = false) =>
-  (index: RecordNodesIndex, lastInternalId?: number): RecordNodesIndex => {
-    const { uuid: nodeUuid, iId: nodeIId, nodeDefUuid } = node
-    let lastInternalIdUpdated: number
-    let iId: number
-    if (nodeIId) {
-      iId = nodeIId
-    } else {
-      lastInternalIdUpdated = (lastInternalId ?? 0) + 1
-      iId = lastInternalIdUpdated
-    }
+  (index: RecordNodesIndex): RecordNodesIndex => {
+    const { iId: nodeIId, nodeDefUuid } = node
+
     let indexUpdated = sideEffect ? index : { ...index }
 
-    const parentUuid = node.parentUuid
-    if (parentUuid) {
+    const { pIId } = node
+    if (pIId) {
       // nodes by parent and child def uuid
       indexUpdated = Objects.assocPath({
         obj: indexUpdated,
-        path: [keys.nodesByParentAndChildDef, parentId, nodeDefUuid, iId],
+        path: [keys.nodesByParentAndChildDef, String(pIId), nodeDefUuid, String(nodeIId)],
         value: true,
         sideEffect,
       })
     } else {
       // root entity index
-      indexUpdated.nodeRootUuid = nodeUuid
+      indexUpdated.nodeRootId = nodeIId
     }
 
     // nodes by def uuid
     indexUpdated = Objects.assocPath({
       obj: indexUpdated,
-      path: [keys.nodesByDef, nodeDefUuid, nodeUuid],
+      path: [keys.nodesByDef, nodeDefUuid, String(nodeIId)],
       value: true,
       sideEffect,
     })
@@ -67,12 +60,12 @@ const _addNodeToIndex =
 
 const addNodes =
   (nodes: { [internalId: number]: Node }, sideEffect = false) =>
-  (nodesIndex: RecordNodesIndex): { indexUpdated: RecordNodesIndex; lastInternalId: number } => {
-    let result = { indexUpdated: nodesIndex, lastInternalId: 0 }
+  (nodesIndex: RecordNodesIndex): RecordNodesIndex => {
+    let indexUpdated = nodesIndex
     for (const node of Object.values(nodes)) {
-      result = _addNodeToIndex(node, sideEffect)(result.indexUpdated)
+      indexUpdated = _addNodeToIndex(node, sideEffect)(indexUpdated)
     }
-    return result
+    return indexUpdated
   }
 
 const addNode =
@@ -89,7 +82,7 @@ const _removeNodeFromCodeDependentsIndex =
       (indexAcc, ancestorCodeAttributeUuid) =>
         Objects.dissocPath({
           obj: indexAcc,
-          path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.uuid],
+          path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.iId],
           sideEffect,
         }),
       index
@@ -101,25 +94,29 @@ const _removeNodeFromCodeDependentsIndex =
 const removeNode =
   (node: Node, sideEffect = false) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
-    const { uuid: nodeUuid, parentUuid, nodeDefUuid } = node
+    const { iId: nodeId, pIId, nodeDefUuid } = node
 
     let indexUpdated = sideEffect ? index : { ...index }
 
-    if (parentUuid) {
+    if (pIId) {
       // dissoc from nodes by parent and child def
+      const nodesByParentAndChildDefPath = [keys.nodesByParentAndChildDef, String(pIId), nodeDefUuid]
       indexUpdated = Objects.dissocPath({
         obj: indexUpdated,
-        path: [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid],
+        path: [...nodesByParentAndChildDefPath, String(nodeId)],
         sideEffect,
       })
-      const nodesByParentAndChildDefPath = [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid]
       indexUpdated = Objects.dissocPathIfEmpty({ obj: indexUpdated, path: nodesByParentAndChildDefPath, sideEffect })
     } else {
       // dissoc root entity
-      indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeRootUuid], sideEffect })
+      indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeRootId], sideEffect })
     }
     // dissoc from nodes by def uuid
-    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodesByDef, nodeDefUuid, nodeUuid], sideEffect })
+    indexUpdated = Objects.dissocPath({
+      obj: indexUpdated,
+      path: [keys.nodesByDef, nodeDefUuid, String(nodeId)],
+      sideEffect,
+    })
     const nodesByDefPath = [keys.nodesByDef, nodeDefUuid]
     indexUpdated = Objects.dissocPathIfEmpty({ obj: indexUpdated, path: nodesByDefPath, sideEffect })
 

@@ -18,12 +18,7 @@ export const addNodes =
       recordUpdated.nodes = { ...recordNodes, ...nodes }
     }
     if (updateNodesIndex) {
-      const { nodesIndex, lastInternalId } = RecordNodesIndexUpdater.addNodes(
-        nodes,
-        sideEffect
-      )(recordUpdated._nodesIndex ?? {})
-      recordUpdated._nodesIndex = nodesIndex
-      recordUpdated.lastInternalId = lastInternalId
+      recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(nodes, sideEffect)(recordUpdated._nodesIndex ?? {})
     }
     return recordUpdated
   }

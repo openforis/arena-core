@@ -41,7 +41,6 @@ const initInternalIds = (params: { record: Record; nodes: Node[] }) => {
       Objects.dissocPath({ obj: node, path: metaHierarchyPath, sideEffect: true })
     }
     indexedNodes[internalId] = node
-    delete node['uuid']
   }
 
   record.lastInternalId = lastInternalId

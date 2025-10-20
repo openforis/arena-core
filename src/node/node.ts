@@ -44,7 +44,7 @@ export interface Node {
   pIId?: number
   recordUuid: string
   refData?: NodeRefData
-  uuid?: string
+  uuid: string
   value?: any
   placeholder?: boolean
   surveyUuid?: string
