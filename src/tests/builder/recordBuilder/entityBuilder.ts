@@ -20,9 +20,9 @@ export class EntityBuilder extends NodeBuilder {
 
     let recordUpdated = Records.addNode(entity)(record)
 
-    this.childBuilders.forEach((childBuilder) => {
+    for (const childBuilder of this.childBuilders) {
       recordUpdated = childBuilder.build({ survey, record: recordUpdated, parentNode: entity })
-    })
+    }
 
     return recordUpdated
   }

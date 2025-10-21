@@ -182,7 +182,7 @@ const findSiblingKeyNodesToValidate = (
   const siblingNodeKeys = _getSiblingNodeKeys(params)
   const siblingNodeKeysWithSameValue: Node[] = []
   const siblingNodeKeysWithErrors: Node[] = []
-  siblingNodeKeys.forEach((nodeKey) => {
+  for (const nodeKey of siblingNodeKeys) {
     if (NodeValues.isValueEqual({ survey, nodeDef, parentNode, value: nodeKey.value, valueSearch: attribute.value })) {
       siblingNodeKeysWithSameValue.push(nodeKey)
     }
@@ -191,7 +191,7 @@ const findSiblingKeyNodesToValidate = (
     if (nodeValidation && !nodeValidation.valid) {
       siblingNodeKeysWithErrors.push(nodeKey)
     }
-  })
+  }
   return [...siblingNodeKeysWithSameValue, ...siblingNodeKeysWithErrors]
 }
 

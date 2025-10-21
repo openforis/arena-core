@@ -108,12 +108,12 @@ const _getNodePointersToValidate = (params: { survey: Survey; record: Record; no
   if (NodeDefs.isEntity(nodeDef) && !node.deleted) {
     // validate the count of every node def children
     const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef })
-    childDefs.forEach((childDef) => {
+    for (const childDef of childDefs) {
       const nodePointer = { nodeCtx: node, nodeDef: childDef }
       if (_isNodePointerToBeValidated(nodePointer)) {
         nodePointersToValidate.push(nodePointer)
       }
-    })
+    }
   }
   return nodePointersToValidate
 }
@@ -127,7 +127,7 @@ const validateChildrenCountNodes = (params: {
   return Object.values(nodes).reduce((validationsAcc: ValidationFields, node) => {
     const nodePointersToValidate = _getNodePointersToValidate({ survey, record, node })
 
-    nodePointersToValidate.forEach((nodePointer) => {
+    for (const nodePointer of nodePointersToValidate) {
       const { nodeCtx, nodeDef } = nodePointer
       // check if validated already
       const validationChildrenCountKey = RecordValidations.getValidationChildrenCountKey({
@@ -139,7 +139,7 @@ const validateChildrenCountNodes = (params: {
         const validationNodePointer = _validateNodePointer({ record, nodeCtx, nodeDef })
         validationsAcc[validationChildrenCountKey] = validationNodePointer
       }
-    })
+    }
     return validationsAcc
   }, {})
 }

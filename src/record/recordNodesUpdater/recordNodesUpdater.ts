@@ -31,12 +31,12 @@ export const updateNodesDependents = async (
   // include onUpdate dependents (always included in every record update)
   const onUpdateDependentDefs = Surveys.getOnUpdateDependents({ survey })
   if (onUpdateDependentDefs.length > 0) {
-    onUpdateDependentDefs.forEach((dependentDef) => {
+    for (const dependentDef of onUpdateDependentDefs) {
       const dependentNodes = getNodesByDefUuid(dependentDef.uuid)(record)
-      dependentNodes.forEach((node) => {
+      for (const node of dependentNodes) {
         initialNodesToVisit[node.iId] = node
-      })
-    })
+      }
+    }
   }
 
   const updateResult = new RecordUpdateResult({ record, nodes: initialNodesToVisit })

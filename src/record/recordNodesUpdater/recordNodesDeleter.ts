@@ -54,17 +54,16 @@ export const deleteNodes =
       }
     }
 
-    nodeInternalIds.forEach((nodeInternalId) => {
+    for (const nodeInternalId of nodeInternalIds) {
       const node = recordNodesUpdated[nodeInternalId]
-      if (!node) return
+      if (!node) break
 
       RecordGetters.visitDescendantsAndSelf({
         record,
         node,
         visitor: deleteDescendantNode,
       })
-    })
-
+    }
     recordValidationUpdated = Validations.cleanup(recordValidationUpdated)
 
     recordUpdated.nodes = recordNodesUpdated

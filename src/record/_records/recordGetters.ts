@@ -188,13 +188,13 @@ export const getDescendantsOrSelf = (params: {
   // 2. for every level in the hierarchy, find the children having the nodeDefUuid equal to the current one
   let currentAncestors = [node]
   let currentDescendants: Node[] = []
-  descendantNodeDefUuids.forEach((currentDescendantDefUuid) => {
-    currentAncestors.forEach((currentAncestor) => {
+  for (const currentDescendantDefUuid of descendantNodeDefUuids) {
+    for (const currentAncestor of currentAncestors) {
       currentDescendants.push(...getChildren(currentAncestor, currentDescendantDefUuid)(record))
-    })
+    }
     currentAncestors = currentDescendants
     currentDescendants = []
-  })
+  }
   return currentAncestors // currentAncestors is equal to the currentDescendants of the last level
 }
 
@@ -471,13 +471,12 @@ export const getDependentNodePointers = (params: {
       node: commonAncestorNode,
       nodeDefDescendant: nodeDefDependentParent,
     })
-
-    dependentContextNodes.forEach((dependentContextNode) => {
+    for (const dependentContextNode of dependentContextNodes) {
       addToNodePointers({
         nodeCtx: dependentContextNode,
         nodeDef: dependentDef,
       })
-    })
+    }
   }
   if (includeSelf) {
     const parentNode = getParent(node)(record)

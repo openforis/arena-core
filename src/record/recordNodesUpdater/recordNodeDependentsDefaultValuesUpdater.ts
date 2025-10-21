@@ -67,7 +67,7 @@ const updateDefaultValuesInNodes = async (
         })
 
     const nodesToUpdate = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
-    nodesToUpdate.forEach((nodeToUpdate) => {
+    for (const nodeToUpdate of nodesToUpdate) {
       if (shouldResetDefaultValue({ record: updateResult.record, node: nodeToUpdate })) {
         const nodeUpdated = Nodes.mergeNodes(nodeToUpdate, {
           value: null,
@@ -93,7 +93,7 @@ const updateDefaultValuesInNodes = async (
         dateModified: Dates.nowFormattedForStorage(),
       })
       updateResult.addNode(nodeUpdated, { sideEffect })
-    })
+    }
   } catch (error) {
     throwError({
       error,

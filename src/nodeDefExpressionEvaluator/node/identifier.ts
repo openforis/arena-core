@@ -131,8 +131,9 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     while (!queue.isEmpty()) {
       const entityDefCurrent = queue.dequeue()
       const entityDefCurrentChildren = getNodeDefChildren({ survey, nodeDef: entityDefCurrent, includeAnalysis })
-      entityDefCurrentChildren.forEach((childDef) => (reachableNodeDefsByUuid[childDef.uuid] = childDef))
-
+      for (const childDef of entityDefCurrentChildren) {
+        reachableNodeDefsByUuid[childDef.uuid] = childDef
+      }
       // visit nodes inside single entities
       queue.enqueueItems(entityDefCurrentChildren.filter(NodeDefs.isSingleEntity))
 
