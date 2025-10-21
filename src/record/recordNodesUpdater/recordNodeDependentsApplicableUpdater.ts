@@ -53,9 +53,9 @@ export const updateSelfAndDependentsApplicable = async (
     if (expressionsToEvaluate.length === 0) continue
 
     // 3. evaluate applicable expression
-    const nodeCtxUuid = nodeCtxNodePointer.uuid
+    const nodeCtxInternalId = nodeCtxNodePointer.iId
     // nodeCtx could have been updated in a previous iteration
-    const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
+    const nodeCtx = updateResult.getNodeByInternalId(nodeCtxInternalId) ?? nodeCtxNodePointer
 
     const exprEval = await expressionEvaluator.evalApplicableExpression({
       ...params,

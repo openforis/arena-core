@@ -13,10 +13,10 @@ const _addNodeToCodeDependents =
   (node: Node, sideEffect: boolean) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
     Nodes.getHierarchyCode(node).reduce(
-      (indexAcc, ancestorCodeAttributeUuid) =>
+      (indexAcc, ancestorCodeAttributeInternalId: number) =>
         Objects.assocPath({
           obj: indexAcc,
-          path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, String(node.iId)],
+          path: [keys.nodeCodeDependents, String(ancestorCodeAttributeInternalId), String(node.iId)],
           value: true,
           sideEffect,
         }),
@@ -26,11 +26,10 @@ const _addNodeToCodeDependents =
 const _addNodeToIndex =
   (node: Node, sideEffect = false) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
-    const { iId: nodeIId, nodeDefUuid } = node
+    const { iId: nodeIId, nodeDefUuid, pIId } = node
 
     let indexUpdated = sideEffect ? index : { ...index }
 
-    const { pIId } = node
     if (pIId) {
       // nodes by parent and child def uuid
       indexUpdated = Objects.assocPath({
@@ -71,23 +70,29 @@ const addNodes =
 const addNode =
   (node: Node) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
-    addNodes({ [node.uuid]: node })(index)
+    addNodes({ [node.iId]: node })(index)
 
 const initializeIndex = (record: Record): RecordNodesIndex => addNodes(record.nodes ?? {}, true)({})
 
 const _removeNodeFromCodeDependentsIndex =
   (node: Node, sideEffect = false) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
+    const { iId: nodeInternalId } = node
+
     let indexUpdated = Nodes.getHierarchyCode(node).reduce(
-      (indexAcc, ancestorCodeAttributeUuid) =>
+      (indexAcc, ancestorCodeAttributeId: number) =>
         Objects.dissocPath({
           obj: indexAcc,
-          path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.iId],
+          path: [keys.nodeCodeDependents, String(ancestorCodeAttributeId), String(nodeInternalId)],
           sideEffect,
         }),
       index
     )
-    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeCodeDependents, node.uuid], sideEffect })
+    indexUpdated = Objects.dissocPath({
+      obj: indexUpdated,
+      path: [keys.nodeCodeDependents, String(nodeInternalId)],
+      sideEffect,
+    })
     return indexUpdated
   }
 

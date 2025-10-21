@@ -4,7 +4,12 @@ import { Record } from '../record'
 
 const metaHierarchyPath = ['meta', 'h']
 
-const initInternalIds = (params: { record: Record; nodes: Node[] }) => {
+interface NodeOld extends Node {
+  uuid?: string
+  parentUuid?: string
+}
+
+const initInternalIds = (params: { record: Record; nodes: NodeOld[] }) => {
   const { record, nodes } = params
 
   let lastInternalId = 0
@@ -41,6 +46,7 @@ const initInternalIds = (params: { record: Record; nodes: Node[] }) => {
       Objects.dissocPath({ obj: node, path: metaHierarchyPath, sideEffect: true })
     }
     indexedNodes[internalId] = node
+    delete node['uuid']
   }
 
   record.lastInternalId = lastInternalId

@@ -16,7 +16,7 @@ export class EntityBuilder extends NodeBuilder {
 
     const nodeDef = this.getNodeDef({ survey })
 
-    const entity = NodeFactory.createInstance({ nodeDefUuid: nodeDef.uuid, recordUuid: record.uuid, parentNode })
+    const entity = NodeFactory.createInstance({ nodeDefUuid: nodeDef.uuid, record, parentNode })
 
     let recordUpdated = Records.addNode(entity)(record)
 

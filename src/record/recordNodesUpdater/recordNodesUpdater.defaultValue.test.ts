@@ -47,7 +47,7 @@ describe('Record nodes updater - default values', () => {
       user,
       survey,
       record: recordUpdated,
-      nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+      nodes: { [nodeToUpdate.iId]: nodeUpdated },
     })
     expect(updateResult).not.toBeNull()
     expect(Object.values(updateResult.nodes).length).toBe(2)

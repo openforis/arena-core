@@ -76,7 +76,6 @@ describe('Record cloner', () => {
   test('(with side effect) UUIDs updated', () => {
     const oldRecordUuid = record.uuid
     const oldClusterIdNode = TestUtils.getNodeByPath({ survey, record, path: 'cluster_id' })
-    const oldClusterIdNodeUuid = oldClusterIdNode.uuid
     const { record: clonedRecord } = RecordCloner.cloneRecord({ survey, record, cycleTo: '0', sideEffect: true })
 
     const clusterIdNode = TestUtils.getNodeByPath({ survey, record: clonedRecord, path: 'cluster_id' })
@@ -85,9 +84,8 @@ describe('Record cloner', () => {
     expect(clonedRecord).toBe(record)
     expect(clonedRecord.nodes).toBe(record.nodes)
     expect(clusterIdNode).toBe(oldClusterIdNode)
-    // uuids updated
+    // uuid updated
     expect(clonedRecord.uuid).not.toBe(oldRecordUuid)
-    expect(clusterIdNode.uuid).not.toBe(oldClusterIdNodeUuid)
   })
 
   test('(with side effect) excluding values', () => {
@@ -123,7 +121,6 @@ describe('Record cloner', () => {
   test('(without side effect) UUIDs updated', () => {
     const oldRecordUuid = record.uuid
     const oldClusterIdNode = TestUtils.getNodeByPath({ survey, record, path: 'cluster_id' })
-    const oldClusterIdNodeUuid = oldClusterIdNode.uuid
     const { record: clonedRecord } = RecordCloner.cloneRecord({ survey, record, cycleTo: '0', sideEffect: false })
 
     const clusterIdNode = TestUtils.getNodeByPath({ survey, record: clonedRecord, path: 'cluster_id' })
@@ -132,8 +129,7 @@ describe('Record cloner', () => {
     expect(clonedRecord).not.toBe(record)
     expect(clonedRecord.nodes).not.toBe(record.nodes)
     expect(clusterIdNode).not.toBe(oldClusterIdNode)
-    // uuids updated
+    // uuid updated
     expect(clonedRecord.uuid).not.toBe(oldRecordUuid)
-    expect(clusterIdNode.uuid).not.toBe(oldClusterIdNodeUuid)
   })
 })

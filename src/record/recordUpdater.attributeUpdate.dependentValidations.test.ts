@@ -44,14 +44,14 @@ describe('RecordUpdater - attribute update => update dependent validations', () 
 
     const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'table[0].coverage' })
     const siblingNode = TestUtils.getNodeByPath({ survey, record, path: 'table[1].coverage' })
-    expect(nodeToUpdate.uuid).not.toEqual(siblingNode.uuid)
+    expect(nodeToUpdate.iId).not.toEqual(siblingNode.iId)
 
     // set table[0].coverage to 80 (sum = 170) => validations not valid
     let updateResult = await RecordUpdater.updateAttributeValue({
       user,
       survey,
       record,
-      attributeUuid: nodeToUpdate.uuid,
+      attributeIId: nodeToUpdate.iId,
       value: 80,
     })
 
@@ -59,20 +59,20 @@ describe('RecordUpdater - attribute update => update dependent validations', () 
     let validation = Validations.getValidation(record)
     const fieldValidations = Validations.getFieldValidations(validation)
     expect(Object.keys(fieldValidations).length).toEqual(2)
-    expect(Validations.getFieldValidation(nodeToUpdate.uuid)(validation).valid).toBeFalsy()
-    expect(Validations.getFieldValidation(siblingNode.uuid)(validation).valid).toBeFalsy()
+    expect(Validations.getFieldValidation(String(nodeToUpdate.iId))(validation).valid).toBeFalsy()
+    expect(Validations.getFieldValidation(String(siblingNode.iId))(validation).valid).toBeFalsy()
 
     // set table[0].coverage to 10 (sum = 100) => validation valid
     updateResult = await RecordUpdater.updateAttributeValue({
       user,
       survey,
       record,
-      attributeUuid: nodeToUpdate.uuid,
+      attributeIId: nodeToUpdate.iId,
       value: 10,
     })
     record = updateResult.record
     validation = Validations.getValidation(record)
-    expect(Validations.getFieldValidation(nodeToUpdate.uuid)(validation).valid).toBeTruthy()
-    expect(Validations.getFieldValidation(siblingNode.uuid)(validation).valid).toBeTruthy()
+    expect(Validations.getFieldValidation(String(nodeToUpdate.iId))(validation).valid).toBeTruthy()
+    expect(Validations.getFieldValidation(String(siblingNode.iId))(validation).valid).toBeTruthy()
   })
 })

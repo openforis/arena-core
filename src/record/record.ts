@@ -6,7 +6,7 @@ export const RECORD_STEP_DEFAULT = '1'
 
 export const steps = ['entry', 'cleansing', 'analysis']
 
-interface NodeUuidsPresence {
+interface NodeIdsPresence {
   [internalId: number]: boolean
 }
 
@@ -18,15 +18,15 @@ export interface RecordNodesIndex {
   /**
    * node uuids by parent entity uuid and child def uuid
    */
-  nodesByParentAndChildDef?: { [parentId: number]: { [childDefUuid: string]: NodeUuidsPresence } }
+  nodesByParentAndChildDef?: { [parentId: number]: { [childDefUuid: string]: NodeIdsPresence } }
   /**
    * node uuids by node def uuid
    */
-  nodesByDef?: { [nodeDefUuid: string]: NodeUuidsPresence }
+  nodesByDef?: { [nodeDefUuid: string]: NodeIdsPresence }
   /**
    * Code attribute internal IDs by ancenstor code attribute internal ID
    */
-  nodeCodeDependents?: { [internalId: number]: NodeUuidsPresence }
+  nodeCodeDependents?: { [internalId: number]: NodeIdsPresence }
 }
 
 export interface RecordInfo {
@@ -40,7 +40,7 @@ export interface Record {
   dateModified?: string
   id?: number
   lastInternalId?: number
-  nodes?: { [uuid: string]: Node }
+  nodes?: { [internalId: number]: Node }
   ownerEmail?: string
   ownerName: string
   ownerRole?: string

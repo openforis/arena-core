@@ -24,10 +24,9 @@ const insertMissingSingleNode = (params: {
     return null
   }
   // insert missing single node
-  const recordUuid = record.uuid
-  const node = NodeFactory.createInstance({ nodeDefUuid, recordUuid, parentNode })
+  const node = NodeFactory.createInstance({ record, nodeDefUuid, parentNode })
   const recordUpdated = Records.addNode(node, { sideEffect })(record)
-  return new RecordUpdateResult({ record: recordUpdated, nodes: { [node.uuid]: node } })
+  return new RecordUpdateResult({ record: recordUpdated, nodes: { [node.iId]: node } })
 }
 
 const insertMissingSingleNodes = (params: {
@@ -65,7 +64,7 @@ const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sid
   const updateResult = new RecordUpdateResult({ record })
 
   const nodesToDelete = Records.getNodesByDefUuid(nodeDefUuid)(updateResult.record)
-  nodesToDelete.forEach((nodeToDelete) => {
+  for (const nodeToDelete of nodesToDelete) {
     // cleanup child applicability
     const parentNode = Records.getParent(nodeToDelete)(updateResult.record)
     if (parentNode && !Nodes.isChildApplicable(parentNode, nodeDefUuid)) {
@@ -73,10 +72,9 @@ const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sid
       const recordWithParentNodeUpdated = Records.addNode(parentNodeUpdated, { sideEffect })(updateResult.record)
       updateResult.merge(new RecordUpdateResult({ record: recordWithParentNodeUpdated }))
     }
-  })
-
-  const nodeUuidsToDelete = nodesToDelete.map((node) => node.uuid)
-  const nodesDeleteUpdateResult = Records.deleteNodes(nodeUuidsToDelete, { sideEffect })(updateResult.record)
+  }
+  const nodeInternalIdsToDelete = nodesToDelete.map((node) => node.iId)
+  const nodesDeleteUpdateResult = Records.deleteNodes(nodeInternalIdsToDelete, { sideEffect })(updateResult.record)
   updateResult.merge(nodesDeleteUpdateResult)
 
   return updateResult
