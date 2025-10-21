@@ -60,7 +60,7 @@ const cloneRecord = (params: { survey: Survey; record: Record; cycleTo: string; 
   if (!sideEffect) {
     const nodesUpdated: NodesMap = {}
     for (const node of Object.values(nodes)) {
-      const nodeCloned = JSON.parse(JSON.stringify(node))
+      const nodeCloned = structuredClone(node)
       nodesUpdated[nodeCloned.iId] = nodeCloned
     }
     recordUpdated.nodes = nodesUpdated
