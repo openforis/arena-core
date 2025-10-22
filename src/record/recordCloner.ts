@@ -1,4 +1,3 @@
-import { NodesMap } from '../node'
 import { NodeDefCode, NodeDefType, NodeDefs } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Dates, UUIDs } from '../utils'
@@ -47,24 +46,18 @@ const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffec
 const cloneRecord = (params: { survey: Survey; record: Record; cycleTo: string; sideEffect?: boolean }) => {
   const { survey, record, cycleTo, sideEffect = false } = params
 
-  let recordUpdated = sideEffect ? record : { ...record }
+  let recordUpdated = sideEffect ? record : structuredClone(record)
   recordUpdated.cycle = cycleTo
   recordUpdated.dateCreated = recordUpdated.dateModified = Dates.nowFormattedForStorage()
+
+  // delete IDs: used only for storage
   delete recordUpdated.id
+  for (const node of Records.getNodesArray(recordUpdated)) {
+    delete node.id
+  }
 
   const { record: recordUpdatedUuids } = assignNewUuid({ record, sideEffect })
   recordUpdated = recordUpdatedUuids
-
-  // clone nodes
-  const { nodes = {} } = recordUpdated
-  if (!sideEffect) {
-    const nodesUpdated: NodesMap = {}
-    for (const node of Object.values(nodes)) {
-      const nodeCloned = structuredClone(node)
-      nodesUpdated[nodeCloned.iId] = nodeCloned
-    }
-    recordUpdated.nodes = nodesUpdated
-  }
 
   // delete nodes not included in clone
   const updateResult = new RecordUpdateResult({ record: recordUpdated })
