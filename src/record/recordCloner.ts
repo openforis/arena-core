@@ -70,7 +70,7 @@ const assignNewUuidsToNodes = (params: {
       const newFileUuid = UUIDs.v4()
       nodeUpdated = Objects.assocPath({
         obj: nodeUpdated,
-        path: [NodeKeys.value, NodeValues.valuePropsFile.fileUuid],
+        path: [NodeKeys.value, NodeValues.ValuePropsFile.fileUuid],
         value: newFileUuid,
       })
       newFileUuidsByOldUuid[fileUuid] = newFileUuid
