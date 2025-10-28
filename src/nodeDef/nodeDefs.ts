@@ -1,5 +1,5 @@
 import { LanguageCode } from '../language'
-import { valuePropsCoordinate } from '../node/nodeValueProps'
+import { ValuePropsCoordinate } from '../node/nodeValueProps'
 import { defaultCycle } from '../survey'
 import { Objects, Strings } from '../utils'
 import {
@@ -100,9 +100,9 @@ const isAllowOnlyDeviceCoordinate = (nodeDef: NodeDefCoordinate): boolean => !!n
 
 const getCoordinateAdditionalFields = (nodeDef: NodeDefCoordinate): string[] => {
   const result = []
-  if (nodeDef.props.includeAccuracy) result.push(valuePropsCoordinate[valuePropsCoordinate.accuracy])
-  if (nodeDef.props.includeAltitude) result.push(valuePropsCoordinate[valuePropsCoordinate.altitude])
-  if (nodeDef.props.includeAltitudeAccuracy) result.push(valuePropsCoordinate[valuePropsCoordinate.altitudeAccuracy])
+  if (nodeDef.props.includeAccuracy) result.push(ValuePropsCoordinate[ValuePropsCoordinate.accuracy])
+  if (nodeDef.props.includeAltitude) result.push(ValuePropsCoordinate[ValuePropsCoordinate.altitude])
+  if (nodeDef.props.includeAltitudeAccuracy) result.push(ValuePropsCoordinate[ValuePropsCoordinate.altitudeAccuracy])
   return result
 }
 

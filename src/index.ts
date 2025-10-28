@@ -88,7 +88,7 @@ export type { Labels } from './language'
 export type { Logger } from './logger'
 
 export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
-export type { Node, NodePointer, NodeService } from './node'
+export type { Node, NodePointer, NodeService, NodesMap } from './node'
 
 export {
   NodeDefType,
@@ -157,7 +157,7 @@ export type { Record, RecordService, RecordUpdateOptions } from './record'
 export { ServiceRegistry, ServiceType } from './registry'
 
 export { DEFAULT_SRS, DEFAULT_SRS_INDEX, SRSFactory } from './srs'
-export type { SRS } from './srs'
+export type { SRS, SRSIndex } from './srs'
 
 export {
   NodeDefsFixer,

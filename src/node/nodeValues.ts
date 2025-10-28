@@ -7,30 +7,30 @@ import { DateFormats, Dates, Objects } from '../utils'
 import { Node } from './node'
 import { NodeValueCoordinate } from './nodeValue/coordinate'
 import {
-  valuePropsCode,
-  valuePropsCoordinate,
-  valuePropsDate,
-  valuePropsFile,
-  valuePropsTaxon,
-  valuePropsTime,
+  ValuePropsCode,
+  ValuePropsCoordinate,
+  ValuePropsDate,
+  ValuePropsFile,
+  ValuePropsTaxon,
+  ValuePropsTime,
 } from './nodeValueProps'
 
 /**
  * Props of node value indexed by node def type.
  * The node definitions here are only the ones of "composite" attributes.
  */
-export const valuePropsByType = {
+export const ValuePropsByType: { [key in NodeDefType]: { [key: string]: string } | null } = {
   [NodeDefType.boolean]: null,
-  [NodeDefType.code]: valuePropsCode,
-  [NodeDefType.coordinate]: valuePropsCoordinate,
-  [NodeDefType.date]: valuePropsDate,
+  [NodeDefType.code]: ValuePropsCode,
+  [NodeDefType.coordinate]: ValuePropsCoordinate,
+  [NodeDefType.date]: ValuePropsDate,
   [NodeDefType.decimal]: null,
   [NodeDefType.geo]: null,
   [NodeDefType.entity]: null,
-  [NodeDefType.file]: valuePropsFile,
+  [NodeDefType.file]: ValuePropsFile,
   [NodeDefType.integer]: null,
-  [NodeDefType.taxon]: valuePropsTaxon,
-  [NodeDefType.time]: valuePropsTime,
+  [NodeDefType.taxon]: ValuePropsTaxon,
+  [NodeDefType.time]: ValuePropsTime,
   [NodeDefType.text]: null,
   // layout elements
   [NodeDefType.formHeader]: null,
@@ -50,17 +50,17 @@ const getNodeValuePropRaw = (params: { node: Node; prop: string; defaultValue?: 
 // Code
 const newCodeValue = (params: { itemUuid: string }) => {
   const { itemUuid } = params
-  return { [valuePropsCode[valuePropsCode.itemUuid]]: itemUuid }
+  return { [ValuePropsCode[ValuePropsCode.itemUuid]]: itemUuid }
 }
 
 const getItemUuid = (node: Node): string | undefined =>
-  getNodeValuePropRaw({ node, prop: valuePropsCode[valuePropsCode.itemUuid] })
+  getNodeValuePropRaw({ node, prop: ValuePropsCode[ValuePropsCode.itemUuid] })
 
 const getValueCode = (value: any): string | undefined =>
-  getValuePropRaw({ value, prop: valuePropsCode[valuePropsCode.code] })
+  getValuePropRaw({ value, prop: ValuePropsCode[ValuePropsCode.code] })
 
 const getValueItemUuid = (value: any): string | undefined =>
-  getValuePropRaw({ value, prop: valuePropsCode[valuePropsCode.itemUuid] })
+  getValuePropRaw({ value, prop: ValuePropsCode[ValuePropsCode.itemUuid] })
 
 const getDateTimePart = (params: { node: Node; index: number; separator: string }): number => {
   const { node, index, separator } = params
@@ -76,28 +76,28 @@ const getDateYear = getDatePart(0)
 const getDateMonth = getDatePart(1)
 const getDateDay = getDatePart(2)
 
-const _datePropGetters: { [key in valuePropsDate]: (node: Node) => number } = {
-  [valuePropsDate.day]: getDateDay,
-  [valuePropsDate.month]: getDateMonth,
-  [valuePropsDate.year]: getDateYear,
+const _datePropGetters: { [key in ValuePropsDate]: (node: Node) => number } = {
+  [ValuePropsDate.day]: getDateDay,
+  [ValuePropsDate.month]: getDateMonth,
+  [ValuePropsDate.year]: getDateYear,
 }
 
 // File
-const getFileName = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: valuePropsFile.fileName })
+const getFileName = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: ValuePropsFile.fileName })
 const getFileNameCalculated = (node: Node): string | undefined =>
-  getNodeValuePropRaw({ node, prop: valuePropsFile.fileNameCalculated })
-const getFileSize = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: valuePropsFile.fileSize })
-const getFileUuid = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: valuePropsFile.fileUuid })
+  getNodeValuePropRaw({ node, prop: ValuePropsFile.fileNameCalculated })
+const getFileSize = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: ValuePropsFile.fileSize })
+const getFileUuid = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: ValuePropsFile.fileUuid })
 
 // Taxon
 const getTaxonUuid = (node: Node): string | undefined =>
-  getNodeValuePropRaw({ node, prop: valuePropsTaxon[valuePropsTaxon.taxonUuid] })
+  getNodeValuePropRaw({ node, prop: ValuePropsTaxon[ValuePropsTaxon.taxonUuid] })
 const getValueTaxonUuid = (value: any): string | undefined =>
-  getValuePropRaw({ value, prop: valuePropsTaxon[valuePropsTaxon.taxonUuid] })
+  getValuePropRaw({ value, prop: ValuePropsTaxon[ValuePropsTaxon.taxonUuid] })
 const getVernacularNameUuid = (node: Node): string | undefined =>
-  getNodeValuePropRaw({ node, prop: valuePropsTaxon[valuePropsTaxon.vernacularNameUuid] })
+  getNodeValuePropRaw({ node, prop: ValuePropsTaxon[ValuePropsTaxon.vernacularNameUuid] })
 const getValueVernacularNameUuid = (value: any): string | undefined =>
-  getValuePropRaw({ value, prop: valuePropsTaxon[valuePropsTaxon.vernacularNameUuid] })
+  getValuePropRaw({ value, prop: ValuePropsTaxon[ValuePropsTaxon.vernacularNameUuid] })
 
 // Time
 const _getTimePart =
@@ -107,19 +107,19 @@ const _getTimePart =
 const getTimeHour = _getTimePart(0)
 const getTimeMinute = _getTimePart(1)
 
-const _timePropGetters: { [key in valuePropsTime]: any } = {
-  [valuePropsTime.hour]: getTimeHour,
-  [valuePropsTime.minute]: getTimeMinute,
+const _timePropGetters: { [key in ValuePropsTime]: any } = {
+  [ValuePropsTime.hour]: getTimeHour,
+  [ValuePropsTime.minute]: getTimeMinute,
 }
 
 const _valuePropGetters: { [key in NodeDefType]?: (prop: string) => (node: Node) => number } = {
-  [NodeDefType.date]: (prop: string) => _datePropGetters[valuePropsDate[prop as keyof typeof valuePropsDate]],
-  [NodeDefType.time]: (prop: string) => _timePropGetters[valuePropsTime[prop as keyof typeof valuePropsTime]],
+  [NodeDefType.date]: (prop: string) => _datePropGetters[ValuePropsDate[prop as keyof typeof ValuePropsDate]],
+  [NodeDefType.time]: (prop: string) => _timePropGetters[ValuePropsTime[prop as keyof typeof ValuePropsTime]],
 }
 
 const isValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; prop: string }): boolean => {
   const { nodeDef, prop } = params
-  return Object.values(valuePropsByType[nodeDef.type] ?? {}).includes(prop)
+  return Object.values(ValuePropsByType[nodeDef.type] ?? {}).includes(prop)
 }
 
 const getNodeValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; node: Node; prop: string }): any => {
@@ -226,7 +226,7 @@ const valueComparatorByNodeDefType: { [key in NodeDefType]?: (params: NodeValues
     if (value === valueSearch) return true
     if (!value) return false
     if (!valueSearch) return false
-    return value[valuePropsTaxon.taxonUuid] === valueSearch[valuePropsTaxon.taxonUuid]
+    return value[ValuePropsTaxon.taxonUuid] === valueSearch[ValuePropsTaxon.taxonUuid]
   },
   [NodeDefType.text]: singlePropValueEqualComparator,
   [NodeDefType.time]: dateTimeComparator({
@@ -276,10 +276,13 @@ const getValueAsPoint = (params: { survey: Survey; node: Node }): Point | null =
 }
 
 export const NodeValues = {
-  valuePropsCode,
-  valuePropsCoordinate,
-  valuePropsFile,
-  valuePropsTaxon,
+  ValuePropsByType,
+  ValuePropsCode,
+  ValuePropsCoordinate,
+  ValuePropsDate,
+  ValuePropsFile,
+  ValuePropsTaxon,
+  ValuePropsTime,
 
   getNodeValueProp,
   isValueProp,
