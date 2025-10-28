@@ -90,6 +90,7 @@ export type { Logger } from './logger'
 export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
 export type {
   Node,
+  Node as ArenaRecordNode,
   NodePointer,
   NodeService,
   NodesMap,
@@ -161,7 +162,7 @@ export {
   RecordValidator,
   RecordValidations,
 } from './record'
-export type { Record, RecordService, RecordUpdateOptions } from './record'
+export type { Record, Record as ArenaRecord, RecordService, RecordUpdateOptions } from './record'
 
 export { ServiceRegistry, ServiceType } from './registry'
 
