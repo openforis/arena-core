@@ -232,4 +232,4 @@ export {
   Validator,
   ValidatorErrorKeys,
 } from './validation'
-export type { FieldValidator, Validation, ValidationResult, ValidationCounts } from './validation'
+export type { FieldValidator, Validation, ValidationFields, ValidationResult, ValidationCounts } from './validation'
