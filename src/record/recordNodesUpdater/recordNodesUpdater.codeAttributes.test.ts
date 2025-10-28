@@ -76,7 +76,7 @@ describe('Record nodes updater - dependent code attributes', () => {
       user,
       survey,
       record: recordUpdated,
-      nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+      nodes: { [nodeToUpdate.iId]: nodeUpdated },
     })
     expect(updateResult).not.toBeNull()
 
@@ -193,7 +193,7 @@ describe('Record nodes updater - dependent code attributes', () => {
         user,
         survey,
         record: recordUpdated,
-        nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+        nodes: { [nodeToUpdate.iId]: nodeUpdated },
       })
       expect(updateResult).not.toBeNull()
 

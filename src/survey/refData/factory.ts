@@ -28,8 +28,8 @@ export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryPa
     } = {}
     const categoryItemIndex: { [categoryItemUuid: string]: CategoryItem } = {}
 
-    Object.entries(itemsByCategoryUuid).forEach(([categoryUuid, items]) => {
-      items.forEach((item) => {
+    for (const [categoryUuid, items] of Object.entries(itemsByCategoryUuid)) {
+      for (const item of items) {
         Objects.assocPath({
           obj: categoryItemUuidIndex,
           path: [categoryUuid, item.parentUuid ?? 'null', item.props?.code ?? ''],
@@ -37,8 +37,8 @@ export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryPa
           sideEffect: true,
         })
         categoryItemIndex[item.uuid] = item
-      }, {})
-    })
+      }
+    }
 
     return { categoryItemUuidIndex, categoryItemIndex, taxonUuidIndex, taxonIndex }
   },

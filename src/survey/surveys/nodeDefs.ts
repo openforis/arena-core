@@ -438,14 +438,14 @@ export const getDependentEnumeratedEntityDefs = (params: { survey: Survey; nodeD
   const { survey, nodeDef } = params
   const result: NodeDefEntity[] = []
   const dependentCodeAttributeDefs = getDependentCodeAttributeDefs({ survey, nodeDef })
-  dependentCodeAttributeDefs.forEach((dependentCodeDef) => {
+  for (const dependentCodeDef of dependentCodeAttributeDefs) {
     if (NodeDefs.isKey(dependentCodeDef)) {
       const entityDef = getNodeDefAncestorMultipleEntity({ survey, nodeDef: dependentCodeDef })
       if (entityDef && NodeDefs.isEnumerate(entityDef)) {
         result.push(entityDef)
       }
     }
-  })
+  }
   return result
 }
 

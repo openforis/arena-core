@@ -16,13 +16,13 @@ export class RecordUpdateResult {
     this.validation = params.validation
   }
 
-  getNodeByUuid(uuid: string) {
-    return this.nodes[uuid]
+  getNodeByInternalId(internalId: number) {
+    return this.nodes[internalId]
   }
 
   addNode(node: Node, options?: { sideEffect: boolean }) {
     const { sideEffect = false } = options ?? {}
-    this.nodes[node.uuid] = node
+    this.nodes[node.iId] = node
     this.record = addNode(node, { sideEffect })(this.record)
   }
 

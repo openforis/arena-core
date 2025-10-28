@@ -11,11 +11,11 @@ export enum NodeMetaKeys {
 }
 
 export interface NodeMeta {
-  childApplicability?: { [uuid: string]: boolean }
-  childrenMaxCount?: { [uuid: string]: number }
-  childrenMinCount?: { [uuid: string]: number }
-  h?: string[]
-  hCode?: string[]
+  childApplicability?: { [nodeDefUuid: string]: boolean }
+  childrenMaxCount?: { [nodeDefUuid: string]: number }
+  childrenMinCount?: { [nodeDefUuid: string]: number }
+  h?: number[]
+  hCode?: number[]
   defaultValueApplied?: boolean
 }
 
@@ -27,13 +27,22 @@ export interface NodeRefData {
 export interface Node {
   dateCreated?: string
   dateModified?: string
+  /**
+   * ID used when node is stored (unique relatively to the entire survey; e.g. DB table PK).
+   */
   id?: number
+  /**
+   * Internal ID (unique relatively to the record).
+   */
+  iId: number
   meta?: NodeMeta
   nodeDefUuid: string
-  parentUuid?: string
+  /**
+   * Parent node internal ID.
+   */
+  pIId?: number
   recordUuid: string
   refData?: NodeRefData
-  uuid: string
   value?: any
   placeholder?: boolean
   surveyUuid?: string
@@ -54,5 +63,5 @@ export interface Node {
 }
 
 export interface NodesMap {
-  [key: string]: Node
+  [internalId: number]: Node
 }

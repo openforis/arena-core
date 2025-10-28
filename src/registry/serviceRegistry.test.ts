@@ -91,7 +91,7 @@ describe('ServiceRegistry', () => {
 
   test('NodeService', async () => {
     const service: NodeService = serviceRegistry.getService(ServiceType.node) as NodeService
-    const node = await service.get({ nodeUuid: 'node_uuid', surveyId: 1 })
+    const node = await service.get({ nodeInternalId: 1, surveyId: 1 })
 
     expect(service).not.toBeNull()
     expect(node.recordUuid).toBe(nodeMock.recordUuid)

@@ -36,13 +36,13 @@ const recalculateValidity = (validation: Validation): Validation => {
 
   const fieldsWithValidationRecalculated: ValidationFields = {}
 
-  Object.entries(validation.fields ?? {}).forEach(([fieldKey, fieldValidation]) => {
+  for (const [fieldKey, fieldValidation] of Object.entries(validation.fields ?? {})) {
     const fieldValidationUpdated = recalculateValidity(fieldValidation)
     fieldsWithValidationRecalculated[fieldKey] = fieldValidationUpdated
     if (!fieldValidationUpdated.valid) {
       allFieldsValid = false
     }
-  })
+  }
   const valid: boolean = allFieldsValid && !hasErrors(validation) && !hasWarnings(validation)
 
   return ValidationFactory.createInstance({
@@ -119,7 +119,7 @@ const mergeValidations =
     const validationFieldsNext = getFieldValidations(validationNext)
 
     // iterate over new field validations: remove valid ones, merge invalid ones with previous ones
-    Object.entries(validationFieldsNext).forEach(([fieldKey, validationFieldNext]) => {
+    for (const [fieldKey, validationFieldNext] of Object.entries(validationFieldsNext)) {
       if (validationFieldNext.valid) {
         // field validation valid: remove it from resulting validation
         delete validationFieldsResult[fieldKey]
@@ -131,7 +131,7 @@ const mergeValidations =
           validationFieldNext
         ) as unknown as Validation
       }
-    })
+    }
     const validationResult = ValidationFactory.createInstance({ ...validationPrev, fields: validationFieldsResult })
     return cleanup(validationResult)
   }
@@ -147,11 +147,11 @@ const dissocFieldValidationsStartingWith =
     if (!validation.fields) return validation
 
     const fieldsUpdated = sideEffect ? validation.fields : { ...validation.fields }
-    Object.keys(fieldsUpdated).forEach((fieldKey: string) => {
+    for (const fieldKey of Object.keys(fieldsUpdated)) {
       if (fieldKey.startsWith(fieldStartsWith)) {
         delete fieldsUpdated[fieldKey]
       }
-    })
+    }
     if (sideEffect) {
       validation.fields = fieldsUpdated
       return validation

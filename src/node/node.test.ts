@@ -1,14 +1,18 @@
+import { RecordFactory } from '../record'
 import { NodeFactory, NodeFactoryParams, NodePlaceholderFactory } from './factory'
 import { Node } from './node'
+import { createTestAdminUser } from '../tests/data'
+
+const user = createTestAdminUser()
 
 const checkNode = (node: Node, nodeParams: NodeFactoryParams) => {
-  expect(node).toHaveProperty('uuid')
+  expect(node).toHaveProperty('iId')
   expect(node).toHaveProperty('nodeDefUuid')
   expect(node.nodeDefUuid).toBe(nodeParams.nodeDefUuid)
   expect(node).toHaveProperty('recordUuid')
-  expect(node.recordUuid).toBe(nodeParams.recordUuid)
-  expect(node).toHaveProperty('parentUuid')
-  expect(node.parentUuid).toBe(nodeParams.parentNode?.uuid)
+  expect(node.recordUuid).toBe(nodeParams.record.uuid)
+  expect(node).toHaveProperty('pIId')
+  expect(node.pIId).toBe(nodeParams.parentNode?.iId)
 
   expect(node).toHaveProperty('value')
   expect(node.value).toBe(nodeParams.value)
@@ -21,7 +25,7 @@ const checkNode = (node: Node, nodeParams: NodeFactoryParams) => {
 
   const expectedHierarchy = [
     ...(nodeParams.parentNode?.meta?.h ?? []),
-    ...(nodeParams.parentNode?.uuid ? [nodeParams.parentNode?.uuid] : []),
+    ...(nodeParams.parentNode?.iId ? [nodeParams.parentNode.iId] : []),
   ]
   const nodeHierarchy = [...(node.meta?.h ?? [])]
   expect(nodeHierarchy.length).toBe(expectedHierarchy.length)
@@ -30,15 +34,16 @@ const checkNode = (node: Node, nodeParams: NodeFactoryParams) => {
 
 describe('NodeFactory', () => {
   test('createInstence - node', () => {
+    const record = RecordFactory.createInstance({ surveyUuid: 'survey-uuid', user })
     const nodeParams: NodeFactoryParams = {
       nodeDefUuid: 'nodedef-uuid-0001-test',
-      recordUuid: 'record-uuid-0001-test',
+      record,
       parentNode: {
-        uuid: 'parent-node-uuid',
+        iId: 2,
         nodeDefUuid: 'nodeDefUuid',
         recordUuid: 'nodeDefUuid',
         meta: {
-          h: ['uuid-prev'],
+          h: [1],
         },
       },
       value: 'VALUE',
@@ -49,9 +54,10 @@ describe('NodeFactory', () => {
   })
 
   test('createInstence - parent node', () => {
+    const record = RecordFactory.createInstance({ surveyUuid: 'survey-uuid', user })
     const nodeParams: NodeFactoryParams = {
       nodeDefUuid: 'nodedef-uuid-0001-test',
-      recordUuid: 'record-uuid-0001-test',
+      record,
       value: 'VALUE',
     }
 
@@ -60,15 +66,16 @@ describe('NodeFactory', () => {
   })
 
   test('createInstence - placeholder', () => {
+    const record = RecordFactory.createInstance({ surveyUuid: 'survey-uuid', user })
     const nodeParams: NodeFactoryParams = {
       nodeDefUuid: 'nodedef-uuid-0001-test',
-      recordUuid: 'record-uuid-0001-test',
+      record,
       parentNode: {
-        uuid: 'parent-node-uuid',
+        iId: 3,
         nodeDefUuid: 'nodeDefUuid',
         recordUuid: 'nodeDefUuid',
         meta: {
-          h: ['uuid-prev'],
+          h: [2],
         },
       },
       value: 'VALUE',

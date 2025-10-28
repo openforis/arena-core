@@ -84,7 +84,7 @@ export class AttributeBuilder extends NodeBuilder {
       if (nodeDefCode.props.parentCodeDefUuid && parentNode) {
         const parentCodeAttribute = Records.getParentCodeAttribute({ parentNode, nodeDef: nodeDefCode })(record)
         if (!parentCodeAttribute) throw new Error('Could not find the parent code attibute')
-        return { ...meta, hCode: [parentCodeAttribute.uuid] }
+        return { ...meta, hCode: [parentCodeAttribute.iId] }
       }
     }
 
@@ -99,9 +99,9 @@ export class AttributeBuilder extends NodeBuilder {
     const value = this.buildValue({ survey })
 
     const attribute = NodeFactory.createInstance({
+      record,
       nodeDefUuid: nodeDef.uuid,
       parentNode,
-      recordUuid: record.uuid,
       value,
     })
     attribute.meta = {

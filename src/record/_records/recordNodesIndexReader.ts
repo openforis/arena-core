@@ -1,35 +1,37 @@
 import { RecordNodesIndex } from '../record'
 
-const getNodeRootUuid = (index: RecordNodesIndex): string | undefined => index.nodeRootUuid
+const objectKeysToNumbers = (obj: object): number[] => Object.keys(obj).map(Number)
 
-const getNodeUuidsByDef =
+const getNodeRootInternalId = (index: RecordNodesIndex): number | undefined => index.nodeRootId
+
+const getNodeInternalIdsByDef =
   (nodeDefUuid: string) =>
-  (index: RecordNodesIndex): string[] =>
-    Object.keys(index.nodesByDef?.[nodeDefUuid] ?? {})
+  (index: RecordNodesIndex): number[] =>
+    objectKeysToNumbers(index.nodesByDef?.[nodeDefUuid] ?? {})
 
-const getNodeUuidsByParentAndChildDef =
-  (params: { parentNodeUuid: string; childDefUuid: string }) =>
-  (index: RecordNodesIndex): string[] => {
-    const { parentNodeUuid, childDefUuid } = params
-    return Object.keys(index.nodesByParentAndChildDef?.[parentNodeUuid]?.[childDefUuid] ?? {})
+const getNodeInternalIdsByParentAndChildDef =
+  (params: { parentNodeInternalId: number; childDefUuid: string }) =>
+  (index: RecordNodesIndex): number[] => {
+    const { parentNodeInternalId, childDefUuid } = params
+    return objectKeysToNumbers(index.nodesByParentAndChildDef?.[parentNodeInternalId]?.[childDefUuid] ?? {})
   }
 
-const getNodeUuidsByParent =
-  (parentNodeUuid: string) =>
-  (index: RecordNodesIndex): string[] => {
-    const nodesPresenceByChildDefUuid = index.nodesByParentAndChildDef?.[parentNodeUuid] ?? {}
-    return Object.values(nodesPresenceByChildDefUuid).flatMap((nodesPresence) => Object.keys(nodesPresence))
+const getNodeInternalIdsByParent =
+  (parentNodeInternalId: number) =>
+  (index: RecordNodesIndex): number[] => {
+    const nodesPresenceByChildDefUuid = index.nodesByParentAndChildDef?.[parentNodeInternalId] ?? {}
+    return Object.values(nodesPresenceByChildDefUuid).flatMap((nodesPresence) => objectKeysToNumbers(nodesPresence))
   }
 
-const getNodeCodeDependentUuids =
-  (nodeUuid: string) =>
-  (index: RecordNodesIndex): string[] =>
-    Object.keys(index.nodeCodeDependents?.[nodeUuid] ?? {})
+const getNodeCodeDependentInternalIds =
+  (nodeInternalId: number) =>
+  (index: RecordNodesIndex): number[] =>
+    objectKeysToNumbers(index.nodeCodeDependents?.[nodeInternalId] ?? {})
 
 export const RecordNodesIndexReader = {
-  getNodeRootUuid,
-  getNodeUuidsByDef,
-  getNodeUuidsByParentAndChildDef,
-  getNodeUuidsByParent,
-  getNodeCodeDependentUuids,
+  getNodeRootInternalId,
+  getNodeInternalIdsByDef,
+  getNodeInternalIdsByParentAndChildDef,
+  getNodeInternalIdsByParent,
+  getNodeCodeDependentInternalIds,
 }
