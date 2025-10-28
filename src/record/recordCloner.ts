@@ -6,11 +6,9 @@ import { RecordFixer } from './recordFixer'
 import { RecordUpdateResult } from './recordNodesUpdater'
 import { Records } from './records'
 
-const assignNewUuid = (params: { record: Record; sideEffect: boolean }): { record: Record } => {
-  const { record, sideEffect } = params
-  const recordUpdated = sideEffect ? record : { ...record }
-  recordUpdated.uuid = UUIDs.v4()
-  return { record: recordUpdated }
+const assignNewUuid = ({ record }: { record: Record }) => {
+  record.uuid = UUIDs.v4()
+  return { record }
 }
 
 const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffect: boolean }): RecordUpdateResult => {
@@ -56,7 +54,7 @@ const cloneRecord = (params: { survey: Survey; record: Record; cycleTo: string; 
     delete node.id
   }
 
-  const { record: recordUpdatedUuids } = assignNewUuid({ record, sideEffect })
+  const { record: recordUpdatedUuids } = assignNewUuid({ record: recordUpdated })
   recordUpdated = recordUpdatedUuids
 
   // delete nodes not included in clone

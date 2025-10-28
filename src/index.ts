@@ -88,7 +88,17 @@ export type { Labels } from './language'
 export type { Logger } from './logger'
 
 export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
-export type { Node, NodePointer, NodeService } from './node'
+export type {
+  Node,
+  Node as ArenaRecordNode,
+  NodePointer,
+  NodeService,
+  NodesMap,
+  NodeValueCode,
+  NodeValueCoordinate,
+  NodeValueFile,
+  NodeValueTaxon,
+} from './node'
 
 export {
   NodeDefType,
@@ -152,12 +162,12 @@ export {
   RecordValidator,
   RecordValidations,
 } from './record'
-export type { Record, RecordService, RecordUpdateOptions } from './record'
+export type { Record, Record as ArenaRecord, RecordService, RecordUpdateOptions } from './record'
 
 export { ServiceRegistry, ServiceType } from './registry'
 
 export { DEFAULT_SRS, DEFAULT_SRS_INDEX, SRSFactory } from './srs'
-export type { SRS } from './srs'
+export type { SRS, SRSIndex } from './srs'
 
 export {
   NodeDefsFixer,
@@ -222,4 +232,4 @@ export {
   Validator,
   ValidatorErrorKeys,
 } from './validation'
-export type { FieldValidator, Validation, ValidationResult, ValidationCounts } from './validation'
+export type { FieldValidator, Validation, ValidationFields, ValidationResult, ValidationCounts } from './validation'

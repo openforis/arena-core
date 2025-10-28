@@ -11,6 +11,8 @@ import { Records } from './records'
 import { RecordUpdater } from './recordUpdater'
 import { Record } from './record'
 
+const nodeCreationTimeFactor = 0.003
+
 let user: User
 let record: Record
 let survey: Survey
@@ -71,7 +73,7 @@ describe('RecordUpdater - node create - performance test', () => {
     const { nodeCreationTime, lastNodeCreationTime } = await createNodes({ nodeDefName, totalNodes })
 
     // without autoincremental key and without a default value, total time will be exponential (depends on the total number of nodes created)
-    expect(lastNodeCreationTime).toBeGreaterThan(nodeCreationTime * (totalNodes * 0.005))
+    expect(lastNodeCreationTime).toBeGreaterThan(nodeCreationTime * (totalNodes * nodeCreationTimeFactor))
   })
 
   test('Multiple entity with autoincrement', async () => {

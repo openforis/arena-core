@@ -126,7 +126,7 @@ const updateFileNameInNode = async (params: {
     const oldFileNameCalculated = NodeValues.getFileNameCalculated(node)
     if (fileNameCalculated !== oldFileNameCalculated) {
       const nodeUpdated = Nodes.mergeNodes(node, {
-        value: { [NodeValues.valuePropsFile.fileNameCalculated]: fileNameCalculated },
+        value: { [NodeValues.ValuePropsFile.fileNameCalculated]: fileNameCalculated },
         updated: true,
         dateModified: Dates.nowFormattedForStorage(),
       })
