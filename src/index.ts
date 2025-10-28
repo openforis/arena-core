@@ -88,7 +88,16 @@ export type { Labels } from './language'
 export type { Logger } from './logger'
 
 export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
-export type { Node, NodePointer, NodeService, NodesMap } from './node'
+export type {
+  Node,
+  NodePointer,
+  NodeService,
+  NodesMap,
+  NodeValueCode,
+  NodeValueCoordinate,
+  NodeValueFile,
+  NodeValueTaxon,
+} from './node'
 
 export {
   NodeDefType,
