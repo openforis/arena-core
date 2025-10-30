@@ -7,10 +7,11 @@ export type {
   User,
   UserAuthGroup,
   UserAuthGroupProps,
+  UserInvitation,
   UserPrefs,
   UserProps,
   UserPrefSurveys,
-  UserInvitation,
+  UserRefreshToken,
 } from './user'
 export type { UserService } from './userService'
 

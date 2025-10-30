@@ -2,13 +2,14 @@ export type { AppInfo } from './app'
 
 export { Authorizer, AuthGroupName, UserStatus, Permission, UserTitle, UserFactory, Users } from './auth'
 export type {
+  AuthGroup,
   User,
   UserAuthGroup,
   UserAuthGroupProps,
   UserPrefs,
   UserPrefSurveys,
   UserProps,
-  AuthGroup,
+  UserRefreshToken,
   UserService,
 } from './auth'
 
