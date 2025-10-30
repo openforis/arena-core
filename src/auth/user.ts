@@ -50,12 +50,17 @@ export interface User extends ArenaObject<UserProps> {
   invitation?: UserInvitation
 }
 
+export type RefreshTokenProps = {
+  ipAddress?: string
+  userAgent?: string
+}
+
 export type UserRefreshToken = {
   uuid: string
   userUuid: string
   token: string
-  props: Record<string, any>
+  props: RefreshTokenProps
   dateCreated: Date
   expiresAt: Date
-  revoked: boolean
+  revoked?: boolean
 }

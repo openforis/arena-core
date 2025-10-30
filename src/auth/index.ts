@@ -14,6 +14,7 @@ export type {
   UserRefreshToken,
 } from './user'
 export type { UserService } from './userService'
+export type { UserRefreshTokenService } from './userRefreshTokenService'
 
 export { UserStatus, UserTitle } from './user'
 export { UserFactory } from './factory'
