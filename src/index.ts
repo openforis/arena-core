@@ -6,12 +6,13 @@ export type {
   User,
   UserAuthGroup,
   UserAuthGroupProps,
+  UserAuthTokenService,
   UserPrefs,
   UserPrefSurveys,
   UserProps,
   UserRefreshToken,
+  UserRefreshTokenProps,
   UserService,
-  UserRefreshTokenService,
 } from './auth'
 
 export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, CategoryLevelFactory } from './category'

@@ -11,4 +11,5 @@ export enum ServiceType {
   taxon = 'taxon',
   taxonomy = 'taxonomy',
   user = 'user',
+  userAuthToken = 'userAuthToken',
 }

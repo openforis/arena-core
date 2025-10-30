@@ -12,9 +12,10 @@ export type {
   UserProps,
   UserPrefSurveys,
   UserRefreshToken,
+  UserRefreshTokenProps,
 } from './user'
 export type { UserService } from './userService'
-export type { UserRefreshTokenService } from './userRefreshTokenService'
+export type { UserAuthTokenService } from './userAuthTokenService'
 
 export { UserStatus, UserTitle } from './user'
 export { UserFactory } from './factory'

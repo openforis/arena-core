@@ -50,7 +50,7 @@ export interface User extends ArenaObject<UserProps> {
   invitation?: UserInvitation
 }
 
-export type RefreshTokenProps = {
+export type UserRefreshTokenProps = {
   ipAddress?: string
   userAgent?: string
 }
@@ -59,7 +59,7 @@ export type UserRefreshToken = {
   uuid: string
   userUuid: string
   token: string
-  props: RefreshTokenProps
+  props: UserRefreshTokenProps
   dateCreated: Date
   expiresAt: Date
   revoked?: boolean
