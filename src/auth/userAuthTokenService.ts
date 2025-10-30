@@ -6,7 +6,7 @@ export interface UserAuthTokenService extends ArenaService {
   createAuthToken(options: { userUuid: string }): string
   createRefreshToken(
     options: { userUuid: string; props: UserRefreshTokenProps },
-    dbClient: any
+    dbClient?: any
   ): Promise<UserRefreshToken>
 
   // ==== READ
@@ -17,7 +17,7 @@ export interface UserAuthTokenService extends ArenaService {
   revokeAll(options: { userUuid: string }): Promise<void>
   rotateRefreshToken(
     options: { oldRefreshTokenUuid: string; userUuid: string; props: UserRefreshTokenProps },
-    client: any
+    dbClient?: any
   ): Promise<UserRefreshToken>
 
   // ==== DELETE
