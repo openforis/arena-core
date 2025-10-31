@@ -7,14 +7,18 @@ export type {
   User,
   UserAuthGroup,
   UserAuthGroupProps,
-  UserAuthToken,
   UserInvitation,
   UserPrefs,
   UserProps,
   UserPrefSurveys,
-  UserRefreshToken,
-  UserRefreshTokenProps,
 } from './user'
+export type {
+  UserAuthToken,
+  UserAuthTokenPayload,
+  UserAuthRefreshToken,
+  UserAuthRefreshTokenPayload,
+  UserAuthRefreshTokenProps,
+} from './userAuth'
 export type { UserService } from './userService'
 export type { UserAuthTokenService } from './userAuthTokenService'
 

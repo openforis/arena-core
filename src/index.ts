@@ -7,12 +7,14 @@ export type {
   UserAuthGroup,
   UserAuthGroupProps,
   UserAuthToken,
+  UserAuthTokenPayload,
   UserAuthTokenService,
   UserPrefs,
   UserPrefSurveys,
   UserProps,
-  UserRefreshToken,
-  UserRefreshTokenProps,
+  UserAuthRefreshToken,
+  UserAuthRefreshTokenProps,
+  UserAuthRefreshTokenPayload,
   UserService,
 } from './auth'
 
