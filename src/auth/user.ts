@@ -55,12 +55,17 @@ export type UserRefreshTokenProps = {
   userAgent?: string
 }
 
-export type UserRefreshToken = {
-  uuid: string
-  userUuid: string
+type UserToken = {
   token: string
-  props: UserRefreshTokenProps
   dateCreated: Date
   expiresAt: Date
+}
+
+export type UserAuthToken = UserToken
+
+export type UserRefreshToken = UserToken & {
+  uuid: string
+  userUuid: string
+  props: UserRefreshTokenProps
   revoked?: boolean
 }

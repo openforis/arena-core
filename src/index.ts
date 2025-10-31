@@ -6,6 +6,7 @@ export type {
   User,
   UserAuthGroup,
   UserAuthGroupProps,
+  UserAuthToken,
   UserAuthTokenService,
   UserPrefs,
   UserPrefSurveys,

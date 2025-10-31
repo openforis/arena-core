@@ -1,9 +1,9 @@
-import { UserRefreshToken, UserRefreshTokenProps } from '.'
+import { UserAuthToken, UserRefreshToken, UserRefreshTokenProps } from './user'
 import { ArenaService } from '../common'
 
 export interface UserAuthTokenService extends ArenaService {
   // ==== CREATE
-  createAuthToken(options: { userUuid: string }): string
+  createAuthToken(options: { userUuid: string }): UserAuthToken
   createRefreshToken(
     options: { userUuid: string; props: UserRefreshTokenProps },
     dbClient?: any
@@ -19,6 +19,10 @@ export interface UserAuthTokenService extends ArenaService {
     options: { oldRefreshTokenUuid: string; userUuid: string; props: UserRefreshTokenProps },
     dbClient?: any
   ): Promise<UserRefreshToken>
+  rotateTokens(options: { refreshToken: string; refreshTokenProps: UserRefreshTokenProps }): Promise<{
+    authToken: UserAuthToken
+    refreshToken: UserRefreshToken
+  } | null>
 
   // ==== DELETE
   deleteExpired(): Promise<number>
