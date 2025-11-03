@@ -16,6 +16,7 @@ export type {
   UserAuthRefreshTokenProps,
   UserAuthRefreshTokenPayload,
   UserService,
+  UserTokenPayload,
 } from './auth'
 
 export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, CategoryLevelFactory } from './category'

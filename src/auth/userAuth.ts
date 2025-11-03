@@ -18,16 +18,16 @@ export type UserAuthRefreshToken = UserToken & {
   revoked?: boolean
 }
 
-export type UserAuthTokenPayload = {
+export type UserTokenPayload = {
   userUuid: string
-  uuid?: string
   exp: number
   iat: number
 }
 
-export type UserAuthRefreshTokenPayload = {
+export type UserAuthTokenPayload = UserTokenPayload & {
+  uuid?: string
+}
+
+export type UserAuthRefreshTokenPayload = UserTokenPayload & {
   uuid: string
-  userUuid: string
-  exp: number
-  iat: number
 }

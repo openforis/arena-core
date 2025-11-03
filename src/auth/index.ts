@@ -18,6 +18,7 @@ export type {
   UserAuthRefreshToken,
   UserAuthRefreshTokenPayload,
   UserAuthRefreshTokenProps,
+  UserTokenPayload,
 } from './userAuth'
 export type { UserService } from './userService'
 export type { UserAuthTokenService } from './userAuthTokenService'

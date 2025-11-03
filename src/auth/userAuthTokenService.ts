@@ -1,5 +1,5 @@
 import { ArenaService } from '../common'
-import { UserAuthRefreshToken, UserAuthRefreshTokenProps, UserAuthToken } from './userAuth'
+import { UserAuthRefreshToken, UserAuthRefreshTokenProps, UserAuthToken, UserTokenPayload } from './userAuth'
 
 export interface UserAuthTokenService extends ArenaService {
   // ==== CREATE
@@ -21,6 +21,10 @@ export interface UserAuthTokenService extends ArenaService {
   } | null>
   revoke(options: { tokenUuid: string }): Promise<void>
   revokeAll(options: { userUuid: string }): Promise<void>
+
   // ==== DELETE
   deleteExpired(): Promise<number>
+
+  // ==== UTIL
+  verifyAuthToken<P extends UserTokenPayload>(token: string): P
 }
