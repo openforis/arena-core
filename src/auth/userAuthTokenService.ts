@@ -3,27 +3,24 @@ import { UserAuthRefreshToken, UserAuthRefreshTokenProps, UserAuthToken } from '
 
 export interface UserAuthTokenService extends ArenaService {
   // ==== CREATE
-  createAuthToken(options: { userUuid: string }): UserAuthToken
-  createRefreshToken(
+  createTokens(
     options: { userUuid: string; props: UserAuthRefreshTokenProps },
     dbClient?: any
-  ): Promise<UserAuthRefreshToken>
+  ): Promise<{ authToken: UserAuthToken; refreshToken: UserAuthRefreshToken }>
 
   // ==== READ
   getByUuid(tokenUuid: string): Promise<UserAuthRefreshToken | null>
 
   // ==== UPDATE
-  revoke(options: { tokenUuid: string }): Promise<void>
-  revokeAll(options: { userUuid: string }): Promise<void>
-  rotateRefreshToken(
-    options: { oldRefreshTokenUuid: string; userUuid: string; props: UserAuthRefreshTokenProps },
+  rotateTokens(
+    options: { refreshToken: string; refreshTokenProps: UserAuthRefreshTokenProps },
     dbClient?: any
-  ): Promise<UserAuthRefreshToken>
-  rotateTokens(options: { refreshToken: string; refreshTokenProps: UserAuthRefreshTokenProps }): Promise<{
+  ): Promise<{
     authToken: UserAuthToken
     refreshToken: UserAuthRefreshToken
   } | null>
-
+  revoke(options: { tokenUuid: string }): Promise<void>
+  revokeAll(options: { userUuid: string }): Promise<void>
   // ==== DELETE
   deleteExpired(): Promise<number>
 }
