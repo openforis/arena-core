@@ -1,17 +1,15 @@
-type UserToken = {
+export type UserAuthToken = {
   token: string
   dateCreated: Date
   expiresAt: Date
 }
-
-export type UserAuthToken = UserToken
 
 export type UserAuthRefreshTokenProps = {
   ipAddress?: string
   userAgent?: string
 }
 
-export type UserAuthRefreshToken = UserToken & {
+export type UserAuthRefreshToken = UserAuthToken & {
   uuid: string
   userUuid: string
   props: UserAuthRefreshTokenProps
