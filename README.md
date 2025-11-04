@@ -36,7 +36,6 @@ Create a new .npmrc file if one doesn't exist and add:
 
 ```shell
 @openforis:registry=https://npm.pkg.github.com
-always-auth = true
 ```
 
 ### 3. .yarnrc
