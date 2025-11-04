@@ -144,6 +144,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 - Test files: `*.test.ts` or `*.spec.ts` in `src/`
 - Test builders available: `SurveyBuilder`, `RecordBuilder` in `src/tests/builder/`
 - Use builders to create test fixtures rather than manual object construction
+- Builder exports: `SurveyObjectBuilders` (for survey structure) and `RecordNodeBuilders` (for record data)
 
 ## Linting Rules
 
