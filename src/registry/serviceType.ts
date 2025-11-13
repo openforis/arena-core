@@ -4,6 +4,7 @@ export enum ServiceType {
   categoryLevel = 'categoryLevel',
   chain = 'chain',
   chainNodeDef = 'chainNodeDef',
+  info = 'info',
   node = 'node',
   nodeDef = 'nodeDef',
   record = 'record',
