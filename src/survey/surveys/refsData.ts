@@ -1,5 +1,5 @@
 import { Survey } from '../survey'
-import { CategoryItem } from '../../category'
+import { CategoryItem, CategoryItems } from '../../category'
 import { Taxon } from '../../taxonomy'
 import { NodeDefs, NodeDefTaxon } from '../../nodeDef'
 
@@ -24,7 +24,20 @@ export const getCategoryItems = (params: {
     if (item) acc.push(item)
     return acc
   }, [])
-  return items.sort((item1, item2) => (item1.props.index ?? 0) - (item2.props.index ?? 0))
+  return items.sort((item1, item2) => {
+    const index1 = CategoryItems.getIndex(item1)
+    const index2 = CategoryItems.getIndex(item2)
+    if (Number.isNaN(index1) && Number.isNaN(index2)) {
+      return (item1.id ?? 0) - (item2.id ?? 0)
+    }
+    if (Number.isNaN(index1)) {
+      return 1
+    }
+    if (Number.isNaN(index2)) {
+      return -1
+    }
+    return index1 - index2
+  })
 }
 
 export const getCategoryItemUuidByCode = (params: {
