@@ -169,7 +169,15 @@ export {
   RecordValidator,
   RecordValidations,
 } from './record'
-export type { Record, Record as ArenaRecord, RecordService, RecordUpdateOptions } from './record'
+export type {
+  AttributeValidatorParams,
+  Record,
+  Record as ArenaRecord,
+  RecordService,
+  RecordUpdateOptions,
+  RecordValidatorParams,
+  SortedAttributesValidatorParams,
+} from './record'
 
 export { ServiceRegistry, ServiceType } from './registry'
 
