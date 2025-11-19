@@ -219,8 +219,10 @@ const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Nod
 
     const nodeParent = Records.getParent(node)(record)
 
-    result.push(...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }))
-    result.push(...findSiblingKeyNodesToValidate({ ...params, nodeDef, nodeParent, attribute: node }))
+    result.push(
+      ...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }),
+      ...findSiblingKeyNodesToValidate({ ...params, nodeDef, nodeParent, attribute: node })
+    )
 
     if (NodeDefs.getValidations(nodeDef)?.unique) {
       result.push(...Records.getAttributeSiblings({ record, node, nodeDef }))
