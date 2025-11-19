@@ -17,7 +17,7 @@ export const updateDependentCodeAttributes = (params: RecordNodeDependentsUpdate
 
   // 2. clear dependent code attributes' values
 
-  dependentCodeAttributes.forEach((dependentCodeAttribute) => {
+  for (const dependentCodeAttribute of dependentCodeAttributes) {
     const dependentCodeAttributeDef = Surveys.getNodeDefByUuid({ survey, uuid: dependentCodeAttribute.nodeDefUuid })
     if (
       !NodeDefs.isReadOnly(dependentCodeAttributeDef) &&
@@ -32,7 +32,7 @@ export const updateDependentCodeAttributes = (params: RecordNodeDependentsUpdate
       }
       updateResult.addNode(nodeUpdated, { sideEffect })
     }
-  })
+  }
 
   return updateResult
 }

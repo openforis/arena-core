@@ -49,7 +49,7 @@ export type {
 } from './chain'
 
 export { TraverseMethod } from './common'
-export type { ArenaObject, ArenaService, Factory } from './common'
+export type { ArenaObject, ArenaService, Dictionary, Factory } from './common'
 
 export { DataQueryMode, DataQuerySummaries } from './dataQuery'
 export type { DataQuery, DataQuerySummary, DataQuerySummaryProps } from './dataQuery'

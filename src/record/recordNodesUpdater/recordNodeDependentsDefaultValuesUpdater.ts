@@ -1,6 +1,7 @@
 import { Node, NodePointer, Nodes } from '../../node'
 import { NodeDef, NodeDefs } from '../../nodeDef'
-import { SurveyDependencyType } from '../../survey/survey'
+import { Surveys } from '../../survey'
+import { Survey, SurveyDependencyType } from '../../survey/survey'
 import { Dates, Objects } from '../../utils'
 import { NodePointers } from '../nodePointers'
 import { Record } from '../record'
@@ -13,9 +14,14 @@ import { RecordUpdateResult } from './recordUpdateResult'
 
 const expressionEvaluator = new RecordExpressionEvaluator()
 
-const shouldResetDefaultValue = (params: { record: Record; node: Node }): boolean => {
-  const { record, node } = params
-  return !Records.isNodeApplicable({ record, node }) && !Nodes.isValueBlank(node) && Nodes.isDefaultValueApplied(node)
+const shouldResetDefaultValue = (params: { survey: Survey; record: Record; node: Node }): boolean => {
+  const { survey, record, node } = params
+  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
+  return (
+    !Records.isNodeApplicable({ record, node }) &&
+    !Nodes.isValueBlank(node) &&
+    (Nodes.isDefaultValueApplied(node) || NodeDefs.isReadOnly(nodeDef))
+  )
 }
 
 const canApplyDefaultValue = (params: { record: Record; node: Node; nodeDef: NodeDef<any> }): boolean => {
@@ -23,8 +29,49 @@ const canApplyDefaultValue = (params: { record: Record; node: Node; nodeDef: Nod
   return (
     Records.isNodeApplicable({ record, node }) &&
     (Nodes.isValueBlank(node) ||
-      (Nodes.isDefaultValueApplied(node) && !NodeDefs.isDefaultValueEvaluatedOneTime(nodeDef)))
+      (!NodeDefs.isDefaultValueEvaluatedOneTime(nodeDef) &&
+        (Nodes.isDefaultValueApplied(node) || NodeDefs.isReadOnly(nodeDef))))
   )
+}
+
+const updateDefaultValueInNode = (params: {
+  survey: Survey
+  updateResult: RecordUpdateResult
+  nodeToUpdate: Node
+  nodeDef: NodeDef<any>
+  exprValue: any
+  sideEffect: boolean
+}): void => {
+  const { survey, updateResult, nodeToUpdate, nodeDef, exprValue, sideEffect } = params
+  if (shouldResetDefaultValue({ survey, record: updateResult.record, node: nodeToUpdate })) {
+    const nodeUpdated = Nodes.mergeNodes(nodeToUpdate, {
+      value: null,
+      meta: { defaultValueApplied: false },
+      updated: true,
+      dateModified: Dates.nowFormattedForStorage(),
+    })
+    updateResult.addNode(nodeUpdated, { sideEffect })
+    return
+  }
+  if (!canApplyDefaultValue({ record: updateResult.record, nodeDef, node: nodeToUpdate })) {
+    return
+  }
+
+  // 2. if node value is not changed, do nothing
+  if (Objects.isEqual(nodeToUpdate.value, exprValue)) {
+    return
+  }
+
+  // 3. update node value and meta
+  const defaultValueApplied = !Objects.isEmpty(exprValue)
+
+  const nodeUpdated = Nodes.mergeNodes(nodeToUpdate, {
+    value: exprValue,
+    meta: { defaultValueApplied },
+    updated: true,
+    dateModified: Dates.nowFormattedForStorage(),
+  })
+  updateResult.addNode(nodeUpdated, { sideEffect })
 }
 
 const updateDefaultValuesInNodes = async (
@@ -67,33 +114,9 @@ const updateDefaultValuesInNodes = async (
         })
 
     const nodesToUpdate = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
-    nodesToUpdate.forEach((nodeToUpdate) => {
-      if (shouldResetDefaultValue({ record: updateResult.record, node: nodeToUpdate })) {
-        const nodeUpdated = Nodes.mergeNodes(nodeToUpdate, {
-          value: null,
-          meta: { defaultValueApplied: false },
-          updated: true,
-          dateModified: Dates.nowFormattedForStorage(),
-        })
-        updateResult.addNode(nodeUpdated, { sideEffect })
-        return
-      }
-      if (!canApplyDefaultValue({ record: updateResult.record, nodeDef, node: nodeToUpdate })) return
-
-      // 2. if node value is not changed, do nothing
-      if (Objects.isEqual(nodeToUpdate.value, exprValue)) return
-
-      // 3. update node value and meta
-      const defaultValueApplied = !Objects.isEmpty(exprValue)
-
-      const nodeUpdated = Nodes.mergeNodes(nodeToUpdate, {
-        value: exprValue,
-        meta: { defaultValueApplied },
-        updated: true,
-        dateModified: Dates.nowFormattedForStorage(),
-      })
-      updateResult.addNode(nodeUpdated, { sideEffect })
-    })
+    for (const nodeToUpdate of nodesToUpdate) {
+      updateDefaultValueInNode({ survey, updateResult, nodeToUpdate, nodeDef, exprValue, sideEffect })
+    }
   } catch (error) {
     throwError({
       error,
@@ -127,7 +150,7 @@ export const updateSelfAndDependentsDefaultValues = async (
     })
     return referencedNodes.some(
       (referencedNode) =>
-        shouldResetDefaultValue({ record: updateResult.record, node: referencedNode }) ||
+        shouldResetDefaultValue({ survey, record: updateResult.record, node: referencedNode }) ||
         canApplyDefaultValue({ record: updateResult.record, node: referencedNode, nodeDef })
     )
   }
