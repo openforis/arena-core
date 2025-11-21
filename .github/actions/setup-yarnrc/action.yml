@@ -3,7 +3,7 @@
 name: 'Setup .yarnrc.yml'
 description: 'Creates the .yarnrc.yml file needed to authenticate with the GitHub npm registry.'
 inputs:
-  NPM_AUTH_TOKEN:
+  NPM_TOKEN:
     description: 'The GitHub token to use for authentication.'
     required: true
 runs:
@@ -18,7 +18,7 @@ runs:
       run: |
         yarn config set npmScopes.<GITHUB_ORG_NAME>.npmRegistryServer "https://npm.pkg.github.com"
         yarn config set npmScopes.<GITHUB_ORG_NAME>.npmAlwaysAuth true
-        yarn config set npmScopes.<GITHUB_ORG_NAME>.npmAuthToken $NPM_AUTH_TOKEN
+        yarn config set npmScopes.<GITHUB_ORG_NAME>.npmAuthToken $NPM_TOKEN
       shell: bash
       env:
-        NPM_AUTH_TOKEN: ${{ inputs.NPM_AUTH_TOKEN }}
+        NPM_TOKEN: ${{ inputs.NPM_TOKEN }}

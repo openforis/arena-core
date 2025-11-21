@@ -40,7 +40,7 @@ jobs:
       - name: Setup .yarnrc.yml
         uses: ./.github/actions/setup-yarnrc
         with:
-          NPM_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       # -----------------------------------------------
       - name: Install dependencies
         run: yarn install --immutable
