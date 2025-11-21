@@ -35,7 +35,7 @@ jobs:
           scope: '@openforis'
       - name: Install dependencies
         run: yarn install --immutable
-      - run: yarn publish
+      - run: yarn npm publish
       - name: Enable "include administrators" branch protection
         uses: benjefferies/branch-protection-bot@master
         if: always() # Force to always run this step to ensure "include administrators" is always turned back on
