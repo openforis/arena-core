@@ -16,9 +16,9 @@ runs:
 
     - name: Setup .yarnrc.yml
       run: |
-        yarn config set npmScopes.<GITHUB_ORG_NAME>.npmRegistryServer "https://npm.pkg.github.com"
-        yarn config set npmScopes.<GITHUB_ORG_NAME>.npmAlwaysAuth true
-        yarn config set npmScopes.<GITHUB_ORG_NAME>.npmAuthToken $NPM_TOKEN
+        yarn config set npmScopes.openforis.npmRegistryServer "https://npm.pkg.github.com"
+        yarn config set npmScopes.openforis.npmAlwaysAuth true
+        yarn config set npmScopes.openforis.npmAuthToken $NPM_TOKEN
       shell: bash
       env:
         NPM_TOKEN: ${{ inputs.NPM_TOKEN }}
