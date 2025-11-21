@@ -10,6 +10,8 @@ on:
 jobs:
   publish-new-version:
     runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.ACCESS_TOKEN }}
     steps:
       - name: 'Checkout'
         uses: actions/checkout@v5
@@ -31,13 +33,6 @@ jobs:
           node-version: 24
           registry-url: https://npm.pkg.github.com/
           scope: '@openforis'
-      - name: Setup .yarnrc.yml
-        run: |
-          yarn config set npmScopes.openforis.npmRegistryServer "https://npm.pkg.github.com"
-          yarn config set npmScopes.openforis.npmAlwaysAuth true
-          yarn config set npmScopes.openforis.npmAuthToken $NPM_AUTH_TOKEN
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       - name: Install dependencies
         run: yarn install --immutable
       - run: yarn npm publish
