@@ -33,6 +33,15 @@ jobs:
           node-version: 24
           registry-url: https://npm.pkg.github.com/
           scope: '@openforis'
+      # -----------------------------------------------
+      # This step calls the composite action
+      # to create the `.yarnrc.yml` in the workflow
+
+      - name: Setup .yarnrc.yml
+        uses: ./.github/actions/setup-yarnrc
+        with:
+          NPM_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      # -----------------------------------------------
       - name: Install dependencies
         run: yarn install --immutable
       - run: yarn npm publish
