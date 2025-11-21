@@ -36,7 +36,6 @@ jobs:
       # -----------------------------------------------
       # This step calls the composite action
       # to create the `.yarnrc.yml` in the workflow
-
       - name: Setup .yarnrc.yml
         uses: ./.github/actions/setup-yarnrc
         with:
@@ -44,6 +43,7 @@ jobs:
       # -----------------------------------------------
       - name: Install dependencies
         run: yarn install --immutable
+      - run: yarn build
       - run: yarn npm publish
       - name: Enable "include administrators" branch protection
         uses: benjefferies/branch-protection-bot@master
