@@ -5,7 +5,8 @@ on: [pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      NPM_TOKEN: ${{secrets.ACCESS_TOKEN}}
     steps:
       - uses: actions/checkout@v5
 
