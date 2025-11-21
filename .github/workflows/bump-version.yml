@@ -10,8 +10,6 @@ on:
 jobs:
   publish-new-version:
     runs-on: ubuntu-latest
-    env:
-      NPM_TOKEN: ${{secrets.ACCESS_TOKEN}}
     steps:
       - name: 'Checkout'
         uses: actions/checkout@v5
@@ -33,13 +31,16 @@ jobs:
           node-version: 24
           registry-url: https://npm.pkg.github.com/
           scope: '@openforis'
-
-      - run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.ACCESS_TOKEN }}" > .npmrc
-      - run: echo "\"@openforis:registry\"" "\"https://npm.pkg.github.com\"" > .yarnrc
-      - run: cat .npmrc
-      - run: cat .yarnrc
-      - run: npm install
-      - run: npm publish
+      - name: Setup .yarnrc.yml
+        run: |
+          yarn config set npmScopes.openforis.npmRegistryServer "https://npm.pkg.github.com"
+          yarn config set npmScopes.openforis.npmAlwaysAuth true
+          yarn config set npmScopes.openforis.npmAuthToken $NPM_AUTH_TOKEN
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      - name: Install dependencies
+        run: yarn install --immutable
+      - run: yarn npm publish
       - name: Enable "include administrators" branch protection
         uses: benjefferies/branch-protection-bot@master
         if: always() # Force to always run this step to ensure "include administrators" is always turned back on
