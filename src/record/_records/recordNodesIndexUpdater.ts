@@ -9,6 +9,18 @@ const keys = {
   nodeCodeDependents: 'nodeCodeDependents',
 }
 
+const sortNodesByIdOrCreationDate = (nodeA: Node, nodeB: Node): number => {
+  if (!nodeA.parentUuid) return -1
+  if (!nodeB.parentUuid) return 1
+  const hierarchyDepthA = Nodes.getHierarchy(nodeA).length
+  const hierarchyDepthB = Nodes.getHierarchy(nodeB).length
+  const depthDiff = hierarchyDepthA - hierarchyDepthB
+  if (depthDiff !== 0) return depthDiff
+  if (nodeA.id && nodeB.id) return nodeA.id - nodeB.id
+  if (nodeA.dateCreated && nodeB.dateCreated) return nodeA.dateCreated.localeCompare(nodeB.dateCreated)
+  return 0
+}
+
 const _addNodeToCodeDependents =
   (node: Node, sideEffect: boolean) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
@@ -59,19 +71,25 @@ const _addNodeToIndex =
   }
 
 const addNodes =
-  (nodes: { [key: string]: Node }, sideEffect = false) =>
-  (index: RecordNodesIndex): RecordNodesIndex =>
-    Object.values(nodes).reduce(
-      (indexAcc: RecordNodesIndex, node: Node) => _addNodeToIndex(node, sideEffect)(indexAcc),
-      index
-    )
+  (nodes: { [key: string]: Node }, sideEffect = false, sortNodes = false) =>
+  (index: RecordNodesIndex): RecordNodesIndex => {
+    let indexUpdated = sideEffect ? index : { ...index }
+    const nodesArray = Object.values(nodes)
+    if (sortNodes) {
+      nodesArray.sort(sortNodesByIdOrCreationDate)
+    }
+    for (const node of nodesArray) {
+      indexUpdated = _addNodeToIndex(node, sideEffect)(indexUpdated)
+    }
+    return indexUpdated
+  }
 
 const addNode =
   (node: Node) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
     addNodes({ [node.uuid]: node })(index)
 
-const initializeIndex = (record: Record): RecordNodesIndex => addNodes(record.nodes ?? {}, true)({})
+const initializeIndex = (record: Record): RecordNodesIndex => addNodes(record.nodes ?? {}, true, true)({})
 
 const _removeNodeFromCodeDependentsIndex =
   (node: Node, sideEffect = false) =>
