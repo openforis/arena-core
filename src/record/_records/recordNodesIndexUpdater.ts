@@ -75,8 +75,10 @@ const addNodes =
   (index: RecordNodesIndex): RecordNodesIndex => {
     let indexUpdated = sideEffect ? index : { ...index }
     const nodesArray = Object.values(nodes)
-    const sortedNodes = sortNodes ? nodesArray.sort(sortNodesByIdOrCreationDate) : nodesArray
-    for (const node of sortedNodes) {
+    if (sortNodes) {
+      nodesArray.sort(sortNodesByIdOrCreationDate)
+    }
+    for (const node of nodesArray) {
       indexUpdated = _addNodeToIndex(node, sideEffect)(indexUpdated)
     }
     return indexUpdated
