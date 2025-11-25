@@ -151,7 +151,7 @@ const assignNewUuids = (params: {
   const nodes = recordUpdated.nodes!
   delete recordUpdated._nodesIndex
   delete recordUpdated.nodes
-  recordUpdated = Records.addNodes(nodes, { sideEffect })(recordUpdated)
+  recordUpdated = Records.addNodes(nodes, { sideEffect, sortNodes: true })(recordUpdated)
 
   return { newNodeUuidsByOldUuid, newFileUuidsByOldUuid, record: recordUpdated }
 }
