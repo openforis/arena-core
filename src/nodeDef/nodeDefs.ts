@@ -65,6 +65,8 @@ const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ??
 
 const isHidden = (nodeDef: NodeDef<any>): boolean => nodeDef.props.hidden ?? false
 
+const isShownAsHyperlink = (nodeDef: NodeDefText): boolean => nodeDef.props.shownAsHyperlink ?? false
+
 const isEnumerate = (nodeDef: NodeDefEntity): boolean => nodeDef.props.enumerate ?? false
 
 const getDefaultValues = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
@@ -243,6 +245,7 @@ export const NodeDefs = {
   isAutoIncrementalKey,
   isReadOnly,
   isHidden,
+  isShownAsHyperlink,
   isEnumerate,
   isRoot,
   getType,
