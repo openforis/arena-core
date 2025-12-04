@@ -1,5 +1,10 @@
 import { NodeDef, NodeDefLayout, NodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
 
+export enum NodeDefTextInputType {
+  singleLine = 'singleLine',
+  multiLine = 'multiLine',
+}
+
 export enum NodeDefTextRenderType {
   text = 'text',
   hyperlink = 'hyperlink',
@@ -11,6 +16,7 @@ export interface NodeDefTextLayout extends NodeDefLayout {
 }
 
 export interface NodeDefTextProps extends NodeDefPropsWithLayout<NodeDefTextLayout> {
+  textInputType: NodeDefTextInputType
   textTransform: 'none' | 'capitalize' | 'lowercase' | 'uppercase'
 }
 

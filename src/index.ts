@@ -113,6 +113,7 @@ export {
   NodeDefs,
   NodeDefEntityRenderType,
   NodeDefFileType,
+  NodeDefTextInputType,
   NodeDefTextRenderType,
   FormHeaderColor,
 } from './nodeDef'
