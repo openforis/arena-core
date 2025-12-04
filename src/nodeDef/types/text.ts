@@ -1,6 +1,22 @@
-import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
+import { NodeDef, NodeDefLayout, NodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
 
-export interface NodeDefTextProps extends NodeDefProps {
+export enum NodeDefTextInputType {
+  singleLine = 'singleLine',
+  multiLine = 'multiLine',
+}
+
+export enum NodeDefTextRenderType {
+  text = 'text',
+  hyperlink = 'hyperlink',
+  markdown = 'markdown',
+}
+
+export interface NodeDefTextLayout extends NodeDefLayout {
+  renderType: NodeDefTextRenderType
+}
+
+export interface NodeDefTextProps extends NodeDefPropsWithLayout<NodeDefTextLayout> {
+  textInputType: NodeDefTextInputType
   textTransform: 'none' | 'capitalize' | 'lowercase' | 'uppercase'
 }
 
