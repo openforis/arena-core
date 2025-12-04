@@ -113,6 +113,7 @@ export {
   NodeDefs,
   NodeDefEntityRenderType,
   NodeDefFileType,
+  NodeDefTextRenderType,
   FormHeaderColor,
 } from './nodeDef'
 
@@ -148,6 +149,7 @@ export type {
   NodeDefTaxonProps,
   NodeDefText,
   NodeDefTextProps,
+  NodeDefTextLayout,
   NodeDefTime,
   NodeDefExpression,
   NodeDefService,

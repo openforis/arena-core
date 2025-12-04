@@ -24,7 +24,7 @@ import {
 } from './types/entity'
 import { NodeDefFile, NodeDefFileType } from './types/file'
 import { NodeDefTaxon } from './types/taxon'
-import { NodeDefText } from './types/text'
+import { NodeDefText, NodeDefTextRenderType } from './types/text'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
@@ -64,8 +64,6 @@ const getDescription = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: Langu
 const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ?? false
 
 const isHidden = (nodeDef: NodeDef<any>): boolean => nodeDef.props.hidden ?? false
-
-const isShownAsHyperlink = (nodeDef: NodeDefText): boolean => nodeDef.props.shownAsHyperlink ?? false
 
 const isEnumerate = (nodeDef: NodeDefEntity): boolean => nodeDef.props.enumerate ?? false
 
@@ -178,6 +176,16 @@ const isLayoutRenderTypeTable =
   (nodeDef: NodeDefEntity): boolean =>
     getLayoutRenderType(cycle)(nodeDef) === NodeDefEntityRenderType.table
 
+const isLayoutRenderTypeHyperlink =
+  (cycle = defaultCycle) =>
+  (nodeDef: NodeDefText): boolean =>
+    getLayoutRenderType(cycle)(nodeDef) === NodeDefTextRenderType.hyperlink
+
+const isLayoutRenderTypeMarkdown =
+  (cycle = defaultCycle) =>
+  (nodeDef: NodeDefText): boolean =>
+    getLayoutRenderType(cycle)(nodeDef) === NodeDefTextRenderType.markdown
+
 const getChildrenEntitiesInOwnPageUudis =
   (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): string[] =>
@@ -245,7 +253,6 @@ export const NodeDefs = {
   isAutoIncrementalKey,
   isReadOnly,
   isHidden,
-  isShownAsHyperlink,
   isEnumerate,
   isRoot,
   getType,
@@ -288,6 +295,8 @@ export const NodeDefs = {
   isIncludedInPreviousCycleLink,
   isHiddenWhenNotRelevant,
   isCodeShown,
+  isLayoutRenderTypeHyperlink,
+  isLayoutRenderTypeMarkdown,
   // validations
   getValidations,
   getValidationsExpressions,

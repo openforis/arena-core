@@ -41,7 +41,6 @@ export interface NodeDefProps {
 
   // available only when readOnly is true
   hidden?: boolean
-  shownAsHyperlink?: boolean
 
   visibleFields?: string[]
 }
