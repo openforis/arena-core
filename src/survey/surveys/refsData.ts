@@ -1,7 +1,8 @@
 import { Survey } from '../survey'
 import { CategoryItem, CategoryItems } from '../../category'
 import { Taxon } from '../../taxonomy'
-import { NodeDefs, NodeDefTaxon } from '../../nodeDef'
+import { NodeDef, NodeDefCode, NodeDefs, NodeDefTaxon } from '../../nodeDef'
+import { getNodeDefCategoryLevelIndex } from './nodeDefs'
 
 export const getCategoryItemByUuid = (params: { survey: Survey; itemUuid: string }): CategoryItem | undefined => {
   const { survey, itemUuid } = params
@@ -64,6 +65,32 @@ export const getCategoryItemByCodePaths = (params: {
     'null'
   )
   return itemUuid ? getCategoryItemByUuid({ survey, itemUuid }) : undefined
+}
+
+export const getCategoryItemsInLevel = (params: { survey: Survey; categoryUuid: string; levelIndex?: number }) => {
+  const { survey, categoryUuid, levelIndex = 0 } = params
+  const rootItems = getCategoryItems({ survey, categoryUuid })
+  if (levelIndex === 0) return rootItems
+
+  let itemsPrevLevel = [...rootItems]
+  let currentLevelIndex = 1
+  while (currentLevelIndex <= levelIndex) {
+    const itemsInLevel = []
+    for (const item of itemsPrevLevel) {
+      const { uuid: parentItemUuid } = item
+      itemsInLevel.push(...getCategoryItems({ survey, categoryUuid, parentItemUuid }))
+    }
+    currentLevelIndex += 1
+    itemsPrevLevel = itemsInLevel
+  }
+  return itemsPrevLevel
+}
+
+export const getCategoryItemsByNodeDef = (params: { survey: Survey; nodeDef: NodeDefCode }) => {
+  const { survey, nodeDef } = params
+  const categoryUuid = NodeDefs.getCategoryUuid(nodeDef)!
+  const levelIndex = getNodeDefCategoryLevelIndex({ survey, nodeDef })
+  return getCategoryItemsInLevel({ survey, categoryUuid, levelIndex })
 }
 
 export const getTaxonByUuid = (params: { survey: Survey; taxonUuid: string }): Taxon | undefined => {
