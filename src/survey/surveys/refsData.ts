@@ -1,7 +1,7 @@
 import { Survey } from '../survey'
 import { CategoryItem, CategoryItems } from '../../category'
 import { Taxon } from '../../taxonomy'
-import { NodeDef, NodeDefCode, NodeDefs, NodeDefTaxon } from '../../nodeDef'
+import { NodeDefCode, NodeDefs, NodeDefTaxon } from '../../nodeDef'
 import { getNodeDefCategoryLevelIndex } from './nodeDefs'
 
 export const getCategoryItemByUuid = (params: { survey: Survey; itemUuid: string }): CategoryItem | undefined => {

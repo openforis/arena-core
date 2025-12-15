@@ -7,6 +7,11 @@ const defaultIfEmpty =
   (text: TextType): string =>
     Objects.isEmpty(text) ? defaultValue : (text as string)
 
+const padStart =
+  (length: number, padString: string) =>
+  (text: TextType): string =>
+    (text ?? '').padStart(length, padString)
+
 const quote = (text: TextType): string => (Objects.isEmpty(text) ? '' : `'${text}'`)
 
 const quoteDouble = (text: TextType): string => (Objects.isEmpty(text) ? '' : `"${text}"`)
@@ -49,6 +54,7 @@ const unquoteDouble = (text: TextType): string => _unquoteInternal(text, `"`)
 
 export const Strings = {
   defaultIfEmpty,
+  padStart,
   quote,
   quoteDouble,
   removePrefix,

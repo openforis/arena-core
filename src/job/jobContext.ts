@@ -2,9 +2,9 @@ import { User } from '../auth'
 import { Survey } from '../survey'
 
 export interface JobContext {
-  surveyId: number
+  surveyId?: number
   survey?: Survey
-  type: string
+  type?: string
   tx?: any
   user: User
 }

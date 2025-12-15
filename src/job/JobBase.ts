@@ -33,9 +33,9 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
       jobs: this.jobs.map((job) => job.summary),
       processed: 0,
       status: JobStatus.pending,
-      surveyId: this.context.surveyId,
+      surveyId: this.context.surveyId ?? 0,
       total: 1,
-      type: this.context.type,
+      type: this.context.type ?? this.constructor.name,
       userUuid: this.context.user.uuid,
       uuid: UUIDs.v4(),
     }
