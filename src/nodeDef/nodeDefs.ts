@@ -49,6 +49,8 @@ const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.
 const isAutoIncrementalKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean =>
   nodeDef.props.autoIncrementalKey ?? false
 
+const isAnalysis = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.analysis ?? false
+
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
 
 const isLayoutElement = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.formHeader
@@ -255,6 +257,7 @@ export const NodeDefs = {
   isReadOnly,
   isHidden,
   isEnumerate,
+  isAnalysis,
   isRoot,
   getType,
   isLayoutElement,

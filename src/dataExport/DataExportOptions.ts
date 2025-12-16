@@ -5,11 +5,23 @@ export type DataExportOptions = {
   includeCategoryItemsLabels?: boolean
   expandCategoryItems?: boolean
   exportSingleEntitiesIntoSeparateFiles?: boolean
-  includeInternalUuids?: boolean
   includeDateCreated?: boolean
+  includeFileAttributeDefs?: boolean
   includeFiles?: boolean
+  includeInternalUuids?: boolean
   includeReadOnlyAttributes?: boolean
   includeTaxonScientificName?: boolean
-  nullsToEmpty?: boolean
   keepFileNamesUnique?: boolean
+  nullsToEmpty?: boolean
+}
+
+export const DataExportDefaultOptions: DataExportOptions = {
+  expandCategoryItems: false,
+  exportSingleEntitiesIntoSeparateFiles: false,
+  includeAnalysis: true,
+  includeAncestorAttributes: false,
+  includeCategoryItemsLabels: true,
+  includeFiles: true,
+  includeReadOnlyAttributes: true,
+  includeTaxonScientificName: true,
 }
