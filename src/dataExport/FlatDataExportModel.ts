@@ -194,9 +194,9 @@ export class FlatDataExportModel {
   _initColumns() {
     const { addCycle } = this.options
 
-    const ancestorsColumns = this._extractAncestorsColumns()
+    const ancestorsColumns = this.extractAncestorsColumns()
 
-    const attributeDefsColumns = this._extractAttributeDefsColumns(this.nodeDefContext)
+    const attributeDefsColumns = this.extractAttributeDefsColumns()
 
     this.columns = [
       ...(addCycle ? [{ header: RECORD_CYCLE_HEADER }] : []),
@@ -223,8 +223,8 @@ export class FlatDataExportModel {
     return result
   }
 
-  _extractAncestorsColumns(): Column[] {
-    const { survey, nodeDefContext, options } = this
+  protected extractAncestorsColumns(): Column[] {
+    const { survey, cycle, nodeDefContext, options } = this
     const { includeAncestorAttributes } = options
 
     const ancestorsColumns: Column[] = []
@@ -237,7 +237,7 @@ export class FlatDataExportModel {
           ? // include all ancestor attributes
             this.extractAncestorAttributeDefs(nodeDefAncestor)
           : // consider only ancestor key attributes
-            Surveys.getNodeDefKeys({ survey, nodeDef: nodeDefAncestor })
+            Surveys.getNodeDefKeys({ survey, cycle, nodeDef: nodeDefAncestor })
         const ancestorColumns = this._createColumnsFromAttributeDefs(ancestorAttributeDefs)
         ancestorsColumns.unshift(...ancestorColumns)
       },
@@ -269,8 +269,8 @@ export class FlatDataExportModel {
     return result
   }
 
-  _extractAttributeDefsColumns(nodeDefContext: NodeDef<any>): Column[] {
-    const descendantDefs = this.extractAncestorAttributeDefs(nodeDefContext)
+  protected extractAttributeDefsColumns(): Column[] {
+    const descendantDefs = this.extractAncestorAttributeDefs(this.nodeDefContext)
     return this._createColumnsFromAttributeDefs(descendantDefs)
   }
 
