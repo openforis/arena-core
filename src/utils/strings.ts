@@ -30,6 +30,12 @@ const removeSuffix =
     return text?.endsWith(suffix) ? text.substring(0, text.length - suffix.length) : (text as string)
   }
 
+const appendIfMissing = (suffix: string) => (text: TextType) =>
+  text?.endsWith(suffix) ? text : `${text ?? ''}${suffix}`
+
+const prependIfMissing = (prefix: string) => (text: TextType) =>
+  text?.startsWith(prefix) ? text : `${prefix}${text ?? ''}`
+
 const repeat = (text: string, times: number): string => {
   const parts = []
   for (let i = 0; i < times; i++) {
@@ -59,6 +65,8 @@ export const Strings = {
   quoteDouble,
   removePrefix,
   removeSuffix,
+  appendIfMissing,
+  prependIfMissing,
   repeat,
   unquote,
   unquoteDouble,

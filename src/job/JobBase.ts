@@ -20,8 +20,8 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
   summary: JobSummary<R>
   protected context: C
   protected jobs: JobBase<C, any>[]
-  private readonly emitSummaryUpdateEvent: DebouncedFunc<() => boolean>
-  private jobCurrent: JobBase<C, any> | undefined = undefined
+  protected readonly emitSummaryUpdateEvent: DebouncedFunc<() => boolean>
+  protected jobCurrent: JobBase<C, any> | undefined = undefined
 
   public constructor(context: C, jobs: JobBase<C, any>[] = []) {
     super()

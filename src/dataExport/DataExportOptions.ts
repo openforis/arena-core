@@ -1,19 +1,21 @@
-export type DataExportOptions = {
-  addCycle?: boolean
-  includeAnalysis?: boolean
-  includeAncestorAttributes?: boolean
-  includeCategoryItemsLabels?: boolean
-  expandCategoryItems?: boolean
-  exportSingleEntitiesIntoSeparateFiles?: boolean
-  includeDateCreated?: boolean
-  includeFileAttributeDefs?: boolean
-  includeFiles?: boolean
-  includeInternalUuids?: boolean
-  includeReadOnlyAttributes?: boolean
-  includeTaxonScientificName?: boolean
-  keepFileNamesUnique?: boolean
-  nullsToEmpty?: boolean
+export enum DataExportOption {
+  addCycle = 'addCycle',
+  includeAnalysis = 'includeAnalysis',
+  includeAncestorAttributes = 'includeAncestorAttributes',
+  includeCategoryItemsLabels = 'includeCategoryItemsLabels',
+  expandCategoryItems = 'expandCategoryItems',
+  exportSingleEntitiesIntoSeparateFiles = 'exportSingleEntitiesIntoSeparateFiles',
+  includeDateCreated = 'includeDateCreated',
+  includeFileAttributeDefs = 'includeFileAttributeDefs',
+  includeFiles = 'includeFiles',
+  includeInternalUuids = 'includeInternalUuids',
+  includeReadOnlyAttributes = 'includeReadOnlyAttributes',
+  includeTaxonScientificName = 'includeTaxonScientificName',
+  keepFileNamesUnique = 'keepFileNamesUnique',
+  nullsToEmpty = 'nullsToEmpty',
 }
+
+export type DataExportOptions = Partial<Record<DataExportOption, boolean>>
 
 export const DataExportDefaultOptions: DataExportOptions = {
   expandCategoryItems: false,
