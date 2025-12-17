@@ -17,4 +17,7 @@ export interface Taxon extends ArenaObject<TaxonProps> {
   }
   published?: boolean
   draft?: boolean
+  // Cached fields for easier access
+  vernacularName?: string
+  vernacularLang?: string
 }
