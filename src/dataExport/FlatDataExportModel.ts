@@ -68,7 +68,7 @@ const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtracto
           header: getExpandedCategoryItemColumnHeader({ nodeDef, code: CategoryItems.getCode(item) }),
           nodeDef,
           dataType: FlatDataExportColumnDataType.boolean,
-          valueProp: NodeValues.ValuePropsCode.label,
+          valueProp: NodeValues.ValuePropsCode.code,
         })
       })
     }
@@ -164,8 +164,9 @@ export class FlatDataExportModel {
   options: DataExportOptions
   columns: Column[]
 
-  static columnDataType: { boolean: string; numeric: string; text: string }
-  static getExpandedCategoryItemColumnHeader: ({ nodeDef, code }: { nodeDef: NodeDef<any>; code: string }) => string
+  static columnDataType: typeof FlatDataExportColumnDataType = FlatDataExportColumnDataType
+  static getExpandedCategoryItemColumnHeader: typeof getExpandedCategoryItemColumnHeader =
+    getExpandedCategoryItemColumnHeader
 
   constructor({
     survey,
