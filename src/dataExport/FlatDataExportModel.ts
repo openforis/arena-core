@@ -197,12 +197,12 @@ export class FlatDataExportModel {
 
     const ancestorsColumns = this.extractAncestorsColumns()
 
-    const attributeDefsColumns = this.extractAttributeDefsColumns()
+    const contextNodeDefsColumns = this.extractContextNodeDefsColumns()
 
     this.columns = [
       ...(addCycle ? [{ header: RECORD_CYCLE_HEADER }] : []),
       ...ancestorsColumns,
-      ...attributeDefsColumns,
+      ...contextNodeDefsColumns,
     ]
   }
 
@@ -270,7 +270,7 @@ export class FlatDataExportModel {
     return result
   }
 
-  protected extractAttributeDefsColumns(): Column[] {
+  protected extractContextNodeDefsColumns(): Column[] {
     const descendantDefs = this.extractAncestorAttributeDefs(this.nodeDefContext)
     return this._createColumnsFromAttributeDefs(descendantDefs)
   }
