@@ -264,9 +264,12 @@ export const visitAncestorsAndSelfNodeDef = (params: {
   nodeDef: NodeDef<any>
   visitor: (nodeDef: NodeDef<any>) => void
   stopIfFn?: () => boolean
+  includeSelf?: boolean
 }): void => {
-  const { survey, nodeDef, visitor, stopIfFn } = params
-  visitor(nodeDef)
+  const { survey, nodeDef, visitor, stopIfFn, includeSelf = true } = params
+  if (includeSelf) {
+    visitor(nodeDef)
+  }
   let currentParent = getNodeDefParent({ survey, nodeDef })
   while (currentParent) {
     visitor(currentParent)

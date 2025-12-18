@@ -51,6 +51,15 @@ export type {
 export { TraverseMethod } from './common'
 export type { ArenaObject, ArenaService, Dictionary, Factory } from './common'
 
+export type { DataExportOptions } from './dataExport'
+export {
+  DataExportDefaultOptions,
+  DataExportOption,
+  FlatDataFiles,
+  FlatDataExportModel,
+  FlatDataExportColumnDataType,
+} from './dataExport'
+
 export { DataQueryMode, DataQuerySummaries } from './dataQuery'
 export type { DataQuery, DataQuerySummary, DataQuerySummaryProps } from './dataQuery'
 

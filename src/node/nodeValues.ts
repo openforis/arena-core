@@ -94,6 +94,14 @@ const getTaxonUuid = (node: Node): string | undefined =>
   getNodeValuePropRaw({ node, prop: ValuePropsTaxon[ValuePropsTaxon.taxonUuid] })
 const getValueTaxonUuid = (value: any): string | undefined =>
   getValuePropRaw({ value, prop: ValuePropsTaxon[ValuePropsTaxon.taxonUuid] })
+const getScientificName = (node: Node): string | undefined =>
+  getNodeValuePropRaw({ node, prop: ValuePropsTaxon[ValuePropsTaxon.scientificName] })
+const getValueScientificName = (value: any): string | undefined =>
+  getValuePropRaw({ value, prop: ValuePropsTaxon[ValuePropsTaxon.scientificName] })
+const getVernacularName = (node: Node): string | undefined =>
+  getNodeValuePropRaw({ node, prop: ValuePropsTaxon[ValuePropsTaxon.vernacularName] })
+const getValueVernacularName = (value: any): string | undefined =>
+  getValuePropRaw({ value, prop: ValuePropsTaxon[ValuePropsTaxon.vernacularName] })
 const getVernacularNameUuid = (node: Node): string | undefined =>
   getNodeValuePropRaw({ node, prop: ValuePropsTaxon[ValuePropsTaxon.vernacularNameUuid] })
 const getValueVernacularNameUuid = (value: any): string | undefined =>
@@ -310,6 +318,10 @@ export const NodeValues = {
   // taxon
   getTaxonUuid,
   getValueTaxonUuid,
+  getScientificName,
+  getValueScientificName,
+  getVernacularName,
+  getValueVernacularName,
   getVernacularNameUuid,
   getValueVernacularNameUuid,
 

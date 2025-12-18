@@ -20,8 +20,8 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
   summary: JobSummary<R>
   protected context: C
   protected jobs: JobBase<C, any>[]
-  private readonly emitSummaryUpdateEvent: DebouncedFunc<() => boolean>
-  private jobCurrent: JobBase<C, any> | undefined = undefined
+  protected readonly emitSummaryUpdateEvent: DebouncedFunc<() => boolean>
+  protected jobCurrent: JobBase<C, any> | undefined = undefined
 
   public constructor(context: C, jobs: JobBase<C, any>[] = []) {
     super()
@@ -33,9 +33,9 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
       jobs: this.jobs.map((job) => job.summary),
       processed: 0,
       status: JobStatus.pending,
-      surveyId: this.context.surveyId,
+      surveyId: this.context.surveyId ?? 0,
       total: 1,
-      type: this.context.type,
+      type: this.context.type ?? this.constructor.name,
       userUuid: this.context.user.uuid,
       uuid: UUIDs.v4(),
     }
