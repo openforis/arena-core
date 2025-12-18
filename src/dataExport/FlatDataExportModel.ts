@@ -258,7 +258,7 @@ export class FlatDataExportModel {
           cycle,
           nodeDef: nodeDefContext,
           predicate: (visitedNodeDef) =>
-            visitedNodeDef !== nodeDefContext && (!NodeDefs.isAnalysis(visitedNodeDef) || !!includeAnalysis),
+            NodeDefs.isAttribute(visitedNodeDef) && (!NodeDefs.isAnalysis(visitedNodeDef) || !!includeAnalysis),
         })
       : [nodeDefContext] // Multiple attribute
 
