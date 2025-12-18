@@ -61,7 +61,7 @@ const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtracto
     }
     if (expandCategoryItems) {
       const categoryUuid = NodeDefs.getCategoryUuid(nodeDefCode)!
-      const levelIndex = Surveys.getNodeDefCategoryLevelIndex({ survey: survey!, nodeDef: nodeDefCode })
+      const levelIndex = Surveys.getNodeDefCategoryLevelIndex({ survey, nodeDef: nodeDefCode })
       const items = Surveys.getCategoryItemsInLevel({ survey, categoryUuid, levelIndex })
       items.forEach((item) => {
         result.push({
@@ -164,8 +164,8 @@ export class FlatDataExportModel {
   options: DataExportOptions
   columns: Column[]
 
-  static columnDataType: typeof FlatDataExportColumnDataType = FlatDataExportColumnDataType
-  static getExpandedCategoryItemColumnHeader: typeof getExpandedCategoryItemColumnHeader =
+  static readonly columnDataType: typeof FlatDataExportColumnDataType = FlatDataExportColumnDataType
+  static readonly getExpandedCategoryItemColumnHeader: typeof getExpandedCategoryItemColumnHeader =
     getExpandedCategoryItemColumnHeader
 
   constructor({
