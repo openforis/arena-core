@@ -81,12 +81,12 @@ export const canViewNotOwnedRecords = (user: User, surveyInfo: Survey) => {
 export const canExportRecordsList = _hasSurveyPermission(Permission.surveyEdit)
 
 // UPDATE
-export const canEditRecord = (user: User, record: Record, ignoreRecordStep = false) => {
+export const canEditRecord = (user: User, record: Record, allowAnalysisStepEdit = false) => {
   if (
     !user ||
     !record ||
     // records in analysis cannot be edited
-    (!ignoreRecordStep && Records.isInAnalysisStep(record))
+    (!allowAnalysisStepEdit && Records.isInAnalysisStep(record))
   ) {
     return false
   }
