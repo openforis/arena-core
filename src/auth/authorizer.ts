@@ -10,53 +10,56 @@ import { Users } from './users'
 // ====== Survey
 // ======
 
-const _getSurveyUserGroup = (user: User, surveyInfo: Survey, includeSystemAdmin = true) =>
+const _getSurveyUserGroup = (user: User, surveyInfo: Survey, includeSystemAdmin = true): AuthGroup | undefined =>
   Users.getAuthGroupBySurveyUuid(surveyInfo.uuid, includeSystemAdmin)(user)
 
-const _hasAuthGroupForSurvey = ({ user, surveyInfo }: { user: User; surveyInfo: Survey }) =>
+const _hasAuthGroupForSurvey = ({ user, surveyInfo }: { user: User; surveyInfo: Survey }): boolean =>
   Boolean(_getSurveyUserGroup(user, surveyInfo))
 
-const _hasSurveyPermission = (permission: Permission) => (user: User, surveyInfo: Survey) => {
-  if (!user) return false
+const _hasSurveyPermission =
+  (permission: Permission) =>
+  (user: User, surveyInfo: Survey): boolean => {
+    if (!user) return false
 
-  if (Users.isSystemAdmin(user)) return true
+    if (Users.isSystemAdmin(user)) return true
 
-  if (!surveyInfo) return false
+    if (!surveyInfo) return false
 
-  const authGroup = _getSurveyUserGroup(user, surveyInfo)
-  if (!authGroup) return false
+    const authGroup = _getSurveyUserGroup(user, surveyInfo)
+    if (!authGroup) return false
 
-  return AuthGroups.getPermissions(authGroup).includes(permission)
-}
+    return AuthGroups.getPermissions(authGroup).includes(permission)
+  }
 
-const _hasPermissionInSomeGroup = (permission: Permission) => (user: User) => {
-  if (Users.isSystemAdmin(user)) return true
-  const groups = Users.getAuthGroups(user)
-  return groups.some((group) => AuthGroups.getPermissions(group).includes(permission))
-}
+const _hasPermissionInSomeGroup =
+  (permission: Permission) =>
+  (user: User): boolean => {
+    if (Users.isSystemAdmin(user)) return true
+    const groups = Users.getAuthGroups(user)
+    return groups.some((group) => AuthGroups.getPermissions(group).includes(permission))
+  }
 
 // CREATE
 const canCreateSurvey = _hasPermissionInSomeGroup(Permission.surveyCreate)
-const canCreateTemplate = (user: User) => Users.isSystemAdmin(user)
-const getMaxSurveysUserCanCreate = (user: User) => {
+const canCreateTemplate = (user: User): boolean => Users.isSystemAdmin(user)
+const getMaxSurveysUserCanCreate = (user: User): number => {
   if (Users.isSystemAdmin(user)) return Number.NaN
   if (canCreateSurvey(user)) return Users.getMaxSurveys(user)
   return 0
 }
 
 // READ
-const canViewSurvey = (user: User, surveyInfo: Survey) =>
+const canViewSurvey = (user: User, surveyInfo: Survey): boolean =>
   Users.isSystemAdmin(user) || _hasAuthGroupForSurvey({ user, surveyInfo })
 const canExportSurvey = _hasSurveyPermission(Permission.recordAnalyse)
-const canExportSurveysList = (user: User) => Users.isSystemAdmin(user)
-const canViewTemplates = (user: User) => Users.isSystemAdmin(user)
-
+const canExportSurveysList = (user: User): boolean => Users.isSystemAdmin(user)
+const canViewTemplates = (user: User): boolean => Users.isSystemAdmin(user)
 // UPDATE
 const canEditSurvey = _hasSurveyPermission(Permission.surveyEdit)
-const canEditSurveyConfig = (user: User) => Users.isSystemAdmin(user)
-const canEditSurveyOwner = (user: User) => Users.isSystemAdmin(user)
-const canEditTemplates = (user: User) => Users.isSystemAdmin(user)
-const canRefreshAllSurveyRdbs = (user: User) => Users.isSystemAdmin(user)
+const canEditSurveyConfig = (user: User): boolean => Users.isSystemAdmin(user)
+const canEditSurveyOwner = (user: User): boolean => Users.isSystemAdmin(user)
+const canEditTemplates = (user: User): boolean => Users.isSystemAdmin(user)
+const canRefreshAllSurveyRdbs = (user: User): boolean => Users.isSystemAdmin(user)
 
 // ======
 // ====== Record
@@ -68,7 +71,7 @@ export const canCreateRecord = _hasSurveyPermission(Permission.recordCreate)
 // READ
 export const canViewRecord = _hasSurveyPermission(Permission.recordView)
 export const canExportAllRecords = _hasSurveyPermission(Permission.recordCleanse)
-export const canViewNotOwnedRecords = (user: User, surveyInfo: Survey) => {
+export const canViewNotOwnedRecords = (user: User, surveyInfo: Survey): boolean => {
   if (!canViewSurvey(user, surveyInfo)) return false
   if (canExportAllRecords(user, surveyInfo)) return true
   const { uuid: surveyUuid } = surveyInfo
@@ -81,7 +84,7 @@ export const canViewNotOwnedRecords = (user: User, surveyInfo: Survey) => {
 export const canExportRecordsList = _hasSurveyPermission(Permission.surveyEdit)
 
 // UPDATE
-export const canEditRecord = (user: User, record: Record, allowAnalysisStepEdit = false) => {
+export const canEditRecord = (user: User, record: Record, allowAnalysisStepEdit = false): boolean => {
   if (
     !user ||
     !record ||
@@ -165,30 +168,30 @@ const canViewUser = (user: User, userToView: User) =>
 const canViewOtherUsersEmail = ({ user, surveyInfo }: { user: User; surveyInfo: Survey }) =>
   Users.isSystemAdmin(user) || canInviteUsers(user, surveyInfo)
 
-const canViewOtherUsersNameInSameSurvey = (user: User, surveyInfo: Survey) =>
+const canViewOtherUsersNameInSameSurvey = (user: User, surveyInfo: Survey): boolean =>
   _hasSurveyPermission(Permission.recordView)(user, surveyInfo)
 
 const canViewAllUsers = (user: User) => Users.isSystemAdmin(user)
 
 // EDIT
-const _hasUserEditAccess = (user: User, surveyInfo: Survey, userToUpdate: User) =>
+const _hasUserEditAccess = (user: User, surveyInfo: Survey, userToUpdate: User): boolean =>
   Users.isSystemAdmin(user) ||
   (_hasSurveyPermission(Permission.userEdit)(user, surveyInfo) &&
     // user to update has an auth group in the same survey
     _hasAuthGroupForSurvey({ user: userToUpdate, surveyInfo }))
 
-const canCreateUsers = (user: User) => Users.isSystemAdmin(user)
+const canCreateUsers = (user: User): boolean => Users.isSystemAdmin(user)
 
-const canEditUser = (user: User, surveyInfo: Survey, userToUpdate: User) =>
+const canEditUser = (user: User, surveyInfo: Survey, userToUpdate: User): boolean =>
   Users.hasAccepted(userToUpdate) &&
   (Users.isEqual(user)(userToUpdate) || _hasUserEditAccess(user, surveyInfo, userToUpdate))
 
-const canEditUserEmail = (user: User) => Users.isSystemAdmin(user)
+const canEditUserEmail = (user: User): boolean => Users.isSystemAdmin(user)
 
-const canEditUserGroup = (user: User, surveyInfo: Survey, userToUpdate: User) =>
+const canEditUserGroup = (user: User, surveyInfo: Survey, userToUpdate: User): boolean =>
   !Users.isEqual(user)(userToUpdate) && _hasUserEditAccess(user, surveyInfo, userToUpdate)
 
-const canRemoveUser = (user: User, surveyInfo: Survey, userToRemove: User) =>
+const canRemoveUser = (user: User, surveyInfo: Survey, userToRemove: User): boolean =>
   !Users.isEqual(user)(userToRemove) &&
   !Users.isSystemAdmin(userToRemove) &&
   _hasUserEditAccess(user, surveyInfo, userToRemove)
@@ -197,8 +200,8 @@ const canEditUserSurveyManager = (user: User) => Users.isSystemAdmin(user)
 const canEditUserMaxSurveys = (user: User) => Users.isSystemAdmin(user)
 
 // USER ACCESS REQUESTS
-const canViewUsersAccessRequests = (user: User) => Users.isSystemAdmin(user)
-const canEditUsersAccessRequests = (user: User) => Users.isSystemAdmin(user)
+const canViewUsersAccessRequests = (user: User): boolean => Users.isSystemAdmin(user)
+const canEditUsersAccessRequests = (user: User): boolean => Users.isSystemAdmin(user)
 
 // INVITE
 const getUserGroupsCanAssign = ({
@@ -222,7 +225,8 @@ const getUserGroupsCanAssign = ({
     if (surveyInfo.published) {
       surveyGroups = Surveys.getAuthGroups(surveyInfo)
     } else {
-      surveyGroups = [Surveys.getAuthGroupAdmin(surveyInfo)!]
+      const adminGroup = Surveys.getAuthGroupAdmin(surveyInfo)
+      surveyGroups = adminGroup ? [adminGroup] : []
     }
   }
 
