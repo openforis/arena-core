@@ -107,6 +107,13 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
       1: RecordStepPermission.own,
     },
   },
+  {
+    name: AuthGroupName.surveyGuest,
+    permissions: [Permission.recordView],
+    recordSteps: {
+      3: RecordStepPermission.all,
+    },
+  },
 ]
 
 export const permissionsByGroupName: { [key in AuthGroupName]: Permission[] } = {

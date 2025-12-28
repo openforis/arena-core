@@ -15,10 +15,10 @@ export const canViewUserQueries: Query[] = [
     groups: [AuthGroupName.surveyAdmin],
     authorizer: Authorizer.canViewUser,
     result: true,
-    getParams: ({ user, survey, authGroups }: any): any[] => {
+    getParams: ({ user, authGroups }: any): any[] => {
       let thirdUser = createThirdUser()
       thirdUser = { ...thirdUser, authGroups }
-      return [user, survey, thirdUser]
+      return [user, thirdUser]
     },
   },
   {
@@ -26,9 +26,9 @@ export const canViewUserQueries: Query[] = [
     groups: [AuthGroupName.surveyAdmin],
     authorizer: Authorizer.canViewUser,
     result: false,
-    getParams: ({ user, survey }: any): any[] => {
+    getParams: ({ user }: any): any[] => {
       const thirdUser = createThirdUser()
-      return [user, survey, thirdUser]
+      return [user, thirdUser]
     },
   },
   // users canViewUser can view other user
@@ -38,10 +38,10 @@ export const canViewUserQueries: Query[] = [
       groups: [groupName],
       authorizer: Authorizer.canViewUser,
       result: true,
-      getParams: ({ user, survey, authGroups }: any): any[] => {
+      getParams: ({ user, authGroups }: any): any[] => {
         let thirdUser = createThirdUser()
         thirdUser = { ...thirdUser, authGroups }
-        return [user, survey, thirdUser]
+        return [user, thirdUser]
       },
     })
   ),
@@ -52,10 +52,10 @@ export const canViewUserQueries: Query[] = [
       groups: [groupName],
       authorizer: Authorizer.canViewUser,
       result: true,
-      getParams: ({ survey, authGroups }: any): any[] => {
+      getParams: ({ authGroups }: any): any[] => {
         let thirdUser = createThirdUser()
         thirdUser = { ...thirdUser, authGroups }
-        return [thirdUser, survey, thirdUser]
+        return [thirdUser, thirdUser]
       },
     })
   ),
@@ -66,7 +66,7 @@ export const canViewUserQueries: Query[] = [
       groups: [groupName],
       authorizer: Authorizer.canViewUser,
       result: false,
-      getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser()],
+      getParams: ({ user }: any): any[] => [user, createThirdUser()],
     })
   ),
 ]
