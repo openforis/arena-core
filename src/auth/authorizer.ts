@@ -39,7 +39,7 @@ const _hasPermissionInSomeGroup = (permission: Permission) => (user: User) => {
 const canCreateSurvey = _hasPermissionInSomeGroup(Permission.surveyCreate)
 const canCreateTemplate = (user: User) => Users.isSystemAdmin(user)
 const getMaxSurveysUserCanCreate = (user: User) => {
-  if (Users.isSystemAdmin(user)) return NaN
+  if (Users.isSystemAdmin(user)) return Number.NaN
   if (canCreateSurvey(user)) return Users.getMaxSurveys(user)
   return 0
 }
