@@ -1,14 +1,18 @@
 import { Objects } from '../utils'
 
-import { Message, MessagePropsKey, MessageStatus, MessageTarget } from './message'
+import { Message, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTarget } from './message'
 
 const getStatus = (message: Message): MessageStatus => message.status
+
+const getNotificationTypes = (message: Message): MessageNotificationType[] => message.props?.notificationTypes ?? []
 
 const getSubject = (message: Message): string | undefined => message.props?.subject
 
 const getBody = (message: Message): string | undefined => message.props?.body
 
 const getTargets = (message: Message): MessageTarget[] => message.props?.targets ?? []
+
+const getTargetExcludedUserEmails = (message: Message): string[] => message.props?.targetExcludedUserEmails ?? []
 
 const assocStatus =
   (status: MessageStatus) =>
@@ -37,9 +41,11 @@ const assocTargets =
 
 export const Messages = {
   getStatus,
+  getNotificationTypes,
   getSubject,
   getBody,
   getTargets,
+  getTargetExcludedUserEmails,
   assocStatus,
   assocSubject,
   assocBody,
