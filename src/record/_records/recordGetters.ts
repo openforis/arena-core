@@ -1,12 +1,13 @@
 import { Dictionary, TraverseMethod } from '../../common'
-import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefType, NodeDefs } from '../../nodeDef'
-import { Node, NodePointer, Nodes, NodesMap } from '../../node'
-import { Record } from '../record'
-import { defaultCycle, Surveys } from '../../survey'
-import { Arrays, Queue } from '../../utils'
-import { Survey, SurveyDependencyType } from '../../survey/survey'
 import { SystemError } from '../../error'
+import { Node, NodePointer, Nodes, NodesMap } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
+import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { defaultCycle, Surveys } from '../../survey'
+import { Survey, SurveyDependencyType } from '../../survey/survey'
+import { Arrays, Queue } from '../../utils'
+import { Record, RECORD_STEP_DEFAULT } from '../record'
+import { RecordStepAnalysisCode } from '../recordStep'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
 
 export const getCycle = (record: Record): string => record.cycle ?? defaultCycle
@@ -553,3 +554,7 @@ export const isEmpty = (record: Record): boolean => {
   const rootNode = getRoot(record)
   return rootNode ? isNodeEmpty(rootNode)(record) : true
 }
+
+export const getStep = (record: Record): string => record.step ?? RECORD_STEP_DEFAULT
+
+export const isInAnalysisStep = (record: Record): boolean => getStep(record) === RecordStepAnalysisCode

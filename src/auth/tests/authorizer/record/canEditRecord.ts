@@ -68,14 +68,14 @@ export const canEditRecordQueries: Query[] = [
 
     result: false,
   })),
-  // record in step 3 can be edited by all groups but dataEditor
+  // record in step 3 cannot be edited
   ...[AuthGroupName.surveyAdmin, AuthGroupName.surveyEditor, AuthGroupName.dataAnalyst].map((groupName) => ({
     title: `canEditRecord step 3: ${groupName} can`,
     groups: [groupName],
     authorizer: Authorizer.canEditRecord,
     getParams: ({ user, survey }: any): any[] => [user, createRecord({ user, survey, step: '3' })],
 
-    result: true,
+    result: false,
   })),
   // record in step 3 cannot be edited by dataEditor and dataCleanser
   ...[AuthGroupName.dataEditor, AuthGroupName.dataCleanser].map((groupName) => ({

@@ -34,6 +34,8 @@ import {
   isNodeEmpty,
   isNodeFilledByUser,
   isEmpty,
+  getStep,
+  isInAnalysisStep,
 } from './_records/recordGetters'
 import { addNode, addNodes } from './_records/recordUpdater'
 import { getEnumeratingCategoryItems, findDependentEnumeratedEntityDefsNotEmpty } from './_records/recordUtils'
@@ -76,6 +78,8 @@ export const Records = {
   isNodeEmpty,
   isNodeFilledByUser,
   isEmpty,
+  getStep,
+  isInAnalysisStep,
   // UPDATE
   addNode,
   addNodes,

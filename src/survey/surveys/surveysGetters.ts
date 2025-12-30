@@ -1,3 +1,4 @@
+import { AuthGroupName, UserAuthGroup } from '../../auth'
 import { Category } from '../../category'
 import { LanguageCode } from '../../language'
 import { SRS, SRSIndex } from '../../srs'
@@ -84,3 +85,8 @@ export const getSRSByCode =
   (code: string) =>
   (survey: Survey): SRS | undefined =>
     getSRSIndex(survey)[code]
+
+export const getAuthGroups = (survey: Survey): UserAuthGroup[] => survey?.authGroups ?? []
+
+export const getAuthGroupAdmin = (survey: Survey): UserAuthGroup | undefined =>
+  getAuthGroups(survey).find((authGroup) => authGroup.name === AuthGroupName.surveyAdmin)

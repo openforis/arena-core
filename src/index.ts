@@ -103,6 +103,9 @@ export type { Labels } from './language'
 
 export type { Logger } from './logger'
 
+export type { Message } from './message'
+export { MessageNotificationType, MessagePropsKey, MessageStatus, MessageTarget, Messages } from './message'
+
 export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
 export type {
   Node,
