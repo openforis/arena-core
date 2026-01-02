@@ -39,6 +39,11 @@ const assocTargets =
   (message: Message): Message =>
     assoProp(MessagePropsKey.targets, targets)(message)
 
+const assocTargetExcludedUserEmails =
+  (emails: string[]) =>
+  (message: Message): Message =>
+    assoProp(MessagePropsKey.targetExcludedUserEmails, emails)(message)
+
 export const Messages = {
   getStatus,
   getNotificationTypes,
@@ -50,4 +55,5 @@ export const Messages = {
   assocSubject,
   assocBody,
   assocTargets,
+  assocTargetExcludedUserEmails,
 }

@@ -27,4 +27,11 @@ export class ServiceRegistry {
     this.services[type] = service
     return this
   }
+
+  registerServicesFromRegistry(registry: ServiceRegistry): ServiceRegistry {
+    Object.entries(registry.services).forEach(([key, service]) => {
+      this.registerService(key, service)
+    })
+    return this
+  }
 }
