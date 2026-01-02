@@ -23,12 +23,12 @@ export class ServiceRegistry {
     return service as S
   }
 
-  registerService(type: ServiceKey, service: ArenaService): ServiceRegistry {
+  registerService(type: ServiceKey, service: ArenaService): this {
     this.services[type] = service
     return this
   }
 
-  registerServicesFromRegistry(registry: ServiceRegistry): ServiceRegistry {
+  registerServicesFromRegistry(registry: ServiceRegistry): this {
     Object.entries(registry.services).forEach(([key, service]) => {
       this.registerService(key, service)
     })
