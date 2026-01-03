@@ -1,4 +1,5 @@
 import { Dictionary } from '../common'
+import { AuthGroupName } from './authGroup'
 import { AuthGroups } from './authGroups'
 import { User, UserAuthGroup, UserStatus } from './user'
 
@@ -21,6 +22,11 @@ const getAuthGroupBySurveyUuid =
       ? authGroups[0]
       : authGroups.find((authGroup) => authGroup.surveyUuid === surveyUuid)
   }
+
+const getAuthGroupByName = (groupName: AuthGroupName) => (user: User) => {
+  const authGroups = getAuthGroups(user)
+  return authGroups.find((group) => group.name === groupName)
+}
 
 const getCombinedExtraProps =
   (surveyUuid: string) =>
@@ -45,6 +51,7 @@ export const Users = {
   isSystemAdmin,
   isSurveyManager,
   getAuthGroupBySurveyUuid,
+  getAuthGroupByName,
   getCombinedExtraProps,
   getMaxSurveys,
   isEqual,
