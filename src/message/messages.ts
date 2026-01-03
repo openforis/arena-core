@@ -42,9 +42,9 @@ const assocTargetAppIds =
     assoProp(MessagePropsKey.targetAppIds, targetAppIds)(message)
 
 const assocTargetUsers =
-  (targets: MessageTargetUsers[]) =>
+  (targetUsers: MessageTargetUsers[]) =>
   (message: Message): Message =>
-    assoProp(MessagePropsKey.targetUsers, targets)(message)
+    assoProp(MessagePropsKey.targetUsers, targetUsers)(message)
 
 const assocTargetExcludedUserEmails =
   (emails: string[]) =>
