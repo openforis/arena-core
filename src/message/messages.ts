@@ -1,7 +1,7 @@
 import { AuthGroupName, User, Users } from '../auth'
 import { Objects } from '../utils'
 
-import { Message, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUserTypes } from './message'
+import { Message, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUserType } from './message'
 
 const getStatus = (message: Message): MessageStatus => message.status
 
@@ -13,7 +13,7 @@ const getBody = (message: Message): string | undefined => message.props?.body
 
 const getTargetAppIds = (message: Message): string[] => message.props?.targetAppIds ?? []
 
-const getTargetUserTypes = (message: Message): MessageTargetUserTypes[] => message.props?.targetUserTypes ?? []
+const getTargetUserTypes = (message: Message): MessageTargetUserType[] => message.props?.targetUserTypes ?? []
 
 const getTargetUserEmails = (message: Message): string[] => message.props?.targetUserEmails ?? []
 
@@ -45,7 +45,7 @@ const assocTargetAppIds =
     assoProp(MessagePropsKey.targetAppIds, targetAppIds)(message)
 
 const assocTargetUserTypes =
-  (targetUserTypes: MessageTargetUserTypes[]) =>
+  (targetUserTypes: MessageTargetUserType[]) =>
   (message: Message): Message =>
     assoProp(MessagePropsKey.targetUserTypes, targetUserTypes)(message)
 
@@ -63,19 +63,19 @@ const isTargetingUser =
   (user: User) =>
   (message: Message): boolean => {
     const targets = getTargetUserTypes(message)
-    if (targets.includes(MessageTargetUserTypes.Individual)) {
+    if (targets.includes(MessageTargetUserType.Individual)) {
       return getTargetUserEmails(message).includes(user.email)
     }
     if (getTargetExcludedUserEmails(message).includes(user.email)) {
       return false
     }
     return (
-      targets.includes(MessageTargetUserTypes.All) ||
-      (targets.includes(MessageTargetUserTypes.SystemAdmins) && Users.isSystemAdmin(user)) ||
-      (targets.includes(MessageTargetUserTypes.SurveyAdmins) &&
+      targets.includes(MessageTargetUserType.All) ||
+      (targets.includes(MessageTargetUserType.SystemAdmins) && Users.isSystemAdmin(user)) ||
+      (targets.includes(MessageTargetUserType.SurveyAdmins) &&
         !!Users.getAuthGroupByName(AuthGroupName.surveyAdmin)(user)) ||
-      (targets.includes(MessageTargetUserTypes.SurveyManagers) && Users.isSurveyManager(user)) ||
-      (targets.includes(MessageTargetUserTypes.DataEditors) &&
+      (targets.includes(MessageTargetUserType.SurveyManagers) && Users.isSurveyManager(user)) ||
+      (targets.includes(MessageTargetUserType.DataEditors) &&
         !!Users.getAuthGroupByName(AuthGroupName.dataEditor)(user))
     )
   }
