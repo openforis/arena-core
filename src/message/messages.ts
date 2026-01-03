@@ -87,6 +87,7 @@ export const Messages = {
   getBody,
   getTargetAppIds,
   getTargetUserTypes,
+  getTargetUserEmails,
   getTargetExcludedUserEmails,
   assocStatus,
   assocSubject,
