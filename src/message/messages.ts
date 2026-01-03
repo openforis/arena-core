@@ -1,3 +1,4 @@
+import { AuthGroupName, User, Users } from '../auth'
 import { Objects } from '../utils'
 
 import { Message, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUsers } from './message'
@@ -51,6 +52,21 @@ const assocTargetExcludedUserEmails =
   (message: Message): Message =>
     assoProp(MessagePropsKey.targetExcludedUserEmails, emails)(message)
 
+const isMessageTargetingUser =
+  (user: User) =>
+  (message: Message): boolean => {
+    const targets = getTargetUsers(message)
+    return (
+      !getTargetExcludedUserEmails(message).includes(user.email) &&
+      ((targets.includes(MessageTargetUsers.SystemAdmins) && Users.isSystemAdmin(user)) ||
+        (targets.includes(MessageTargetUsers.SurveyAdmins) &&
+          !!Users.getAuthGroupByName(AuthGroupName.surveyAdmin)(user)) ||
+        (targets.includes(MessageTargetUsers.SurveyManagers) && Users.isSurveyManager(user)) ||
+        (targets.includes(MessageTargetUsers.DataEditors) &&
+          !!Users.getAuthGroupByName(AuthGroupName.dataEditor)(user)))
+    )
+  }
+
 export const Messages = {
   getStatus,
   getNotificationTypes,
@@ -65,4 +81,5 @@ export const Messages = {
   assocTargetAppIds,
   assocTargetUsers,
   assocTargetExcludedUserEmails,
+  isMessageTargetingUser,
 }
