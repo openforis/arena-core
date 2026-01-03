@@ -4,7 +4,7 @@ export enum MessageStatus {
   Archived = 'archived',
 }
 
-export enum MessageTargetUserTypes {
+export enum MessageTargetUserType {
   All = 'all',
   SystemAdmins = 'system_admins',
   SurveyAdmins = 'survey_admins',
@@ -35,7 +35,7 @@ export type MessageProps = {
   [MessagePropsKey.subject]?: string
   [MessagePropsKey.body]?: string
   [MessagePropsKey.targetAppIds]: string[]
-  [MessagePropsKey.targetUserTypes]: MessageTargetUserTypes[]
+  [MessagePropsKey.targetUserTypes]: MessageTargetUserType[]
   [MessagePropsKey.targetUserEmails]?: string[]
   [MessagePropsKey.targetUserUuids]?: string[]
   [MessagePropsKey.targetExcludedUserEmails]?: string[]
