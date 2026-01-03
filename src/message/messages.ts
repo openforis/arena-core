@@ -52,7 +52,7 @@ const assocTargetExcludedUserEmails =
   (message: Message): Message =>
     assoProp(MessagePropsKey.targetExcludedUserEmails, emails)(message)
 
-const isMessageTargetingUser =
+const isTargetingUser =
   (user: User) =>
   (message: Message): boolean => {
     const targets = getTargetUsers(message)
@@ -81,5 +81,5 @@ export const Messages = {
   assocTargetAppIds,
   assocTargetUsers,
   assocTargetExcludedUserEmails,
-  isMessageTargetingUser,
+  isTargetingUser,
 }
