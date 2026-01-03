@@ -13,7 +13,7 @@ const getBody = (message: Message): string | undefined => message.props?.body
 
 const getTargetAppIds = (message: Message): string[] => message.props?.targetAppIds ?? []
 
-const getTargetUserTypes = (message: Message): MessageTargetUserTypes[] => message.props?.targetUsers ?? []
+const getTargetUserTypes = (message: Message): MessageTargetUserTypes[] => message.props?.targetUserTypes ?? []
 
 const getTargetUserEmails = (message: Message): string[] => message.props?.targetUserEmails ?? []
 
