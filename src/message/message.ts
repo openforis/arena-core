@@ -7,6 +7,7 @@ export enum MessageStatus {
 export enum MessageTargetUsers {
   All = 'all',
   SystemAdmins = 'system_admins',
+  SurveyAdmins = 'survey_admins',
   SurveyManagers = 'survey_managers',
   DataEditors = 'data_editors',
   Individual = 'individual',
