@@ -1,7 +1,7 @@
 import { AuthGroupName, User, Users } from '../auth'
 import { Objects } from '../utils'
 
-import { Message, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUsers } from './message'
+import { Message, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUserTypes } from './message'
 
 const getStatus = (message: Message): MessageStatus => message.status
 
@@ -13,7 +13,9 @@ const getBody = (message: Message): string | undefined => message.props?.body
 
 const getTargetAppIds = (message: Message): string[] => message.props?.targetAppIds ?? []
 
-const getTargetUsers = (message: Message): MessageTargetUsers[] => message.props?.targetUsers ?? []
+const getTargetUserTypes = (message: Message): MessageTargetUserTypes[] => message.props?.targetUsers ?? []
+
+const getTargetUserEmails = (message: Message): string[] => message.props?.targetUserEmails ?? []
 
 const getTargetExcludedUserEmails = (message: Message): string[] => message.props?.targetExcludedUserEmails ?? []
 
@@ -42,28 +44,39 @@ const assocTargetAppIds =
   (message: Message): Message =>
     assoProp(MessagePropsKey.targetAppIds, targetAppIds)(message)
 
-const assocTargetUsers =
-  (targetUsers: MessageTargetUsers[]) =>
+const assocTargetUserTypes =
+  (targetUserTypes: MessageTargetUserTypes[]) =>
   (message: Message): Message =>
-    assoProp(MessagePropsKey.targetUsers, targetUsers)(message)
+    assoProp(MessagePropsKey.targetUserTypes, targetUserTypes)(message)
+
+const assocTargetUserEmails =
+  (emails: string[]) =>
+  (message: Message): Message =>
+    assoProp(MessagePropsKey.targetUserEmails, emails)(message)
 
 const assocTargetExcludedUserEmails =
   (emails: string[]) =>
   (message: Message): Message =>
     assoProp(MessagePropsKey.targetExcludedUserEmails, emails)(message)
 
-const isMessageTargetingUser =
+const isTargetingUser =
   (user: User) =>
   (message: Message): boolean => {
-    const targets = getTargetUsers(message)
+    const targets = getTargetUserTypes(message)
+    if (targets.includes(MessageTargetUserTypes.Individual)) {
+      return getTargetUserEmails(message).includes(user.email)
+    }
+    if (getTargetExcludedUserEmails(message).includes(user.email)) {
+      return false
+    }
     return (
-      !getTargetExcludedUserEmails(message).includes(user.email) &&
-      ((targets.includes(MessageTargetUsers.SystemAdmins) && Users.isSystemAdmin(user)) ||
-        (targets.includes(MessageTargetUsers.SurveyAdmins) &&
-          !!Users.getAuthGroupByName(AuthGroupName.surveyAdmin)(user)) ||
-        (targets.includes(MessageTargetUsers.SurveyManagers) && Users.isSurveyManager(user)) ||
-        (targets.includes(MessageTargetUsers.DataEditors) &&
-          !!Users.getAuthGroupByName(AuthGroupName.dataEditor)(user)))
+      targets.includes(MessageTargetUserTypes.All) ||
+      (targets.includes(MessageTargetUserTypes.SystemAdmins) && Users.isSystemAdmin(user)) ||
+      (targets.includes(MessageTargetUserTypes.SurveyAdmins) &&
+        !!Users.getAuthGroupByName(AuthGroupName.surveyAdmin)(user)) ||
+      (targets.includes(MessageTargetUserTypes.SurveyManagers) && Users.isSurveyManager(user)) ||
+      (targets.includes(MessageTargetUserTypes.DataEditors) &&
+        !!Users.getAuthGroupByName(AuthGroupName.dataEditor)(user))
     )
   }
 
@@ -73,13 +86,14 @@ export const Messages = {
   getSubject,
   getBody,
   getTargetAppIds,
-  getTargetUsers,
+  getTargetUserTypes,
   getTargetExcludedUserEmails,
   assocStatus,
   assocSubject,
   assocBody,
   assocTargetAppIds,
-  assocTargetUsers,
+  assocTargetUserTypes,
+  assocTargetUserEmails,
   assocTargetExcludedUserEmails,
-  isMessageTargetingUser,
+  isTargetingUser,
 }
