@@ -1,6 +1,6 @@
 import { Objects } from '../utils'
 
-import { Message, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTarget } from './message'
+import { Message, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUsers } from './message'
 
 const getStatus = (message: Message): MessageStatus => message.status
 
@@ -10,7 +10,9 @@ const getSubject = (message: Message): string | undefined => message.props?.subj
 
 const getBody = (message: Message): string | undefined => message.props?.body
 
-const getTargets = (message: Message): MessageTarget[] => message.props?.targets ?? []
+const getTargetAppIds = (message: Message): string[] => message.props?.targetAppIds ?? []
+
+const getTargetUsers = (message: Message): MessageTargetUsers[] => message.props?.targetUsers ?? []
 
 const getTargetExcludedUserEmails = (message: Message): string[] => message.props?.targetExcludedUserEmails ?? []
 
@@ -34,10 +36,15 @@ const assocBody =
   (message: Message): Message =>
     assoProp(MessagePropsKey.body, body)(message)
 
-const assocTargets =
-  (targets: MessageTarget[]) =>
+const assocTargetAppIds =
+  (targetAppIds: string[]) =>
   (message: Message): Message =>
-    assoProp(MessagePropsKey.targets, targets)(message)
+    assoProp(MessagePropsKey.targetAppIds, targetAppIds)(message)
+
+const assocTargetUsers =
+  (targets: MessageTargetUsers[]) =>
+  (message: Message): Message =>
+    assoProp(MessagePropsKey.targetUsers, targets)(message)
 
 const assocTargetExcludedUserEmails =
   (emails: string[]) =>
@@ -49,11 +56,13 @@ export const Messages = {
   getNotificationTypes,
   getSubject,
   getBody,
-  getTargets,
+  getTargetAppIds,
+  getTargetUsers,
   getTargetExcludedUserEmails,
   assocStatus,
   assocSubject,
   assocBody,
-  assocTargets,
+  assocTargetAppIds,
+  assocTargetUsers,
   assocTargetExcludedUserEmails,
 }
