@@ -3,6 +3,12 @@ import { Objects } from '../utils'
 
 import { Message, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUserType } from './message'
 
+const hiddenProps = [
+  MessagePropsKey.targetUserEmails,
+  MessagePropsKey.targetUserUuids,
+  MessagePropsKey.targetExcludedUserEmails,
+]
+
 const getStatus = (message: Message): MessageStatus => message.status
 
 const getDateValidUntil = (message: Message): Date | undefined => message.props?.dateValidUntil
@@ -71,12 +77,13 @@ const assocTargetExcludedUserEmails =
 const isTargetingUser =
   (user: User) =>
   (message: Message): boolean => {
+    const now = new Date()
     const validUntil = getDateValidUntil(message)
-    if (validUntil && validUntil < new Date()) {
+    if (validUntil && validUntil < now) {
       return false
     }
     const scheduledAt = getDateScheduledAt(message)
-    if (scheduledAt && scheduledAt > new Date()) {
+    if (scheduledAt && scheduledAt > now) {
       return false
     }
     const targets = getTargetUserTypes(message)
@@ -94,7 +101,7 @@ const isTargetingUser =
       (targets.includes(MessageTargetUserType.SurveyManagers) && Users.isSurveyManager(user)) ||
       (targets.includes(MessageTargetUserType.DataAnalysts) &&
         !!Users.getAuthGroupByName(AuthGroupName.dataAnalyst)(user)) ||
-      (targets.includes(MessageTargetUserType.DataCleaners) &&
+      (targets.includes(MessageTargetUserType.DataCleansers) &&
         !!Users.getAuthGroupByName(AuthGroupName.dataCleanser)(user)) ||
       (targets.includes(MessageTargetUserType.DataEditors) &&
         !!Users.getAuthGroupByName(AuthGroupName.dataEditor)(user))
@@ -102,20 +109,11 @@ const isTargetingUser =
   }
 
 const clearHiddenProps = (message: Message): Message => {
-  const hiddenProps = [
-    MessagePropsKey.targetUserEmails,
-    MessagePropsKey.targetUserUuids,
-    MessagePropsKey.targetExcludedUserEmails,
-  ]
-  let messageUpdated = structuredClone(message)
-  for (const prop of hiddenProps) {
-    messageUpdated = assocProp(prop, undefined)(messageUpdated)
-  }
-  return messageUpdated
+  return hiddenProps.reduce((msg, prop) => assocProp(prop, undefined)(msg), message)
 }
 
 const replaceBodyTemplateVariables =
-  ({ i18n, user }: { i18n: any; user: User }) =>
+  ({ i18n, user }: { i18n: { t: (key: string) => string }; user: User }) =>
   (message: Message): Message => {
     const body = getBody(message) ?? ''
     const titleKey = user.props?.title

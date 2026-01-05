@@ -10,7 +10,7 @@ export enum MessageTargetUserType {
   SurveyAdmins = 'survey_admins',
   SurveyManagers = 'survey_managers',
   DataAnalysts = 'data_analysts',
-  DataCleaners = 'data_cleansers',
+  DataCleansers = 'data_cleansers',
   DataEditors = 'data_editors',
   Individual = 'individual',
 }
