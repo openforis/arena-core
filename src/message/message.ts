@@ -9,6 +9,8 @@ export enum MessageTargetUserType {
   SystemAdmins = 'system_admins',
   SurveyAdmins = 'survey_admins',
   SurveyManagers = 'survey_managers',
+  DataAnalysts = 'data_analysts',
+  DataCleansers = 'data_cleansers',
   DataEditors = 'data_editors',
   Individual = 'individual',
 }
@@ -27,8 +29,8 @@ export enum MessagePropsKey {
   targetUserUuids = 'targetUserUuids',
   targetExcludedUserEmails = 'targetExcludedUserEmails',
   notificationTypes = 'notificationTypes',
-  scheduledDate = 'scheduledDate',
-  validUntil = 'validUntil',
+  dateScheduledAt = 'dateScheduledAt',
+  dateValidUntil = 'dateValidUntil',
 }
 
 export type MessageProps = {
@@ -40,8 +42,8 @@ export type MessageProps = {
   [MessagePropsKey.targetUserUuids]?: string[]
   [MessagePropsKey.targetExcludedUserEmails]?: string[]
   [MessagePropsKey.notificationTypes]: MessageNotificationType[]
-  [MessagePropsKey.scheduledDate]?: Date
-  [MessagePropsKey.validUntil]?: Date
+  [MessagePropsKey.dateScheduledAt]?: Date
+  [MessagePropsKey.dateValidUntil]?: Date
 }
 
 /**
