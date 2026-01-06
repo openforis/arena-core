@@ -11,6 +11,10 @@ const hiddenProps = [
 
 const getStatus = (message: Message): MessageStatus => message.status
 
+const getDateCreated = (message: Message): Date | undefined => message.dateCreated
+
+const getDateModified = (message: Message): Date | undefined => message.dateModified
+
 const getDateValidUntil = (message: Message): Date | undefined => message.props?.dateValidUntil
 
 const getDateScheduledAt = (message: Message): Date | undefined => message.props?.dateScheduledAt
@@ -154,6 +158,8 @@ const replaceBodyTemplateVariables =
 
 export const Messages = {
   getStatus,
+  getDateCreated,
+  getDateModified,
   getDateScheduledAt,
   getDateValidUntil,
   getNotificationTypes,
