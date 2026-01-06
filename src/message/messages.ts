@@ -124,14 +124,12 @@ const clearHiddenProps = (message: Message): Message => {
 const clearNotApplicableProps = (message: Message): Message => {
   const targets = getTargetUserTypes(message)
   let messageNext = message
-  const targetEmailsNext = targets.includes(MessageTargetUserType.Individual)
-    ? Messages.getTargetUserEmails(message)
-    : []
-  messageNext = Messages.assocTargetUserEmails(targetEmailsNext)(messageNext)
+  const targetEmailsNext = targets.includes(MessageTargetUserType.Individual) ? getTargetUserEmails(message) : []
+  messageNext = assocTargetUserEmails(targetEmailsNext)(messageNext)
   const excludedEmailsNext = targets.includes(MessageTargetUserType.Individual)
     ? []
-    : Messages.getTargetExcludedUserEmails(message)
-  messageNext = Messages.assocTargetExcludedUserEmails(excludedEmailsNext)(messageNext)
+    : getTargetExcludedUserEmails(message)
+  messageNext = assocTargetExcludedUserEmails(excludedEmailsNext)(messageNext)
   return messageNext
 }
 
