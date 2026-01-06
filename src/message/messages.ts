@@ -11,6 +11,10 @@ const hiddenProps = [
 
 const getStatus = (message: Message): MessageStatus => message.status
 
+const getDateCreated = (message: Message): Date | undefined => message.dateCreated
+
+const getDateModified = (message: Message): Date | undefined => message.dateModified
+
 const getDateValidUntil = (message: Message): Date | undefined => message.props?.dateValidUntil
 
 const getDateScheduledAt = (message: Message): Date | undefined => message.props?.dateScheduledAt
@@ -74,6 +78,11 @@ const assocTargetExcludedUserEmails =
   (message: Message): Message =>
     assocProp(MessagePropsKey.targetExcludedUserEmails, emails)(message)
 
+const assocDateValidUntil =
+  (dateValidUntil: Date | undefined) =>
+  (message: Message): Message =>
+    assocProp(MessagePropsKey.dateValidUntil, dateValidUntil)(message)
+
 const isTargetingUser =
   (user: User) =>
   (message: Message): boolean => {
@@ -101,7 +110,7 @@ const isTargetingUser =
       (targets.includes(MessageTargetUserType.SurveyManagers) && Users.isSurveyManager(user)) ||
       (targets.includes(MessageTargetUserType.DataAnalysts) &&
         !!Users.getAuthGroupByName(AuthGroupName.dataAnalyst)(user)) ||
-      (targets.includes(MessageTargetUserType.DataCleansers) &&
+      (targets.includes(MessageTargetUserType.DataCleaners) &&
         !!Users.getAuthGroupByName(AuthGroupName.dataCleanser)(user)) ||
       (targets.includes(MessageTargetUserType.DataEditors) &&
         !!Users.getAuthGroupByName(AuthGroupName.dataEditor)(user))
@@ -110,6 +119,18 @@ const isTargetingUser =
 
 const clearHiddenProps = (message: Message): Message => {
   return hiddenProps.reduce((msg, prop) => assocProp(prop, undefined)(msg), message)
+}
+
+const clearNotApplicableProps = (message: Message): Message => {
+  const targets = getTargetUserTypes(message)
+  let messageNext = message
+  const targetEmailsNext = targets.includes(MessageTargetUserType.Individual) ? getTargetUserEmails(message) : []
+  messageNext = assocTargetUserEmails(targetEmailsNext)(messageNext)
+  const excludedEmailsNext = targets.includes(MessageTargetUserType.Individual)
+    ? []
+    : getTargetExcludedUserEmails(message)
+  messageNext = assocTargetExcludedUserEmails(excludedEmailsNext)(messageNext)
+  return messageNext
 }
 
 const replaceBodyTemplateVariables =
@@ -135,6 +156,8 @@ const replaceBodyTemplateVariables =
 
 export const Messages = {
   getStatus,
+  getDateCreated,
+  getDateModified,
   getDateScheduledAt,
   getDateValidUntil,
   getNotificationTypes,
@@ -152,7 +175,9 @@ export const Messages = {
   assocTargetUserTypes,
   assocTargetUserEmails,
   assocTargetExcludedUserEmails,
+  assocDateValidUntil,
   isTargetingUser,
   clearHiddenProps,
+  clearNotApplicableProps,
   replaceBodyTemplateVariables,
 }
