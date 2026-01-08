@@ -1,3 +1,5 @@
+import { AppInfo } from '../app'
+
 export type UserAuthToken = {
   token: string
   dateCreated: Date
@@ -5,6 +7,7 @@ export type UserAuthToken = {
 }
 
 export type UserAuthRefreshTokenProps = {
+  appInfo?: AppInfo
   ipAddress?: string
   userAgent?: string
 }
