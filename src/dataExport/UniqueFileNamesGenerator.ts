@@ -1,7 +1,7 @@
 import { Dictionary } from '../common'
 import { FileNames } from '../utils'
 
-const nameWithIndexRegEx = /^(.*)\s\((\d+)\)$/ // file name like "example (1).txt"
+const nameWithIndexRegEx = /^(.*) \((\d+)\)$/ // file name like "example (1).txt"
 
 export class UniqueFileNamesGenerator {
   private _fileNamesByKey: Dictionary<string>
