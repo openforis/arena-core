@@ -36,8 +36,8 @@ export class UniqueFileNamesGenerator {
   protected generateNextFileName(inputFileName: string): string {
     const name = FileNames.getName(inputFileName)
     const extension = FileNames.getExtension(inputFileName)
-    const matchRes = name.match(nameWithIndexRegEx)
     let nameUpdated
+    const matchRes = nameWithIndexRegEx.exec(name)
     if (matchRes) {
       const [, nameWithoutIndex, index] = matchRes
       const nextIndex = Number(index) + 1
@@ -48,11 +48,11 @@ export class UniqueFileNamesGenerator {
     return extension ? `${nameUpdated}.${extension}` : nameUpdated
   }
 
-  get fileNamesByKey() {
-    return this._fileNamesByKey
+  get fileNamesByKey(): Readonly<Dictionary<string>> {
+    return { ...this._fileNamesByKey }
   }
 
-  get keysByFileName() {
-    return this._keysByFileName
+  get keysByFileName(): Readonly<Dictionary<string>> {
+    return { ...this._keysByFileName }
   }
 }
