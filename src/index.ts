@@ -58,6 +58,7 @@ export {
   FlatDataFiles,
   FlatDataExportModel,
   FlatDataExportColumnDataType,
+  UniqueFileNamesGenerator,
 } from './dataExport'
 
 export { DataQueryMode, DataQuerySummaries } from './dataQuery'
