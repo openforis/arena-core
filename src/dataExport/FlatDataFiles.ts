@@ -1,6 +1,8 @@
 import { NodeDef, NodeDefs } from '../nodeDef'
 import { Strings } from '../utils'
 
+const attachedFilesSubfolderName = 'files'
+
 const getFileName = ({
   nodeDef,
   index,
@@ -15,5 +17,6 @@ const getFileName = ({
 }
 
 export const FlatDataFiles = {
+  attachedFilesSubfolderName,
   getFileName,
 }
