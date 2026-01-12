@@ -87,6 +87,9 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         if (Objects.isEmpty(categoryName) || Objects.isEmpty(itemPropName) || Objects.isEmpty(codePaths))
           throw new SystemError('expression.missingFunctionParameters')
 
+        if (codePaths.some(Objects.isEmpty)) {
+          return null
+        }
         const category = getCategoryByName({ survey, categoryName })
         if (!category) throw new SystemError('expression.invalidCategoryName', { name: categoryName })
 
