@@ -21,8 +21,6 @@ export type UserAuthRefreshToken = UserAuthToken & {
 
 export type UserTokenPayload = {
   userUuid: string
-  exp: number
-  iat: number
 }
 
 export type UserAuthTokenPayload = UserTokenPayload & {
