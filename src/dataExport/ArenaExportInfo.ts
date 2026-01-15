@@ -5,7 +5,7 @@ export type SurveyExportInfo = {
   name: string
 }
 
-export type ArenaExportOptions = {
+export type ArenaDataExportOptions = {
   includeData: boolean
   includeResultAttributes: boolean
   includeActivityLog: boolean
@@ -16,5 +16,5 @@ export type ArenaExportInfo = {
   dateExported: Date
   exportedByUserUuid: string
   surveyInfo: SurveyExportInfo
-  exportOptions?: ArenaExportOptions
+  exportOptions?: ArenaDataExportOptions
 }

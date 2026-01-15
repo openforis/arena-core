@@ -1,12 +1,12 @@
 import { AppInfo } from '../app'
 import { Factory } from '../common'
-import { ArenaExportInfo, ArenaExportOptions, SurveyExportInfo } from './ArenaExportInfo'
+import { ArenaExportInfo, ArenaDataExportOptions, SurveyExportInfo } from './ArenaExportInfo'
 
 export type ArenaExportInfoFactoryParams = {
   appInfo: AppInfo
   exportedByUserUuid: string
   surveyInfo: SurveyExportInfo
-  exportOptions?: ArenaExportOptions
+  exportOptions?: ArenaDataExportOptions
 }
 
 export const ArenaExportInfoFactory: Factory<ArenaExportInfo, ArenaExportInfoFactoryParams> = {
