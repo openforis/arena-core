@@ -1,4 +1,4 @@
-export enum DataExportOption {
+export enum FlatDataExportOption {
   addCycle = 'addCycle',
   includeAnalysis = 'includeAnalysis',
   includeAncestorAttributes = 'includeAncestorAttributes',
@@ -15,9 +15,9 @@ export enum DataExportOption {
   nullsToEmpty = 'nullsToEmpty',
 }
 
-export type DataExportOptions = Partial<Record<DataExportOption, boolean>>
+export type FlatDataExportOptions = Partial<Record<FlatDataExportOption, boolean>>
 
-export const DataExportDefaultOptions: DataExportOptions = {
+export const FlatDataExportDefaultOptions: FlatDataExportOptions = {
   expandCategoryItems: false,
   exportSingleEntitiesIntoSeparateFiles: false,
   includeAnalysis: true,

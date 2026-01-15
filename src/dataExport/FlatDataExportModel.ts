@@ -2,7 +2,7 @@ import { CategoryItems } from '../category'
 import { NodeValues } from '../node'
 import { NodeDef, NodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
-import { DataExportDefaultOptions, DataExportOptions } from './DataExportOptions'
+import { FlatDataExportDefaultOptions, FlatDataExportOptions } from './FlatDataExportOptions'
 
 export enum FlatDataExportColumnDataType {
   boolean = 'boolean',
@@ -34,7 +34,7 @@ type ColumnsExtractor = ({
 }: {
   nodeDef: NodeDef<any>
   survey: Survey
-  options: DataExportOptions
+  options: FlatDataExportOptions
 }) => Column[]
 
 const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtractor>> = {
@@ -161,7 +161,7 @@ export class FlatDataExportModel {
   survey: Survey
   cycle: string
   nodeDefContext: NodeDef<any>
-  options: DataExportOptions
+  options: FlatDataExportOptions
   columns: Column[]
 
   static readonly columnDataType: typeof FlatDataExportColumnDataType = FlatDataExportColumnDataType
@@ -172,17 +172,17 @@ export class FlatDataExportModel {
     survey,
     cycle,
     nodeDefContext,
-    options = DataExportDefaultOptions,
+    options = FlatDataExportDefaultOptions,
   }: {
     survey: Survey
     cycle: string
     nodeDefContext: NodeDef<any>
-    options?: DataExportOptions
+    options?: FlatDataExportOptions
   }) {
     this.survey = survey
     this.cycle = cycle
     this.nodeDefContext = nodeDefContext
-    this.options = { ...DataExportDefaultOptions, ...options }
+    this.options = { ...FlatDataExportDefaultOptions, ...options }
     this.columns = []
 
     this.init()
