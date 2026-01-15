@@ -51,14 +51,14 @@ export type {
 export { TraverseMethod } from './common'
 export type { ArenaObject, ArenaService, Dictionary, Factory } from './common'
 
-export type { FlatDataExportOptions, SurveyExportInfoFactoryParams, SurveyExportInfo } from './dataExport'
+export type { FlatDataExportOptions, ArenaExportInfoFactoryParams, ArenaExportInfo } from './dataExport'
 export {
   FlatDataExportDefaultOptions,
   FlatDataExportOption,
   FlatDataFiles,
   FlatDataExportModel,
   FlatDataExportColumnDataType,
-  SurveyExportInfoFactory,
+  ArenaExportInfoFactory,
   UniqueFileNamesGenerator,
 } from './dataExport'
 
