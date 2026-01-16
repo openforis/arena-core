@@ -31,6 +31,6 @@ export type UserAuthRefreshTokenPayload = UserTokenPayload & {
   uuid: string
 }
 
-export type DownalodAuthTokenPayload = UserTokenPayload & {
+export type DownloadAuthTokenPayload = UserTokenPayload & {
   fileName: string
 }
