@@ -13,12 +13,13 @@ export type {
   UserPrefSurveys,
 } from './user'
 export type {
-  UserAuthToken,
+  AuthToken,
   UserAuthTokenPayload,
   UserAuthRefreshToken,
   UserAuthRefreshTokenPayload,
   UserAuthRefreshTokenProps,
   UserTokenPayload,
+  DownloadAuthTokenPayload,
 } from './userAuth'
 export type { UserService } from './userService'
 export type { UserAuthTokenService } from './userAuthTokenService'

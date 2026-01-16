@@ -1,6 +1,6 @@
 import { AppInfo } from '../app'
 
-export type UserAuthToken = {
+export type AuthToken = {
   token: string
   dateCreated: Date
   expiresAt: Date
@@ -12,7 +12,7 @@ export type UserAuthRefreshTokenProps = {
   userAgent?: string
 }
 
-export type UserAuthRefreshToken = UserAuthToken & {
+export type UserAuthRefreshToken = AuthToken & {
   uuid: string
   userUuid: string
   props: UserAuthRefreshTokenProps
@@ -29,4 +29,8 @@ export type UserAuthTokenPayload = UserTokenPayload & {
 
 export type UserAuthRefreshTokenPayload = UserTokenPayload & {
   uuid: string
+}
+
+export type DownloadAuthTokenPayload = UserTokenPayload & {
+  fileName: string
 }
