@@ -5,13 +5,13 @@ import { ArenaExportInfo, ArenaDataExportOptions, SurveyExportInfo } from './Are
 export type ArenaExportInfoFactoryParams = {
   appInfo: AppInfo
   exportedByUserUuid: string
-  surveyInfo: SurveyExportInfo
-  exportOptions?: ArenaDataExportOptions
+  survey: SurveyExportInfo
+  options?: ArenaDataExportOptions
 }
 
 export const ArenaExportInfoFactory: Factory<ArenaExportInfo, ArenaExportInfoFactoryParams> = {
   createInstance: (params: ArenaExportInfoFactoryParams): ArenaExportInfo => ({
     ...params,
-    dateExported: new Date(),
+    dateExported: new Date().toISOString(),
   }),
 }

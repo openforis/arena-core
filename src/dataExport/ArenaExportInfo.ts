@@ -6,15 +6,16 @@ export type SurveyExportInfo = {
 }
 
 export type ArenaDataExportOptions = {
-  includeData: boolean
-  includeResultAttributes: boolean
-  includeActivityLog: boolean
+  backup?: boolean
+  includeData?: boolean
+  includeResultAttributes?: boolean
+  includeActivityLog?: boolean
 }
 
 export type ArenaExportInfo = {
   appInfo: AppInfo
-  dateExported: Date
+  dateExported: string // ISO string
   exportedByUserUuid: string
-  surveyInfo: SurveyExportInfo
-  exportOptions?: ArenaDataExportOptions
+  survey: SurveyExportInfo
+  options?: ArenaDataExportOptions
 }
