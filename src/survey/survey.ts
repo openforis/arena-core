@@ -10,8 +10,13 @@ import { SurveyRefData } from './refData/refData'
 
 export const defaultCycle = '0'
 
+export interface NodeDefDependency {
+  uuid: string
+  path: string
+}
+
 export interface SurveyDependency {
-  [nodeDefUuid: string]: string[] | boolean
+  [nodeDefUuid: string]: NodeDefDependency[] | boolean
 }
 
 export enum SurveyDependencyType {

@@ -14,6 +14,7 @@ export class NodeDefMemberEvaluator extends MemberEvaluator<NodeDefExpressionCon
     }
     if (computed) {
       // access element at index (e.g. plot[1] or plot[index(...)])
+      // Don't modify path for computed access
       return objectEval
     }
 

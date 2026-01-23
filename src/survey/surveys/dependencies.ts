@@ -2,7 +2,7 @@ import * as SurveyNodeDefs from './nodeDefs'
 import { NodeDef, NodeDefExpression, NodeDefFile, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 
-import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
+import { NodeDefDependency, Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
 import { Arrays, Objects } from '../../utils'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
 import { Dictionary } from '../../common'
@@ -48,9 +48,9 @@ const getDependencies = (params: {
   graphs: SurveyDependencyGraph
   type: SurveyDependencyType
   nodeDefUuid: string
-}): Array<string> => {
+}): Array<NodeDefDependency> => {
   const { graphs, type, nodeDefUuid } = params
-  return type === SurveyDependencyType.onUpdate ? [] : ((graphs?.[type]?.[nodeDefUuid] ?? []) as string[])
+  return type === SurveyDependencyType.onUpdate ? [] : ((graphs?.[type]?.[nodeDefUuid] ?? []) as NodeDefDependency[])
 }
 
 export const getNodeDefDependents = (params: {
@@ -68,9 +68,9 @@ export const getNodeDefDependents = (params: {
     : Object.values(SurveyDependencyType)
 
   dependencyTypes.forEach((depType: SurveyDependencyType) => {
-    const dependentUuidsTemp = getDependencies({ graphs: dependencyGraph, type: depType, nodeDefUuid })
-    dependentUuidsTemp.forEach((dependentUuid) => {
-      dependentUuids.add(dependentUuid)
+    const dependentDepsTemp = getDependencies({ graphs: dependencyGraph, type: depType, nodeDefUuid })
+    dependentDepsTemp.forEach((dep) => {
+      dependentUuids.add(dep.uuid)
     })
   })
   return dependentUuids.size > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: [...dependentUuids] }) : []
@@ -90,11 +90,13 @@ const addDependency = (params: {
   type: SurveyDependencyType
   nodeDefUuid: string
   nodeDefDepUuid: string
+  path: string
   sideEffect: boolean
 }): SurveyDependencyGraph => {
-  const { graphs, type, nodeDefUuid, nodeDefDepUuid, sideEffect = false } = params
+  const { graphs, type, nodeDefUuid, nodeDefDepUuid, path, sideEffect = false } = params
   const deps = getDependencies({ graphs, type, nodeDefUuid })
-  const depsUpdated = Arrays.addItem(nodeDefDepUuid, { sideEffect })(deps)
+  const newDep: NodeDefDependency = { uuid: nodeDefDepUuid, path }
+  const depsUpdated = Arrays.addItem(newDep, { sideEffect })(deps)
   return Objects.assocPath({ obj: graphs, path: [type, nodeDefUuid], value: depsUpdated, sideEffect })
 }
 
@@ -117,21 +119,24 @@ const addDependencies = async (params: {
 
   const findReferencedNodeDefs = async (
     expression: string | undefined
-  ): Promise<{ [key: string]: NodeDef<NodeDefType> }> => {
+  ): Promise<{ [key: string]: { nodeDef: NodeDef<NodeDefType>; path: string } }> => {
     if (!expression) return {}
 
-    const referencedNodeDefUuids = await new NodeDefExpressionEvaluator().findReferencedNodeDefUuids({
+    const referencedNodeDefs = await new NodeDefExpressionEvaluator().findReferencedNodeDefs({
       expression,
       survey,
       nodeDef,
       isContextParent,
       selfReferenceAllowed,
     })
-    const referencedNodeDefsByUuid: Dictionary<NodeDef<any>> = {}
-    referencedNodeDefUuids.forEach((uuid) => {
-      referencedNodeDefsByUuid[uuid] = SurveyNodeDefs.getNodeDefByUuid({ survey, uuid })
+    const referencedNodeDefsWithPaths: Dictionary<{ nodeDef: NodeDef<any>; path: string }> = {}
+    referencedNodeDefs.forEach((ref, uuid) => {
+      referencedNodeDefsWithPaths[uuid] = {
+        nodeDef: SurveyNodeDefs.getNodeDefByUuid({ survey, uuid }),
+        path: ref.path,
+      }
     })
-    return referencedNodeDefsByUuid
+    return referencedNodeDefsWithPaths
   }
 
   const referencedNodeDefs = {}
@@ -143,12 +148,13 @@ const addDependencies = async (params: {
     )
   }
 
-  Object.values(referencedNodeDefs).forEach((nodeDefRef: any) => {
+  Object.values(referencedNodeDefs).forEach((ref: any) => {
     graphsUpdated = addDependency({
       graphs: graphsUpdated,
       type,
-      nodeDefUuid: nodeDefRef.uuid,
+      nodeDefUuid: ref.nodeDef.uuid,
       nodeDefDepUuid: nodeDef.uuid,
+      path: ref.path,
       sideEffect,
     })
   })
@@ -234,8 +240,8 @@ const _removeNodeDefDependenciesOfType = (params: {
 
   if (dependencyType !== SurveyDependencyType.onUpdate) {
     // dissoc nodeDefUuid dependency from sources (if any)
-    Object.entries(graphUpdated).forEach(([key, dependentUuids]) => {
-      graphUpdated[key] = Arrays.removeItem(nodeDefUuid)(dependentUuids as string[])
+    Object.entries(graphUpdated).forEach(([key, dependentDeps]) => {
+      graphUpdated[key] = (dependentDeps as NodeDefDependency[]).filter((dep) => dep.uuid !== nodeDefUuid)
     })
   }
 

@@ -9,7 +9,13 @@ import { NodeDefExpressionContext } from '../context'
 
 export class NodeDefThisEvaluator extends ThisEvaluator<NodeDefExpressionContext> {
   async evaluate(): Promise<any> {
-    const { nodeDefCurrent, itemsFilter } = this.context
+    const { nodeDefCurrent, itemsFilter, currentExpressionPath } = this.context
+
+    // Set path to 'this' when it appears standalone (e.g., as argument to parent(this))
+    // For member expressions like 'this.height', the member evaluator will handle the path
+    if (!currentExpressionPath) {
+      this.context.currentExpressionPath = 'this'
+    }
 
     return itemsFilter ? this.createEmptyItem() : nodeDefCurrent
   }

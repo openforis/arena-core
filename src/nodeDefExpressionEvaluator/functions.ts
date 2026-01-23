@@ -185,7 +185,12 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     evaluateArgsToNodes: true,
     evaluateToNode: true,
     executor: (context: NodeDefExpressionContext) => async (nodeDef) => {
-      const { survey } = context
+      const { survey, currentExpressionPath } = context
+      // Build path like parent() or parent(parent(this))
+      // The currentExpressionPath at this point reflects the argument to parent()
+      const argPath = currentExpressionPath || ''
+      const newPath = argPath.startsWith('parent(') ? `parent(${argPath})` : 'parent()'
+      context.currentExpressionPath = newPath
       return getNodeDefParent({ survey, nodeDef })
     },
   },

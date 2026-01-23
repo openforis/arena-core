@@ -36,7 +36,14 @@ const findActualContextNode = (params: {
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
   async evaluate(expressionNode: IdentifierExpression): Promise<any> {
     const { context } = this
-    const { nodeDefContext, nodeDefCurrent, selfReferenceAllowed, object: objectContext, itemsFilter } = context
+    const {
+      nodeDefContext,
+      nodeDefCurrent,
+      selfReferenceAllowed,
+      object: objectContext,
+      itemsFilter,
+      currentExpressionPath,
+    } = context
     const { name: exprName } = expressionNode
 
     if (exprName === ExpressionVariable.CONTEXT) {
@@ -76,6 +83,9 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
       if (!selfReferenceAllowed && referencedNodeDef.uuid === nodeDefCurrent?.uuid) {
         throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: exprName })
       }
+      // Build the expression path for this reference
+      const newPath = currentExpressionPath ? `${currentExpressionPath}.${exprName}` : exprName
+      context.currentExpressionPath = newPath
       this.addReferencedNodeDefUuid(referencedNodeDef.uuid)
       return referencedNodeDef
     }
@@ -87,8 +97,14 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
 
   private addReferencedNodeDefUuid(uuid: string) {
     const { context } = this
-    const { referencedNodeDefUuids = new Set() } = context
+    const { referencedNodeDefUuids = new Set(), nodePathsBySourceDefUuid = new Map(), currentExpressionPath } = context
     context.referencedNodeDefUuids = referencedNodeDefUuids.add(uuid)
+
+    // Add reference with path if not already present
+    if (currentExpressionPath && !nodePathsBySourceDefUuid.has(uuid)) {
+      nodePathsBySourceDefUuid.set(uuid, { uuid, path: currentExpressionPath })
+      context.nodePathsBySourceDefUuid = nodePathsBySourceDefUuid
+    }
   }
 
   /**

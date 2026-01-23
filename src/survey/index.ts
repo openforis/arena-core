@@ -5,6 +5,7 @@ export type {
   SurveyCycle,
   SurveyDependencyGraph,
   SurveyDependency,
+  NodeDefDependency,
   SurveyProps,
   SurveySecurity,
 } from './survey'
