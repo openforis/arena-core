@@ -83,15 +83,14 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
       return objectContext
     }
 
-    const referencedNodeDef = this.findIdentifierAmongReachableNodeDefs(expressionNode)
+    const { nodeDef: referencedNodeDef, path: referencedNodePath } =
+      this.findReferencedNodeDefAndNodePath(expressionNode) ?? {}
     if (referencedNodeDef) {
       if (!selfReferenceAllowed && referencedNodeDef.uuid === nodeDefCurrent?.uuid) {
         throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: exprName })
       }
       this.addReferencedNodeDefUuid(referencedNodeDef.uuid)
-
-      const referencedNodePath = this.findReferencedNodePath(expressionNode)!
-      this.addReferencedNodePath(referencedNodePath)
+      this.addReferencedNodePath(referencedNodePath!)
 
       return referencedNodeDef
     }
@@ -113,25 +112,9 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     context.referencedNodePaths = referencedNodePaths.add(path)
   }
 
-  /**
-   * Tries to find the specified identifier among the node defs that can be "reached" from the context node def.
-   */
-  protected findIdentifierAmongReachableNodeDefs(
+  protected findReferencedNodeDefAndNodePath(
     expressionNode: IdentifierExpression
-  ): NodeDef<NodeDefType, NodeDefProps> | undefined {
-    const { object: contextObject } = this.context
-
-    if (contextObject) {
-      const reachableNodeDefs = this.getReachableNodeDefs()
-
-      return reachableNodeDefs.find(
-        (reachableNodeDef: NodeDef<NodeDefType, NodeDefProps>) => reachableNodeDef.props.name === expressionNode.name
-      )
-    }
-    return undefined
-  }
-
-  protected findReferencedNodePath(expressionNode: IdentifierExpression): string | undefined {
+  ): { nodeDef: NodeDef<NodeDefType, NodeDefProps>; path: string } | undefined {
     const { context } = this
     const { survey, includeAnalysis } = context
     const { name: expressionNodeName } = expressionNode
@@ -144,7 +127,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     if (actualContextNodeDef) {
       queue.enqueue({ entityDef: actualContextNodeDef, path: actualContextNodePath })
       if (NodeDefs.getName(actualContextNodeDef) === expressionNodeName) {
-        return actualContextNodePath
+        return { nodeDef: actualContextNodeDef, path: actualContextNodePath }
       }
     }
 
@@ -154,7 +137,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
       for (const childDef of currentEntityDefChildren) {
         const childNodePath = `${currentEntityPath}.${NodeDefs.getName(childDef)}`
         if (NodeDefs.getName(childDef) === expressionNodeName) {
-          return childNodePath
+          return { nodeDef: childDef, path: childNodePath }
         }
         // visit nodes inside single entities
         if (NodeDefs.isSingleEntity(childDef)) {
@@ -173,45 +156,5 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
       }
     }
     return undefined
-  }
-
-  /**
-   * Get reachable node defs, i.e. the children of the node definition's ancestors.
-   * NOTE: The root node def is excluded, but it _should_ be an entity, so that is fine.
-   */
-  protected getReachableNodeDefs(): NodeDef<NodeDefType, NodeDefProps>[] {
-    const { context } = this
-    const { survey, includeAnalysis } = context
-
-    const reachableNodeDefsByUuid: { [key: string]: NodeDef<any> } = {}
-
-    const queue = new Queue()
-    const visitedUuids: string[] = []
-
-    const actualContextNode = findActualContextNode({ context })
-    if (actualContextNode) {
-      queue.enqueue(actualContextNode)
-      reachableNodeDefsByUuid[actualContextNode.uuid] = actualContextNode
-    }
-
-    while (!queue.isEmpty()) {
-      const entityDefCurrent = queue.dequeue()
-      const entityDefCurrentChildren = getNodeDefChildren({ survey, nodeDef: entityDefCurrent, includeAnalysis })
-      entityDefCurrentChildren.forEach((childDef) => (reachableNodeDefsByUuid[childDef.uuid] = childDef))
-
-      // visit nodes inside single entities
-      queue.enqueueItems(entityDefCurrentChildren.filter(NodeDefs.isSingleEntity))
-
-      // avoid visiting 2 times the same entity definition when traversing single entities
-      if (!visitedUuids.includes(entityDefCurrent.uuid)) {
-        const entityDefCurrentParent = getNodeDefParent({ survey, nodeDef: entityDefCurrent })
-        if (entityDefCurrentParent) {
-          queue.enqueue(entityDefCurrentParent)
-        }
-        reachableNodeDefsByUuid[entityDefCurrent.uuid] = entityDefCurrent
-        visitedUuids.push(entityDefCurrent.uuid)
-      }
-    }
-    return Object.values(reachableNodeDefsByUuid)
   }
 }
