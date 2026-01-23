@@ -11,6 +11,9 @@ export interface NodeDefExpressionContext extends ExpressionContext {
   user?: User
   nodeDefCurrent: NodeDef<NodeDefType, NodeDefProps>
   nodeDefContext?: NodeDef<NodeDefType, NodeDefProps>
+
+  currentExpressionPath?: string
+  referencedNodePaths?: Set<string>
   /**
    * Unique UUIDs of node definitions being visited during expression evaluation.
    */

@@ -33,6 +33,18 @@ const findActualContextNode = (params: {
   return nodeDefObjectContext
 }
 
+const findActualContextNodePath = (params: { context: NodeDefExpressionContext }): string | undefined => {
+  const { context } = params
+  const { object: nodeDefObjectContext, currentExpressionPath } = context
+
+  if (!nodeDefObjectContext) return undefined
+
+  if (NodeDefs.isAttribute(nodeDefObjectContext)) {
+    return `parent(${currentExpressionPath})`
+  }
+  return currentExpressionPath
+}
+
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
   async evaluate(expressionNode: IdentifierExpression): Promise<any> {
     const { context } = this
@@ -77,6 +89,10 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
         throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: exprName })
       }
       this.addReferencedNodeDefUuid(referencedNodeDef.uuid)
+
+      const referencedNodePath = this.findReferencedNodePath(expressionNode)!
+      this.addReferencedNodePath(referencedNodePath)
+
       return referencedNodeDef
     }
     throw new SystemError('expression.identifierNotFound', {
@@ -89,6 +105,12 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     const { context } = this
     const { referencedNodeDefUuids = new Set() } = context
     context.referencedNodeDefUuids = referencedNodeDefUuids.add(uuid)
+  }
+
+  protected addReferencedNodePath(path: string) {
+    const { context } = this
+    const { referencedNodePaths = new Set() } = context
+    context.referencedNodePaths = referencedNodePaths.add(path)
   }
 
   /**
@@ -105,6 +127,50 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
       return reachableNodeDefs.find(
         (reachableNodeDef: NodeDef<NodeDefType, NodeDefProps>) => reachableNodeDef.props.name === expressionNode.name
       )
+    }
+    return undefined
+  }
+
+  protected findReferencedNodePath(expressionNode: IdentifierExpression): string | undefined {
+    const { context } = this
+    const { survey, includeAnalysis } = context
+    const { name: expressionNodeName } = expressionNode
+
+    const queue = new Queue()
+    const visitedUuids: string[] = []
+
+    const actualContextNodeDef = findActualContextNode({ context })
+    const actualContextNodePath = findActualContextNodePath({ context }) ?? 'this'
+    if (actualContextNodeDef) {
+      queue.enqueue({ entityDef: actualContextNodeDef, path: actualContextNodePath })
+      if (NodeDefs.getName(actualContextNodeDef) === expressionNodeName) {
+        return actualContextNodePath
+      }
+    }
+
+    while (!queue.isEmpty()) {
+      const { entityDef: currentEntityDef, path: currentEntityPath } = queue.dequeue()
+      const currentEntityDefChildren = getNodeDefChildren({ survey, nodeDef: currentEntityDef, includeAnalysis })
+      for (const childDef of currentEntityDefChildren) {
+        const childNodePath = `${currentEntityPath}.${NodeDefs.getName(childDef)}`
+        if (NodeDefs.getName(childDef) === expressionNodeName) {
+          return childNodePath
+        }
+        // visit nodes inside single entities
+        if (NodeDefs.isSingleEntity(childDef)) {
+          queue.enqueue({ entityDef: childDef, path: childNodePath })
+        }
+      }
+
+      // avoid visiting 2 times the same entity definition when traversing single entities
+      if (!visitedUuids.includes(currentEntityDef.uuid)) {
+        const currentEntityDefParent = getNodeDefParent({ survey, nodeDef: currentEntityDef })
+        if (currentEntityDefParent) {
+          const currentParentEntityPath = `parent(${currentEntityPath})`
+          queue.enqueue({ entityDef: currentEntityDefParent, path: currentParentEntityPath })
+        }
+        visitedUuids.push(currentEntityDef.uuid)
+      }
     }
     return undefined
   }
