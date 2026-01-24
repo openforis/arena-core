@@ -89,6 +89,65 @@ export const getOnUpdateDependents = (params: { survey: Survey }) => {
 
 // UPDATE
 
+/**
+ * Calculates the path from a source node definition to a dependent node definition.
+ * The path represents how to navigate from the source to the dependent node in the hierarchy.
+ *
+ * @param survey - The survey containing the node definitions
+ * @param sourceNodeDef - The source (referenced) node definition
+ * @param dependentNodeDef - The dependent node definition (the one with the expression)
+ * @returns The path from source to dependent, or empty string if they're the same or if path cannot be determined
+ */
+const calculatePathFromSourceToDependent = (params: {
+  survey: Survey
+  sourceNodeDef: NodeDef<NodeDefType>
+  dependentNodeDef: NodeDef<NodeDefType>
+}): string => {
+  const { survey, sourceNodeDef, dependentNodeDef } = params
+
+  if (sourceNodeDef.uuid === dependentNodeDef.uuid) {
+    return ''
+  }
+
+  // Check if they share the same parent (siblings)
+  if (sourceNodeDef.parentUuid === dependentNodeDef.parentUuid && sourceNodeDef.parentUuid) {
+    // They are siblings, path is just the dependent's name
+    return NodeDefs.getName(dependentNodeDef)
+  }
+
+  // Get hierarchies (parent chain, not including the node itself for the source)
+  const sourceHierarchy = sourceNodeDef.meta.h // Just the parent chain
+  const dependentHierarchy = [...dependentNodeDef.meta.h, dependentNodeDef.uuid] // Parent chain + the dependent itself
+
+  // Find common ancestor in the parent chains
+  let commonAncestorIndex = 0
+  while (
+    commonAncestorIndex < sourceHierarchy.length &&
+    commonAncestorIndex < dependentHierarchy.length &&
+    sourceHierarchy[commonAncestorIndex] === dependentHierarchy[commonAncestorIndex]
+  ) {
+    commonAncestorIndex++
+  }
+
+  // Build the path from source to dependent
+  const pathParts: string[] = []
+
+  // Add parent references to go up from source's parent to common ancestor
+  const levelsUp = sourceHierarchy.length - commonAncestorIndex
+  for (let i = 0; i < levelsUp; i++) {
+    pathParts.push('parent()')
+  }
+
+  // Add path down from common ancestor to dependent
+  for (let i = commonAncestorIndex; i < dependentHierarchy.length; i++) {
+    const nodeDefUuid = dependentHierarchy[i]
+    const nodeDef = SurveyNodeDefs.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
+    pathParts.push(NodeDefs.getName(nodeDef))
+  }
+
+  return pathParts.join('.')
+}
+
 const addDependency = (params: {
   graphs: SurveyDependencyGraph
   type: SurveyDependencyType
@@ -164,37 +223,29 @@ const addDependencies = async (params: {
     return referencedNodeDefsByUuid
   }
 
-  const findReferencedNodePaths = async (expression: string | undefined): Promise<Set<string>> => {
-    if (!expression) return new Set()
-
-    const referencedNodePaths = await new NodeDefExpressionEvaluator().findReferencedNodePaths({
-      ...commonSearchParams,
-      expression,
-    })
-    return referencedNodePaths
-  }
-
   const referencedNodeDefs = {}
-  const dependentNodePaths = new Set<string>()
   for (const nodeDefExpr of expressions) {
     Object.assign(
       referencedNodeDefs,
       await findReferencedNodeDefs(nodeDefExpr.expression),
       await findReferencedNodeDefs(nodeDefExpr.applyIf)
     )
-    const referencedPaths = await findReferencedNodePaths(nodeDefExpr.expression)
-    referencedPaths.forEach(dependentNodePaths.add, dependentNodePaths)
-    const referencedApplyIfPaths = await findReferencedNodePaths(nodeDefExpr.applyIf)
-    referencedApplyIfPaths.forEach(dependentNodePaths.add, dependentNodePaths)
   }
 
+  // For each referenced node, calculate the path from it to the dependent node
   Object.values(referencedNodeDefs).forEach((nodeDefRef: any) => {
+    const pathFromSourceToDependent = calculatePathFromSourceToDependent({
+      survey,
+      sourceNodeDef: nodeDefRef,
+      dependentNodeDef: nodeDef,
+    })
+
     graphsUpdated = addDependency({
       graphs: graphsUpdated,
       type,
       nodeDefUuid: nodeDefRef.uuid,
       nodeDefDepUuid: nodeDef.uuid,
-      dependentNodePaths: [...dependentNodePaths],
+      dependentNodePaths: pathFromSourceToDependent ? [pathFromSourceToDependent] : [],
       sideEffect,
     })
   })

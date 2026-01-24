@@ -156,4 +156,62 @@ describe('Survey Dependencies', () => {
 
     survey = surveyOld
   })
+
+  test('Dependent node paths are calculated from source to dependent', () => {
+    // Test path from plot_id to plot_id_double (both in same entity 'plot')
+    const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
+    const dependencyGraph = survey.dependencyGraph
+    const dependentPaths = dependencyGraph?.[SurveyDependencyType.defaultValues]?.nodePaths?.[plotIdDef.uuid]
+
+    // The path from plot_id to plot_id_double should be just 'plot_id_double' (sibling)
+    expect(dependentPaths).toContain('plot_id_double')
+
+    // Test path from plot entity to its dependents
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
+    const dependentPathsFromPlot = dependencyGraph?.[SurveyDependencyType.defaultValues]?.nodePaths?.[plotDef.uuid]
+
+    // The plot entity has two dependents:
+    // 1. plot_index (child of plot, references $context which is the plot entity)
+    //    - path should be 'plot.plot_index' (go into plot entity, then to plot_index)
+    // 2. plot_count (sibling of plot, references plot.length) - path is just 'plot_count'
+    expect(dependentPathsFromPlot).toContain('plot.plot_index')
+    expect(dependentPathsFromPlot).toContain('plot_count')
+
+    // Test a more complex case: accessible -> plot entity (applyIf dependency)
+    const accessibleDef = Surveys.getNodeDefByName({ survey, name: 'accessible' })
+    const dependentPathsFromAccessible =
+      dependencyGraph?.[SurveyDependencyType.applicable]?.nodePaths?.[accessibleDef.uuid]
+
+    // From accessible to plot (both siblings), path should be just 'plot'
+    expect(dependentPathsFromAccessible).toContain('plot')
+  })
+
+  test('Dependent node paths with parent() references for deeper hierarchies', async () => {
+    const user = createTestAdminUser()
+
+    // Create a survey with deeper nesting to test path calculation
+    const testSurvey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root',
+        integerDef('root_value').key(),
+        entityDef(
+          'level1',
+          integerDef('level1_value'),
+          entityDef(
+            'level2',
+            integerDef('level2_value'),
+            // This references root_value from 2 levels up
+            integerDef('computed').readOnly().defaultValue('root_value * 2')
+          ).multiple()
+        ).multiple()
+      )
+    ).build()
+
+    const dependencyGraph = testSurvey.dependencyGraph
+    const rootValueDef = Surveys.getNodeDefByName({ survey: testSurvey, name: 'root_value' })
+    const dependentPaths = dependencyGraph?.[SurveyDependencyType.defaultValues]?.nodePaths?.[rootValueDef.uuid]
+    // the path should be: level1.level2.computed
+    expect(dependentPaths).toContain('level1.level2.computed')
+  }, 10000)
 })
