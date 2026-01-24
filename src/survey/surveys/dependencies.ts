@@ -2,7 +2,7 @@ import * as SurveyNodeDefs from './nodeDefs'
 import { NodeDef, NodeDefExpression, NodeDefFile, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 
-import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
+import { Survey, SurveyDependencyGraph, SurveyDependencySubtype, SurveyDependencyType } from '../survey'
 import { Arrays, Objects } from '../../utils'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
 import { Dictionary } from '../../common'
@@ -47,10 +47,11 @@ const getDependencyGraph = (survey: Survey): SurveyDependencyGraph => survey.dep
 const getDependencies = (params: {
   graphs: SurveyDependencyGraph
   type: SurveyDependencyType
+  subtype: SurveyDependencySubtype
   nodeDefUuid: string
-}): Array<string> => {
-  const { graphs, type, nodeDefUuid } = params
-  return type === SurveyDependencyType.onUpdate ? [] : ((graphs?.[type]?.[nodeDefUuid] ?? []) as string[])
+}): string[] => {
+  const { graphs, type, subtype, nodeDefUuid } = params
+  return type === SurveyDependencyType.onUpdate ? [] : ((graphs?.[type]?.[subtype]?.[nodeDefUuid] ?? []) as string[])
 }
 
 export const getNodeDefDependents = (params: {
@@ -68,10 +69,13 @@ export const getNodeDefDependents = (params: {
     : Object.values(SurveyDependencyType)
 
   dependencyTypes.forEach((depType: SurveyDependencyType) => {
-    const dependentUuidsTemp = getDependencies({ graphs: dependencyGraph, type: depType, nodeDefUuid })
-    dependentUuidsTemp.forEach((dependentUuid) => {
-      dependentUuids.add(dependentUuid)
+    const dependentUuidsTemp = getDependencies({
+      graphs: dependencyGraph,
+      type: depType,
+      subtype: SurveyDependencySubtype.nodeDefs,
+      nodeDefUuid,
     })
+    dependentUuidsTemp.forEach(dependentUuids.add, dependentUuids)
   })
   return dependentUuids.size > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: [...dependentUuids] }) : []
 }
@@ -90,12 +94,39 @@ const addDependency = (params: {
   type: SurveyDependencyType
   nodeDefUuid: string
   nodeDefDepUuid: string
+  dependentNodePaths: string[]
   sideEffect: boolean
 }): SurveyDependencyGraph => {
-  const { graphs, type, nodeDefUuid, nodeDefDepUuid, sideEffect = false } = params
-  const deps = getDependencies({ graphs, type, nodeDefUuid })
-  const depsUpdated = Arrays.addItem(nodeDefDepUuid, { sideEffect })(deps)
-  return Objects.assocPath({ obj: graphs, path: [type, nodeDefUuid], value: depsUpdated, sideEffect })
+  const { graphs, type, nodeDefUuid, nodeDefDepUuid, dependentNodePaths, sideEffect = false } = params
+  // node defs
+  const dependentNodeDefUuidsPrev = getDependencies({
+    graphs,
+    type,
+    subtype: SurveyDependencySubtype.nodeDefs,
+    nodeDefUuid,
+  })
+  const dependentNodeDefUuidsUpdated = Arrays.addItem(nodeDefDepUuid, { sideEffect })(dependentNodeDefUuidsPrev)
+  let graphUpdated = Objects.assocPath({
+    obj: graphs,
+    path: [type, SurveyDependencySubtype.nodeDefs, nodeDefUuid],
+    value: dependentNodeDefUuidsUpdated,
+    sideEffect,
+  })
+  // node paths
+  const dependentNodePathsPrev = getDependencies({
+    graphs: graphUpdated,
+    type,
+    subtype: SurveyDependencySubtype.nodePaths,
+    nodeDefUuid,
+  })
+  const dependentNodePathsUpdated = Arrays.addItems(dependentNodePaths, { sideEffect })(dependentNodePathsPrev)
+  graphUpdated = Objects.assocPath({
+    obj: graphUpdated,
+    path: [type, SurveyDependencySubtype.nodePaths, nodeDefUuid],
+    value: dependentNodePathsUpdated,
+    sideEffect,
+  })
+  return graphUpdated
 }
 
 const addDependencies = async (params: {
@@ -115,32 +146,46 @@ const addDependencies = async (params: {
   const isContextParent = isContextParentByDependencyType[type]
   const selfReferenceAllowed = selfReferenceAllowedByDependencyType[type]
 
+  const commonSearchParams = { survey, isContextParent, selfReferenceAllowed, nodeDef }
+
   const findReferencedNodeDefs = async (
     expression: string | undefined
   ): Promise<{ [key: string]: NodeDef<NodeDefType> }> => {
     if (!expression) return {}
 
     const referencedNodeDefUuids = await new NodeDefExpressionEvaluator().findReferencedNodeDefUuids({
+      ...commonSearchParams,
       expression,
-      survey,
-      nodeDef,
-      isContextParent,
-      selfReferenceAllowed,
     })
     const referencedNodeDefsByUuid: Dictionary<NodeDef<any>> = {}
-    referencedNodeDefUuids.forEach((uuid) => {
+    for (const uuid of referencedNodeDefUuids) {
       referencedNodeDefsByUuid[uuid] = SurveyNodeDefs.getNodeDefByUuid({ survey, uuid })
-    })
+    }
     return referencedNodeDefsByUuid
   }
 
+  const findReferencedNodePaths = async (expression: string | undefined): Promise<Set<string>> => {
+    if (!expression) return new Set()
+
+    const referencedNodePaths = await new NodeDefExpressionEvaluator().findReferencedNodePaths({
+      ...commonSearchParams,
+      expression,
+    })
+    return referencedNodePaths
+  }
+
   const referencedNodeDefs = {}
+  const dependentNodePaths = new Set<string>()
   for (const nodeDefExpr of expressions) {
     Object.assign(
       referencedNodeDefs,
       await findReferencedNodeDefs(nodeDefExpr.expression),
       await findReferencedNodeDefs(nodeDefExpr.applyIf)
     )
+    const referencedPaths = await findReferencedNodePaths(nodeDefExpr.expression)
+    referencedPaths.forEach(dependentNodePaths.add, dependentNodePaths)
+    const referencedApplyIfPaths = await findReferencedNodePaths(nodeDefExpr.applyIf)
+    referencedApplyIfPaths.forEach(dependentNodePaths.add, dependentNodePaths)
   }
 
   Object.values(referencedNodeDefs).forEach((nodeDefRef: any) => {
@@ -149,6 +194,7 @@ const addDependencies = async (params: {
       type,
       nodeDefUuid: nodeDefRef.uuid,
       nodeDefDepUuid: nodeDef.uuid,
+      dependentNodePaths: [...dependentNodePaths],
       sideEffect,
     })
   })
@@ -228,19 +274,22 @@ const _removeNodeDefDependenciesOfType = (params: {
   const { graphs, nodeDefUuid, dependencyType } = params
 
   const graphsUpdated = { ...graphs }
-  let graphUpdated = { ...(graphsUpdated[dependencyType] ?? {}) }
+  let graphUpdated = { ...(graphsUpdated?.[dependencyType]?.[SurveyDependencySubtype.nodeDefs] ?? {}) }
   // dissoc nodeDefUuid dependency as dependent
   graphUpdated = Objects.dissoc({ obj: graphUpdated, prop: nodeDefUuid })
 
   if (dependencyType !== SurveyDependencyType.onUpdate) {
     // dissoc nodeDefUuid dependency from sources (if any)
-    Object.entries(graphUpdated).forEach(([key, dependentUuids]) => {
+    for (const [key, dependentUuids] of Object.entries(graphUpdated)) {
       graphUpdated[key] = Arrays.removeItem(nodeDefUuid)(dependentUuids as string[])
-    })
+    }
   }
 
-  graphsUpdated[dependencyType] = graphUpdated
-  return graphsUpdated
+  return Objects.assocPath({
+    obj: graphsUpdated,
+    path: [dependencyType, SurveyDependencySubtype.nodeDefs],
+    value: graphUpdated,
+  })
 }
 
 export const removeNodeDefDependencies = (params: {
