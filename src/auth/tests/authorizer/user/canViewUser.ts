@@ -18,7 +18,7 @@ export const canViewUserQueries: Query[] = [
     getParams: ({ user, authGroups }: any): any[] => {
       let thirdUser = createThirdUser()
       thirdUser = { ...thirdUser, authGroups }
-      return [user, thirdUser]
+      return [user, undefined, thirdUser]
     },
   },
   {
@@ -28,7 +28,7 @@ export const canViewUserQueries: Query[] = [
     result: false,
     getParams: ({ user }: any): any[] => {
       const thirdUser = createThirdUser()
-      return [user, thirdUser]
+      return [user, undefined, thirdUser]
     },
   },
   // users canViewUser can view other user
@@ -41,7 +41,7 @@ export const canViewUserQueries: Query[] = [
       getParams: ({ user, authGroups }: any): any[] => {
         let thirdUser = createThirdUser()
         thirdUser = { ...thirdUser, authGroups }
-        return [user, thirdUser]
+        return [user, undefined, thirdUser]
       },
     })
   ),
@@ -55,7 +55,7 @@ export const canViewUserQueries: Query[] = [
       getParams: ({ authGroups }: any): any[] => {
         let thirdUser = createThirdUser()
         thirdUser = { ...thirdUser, authGroups }
-        return [thirdUser, thirdUser]
+        return [thirdUser, undefined, thirdUser]
       },
     })
   ),
@@ -66,7 +66,7 @@ export const canViewUserQueries: Query[] = [
       groups: [groupName],
       authorizer: Authorizer.canViewUser,
       result: false,
-      getParams: ({ user }: any): any[] => [user, createThirdUser()],
+      getParams: ({ user }: any): any[] => [user, undefined, createThirdUser()],
     })
   ),
 ]
