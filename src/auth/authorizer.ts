@@ -162,7 +162,7 @@ const _usersBelongToSameSurvey = ({ user, userToView }: { user: User; userToView
       )
   )
 
-const canViewUser = (user: User, userToView: User) =>
+const canViewUser = (user: User, _surveyInfo: Survey, userToView: User) =>
   Users.isSystemAdmin(user) || Users.isEqual(userToView)(user) || _usersBelongToSameSurvey({ user, userToView })
 
 const canViewOtherUsersEmail = ({ user, surveyInfo }: { user: User; surveyInfo: Survey }) =>
