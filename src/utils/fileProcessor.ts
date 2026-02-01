@@ -1,8 +1,12 @@
 import { RetryProcessor } from './retryProcessor'
 
-type ChunkProcessor = (args: { chunk: number; totalChunks: number; content: Blob | string }) => Promise<void>
+type ChunkProcessor = (args: {
+  chunk: number
+  totalChunks: number
+  content: Blob | string | Uint8Array
+}) => Promise<any>
 
-interface FileProcessorArgs {
+export type FileProcessorConstructorArgs = {
   file?: File
   filePath?: string
   chunkProcessor: ChunkProcessor
@@ -37,7 +41,7 @@ export class FileProcessor {
     onComplete,
     chunkSize = FileProcessor.defaultChunkSize,
     maxTryings = FileProcessor.defaultMaxTryings,
-  }: FileProcessorArgs) {
+  }: FileProcessorConstructorArgs) {
     this.file = file
     this.filePath = filePath
     this.chunkProcessor = chunkProcessor
@@ -67,7 +71,7 @@ export class FileProcessor {
     this.onError?.(error)
   }
 
-  protected async extractCurrentFileChunk(): Promise<Blob | string> {
+  protected async extractCurrentFileChunk(): Promise<Blob | string | Uint8Array> {
     const { file, currentChunkNumber, totalChunks, chunkSize } = this
     if (!file) {
       throw new Error('File property not initialized')

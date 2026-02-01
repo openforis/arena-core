@@ -256,6 +256,8 @@ export {
   UUIDs,
 } from './utils'
 
+export type { FileProcessorConstructorArgs } from './utils'
+
 export {
   FieldValidators,
   ValidationFactory,
