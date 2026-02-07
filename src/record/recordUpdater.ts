@@ -19,14 +19,17 @@ const validationDependencyTypes = [
 
 const _getDependentValidationNodes = (params: { survey: Survey; record: Record; nodes: NodesMap }): NodesMap => {
   const { survey, record, nodes } = params
-  return Object.values(nodes).reduce((acc: NodesMap, node) => {
-    validationDependencyTypes.forEach((dependencyType) => {
+  const result: NodesMap = {}
+  for (const node of Object.values(nodes)) {
+    for (const dependencyType of validationDependencyTypes) {
       const nodePointers = Records.getDependentNodePointers({ survey, record, node, dependencyType })
-      const nodes = NodePointers.getNodesFromNodePointers({ record, nodePointers })
-      nodes.forEach((node) => (acc[node.uuid] = node))
-    })
-    return acc
-  }, {})
+      const nodesFromNodePointers = NodePointers.getNodesFromNodePointers({ record, nodePointers })
+      for (const nodeFromNodePointer of nodesFromNodePointers) {
+        result[nodeFromNodePointer.uuid] = nodeFromNodePointer
+      }
+    }
+  }
+  return result
 }
 
 const _onRecordNodesCreateOrUpdate = async (
