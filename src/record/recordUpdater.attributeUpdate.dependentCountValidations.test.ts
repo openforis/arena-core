@@ -1,21 +1,67 @@
-import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
+import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 
-const { entityDef, integerDef } = SurveyObjectBuilders
+const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-import { RecordUpdater } from './recordUpdater'
+import { User } from '../auth'
+import { Nodes } from '../node'
+import { NodeDef, NodeDefExpressionFactory } from '../nodeDef/nodeDef'
+import { Survey, Surveys } from '../survey'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
-import { User } from '../auth'
 import { Validations } from '../validation'
+import { Record } from './record'
+import { RecordUpdater } from './recordUpdater'
 import { RecordValidations } from './recordValidations'
 import { Records } from './records'
-import { Surveys } from '../survey'
-import { Nodes } from '../node'
-import { NodeDefExpressionFactory } from '../nodeDef/nodeDef'
 
 let user: User
+
+const updateSourceAndExpectMinCountValidation = async ({
+  survey,
+  record,
+  attributeUuid,
+  dependentNodeDef,
+  value,
+  expectedMinCount,
+  expectedValid,
+}: {
+  survey: Survey
+  record: Record
+  attributeUuid: string
+  dependentNodeDef: NodeDef<any>
+  value: number
+  expectedMinCount: number
+  expectedValid: boolean
+}): Promise<Record> => {
+  const updateResult = await RecordUpdater.updateAttributeValue({
+    user,
+    survey,
+    record,
+    attributeUuid,
+    value,
+  })
+
+  record = updateResult.record
+  const root = Records.getRoot(record)!
+
+  // check min count value
+  const minCount = Nodes.getChildrenMinCount({ parentNode: root, nodeDef: dependentNodeDef })
+  expect(minCount).toEqual(expectedMinCount)
+
+  // check validation
+  const validation = Validations.getValidation(record)
+
+  const minCountValid = RecordValidations.getValidationChildrenCount({
+    nodeParentUuid: root.uuid,
+    nodeDefChildUuid: dependentNodeDef.uuid,
+  })(validation).valid
+
+  expect(minCountValid).toEqual(expectedValid)
+
+  return record
+}
 
 describe('RecordUpdater - attribute update => update dependent count validations', () => {
   beforeAll(async () => {
@@ -49,41 +95,110 @@ describe('RecordUpdater - attribute update => update dependent count validations
     ).build()
 
     const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
+    const attributeUuid = nodeToUpdate.uuid
     const dependentNodeDef = Surveys.getNodeDefByName({ survey, name: 'dependent_attribute' })
 
-    const updateSourceAndExpectMinCountValidation = async (
-      value: number,
-      expectedMinCount: number,
+    const commonParams = { survey, record, attributeUuid, dependentNodeDef }
+
+    record = await updateSourceAndExpectMinCountValidation({
+      ...commonParams,
+      value: 2,
+      expectedMinCount: 4,
+      expectedValid: false,
+    })
+    record = await updateSourceAndExpectMinCountValidation({
+      ...commonParams,
+      value: 4,
+      expectedMinCount: 6,
+      expectedValid: false,
+    })
+    record = await updateSourceAndExpectMinCountValidation({
+      ...commonParams,
+      value: 0,
+      expectedMinCount: 2,
+      expectedValid: true,
+    })
+
+    expect(record).toBeDefined()
+  })
+
+  test('Dependent min count (with relevancy) validation update', async () => {
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        integerDef('source_attribute'),
+        booleanDef('relevancy_trigger'),
+        integerDef('dependent_attribute')
+          .multiple()
+          .applyIf('relevancy_trigger == true')
+          .minCount([NodeDefExpressionFactory.createInstance({ expression: 'source_attribute + 2' })])
+      )
+    ).build()
+
+    let record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        attribute('source_attribute', 1),
+        attribute('relevancy_trigger', 'true'),
+        attribute('dependent_attribute', 22),
+        attribute('dependent_attribute', 23),
+        attribute('dependent_attribute', 24)
+      )
+    ).build()
+
+    const dependentNodeDef = Surveys.getNodeDefByName({ survey, name: 'dependent_attribute' })
+
+    const updateTriggerAndExpectMinCountValidation = async ({
+      value,
+      expectedValid,
+    }: {
+      value: boolean
       expectedValid: boolean
-    ) => {
+    }): Promise<Record> => {
+      const triggerNode = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.relevancy_trigger' })
+      const triggerAttributeUuid = triggerNode.uuid
       const updateResult = await RecordUpdater.updateAttributeValue({
         user,
         survey,
         record,
-        attributeUuid: nodeToUpdate.uuid,
-        value,
+        attributeUuid: triggerAttributeUuid,
+        value: String(value),
       })
 
       record = updateResult.record
       const root = Records.getRoot(record)!
 
-      // check min count value
-      const minCount = Nodes.getChildrenMinCount({ parentNode: root, nodeDef: dependentNodeDef })
-      expect(minCount).toEqual(expectedMinCount)
-
       // check validation
       const validation = Validations.getValidation(record)
-
       const minCountValid = RecordValidations.getValidationChildrenCount({
         nodeParentUuid: root.uuid,
         nodeDefChildUuid: dependentNodeDef.uuid,
       })(validation).valid
 
       expect(minCountValid).toEqual(expectedValid)
+
+      return record
     }
 
-    updateSourceAndExpectMinCountValidation(2, 4, false)
-    updateSourceAndExpectMinCountValidation(4, 6, false)
-    updateSourceAndExpectMinCountValidation(0, 2, true)
+    const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
+    const attributeUuid = nodeToUpdate.uuid
+
+    const commonParams = { survey, record, attributeUuid, dependentNodeDef }
+
+    record = await updateSourceAndExpectMinCountValidation({
+      ...commonParams,
+      value: 2,
+      expectedMinCount: 4,
+      expectedValid: false,
+    })
+
+    record = await updateTriggerAndExpectMinCountValidation({ value: false, expectedValid: true })
+
+    expect(record).toBeDefined()
   })
 })
