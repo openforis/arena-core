@@ -1,5 +1,4 @@
 import { Node, NodesMap } from '../../node'
-import { Arrays } from '../../utils'
 import { Validation, ValidationFactory } from '../../validation'
 import { Validations } from '../../validation/validations'
 import { Records } from '../records'
@@ -20,10 +19,8 @@ export const validateSortedNodes = async (params: SortedAttributesValidatorParam
     nodesArray,
   })
 
-  const nodes = Arrays.toUuidIndexedObject(nodesArray)
-
   // 2. validate min/max count
-  const nodeCountValidations = CountValidator.validateChildrenCountNodes({ survey, record, nodes })
+  const nodeCountValidations = CountValidator.validateChildrenCountNodesArray({ survey, record, nodesArray })
 
   // 3. merge validations
   return Validations.recalculateValidity(

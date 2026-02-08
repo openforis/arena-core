@@ -7,7 +7,7 @@ import {
   NodeDefPropsAdvanced,
   NodeDefType,
 } from '../../../nodeDef'
-import { NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
+import { NodeDefCountExpression, NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
 import { Objects } from '../../../utils'
 
 export abstract class NodeDefBuilder {
@@ -46,7 +46,7 @@ export abstract class NodeDefBuilder {
     return this
   }
 
-  maxCount(countExpr: string): this {
+  maxCount(countExpr: NodeDefCountExpression): this {
     return Objects.assocPath({
       obj: this,
       path: ['propsAdvanced', 'validations', 'count', 'max'],
@@ -55,7 +55,7 @@ export abstract class NodeDefBuilder {
     })
   }
 
-  minCount(countExpr: string): this {
+  minCount(countExpr: NodeDefCountExpression): this {
     return Objects.assocPath({
       obj: this,
       path: ['propsAdvanced', 'validations', 'count', 'min'],

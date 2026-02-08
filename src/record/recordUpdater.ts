@@ -1,6 +1,6 @@
 import { Dictionary } from '../common'
 import { SystemError } from '../error'
-import { Node, NodesMap } from '../node'
+import { Node, NodePointer, NodesMap } from '../node'
 import { Survey, SurveyDependencyType, Surveys } from '../survey'
 import { Dates, Objects } from '../utils'
 import { Validations } from '../validation/validations'
@@ -17,16 +17,27 @@ const validationDependencyTypes = [
   SurveyDependencyType.maxCount,
 ]
 
-const _getDependentValidationNodes = (params: { survey: Survey; record: Record; nodes: NodesMap }): NodesMap => {
+const getDependentValidationNodePointers = (params: {
+  survey: Survey
+  record: Record
+  nodes: NodesMap
+}): NodePointer[] => {
   const { survey, record, nodes } = params
-  return Object.values(nodes).reduce((acc: NodesMap, node) => {
-    validationDependencyTypes.forEach((dependencyType) => {
+  const uniquePointersByKey = new Map<string, NodePointer>()
+  for (const node of Object.values(nodes)) {
+    for (const dependencyType of validationDependencyTypes) {
       const nodePointers = Records.getDependentNodePointers({ survey, record, node, dependencyType })
-      const nodes = NodePointers.getNodesFromNodePointers({ record, nodePointers })
-      nodes.forEach((node) => (acc[node.uuid] = node))
-    })
-    return acc
-  }, {})
+      for (const pointer of nodePointers) {
+        const nodeCtxUuid = pointer.nodeCtx.uuid
+        const nodeDefUuid = pointer.nodeDef.uuid
+        const key = `${nodeCtxUuid ?? ''}:${nodeDefUuid ?? ''}`
+        if (!uniquePointersByKey.has(key)) {
+          uniquePointersByKey.set(key, pointer)
+        }
+      }
+    }
+  }
+  return Array.from(uniquePointersByKey.values())
 }
 
 const _onRecordNodesCreateOrUpdate = async (
@@ -36,7 +47,16 @@ const _onRecordNodesCreateOrUpdate = async (
 
   const { nodes: updatedNodes, record: updatedRecord } = await RecordNodesUpdater.updateNodesDependents(params)
 
-  const dependentValidationNodes = _getDependentValidationNodes({ survey, record: updatedRecord, nodes: updatedNodes })
+  const dependentValidationNodePointers = getDependentValidationNodePointers({
+    survey,
+    record: updatedRecord,
+    nodes: updatedNodes,
+  })
+
+  const dependentValidationNodes = NodePointers.getNodesMapFromNodePointers({
+    record: updatedRecord,
+    nodePointers: dependentValidationNodePointers,
+  })
 
   const nodesToValidate = { ...updatedNodes, ...dependentValidationNodes }
 
