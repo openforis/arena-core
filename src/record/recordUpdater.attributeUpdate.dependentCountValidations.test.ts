@@ -199,6 +199,8 @@ describe('RecordUpdater - attribute update => update dependent count validations
 
     record = await updateTriggerAndExpectMinCountValidation({ value: false, expectedValid: true })
 
+    record = await updateTriggerAndExpectMinCountValidation({ value: true, expectedValid: false })
+
     expect(record).toBeDefined()
   })
 })

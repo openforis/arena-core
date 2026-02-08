@@ -1,6 +1,6 @@
 import { Dictionary } from '../common'
 import { SystemError } from '../error'
-import { Node, NodesMap } from '../node'
+import { Node, NodePointer, NodesMap } from '../node'
 import { Survey, SurveyDependencyType, Surveys } from '../survey'
 import { Dates, Objects } from '../utils'
 import { Validations } from '../validation/validations'
@@ -17,16 +17,17 @@ const validationDependencyTypes = [
   SurveyDependencyType.maxCount,
 ]
 
-const _getDependentValidationNodes = (params: { survey: Survey; record: Record; nodes: NodesMap }): NodesMap => {
+const getDependentValidationNodePointers = (params: {
+  survey: Survey
+  record: Record
+  nodes: NodesMap
+}): NodePointer[] => {
   const { survey, record, nodes } = params
-  const result: NodesMap = {}
+  const result: NodePointer[] = []
   for (const node of Object.values(nodes)) {
     for (const dependencyType of validationDependencyTypes) {
       const nodePointers = Records.getDependentNodePointers({ survey, record, node, dependencyType })
-      const nodesFromNodePointers = NodePointers.getNodesFromNodePointers({ record, nodePointers })
-      for (const nodeFromNodePointer of nodesFromNodePointers) {
-        result[nodeFromNodePointer.uuid] = nodeFromNodePointer
-      }
+      result.push(...nodePointers)
     }
   }
   return result
@@ -39,7 +40,16 @@ const _onRecordNodesCreateOrUpdate = async (
 
   const { nodes: updatedNodes, record: updatedRecord } = await RecordNodesUpdater.updateNodesDependents(params)
 
-  const dependentValidationNodes = _getDependentValidationNodes({ survey, record: updatedRecord, nodes: updatedNodes })
+  const dependentValidationNodePointers = getDependentValidationNodePointers({
+    survey,
+    record: updatedRecord,
+    nodes: updatedNodes,
+  })
+
+  const dependentValidationNodes = NodePointers.getNodesMapFromNodePointers({
+    record: updatedRecord,
+    nodePointers: dependentValidationNodePointers,
+  })
 
   const nodesToValidate = { ...updatedNodes, ...dependentValidationNodes }
 

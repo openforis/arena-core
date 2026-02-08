@@ -7,7 +7,7 @@ import { Survey, Surveys } from '../../survey'
 import { RecordValidations } from '../recordValidations'
 import { ValidationFields } from '../../validation/validation'
 
-const _createValidationResult = (params: {
+const createValidationResult = (params: {
   nodeDefUuid: string
   isMinCountValidation: boolean
   minCount: number
@@ -54,7 +54,7 @@ const validateChildrenCount = (params: {
 
   return minCountValid && maxCountValid
     ? ValidationFactory.createInstance()
-    : _createValidationResult({
+    : createValidationResult({
         nodeDefUuid: nodeDefChild.uuid,
         isMinCountValidation: !minCountValid,
         minCount,
@@ -71,11 +71,9 @@ const _countChildren = (params: { record: Record; parentNode: Node; childDef: No
   return nonEmptyChildren.length
 }
 
-const _isNodePointerToBeValidated = (nodePointer: NodePointer) =>
-  Nodes.isChildApplicable(nodePointer.nodeCtx, nodePointer.nodeDef.uuid) &&
-  NodeDefs.hasMinOrMaxCount(nodePointer.nodeDef)
+const isNodePointerToBeValidated = (nodePointer: NodePointer) => NodeDefs.hasMinOrMaxCount(nodePointer.nodeDef)
 
-const _validateNodePointer = (params: {
+const validateNodePointer = (params: {
   record: Record
   nodeCtx: Node
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
@@ -83,15 +81,13 @@ const _validateNodePointer = (params: {
   const { record, nodeCtx, nodeDef } = params
   // Check children count only for applicable nodes
   if (Nodes.isChildApplicable(nodeCtx, nodeDef.uuid)) {
-    if (NodeDefs.hasMinOrMaxCount(nodeDef)) {
-      const count = _countChildren({ record, parentNode: nodeCtx, childDef: nodeDef })
-      return validateChildrenCount({ parentNode: nodeCtx, nodeDefChild: nodeDef, count })
-    }
+    const count = _countChildren({ record, parentNode: nodeCtx, childDef: nodeDef })
+    return validateChildrenCount({ parentNode: nodeCtx, nodeDefChild: nodeDef, count })
   }
   return ValidationFactory.createInstance()
 }
 
-const _getNodePointersToValidate = (params: { survey: Survey; record: Record; node: Node }): NodePointer[] => {
+const getNodePointersToValidate = (params: { survey: Survey; record: Record; node: Node }): NodePointer[] => {
   const { survey, record, node } = params
   const nodePointersToValidate: NodePointer[] = []
 
@@ -101,7 +97,7 @@ const _getNodePointersToValidate = (params: { survey: Survey; record: Record; no
   if (nodeParent) {
     // always validate the node itself
     const nodePointer = { nodeCtx: nodeParent, nodeDef }
-    if (_isNodePointerToBeValidated(nodePointer)) {
+    if (isNodePointerToBeValidated(nodePointer)) {
       nodePointersToValidate.push(nodePointer)
     }
   }
@@ -110,7 +106,7 @@ const _getNodePointersToValidate = (params: { survey: Survey; record: Record; no
     const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef })
     for (const childDef of childDefs) {
       const nodePointer = { nodeCtx: node, nodeDef: childDef }
-      if (_isNodePointerToBeValidated(nodePointer)) {
+      if (isNodePointerToBeValidated(nodePointer)) {
         nodePointersToValidate.push(nodePointer)
       }
     }
@@ -126,7 +122,7 @@ const validateChildrenCountNodesArray = (params: {
   const { survey, record, nodesArray } = params
   const validationsAcc: ValidationFields = {}
   for (const node of nodesArray) {
-    const nodePointersToValidate = _getNodePointersToValidate({ survey, record, node })
+    const nodePointersToValidate = getNodePointersToValidate({ survey, record, node })
 
     for (const nodePointer of nodePointersToValidate) {
       const { nodeCtx, nodeDef } = nodePointer
@@ -137,7 +133,7 @@ const validateChildrenCountNodesArray = (params: {
       })
       if (!(validationChildrenCountKey in validationsAcc)) {
         // validate the children count of this node pointer
-        const validationNodePointer = _validateNodePointer({ record, nodeCtx, nodeDef })
+        const validationNodePointer = validateNodePointer({ record, nodeCtx, nodeDef })
         validationsAcc[validationChildrenCountKey] = validationNodePointer
       }
     }

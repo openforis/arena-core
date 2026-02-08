@@ -10,6 +10,19 @@ const getNodesFromNodePointers = (params: { record: Record; nodePointers: NodePo
   )
 }
 
+const getNodesMapFromNodePointers = (params: {
+  record: Record
+  nodePointers: NodePointer[]
+}): { [key: string]: Node } => {
+  const nodes = getNodesFromNodePointers(params)
+  const nodesMap: { [key: string]: Node } = {}
+  for (const node of nodes) {
+    nodesMap[node.uuid] = node
+  }
+  return nodesMap
+}
+
 export const NodePointers = {
   getNodesFromNodePointers,
+  getNodesMapFromNodePointers,
 }
