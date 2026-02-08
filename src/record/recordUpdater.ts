@@ -23,14 +23,21 @@ const getDependentValidationNodePointers = (params: {
   nodes: NodesMap
 }): NodePointer[] => {
   const { survey, record, nodes } = params
-  const result: NodePointer[] = []
+  const uniquePointersByKey = new Map<string, NodePointer>()
   for (const node of Object.values(nodes)) {
     for (const dependencyType of validationDependencyTypes) {
       const nodePointers = Records.getDependentNodePointers({ survey, record, node, dependencyType })
-      result.push(...nodePointers)
+      for (const pointer of nodePointers) {
+        const nodeCtxUuid = pointer.nodeCtx.uuid
+        const nodeDefUuid = pointer.nodeDef.uuid
+        const key = `${nodeCtxUuid ?? ''}:${nodeDefUuid ?? ''}`
+        if (!uniquePointersByKey.has(key)) {
+          uniquePointersByKey.set(key, pointer)
+        }
+      }
     }
   }
-  return result
+  return Array.from(uniquePointersByKey.values())
 }
 
 const _onRecordNodesCreateOrUpdate = async (
