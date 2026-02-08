@@ -98,22 +98,25 @@ describe('RecordUpdater - attribute update => update dependent count validations
     const attributeUuid = nodeToUpdate.uuid
     const dependentNodeDef = Surveys.getNodeDefByName({ survey, name: 'dependent_attribute' })
 
-    const commonParams = { survey, record, attributeUuid, dependentNodeDef }
+    const commonParams = { survey, attributeUuid, dependentNodeDef }
 
     record = await updateSourceAndExpectMinCountValidation({
       ...commonParams,
+      record,
       value: 2,
       expectedMinCount: 4,
       expectedValid: false,
     })
     record = await updateSourceAndExpectMinCountValidation({
       ...commonParams,
+      record,
       value: 4,
       expectedMinCount: 6,
       expectedValid: false,
     })
     record = await updateSourceAndExpectMinCountValidation({
       ...commonParams,
+      record,
       value: 0,
       expectedMinCount: 2,
       expectedValid: true,
@@ -188,10 +191,11 @@ describe('RecordUpdater - attribute update => update dependent count validations
     const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
     const attributeUuid = nodeToUpdate.uuid
 
-    const commonParams = { survey, record, attributeUuid, dependentNodeDef }
+    const commonParams = { survey, attributeUuid, dependentNodeDef }
 
     record = await updateSourceAndExpectMinCountValidation({
       ...commonParams,
+      record,
       value: 2,
       expectedMinCount: 4,
       expectedValid: false,
