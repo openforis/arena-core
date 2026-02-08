@@ -42,7 +42,9 @@ describe('RecordUpdater - attribute update => update dependent count validations
         'root_entity',
         attribute('identifier', 10),
         attribute('source_attribute', 1),
-        attribute('dependent_attribute', [22, 23, 24])
+        attribute('dependent_attribute', 22),
+        attribute('dependent_attribute', 23),
+        attribute('dependent_attribute', 24)
       )
     ).build()
 
@@ -71,12 +73,13 @@ describe('RecordUpdater - attribute update => update dependent count validations
 
       // check validation
       const validation = Validations.getValidation(record)
-      expect(
-        RecordValidations.getValidationChildrenCount({
-          nodeParentUuid: root.uuid,
-          nodeDefChildUuid: dependentNodeDef.uuid,
-        })(validation).valid
-      ).toEqual(expectedValid)
+
+      const minCountValid = RecordValidations.getValidationChildrenCount({
+        nodeParentUuid: root.uuid,
+        nodeDefChildUuid: dependentNodeDef.uuid,
+      })(validation).valid
+
+      expect(minCountValid).toEqual(expectedValid)
     }
 
     updateSourceAndExpectMinCountValidation(2, 4, false)
