@@ -91,9 +91,9 @@ const updateDefaultValuesInNodes = async (
 
   const { record } = updateResult
 
-  let nodesToUpdate
+  let nodesToUpdate: Node[] = []
   const dependentNodes = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
-  let exprValue
+  let exprValue: any = null
   const expressionsToEvaluate = NodeDefs.getDefaultValues(nodeDef)
   if (expressionsToEvaluate.length === 0) {
     if (Surveys.isNodeDefEnumerator({ survey, nodeDef })) {
