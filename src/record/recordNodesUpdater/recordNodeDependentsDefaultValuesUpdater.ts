@@ -96,6 +96,11 @@ const updateDefaultValuesInNodes = async (
   let exprValue
   const expressionsToEvaluate = NodeDefs.getDefaultValues(nodeDef)
   if (expressionsToEvaluate.length === 0) {
+    if (Surveys.isNodeDefEnumerator({ survey, nodeDef })) {
+      // if node def is enumerator, its default value is generated using the category items, not with default value expressions
+      // so the default value should not be reset or updated using default value expressions
+      return
+    }
     // no default expressions to evaluate; check if there are dependent nodes with default value applied, as their default value should be removed
     nodesToUpdate = dependentNodes.filter(Nodes.isDefaultValueApplied)
     if (nodesToUpdate.length === 0) {
