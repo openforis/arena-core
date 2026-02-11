@@ -49,27 +49,37 @@ export const updateSelfAndDependentsApplicable = async (
   for (const nodePointer of nodePointersToUpdate) {
     const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
 
-    const expressionsToEvaluate = NodeDefs.getApplicable(nodeDefNodePointer)
-    if (expressionsToEvaluate.length === 0) continue
-
-    // 3. evaluate applicable expression
     const nodeCtxUuid = nodeCtxNodePointer.uuid
+    const nodeDefUuid = nodeDefNodePointer.uuid
+
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
-    const exprEval = await expressionEvaluator.evalApplicableExpression({
-      ...params,
-      record: updateResult.record,
-      nodeCtx,
-      expressions: expressionsToEvaluate,
-    })
-
-    const applicable = exprEval?.value || false
-
+    const applicablePrev = Nodes.isChildApplicable(nodeCtx, nodeDefUuid)
+    let applicable
+    const expressionsToEvaluate = NodeDefs.getApplicable(nodeDefNodePointer)
+    if (expressionsToEvaluate.length === 0) {
+      if (applicablePrev) {
+        // skip nodes that were already applicable and have no applicable expression, as they will remain applicable
+        continue
+      } else {
+        // used during survey publishing: node def could have had applicable expression(s) that were removed,
+        // and node could have been not applicable, but now it should be applicable, as there are no more applicable expressions
+        applicable = true
+      }
+    } else {
+      // 3. evaluate applicable expression
+      const exprEval = await expressionEvaluator.evalApplicableExpression({
+        ...params,
+        record: updateResult.record,
+        nodeCtx,
+        expressions: expressionsToEvaluate,
+      })
+      applicable = exprEval?.value || false
+    }
     // 4. persist updated applicability if changed, and return updated nodes
-    const nodeDefUuid = nodeDefNodePointer.uuid
 
-    if (Nodes.isChildApplicable(nodeCtx, nodeDefUuid) !== applicable) {
+    if (applicablePrev !== applicable) {
       // Applicability changed
 
       // update node and add it to nodes updated
