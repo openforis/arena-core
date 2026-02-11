@@ -14,6 +14,9 @@ import { RecordUpdateResult } from './recordUpdateResult'
 
 const expressionEvaluator = new RecordExpressionEvaluator()
 
+/**
+ * Default value should be reset when a node becomes not applicable, but only if the default value was applied or if the node def is read only (therefore the value can only be set by default value expression)
+ */
 const shouldResetDefaultValue = (params: { survey: Survey; record: Record; node: Node }): boolean => {
   const { survey, record, node } = params
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
@@ -86,46 +89,56 @@ const updateDefaultValuesInNodes = async (
 
   if (nodeCtx.deleted) return
 
-  const expressionsToEvaluate = NodeDefs.getDefaultValues(nodeDef)
-  if (expressionsToEvaluate.length === 0) return
-
   const { record } = updateResult
 
-  try {
-    // 1. evaluate applicable default value expression
-    const exprEval = await expressionEvaluator.evalApplicableExpression({
-      ...params,
-      record,
-      nodeCtx,
-      expressions: expressionsToEvaluate,
-    })
-
-    const exprEvalValue = exprEval?.value
-    const exprValue = Objects.isEmpty(exprEvalValue)
-      ? null
-      : await RecordExpressionValueConverter.toNodeValue({
-          survey,
-          record,
-          nodeDef,
-          nodeParent: nodeCtx,
-          valueExpr: exprEvalValue,
-          timezoneOffset,
-          categoryItemProvider,
-        })
-
-    const nodesToUpdate = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
-    for (const nodeToUpdate of nodesToUpdate) {
-      updateDefaultValueInNode({ survey, updateResult, nodeToUpdate, nodeDef, exprValue, sideEffect })
+  let nodesToUpdate
+  const dependentNodes = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
+  let exprValue
+  const expressionsToEvaluate = NodeDefs.getDefaultValues(nodeDef)
+  if (expressionsToEvaluate.length === 0) {
+    // no default expressions to evaluate; check if there are dependent nodes with default value applied, as their default value should be removed
+    nodesToUpdate = dependentNodes.filter(Nodes.isDefaultValueApplied)
+    if (nodesToUpdate.length === 0) {
+      // no default expressions to evaluate and no nodes with default value applied, therefore no update needed
+      return
     }
-  } catch (error) {
-    throwError({
-      error,
-      errorKey: 'record.updateSelfAndDependentsDefaultValues',
-      expressionType: SurveyDependencyType.defaultValues,
-      survey,
-      nodeDef,
-      expressionsToEvaluate,
-    })
+  } else {
+    // if there are default value expressions, all dependent nodes should be evaluated, as their default value could change
+    nodesToUpdate = dependentNodes
+    try {
+      // 1. evaluate applicable default value expression
+      const exprEval = await expressionEvaluator.evalApplicableExpression({
+        ...params,
+        record,
+        nodeCtx,
+        expressions: expressionsToEvaluate,
+      })
+
+      const exprEvalValue = exprEval?.value
+      exprValue = Objects.isEmpty(exprEvalValue)
+        ? null
+        : await RecordExpressionValueConverter.toNodeValue({
+            survey,
+            record,
+            nodeDef,
+            nodeParent: nodeCtx,
+            valueExpr: exprEvalValue,
+            timezoneOffset,
+            categoryItemProvider,
+          })
+    } catch (error) {
+      throwError({
+        error,
+        errorKey: 'record.updateSelfAndDependentsDefaultValues',
+        expressionType: SurveyDependencyType.defaultValues,
+        survey,
+        nodeDef,
+        expressionsToEvaluate,
+      })
+    }
+  }
+  for (const nodeToUpdate of nodesToUpdate) {
+    updateDefaultValueInNode({ survey, updateResult, nodeToUpdate, nodeDef, exprValue, sideEffect })
   }
 }
 
