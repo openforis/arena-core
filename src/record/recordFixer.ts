@@ -86,7 +86,6 @@ const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sid
  * - inserting missing single nodes
  * - deleting nodes with non existing node defs
  * - removing status flags (created, deleted, updated) from all nodes
- * Note: this function doesn't update the record validation, if any
  */
 const fixRecord = (params: { survey: Survey; record: Record; sideEffect?: boolean }): RecordUpdateResult => {
   const { survey, record, sideEffect = false } = params
