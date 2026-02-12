@@ -43,7 +43,7 @@ const insertMissingSingleNodes = (params: {
       const parentDefUuid = nodeDef.parentUuid
       if (parentDefUuid) {
         const parentNodes = Records.getNodesByDefUuid(parentDefUuid)(updateResult.record)
-        parentNodes.forEach((parentNode) => {
+        for (const parentNode of parentNodes) {
           const partialUpdateResult = insertMissingSingleNode({
             nodeDef,
             record: updateResult.record,
@@ -53,7 +53,7 @@ const insertMissingSingleNodes = (params: {
           if (partialUpdateResult) {
             updateResult.merge(partialUpdateResult)
           }
-        })
+        }
       }
     },
   })
@@ -65,7 +65,7 @@ const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sid
   const updateResult = new RecordUpdateResult({ record })
 
   const nodesToDelete = Records.getNodesByDefUuid(nodeDefUuid)(updateResult.record)
-  nodesToDelete.forEach((nodeToDelete) => {
+  for (const nodeToDelete of nodesToDelete) {
     // cleanup child applicability
     const parentNode = Records.getParent(nodeToDelete)(updateResult.record)
     if (parentNode && !Nodes.isChildApplicable(parentNode, nodeDefUuid)) {
@@ -73,8 +73,7 @@ const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sid
       const recordWithParentNodeUpdated = Records.addNode(parentNodeUpdated, { sideEffect })(updateResult.record)
       updateResult.merge(new RecordUpdateResult({ record: recordWithParentNodeUpdated }))
     }
-  })
-
+  }
   const nodeUuidsToDelete = nodesToDelete.map((node) => node.uuid)
   const nodesDeleteUpdateResult = Records.deleteNodes(nodeUuidsToDelete, { sideEffect })(updateResult.record)
   updateResult.merge(nodesDeleteUpdateResult)
@@ -82,18 +81,27 @@ const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sid
   return updateResult
 }
 
+/**
+ * Fix a record by:
+ * - inserting missing single nodes
+ * - deleting nodes with non existing node defs
+ * - removing status flags (created, deleted, updated) from all nodes
+ */
 const fixRecord = (params: { survey: Survey; record: Record; sideEffect?: boolean }): RecordUpdateResult => {
   const { survey, record, sideEffect = false } = params
   const result = new RecordUpdateResult({ record })
 
-  Records.getNodesArray(record).forEach((node) => {
+  for (const node of Records.getNodesArray(record)) {
     const { nodeDefUuid } = node
     const nodeDef = Surveys.findNodeDefByUuid({ survey, uuid: nodeDefUuid })
     if (!nodeDef) {
       const nodesDeletedUpdatedResult = deleteNodesByDefUuid({ record: result.record, nodeDefUuid, sideEffect })
       result.merge(nodesDeletedUpdatedResult)
     }
-  })
+    // remove status flags
+    const nodeUpdated = Nodes.removeStatusFlags({ node, sideEffect })
+    result.addNode(nodeUpdated, { sideEffect })
+  }
   const missingNodesUpdateResult = insertMissingSingleNodes({ survey, record: result.record, sideEffect })
   result.merge(missingNodesUpdateResult)
   return result
