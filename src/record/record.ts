@@ -16,15 +16,15 @@ export interface RecordNodesIndex {
    */
   nodeRootId?: number
   /**
-   * node uuids by parent entity uuid and child def uuid
+   * node internal IDs by parent entity internal ID and child def UUID
    */
   nodesByParentAndChildDef?: { [parentId: number]: { [childDefUuid: string]: NodeIdsPresence } }
   /**
-   * node uuids by node def uuid
+   * node internal IDs by node def UUID
    */
   nodesByDef?: { [nodeDefUuid: string]: NodeIdsPresence }
   /**
-   * Code attribute internal IDs by ancenstor code attribute internal ID
+   * Code attribute internal IDs by ancestor code attribute internal ID
    */
   nodeCodeDependents?: { [internalId: number]: NodeIdsPresence }
 }

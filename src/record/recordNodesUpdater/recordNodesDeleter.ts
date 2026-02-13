@@ -56,7 +56,7 @@ export const deleteNodes =
 
     for (const nodeInternalId of nodeInternalIds) {
       const node = recordNodesUpdated[nodeInternalId]
-      if (!node) break
+      if (!node) continue
 
       RecordGetters.visitDescendantsAndSelf({
         record,
