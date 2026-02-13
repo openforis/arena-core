@@ -16,7 +16,7 @@ import { NodeValues } from '../../node/nodeValues'
  * - virtual entity def => source node def
  * - entity def => entity def itself
  */
-const findActualContextNode = (params: {
+const findActualContextNodeDef = (params: {
   context: NodeDefExpressionContext
 }): NodeDef<NodeDefType, NodeDefProps> | undefined => {
   const { context } = params
@@ -122,10 +122,10 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     const queue = new Queue<NodeDef<any>>()
     const visitedUuids: string[] = []
 
-    const actualContextNode = findActualContextNode({ context })
-    if (actualContextNode) {
-      queue.enqueue(actualContextNode)
-      reachableNodeDefsByUuid[actualContextNode.uuid] = actualContextNode
+    const actualContextNodeDef = findActualContextNodeDef({ context })
+    if (actualContextNodeDef) {
+      queue.enqueue(actualContextNodeDef)
+      reachableNodeDefsByUuid[actualContextNodeDef.uuid] = actualContextNodeDef
     }
 
     while (!queue.isEmpty()) {
