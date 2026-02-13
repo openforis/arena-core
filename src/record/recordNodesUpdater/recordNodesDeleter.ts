@@ -56,7 +56,10 @@ export const deleteNodes =
 
     for (const nodeInternalId of nodeInternalIds) {
       const node = recordNodesUpdated[nodeInternalId]
-      if (!node) continue
+      if (!node) {
+        // node already deleted, and so its descendant; skip it
+        continue
+      }
 
       RecordGetters.visitDescendantsAndSelf({
         record,
