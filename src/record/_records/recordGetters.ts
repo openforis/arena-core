@@ -219,12 +219,12 @@ export const visitDescendantsAndSelf = (params: {
   const { record, node, visitor, traverseMethod = TraverseMethod.bfs } = params
 
   if (traverseMethod === TraverseMethod.bfs) {
-    const queue = new Queue()
+    const queue = new Queue<Node>()
 
     queue.enqueue(node)
 
     while (!queue.isEmpty()) {
-      const visitedNode = queue.dequeue()
+      const visitedNode = queue.dequeue()!
 
       if (visitor(visitedNode)) {
         // stop if visitor returns true
