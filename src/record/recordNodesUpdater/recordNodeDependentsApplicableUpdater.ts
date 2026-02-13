@@ -87,11 +87,13 @@ export const updateSelfAndDependentsApplicable = async (
   for (const nodePointer of nodePointersToUpdate) {
     const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
 
-    const nodeCtxUuid = nodeCtxNodePointer.uuid
+    // 3. evaluate applicable expression
+    const nodeCtxInternalId = nodeCtxNodePointer.iId
+
     const nodeDefUuid = nodeDefNodePointer.uuid
 
     // nodeCtx could have been updated in a previous iteration
-    const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
+    const nodeCtx = updateResult.getNodeByInternalId(nodeCtxInternalId) ?? nodeCtxNodePointer
 
     const applicablePrev = Nodes.isChildApplicable(nodeCtx, nodeDefUuid)
     const applicable = await calculateApplicableNext({

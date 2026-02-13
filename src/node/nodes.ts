@@ -2,9 +2,9 @@ import { NodeDef, NodeDefCountType, NodeDefs } from '../nodeDef'
 import { Dates, Objects } from '../utils'
 import { Node } from './node'
 
-const isRoot = (node: Node): boolean => !node.parentUuid
+const isRoot = (node: Node): boolean => !node.pIId
 
-const areEqual = (nodeA: Node, nodeB: Node): boolean => nodeA.uuid === nodeB.uuid
+const areEqual = (nodeA: Node, nodeB: Node): boolean => nodeA.iId === nodeB.iId
 
 const isChildApplicable = (node: Node, nodeDefUuid: string): boolean => {
   // if child applicability is not defined for a node definition, consider it applicable
@@ -34,9 +34,9 @@ const getChildrenMaxCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }
 const getChildrenMinCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
   getChildrenMinOrMaxCount({ ...params, countType: NodeDefCountType.min })
 
-const getHierarchy = (node: Node): string[] => [...(node.meta?.h ?? [])]
+const getHierarchy = (node: Node): number[] => [...(node.meta?.h ?? [])]
 
-const getHierarchyCode = (node: Node): string[] => [...(node.meta?.hCode ?? [])]
+const getHierarchyCode = (node: Node): number[] => [...(node.meta?.hCode ?? [])]
 
 const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
   Objects.deepMerge(target, ...sources) as unknown as Node

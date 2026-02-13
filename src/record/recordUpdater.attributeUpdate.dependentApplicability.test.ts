@@ -38,7 +38,7 @@ const updateAttributeAndExpectDependentApplicability = async (params: {
     user,
     survey,
     record,
-    attributeUuid: nodeToUpdate.uuid,
+    attributeIId: nodeToUpdate.iId,
     value,
   })
 

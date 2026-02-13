@@ -1,17 +1,18 @@
 import { Survey, Surveys } from '../../survey'
 
-import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
+import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 
 const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-import { Record } from '../record'
-import { RecordNodesIndexReader } from './recordNodesIndexReader'
-import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
+import { Node } from '../../node'
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
+import { Record } from '../record'
 import { RecordNodesUpdater } from '../recordNodesUpdater'
+import { RecordNodesIndexReader } from './recordNodesIndexReader'
+import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
 
 const user = createTestAdminUser()
 let survey: Survey
@@ -53,7 +54,7 @@ describe('Record nodes index', () => {
     const index = record._nodesIndex ?? {}
 
     const clusterNode = TestUtils.getNodeByPath({ survey, record, path: 'cluster' })
-    expect(RecordNodesIndexReader.getNodeRootUuid(index)).toBe(clusterNode.uuid)
+    expect(RecordNodesIndexReader.getNodeRootInternalId(index)).toBe(clusterNode.iId)
 
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
     const plotNode1 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[0]' })
@@ -61,11 +62,11 @@ describe('Record nodes index', () => {
     const plotNode3 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[2]' })
 
     expect(
-      RecordNodesIndexReader.getNodeUuidsByParentAndChildDef({
-        parentNodeUuid: clusterNode.uuid,
+      RecordNodesIndexReader.getNodeInternalIdsByParentAndChildDef({
+        parentNodeInternalId: clusterNode.iId,
         childDefUuid: plotDef.uuid,
       })(index)
-    ).toEqual([plotNode1.uuid, plotNode2.uuid, plotNode3.uuid])
+    ).toEqual([plotNode1.iId, plotNode2.iId, plotNode3.iId])
   })
 
   test('Record nodes index update (nodes added)', async () => {
@@ -86,7 +87,9 @@ describe('Record nodes index', () => {
     })
     const { nodes: nodesUpdated } = updateResult
 
-    const insertedPlot = Object.values(nodesUpdated).find((nodeInserted) => nodeInserted.nodeDefUuid === plotDef.uuid)
+    const insertedPlot: Node | undefined = Object.values(nodesUpdated).find(
+      (nodeInserted) => nodeInserted.nodeDefUuid === plotDef.uuid
+    )
 
     expect(insertedPlot).not.toBeNull()
 
@@ -95,11 +98,11 @@ describe('Record nodes index', () => {
     const indexUpdated = RecordNodesIndexUpdater.addNodes(nodesUpdated)(index)
 
     expect(
-      RecordNodesIndexReader.getNodeUuidsByParentAndChildDef({
-        parentNodeUuid: clusterNode.uuid,
+      RecordNodesIndexReader.getNodeInternalIdsByParentAndChildDef({
+        parentNodeInternalId: clusterNode.iId,
         childDefUuid: plotDef.uuid,
       })(indexUpdated)
-    ).toEqual([plotNode1.uuid, plotNode2.uuid, plotNode3.uuid, insertedPlot.uuid])
+    ).toEqual([plotNode1.iId, plotNode2.iId, plotNode3.iId, insertedPlot.iId])
   })
 
   test('Record nodes index update (nodes deleted)', () => {
@@ -114,10 +117,10 @@ describe('Record nodes index', () => {
     const indexUpdated = RecordNodesIndexUpdater.removeNode(plotNode3)(index)
 
     expect(
-      RecordNodesIndexReader.getNodeUuidsByParentAndChildDef({
-        parentNodeUuid: clusterNode.uuid,
+      RecordNodesIndexReader.getNodeInternalIdsByParentAndChildDef({
+        parentNodeInternalId: clusterNode.iId,
         childDefUuid: plotDef.uuid,
       })(indexUpdated)
-    ).toEqual([plotNode1.uuid, plotNode2.uuid])
+    ).toEqual([plotNode1.iId, plotNode2.iId])
   })
 })

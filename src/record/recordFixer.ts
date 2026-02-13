@@ -6,6 +6,58 @@ import { Record } from './record'
 import { RecordUpdateResult } from './recordNodesUpdater'
 import { Records } from './records'
 
+const metaHierarchyPath = ['meta', 'h']
+
+interface NodeOld extends Node {
+  uuid?: string
+  parentUuid?: string
+}
+
+const initInternalIds = (params: { record: Record; nodes: NodeOld[] }) => {
+  const { record, nodes } = params
+
+  let lastInternalId = 0
+  const uuidByInternalId: { [internalId: number]: string } = {}
+  const internalIdByUuid: { [uuid: string]: number } = {}
+  const indexedNodes: { [internalId: number]: Node } = {}
+
+  const nextInternalId = (uuid: string): number => {
+    const internalId = (lastInternalId += 1)
+    uuidByInternalId[internalId] = uuid
+    internalIdByUuid[uuid] = internalId
+    return internalId
+  }
+
+  for (const node of nodes) {
+    const { uuid, parentUuid } = node
+    if (!uuid) {
+      continue
+    }
+    const internalId = nextInternalId(uuid)
+    node.iId = internalId
+    if (parentUuid) {
+      const newParentId = internalIdByUuid[parentUuid]
+      if (!newParentId) {
+        throw new Error('Invalid nodes hierarchy; descendant node found before parent node: ' + JSON.stringify(node))
+      }
+      node.pIId = newParentId
+      delete node['parentUuid']
+
+      const parentNode = indexedNodes[newParentId]
+      const metaHierarchy = [...Nodes.getHierarchy(parentNode), newParentId]
+      Objects.assocPath({ obj: node, path: metaHierarchyPath, value: metaHierarchy, sideEffect: true })
+    } else {
+      Objects.dissocPath({ obj: node, path: metaHierarchyPath, sideEffect: true })
+    }
+    indexedNodes[internalId] = node
+    delete node['uuid']
+  }
+
+  record.lastInternalId = lastInternalId
+
+  return record
+}
+
 const insertMissingSingleNode = (params: {
   nodeDef: NodeDef<any>
   record: Record
@@ -24,10 +76,9 @@ const insertMissingSingleNode = (params: {
     return null
   }
   // insert missing single node
-  const recordUuid = record.uuid
-  const node = NodeFactory.createInstance({ nodeDefUuid, recordUuid, parentNode })
+  const node = NodeFactory.createInstance({ record, nodeDefUuid, parentNode })
   const recordUpdated = Records.addNode(node, { sideEffect })(record)
-  return new RecordUpdateResult({ record: recordUpdated, nodes: { [node.uuid]: node } })
+  return new RecordUpdateResult({ record: recordUpdated, nodes: { [node.iId]: node } })
 }
 
 const insertMissingSingleNodes = (params: {
@@ -74,8 +125,9 @@ const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sid
       updateResult.merge(new RecordUpdateResult({ record: recordWithParentNodeUpdated }))
     }
   }
-  const nodeUuidsToDelete = nodesToDelete.map((node) => node.uuid)
-  const nodesDeleteUpdateResult = Records.deleteNodes(nodeUuidsToDelete, { sideEffect })(updateResult.record)
+  const nodeInternalIdsToDelete = nodesToDelete.map((node) => node.iId)
+  const nodesDeleteUpdateResult = Records.deleteNodes(nodeInternalIdsToDelete, { sideEffect })(updateResult.record)
+
   updateResult.merge(nodesDeleteUpdateResult)
 
   return updateResult
@@ -108,6 +160,7 @@ const fixRecord = (params: { survey: Survey; record: Record; sideEffect?: boolea
 }
 
 export const RecordFixer = {
+  initInternalIds,
   fixRecord,
   insertMissingSingleNodes,
 }

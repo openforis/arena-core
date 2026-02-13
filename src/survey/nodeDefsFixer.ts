@@ -112,16 +112,16 @@ const fixNodeDefs = (params: NodeDefsFixParams): { nodeDefs: NodeDefMap; updated
   const nodeDefsResult: NodeDefMap = {}
   const updatedNodeDefs: NodeDefMap = {}
 
-  cycles.forEach((cycle) => {
-    Object.values(nodeDefs).forEach((nodeDef) => {
+  for (const cycle of cycles) {
+    for (const nodeDef of Object.values(nodeDefs)) {
       const nodeDefToFix = nodeDefsResult[nodeDef.uuid] ?? nodeDef
       const fixedNodeDef = fix({ ...params, cycle, nodeDef: nodeDefToFix })
       if (fixedNodeDef) {
         updatedNodeDefs[nodeDef.uuid] = fixedNodeDef
       }
       nodeDefsResult[nodeDef.uuid] = fixedNodeDef ?? nodeDef
-    })
-  })
+    }
+  }
   return {
     nodeDefs: nodeDefsResult,
     updatedNodeDefs,

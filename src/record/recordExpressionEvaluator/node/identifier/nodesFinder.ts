@@ -7,7 +7,7 @@ import { Arrays } from '../../../../utils'
 
 const getCommonAncestor = (params: {
   record: Record
-  nodeCtxHierarchy: string[]
+  nodeCtxHierarchy: number[]
   nodeDefCtx: NodeDef<any>
   nodeDefReferenced: NodeDef<any>
 }): Node | undefined => {
@@ -22,8 +22,8 @@ const getCommonAncestor = (params: {
     return Records.getRoot(record)
   }
   if (nodeDefCommonH.length > 1) {
-    const nodeCommonAncestorUuid = nodeCtxHierarchy[nodeDefCommonH.length - 1]
-    return record.nodes?.[nodeCommonAncestorUuid]
+    const nodeCommonAncestorInternalId = nodeCtxHierarchy[nodeDefCommonH.length - 1]
+    return record.nodes?.[nodeCommonAncestorInternalId]
   }
   return undefined
 }
@@ -46,7 +46,7 @@ const getReferencedNodesParent = (params: {
   const nodeCtxH = Nodes.getHierarchy(nodeContext)
   if (nodeDefCtx.type === NodeDefType.entity) {
     // When nodeDefCtx is entity, expression is type applicableIf (and context always starts from parent)
-    nodeCtxH.push(nodeContext.uuid)
+    nodeCtxH.push(nodeContext.iId)
   }
 
   if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefCtx })) {

@@ -117,8 +117,8 @@ export const createNodeAndDescendants = async (params: NodeCreateParams): Promis
   const { survey, record, parentNode, nodeDef, sideEffect = false } = params
 
   const node = NodeFactory.createInstance({
+    record,
     nodeDefUuid: nodeDef.uuid,
-    recordUuid: record.uuid,
     parentNode,
     surveyUuid: survey.uuid,
   })

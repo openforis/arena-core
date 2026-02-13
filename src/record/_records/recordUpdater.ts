@@ -17,6 +17,9 @@ export const addNodes =
     } else {
       recordUpdated.nodes = { ...recordNodes, ...nodes }
     }
+    // update last internal ID
+    recordUpdated.lastInternalId = Math.max(...Object.values(nodes).map((node) => node.iId), record.lastInternalId ?? 0)
+
     if (updateNodesIndex) {
       recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(
         nodes,
@@ -29,5 +32,5 @@ export const addNodes =
 
 export const addNode =
   (node: Node, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
-  (record: Record) =>
-    addNodes({ [node.uuid]: node }, options)(record)
+  (record: Record): Record =>
+    addNodes({ [node.iId]: node }, options)(record)

@@ -59,7 +59,7 @@ describe('Record nodes updater - applicability', () => {
         user,
         survey,
         record: recordUpdated,
-        nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+        nodes: { [nodeToUpdate.iId]: nodeUpdated },
       })
 
       expect(updateResult).not.toBeNull()

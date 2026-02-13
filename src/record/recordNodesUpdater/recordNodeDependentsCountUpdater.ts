@@ -38,9 +38,9 @@ export const updateDependentsCount = async (
     if (Objects.isEmpty(expressionsToEvaluate) || !Array.isArray(expressionsToEvaluate)) continue
 
     // 3. evaluate applicable expression
-    const nodeCtxUuid = nodeCtxNodePointer.uuid
+    const nodeCtxInternalId = nodeCtxNodePointer.iId
     // nodeCtx could have been updated in a previous iteration
-    const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
+    const nodeCtx = updateResult.getNodeByInternalId(nodeCtxInternalId) ?? nodeCtxNodePointer
 
     const countResult = await expressionEvaluator.evalApplicableExpression({
       ...params,

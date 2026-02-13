@@ -1,6 +1,5 @@
-import { Dictionary } from '../common'
 import { SystemError } from '../error'
-import { Node, NodePointer, NodesMap } from '../node'
+import { NodePointer, NodesMap } from '../node'
 import { Survey, SurveyDependencyType, Surveys } from '../survey'
 import { Dates, Objects } from '../utils'
 import { Validations } from '../validation/validations'
@@ -28,9 +27,9 @@ const getDependentValidationNodePointers = (params: {
     for (const dependencyType of validationDependencyTypes) {
       const nodePointers = Records.getDependentNodePointers({ survey, record, node, dependencyType })
       for (const pointer of nodePointers) {
-        const nodeCtxUuid = pointer.nodeCtx.uuid
+        const nodeCtxIId = pointer.nodeCtx.iId
         const nodeDefUuid = pointer.nodeDef.uuid
-        const key = `${nodeCtxUuid ?? ''}:${nodeDefUuid ?? ''}`
+        const key = `${nodeCtxIId ?? ''}:${nodeDefUuid ?? ''}`
         if (!uniquePointersByKey.has(key)) {
           uniquePointersByKey.set(key, pointer)
         }
@@ -41,7 +40,7 @@ const getDependentValidationNodePointers = (params: {
 }
 
 const _onRecordNodesCreateOrUpdate = async (
-  params: NodesUpdateParams & { nodes: Dictionary<Node> }
+  params: NodesUpdateParams & { nodes: NodesMap }
 ): Promise<RecordUpdateResult> => {
   const { user, survey, record, dateModified = Dates.nowFormattedForStorage() } = params
 
@@ -105,12 +104,12 @@ const createRootEntity = async (
 
 const updateAttributeValue = async (
   params: NodesUpdateParams & {
-    attributeUuid: string
+    attributeIId: number
     value: any
   }
 ): Promise<RecordUpdateResult> => {
-  const { attributeUuid, record, value, dateModified = Dates.nowFormattedForStorage(), sideEffect = false } = params
-  const attribute = Records.getNodeByUuid(attributeUuid)(record)
+  const { attributeIId, record, value, dateModified = Dates.nowFormattedForStorage(), sideEffect = false } = params
+  const attribute = Records.getNodeByInternalId(attributeIId)(record)
   if (!attribute) throw new SystemError('record.nodeNotFound')
 
   let attributeUpdated = sideEffect ? attribute : { ...attribute }
@@ -119,7 +118,7 @@ const updateAttributeValue = async (
   // reset defaultValueApplied flag
   attributeUpdated = Objects.dissocPath({ obj: attributeUpdated, path: ['meta', 'defaultValueApplied'], sideEffect })
 
-  const nodesUpdated = { [attributeUuid]: attributeUpdated }
+  const nodesUpdated = { [attributeIId]: attributeUpdated }
 
   const _record = Records.addNode(attributeUpdated, { sideEffect })(record)
 
@@ -128,12 +127,12 @@ const updateAttributeValue = async (
 
 const deleteNodes = async (
   params: NodesUpdateParams & {
-    nodeUuids: string[]
+    nodeInternalIds: number[]
   }
 ): Promise<RecordUpdateResult> => {
-  const { nodeUuids, record: _record, sideEffect = false } = params
+  const { nodeInternalIds, record: _record, sideEffect = false } = params
 
-  const updateResult = Records.deleteNodes(nodeUuids, { sideEffect })(_record)
+  const updateResult = Records.deleteNodes(nodeInternalIds, { sideEffect })(_record)
   const { record, nodesDeleted } = updateResult
 
   const result = await _onRecordNodesCreateOrUpdate({ ...params, record, nodes: nodesDeleted })
@@ -141,9 +140,9 @@ const deleteNodes = async (
   return result
 }
 
-const deleteNode = async (params: NodesUpdateParams & { nodeUuid: string }): Promise<RecordUpdateResult> => {
-  const { nodeUuid } = params
-  return deleteNodes({ ...params, nodeUuids: [nodeUuid] })
+const deleteNode = async (params: NodesUpdateParams & { nodeInternalId: number }): Promise<RecordUpdateResult> => {
+  const { nodeInternalId } = params
+  return deleteNodes({ ...params, nodeInternalIds: [nodeInternalId] })
 }
 
 export const RecordUpdater = {
