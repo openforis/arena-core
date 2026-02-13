@@ -106,11 +106,16 @@ const assocChildrenMaxCount = (params: { node: Node; nodeDefUuid: string; count:
 const assocChildrenMinCount = (params: { node: Node; nodeDefUuid: string; count: number }): Node =>
   assocChildrenCount({ ...params, countType: NodeDefCountType.min })
 
-const removeStatusFlags = (node: Node): Node => {
-  delete node['created']
-  delete node['deleted']
-  delete node['updated']
-  return node
+const removeStatusFlags = ({ node, sideEffect = false }: { node: Node; sideEffect?: boolean }): Node => {
+  if (sideEffect) {
+    delete node['created']
+    delete node['deleted']
+    delete node['updated']
+    return node
+  } else {
+    const { created: _created, deleted: _deleted, updated: _updated, ...nodeCleaned } = node
+    return nodeCleaned
+  }
 }
 
 export const Nodes = {

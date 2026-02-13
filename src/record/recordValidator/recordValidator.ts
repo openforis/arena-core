@@ -1,15 +1,26 @@
-import { ValidationFactory } from '../../validation'
+import { Node, NodesMap } from '../../node'
+import { Validation, ValidationFactory } from '../../validation'
 import { Validations } from '../../validation/validations'
-import { AttributesValidatorParams, AttributeValidator } from './attributeValidator'
+import { Records } from '../records'
+import {
+  AttributesValidatorParams,
+  AttributeValidator,
+  RecordValidatorParams,
+  SortedAttributesValidatorParams,
+} from './attributeValidator'
 import { CountValidator } from './countVaildator'
 
-export const validateNodes = async (params: AttributesValidatorParams) => {
-  const { survey, record, nodes } = params
+export const validateSortedNodes = async (params: SortedAttributesValidatorParams): Promise<Validation> => {
+  const { survey, record, nodesArray } = params
 
-  const attributeValidations = await AttributeValidator.validateSelfAndDependentAttributes(params)
+  // 1. validate attributes
+  const attributeValidations = await AttributeValidator.validateSelfAndDependentSortedAttributes({
+    ...params,
+    nodesArray,
+  })
 
   // 2. validate min/max count
-  const nodeCountValidations = CountValidator.validateChildrenCountNodes({ survey, record, nodes })
+  const nodeCountValidations = CountValidator.validateChildrenCountNodesArray({ survey, record, nodesArray })
 
   // 3. merge validations
   return Validations.recalculateValidity(
@@ -21,4 +32,23 @@ export const validateNodes = async (params: AttributesValidatorParams) => {
       },
     })
   )
+}
+
+export const validateNodes = async (params: AttributesValidatorParams): Promise<Validation> =>
+  validateSortedNodes({ ...params, nodesArray: Object.values(params.nodes) })
+
+export const validateRecord = async (params: RecordValidatorParams): Promise<Validation> => {
+  const { record } = params
+  const nodesArray: Node[] = []
+  const nodes: NodesMap = {}
+  Records.visitDescendantsAndSelf({
+    record,
+    node: Records.getRoot(record)!,
+    visitor: (node) => {
+      nodesArray.push(node)
+      nodes[node.iId] = node
+    },
+  })
+
+  return validateSortedNodes({ ...params, nodesArray })
 }

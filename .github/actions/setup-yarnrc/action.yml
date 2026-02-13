@@ -1,0 +1,24 @@
+# See https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#yarn2-configuration
+
+name: 'Setup .yarnrc.yml'
+description: 'Creates the .yarnrc.yml file needed to authenticate with the GitHub npm registry.'
+inputs:
+  NPM_TOKEN:
+    description: 'The GitHub token to use for authentication.'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24
+
+    - name: Setup .yarnrc.yml
+      run: |
+        yarn config set npmScopes.openforis.npmRegistryServer "https://npm.pkg.github.com"
+        yarn config set npmScopes.openforis.npmAlwaysAuth true
+        yarn config set npmScopes.openforis.npmAuthToken $NPM_TOKEN
+      shell: bash
+      env:
+        NPM_TOKEN: ${{ inputs.NPM_TOKEN }}

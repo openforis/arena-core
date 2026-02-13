@@ -10,9 +10,11 @@ on:
 jobs:
   publish-new-version:
     runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.ACCESS_TOKEN }}
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.ACCESS_TOKEN }}
       - name: Temporarily disable "include administrators" branch protection
@@ -26,18 +28,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         with:
           tag-prefix: 'v'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 24
           registry-url: https://npm.pkg.github.com/
           scope: '@openforis'
-
-      - run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.ACCESS_TOKEN }}" > .npmrc
-      - run: echo "\"@openforis:registry\"" "\"https://npm.pkg.github.com\"" > .yarnrc
-      - run: cat .npmrc
-      - run: cat .yarnrc
-      - run: npm install
-      - run: npm publish
+      # -----------------------------------------------
+      # This step calls the composite action
+      # to create the `.yarnrc.yml` in the workflow
+      - name: Setup .yarnrc.yml
+        uses: ./.github/actions/setup-yarnrc
+        with:
+          NPM_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      # -----------------------------------------------
+      - name: Install dependencies
+        run: yarn install --immutable
+      - run: yarn build
+      - run: yarn npm publish
       - name: Enable "include administrators" branch protection
         uses: benjefferies/branch-protection-bot@master
         if: always() # Force to always run this step to ensure "include administrators" is always turned back on

@@ -40,11 +40,14 @@ import {
   visitDescendantsAndSelfNodeDef,
   visitNodeDefs,
 } from './nodeDefs'
+
 import {
   getCategoryItemByCodePaths,
   getCategoryItemByUuid,
   getCategoryItemUuidByCode,
   getCategoryItems,
+  getCategoryItemsByNodeDef,
+  getCategoryItemsInLevel,
   getTaxonByCode,
   getTaxonByUuid,
   getTaxonVernacularNameUuid,
@@ -69,6 +72,8 @@ import {
   getSRSs,
   getTaxonomyByName,
   getTaxonomyByUuid,
+  getAuthGroups,
+  getAuthGroupAdmin,
 } from './surveysGetters'
 
 import {
@@ -100,6 +105,8 @@ export const Surveys = {
   getCategoryByUuid,
   getTaxonomyByName,
   getTaxonomyByUuid,
+  getAuthGroups,
+  getAuthGroupAdmin,
 
   findNodeDefByName,
   findNodeDefByUuid,
@@ -129,6 +136,8 @@ export const Surveys = {
   getCategoryItemByUuid,
   getCategoryItemUuidByCode,
   getCategoryItems,
+  getCategoryItemsByNodeDef,
+  getCategoryItemsInLevel,
   getTaxonByCode,
   getTaxonByUuid,
   getTaxonVernacularNameUuid,

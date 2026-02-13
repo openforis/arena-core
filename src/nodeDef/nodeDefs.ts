@@ -24,7 +24,7 @@ import {
 } from './types/entity'
 import { NodeDefFile, NodeDefFileType } from './types/file'
 import { NodeDefTaxon } from './types/taxon'
-import { NodeDefText } from './types/text'
+import { NodeDefText, NodeDefTextRenderType, NodeDefTextInputType } from './types/text'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
@@ -48,6 +48,8 @@ const isKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean => nodeDef.
 
 const isAutoIncrementalKey = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean =>
   nodeDef.props.autoIncrementalKey ?? false
+
+const isAnalysis = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.analysis ?? false
 
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
 
@@ -125,6 +127,7 @@ const isVernacularNameSelectionKept = (nodeDef: NodeDefTaxon): boolean => !!node
 
 // text
 const getTextTransform = (nodeDef: NodeDefText): string | undefined => nodeDef.props?.textTransform
+const getTextInputType = (nodeDef: NodeDefText): NodeDefTextInputType | undefined => nodeDef.props?.textInputType
 
 // code and taxon
 const getItemsFilter = (nodeDef: NodeDef<any>): string | undefined => nodeDef.propsAdvanced?.itemsFilter
@@ -175,6 +178,16 @@ const isLayoutRenderTypeTable =
   (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): boolean =>
     getLayoutRenderType(cycle)(nodeDef) === NodeDefEntityRenderType.table
+
+const isLayoutRenderTypeHyperlink =
+  (cycle = defaultCycle) =>
+  (nodeDef: NodeDefText): boolean =>
+    getLayoutRenderType(cycle)(nodeDef) === NodeDefTextRenderType.hyperlink
+
+const isLayoutRenderTypeMarkdown =
+  (cycle = defaultCycle) =>
+  (nodeDef: NodeDefText): boolean =>
+    getLayoutRenderType(cycle)(nodeDef) === NodeDefTextRenderType.markdown
 
 const getChildrenEntitiesInOwnPageUudis =
   (cycle = defaultCycle) =>
@@ -244,6 +257,7 @@ export const NodeDefs = {
   isReadOnly,
   isHidden,
   isEnumerate,
+  isAnalysis,
   isRoot,
   getType,
   isLayoutElement,
@@ -269,6 +283,7 @@ export const NodeDefs = {
   getTaxonomyUuid,
   isVernacularNameSelectionKept,
   getTextTransform,
+  getTextInputType,
   getItemsFilter,
 
   // layout
@@ -285,6 +300,8 @@ export const NodeDefs = {
   isIncludedInPreviousCycleLink,
   isHiddenWhenNotRelevant,
   isCodeShown,
+  isLayoutRenderTypeHyperlink,
+  isLayoutRenderTypeMarkdown,
   // validations
   getValidations,
   getValidationsExpressions,

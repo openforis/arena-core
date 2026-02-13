@@ -7,7 +7,7 @@ import { RecordUpdateOptions, RecordUpdateOptionsDefaults } from './recordUpdate
 export const addNodes =
   (nodes: { [key: string]: Node }, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: Record): Record => {
-    const { sideEffect, updateNodesIndex } = { ...RecordUpdateOptionsDefaults, ...options }
+    const { sideEffect, updateNodesIndex, sortNodes } = { ...RecordUpdateOptionsDefaults, ...options }
 
     const recordUpdated = sideEffect ? record : { ...record }
     const recordNodes = RecordGetters.getNodes(recordUpdated)
@@ -21,7 +21,11 @@ export const addNodes =
     recordUpdated.lastInternalId = Math.max(...Object.values(nodes).map((node) => node.iId), record.lastInternalId ?? 0)
 
     if (updateNodesIndex) {
-      recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(nodes, sideEffect)(recordUpdated._nodesIndex ?? {})
+      recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(
+        nodes,
+        sideEffect,
+        sortNodes
+      )(recordUpdated._nodesIndex ?? {})
     }
     return recordUpdated
   }

@@ -127,11 +127,18 @@ const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sid
   }
   const nodeInternalIdsToDelete = nodesToDelete.map((node) => node.iId)
   const nodesDeleteUpdateResult = Records.deleteNodes(nodeInternalIdsToDelete, { sideEffect })(updateResult.record)
+
   updateResult.merge(nodesDeleteUpdateResult)
 
   return updateResult
 }
 
+/**
+ * Fix a record by:
+ * - inserting missing single nodes
+ * - deleting nodes with non existing node defs
+ * - removing status flags (created, deleted, updated) from all nodes
+ */
 const fixRecord = (params: { survey: Survey; record: Record; sideEffect?: boolean }): RecordUpdateResult => {
   const { survey, record, sideEffect = false } = params
   const result = new RecordUpdateResult({ record })
@@ -143,6 +150,9 @@ const fixRecord = (params: { survey: Survey; record: Record; sideEffect?: boolea
       const nodesDeletedUpdatedResult = deleteNodesByDefUuid({ record: result.record, nodeDefUuid, sideEffect })
       result.merge(nodesDeletedUpdatedResult)
     }
+    // remove status flags
+    const nodeUpdated = Nodes.removeStatusFlags({ node, sideEffect })
+    result.addNode(nodeUpdated, { sideEffect })
   }
   const missingNodesUpdateResult = insertMissingSingleNodes({ survey, record: result.record, sideEffect })
   result.merge(missingNodesUpdateResult)

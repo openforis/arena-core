@@ -1,0 +1,59 @@
+export enum MessageStatus {
+  Draft = 'draft',
+  Sent = 'sent',
+  Archived = 'archived',
+}
+
+export enum MessageTargetUserType {
+  All = 'all',
+  SystemAdmins = 'system_admins',
+  SurveyAdmins = 'survey_admins',
+  SurveyManagers = 'survey_managers',
+  DataAnalysts = 'data_analysts',
+  DataCleaners = 'data_cleaners',
+  DataEditors = 'data_editors',
+  Individual = 'individual',
+}
+
+export enum MessageNotificationType {
+  Email = 'email',
+  PushNotification = 'push_notification',
+}
+
+export enum MessagePropsKey {
+  subject = 'subject',
+  body = 'body',
+  targetAppIds = 'targetAppIds',
+  targetUserTypes = 'targetUserTypes',
+  targetUserEmails = 'targetUserEmails',
+  targetUserUuids = 'targetUserUuids',
+  targetExcludedUserEmails = 'targetExcludedUserEmails',
+  notificationTypes = 'notificationTypes',
+  dateScheduledAt = 'dateScheduledAt',
+  dateValidUntil = 'dateValidUntil',
+}
+
+export type MessageProps = {
+  [MessagePropsKey.subject]?: string
+  [MessagePropsKey.body]?: string
+  [MessagePropsKey.targetAppIds]: string[]
+  [MessagePropsKey.targetUserTypes]: MessageTargetUserType[]
+  [MessagePropsKey.targetUserEmails]?: string[]
+  [MessagePropsKey.targetUserUuids]?: string[]
+  [MessagePropsKey.targetExcludedUserEmails]?: string[]
+  [MessagePropsKey.notificationTypes]: MessageNotificationType[]
+  [MessagePropsKey.dateScheduledAt]?: Date
+  [MessagePropsKey.dateValidUntil]?: Date
+}
+
+/**
+ * Represents a message record in the database.
+ */
+export type Message = {
+  uuid: string
+  status: MessageStatus
+  props?: MessageProps
+  createdByUserUuid: string
+  dateCreated?: Date
+  dateModified?: Date
+}

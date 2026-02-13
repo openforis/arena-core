@@ -7,6 +7,11 @@ const defaultIfEmpty =
   (text: TextType): string =>
     Objects.isEmpty(text) ? defaultValue : (text as string)
 
+const padStart =
+  (length: number, padString: string) =>
+  (text: TextType): string =>
+    (text ?? '').padStart(length, padString)
+
 const quote = (text: TextType): string => (Objects.isEmpty(text) ? '' : `'${text}'`)
 
 const quoteDouble = (text: TextType): string => (Objects.isEmpty(text) ? '' : `"${text}"`)
@@ -24,6 +29,12 @@ const removeSuffix =
     if (Objects.isEmpty(text)) return ''
     return text?.endsWith(suffix) ? text.substring(0, text.length - suffix.length) : (text as string)
   }
+
+const appendIfMissing = (suffix: string) => (text: TextType) =>
+  text?.endsWith(suffix) ? text : `${text ?? ''}${suffix}`
+
+const prependIfMissing = (prefix: string) => (text: TextType) =>
+  text?.startsWith(prefix) ? text : `${prefix}${text ?? ''}`
 
 const repeat = (text: string, times: number): string => {
   const parts = []
@@ -49,10 +60,13 @@ const unquoteDouble = (text: TextType): string => _unquoteInternal(text, `"`)
 
 export const Strings = {
   defaultIfEmpty,
+  padStart,
   quote,
   quoteDouble,
   removePrefix,
   removeSuffix,
+  appendIfMissing,
+  prependIfMissing,
   repeat,
   unquote,
   unquoteDouble,

@@ -4,7 +4,7 @@
     "name": "OpenForis",
     "email": "openforis.arena@gmail.com"
   },
-  "version": "1.0.47",
+  "version": "1.0.88",
   "description": "Arena core module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -56,5 +56,9 @@
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "**/*.{js,ts,json,css,md}": "prettier --write"
+  },
+  "packageManager": "yarn@4.12.0",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }

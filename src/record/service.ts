@@ -13,6 +13,8 @@ export interface RecordService extends ArenaService {
 
   getMany(options: { cycle: string; limit: number; offset: number; surveyId: number }): Promise<Record[]>
 
+  getManyByUuids(options: { surveyId: number; uuids: string[] }): Promise<Record[]>
+
   // ==== UPDATE
   update(options: { recordUuid: string; step: string; surveyId: number; user: User }): Promise<Record>
 

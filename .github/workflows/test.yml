@@ -5,13 +5,14 @@ on: [pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      NPM_TOKEN: ${{secrets.ACCESS_TOKEN}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 24
       - run: yarn
       - run: yarn test

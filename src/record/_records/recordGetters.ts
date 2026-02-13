@@ -6,7 +6,8 @@ import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefs, NodeDef
 import { defaultCycle, Surveys } from '../../survey'
 import { Survey, SurveyDependencyType } from '../../survey/survey'
 import { Arrays, Queue } from '../../utils'
-import { Record } from '../record'
+import { Record, RECORD_STEP_DEFAULT } from '../record'
+import { RecordStepAnalysisCode } from '../recordStep'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
 
 export const getCycle = (record: Record): string => record.cycle ?? defaultCycle
@@ -226,6 +227,7 @@ export const visitDescendantsAndSelf = (params: {
       const visitedNode = queue.dequeue()
 
       if (visitor(visitedNode)) {
+        // stop if visitor returns true
         return
       }
 
@@ -240,7 +242,10 @@ export const visitDescendantsAndSelf = (params: {
     while (stack.length > 0) {
       const visitedNode = stack.pop() as Node
 
-      visitor(visitedNode)
+      if (visitor(visitedNode)) {
+        // stop if visitor returns true
+        return
+      }
 
       const children = getChildren(visitedNode)(record)
 
@@ -552,3 +557,7 @@ export const isEmpty = (record: Record): boolean => {
   const rootNode = getRoot(record)
   return rootNode ? isNodeEmpty(rootNode)(record) : true
 }
+
+export const getStep = (record: Record): string => record.step ?? RECORD_STEP_DEFAULT
+
+export const isInAnalysisStep = (record: Record): boolean => getStep(record) === RecordStepAnalysisCode

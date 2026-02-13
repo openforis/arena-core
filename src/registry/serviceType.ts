@@ -4,6 +4,7 @@ export enum ServiceType {
   categoryLevel = 'categoryLevel',
   chain = 'chain',
   chainNodeDef = 'chainNodeDef',
+  info = 'info',
   node = 'node',
   nodeDef = 'nodeDef',
   record = 'record',
@@ -11,4 +12,5 @@ export enum ServiceType {
   taxon = 'taxon',
   taxonomy = 'taxonomy',
   user = 'user',
+  userAuthToken = 'userAuthToken',
 }

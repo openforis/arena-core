@@ -7,7 +7,7 @@ import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryI
 import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
-import { Objects, Promises } from '../../utils'
+import { Objects } from '../../utils'
 import {
   ValidationFactory,
   ValidationResult,
@@ -27,7 +27,7 @@ import { AttributeUniqueValidator } from './attributeUniqueValidator'
 
 const expressionEvaluator = new RecordExpressionEvaluator()
 
-interface AttributeValidatorParamsCommon {
+export interface RecordValidatorParams {
   user: User
   survey: Survey
   categoryItemProvider?: CategoryItemProvider
@@ -35,12 +35,16 @@ interface AttributeValidatorParamsCommon {
   record: Record
 }
 
-interface AttributeValidatorParams extends AttributeValidatorParamsCommon {
+export interface AttributeValidatorParams extends RecordValidatorParams {
   attribute: Node
 }
 
-export interface AttributesValidatorParams extends AttributeValidatorParamsCommon {
+export interface AttributesValidatorParams extends RecordValidatorParams {
   nodes: Dictionary<Node>
+}
+
+export interface SortedAttributesValidatorParams extends RecordValidatorParams {
+  nodesArray: Node[]
 }
 
 const _getSiblingNodeKeys = (params: AttributeValidatorParams): Node[] => {
@@ -195,13 +199,14 @@ const findSiblingKeyNodesToValidate = (
   return [...siblingNodeKeysWithSameValue, ...siblingNodeKeysWithErrors]
 }
 
-const findNodesToValidate = (params: AttributesValidatorParams): Node[] => {
-  const { survey, record, nodes } = params
+const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Node[] => {
+  const { survey, record, nodesArray } = params
 
-  return Object.values(nodes).reduce((acc: Node[], node) => {
+  const result = []
+  for (const node of nodesArray) {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     if (!NodeDefs.isAttribute(nodeDef)) {
-      return acc
+      continue
     }
     // Get dependents and attribute itself
     const nodePointersAttributeAndDependents = Records.getDependentNodePointers({
@@ -214,30 +219,35 @@ const findNodesToValidate = (params: AttributesValidatorParams): Node[] => {
 
     const nodeParent = Records.getParent(node)(record)
 
-    acc.push(...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }))
-    acc.push(...findSiblingKeyNodesToValidate({ ...params, nodeDef, nodeParent, attribute: node }))
+    result.push(
+      ...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }),
+      ...findSiblingKeyNodesToValidate({ ...params, nodeDef, nodeParent, attribute: node })
+    )
 
     if (NodeDefs.getValidations(nodeDef)?.unique) {
-      acc.push(...Records.getAttributeSiblings({ record, node, nodeDef }))
+      result.push(...Records.getAttributeSiblings({ record, node, nodeDef }))
     }
-    return acc
-  }, [])
+  }
+
+  return result
 }
 
-const validateSelfAndDependentAttributes = async (params: AttributesValidatorParams): Promise<ValidationFields> => {
-  const nodesToValidate: Node[] = findNodesToValidate(params)
+const validateSelfAndDependentSortedAttributes = async (
+  params: SortedAttributesValidatorParams
+): Promise<ValidationFields> => {
+  const nodesToValidate: Node[] = findSortedNodesToValidate(params)
   const validationsByNodeInternalId: ValidationFields = {}
 
-  await Promises.each(nodesToValidate, async (nodeToValidate) => {
+  for (const nodeToValidate of nodesToValidate) {
     const nodeInternalId = nodeToValidate.iId
     // Validate only attributes not deleted and not validated already
     if (!nodeToValidate.deleted && !validationsByNodeInternalId[nodeInternalId]) {
       validationsByNodeInternalId[nodeInternalId] = await validateAttribute({ ...params, attribute: nodeToValidate })
     }
-  })
+  }
   return validationsByNodeInternalId
 }
 
 export const AttributeValidator = {
-  validateSelfAndDependentAttributes,
+  validateSelfAndDependentSortedAttributes,
 }

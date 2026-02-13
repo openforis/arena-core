@@ -108,9 +108,9 @@ const addDependencies = async (params: {
 }): Promise<SurveyDependencyGraph> => {
   const { survey, nodeDef, type, expressions, graphs: graphsParam, sideEffect = false } = params
 
-  let graphsUpdated = sideEffect ? graphsParam : { ...graphsParam }
+  if (!expressions || expressions.length === 0) return graphsParam
 
-  if (!expressions || expressions.length === 0) return graphsUpdated
+  let graphsUpdated = sideEffect ? graphsParam : { ...graphsParam }
 
   const isContextParent = isContextParentByDependencyType[type]
   const selfReferenceAllowed = selfReferenceAllowedByDependencyType[type]

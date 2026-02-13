@@ -2,14 +2,22 @@ export type { AppInfo } from './app'
 
 export { Authorizer, AuthGroupName, UserStatus, Permission, UserTitle, UserFactory, Users } from './auth'
 export type {
+  AuthGroup,
   User,
   UserAuthGroup,
   UserAuthGroupProps,
+  AuthToken,
+  UserAuthTokenPayload,
+  UserAuthTokenService,
   UserPrefs,
   UserPrefSurveys,
   UserProps,
-  AuthGroup,
+  UserAuthRefreshToken,
+  UserAuthRefreshTokenProps,
+  UserAuthRefreshTokenPayload,
   UserService,
+  UserTokenPayload,
+  DownloadAuthTokenPayload,
 } from './auth'
 
 export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, CategoryLevelFactory } from './category'
@@ -42,7 +50,18 @@ export type {
 } from './chain'
 
 export { TraverseMethod } from './common'
-export type { ArenaObject, ArenaService, Factory } from './common'
+export type { ArenaObject, ArenaService, Dictionary, Factory } from './common'
+
+export type { FlatDataExportOptions, ArenaExportInfoFactoryParams, ArenaExportInfo } from './dataExport'
+export {
+  FlatDataExportDefaultOptions,
+  FlatDataExportOption,
+  FlatDataFiles,
+  FlatDataExportModel,
+  FlatDataExportColumnDataType,
+  ArenaExportInfoFactory,
+  UniqueFileNamesGenerator,
+} from './dataExport'
 
 export { DataQueryMode, DataQuerySummaries } from './dataQuery'
 export type { DataQuery, DataQuerySummary, DataQuerySummaryProps } from './dataQuery'
@@ -87,6 +106,9 @@ export type { Labels } from './language'
 
 export type { Logger } from './logger'
 
+export type { Message } from './message'
+export { MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUserType, Messages } from './message'
+
 export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
 export type {
   Node,
@@ -106,6 +128,8 @@ export {
   NodeDefs,
   NodeDefEntityRenderType,
   NodeDefFileType,
+  NodeDefTextInputType,
+  NodeDefTextRenderType,
   FormHeaderColor,
 } from './nodeDef'
 
@@ -141,6 +165,7 @@ export type {
   NodeDefTaxonProps,
   NodeDefText,
   NodeDefTextProps,
+  NodeDefTextLayout,
   NodeDefTime,
   NodeDefExpression,
   NodeDefService,
@@ -162,7 +187,15 @@ export {
   RecordValidator,
   RecordValidations,
 } from './record'
-export type { Record, Record as ArenaRecord, RecordService, RecordUpdateOptions } from './record'
+export type {
+  AttributeValidatorParams,
+  Record,
+  Record as ArenaRecord,
+  RecordService,
+  RecordUpdateOptions,
+  RecordValidatorParams,
+  SortedAttributesValidatorParams,
+} from './record'
 
 export { ServiceRegistry, ServiceType } from './registry'
 
@@ -222,6 +255,8 @@ export {
   UnitOfTime,
   UUIDs,
 } from './utils'
+
+export type { FileProcessorConstructorArgs } from './utils'
 
 export {
   FieldValidators,

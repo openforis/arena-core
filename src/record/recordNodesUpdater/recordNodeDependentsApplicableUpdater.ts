@@ -1,4 +1,4 @@
-import { Node, Nodes } from '../../node'
+import { Node, NodePointer, Nodes } from '../../node'
 import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { Survey, SurveyDependencyType } from '../../survey/survey'
@@ -34,6 +34,44 @@ const extractNodePointersToUpdate = (params: { survey: Survey; record: Record; n
   return nodePointersToUpdate
 }
 
+const calculateApplicableNext = async ({
+  params,
+  updateResult,
+  nodePointer,
+  nodeCtx,
+}: {
+  params: RecordNodeDependentsUpdateParams
+  updateResult: RecordUpdateResult
+  nodePointer: NodePointer
+  nodeCtx: Node
+}): Promise<boolean | undefined> => {
+  const { nodeDef: nodeDefNodePointer } = nodePointer
+
+  const { uuid: nodeDefUuid } = nodeDefNodePointer
+
+  const applicablePrev = Nodes.isChildApplicable(nodeCtx, nodeDefUuid)
+  const expressionsToEvaluate = NodeDefs.getApplicable(nodeDefNodePointer)
+  if (expressionsToEvaluate.length === 0) {
+    if (applicablePrev) {
+      // skip nodes that were already applicable and have no applicable expression, as they will remain applicable
+      return undefined
+    } else {
+      // used during survey publishing: node def could have had applicable expression(s) that were removed,
+      // and node could have been not applicable, but now it should be applicable, as there are no more applicable expressions
+      return true
+    }
+  } else {
+    // 3. evaluate applicable expression
+    const exprEval = await expressionEvaluator.evalApplicableExpression({
+      ...params,
+      record: updateResult.record,
+      nodeCtx,
+      expressions: expressionsToEvaluate,
+    })
+    return exprEval?.value || false
+  }
+}
+
 export const updateSelfAndDependentsApplicable = async (
   params: RecordNodeDependentsUpdateParams
 ): Promise<RecordUpdateResult> => {
@@ -49,27 +87,27 @@ export const updateSelfAndDependentsApplicable = async (
   for (const nodePointer of nodePointersToUpdate) {
     const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
 
-    const expressionsToEvaluate = NodeDefs.getApplicable(nodeDefNodePointer)
-    if (expressionsToEvaluate.length === 0) continue
-
     // 3. evaluate applicable expression
     const nodeCtxInternalId = nodeCtxNodePointer.iId
+
+    const nodeDefUuid = nodeDefNodePointer.uuid
+
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByInternalId(nodeCtxInternalId) ?? nodeCtxNodePointer
 
-    const exprEval = await expressionEvaluator.evalApplicableExpression({
-      ...params,
-      record: updateResult.record,
+    const applicablePrev = Nodes.isChildApplicable(nodeCtx, nodeDefUuid)
+    const applicable = await calculateApplicableNext({
+      params,
+      updateResult,
+      nodePointer,
       nodeCtx,
-      expressions: expressionsToEvaluate,
     })
-
-    const applicable = exprEval?.value || false
-
+    if (applicable === undefined) {
+      continue
+    }
     // 4. persist updated applicability if changed, and return updated nodes
-    const nodeDefUuid = nodeDefNodePointer.uuid
 
-    if (Nodes.isChildApplicable(nodeCtx, nodeDefUuid) !== applicable) {
+    if (applicablePrev !== applicable) {
       // Applicability changed
 
       // update node and add it to nodes updated

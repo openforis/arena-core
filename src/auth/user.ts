@@ -24,6 +24,10 @@ export interface UserPrefs {
 
 export interface UserProps {
   extra?: Dictionary<any>
+  // private props (visible only to the user itself)
+  mapApiKeyByProvider?: Dictionary<string>
+  // restricted props (editable only by system admins)
+  maxSurveys?: number
   title?: UserTitle
 }
 

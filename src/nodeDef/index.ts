@@ -41,6 +41,7 @@ export type { NodeDefInteger } from './types/integer'
 
 export type { NodeDefTaxon, NodeDefTaxonProps } from './types/taxon'
 
-export type { NodeDefText, NodeDefTextProps } from './types/text'
+export type { NodeDefText, NodeDefTextProps, NodeDefTextLayout } from './types/text'
+export { NodeDefTextRenderType, NodeDefTextInputType } from './types/text'
 
 export type { NodeDefTime } from './types/time'

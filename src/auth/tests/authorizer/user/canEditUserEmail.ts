@@ -14,14 +14,14 @@ export const canEditUserEmailQueries: Query[] = [
   },
 
   {
-    title: 'canEditUserEmail: surveyAdmin can edit user email if user is into survey',
+    title: 'canEditUserEmail: surveyAdmin cannot edit user email if user is into survey',
     groups: [AuthGroupName.surveyAdmin],
     authorizer: Authorizer.canEditUserEmail,
-    result: true,
-    getParams: ({ user, survey, authGroups }: any): any[] => {
+    result: false,
+    getParams: ({ user, authGroups }: any): any[] => {
       let thirdUser = createThirdUser()
       thirdUser = { ...thirdUser, authGroups }
-      return [user, survey, thirdUser]
+      return [user, thirdUser]
     },
   },
 
@@ -30,6 +30,6 @@ export const canEditUserEmailQueries: Query[] = [
     groups: [AuthGroupName.surveyAdmin],
     authorizer: Authorizer.canEditUserEmail,
     result: false,
-    getParams: ({ user, survey }: any): any[] => [user, survey, createThirdUser()],
+    getParams: ({ user }: any): any[] => [user, createThirdUser()],
   },
 ]
