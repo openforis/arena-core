@@ -1,6 +1,7 @@
+import { Node, NodeKeys, Nodes, NodeValues } from '../node'
 import { NodeDefCode, NodeDefType, NodeDefs } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
-import { Dates, UUIDs } from '../utils'
+import { Dates, Objects, UUIDs } from '../utils'
 import { Record } from './record'
 import { RecordFixer } from './recordFixer'
 import { RecordUpdateResult } from './recordNodesUpdater'
@@ -9,6 +10,48 @@ import { Records } from './records'
 const assignNewUuid = ({ record }: { record: Record }) => {
   record.uuid = UUIDs.v4()
   return { record }
+}
+
+type OldUuidToNewUuidMap = {
+  [key: string]: string
+}
+
+const updateNodesForClone = (params: {
+  record: Record
+  nodesArray: Node[]
+  sideEffect: boolean
+}): { newFileUuidsByOldUuid: OldUuidToNewUuidMap; record: Record } => {
+  const { record, nodesArray, sideEffect } = params
+
+  const newFileUuidsByOldUuid: OldUuidToNewUuidMap = {}
+
+  const recordUpdated = sideEffect ? record : { ...record }
+  const nodes = recordUpdated.nodes ?? {}
+  const nodesUpdated = sideEffect ? nodes : { ...nodes }
+
+  // update nodes recordUuid, remove storage id, and update file uuid (side effects on nodes)
+  for (const node of nodesArray) {
+    let nodeUpdated = sideEffect ? node : { ...node }
+    delete nodeUpdated.id
+    nodeUpdated.recordUuid = record.uuid
+
+    // assign new file uuid (file should be cloned elsewhere)
+    const fileUuid = NodeValues.getFileUuid(node)
+    if (fileUuid) {
+      const newFileUuid = UUIDs.v4()
+      nodeUpdated = Objects.assocPath({
+        obj: nodeUpdated,
+        path: [NodeKeys.value, NodeValues.ValuePropsFile.fileUuid],
+        value: newFileUuid,
+        sideEffect,
+      })
+      newFileUuidsByOldUuid[fileUuid] = newFileUuid
+    }
+    nodesUpdated[node.iId] = nodeUpdated
+  }
+  recordUpdated.nodes = nodesUpdated
+
+  return { newFileUuidsByOldUuid, record: recordUpdated }
 }
 
 const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffect: boolean }): RecordUpdateResult => {
@@ -41,7 +84,15 @@ const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffec
   return result
 }
 
-const cloneRecord = (params: { survey: Survey; record: Record; cycleTo: string; sideEffect?: boolean }) => {
+const cloneRecord = (params: {
+  survey: Survey
+  record: Record
+  cycleTo: string
+  sideEffect?: boolean
+}): {
+  record: Record
+  newFileUuidsByOldUuid: OldUuidToNewUuidMap
+} => {
   const { survey, record, cycleTo, sideEffect = false } = params
 
   let recordUpdated = sideEffect ? record : structuredClone(record)
@@ -50,12 +101,9 @@ const cloneRecord = (params: { survey: Survey; record: Record; cycleTo: string; 
 
   // delete IDs: used only for storage
   delete recordUpdated.id
-  for (const node of Records.getNodesArray(recordUpdated)) {
-    delete node.id
-  }
 
-  const { record: recordUpdatedUuids } = assignNewUuid({ record: recordUpdated })
-  recordUpdated = recordUpdatedUuids
+  const { record: recordUpdatedUuid } = assignNewUuid({ record: recordUpdated })
+  recordUpdated = recordUpdatedUuid
 
   // delete nodes not included in clone
   const updateResult = new RecordUpdateResult({ record: recordUpdated })
@@ -64,7 +112,17 @@ const cloneRecord = (params: { survey: Survey; record: Record; cycleTo: string; 
 
   recordUpdated = updateResult.record
 
-  return { record: recordUpdated }
+  // preserve hierarchy order during node updates
+  const nodesArray = Records.getNodesArray(recordUpdated).sort(
+    (nodeA: Node, nodeB: Node): number => Nodes.getHierarchy(nodeA).length - Nodes.getHierarchy(nodeB).length
+  )
+  const { newFileUuidsByOldUuid, record: recordUpdatedUuids } = updateNodesForClone({
+    record: recordUpdated,
+    nodesArray,
+    sideEffect,
+  })
+
+  return { record: recordUpdatedUuids, newFileUuidsByOldUuid }
 }
 
 export const RecordCloner = {
