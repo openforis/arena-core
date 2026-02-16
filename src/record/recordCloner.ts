@@ -32,7 +32,11 @@ const updateNodesForClone = (params: {
   // update nodes recordUuid, remove storage id, and update file uuid (side effects on nodes)
   for (const node of nodesArray) {
     let nodeUpdated = sideEffect ? node : { ...node }
+
+    // delete node id (for storage only)
     delete nodeUpdated.id
+
+    // assign new record uuid
     nodeUpdated.recordUuid = record.uuid
 
     // assign new file uuid (file should be cloned elsewhere)
