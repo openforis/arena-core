@@ -3,15 +3,17 @@ import { Objects } from './_objects'
 type TextType = string | undefined | null
 
 const compare = (text1: TextType, text2: TextType): number => {
-  const t1 = text1 ?? ''
-  const t2 = text2 ?? ''
-  return t1.localeCompare(t2)
+  if (Objects.isNil(text1) && Objects.isNil(text2)) return 0
+  if (Objects.isNil(text1)) return -1
+  if (Objects.isNil(text2)) return 1
+  return text1!.localeCompare(text2!)
 }
 
 const compareIgnoreCase = (text1: TextType, text2: TextType): number => {
-  const t1 = (text1 ?? '').toLowerCase()
-  const t2 = (text2 ?? '').toLowerCase()
-  return t1.localeCompare(t2)
+  if (Objects.isNil(text1) && Objects.isNil(text2)) return 0
+  if (Objects.isNil(text1)) return -1
+  if (Objects.isNil(text2)) return 1
+  return text1!.toLowerCase().localeCompare(text2!.toLowerCase())
 }
 
 const defaultIfEmpty =
