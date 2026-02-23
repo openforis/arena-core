@@ -37,7 +37,7 @@ test('ExpectedSurvey === Survey', () => {
 
   // props.languages
   expect(surveyProps).toHaveProperty('languages')
-  expect(surveyProps.languages.toSorted(Strings.compare)).toBe(surveyOptions.languages)
+  expect(surveyProps.languages.toSorted(Strings.compare)).toEqual(surveyOptions.languages)
 
   //props.labels
   expect(surveyProps).toHaveProperty('labels')
