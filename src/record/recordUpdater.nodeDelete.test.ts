@@ -99,9 +99,7 @@ describe('RecordUpdater - node delete', () => {
     const { nodes: nodesUpdated, record: recordUpdated } = updateResult
 
     // check updated nodes (including deleted ones)
-    const nodesUpdatedNames = Object.values(nodesUpdated)
-      .map(TestUtils.getNodeName({ survey }))
-      .sort((n1, n2) => n1!.localeCompare(n2!))
+    const nodesUpdatedNames = Object.values(nodesUpdated).map(TestUtils.getNodeName({ survey })).sort(Strings.compare)
     expect(nodesUpdatedNames).toEqual([
       'mult_entity',
       'mult_entity_attr',
