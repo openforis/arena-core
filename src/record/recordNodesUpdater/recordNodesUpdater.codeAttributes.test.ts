@@ -13,6 +13,7 @@ import { Records } from './../records'
 import { Surveys } from '../../survey'
 import { ExtraPropDataType } from '../../extraProp'
 import { NodeValues } from '../../node/nodeValues'
+import { Strings } from '../../utils'
 
 let user: User
 
@@ -84,7 +85,7 @@ describe('Record nodes updater - dependent code attributes', () => {
     expect(
       Object.values(updateResult.nodes)
         .map((updatedNode) => Surveys.getNodeDefByUuid({ survey, uuid: updatedNode.nodeDefUuid }).props.name)
-        .sort()
+        .sort(Strings.compare)
     ).toEqual(['dependent_code', 'parent_code'])
 
     // check that dependent node value has been reset

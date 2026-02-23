@@ -2,6 +2,18 @@ import { Objects } from './_objects'
 
 type TextType = string | undefined | null
 
+const compare = (text1: TextType, text2: TextType): number => {
+  const t1 = text1 ?? ''
+  const t2 = text2 ?? ''
+  return t1.localeCompare(t2)
+}
+
+const compareIgnoreCase = (text1: TextType, text2: TextType): number => {
+  const t1 = (text1 ?? '').toLowerCase()
+  const t2 = (text2 ?? '').toLowerCase()
+  return t1.localeCompare(t2)
+}
+
 const defaultIfEmpty =
   (defaultValue: string) =>
   (text: TextType): string =>
@@ -59,6 +71,8 @@ const unquote = (text: TextType): string => _unquoteInternal(text, `'`)
 const unquoteDouble = (text: TextType): string => _unquoteInternal(text, `"`)
 
 export const Strings = {
+  compare,
+  compareIgnoreCase,
   defaultIfEmpty,
   padStart,
   quote,

@@ -13,6 +13,7 @@ import { RecordValidations } from './recordValidations'
 import { Records } from './records'
 import { Surveys } from '../survey'
 import { Validations } from '../validation'
+import { Strings } from '../utils'
 
 let user: User
 
@@ -52,7 +53,7 @@ describe('RecordUpdater - node delete', () => {
     expect(recordUpdated).not.toBe(record)
 
     // check deleted nodes
-    const nodesDeletedNames = Object.values(nodesDeleted).map(TestUtils.getNodeName({ survey })).sort()
+    const nodesDeletedNames = Object.values(nodesDeleted).map(TestUtils.getNodeName({ survey })).sort(Strings.compare)
     expect(nodesDeletedNames).toEqual(['mult_entity', 'mult_entity_attr', 'mult_entity_id'])
 
     // check deleted node not in updated record anymore
@@ -98,7 +99,9 @@ describe('RecordUpdater - node delete', () => {
     const { nodes: nodesUpdated, record: recordUpdated } = updateResult
 
     // check updated nodes (including deleted ones)
-    const nodesUpdatedNames = Object.values(nodesUpdated).map(TestUtils.getNodeName({ survey })).sort()
+    const nodesUpdatedNames = Object.values(nodesUpdated)
+      .map(TestUtils.getNodeName({ survey }))
+      .sort((n1, n2) => n1!.localeCompare(n2!))
     expect(nodesUpdatedNames).toEqual([
       'mult_entity',
       'mult_entity_attr',

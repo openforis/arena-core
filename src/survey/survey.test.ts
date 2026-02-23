@@ -1,5 +1,6 @@
 import { LanguageCode } from '../language'
 import { DEFAULT_SRS } from '../srs'
+import { Strings } from '../utils'
 import { SurveyFactory, SurveyFactoryParams } from './factory'
 
 test('ExpectedSurvey === Survey', () => {
@@ -36,7 +37,7 @@ test('ExpectedSurvey === Survey', () => {
 
   // props.languages
   expect(surveyProps).toHaveProperty('languages')
-  expect(surveyProps.languages.sort()).toBe(surveyOptions.languages)
+  expect(surveyProps.languages.sort(Strings.compare)).toBe(surveyOptions.languages)
 
   //props.labels
   expect(surveyProps).toHaveProperty('labels')
