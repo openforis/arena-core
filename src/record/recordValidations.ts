@@ -10,7 +10,8 @@ const getValidationChildrenCountKey = (params: { nodeParentInternalId: number; n
   return `${prefixValidationFieldChildrenCount}${nodeParentInternalId}_${nodeDefChildUuid}`
 }
 
-const extractValidationChildrenCountKeyParentUuid = (validationFieldKey: string) => validationFieldKey?.split('_')[1]
+const extractValidationChildrenCountKeyParentInternalId = (validationFieldKey: string) =>
+  validationFieldKey?.split('_')[1]
 
 const extractValidationChildrenCountKeyNodeDefUuid = (validationFieldKey: string) => validationFieldKey?.split('_')[2]
 
@@ -32,7 +33,7 @@ export const RecordValidations = {
   prefixValidationFieldChildrenCount,
 
   isValidationChildrenCountKey,
-  extractValidationChildrenCountKeyParentUuid,
+  extractValidationChildrenCountKeyParentInternalId,
   extractValidationChildrenCountKeyNodeDefUuid,
   getValidationChildrenCountKey,
   getValidationChildrenCount,

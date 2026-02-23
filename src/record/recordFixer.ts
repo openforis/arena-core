@@ -55,6 +55,13 @@ const initInternalIds = (params: { record: Record; nodes: NodeOld[] }) => {
 
   record.lastInternalId = lastInternalId
 
+  // Rebuild record.nodes to be keyed by internal IDs instead of the old UUIDs
+  const newNodesMap: { [internalId: number]: Node } = {}
+  for (const node of nodes) {
+    newNodesMap[node.iId] = node
+  }
+  record.nodes = newNodesMap
+
   return record
 }
 
