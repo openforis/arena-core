@@ -43,7 +43,7 @@ beforeAll(() => {
 
 describe('ServiceRegistry', () => {
   test('CategoryService', async () => {
-    const service: CategoryService = serviceRegistry.getService(ServiceType.category) as CategoryService
+    const service: CategoryService = serviceRegistry.getService(ServiceType.category)
     const category = await service.get({ categoryUuid: 'category_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -51,7 +51,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('CategoryItemService', async () => {
-    const service: CategoryItemService = serviceRegistry.getService(ServiceType.categoryItem) as CategoryItemService
+    const service: CategoryItemService = serviceRegistry.getService(ServiceType.categoryItem)
     const categoryItem = await service.get({ categoryUuid: 'category_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -59,7 +59,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('CategoryLevelService', async () => {
-    const service: CategoryLevelService = serviceRegistry.getService(ServiceType.categoryLevel) as CategoryLevelService
+    const service: CategoryLevelService = serviceRegistry.getService(ServiceType.categoryLevel)
     const categoryLevel = await service.get({ categoryUuid: 'category_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -67,7 +67,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('ChainService', async () => {
-    const service: ChainService = serviceRegistry.getService(ServiceType.chain) as ChainService
+    const service: ChainService = serviceRegistry.getService(ServiceType.chain)
     const chain = await service.get({ chainUuid: 'chain_uuid', surveyId: 1 })
 
     expect(service).toBeDefined()
@@ -77,7 +77,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('ChainNodeDefService', async () => {
-    const service: ChainNodeDefService = serviceRegistry.getService(ServiceType.chainNodeDef) as ChainNodeDefService
+    const service: ChainNodeDefService = serviceRegistry.getService(ServiceType.chainNodeDef)
     const chainNodeDefs = await service.getMany({ chainUuid: '', entityDefUuid: '', surveyId: 0 })
     const chainNodeDef = chainNodeDefs[0]
 
@@ -90,7 +90,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('NodeService', async () => {
-    const service: NodeService = serviceRegistry.getService(ServiceType.node) as NodeService
+    const service: NodeService = serviceRegistry.getService(ServiceType.node)
     const node = await service.get({ nodeInternalId: 1, surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -98,7 +98,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('NodeDefService', async () => {
-    const service: NodeDefService = serviceRegistry.getService(ServiceType.nodeDef) as NodeDefService
+    const service: NodeDefService = serviceRegistry.getService(ServiceType.nodeDef)
     const nodeDefs = await service.getMany({ surveyId: 1, user: userMock })
     const [nodeDef] = Object.values(nodeDefs)
 
@@ -107,7 +107,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('RecordService', async () => {
-    const service: RecordService = serviceRegistry.getService(ServiceType.record) as RecordService
+    const service: RecordService = serviceRegistry.getService(ServiceType.record)
     const record = await service.get({ recordUuid: 'record_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -115,7 +115,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('SurveyService', async () => {
-    const service: SurveyService = serviceRegistry.getService(ServiceType.survey) as SurveyService
+    const service: SurveyService = serviceRegistry.getService(ServiceType.survey)
     const survey = await service.get({ surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -123,7 +123,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('TaxonService', async () => {
-    const service: TaxonService = serviceRegistry.getService(ServiceType.taxon) as TaxonService
+    const service: TaxonService = serviceRegistry.getService(ServiceType.taxon)
     const taxon = await service.get({ surveyId: 1, taxonomyUuid: 'mock' })
 
     expect(service).not.toBeNull()
@@ -131,7 +131,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('TaxonomyService', async () => {
-    const service: TaxonomyService = serviceRegistry.getService(ServiceType.taxonomy) as TaxonomyService
+    const service: TaxonomyService = serviceRegistry.getService(ServiceType.taxonomy)
     const taxonomy = await service.get({ surveyId: 1, taxonomyUuid: 'mock' })
 
     expect(service).not.toBeNull()
@@ -139,7 +139,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('UserService', async () => {
-    const service: UserService = serviceRegistry.getService(ServiceType.user) as UserService
+    const service: UserService = serviceRegistry.getService(ServiceType.user)
     const user = await service.get({ userUuid: 'userUuid' })
 
     expect(service).not.toBeNull()
