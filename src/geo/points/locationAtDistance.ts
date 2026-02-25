@@ -10,7 +10,7 @@ import { isValid } from './isValid'
 /**
  * Takes a point, a distance in meters, and a bearing in degrees, and returns the location of the point at the specified distance and bearing from the original point.
  * @param params
- * @param !params.origin - The original point from which to calculate the new location.
+ * @param params.origin - The original point from which to calculate the new location.
  * @param params.distanceMeters - The distance in meters from the original point to the new location.
  * @param params.bearingDeg - The bearing in degrees from the original point to the new location.
  * @param params.srsIndex - SRSs indexed by SRS code.
