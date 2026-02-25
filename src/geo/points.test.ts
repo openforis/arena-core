@@ -1,5 +1,6 @@
 import { PointFactory } from './pointFactory'
 import { Points } from './points'
+import { DEFAULT_SRS_INDEX } from '../srs'
 
 describe('Points test', () => {
   test('parsing incomplete coordinate (missing srs)', () => {
@@ -48,5 +49,18 @@ describe('Points test', () => {
     const point = PointFactory.createInstance({ x: 144.50234, y: -96.321367 })
     const valid = Points.isValid(point)
     expect(valid).toBeFalsy()
+  })
+
+  test('location at distance', () => {
+    const origin = PointFactory.createInstance({ x: 12, y: 41 })
+    const distanceMeters = 1000
+
+    const location = Points.locationAtDistance({ origin, distanceMeters, bearingDeg: 90, srsIndex: DEFAULT_SRS_INDEX })
+
+    expect(location).toBeDefined()
+    if (location) {
+      const actualDistance = Points.distance(origin, location, DEFAULT_SRS_INDEX)
+      expect(actualDistance).toBeCloseTo(distanceMeters, 0)
+    }
   })
 })
