@@ -147,24 +147,37 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     evaluateArgsToNodes: true,
     executor: emptyExecutor,
   },
-  geoPolygon: {
-    minArity: 1,
-    evaluateArgsToNodes: true,
-    executor: () => async () => sampleGeoJsonPolygon,
-  },
   geoLocationAtDistance: {
     minArity: 3,
     maxArity: 3,
     executor:
       (context: NodeDefExpressionContext) =>
       async (coordinate: Point | string, distanceMeters: number, bearingDeg: number): Promise<Point | null> => {
+        // validate parameters
         const point = Points.parse(coordinate)
         if (!point) return null
 
+        const distanceMetersNumber = Number(distanceMeters)
+        const bearingDegNumber = Number(bearingDeg)
+        if (!Number.isFinite(distanceMetersNumber) || distanceMetersNumber < 0 || !Number.isFinite(bearingDegNumber)) {
+          return null
+        }
+
         const { survey } = context
         const srsIndex = getSRSIndex(survey)
-        return Points.locationAtDistance({ origin: point, distanceMeters, bearingDeg, srsIndex })
+
+        return Points.locationAtDistance({
+          origin: point,
+          distanceMeters: distanceMetersNumber,
+          bearingDeg: bearingDegNumber,
+          srsIndex,
+        })
       },
+  },
+  geoPolygon: {
+    minArity: 1,
+    evaluateArgsToNodes: true,
+    executor: () => async () => sampleGeoJsonPolygon,
   },
   includes: {
     minArity: 2,
