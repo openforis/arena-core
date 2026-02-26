@@ -57,7 +57,7 @@ describe('Points test', () => {
 
     const location = Points.pointAtDistance({ origin, distanceMeters, bearingDeg: 90, srsIndex: DEFAULT_SRS_INDEX })
 
-    expect(location).toBeDefined()
+    expect(location).not.toBeNull()
     if (location) {
       const actualDistance = Points.distance(origin, location, DEFAULT_SRS_INDEX)
       expect(actualDistance).toBeCloseTo(distanceMeters, 0)
