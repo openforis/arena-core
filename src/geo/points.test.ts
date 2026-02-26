@@ -55,7 +55,7 @@ describe('Points test', () => {
     const origin = PointFactory.createInstance({ x: 12, y: 41 })
     const distanceMeters = 1000
 
-    const location = Points.locationAtDistance({ origin, distanceMeters, bearingDeg: 90, srsIndex: DEFAULT_SRS_INDEX })
+    const location = Points.pointAtDistance({ origin, distanceMeters, bearingDeg: 90, srsIndex: DEFAULT_SRS_INDEX })
 
     expect(location).toBeDefined()
     if (location) {

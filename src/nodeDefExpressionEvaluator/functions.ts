@@ -76,6 +76,18 @@ const getOrFetchTaxon = async (params: {
   return taxon ?? taxonProvider?.getTaxonByCode({ survey, taxonomyUuid, taxonCode, draft })
 }
 
+const geoDistanceExecutor =
+  (context: NodeDefExpressionContext) =>
+  async (coordinateFrom: Point | string, coordinateTo: Point | string): Promise<number | null> => {
+    const { survey } = context
+    const srsIndex = getSRSIndex(survey)
+
+    const pointFrom = Points.parse(coordinateFrom)
+    const pointTo = Points.parse(coordinateTo)
+
+    return pointFrom && pointTo ? Points.distance(pointFrom, pointTo, srsIndex) : null
+  }
+
 export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
   categoryItemProp: {
     minArity: 3,
@@ -126,36 +138,23 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         return Dates.diffInMinutes(dt1, dt2)
       },
   },
-  distance: {
-    minArity: 2,
-    maxArity: 2,
-    executor:
-      (context: NodeDefExpressionContext) =>
-      async (coordinateFrom: Point | string, coordinateTo: Point | string): Promise<number | null> => {
-        const { survey } = context
-        const srsIndex = getSRSIndex(survey)
-
-        const pointFrom = Points.parse(coordinateFrom)
-        const pointTo = Points.parse(coordinateTo)
-
-        return pointFrom && pointTo ? Points.distance(pointFrom, pointTo, srsIndex) : null
-      },
-  },
+  // deprecated, use geoDistance instead
+  distance: { minArity: 2, maxArity: 2, executor: geoDistanceExecutor },
   first: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
     executor: emptyExecutor,
   },
-  geoLocationAtDistance: {
+  geoCoordinateAtDistance: {
     minArity: 3,
     maxArity: 3,
     executor:
       (context: NodeDefExpressionContext) =>
       async (coordinate: Point | string, distanceMeters: number, bearingDeg: number): Promise<Point | null> => {
         // validate parameters
-        const point = Points.parse(coordinate)
-        if (!point) return null
+        const origin = Points.parse(coordinate)
+        if (!origin) return null
 
         const distanceMetersNumber = Number(distanceMeters)
         const bearingDegNumber = Number(bearingDeg)
@@ -166,14 +165,15 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         const { survey } = context
         const srsIndex = getSRSIndex(survey)
 
-        return Points.locationAtDistance({
-          origin: point,
+        return Points.pointAtDistance({
+          origin,
           distanceMeters: distanceMetersNumber,
           bearingDeg: bearingDegNumber,
           srsIndex,
         })
       },
   },
+  geoDistance: { minArity: 2, maxArity: 2, executor: geoDistanceExecutor },
   geoPolygon: {
     minArity: 1,
     evaluateArgsToNodes: true,
