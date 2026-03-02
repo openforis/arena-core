@@ -125,6 +125,9 @@ const getTaxonomyUuid = (nodeDef: NodeDefTaxon): string | undefined => nodeDef.p
 
 const isVernacularNameSelectionKept = (nodeDef: NodeDefTaxon): boolean => !!nodeDef.props.vernacularNameSelectionKept
 
+const isVernacularNameAlwaysIncludedIfSingle = (nodeDef: NodeDefTaxon): boolean =>
+  !!nodeDef.props.vernacularNameAlwaysIncludedIfSingle
+
 // text
 const getTextTransform = (nodeDef: NodeDefText): string | undefined => nodeDef.props?.textTransform
 const getTextInputType = (nodeDef: NodeDefText): NodeDefTextInputType | undefined => nodeDef.props?.textInputType
@@ -282,6 +285,7 @@ export const NodeDefs = {
   isGeotagInformationShown,
   getTaxonomyUuid,
   isVernacularNameSelectionKept,
+  isVernacularNameAlwaysIncludedIfSingle,
   getTextTransform,
   getTextInputType,
   getItemsFilter,
