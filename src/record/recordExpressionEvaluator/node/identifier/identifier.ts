@@ -133,7 +133,9 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
           propName,
         })
         if (Array.isArray(evaluationResult)) {
-          evaluationResult.forEach((item) => acc.push(item))
+          for (const item of evaluationResult) {
+            acc.push(item)
+          }
         } else {
           acc.push(evaluationResult)
         }

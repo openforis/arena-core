@@ -5,34 +5,35 @@ const prefixValidationFieldChildrenCount = 'childrenCount_'
 const isValidationChildrenCountKey = (validationFieldKey: string) =>
   validationFieldKey?.startsWith(prefixValidationFieldChildrenCount)
 
-const getValidationChildrenCountKey = (params: { nodeParentUuid: string; nodeDefChildUuid: string }): string => {
-  const { nodeParentUuid, nodeDefChildUuid } = params
-  return `${prefixValidationFieldChildrenCount}${nodeParentUuid}_${nodeDefChildUuid}`
+const getValidationChildrenCountKey = (params: { nodeParentInternalId: number; nodeDefChildUuid: string }): string => {
+  const { nodeParentInternalId, nodeDefChildUuid } = params
+  return `${prefixValidationFieldChildrenCount}${nodeParentInternalId}_${nodeDefChildUuid}`
 }
 
-const extractValidationChildrenCountKeyParentUuid = (validationFieldKey: string) => validationFieldKey?.split('_')[1]
+const extractValidationChildrenCountKeyParentInternalId = (validationFieldKey: string) =>
+  validationFieldKey?.split('_')[1]
 
 const extractValidationChildrenCountKeyNodeDefUuid = (validationFieldKey: string) => validationFieldKey?.split('_')[2]
 
 const getValidationChildrenCount =
-  (params: { nodeParentUuid: string; nodeDefChildUuid: string }) =>
+  (params: { nodeParentInternalId: number; nodeDefChildUuid: string }) =>
   (validation: Validation): Validation => {
     const key = getValidationChildrenCountKey(params)
     return Validations.getFieldValidation(key)(validation)
   }
 
 const getValidationNode =
-  (params: { nodeUuid: string }) =>
+  (params: { nodeInternalId: number }) =>
   (validation: Validation): Validation => {
-    const { nodeUuid } = params
-    return Validations.getFieldValidation(nodeUuid)(validation)
+    const { nodeInternalId } = params
+    return Validations.getFieldValidation(String(nodeInternalId))(validation)
   }
 
 export const RecordValidations = {
   prefixValidationFieldChildrenCount,
 
   isValidationChildrenCountKey,
-  extractValidationChildrenCountKeyParentUuid,
+  extractValidationChildrenCountKeyParentInternalId,
   extractValidationChildrenCountKeyNodeDefUuid,
   getValidationChildrenCountKey,
   getValidationChildrenCount,

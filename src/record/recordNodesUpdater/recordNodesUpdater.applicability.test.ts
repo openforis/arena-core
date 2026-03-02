@@ -11,6 +11,7 @@ import { User } from '../../auth'
 import { Records } from '../records'
 import { Surveys } from '../../survey'
 import { Record } from '../record'
+import { Strings } from '../../utils'
 
 let user: User
 
@@ -59,7 +60,7 @@ describe('Record nodes updater - applicability', () => {
         user,
         survey,
         record: recordUpdated,
-        nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+        nodes: { [nodeToUpdate.iId]: nodeUpdated },
       })
 
       expect(updateResult).not.toBeNull()
@@ -74,7 +75,7 @@ describe('Record nodes updater - applicability', () => {
         expect(
           Object.values(updateResult.nodes)
             .map((updatedNode) => Surveys.getNodeDefByUuid({ survey, uuid: updatedNode.nodeDefUuid }).props.name)
-            .sort()
+            .sort(Strings.compare)
         ).toEqual(['dependent_attribute', 'root_entity', 'source_attribute'])
       }
       expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(expectedApplicability)

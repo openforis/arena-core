@@ -51,13 +51,13 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
         }
 
         const pointsLatLon: Point[] = nodeSetOrPoints.reduce((acc, nodeSetOrPoint) => {
-          Arrays.toArray(nodeSetOrPoint).forEach((nodeOrPoint) => {
+          for (const nodeOrPoint of Arrays.toArray(nodeSetOrPoint)) {
             const point = toPoint(nodeOrPoint)
             const pointLatLon = point ? Points.toLatLong(point, srsIndex) : null
             if (pointLatLon) {
               acc.push(pointLatLon)
             }
-          })
+          }
           return acc
         }, [])
 

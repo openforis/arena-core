@@ -41,7 +41,9 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
     }
 
     this.emitSummaryUpdateEvent = throttle(() => this.emit(JobMessageOutType.summaryUpdate, this.summary), 500)
-    this.jobs.forEach((job) => job.on(JobMessageOutType.summaryUpdate, this.onInnerJobSummaryUpdate.bind(this)))
+    for (const job of jobs) {
+      job.on(JobMessageOutType.summaryUpdate, this.onInnerJobSummaryUpdate.bind(this))
+    }
   }
 
   async cancel(): Promise<void> {

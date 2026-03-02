@@ -186,16 +186,16 @@ const findSiblingKeyNodesToValidate = (
   const siblingNodeKeys = _getSiblingNodeKeys(params)
   const siblingNodeKeysWithSameValue: Node[] = []
   const siblingNodeKeysWithErrors: Node[] = []
-  siblingNodeKeys.forEach((nodeKey) => {
+  for (const nodeKey of siblingNodeKeys) {
     if (NodeValues.isValueEqual({ survey, nodeDef, parentNode, value: nodeKey.value, valueSearch: attribute.value })) {
       siblingNodeKeysWithSameValue.push(nodeKey)
     }
     const nodeValidation =
-      record.validation && RecordValidations.getValidationNode({ nodeUuid: nodeKey.uuid })(record.validation)
+      record.validation && RecordValidations.getValidationNode({ nodeInternalId: nodeKey.iId })(record.validation)
     if (nodeValidation && !nodeValidation.valid) {
       siblingNodeKeysWithErrors.push(nodeKey)
     }
-  })
+  }
   return [...siblingNodeKeysWithSameValue, ...siblingNodeKeysWithErrors]
 }
 
@@ -236,16 +236,16 @@ const validateSelfAndDependentSortedAttributes = async (
   params: SortedAttributesValidatorParams
 ): Promise<ValidationFields> => {
   const nodesToValidate: Node[] = findSortedNodesToValidate(params)
-  const validationsByNodeUuid: ValidationFields = {}
+  const validationsByNodeInternalId: ValidationFields = {}
 
   for (const nodeToValidate of nodesToValidate) {
-    const nodeUuid = nodeToValidate.uuid
+    const nodeInternalId = nodeToValidate.iId
     // Validate only attributes not deleted and not validated already
-    if (!nodeToValidate.deleted && !validationsByNodeUuid[nodeUuid]) {
-      validationsByNodeUuid[nodeUuid] = await validateAttribute({ ...params, attribute: nodeToValidate })
+    if (!nodeToValidate.deleted && !validationsByNodeInternalId[nodeInternalId]) {
+      validationsByNodeInternalId[nodeInternalId] = await validateAttribute({ ...params, attribute: nodeToValidate })
     }
   }
-  return validationsByNodeUuid
+  return validationsByNodeInternalId
 }
 
 export const AttributeValidator = {

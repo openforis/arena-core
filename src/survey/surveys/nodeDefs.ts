@@ -332,12 +332,12 @@ export const visitDescendantsAndSelfNodeDef = (params: {
       NodeDefs.isSingle(visitedNodeDef))
 
   if (traverseMethod === TraverseMethod.bfs) {
-    const queue = new Queue()
+    const queue = new Queue<NodeDef<any>>()
 
     queue.enqueue(nodeDef)
 
     while (!queue.isEmpty()) {
-      const visitedNodeDef = queue.dequeue()
+      const visitedNodeDef = queue.dequeue()!
 
       visitor(visitedNodeDef)
 
@@ -441,14 +441,14 @@ export const getDependentEnumeratedEntityDefs = (params: { survey: Survey; nodeD
   const { survey, nodeDef } = params
   const result: NodeDefEntity[] = []
   const dependentCodeAttributeDefs = getDependentCodeAttributeDefs({ survey, nodeDef })
-  dependentCodeAttributeDefs.forEach((dependentCodeDef) => {
+  for (const dependentCodeDef of dependentCodeAttributeDefs) {
     if (NodeDefs.isKey(dependentCodeDef)) {
       const entityDef = getNodeDefAncestorMultipleEntity({ survey, nodeDef: dependentCodeDef })
       if (entityDef && NodeDefs.isEnumerate(entityDef)) {
         result.push(entityDef)
       }
     }
-  })
+  }
   return result
 }
 

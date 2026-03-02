@@ -57,7 +57,7 @@ describe('Record fixer', () => {
       user,
       survey,
       record,
-      attributeUuid: clusterIdAttr.uuid,
+      attributeIId: clusterIdAttr.iId,
       value: 6,
     })
     record = recordUpdated

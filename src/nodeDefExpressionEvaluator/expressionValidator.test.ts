@@ -3,6 +3,7 @@ import { Survey, Surveys } from '../survey'
 import { NodeDefExpressionValidator } from './validator'
 import { ExtraPropDataType } from '../extraProp'
 import { createTestAdminUser } from '../tests/data'
+import { Strings } from '../utils'
 
 const { booleanDef, dateDef, decimalDef, entityDef, integerDef, taxonDef, taxon, taxonomy, textDef } =
   SurveyObjectBuilders
@@ -164,7 +165,7 @@ describe('NodeDefExpressionValidator', () => {
       const referencedNodeDefNames = rerencedNodeDefUuids.map(
         (nodeDefUuid) => Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid }).props.name
       )
-      referencedNodeDefNames.sort()
+      referencedNodeDefNames.sort(Strings.compare)
       expect(referencedNodeDefNamesExpected).toEqual(referencedNodeDefNames)
     })
   })
