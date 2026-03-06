@@ -257,8 +257,8 @@ export class FlatDataExportModel {
           survey,
           cycle,
           nodeDef: nodeDefContext,
-          predicate: (visitedNodeDef) =>
-            NodeDefs.isAttribute(visitedNodeDef) && (!NodeDefs.isAnalysis(visitedNodeDef) || !!includeAnalysis),
+          predicate: NodeDefs.isAttribute,
+          includeAnalysis,
         })
       : [nodeDefContext] // Multiple attribute
 

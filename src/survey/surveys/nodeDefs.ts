@@ -501,8 +501,9 @@ export const getDescendantsInSingleEntities = (params: {
   cycle?: string
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   predicate?: (visitedNodeDef: NodeDef<NodeDefType, NodeDefProps>) => boolean
+  includeAnalysis?: boolean
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, cycle, nodeDef, predicate } = params
+  const { survey, cycle, nodeDef, predicate, includeAnalysis } = params
   const result: NodeDef<any>[] = []
   visitDescendantsAndSelfNodeDef({
     survey,
@@ -513,6 +514,7 @@ export const getDescendantsInSingleEntities = (params: {
         result.push(visitedNodeDef)
       }
     },
+    includeAnalysis,
     traverseOnlySingleEntities: true,
   })
   return result
