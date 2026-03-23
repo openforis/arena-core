@@ -6,12 +6,10 @@ export class Queue {
     this.enqueueItems(items)
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   enqueue(item: any): void {
     this.items.unshift(item)
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   enqueueItems(items: any[]) {
     for (const item of items) {
       this.enqueue(item)
