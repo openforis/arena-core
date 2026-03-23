@@ -1368,7 +1368,7 @@ __metadata:
     proj4: "npm:^2.20.4"
     ts-jest: "npm:^29.4.6"
     typescript: "npm:^5.9.3"
-    typescript-eslint: "npm:^8.0.0"
+    typescript-eslint: "npm:^8.57.1"
     uuid: "npm:^11.1.0"
   languageName: unknown
   linkType: soft
@@ -6324,7 +6324,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript-eslint@npm:^8.0.0":
+"typescript-eslint@npm:^8.57.1":
   version: 8.57.1
   resolution: "typescript-eslint@npm:8.57.1"
   dependencies:
