@@ -33,7 +33,7 @@
   "dependencies": {
     "@jsep-plugin/regex": "^1.0.4",
     "@turf/destination": "^7.3.4",
-    "bignumber.js": "^9.3.1",
+    "bignumber.js": "^10.0.2",
     "jsep": "^1.4.0",
     "lodash.differencewith": "^4.5.0",
     "lodash.frompairs": "^4.0.1",
