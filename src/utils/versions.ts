@@ -2,21 +2,23 @@ export type ParsedVersion = {
   major: number
   minor: number
   patch: number
+  commitsSinceTag: number
 }
 
-const VERSION_REGEX = /^v?(\d+)\.(\d+)(?:\.(\d+))?$/
+const VERSION_REGEX = /^v?(\d+)\.(\d+)(?:\.(\d+))?(?:-(\d+)(?:-g[0-9a-f]+)?)?$/i
 
 const parse = (version: string): ParsedVersion => {
   const match = VERSION_REGEX.exec(version.trim())
   if (!match) {
     throw new Error(
-      `Invalid version format: "${version}". Expected format: [v]major.minor[.patch] (e.g. "2.3", "2.3.1" or "v2.3.1")`
+      `Invalid version format: "${version}". Expected format: [v]major.minor[.patch][-commitsSinceTag[-g<commitHash>]] (e.g. "2.3", "2.3.1", "v2.3.1" or "v2.3.19-4-g207bc95f8")`
     )
   }
   return {
     major: parseInt(match[1], 10),
     minor: parseInt(match[2], 10),
     patch: match[3] !== undefined ? parseInt(match[3], 10) : 0,
+    commitsSinceTag: match[4] !== undefined ? parseInt(match[4], 10) : 0,
   }
 }
 
@@ -31,6 +33,7 @@ const compare = (v1: string, v2: string): -1 | 0 | 1 => {
   if (p1.major !== p2.major) return p1.major < p2.major ? -1 : 1
   if (p1.minor !== p2.minor) return p1.minor < p2.minor ? -1 : 1
   if (p1.patch !== p2.patch) return p1.patch < p2.patch ? -1 : 1
+  if (p1.commitsSinceTag !== p2.commitsSinceTag) return p1.commitsSinceTag < p2.commitsSinceTag ? -1 : 1
   return 0
 }
 
