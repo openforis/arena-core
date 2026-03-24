@@ -1,3 +1,5 @@
+import { camelCase, snakeCase } from 'change-case'
+
 import { Objects } from './_objects'
 
 type TextType = string | undefined | null
@@ -70,4 +72,6 @@ export const Strings = {
   repeat,
   unquote,
   unquoteDouble,
+  camelCase,
+  snakeCase,
 }
