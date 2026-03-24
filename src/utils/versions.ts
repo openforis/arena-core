@@ -1,4 +1,4 @@
-interface ParsedVersion {
+export type ParsedVersion = {
   major: number
   minor: number
   patch: number
