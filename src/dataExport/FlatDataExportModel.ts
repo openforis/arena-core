@@ -2,6 +2,7 @@ import { CategoryItems } from '../category'
 import { NodeValues } from '../node'
 import { NodeDef, NodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
+import { Strings } from '../utils'
 import { FlatDataExportDefaultOptions, FlatDataExportOptions } from './FlatDataExportOptions'
 
 export enum FlatDataExportColumnDataType {
@@ -96,7 +97,7 @@ const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtracto
         valueProp: NodeValues.ValuePropsCoordinate.srs,
       },
       ...NodeDefs.getCoordinateAdditionalFields(nodeDef).map((field) => ({
-        header: `${nodeDefName}_${field}`,
+        header: `${nodeDefName}_${Strings.snakeCase(field)}`,
         nodeDef,
         dataType: FlatDataExportColumnDataType.numeric,
         valueProp: field,
