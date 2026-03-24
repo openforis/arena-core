@@ -14,12 +14,20 @@ describe('Versions', () => {
       expect(Versions.parse('0.0.0')).toEqual({ major: 0, minor: 0, patch: 0 })
     })
 
-    it('parses "2.3" (no patch, defaults to 0)', () => {
-      expect(Versions.parse('2.3')).toEqual({ major: 2, minor: 3, patch: 0 })
+    it('parses "2.3" (no patch)', () => {
+      expect(Versions.parse('2.3')).toEqual({ major: 2, minor: 3 })
     })
 
     it('parses "v2.3" (v-prefixed, no patch)', () => {
-      expect(Versions.parse('v2.3')).toEqual({ major: 2, minor: 3, patch: 0 })
+      expect(Versions.parse('v2.3')).toEqual({ major: 2, minor: 3 })
+    })
+
+    it('parses "v2.3.19-4-g207bc95f8" (git describe format)', () => {
+      expect(Versions.parse('v2.3.19-4-g207bc95f8')).toEqual({ major: 2, minor: 3, patch: 19, commitsSinceTag: 4 })
+    })
+
+    it('parses "2.3.19-4" (no commit hash)', () => {
+      expect(Versions.parse('2.3.19-4')).toEqual({ major: 2, minor: 3, patch: 19, commitsSinceTag: 4 })
     })
 
     it('throws on invalid format', () => {
@@ -49,6 +57,17 @@ describe('Versions', () => {
 
     it('returns -1 when v1 < v2 (patch)', () => {
       expect(Versions.compare('1.2.3', '1.2.4')).toBe(-1)
+    })
+
+    it('compares commits-since-tag suffix when major.minor.patch are equal', () => {
+      expect(Versions.compare('v2.3.19-4-g207bc95f8', 'v2.3.19-2-gabcdef')).toBe(1)
+      expect(Versions.compare('v2.3.19-2-g207bc95f8', 'v2.3.19')).toBe(1)
+      expect(Versions.compare('v2.3.19-0-g207bc95f8', 'v2.3.19')).toBe(0)
+    })
+
+    it('treats missing patch/commits-since-tag as 0 in compare', () => {
+      expect(Versions.compare('1.2', '1.2.0')).toBe(0)
+      expect(Versions.compare('1.2.3', '1.2.3-0')).toBe(0)
     })
   })
 
