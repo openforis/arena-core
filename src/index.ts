@@ -254,9 +254,10 @@ export {
   Strings,
   UnitOfTime,
   UUIDs,
+  Versions,
 } from './utils'
 
-export type { FileProcessorConstructorArgs } from './utils'
+export type { FileProcessorConstructorArgs, ParsedVersion } from './utils'
 
 export {
   FieldValidators,
