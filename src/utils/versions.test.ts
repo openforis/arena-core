@@ -3,23 +3,23 @@ import { Versions } from './versions'
 describe('Versions', () => {
   describe('parse', () => {
     it('parses "2.3.1"', () => {
-      expect(Versions.parse('2.3.1')).toEqual({ major: 2, minor: 3, patch: 1, commitsSinceTag: 0 })
+      expect(Versions.parse('2.3.1')).toEqual({ major: 2, minor: 3, patch: 1 })
     })
 
     it('parses "v2.3.1" (v-prefixed)', () => {
-      expect(Versions.parse('v2.3.1')).toEqual({ major: 2, minor: 3, patch: 1, commitsSinceTag: 0 })
+      expect(Versions.parse('v2.3.1')).toEqual({ major: 2, minor: 3, patch: 1 })
     })
 
     it('parses "0.0.0"', () => {
-      expect(Versions.parse('0.0.0')).toEqual({ major: 0, minor: 0, patch: 0, commitsSinceTag: 0 })
+      expect(Versions.parse('0.0.0')).toEqual({ major: 0, minor: 0, patch: 0 })
     })
 
-    it('parses "2.3" (no patch, defaults to 0)', () => {
-      expect(Versions.parse('2.3')).toEqual({ major: 2, minor: 3, patch: 0, commitsSinceTag: 0 })
+    it('parses "2.3" (no patch)', () => {
+      expect(Versions.parse('2.3')).toEqual({ major: 2, minor: 3 })
     })
 
     it('parses "v2.3" (v-prefixed, no patch)', () => {
-      expect(Versions.parse('v2.3')).toEqual({ major: 2, minor: 3, patch: 0, commitsSinceTag: 0 })
+      expect(Versions.parse('v2.3')).toEqual({ major: 2, minor: 3 })
     })
 
     it('parses "v2.3.19-4-g207bc95f8" (git describe format)', () => {
@@ -63,6 +63,11 @@ describe('Versions', () => {
       expect(Versions.compare('v2.3.19-4-g207bc95f8', 'v2.3.19-2-gabcdef')).toBe(1)
       expect(Versions.compare('v2.3.19-2-g207bc95f8', 'v2.3.19')).toBe(1)
       expect(Versions.compare('v2.3.19-0-g207bc95f8', 'v2.3.19')).toBe(0)
+    })
+
+    it('treats missing patch/commits-since-tag as 0 in compare', () => {
+      expect(Versions.compare('1.2', '1.2.0')).toBe(0)
+      expect(Versions.compare('1.2.3', '1.2.3-0')).toBe(0)
     })
   })
 

@@ -34,11 +34,15 @@ const parse = (version: string): ParsedVersion => {
 const compare = (v1: string, v2: string): -1 | 0 | 1 => {
   const p1 = parse(v1)
   const p2 = parse(v2)
+  const patch1 = p1.patch ?? 0
+  const patch2 = p2.patch ?? 0
+  const commitsSinceTag1 = p1.commitsSinceTag ?? 0
+  const commitsSinceTag2 = p2.commitsSinceTag ?? 0
 
   if (p1.major !== p2.major) return p1.major < p2.major ? -1 : 1
   if (p1.minor !== p2.minor) return p1.minor < p2.minor ? -1 : 1
-  if (p1.patch !== p2.patch) return p1.patch < p2.patch ? -1 : 1
-  if (p1.commitsSinceTag !== p2.commitsSinceTag) return p1.commitsSinceTag < p2.commitsSinceTag ? -1 : 1
+  if (patch1 !== patch2) return patch1 < patch2 ? -1 : 1
+  if (commitsSinceTag1 !== commitsSinceTag2) return commitsSinceTag1 < commitsSinceTag2 ? -1 : 1
   return 0
 }
 
