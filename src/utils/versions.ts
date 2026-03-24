@@ -1,8 +1,8 @@
 export type ParsedVersion = {
   major: number
   minor: number
-  patch: number
-  commitsSinceTag: number
+  patch?: number
+  commitsSinceTag?: number
 }
 
 const VERSION_REGEX = /^v?(\d+)\.(\d+)(?:\.(\d+))?(?:-(\d+)(?:-g[0-9a-f]+)?)?$/i
@@ -14,12 +14,17 @@ const parse = (version: string): ParsedVersion => {
       `Invalid version format: "${version}". Expected format: [v]major.minor[.patch][-commitsSinceTag[-g<commitHash>]] (e.g. "2.3", "2.3.1", "v2.3.1" or "v2.3.19-4-g207bc95f8")`
     )
   }
-  return {
+  const parsedVersion: ParsedVersion = {
     major: parseInt(match[1], 10),
     minor: parseInt(match[2], 10),
-    patch: match[3] !== undefined ? parseInt(match[3], 10) : 0,
-    commitsSinceTag: match[4] !== undefined ? parseInt(match[4], 10) : 0,
   }
+  if (match[3] !== undefined) {
+    parsedVersion.patch = parseInt(match[3], 10)
+  }
+  if (match[4] !== undefined) {
+    parsedVersion.commitsSinceTag = parseInt(match[4], 10)
+  }
+  return parsedVersion
 }
 
 /**
