@@ -15,14 +15,14 @@ const parse = (version: string): ParsedVersion => {
     )
   }
   const parsedVersion: ParsedVersion = {
-    major: parseInt(match[1], 10),
-    minor: parseInt(match[2], 10),
+    major: Number.parseInt(match[1], 10),
+    minor: Number.parseInt(match[2], 10),
   }
   if (match[3] !== undefined) {
-    parsedVersion.patch = parseInt(match[3], 10)
+    parsedVersion.patch = Number.parseInt(match[3], 10)
   }
   if (match[4] !== undefined) {
-    parsedVersion.commitsSinceTag = parseInt(match[4], 10)
+    parsedVersion.commitsSinceTag = Number.parseInt(match[4], 10)
   }
   return parsedVersion
 }
