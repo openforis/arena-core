@@ -3,6 +3,10 @@ import { Validation } from '../../validation'
 import { Record } from '../record'
 import { addNode } from '../_records/recordUpdater'
 
+export type RecordUpdateResultUpdateOptions = {
+  sideEffect?: boolean
+}
+
 export class RecordUpdateResult {
   record: Record
   nodes: NodesMap
@@ -20,10 +24,9 @@ export class RecordUpdateResult {
     return this.nodes[uuid]
   }
 
-  addNode(node: Node, options?: { sideEffect: boolean }) {
-    const { sideEffect = false } = options ?? {}
+  addNode(node: Node, options?: RecordUpdateResultUpdateOptions) {
     this.nodes[node.uuid] = node
-    this.record = addNode(node, { sideEffect })(this.record)
+    this.record = addNode(node, options)(this.record)
   }
 
   /**

@@ -7,7 +7,7 @@ import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
-import { RecordUpdateResult } from './recordUpdateResult'
+import { RecordUpdateResult, RecordUpdateResultUpdateOptions } from './recordUpdateResult'
 
 const expressionEvaluator = new RecordExpressionEvaluator()
 
@@ -72,14 +72,43 @@ const calculateApplicableNext = async ({
   }
 }
 
+const updateDescendantsApplicability = ({
+  updateResult,
+  nodeCtxChild,
+  applicable,
+  params,
+  nodeAddOptions,
+}: {
+  updateResult: RecordUpdateResult
+  nodeCtxChild: Node
+  applicable: boolean
+  params: RecordNodeDependentsUpdateParams
+  nodeAddOptions: RecordUpdateResultUpdateOptions
+}): void => {
+  const { sideEffect = false, clearNonApplicableValues = false } = params
+  Records.visitDescendantsAndSelf({
+    record: updateResult.record,
+    node: nodeCtxChild,
+    visitor: (nodeDescendant): boolean => {
+      // Clear value if becoming non-applicable and parameter is enabled
+      const nodeDescendantUpdated =
+        clearNonApplicableValues && !applicable && !Nodes.isValueBlank(nodeDescendant)
+          ? Nodes.assocValue(nodeDescendant, null, sideEffect)
+          : nodeDescendant
+      updateResult.addNode(nodeDescendantUpdated, nodeAddOptions)
+      return false
+    },
+  })
+}
+
 export const updateSelfAndDependentsApplicable = async (
   params: RecordNodeDependentsUpdateParams
 ): Promise<RecordUpdateResult> => {
-  const { survey, record, node, sideEffect = false, clearNonApplicableValues = false } = params
+  const { survey, record, node, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
-  const nodeAddOptions = { sideEffect }
+  const nodeAddOptions: RecordUpdateResultUpdateOptions = { sideEffect }
 
   // 1. fetch dependent nodes
   const nodePointersToUpdate = extractNodePointersToUpdate({ survey, record, node })
@@ -127,19 +156,7 @@ export const updateSelfAndDependentsApplicable = async (
       }
       for (const nodeCtxChild of nodeCtxChildren) {
         // add nodeCtxChild and its descendants to nodesUpdated
-        Records.visitDescendantsAndSelf({
-          record: updateResult.record,
-          node: nodeCtxChild,
-          visitor: (nodeDescendant): boolean => {
-            // Clear value if becoming non-applicable and parameter is enabled
-            const nodeDescendantUpdated =
-              clearNonApplicableValues && !applicable && !Nodes.isValueBlank(nodeDescendant)
-                ? Nodes.assocValue(nodeDescendant, null, sideEffect)
-                : nodeDescendant
-            updateResult.addNode(nodeDescendantUpdated, nodeAddOptions)
-            return false
-          },
-        })
+        updateDescendantsApplicability({ updateResult, nodeCtxChild, applicable, params, nodeAddOptions })
       }
     }
   }
