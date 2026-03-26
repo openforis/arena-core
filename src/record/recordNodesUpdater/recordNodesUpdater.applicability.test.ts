@@ -11,6 +11,7 @@ import { User } from '../../auth'
 import { Records } from '../records'
 import { Surveys } from '../../survey'
 import { Record } from '../record'
+import { Nodes } from '../../node'
 
 let user: User
 
@@ -102,5 +103,122 @@ describe('Record nodes updater - applicability', () => {
       expectDependentUpdate: true,
       expectedApplicability: true,
     })
+  })
+
+  test('Clear non-applicable values when node becomes non-applicable', async () => {
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        integerDef('source_attribute'),
+        integerDef('dependent_attribute').applyIf('source_attribute > 10'),
+        integerDef('dependent_attribute_read_only').readOnly().defaultValue('dependent_attribute + 1')
+      )
+    ).build()
+
+    let record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        attribute('source_attribute', 20),
+        attribute('dependent_attribute', 100),
+        attribute('dependent_attribute_read_only', null)
+      )
+    ).build()
+
+    // First verify the dependent attribute is applicable and has a value
+    let dependentNode = TestUtils.getNodeByPath({
+      survey,
+      record,
+      path: 'root_entity.dependent_attribute',
+    })
+    let dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
+    expect(Records.isNodeApplicable({ record, node: dependentNode })).toBe(true)
+    expect(dependentNode.value).toBe(100)
+    expect(dependentReadOnlyNode.value).toBeNull()
+
+    // Update source attribute to make dependent non-applicable WITHOUT clearNonApplicableValues
+    const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
+    const nodeUpdated = { ...nodeToUpdate, value: 5 }
+    let recordUpdated = Records.addNode(nodeUpdated)(record)
+
+    let updateResult = await RecordNodesUpdater.updateNodesDependents({
+      user,
+      survey,
+      record: recordUpdated,
+      nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+      clearNonApplicableValues: false, // explicitly set to false
+    })
+
+    dependentNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute',
+    })
+    dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
+    expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(false)
+    expect(dependentNode.value).toBe(100) // Value should still be there
+    expect(dependentReadOnlyNode.value).toBe(101)
+
+    // Now update with clearNonApplicableValues enabled
+    recordUpdated = Records.addNode({ ...nodeToUpdate, value: 20 })(updateResult.record)
+    updateResult = await RecordNodesUpdater.updateNodesDependents({
+      user,
+      survey,
+      record: recordUpdated,
+      nodes: { [nodeToUpdate.uuid]: { ...nodeToUpdate, value: 20 } },
+      clearNonApplicableValues: false, // first make it applicable again
+    })
+
+    dependentNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute',
+    })
+    dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
+    expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(true)
+    expect(dependentNode.value).toBe(100) // Value restored
+    expect(dependentReadOnlyNode.value).toBe(101)
+    expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(true)
+
+    // Now make it non-applicable WITH clearNonApplicableValues
+    recordUpdated = Records.addNode({ ...nodeToUpdate, value: 5 })(updateResult.record)
+    updateResult = await RecordNodesUpdater.updateNodesDependents({
+      user,
+      survey,
+      record: recordUpdated,
+      nodes: { [nodeToUpdate.uuid]: { ...nodeToUpdate, value: 5 } },
+      clearNonApplicableValues: true, // Enable value clearing
+    })
+
+    dependentNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute',
+    })
+    dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
+    expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(false)
+    expect(dependentNode.value).toBeNull() // Value should be cleared
+    expect(dependentReadOnlyNode.value).toBeNull()
+    expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(false) // defaultValueApplied should be reset
   })
 })

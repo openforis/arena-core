@@ -45,6 +45,8 @@ const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueA
 
 const isValueBlank = (node: Node): boolean => Objects.isEmpty(node.value)
 
+const isValueNotBlank = (node: Node): boolean => Objects.isNotEmpty(node.value)
+
 const hasUserInputValue = (node: Node): boolean => node && !isValueBlank(node) && !isDefaultValueApplied(node)
 
 const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: boolean): Node => {
@@ -118,6 +120,20 @@ const removeStatusFlags = ({ node, sideEffect = false }: { node: Node; sideEffec
   }
 }
 
+const assocValue = (node: Node, value: any, sideEffect = false): Node => {
+  let nodeUpdated = sideEffect ? node : { ...node }
+  nodeUpdated.value = value
+  nodeUpdated.updated = true
+  nodeUpdated.dateModified = Dates.nowFormattedForStorage()
+  if (isDefaultValueApplied(nodeUpdated)) {
+    // reset defaultValueApplied flag
+    const metaOriginal = nodeUpdated.meta ?? {}
+    const meta = sideEffect ? metaOriginal : { ...metaOriginal }
+    nodeUpdated.meta = { ...meta, defaultValueApplied: false }
+  }
+  return nodeUpdated
+}
+
 export const Nodes = {
   isRoot,
   areEqual,
@@ -129,6 +145,7 @@ export const Nodes = {
   getHierarchyCode,
   isDefaultValueApplied,
   isValueBlank,
+  isValueNotBlank,
   hasUserInputValue,
   // update
   assocChildApplicability,
@@ -138,4 +155,5 @@ export const Nodes = {
   assocChildrenMinCount,
   mergeNodes,
   removeStatusFlags,
+  assocValue,
 }

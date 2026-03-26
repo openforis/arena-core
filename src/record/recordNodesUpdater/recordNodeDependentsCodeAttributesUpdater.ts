@@ -11,6 +11,7 @@ export const updateDependentCodeAttributes = (params: RecordNodeDependentsUpdate
 
   const updateResult = new RecordUpdateResult({ record })
 
+  const recordUpdateOptions = { sideEffect }
   // 1. get dependent code attributes
 
   const dependentCodeAttributes = Records.getDependentCodeAttributes(node)(record)
@@ -30,7 +31,7 @@ export const updateDependentCodeAttributes = (params: RecordNodeDependentsUpdate
         updated: true,
         dateModified: Dates.nowFormattedForStorage(),
       }
-      updateResult.addNode(nodeUpdated, { sideEffect })
+      updateResult.addNode(nodeUpdated, recordUpdateOptions)
     }
   }
 

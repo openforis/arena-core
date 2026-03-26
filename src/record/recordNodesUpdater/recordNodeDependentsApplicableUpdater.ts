@@ -4,7 +4,7 @@ import { Surveys } from '../../survey'
 import { Survey, SurveyDependencyType } from '../../survey/survey'
 import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { Records } from '../records'
+import { Records, RecordUpdateOptions } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
@@ -72,12 +72,43 @@ const calculateApplicableNext = async ({
   }
 }
 
+const updateDescendantsApplicability = ({
+  updateResult,
+  nodeCtxChild,
+  applicable,
+  params,
+  nodeAddOptions,
+}: {
+  updateResult: RecordUpdateResult
+  nodeCtxChild: Node
+  applicable: boolean
+  params: RecordNodeDependentsUpdateParams
+  nodeAddOptions: RecordUpdateOptions
+}): void => {
+  const { sideEffect = false, clearNonApplicableValues = false } = params
+  Records.visitDescendantsAndSelf({
+    record: updateResult.record,
+    node: nodeCtxChild,
+    visitor: (nodeDescendant): boolean => {
+      // Clear value if becoming non-applicable and parameter is enabled
+      let nodeDescendantUpdated =
+        clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
+          ? Nodes.assocValue(nodeDescendant, null, sideEffect)
+          : nodeDescendant
+      updateResult.addNode(nodeDescendantUpdated, nodeAddOptions)
+      return false
+    },
+  })
+}
+
 export const updateSelfAndDependentsApplicable = async (
   params: RecordNodeDependentsUpdateParams
 ): Promise<RecordUpdateResult> => {
   const { survey, record, node, sideEffect = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
+
+  const nodeAddOptions: RecordUpdateOptions = { sideEffect }
 
   // 1. fetch dependent nodes
   const nodePointersToUpdate = extractNodePointersToUpdate({ survey, record, node })
@@ -110,7 +141,7 @@ export const updateSelfAndDependentsApplicable = async (
 
       // update node and add it to nodes updated
       const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
-      updateResult.addNode(nodeCtxUpdated, { sideEffect })
+      updateResult.addNode(nodeCtxUpdated, nodeAddOptions)
 
       let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
 
@@ -125,14 +156,7 @@ export const updateSelfAndDependentsApplicable = async (
       }
       for (const nodeCtxChild of nodeCtxChildren) {
         // add nodeCtxChild and its descendants to nodesUpdated
-        Records.visitDescendantsAndSelf({
-          record: updateResult.record,
-          node: nodeCtxChild,
-          visitor: (nodeDescendant): boolean => {
-            updateResult.addNode(nodeDescendant, { sideEffect })
-            return false
-          },
-        })
+        updateDescendantsApplicability({ updateResult, nodeCtxChild, applicable, params, nodeAddOptions })
       }
     }
   }

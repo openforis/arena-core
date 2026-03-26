@@ -49,13 +49,14 @@ export const createOrDeleteEnumeratedEntities = async (
   }
 ) => {
   const { survey, parentNode, entityDef, categoryItemProvider, updateResult, sideEffect } = params
+  const recordUpdateOptions = { sideEffect }
   const existingEntities = getChildren(parentNode, entityDef.uuid)(updateResult.record)
   const existingEntitiesCount = existingEntities.length
   const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
 
   const deleteExistingEntities = () => {
     const existingEntityUuids = existingEntities.map((node) => node.uuid)
-    const nodesDeleteUpdatedResult = deleteNodes(existingEntityUuids, { sideEffect })(updateResult.record)
+    const nodesDeleteUpdatedResult = deleteNodes(existingEntityUuids, recordUpdateOptions)(updateResult.record)
     updateResult.merge(nodesDeleteUpdatedResult)
   }
 

@@ -12,6 +12,7 @@ import { RecordUpdateResult } from './recordUpdateResult'
 
 export type NodesUpdateParams = RecordExpressionEvaluationContext & {
   dateModified?: string
+  clearNonApplicableValues?: boolean
 }
 
 export type NodeCreateParams = NodesUpdateParams & {
