@@ -64,18 +64,20 @@ const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sid
   const { record, nodeDefUuid, sideEffect } = params
   const updateResult = new RecordUpdateResult({ record })
 
+  const recordUpdateOptions = { sideEffect }
+
   const nodesToDelete = Records.getNodesByDefUuid(nodeDefUuid)(updateResult.record)
   for (const nodeToDelete of nodesToDelete) {
     // cleanup child applicability
     const parentNode = Records.getParent(nodeToDelete)(updateResult.record)
     if (parentNode && !Nodes.isChildApplicable(parentNode, nodeDefUuid)) {
       const parentNodeUpdated = Nodes.dissocChildApplicability(parentNode, nodeDefUuid)
-      const recordWithParentNodeUpdated = Records.addNode(parentNodeUpdated, { sideEffect })(updateResult.record)
+      const recordWithParentNodeUpdated = Records.addNode(parentNodeUpdated, recordUpdateOptions)(updateResult.record)
       updateResult.merge(new RecordUpdateResult({ record: recordWithParentNodeUpdated }))
     }
   }
   const nodeUuidsToDelete = nodesToDelete.map((node) => node.uuid)
-  const nodesDeleteUpdateResult = Records.deleteNodes(nodeUuidsToDelete, { sideEffect })(updateResult.record)
+  const nodesDeleteUpdateResult = Records.deleteNodes(nodeUuidsToDelete, recordUpdateOptions)(updateResult.record)
   updateResult.merge(nodesDeleteUpdateResult)
 
   return updateResult

@@ -75,9 +75,11 @@ const calculateApplicableNext = async ({
 export const updateSelfAndDependentsApplicable = async (
   params: RecordNodeDependentsUpdateParams
 ): Promise<RecordUpdateResult> => {
-  const { survey, record, node, sideEffect = false } = params
+  const { survey, record, node, sideEffect = false, clearNonApplicableValues = false } = params
 
   const updateResult = new RecordUpdateResult({ record })
+
+  const nodeAddOptions = { sideEffect }
 
   // 1. fetch dependent nodes
   const nodePointersToUpdate = extractNodePointersToUpdate({ survey, record, node })
@@ -110,7 +112,7 @@ export const updateSelfAndDependentsApplicable = async (
 
       // update node and add it to nodes updated
       const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
-      updateResult.addNode(nodeCtxUpdated, { sideEffect })
+      updateResult.addNode(nodeCtxUpdated, nodeAddOptions)
 
       let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
 
@@ -129,7 +131,12 @@ export const updateSelfAndDependentsApplicable = async (
           record: updateResult.record,
           node: nodeCtxChild,
           visitor: (nodeDescendant): boolean => {
-            updateResult.addNode(nodeDescendant, { sideEffect })
+            // Clear value if becoming non-applicable and parameter is enabled
+            const nodeDescendantUpdated =
+              clearNonApplicableValues && !applicable && !Nodes.isValueBlank(nodeDescendant)
+                ? Nodes.assocValue(nodeDescendant, null, sideEffect)
+                : nodeDescendant
+            updateResult.addNode(nodeDescendantUpdated, nodeAddOptions)
             return false
           },
         })
