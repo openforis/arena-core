@@ -121,10 +121,16 @@ const removeStatusFlags = ({ node, sideEffect = false }: { node: Node; sideEffec
 }
 
 const assocValue = (node: Node, value: any, sideEffect = false): Node => {
-  const nodeUpdated = sideEffect ? node : { ...node }
+  let nodeUpdated = sideEffect ? node : { ...node }
   nodeUpdated.value = value
   nodeUpdated.updated = true
   nodeUpdated.dateModified = Dates.nowFormattedForStorage()
+  if (isDefaultValueApplied(nodeUpdated)) {
+    // reset defaultValueApplied flag
+    const metaOriginal = nodeUpdated.meta ?? {}
+    const meta = sideEffect ? metaOriginal : { ...metaOriginal }
+    nodeUpdated.meta = { ...meta, defaultValueApplied: false }
+  }
   return nodeUpdated
 }
 

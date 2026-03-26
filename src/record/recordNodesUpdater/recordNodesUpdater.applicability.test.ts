@@ -11,6 +11,7 @@ import { User } from '../../auth'
 import { Records } from '../records'
 import { Surveys } from '../../survey'
 import { Record } from '../record'
+import { Nodes } from '../../node'
 
 let user: User
 
@@ -193,6 +194,7 @@ describe('Record nodes updater - applicability', () => {
     expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(true)
     expect(dependentNode.value).toBe(100) // Value restored
     expect(dependentReadOnlyNode.value).toBe(101)
+    expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(true)
 
     // Now make it non-applicable WITH clearNonApplicableValues
     recordUpdated = Records.addNode({ ...nodeToUpdate, value: 5 })(updateResult.record)
@@ -217,5 +219,6 @@ describe('Record nodes updater - applicability', () => {
     expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(false)
     expect(dependentNode.value).toBeNull() // Value should be cleared
     expect(dependentReadOnlyNode.value).toBeNull()
+    expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(false) // defaultValueApplied should be reset
   })
 })

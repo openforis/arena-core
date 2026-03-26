@@ -91,7 +91,7 @@ const updateDescendantsApplicability = ({
     node: nodeCtxChild,
     visitor: (nodeDescendant): boolean => {
       // Clear value if becoming non-applicable and parameter is enabled
-      const nodeDescendantUpdated =
+      let nodeDescendantUpdated =
         clearNonApplicableValues && !applicable && !Nodes.isValueBlank(nodeDescendant)
           ? Nodes.assocValue(nodeDescendant, null, sideEffect)
           : nodeDescendant
