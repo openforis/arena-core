@@ -111,7 +111,8 @@ describe('Record nodes updater - applicability', () => {
         'root_entity',
         integerDef('identifier').key(),
         integerDef('source_attribute'),
-        integerDef('dependent_attribute').applyIf('source_attribute > 10')
+        integerDef('dependent_attribute').applyIf('source_attribute > 10'),
+        integerDef('dependent_attribute_read_only').readOnly().defaultValue('dependent_attribute + 1')
       )
     ).build()
 
@@ -122,7 +123,8 @@ describe('Record nodes updater - applicability', () => {
         'root_entity',
         attribute('identifier', 10),
         attribute('source_attribute', 20),
-        attribute('dependent_attribute', 100)
+        attribute('dependent_attribute', 100),
+        attribute('dependent_attribute_read_only', null)
       )
     ).build()
 
@@ -132,8 +134,14 @@ describe('Record nodes updater - applicability', () => {
       record,
       path: 'root_entity.dependent_attribute',
     })
+    let dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
     expect(Records.isNodeApplicable({ record, node: dependentNode })).toBe(true)
     expect(dependentNode.value).toBe(100)
+    expect(dependentReadOnlyNode.value).toBeNull()
 
     // Update source attribute to make dependent non-applicable WITHOUT clearNonApplicableValues
     const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
@@ -153,8 +161,14 @@ describe('Record nodes updater - applicability', () => {
       record: updateResult.record,
       path: 'root_entity.dependent_attribute',
     })
+    dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
     expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(false)
     expect(dependentNode.value).toBe(100) // Value should still be there
+    expect(dependentReadOnlyNode.value).toBe(101)
 
     // Now update with clearNonApplicableValues enabled
     recordUpdated = Records.addNode({ ...nodeToUpdate, value: 20 })(updateResult.record)
@@ -171,8 +185,14 @@ describe('Record nodes updater - applicability', () => {
       record: updateResult.record,
       path: 'root_entity.dependent_attribute',
     })
+    dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
     expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(true)
     expect(dependentNode.value).toBe(100) // Value restored
+    expect(dependentReadOnlyNode.value).toBe(101)
 
     // Now make it non-applicable WITH clearNonApplicableValues
     recordUpdated = Records.addNode({ ...nodeToUpdate, value: 5 })(updateResult.record)
@@ -189,7 +209,13 @@ describe('Record nodes updater - applicability', () => {
       record: updateResult.record,
       path: 'root_entity.dependent_attribute',
     })
+    dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
     expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(false)
     expect(dependentNode.value).toBeNull() // Value should be cleared
+    expect(dependentReadOnlyNode.value).toBeNull()
   })
 })
