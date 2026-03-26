@@ -4,10 +4,10 @@ import { Surveys } from '../../survey'
 import { Survey, SurveyDependencyType } from '../../survey/survey'
 import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { Records } from '../records'
+import { Records, RecordUpdateOptions } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
-import { RecordUpdateResult, RecordUpdateResultUpdateOptions } from './recordUpdateResult'
+import { RecordUpdateResult } from './recordUpdateResult'
 
 const expressionEvaluator = new RecordExpressionEvaluator()
 
@@ -83,7 +83,7 @@ const updateDescendantsApplicability = ({
   nodeCtxChild: Node
   applicable: boolean
   params: RecordNodeDependentsUpdateParams
-  nodeAddOptions: RecordUpdateResultUpdateOptions
+  nodeAddOptions: RecordUpdateOptions
 }): void => {
   const { sideEffect = false, clearNonApplicableValues = false } = params
   Records.visitDescendantsAndSelf({
@@ -108,7 +108,7 @@ export const updateSelfAndDependentsApplicable = async (
 
   const updateResult = new RecordUpdateResult({ record })
 
-  const nodeAddOptions: RecordUpdateResultUpdateOptions = { sideEffect }
+  const nodeAddOptions: RecordUpdateOptions = { sideEffect }
 
   // 1. fetch dependent nodes
   const nodePointersToUpdate = extractNodePointersToUpdate({ survey, record, node })
