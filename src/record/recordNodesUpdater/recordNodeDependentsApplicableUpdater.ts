@@ -92,7 +92,7 @@ const updateDescendantsApplicability = ({
     visitor: (nodeDescendant): boolean => {
       // Clear value if becoming non-applicable and parameter is enabled
       let nodeDescendantUpdated =
-        clearNonApplicableValues && !applicable && !Nodes.isValueBlank(nodeDescendant)
+        clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
           ? Nodes.assocValue(nodeDescendant, null, sideEffect)
           : nodeDescendant
       updateResult.addNode(nodeDescendantUpdated, nodeAddOptions)
