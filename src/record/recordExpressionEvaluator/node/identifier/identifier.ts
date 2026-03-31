@@ -82,16 +82,7 @@ const evaluateIdentifierOnNode = (params: {
     return nodeObject
   }
   if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefObject })) {
-    // if the rerenced node is an ancestor of the context node, return it following the hierarchy
-    try {
-      return Records.getAncestor({ record, node: nodeObject, ancestorDefUuid: nodeDefReferenced.uuid })
-    } catch (e) {
-      throw new SystemError('expression.ancestorNotFound', {
-        ancestorDefName: NodeDefs.getName(nodeDefReferenced),
-        descendantDefName: NodeDefs.getName(nodeDefObject),
-        details: String(e),
-      })
-    }
+    return Records.getAncestor({ record, node: nodeObject, ancestorDefUuid: nodeDefReferenced.uuid })
   }
   // the referenced nodes can be siblings of the current node
   const referencedNodes = NodesFinder.findDescendants({ survey, record, nodeContext: nodeObject, nodeDefReferenced })
