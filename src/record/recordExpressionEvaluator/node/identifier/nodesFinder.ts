@@ -16,8 +16,10 @@ const getCommonAncestor = (params: {
     return Records.getRoot(record)
   }
   const nodeDefReferencedH = nodeDefReferenced.meta.h
-  const nodeDefCtxH = nodeDefCtx.meta.h
-  const nodeDefCommonH = Arrays.intersection(nodeDefReferencedH, nodeDefCtxH)
+  // meta.h contains only ancestors (excluding the node itself); include nodeDefCtx.uuid so that
+  // the context nodeDef can be treated as the common ancestor when nodeDefReferenced is a descendant of nodeDefCtx
+  const nodeDefCtxHierarchyToConsider = [...nodeDefCtx.meta.h, nodeDefCtx.uuid]
+  const nodeDefCommonH = Arrays.intersection(nodeDefReferencedH, nodeDefCtxHierarchyToConsider)
   if (nodeDefCommonH.length === 1) {
     return Records.getRoot(record)
   }
