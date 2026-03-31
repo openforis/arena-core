@@ -89,6 +89,7 @@ const evaluateIdentifierOnNode = (params: {
       throw new SystemError('expression.ancestorNotFound', {
         ancestorDefName: NodeDefs.getName(nodeDefReferenced),
         descendantDefName: NodeDefs.getName(nodeDefObject),
+        details: String(e),
       })
     }
   }
@@ -110,7 +111,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     try {
       const result = await super.evaluate(expressionNode)
       return result
-    } catch (e) {
+    } catch {
       // ignore it
     }
 
@@ -124,7 +125,8 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     }
 
     if (Array.isArray(contextObject)) {
-      const result = contextObject.reduce((acc, contextNode) => {
+      const result = []
+      for (const contextNode of contextObject) {
         const evaluationResult = evaluateIdentifierOnNode({
           survey,
           record,
@@ -133,12 +135,13 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
           propName,
         })
         if (Array.isArray(evaluationResult)) {
-          evaluationResult.forEach((item) => acc.push(item))
+          for (const item of evaluationResult) {
+            result.push(item)
+          }
         } else {
-          acc.push(evaluationResult)
+          result.push(evaluationResult)
         }
-        return acc
-      }, [])
+      }
       return result
     } else {
       return evaluateIdentifierOnNode({
