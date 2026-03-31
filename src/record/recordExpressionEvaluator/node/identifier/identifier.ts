@@ -82,15 +82,7 @@ const evaluateIdentifierOnNode = (params: {
     return nodeObject
   }
   if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefObject })) {
-    // if the rerenced node is an ancestor of the context node, return it following the hierarchy
-    try {
-      return Records.getAncestor({ record, node: nodeObject, ancestorDefUuid: nodeDefReferenced.uuid })
-    } catch (e) {
-      throw new SystemError('expression.ancestorNotFound', {
-        ancestorDefName: NodeDefs.getName(nodeDefReferenced),
-        descendantDefName: NodeDefs.getName(nodeDefObject),
-      })
-    }
+    return Records.getAncestor({ record, node: nodeObject, ancestorDefUuid: nodeDefReferenced.uuid })
   }
   // the referenced nodes can be siblings of the current node
   const referencedNodes = NodesFinder.findDescendants({ survey, record, nodeContext: nodeObject, nodeDefReferenced })
@@ -110,12 +102,12 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     try {
       const result = await super.evaluate(expressionNode)
       return result
-    } catch (e) {
+    } catch {
       // ignore it
     }
 
     // identifier not found among global or native properties
-    // idenfifier should be a node or a node value property
+    // identifier should be a node or a node value property
     const { survey, record, evaluateToNode, object: contextObject, item } = this.context
 
     if (item && item === contextObject) {
@@ -124,7 +116,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     }
 
     if (Array.isArray(contextObject)) {
-      const result = contextObject.reduce((acc, contextNode) => {
+      return contextObject.flatMap((contextNode) => {
         const evaluationResult = evaluateIdentifierOnNode({
           survey,
           record,
@@ -132,22 +124,9 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
           evaluateToNode,
           propName,
         })
-        if (Array.isArray(evaluationResult)) {
-          evaluationResult.forEach((item) => acc.push(item))
-        } else {
-          acc.push(evaluationResult)
-        }
-        return acc
-      }, [])
-      return result
-    } else {
-      return evaluateIdentifierOnNode({
-        survey,
-        record,
-        nodeObject: contextObject,
-        evaluateToNode,
-        propName,
+        return Array.isArray(evaluationResult) ? evaluationResult : [evaluationResult]
       })
     }
+    return evaluateIdentifierOnNode({ survey, record, nodeObject: contextObject, evaluateToNode, propName })
   }
 }
