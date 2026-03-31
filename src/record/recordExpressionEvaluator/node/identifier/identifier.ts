@@ -107,7 +107,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     }
 
     // identifier not found among global or native properties
-    // idenfifier should be a node or a node value property
+    // identifier should be a node or a node value property
     const { survey, record, evaluateToNode, object: contextObject, item } = this.context
 
     if (item && item === contextObject) {
@@ -116,8 +116,7 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     }
 
     if (Array.isArray(contextObject)) {
-      const result = []
-      for (const contextNode of contextObject) {
+      return contextObject.flatMap((contextNode) => {
         const evaluationResult = evaluateIdentifierOnNode({
           survey,
           record,
@@ -125,23 +124,9 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
           evaluateToNode,
           propName,
         })
-        if (Array.isArray(evaluationResult)) {
-          for (const item of evaluationResult) {
-            result.push(item)
-          }
-        } else {
-          result.push(evaluationResult)
-        }
-      }
-      return result
-    } else {
-      return evaluateIdentifierOnNode({
-        survey,
-        record,
-        nodeObject: contextObject,
-        evaluateToNode,
-        propName,
+        return Array.isArray(evaluationResult) ? evaluationResult : [evaluationResult]
       })
     }
+    return evaluateIdentifierOnNode({ survey, record, nodeObject: contextObject, evaluateToNode, propName })
   }
 }
