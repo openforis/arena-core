@@ -1,4 +1,5 @@
 export type { Dictionary } from './Dictionary'
+export type { I18nI } from './i18nI'
 
 import { Validation } from '../validation'
 

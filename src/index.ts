@@ -50,7 +50,7 @@ export type {
 } from './chain'
 
 export { TraverseMethod } from './common'
-export type { ArenaObject, ArenaService, Dictionary, Factory } from './common'
+export type { ArenaObject, ArenaService, Dictionary, Factory, I18nI } from './common'
 
 export type { FlatDataExportOptions, ArenaExportInfoFactoryParams, ArenaExportInfo } from './dataExport'
 export {
