@@ -90,12 +90,15 @@ const updateDescendantsApplicability = ({
     record: updateResult.record,
     node: nodeCtxChild,
     visitor: (nodeDescendant): boolean => {
+      const nodeDescendantCleared = clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
       // Clear value if becoming non-applicable and parameter is enabled
-      let nodeDescendantUpdated =
-        clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
-          ? Nodes.assocValue(nodeDescendant, null, sideEffect)
-          : nodeDescendant
+      const nodeDescendantUpdated = nodeDescendantCleared
+        ? Nodes.assocValue(nodeDescendant, null, sideEffect)
+        : nodeDescendant
       updateResult.addNode(nodeDescendantUpdated, nodeAddOptions)
+      if (nodeDescendantCleared) {
+        updateResult.addClearedNotApplicableDefUuid(nodeDescendant.nodeDefUuid)
+      }
       return false
     },
   })
