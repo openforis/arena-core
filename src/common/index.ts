@@ -1,5 +1,5 @@
 export type { Dictionary } from './Dictionary'
-export type { I18nI } from './i18nI'
+export type { I18n } from './i18n'
 
 import { Validation } from '../validation'
 

@@ -1,5 +1,5 @@
 import { AuthGroupName, User, Users, UserTitle } from '../auth'
-import type { I18nI } from '../common'
+import type { I18n } from '../common'
 import { Objects } from '../utils'
 
 import { Message, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUserType } from './message'
@@ -135,7 +135,7 @@ const clearNotApplicableProps = (message: Message): Message => {
 }
 
 const replaceBodyTemplateVariables =
-  ({ i18n, user }: { i18n: I18nI; user: User }) =>
+  ({ i18n, user }: { i18n: I18n; user: User }) =>
   (message: Message): Message => {
     const body = getBody(message) ?? ''
     const titleKey = user.props?.title
