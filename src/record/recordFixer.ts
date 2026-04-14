@@ -143,7 +143,7 @@ const fixRecord = (params: { survey: Survey; record: ArenaRecord; sideEffect?: b
           survey,
           nodeDef: nodeDef as NodeDefCode,
           record: result.record,
-          node,
+          node: nodeUpdated,
           sideEffect,
         })
       }
