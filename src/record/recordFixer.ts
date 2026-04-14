@@ -1,18 +1,50 @@
-import { Node, NodeFactory, Nodes } from '../node'
-import { NodeDef, NodeDefs } from '../nodeDef'
+import { NodeFactory, Nodes } from '../node'
+import { NodeDef, NodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Objects } from '../utils'
-import { Record } from './record'
+import { ArenaRecord, ArenaRecordNode } from './record'
 import { RecordUpdateResult } from './recordNodesUpdater'
 import { Records } from './records'
 
+const fixCodeAttribute = (params: {
+  survey: Survey
+  nodeDef: NodeDefCode
+  record: ArenaRecord
+  node: ArenaRecordNode
+  sideEffect: boolean
+}): ArenaRecordNode => {
+  const { survey, nodeDef, record, node, sideEffect } = params
+  if (!NodeDefs.getParentCodeDefUuid(nodeDef) || Objects.isNotEmpty(Nodes.getHierarchyCode(node))) {
+    // nodeDef is not a code attribute or meta.hCode already populated: do nothing
+    return node
+  }
+  const parentNode = Records.getParent(node)(record)
+  if (!parentNode) {
+    // missing parent node; node parentUuid could be invalid
+    return node
+  }
+  // populate meta.hCode with ancestor code attribute node uuids
+  const hCode: string[] = []
+  let currentCodeDef: NodeDefCode = nodeDef
+  let currentParentCodeAttribute = Records.getParentCodeAttribute({ parentNode, nodeDef: currentCodeDef })(record)
+  while (currentParentCodeAttribute) {
+    hCode.unshift(currentParentCodeAttribute.uuid)
+    currentCodeDef = Surveys.getNodeDefByUuid({ survey, uuid: currentParentCodeAttribute.nodeDefUuid }) as NodeDefCode
+    currentParentCodeAttribute = Records.getParentCodeAttribute({ parentNode, nodeDef: currentCodeDef })(record)
+  }
+  const nodeUpdated = sideEffect ? node : { ...node }
+  nodeUpdated.meta = { ...nodeUpdated.meta, hCode }
+  return nodeUpdated
+}
+
 const insertMissingSingleNode = (params: {
+  survey: Survey
   nodeDef: NodeDef<any>
-  record: Record
-  parentNode: Node
+  record: ArenaRecord
+  parentNode: ArenaRecordNode
   sideEffect: boolean
 }): RecordUpdateResult | null => {
-  const { nodeDef, record, parentNode, sideEffect } = params
+  const { survey, nodeDef, record, parentNode, sideEffect } = params
   if (!NodeDefs.isSingle(nodeDef)) {
     // multiple node: don't insert it
     return null
@@ -25,14 +57,19 @@ const insertMissingSingleNode = (params: {
   }
   // insert missing single node
   const recordUuid = record.uuid
-  const node = NodeFactory.createInstance({ nodeDefUuid, recordUuid, parentNode })
+  let node = NodeFactory.createInstance({ nodeDefUuid, recordUuid, parentNode })
+
+  if (nodeDef.type === NodeDefType.code) {
+    node = fixCodeAttribute({ survey, nodeDef: nodeDef as NodeDefCode, record, node, sideEffect })
+  }
+
   const recordUpdated = Records.addNode(node, { sideEffect })(record)
   return new RecordUpdateResult({ record: recordUpdated, nodes: { [node.uuid]: node } })
 }
 
 const insertMissingSingleNodes = (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   sideEffect: boolean
 }): RecordUpdateResult => {
   const { survey, record, sideEffect } = params
@@ -45,6 +82,7 @@ const insertMissingSingleNodes = (params: {
         const parentNodes = Records.getNodesByDefUuid(parentDefUuid)(updateResult.record)
         for (const parentNode of parentNodes) {
           const partialUpdateResult = insertMissingSingleNode({
+            survey,
             nodeDef,
             record: updateResult.record,
             parentNode,
@@ -60,7 +98,7 @@ const insertMissingSingleNodes = (params: {
   return updateResult
 }
 
-const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sideEffect: boolean }) => {
+const deleteNodesByDefUuid = (params: { record: ArenaRecord; nodeDefUuid: string; sideEffect: boolean }) => {
   const { record, nodeDefUuid, sideEffect } = params
   const updateResult = new RecordUpdateResult({ record })
 
@@ -89,20 +127,25 @@ const deleteNodesByDefUuid = (params: { record: Record; nodeDefUuid: string; sid
  * - deleting nodes with non existing node defs
  * - removing status flags (created, deleted, updated) from all nodes
  */
-const fixRecord = (params: { survey: Survey; record: Record; sideEffect?: boolean }): RecordUpdateResult => {
+const fixRecord = (params: { survey: Survey; record: ArenaRecord; sideEffect?: boolean }): RecordUpdateResult => {
   const { survey, record, sideEffect = false } = params
   const result = new RecordUpdateResult({ record })
 
   for (const node of Records.getNodesArray(record)) {
     const { nodeDefUuid } = node
     const nodeDef = Surveys.findNodeDefByUuid({ survey, uuid: nodeDefUuid })
-    if (!nodeDef) {
+    if (nodeDef) {
+      // remove status flags
+      let nodeUpdated = Nodes.removeStatusFlags({ node, sideEffect })
+
+      if (nodeDef.type === NodeDefType.code) {
+        nodeUpdated = fixCodeAttribute({ survey, nodeDef: nodeDef as NodeDefCode, record, node, sideEffect })
+      }
+      result.addNode(nodeUpdated, { sideEffect })
+    } else {
       const nodesDeletedUpdatedResult = deleteNodesByDefUuid({ record: result.record, nodeDefUuid, sideEffect })
       result.merge(nodesDeletedUpdatedResult)
     }
-    // remove status flags
-    const nodeUpdated = Nodes.removeStatusFlags({ node, sideEffect })
-    result.addNode(nodeUpdated, { sideEffect })
   }
   const missingNodesUpdateResult = insertMissingSingleNodes({ survey, record: result.record, sideEffect })
   result.merge(missingNodesUpdateResult)

@@ -19,11 +19,7 @@ export const updateDependentCodeAttributes = (params: RecordNodeDependentsUpdate
   // 2. clear dependent code attributes' values
   for (const dependentCodeAttribute of dependentCodeAttributes) {
     const dependentCodeAttributeDef = Surveys.getNodeDefByUuid({ survey, uuid: dependentCodeAttribute.nodeDefUuid })
-    if (
-      !NodeDefs.isReadOnly(dependentCodeAttributeDef) &&
-      !Nodes.isDefaultValueApplied(dependentCodeAttribute) &&
-      !Nodes.isValueBlank(dependentCodeAttribute)
-    ) {
+    if (!NodeDefs.isReadOnly(dependentCodeAttributeDef) && Nodes.hasUserInputValue(dependentCodeAttribute)) {
       const nodeUpdated: Node = {
         ...dependentCodeAttribute,
         value: null,
