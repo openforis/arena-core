@@ -9,7 +9,6 @@ export class RecordUpdateResult {
   nodes: NodesMap
   nodesDeleted: NodesMap
   clearedNotApplicableDefUuids: Set<string>
-  clearedDependentCodeAttributeDefUuids: Set<string>
   validation?: Validation
 
   constructor(params: {
@@ -17,14 +16,12 @@ export class RecordUpdateResult {
     nodes?: NodesMap
     nodesDeleted?: NodesMap
     clearedNotApplicableDefUuids?: Set<string>
-    clearedDependentCodeAttributeDefUuids?: Set<string>
     validation?: Validation
   }) {
     this.record = params.record
     this.nodes = params.nodes ?? {}
     this.nodesDeleted = params.nodesDeleted ?? {}
     this.clearedNotApplicableDefUuids = params.clearedNotApplicableDefUuids ?? new Set<string>()
-    this.clearedDependentCodeAttributeDefUuids = params.clearedDependentCodeAttributeDefUuids ?? new Set<string>()
     this.validation = params.validation
   }
 
@@ -41,10 +38,6 @@ export class RecordUpdateResult {
     this.clearedNotApplicableDefUuids.add(nodeDefUuid)
   }
 
-  addClearedDependentCodeAttributeDefUuid(nodeDefUuid: string) {
-    this.clearedDependentCodeAttributeDefUuids.add(nodeDefUuid)
-  }
-
   /**
    * Merges this record update result with the specified one.
    * The record of this record update result will be the one of the specified record update result
@@ -59,9 +52,6 @@ export class RecordUpdateResult {
     Object.assign(this.nodesDeleted, recordUpdateResult.nodesDeleted)
     for (const nodeDefUuid of recordUpdateResult.clearedNotApplicableDefUuids) {
       this.addClearedNotApplicableDefUuid(nodeDefUuid)
-    }
-    for (const nodeDefUuid of recordUpdateResult.clearedDependentCodeAttributeDefUuids) {
-      this.addClearedDependentCodeAttributeDefUuid(nodeDefUuid)
     }
     return this
   }

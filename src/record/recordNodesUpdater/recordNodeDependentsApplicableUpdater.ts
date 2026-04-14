@@ -107,10 +107,12 @@ const updateDescendantsApplicability = ({
 
   // if a multiple entity became not applicable and is empty, delete it instead of just marking descendants
   if (!applicable) {
-    const nodeCtxChildDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtxChild.nodeDefUuid })
+    const { uuid: nodeCtxChildUuid, nodeDefUuid: nodeCtxChildDefUuid } = nodeCtxChild
+    const nodeCtxChildDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtxChildDefUuid })
     if (NodeDefs.isMultipleEntity(nodeCtxChildDef) && Records.isNodeEmpty(nodeCtxChild)(updateResult.record)) {
-      const deleteResult = deleteNodes([nodeCtxChild.uuid], recordUpdateOptions)(updateResult.record)
+      const deleteResult = deleteNodes([nodeCtxChildUuid], recordUpdateOptions)(updateResult.record)
       updateResult.merge(deleteResult)
+      updateResult.addClearedNotApplicableDefUuid(nodeCtxChildDefUuid)
     }
   }
 }
