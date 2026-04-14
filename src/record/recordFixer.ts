@@ -139,7 +139,13 @@ const fixRecord = (params: { survey: Survey; record: ArenaRecord; sideEffect?: b
       let nodeUpdated = Nodes.removeStatusFlags({ node, sideEffect })
 
       if (nodeDef.type === NodeDefType.code) {
-        nodeUpdated = fixCodeAttribute({ survey, nodeDef: nodeDef as NodeDefCode, record, node, sideEffect })
+        nodeUpdated = fixCodeAttribute({
+          survey,
+          nodeDef: nodeDef as NodeDefCode,
+          record: result.record,
+          node,
+          sideEffect,
+        })
       }
       result.addNode(nodeUpdated, { sideEffect })
     } else {
