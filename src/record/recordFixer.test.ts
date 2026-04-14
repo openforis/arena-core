@@ -5,7 +5,7 @@ import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilde
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 
-const { entityDef, integerDef } = SurveyObjectBuilders
+const { category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
 import { Record } from './record'
@@ -90,5 +90,60 @@ describe('Record fixer', () => {
     // test applicability cleared (applicable = true by default)
     rootNode = Records.getRoot(record)!
     expect(Nodes.isChildApplicable(rootNode, clusterAttrDefUuid)).toBeTruthy()
+  })
+
+  test('fixCodeAttribute: missing hierarchical code node inserted with correct hCode', async () => {
+    const categoryName = 'admin_unit'
+
+    const surveyWithCode = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root',
+        integerDef('id').key(),
+        codeDef('region', categoryName),
+        codeDef('province', categoryName).parentCodeAttribute('region')
+      )
+    )
+      .categories(
+        category(categoryName)
+          .levels('level_1', 'level_2')
+          .items(categoryItem('1').items(categoryItem('1a'), categoryItem('1b')))
+      )
+      .build()
+
+    // Build record - province node will have hCode populated by attributeBuilder
+    const province1aItem = TestUtils.getCategoryItem({
+      survey: surveyWithCode,
+      categoryName,
+      codePaths: ['1', '1a'],
+    })
+    const builtRecord = new RecordBuilder(
+      user,
+      surveyWithCode,
+      entity(
+        'root',
+        attribute('id', 1),
+        attribute('region', '1'),
+        attribute('province', { itemUuid: province1aItem.uuid })
+      )
+    ).build()
+
+    // Grab the region node uuid (the parent code attribute)
+    const regionNode = TestUtils.getNodeByPath({ survey: surveyWithCode, record: builtRecord, path: 'root.region' })
+
+    // Delete the province node properly (including index) so insertMissingSingleNodes will recreate it
+    const provinceDef = Surveys.getNodeDefByName({ survey: surveyWithCode, name: 'province' })
+    const [provinceNode] = Records.getNodesByDefUuid(provinceDef.uuid)(builtRecord)
+    const { record: recordWithoutProvince } = Records.deleteNodes([provinceNode.uuid])(builtRecord)
+
+    const fixResult = RecordFixer.insertMissingSingleNodes({
+      survey: surveyWithCode,
+      record: recordWithoutProvince,
+      sideEffect: false,
+    })
+
+    const [reinsertedProvince] = Records.getNodesByDefUuid(provinceDef.uuid)(fixResult.record)
+    expect(reinsertedProvince).toBeDefined()
+    expect(reinsertedProvince.meta?.hCode).toEqual([regionNode.uuid])
   })
 })

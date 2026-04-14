@@ -52,6 +52,7 @@ export const createOrDeleteEnumeratedEntities = async (
   const recordUpdateOptions = { sideEffect }
   const existingEntities = getChildren(parentNode, entityDef.uuid)(updateResult.record)
   const existingEntitiesCount = existingEntities.length
+  const hasExistingEntities = existingEntitiesCount > 0
   const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
 
   const deleteExistingEntities = () => {
@@ -62,7 +63,7 @@ export const createOrDeleteEnumeratedEntities = async (
 
   if (applicable) {
     if (
-      existingEntitiesCount > 0 &&
+      hasExistingEntities &&
       (await shouldExistingEntitiesBeDeleted({
         survey,
         entityDef,
@@ -75,7 +76,7 @@ export const createOrDeleteEnumeratedEntities = async (
       deleteExistingEntities()
     }
     await createEnumeratedEntityNodes({ ...params, nodeDef: entityDef, parentNode })
-  } else if (!applicable && existingEntitiesCount > 0) {
+  } else if (!applicable && hasExistingEntities) {
     deleteExistingEntities()
   }
 }

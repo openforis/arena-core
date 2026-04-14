@@ -6,6 +6,7 @@ import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records, RecordUpdateOptions } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
+import { deleteNodes } from './recordNodesDeleter'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -77,28 +78,43 @@ const updateDescendantsApplicability = ({
   nodeCtxChild,
   applicable,
   params,
-  nodeAddOptions,
+  recordUpdateOptions,
 }: {
   updateResult: RecordUpdateResult
   nodeCtxChild: Node
   applicable: boolean
   params: RecordNodeDependentsUpdateParams
-  nodeAddOptions: RecordUpdateOptions
+  recordUpdateOptions: RecordUpdateOptions
 }): void => {
-  const { sideEffect = false, clearNonApplicableValues = false } = params
+  const { survey, sideEffect = false, clearNonApplicableValues = false } = params
+
   Records.visitDescendantsAndSelf({
     record: updateResult.record,
     node: nodeCtxChild,
     visitor: (nodeDescendant): boolean => {
+      const nodeDescendantCleared = clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
       // Clear value if becoming non-applicable and parameter is enabled
-      let nodeDescendantUpdated =
-        clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
-          ? Nodes.assocValue(nodeDescendant, null, sideEffect)
-          : nodeDescendant
-      updateResult.addNode(nodeDescendantUpdated, nodeAddOptions)
+      const nodeDescendantUpdated = nodeDescendantCleared
+        ? Nodes.assocValue(nodeDescendant, null, sideEffect)
+        : nodeDescendant
+      updateResult.addNode(nodeDescendantUpdated, recordUpdateOptions)
+      if (nodeDescendantCleared) {
+        updateResult.addClearedDefUuid(nodeDescendant.nodeDefUuid)
+      }
       return false
     },
   })
+
+  // if a multiple entity became not applicable and is empty, delete it instead of just marking descendants
+  if (!applicable) {
+    const { uuid: nodeCtxChildUuid, nodeDefUuid: nodeCtxChildDefUuid } = nodeCtxChild
+    const nodeCtxChildDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtxChildDefUuid })
+    if (NodeDefs.isMultipleEntity(nodeCtxChildDef) && Records.isNodeEmpty(nodeCtxChild)(updateResult.record)) {
+      const deleteResult = deleteNodes([nodeCtxChildUuid], recordUpdateOptions)(updateResult.record)
+      updateResult.merge(deleteResult)
+      updateResult.addClearedDefUuid(nodeCtxChildDefUuid)
+    }
+  }
 }
 
 export const updateSelfAndDependentsApplicable = async (
@@ -108,7 +124,7 @@ export const updateSelfAndDependentsApplicable = async (
 
   const updateResult = new RecordUpdateResult({ record })
 
-  const nodeAddOptions: RecordUpdateOptions = { sideEffect }
+  const recordUpdateOptions: RecordUpdateOptions = { sideEffect }
 
   // 1. fetch dependent nodes
   const nodePointersToUpdate = extractNodePointersToUpdate({ survey, record, node })
@@ -141,7 +157,7 @@ export const updateSelfAndDependentsApplicable = async (
 
       // update node and add it to nodes updated
       const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
-      updateResult.addNode(nodeCtxUpdated, nodeAddOptions)
+      updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
 
       let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
 
@@ -156,7 +172,13 @@ export const updateSelfAndDependentsApplicable = async (
       }
       for (const nodeCtxChild of nodeCtxChildren) {
         // add nodeCtxChild and its descendants to nodesUpdated
-        updateDescendantsApplicability({ updateResult, nodeCtxChild, applicable, params, nodeAddOptions })
+        updateDescendantsApplicability({
+          updateResult,
+          nodeCtxChild,
+          applicable,
+          params,
+          recordUpdateOptions,
+        })
       }
     }
   }

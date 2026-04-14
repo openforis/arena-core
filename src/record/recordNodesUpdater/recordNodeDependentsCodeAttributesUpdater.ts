@@ -12,19 +12,14 @@ export const updateDependentCodeAttributes = (params: RecordNodeDependentsUpdate
   const updateResult = new RecordUpdateResult({ record })
 
   const recordUpdateOptions = { sideEffect }
-  // 1. get dependent code attributes
 
+  // 1. get dependent code attributes
   const dependentCodeAttributes = Records.getDependentCodeAttributes(node)(record)
 
   // 2. clear dependent code attributes' values
-
   for (const dependentCodeAttribute of dependentCodeAttributes) {
     const dependentCodeAttributeDef = Surveys.getNodeDefByUuid({ survey, uuid: dependentCodeAttribute.nodeDefUuid })
-    if (
-      !NodeDefs.isReadOnly(dependentCodeAttributeDef) &&
-      !Nodes.isDefaultValueApplied(dependentCodeAttribute) &&
-      !Nodes.isValueBlank(dependentCodeAttribute)
-    ) {
+    if (!NodeDefs.isReadOnly(dependentCodeAttributeDef) && Nodes.hasUserInputValue(dependentCodeAttribute)) {
       const nodeUpdated: Node = {
         ...dependentCodeAttribute,
         value: null,
@@ -32,6 +27,7 @@ export const updateDependentCodeAttributes = (params: RecordNodeDependentsUpdate
         dateModified: Dates.nowFormattedForStorage(),
       }
       updateResult.addNode(nodeUpdated, recordUpdateOptions)
+      updateResult.addClearedDefUuid(nodeUpdated.nodeDefUuid)
     }
   }
 

@@ -55,3 +55,6 @@ export interface Record {
 
   info?: RecordInfo
 }
+
+export type ArenaRecord = Record
+export type ArenaRecordNode = Node

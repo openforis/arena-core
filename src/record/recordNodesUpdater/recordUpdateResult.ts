@@ -8,12 +8,20 @@ export class RecordUpdateResult {
   record: Record
   nodes: NodesMap
   nodesDeleted: NodesMap
+  clearedDefUuids: Set<string>
   validation?: Validation
 
-  constructor(params: { record: Record; nodes?: NodesMap; nodesDeleted?: NodesMap; validation?: Validation }) {
+  constructor(params: {
+    record: Record
+    nodes?: NodesMap
+    nodesDeleted?: NodesMap
+    clearedDefUuids?: Set<string>
+    validation?: Validation
+  }) {
     this.record = params.record
     this.nodes = params.nodes ?? {}
     this.nodesDeleted = params.nodesDeleted ?? {}
+    this.clearedDefUuids = params.clearedDefUuids ?? new Set<string>()
     this.validation = params.validation
   }
 
@@ -24,6 +32,10 @@ export class RecordUpdateResult {
   addNode(node: Node, options?: RecordUpdateOptions) {
     this.nodes[node.uuid] = node
     this.record = addNode(node, options)(this.record)
+  }
+
+  addClearedDefUuid(nodeDefUuid: string) {
+    this.clearedDefUuids.add(nodeDefUuid)
   }
 
   /**
@@ -38,6 +50,9 @@ export class RecordUpdateResult {
     this.record = recordUpdateResult.record
     Object.assign(this.nodes, recordUpdateResult.nodes)
     Object.assign(this.nodesDeleted, recordUpdateResult.nodesDeleted)
+    for (const nodeDefUuid of recordUpdateResult.clearedDefUuids) {
+      this.addClearedDefUuid(nodeDefUuid)
+    }
     return this
   }
 }

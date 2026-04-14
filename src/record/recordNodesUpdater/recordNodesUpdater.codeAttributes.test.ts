@@ -94,6 +94,7 @@ describe('Record nodes updater - dependent code attributes', () => {
     })
     expect(dependentNodeUpdated).not.toBeNull()
     expect(dependentNodeUpdated.value).toBeNull()
+    expect(updateResult.clearedDefUuids).toEqual(new Set([dependentNodeUpdated.nodeDefUuid]))
   })
 
   test('Hierarchical read-only code attributes evaluation', async () => {
@@ -195,6 +196,7 @@ describe('Record nodes updater - dependent code attributes', () => {
         nodes: { [nodeToUpdate.uuid]: nodeUpdated },
       })
       expect(updateResult).not.toBeNull()
+      expect(updateResult.clearedDefUuids.size).toBe(0)
 
       record = updateResult.record
     }

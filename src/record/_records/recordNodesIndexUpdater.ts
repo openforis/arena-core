@@ -23,17 +23,18 @@ const sortNodesByIdOrCreationDate = (nodeA: Node, nodeB: Node): number => {
 
 const _addNodeToCodeDependents =
   (node: Node, sideEffect: boolean) =>
-  (index: RecordNodesIndex): RecordNodesIndex =>
-    Nodes.getHierarchyCode(node).reduce(
-      (indexAcc, ancestorCodeAttributeUuid) =>
-        Objects.assocPath({
-          obj: indexAcc,
-          path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.uuid],
-          value: true,
-          sideEffect,
-        }),
-      index
-    )
+  (index: RecordNodesIndex): RecordNodesIndex => {
+    let indexUpdated = index
+    for (const ancestorCodeAttributeUuid of Nodes.getHierarchyCode(node)) {
+      indexUpdated = Objects.assocPath({
+        obj: indexUpdated,
+        path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.uuid],
+        value: true,
+        sideEffect,
+      })
+    }
+    return indexUpdated
+  }
 
 const _addNodeToIndex =
   (node: Node, sideEffect = false) =>
