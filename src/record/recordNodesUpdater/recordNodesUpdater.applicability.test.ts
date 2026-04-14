@@ -170,7 +170,7 @@ describe('Record nodes updater - applicability', () => {
     expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(false)
     expect(dependentNode.value).toBe(100) // Value should still be there
     expect(dependentReadOnlyNode.value).toBe(101)
-    expect(updateResult.clearedNotApplicableDefUuids.size).toBe(0)
+    expect(updateResult.clearedDefUuids.size).toBe(0)
 
     // Now update with clearNonApplicableValues enabled
     recordUpdated = Records.addNode({ ...nodeToUpdate, value: 20 })(updateResult.record)
@@ -221,6 +221,6 @@ describe('Record nodes updater - applicability', () => {
     expect(dependentNode.value).toBeNull() // Value should be cleared
     expect(dependentReadOnlyNode.value).toBeNull()
     expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(false) // defaultValueApplied should be reset
-    expect(updateResult.clearedNotApplicableDefUuids.has(dependentNode.nodeDefUuid)).toBe(true)
+    expect(updateResult.clearedDefUuids.has(dependentNode.nodeDefUuid)).toBe(true)
   })
 })

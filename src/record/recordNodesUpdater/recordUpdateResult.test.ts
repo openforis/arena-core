@@ -16,16 +16,16 @@ describe('RecordUpdateResult', () => {
 
     const updateResult1 = new RecordUpdateResult({
       record,
-      clearedNotApplicableDefUuids: new Set(['node-def-1', 'node-def-2', 'node-def-code-1']),
+      clearedDefUuids: new Set(['node-def-1', 'node-def-2', 'node-def-code-1']),
     })
     const updateResult2 = new RecordUpdateResult({
       record,
-      clearedNotApplicableDefUuids: new Set(['node-def-2', 'node-def-3', 'node-def-code-1', 'node-def-code-2']),
+      clearedDefUuids: new Set(['node-def-2', 'node-def-3', 'node-def-code-1', 'node-def-code-2']),
     })
 
     updateResult1.merge(updateResult2)
 
-    expect(updateResult1.clearedNotApplicableDefUuids).toEqual(
+    expect(updateResult1.clearedDefUuids).toEqual(
       new Set(['node-def-1', 'node-def-2', 'node-def-3', 'node-def-code-1', 'node-def-code-2'])
     )
   })

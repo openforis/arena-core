@@ -99,7 +99,7 @@ const updateDescendantsApplicability = ({
         : nodeDescendant
       updateResult.addNode(nodeDescendantUpdated, recordUpdateOptions)
       if (nodeDescendantCleared) {
-        updateResult.addClearedNotApplicableDefUuid(nodeDescendant.nodeDefUuid)
+        updateResult.addClearedDefUuid(nodeDescendant.nodeDefUuid)
       }
       return false
     },
@@ -112,7 +112,7 @@ const updateDescendantsApplicability = ({
     if (NodeDefs.isMultipleEntity(nodeCtxChildDef) && Records.isNodeEmpty(nodeCtxChild)(updateResult.record)) {
       const deleteResult = deleteNodes([nodeCtxChildUuid], recordUpdateOptions)(updateResult.record)
       updateResult.merge(deleteResult)
-      updateResult.addClearedNotApplicableDefUuid(nodeCtxChildDefUuid)
+      updateResult.addClearedDefUuid(nodeCtxChildDefUuid)
     }
   }
 }

@@ -27,7 +27,7 @@ export const updateDependentCodeAttributes = (params: RecordNodeDependentsUpdate
         dateModified: Dates.nowFormattedForStorage(),
       }
       updateResult.addNode(nodeUpdated, recordUpdateOptions)
-      updateResult.addClearedNotApplicableDefUuid(nodeUpdated.nodeDefUuid)
+      updateResult.addClearedDefUuid(nodeUpdated.nodeDefUuid)
     }
   }
 
