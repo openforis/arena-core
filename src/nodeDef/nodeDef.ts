@@ -132,7 +132,6 @@ export interface NodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDef
   parentUuid?: string
   propsAdvanced?: NodeDefPropsAdvanced
   propsAdvancedDraft?: NodeDefPropsAdvanced
-  propsDraft?: P
   published?: boolean
   temporary?: boolean
   type: T
