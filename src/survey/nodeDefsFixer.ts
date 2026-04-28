@@ -1,3 +1,4 @@
+import { SystemError } from '../error'
 import { NodeDef, NodeDefEntity, NodeDefMap, NodeDefs } from '../nodeDef'
 import { NodeDefEntityLayoutChildItem } from '../nodeDef/types/entity'
 import { Objects } from '../utils'
@@ -25,8 +26,17 @@ type LayoutPropFixerFnParams = LayoutPropFixParams & { propOld: any }
 const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: NodeDefMap }): string[] => {
   const { nodeDef, nodeDefs } = params
   const hiearchy = []
+  const visitedNodeDefUuids = new Set<string>()
   let currentParentUuid = nodeDef.parentUuid
   while (currentParentUuid) {
+    if (visitedNodeDefUuids.has(currentParentUuid)) {
+      throw new SystemError('nodeDef.hierarchyCircularDependency', {
+        nodeDefName: nodeDef.props?.name,
+        nodeDefUuid: nodeDef.uuid,
+        parentUuid: currentParentUuid,
+      })
+    }
+    visitedNodeDefUuids.add(currentParentUuid)
     hiearchy.unshift(currentParentUuid)
     const currentParentNode = nodeDefs[currentParentUuid]
     currentParentUuid = currentParentNode.parentUuid
@@ -112,16 +122,16 @@ const fixNodeDefs = (params: NodeDefsFixParams): { nodeDefs: NodeDefMap; updated
   const nodeDefsResult: NodeDefMap = {}
   const updatedNodeDefs: NodeDefMap = {}
 
-  cycles.forEach((cycle) => {
-    Object.values(nodeDefs).forEach((nodeDef) => {
+  for (const cycle of cycles) {
+    for (const nodeDef of Object.values(nodeDefs)) {
       const nodeDefToFix = nodeDefsResult[nodeDef.uuid] ?? nodeDef
       const fixedNodeDef = fix({ ...params, cycle, nodeDef: nodeDefToFix })
       if (fixedNodeDef) {
         updatedNodeDefs[nodeDef.uuid] = fixedNodeDef
       }
       nodeDefsResult[nodeDef.uuid] = fixedNodeDef ?? nodeDef
-    })
-  })
+    }
+  }
   return {
     nodeDefs: nodeDefsResult,
     updatedNodeDefs,
