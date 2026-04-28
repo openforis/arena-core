@@ -408,7 +408,7 @@ export const isNodeDefParentCode = (params: {
   return nodeDefsArray.some((def) => {
     try {
       return nodeDef.uuid === (def as NodeDef<NodeDefType.code, NodeDefCodeProps>).props.parentCodeDefUuid
-    } catch (error) {
+    } catch {
       // ignore it: def is not a code attribute definition
       return
     }
@@ -490,6 +490,7 @@ export const getNodeDefEnumerator = (params: { survey: Survey; entityDef: NodeDe
 
 export const isNodeDefEnumerator = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType> }): boolean => {
   const { survey, nodeDef } = params
+  if (nodeDef.type !== NodeDefType.code) return false
   const entityDef = getNodeDefParent({ survey, nodeDef })
   if (!entityDef) return false
   const enumerator = getNodeDefEnumerator({ survey, entityDef })
