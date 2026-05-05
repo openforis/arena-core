@@ -1,5 +1,13 @@
 import * as SurveyNodeDefs from './nodeDefs'
-import { NodeDef, NodeDefExpression, NodeDefFile, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import {
+  NodeDef,
+  NodeDefCode,
+  NodeDefExpression,
+  NodeDefFile,
+  NodeDefProps,
+  NodeDefs,
+  NodeDefType,
+} from '../../nodeDef'
 import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
@@ -17,6 +25,7 @@ const isContextParentByDependencyType = {
   [SurveyDependencyType.maxCount]: true,
   [SurveyDependencyType.minCount]: true,
   [SurveyDependencyType.onUpdate]: true,
+  [SurveyDependencyType.parentCode]: false,
   [SurveyDependencyType.validations]: true,
 }
 
@@ -28,6 +37,7 @@ const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.maxCount]: false,
   [SurveyDependencyType.minCount]: false,
   [SurveyDependencyType.onUpdate]: false,
+  [SurveyDependencyType.parentCode]: false,
   [SurveyDependencyType.validations]: true,
 }
 
@@ -39,6 +49,7 @@ const newDependecyGraph = () => ({
   [SurveyDependencyType.maxCount]: {},
   [SurveyDependencyType.minCount]: {},
   [SurveyDependencyType.onUpdate]: {},
+  [SurveyDependencyType.parentCode]: {},
   [SurveyDependencyType.validations]: {},
 })
 
@@ -67,12 +78,12 @@ export const getNodeDefDependents = (params: {
     ? [dependencyType]
     : Object.values(SurveyDependencyType)
 
-  dependencyTypes.forEach((depType: SurveyDependencyType) => {
+  for (const depType of dependencyTypes) {
     const dependentUuidsTemp = getDependencies({ graphs: dependencyGraph, type: depType, nodeDefUuid })
-    dependentUuidsTemp.forEach((dependentUuid) => {
+    for (const dependentUuid of dependentUuidsTemp) {
       dependentUuids.add(dependentUuid)
-    })
-  })
+    }
+  }
   return dependentUuids.size > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: [...dependentUuids] }) : []
 }
 
@@ -128,13 +139,13 @@ const addDependencies = async (params: {
       selfReferenceAllowed,
     })
     const referencedNodeDefsByUuid: Dictionary<NodeDef<any>> = {}
-    referencedNodeDefUuids.forEach((uuid) => {
+    for (const uuid of referencedNodeDefUuids) {
       referencedNodeDefsByUuid[uuid] = SurveyNodeDefs.getNodeDefByUuid({ survey, uuid })
-    })
+    }
     return referencedNodeDefsByUuid
   }
 
-  const referencedNodeDefs = {}
+  const referencedNodeDefs: Dictionary<NodeDef<any>> = {}
   for (const nodeDefExpr of expressions) {
     Object.assign(
       referencedNodeDefs,
@@ -143,7 +154,7 @@ const addDependencies = async (params: {
     )
   }
 
-  Object.values(referencedNodeDefs).forEach((nodeDefRef: any) => {
+  for (const nodeDefRef of Object.values(referencedNodeDefs)) {
     graphsUpdated = addDependency({
       graphs: graphsUpdated,
       type,
@@ -151,7 +162,7 @@ const addDependencies = async (params: {
       nodeDefDepUuid: nodeDef.uuid,
       sideEffect,
     })
-  })
+  }
 
   return graphsUpdated
 }
@@ -211,6 +222,19 @@ export const addNodeDefDependencies = async (params: {
       ])
     }
   }
+  // parent code
+  if (NodeDefs.getType(nodeDef) === NodeDefType.code) {
+    const parentCodeDefUuid = NodeDefs.getParentCodeDefUuid(nodeDef as NodeDefCode)
+    if (parentCodeDefUuid) {
+      graphsUpdated = addDependency({
+        graphs: graphsUpdated,
+        type: SurveyDependencyType.parentCode,
+        nodeDefUuid: parentCodeDefUuid,
+        nodeDefDepUuid: nodeDef.uuid,
+        sideEffect,
+      })
+    }
+  }
   if (sideEffect) {
     survey.dependencyGraph = graphsUpdated
     return survey
@@ -234,9 +258,9 @@ const _removeNodeDefDependenciesOfType = (params: {
 
   if (dependencyType !== SurveyDependencyType.onUpdate) {
     // dissoc nodeDefUuid dependency from sources (if any)
-    Object.entries(graphUpdated).forEach(([key, dependentUuids]) => {
+    for (const [key, dependentUuids] of Object.entries(graphUpdated)) {
       graphUpdated[key] = Arrays.removeItem(nodeDefUuid)(dependentUuids as string[])
-    })
+    }
   }
 
   graphsUpdated[dependencyType] = graphUpdated
