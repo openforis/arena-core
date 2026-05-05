@@ -1,7 +1,7 @@
 import { Survey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
-const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
+const { booleanDef, category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectBuilders
 
 import { SurveyDependencyType } from '../survey'
 
@@ -41,9 +41,20 @@ describe('Survey Dependencies', () => {
         )
           .multiple()
           .applyIf('accessible'),
-        integerDef('plot_count').readOnly().defaultValue('plot.length')
+        integerDef('plot_count').readOnly().defaultValue('plot.length'),
+        codeDef('region', 'region_district'),
+        codeDef('district', 'region_district').parentCodeAttribute('region')
       )
-    ).build()
+    )
+      .categories(
+        category('region_district')
+          .levels('region', 'district')
+          .items(
+            categoryItem('N').items(categoryItem('N1'), categoryItem('N2')),
+            categoryItem('S').items(categoryItem('S1'))
+          )
+      )
+      .build()
   }, 10000)
 
   test('Default values dependency (empty - constant value)', () => {
@@ -91,6 +102,14 @@ describe('Survey Dependencies', () => {
       sourceName: 'cluster_id',
       dependencyType: SurveyDependencyType.validations,
       expectedDependentNames: ['cluster_id'],
+    })
+  })
+
+  test('Parent code dependency', () => {
+    expectDependents({
+      sourceName: 'region',
+      dependencyType: SurveyDependencyType.parentCode,
+      expectedDependentNames: ['district'],
     })
   })
 
