@@ -19,7 +19,7 @@ const print = (params: { survey: Survey; record: Record; options?: PrintOptions 
   const { showNotApplicable } = options
 
   const cycle = record.cycle!
-  const rootNode = RecordGetters.getRoot(record)!
+  const rootNode = RecordGetters.getRoot(record)
   if (!rootNode) {
     return ''
   }

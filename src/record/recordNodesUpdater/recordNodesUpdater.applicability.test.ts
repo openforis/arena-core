@@ -290,7 +290,7 @@ describe('Record nodes updater - applicability', () => {
       expect(Object.keys(updateResult.nodesDeleted)).toHaveLength(0)
     })
 
-    test('Non-empty multiple entity is preserved when becoming non-applicable (and clearNonApplicableValues is true)', async () => {
+    test('Non-empty multiple entity is deleted when becoming non-applicable (and clearNonApplicableValues is true)', async () => {
       const record = new RecordBuilder(
         user,
         survey,
