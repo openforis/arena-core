@@ -89,7 +89,11 @@ const createChildNodesBasedOnMinCount = async (
   }
 
   const nodesToInsertCount = getNodesToInsertCount({ parentNode, nodeDef })
-  if (nodesToInsertCount === 0 || (!createMultipleEntities && NodeDefs.isMultipleEntity(nodeDef))) {
+  if (
+    nodesToInsertCount === 0 ||
+    (NodeDefs.isMultipleEntity(nodeDef) &&
+      (!createMultipleEntities || (parentNode && !Nodes.isChildApplicable(parentNode, nodeDef.uuid))))
+  ) {
     return // do nothing
   }
   for (let index = 0; index < nodesToInsertCount; index++) {
