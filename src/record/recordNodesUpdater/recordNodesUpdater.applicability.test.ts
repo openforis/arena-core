@@ -239,7 +239,7 @@ describe('Record nodes updater - applicability', () => {
       ).build()
     })
 
-    const makeSourceNonApplicable = async (record: Record) => {
+    const makeSourceNonApplicable = async (record: Record, clearNonApplicableValues = false) => {
       const sourceNode = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
       const sourceNodeUpdated = { ...sourceNode, value: 5 }
       return RecordNodesUpdater.updateNodesDependents({
@@ -247,6 +247,7 @@ describe('Record nodes updater - applicability', () => {
         survey,
         record: Records.addNode(sourceNodeUpdated)(record),
         nodes: { [sourceNode.uuid]: sourceNodeUpdated },
+        clearNonApplicableValues,
       })
     }
 
@@ -265,13 +266,13 @@ describe('Record nodes updater - applicability', () => {
         )
       ).build()
 
-      const updateResult = await makeSourceNonApplicable(record)
+      const updateResult = await makeSourceNonApplicable(record, true)
 
       expect(getDependentEntityNodes(updateResult.record)).toHaveLength(0)
       expect(Object.keys(updateResult.nodesDeleted).length).toBeGreaterThan(0)
     })
 
-    test('Non-empty multiple entity is preserved when becoming non-applicable', async () => {
+    test('Non-empty multiple entity is preserved when becoming non-applicable (and clearNonApplicableValues is false)', async () => {
       const record = new RecordBuilder(
         user,
         survey,
@@ -283,10 +284,28 @@ describe('Record nodes updater - applicability', () => {
         )
       ).build()
 
-      const updateResult = await makeSourceNonApplicable(record)
+      const updateResult = await makeSourceNonApplicable(record, false)
 
       expect(getDependentEntityNodes(updateResult.record)).toHaveLength(1)
       expect(Object.keys(updateResult.nodesDeleted)).toHaveLength(0)
+    })
+
+    test('Non-empty multiple entity is preserved when becoming non-applicable (and clearNonApplicableValues is true)', async () => {
+      const record = new RecordBuilder(
+        user,
+        survey,
+        entity(
+          'root_entity',
+          attribute('identifier', 1),
+          attribute('source_attribute', 20),
+          entity('dependent_entity', attribute('entity_attr', 42))
+        )
+      ).build()
+
+      const updateResult = await makeSourceNonApplicable(record, true)
+
+      expect(getDependentEntityNodes(updateResult.record)).toHaveLength(0)
+      expect(Object.keys(updateResult.nodesDeleted)).toHaveLength(2)
     })
   })
 })
