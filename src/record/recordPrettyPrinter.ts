@@ -6,11 +6,23 @@ import { Strings } from '../utils'
 import { Record } from './record'
 import * as RecordGetters from './_records/recordGetters'
 
-const print = (params: { survey: Survey; record: Record }): string => {
-  const { survey, record } = params
+type PrintOptions = {
+  showNotApplicable?: boolean
+}
+
+const DefaultPrintOptions: PrintOptions = {
+  showNotApplicable: false,
+}
+
+const print = (params: { survey: Survey; record: Record; options?: PrintOptions }): string => {
+  const { survey, record, options = DefaultPrintOptions } = params
+  const { showNotApplicable } = options
 
   const cycle = record.cycle!
-  const rootNode = RecordGetters.getRoot(record)!
+  const rootNode = RecordGetters.getRoot(record)
+  if (!rootNode) {
+    return ''
+  }
 
   const parts: string[] = []
   RecordGetters.visitDescendantsAndSelf({
@@ -21,7 +33,13 @@ const print = (params: { survey: Survey; record: Record }): string => {
       const value = NodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
       const depth = Nodes.getHierarchy(node).length
       const indentation = Strings.repeat(' ', depth)
-      const part = `${indentation}${NodeDefs.getName(nodeDef)}: ${value}`
+      let part = `${indentation}${NodeDefs.getName(nodeDef)}: ${value}`
+      if (showNotApplicable) {
+        const parentNode = RecordGetters.getParent(node)(record)
+        if (parentNode && !Nodes.isChildApplicable(parentNode, node.nodeDefUuid)) {
+          part += ' (not applicable)'
+        }
+      }
       parts.push(part)
       return false
     },
