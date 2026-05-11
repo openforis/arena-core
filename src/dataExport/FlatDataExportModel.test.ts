@@ -1,9 +1,8 @@
+import { Survey, Surveys, defaultCycle } from '../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
-import { FlatDataExportModel, FlatDataExportColumnDataType } from './FlatDataExportModel'
-import { FlatDataExportDefaultOptions, FlatDataExportOption } from './FlatDataExportOptions'
-import { Surveys, Survey, defaultCycle } from '../survey'
 import { createTestAdminUser } from '../tests/data'
-import { FlatDataExportOptions } from './FlatDataExportOptions'
+import { FlatDataExportColumnDataType, FlatDataExportModel } from './FlatDataExportModel'
+import { FlatDataExportDefaultOptions, FlatDataExportOption, FlatDataExportOptions } from './FlatDataExportOptions'
 
 const {
   booleanDef,
