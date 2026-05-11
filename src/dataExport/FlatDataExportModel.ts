@@ -251,14 +251,20 @@ export class FlatDataExportModel {
 
   extractAncestorAttributeDefs(nodeDefContext: NodeDef<any>): NodeDef<any>[] {
     const { cycle, options, survey } = this
-    const { includeAnalysis, includeFileAttributeDefs, includeFiles, includeReadOnlyAttributes } = options
+    const {
+      includeAnalysis,
+      includeFileAttributeDefs,
+      includeFiles,
+      includeMultipleAttributes,
+      includeReadOnlyAttributes,
+    } = options
 
     let result = NodeDefs.isEntity(nodeDefContext)
       ? Surveys.getDescendantsInSingleEntities({
           survey,
           cycle,
           nodeDef: nodeDefContext,
-          predicate: NodeDefs.isAttribute,
+          predicate: includeMultipleAttributes ? NodeDefs.isAttribute : NodeDefs.isSingleAttribute,
           includeAnalysis,
         })
       : [nodeDefContext] // Multiple attribute
