@@ -41,7 +41,7 @@ const createTestModel = async (
   taxonomyBuilders: any[] = []
 ): Promise<FlatDataExportModel> => {
   const survey = await createTestSurvey(nodeDefBuilder, categoryBuilders, taxonomyBuilders)
-  const nodeDefContext = Surveys.getNodeDefByName({ survey, name: 'cluster' })!
+  const nodeDefContext = Surveys.getNodeDefByName({ survey, name: 'cluster' })
   return new FlatDataExportModel({ survey, cycle: defaultCycle, nodeDefContext, options })
 }
 
