@@ -78,7 +78,7 @@ export const updateSelfAndDependentsVisible = async (
       continue
     }
 
-    const nodeCtxUpdated = Nodes.assocChildVisible(nodeCtx, nodeDefUuid, visible)
+    const nodeCtxUpdated = Nodes.assocChildVisible(nodeCtx, nodeDefUuid, visible, sideEffect)
     updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
   }
 

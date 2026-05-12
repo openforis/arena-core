@@ -84,34 +84,38 @@ const dissocChildApplicability = (node: Node, nodeDefUuid: string) => {
   }
 }
 
-const assocChildEditable = (node: Node, nodeDefUuid: string, editable: boolean): Node => {
-  const cEdit = { ...(node.meta?.cEdit ?? {}) }
+const assocChildEditable = (node: Node, nodeDefUuid: string, editable: boolean, sideEffect = false): Node => {
+  const nodeUpdated = sideEffect ? node : { ...node }
+  const metaOriginal = nodeUpdated.meta ?? {}
+  const meta = sideEffect ? metaOriginal : { ...metaOriginal }
+  const cEdit = sideEffect ? (meta.cEdit ?? {}) : { ...(meta.cEdit ?? {}) }
   if (!editable) {
     cEdit[nodeDefUuid] = editable
   } else {
     delete cEdit[nodeDefUuid]
   }
-  return {
-    ...node,
-    meta: { ...node.meta, cEdit },
-    updated: true,
-    dateModified: Dates.nowFormattedForStorage(),
-  }
+  meta.cEdit = cEdit
+  nodeUpdated.meta = meta
+  nodeUpdated.updated = true
+  nodeUpdated.dateModified = Dates.nowFormattedForStorage()
+  return nodeUpdated
 }
 
-const assocChildVisible = (node: Node, nodeDefUuid: string, visible: boolean): Node => {
-  const cVis = { ...(node.meta?.cVis ?? {}) }
+const assocChildVisible = (node: Node, nodeDefUuid: string, visible: boolean, sideEffect = false): Node => {
+  const nodeUpdated = sideEffect ? node : { ...node }
+  const metaOriginal = nodeUpdated.meta ?? {}
+  const meta = sideEffect ? metaOriginal : { ...metaOriginal }
+  const cVis = sideEffect ? (meta.cVis ?? {}) : { ...(meta.cVis ?? {}) }
   if (!visible) {
     cVis[nodeDefUuid] = visible
   } else {
     delete cVis[nodeDefUuid]
   }
-  return {
-    ...node,
-    meta: { ...node.meta, cVis },
-    updated: true,
-    dateModified: Dates.nowFormattedForStorage(),
-  }
+  meta.cVis = cVis
+  nodeUpdated.meta = meta
+  nodeUpdated.updated = true
+  nodeUpdated.dateModified = Dates.nowFormattedForStorage()
+  return nodeUpdated
 }
 
 const assocChildrenCount = (params: {

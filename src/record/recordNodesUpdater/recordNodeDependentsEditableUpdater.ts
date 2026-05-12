@@ -78,7 +78,7 @@ export const updateSelfAndDependentsEditable = async (
       continue
     }
 
-    const nodeCtxUpdated = Nodes.assocChildEditable(nodeCtx, nodeDefUuid, editable)
+    const nodeCtxUpdated = Nodes.assocChildEditable(nodeCtx, nodeDefUuid, editable, sideEffect)
     updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
   }
 
