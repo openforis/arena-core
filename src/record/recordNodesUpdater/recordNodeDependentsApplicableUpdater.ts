@@ -7,6 +7,7 @@ import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records, RecordUpdateOptions } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
 import { deleteNodes } from './recordNodesDeleter'
+import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -17,12 +18,12 @@ const extractNodePointersToUpdate = (params: { survey: Survey; record: Record; n
 
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
 
-  const nodePointersToUpdate = Records.getDependentNodePointers({
+  const nodePointersToUpdate = getDependentNodePointersByType({
     survey,
     record,
     node,
     dependencyType: SurveyDependencyType.applicable,
-    includeSelf: !NodeDefs.isEntity(nodeDef),
+    includeSelfWhenSourceIsAttribute: true,
   })
 
   if (NodeDefs.isEntity(nodeDef) && node.created) {

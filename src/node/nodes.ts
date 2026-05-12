@@ -84,6 +84,36 @@ const dissocChildApplicability = (node: Node, nodeDefUuid: string) => {
   }
 }
 
+const assocChildEditable = (node: Node, nodeDefUuid: string, editable: boolean): Node => {
+  const cEdit = { ...(node.meta?.cEdit ?? {}) }
+  if (!editable) {
+    cEdit[nodeDefUuid] = editable
+  } else {
+    delete cEdit[nodeDefUuid]
+  }
+  return {
+    ...node,
+    meta: { ...node.meta, cEdit },
+    updated: true,
+    dateModified: Dates.nowFormattedForStorage(),
+  }
+}
+
+const assocChildVisible = (node: Node, nodeDefUuid: string, visible: boolean): Node => {
+  const cVis = { ...(node.meta?.cVis ?? {}) }
+  if (!visible) {
+    cVis[nodeDefUuid] = visible
+  } else {
+    delete cVis[nodeDefUuid]
+  }
+  return {
+    ...node,
+    meta: { ...node.meta, cVis },
+    updated: true,
+    dateModified: Dates.nowFormattedForStorage(),
+  }
+}
+
 const assocChildrenCount = (params: {
   node: Node
   nodeDefUuid: string
@@ -163,6 +193,8 @@ export const Nodes = {
   // update
   assocChildApplicability,
   dissocChildApplicability,
+  assocChildEditable,
+  assocChildVisible,
   assocChildrenCount,
   assocChildrenMaxCount,
   assocChildrenMinCount,
