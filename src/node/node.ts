@@ -12,8 +12,10 @@ export enum NodeMetaKeys {
 
 export interface NodeMeta {
   childApplicability?: { [uuid: string]: boolean }
+  childEditable?: { [uuid: string]: boolean }
   childrenMaxCount?: { [uuid: string]: number }
   childrenMinCount?: { [uuid: string]: number }
+  childVisible?: { [uuid: string]: boolean }
   h?: string[]
   hCode?: string[]
   defaultValueApplied?: boolean
