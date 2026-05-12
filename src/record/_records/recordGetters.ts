@@ -55,7 +55,7 @@ export const getChild =
   (parentNode: Node, childDefUuid: string) =>
   (record: Record): Node => {
     const children = getChildren(parentNode, childDefUuid)(record)
-    const errorParams = { childDefUuid, parentNodeUuid: parentNode.uuid }
+    const errorParams = { childDefUuid, parentNodeUuid: parentNode.uuid, recordUuid: record.uuid }
     if (children.length === 1) {
       return children[0]
     }
