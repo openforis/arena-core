@@ -1,13 +1,13 @@
-import { describe, test, expect } from '@jest/globals'
+import { beforeAll, describe, expect, test } from '@jest/globals'
 
-import { CategoryItemService, CategoryService, CategoryLevelService } from '../category'
+import { UserService } from '../auth'
+import { CategoryItemService, CategoryLevelService, CategoryService } from '../category'
 import { ChainNodeDefService, ChainService } from '../chain'
 import { NodeService } from '../node'
 import { NodeDefService } from '../nodeDef'
 import { RecordService } from '../record'
 import { SurveyService } from '../survey'
-import { TaxonService, TaxonomyService } from '../taxonomy'
-import { UserService } from '../auth'
+import { TaxonomyService, TaxonService } from '../taxonomy'
 
 import { ServiceRegistry } from './serviceRegistry'
 import { ServiceType } from './serviceType'
