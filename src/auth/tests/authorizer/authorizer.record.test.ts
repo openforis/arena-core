@@ -1,3 +1,5 @@
+import { describe } from '@jest/globals'
+
 import { testQueries } from './common'
 import { canAnalyzeRecordQueries } from './record/canAnalyzeRecord'
 import { canCleanseRecordQueries } from './record/canCleanseRecord'

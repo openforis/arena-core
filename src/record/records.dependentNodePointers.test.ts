@@ -1,3 +1,5 @@
+import { describe, test, expect } from '@jest/globals'
+
 import { Survey } from '../survey'
 import { SurveyDependencyType } from '../survey/survey'
 
