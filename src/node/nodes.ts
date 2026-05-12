@@ -10,6 +10,17 @@ const isChildApplicable = (node: Node, nodeDefUuid: string): boolean => {
   // if child applicability is not defined for a node definition, consider it applicable
   return node.meta?.childApplicability?.[nodeDefUuid] !== false
 }
+
+const isChildEditable = (node: Node, nodeDefUuid: string): boolean => {
+  // if child editability is not defined for a node definition, consider it editable
+  return node.meta?.cEdit?.[nodeDefUuid] !== false
+}
+
+const isChildVisible = (node: Node, nodeDefUuid: string): boolean => {
+  // if child visibility is not defined for a node definition, consider it visible
+  return node.meta?.cVis?.[nodeDefUuid] !== false
+}
+
 const getChildrenMinOrMaxCount = (params: {
   parentNode: Node
   nodeDef: NodeDef<any>
@@ -138,6 +149,8 @@ export const Nodes = {
   isRoot,
   areEqual,
   isChildApplicable,
+  isChildEditable,
+  isChildVisible,
   getChildrenMinOrMaxCount,
   getChildrenMaxCount,
   getChildrenMinCount,
