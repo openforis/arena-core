@@ -51,9 +51,25 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     return this
   }
 
+  editableWhen(...expressions: (string | NodeDefExpression)[]): this {
+    if (!this.propsAdvanced.editableWhen) this.propsAdvanced.editableWhen = []
+    this.propsAdvanced.editableWhen = expressions.map((expression) =>
+      typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression
+    )
+    return this
+  }
+
   validationExpressions(...expressions: (string | NodeDefExpression)[]): this {
     if (!this.propsAdvanced.validations) this.propsAdvanced.validations = {}
     this.propsAdvanced.validations.expressions = expressions.map((expression) =>
+      typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression
+    )
+    return this
+  }
+
+  visibleWhen(...expressions: (string | NodeDefExpression)[]): this {
+    if (!this.propsAdvanced.visibleWhen) this.propsAdvanced.visibleWhen = []
+    this.propsAdvanced.visibleWhen = expressions.map((expression) =>
       typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression
     )
     return this

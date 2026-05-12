@@ -33,6 +33,8 @@ describe('Survey Dependencies', () => {
         'cluster',
         integerDef('cluster_id').key().defaultValue('1').validationExpressions('cluster_id > 0 && cluster_id <= 1000'),
         booleanDef('accessible'),
+        integerDef('cluster_editable').editableWhen('cluster_id > 0'),
+        integerDef('cluster_visible').visibleWhen('cluster_id > 0'),
         entityDef(
           'plot',
           integerDef('plot_id').key(),
@@ -94,6 +96,22 @@ describe('Survey Dependencies', () => {
       sourceName: 'accessible',
       dependencyType: SurveyDependencyType.applicable,
       expectedDependentNames: ['plot'],
+    })
+  })
+
+  test('Editable when dependency', () => {
+    expectDependents({
+      sourceName: 'cluster_id',
+      dependencyType: SurveyDependencyType.editable,
+      expectedDependentNames: ['cluster_editable'],
+    })
+  })
+
+  test('Visible when dependency', () => {
+    expectDependents({
+      sourceName: 'cluster_id',
+      dependencyType: SurveyDependencyType.visible,
+      expectedDependentNames: ['cluster_visible'],
     })
   })
 

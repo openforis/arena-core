@@ -100,9 +100,11 @@ export interface NodeDefPropsAdvanced {
   applicable?: NodeDefExpression[]
   defaultValues?: NodeDefExpression[]
   defaultValueEvaluatedOneTime?: boolean
+  editableWhen?: NodeDefExpression[]
   excludedInClone?: boolean
   formula?: NodeDefExpression[]
   validations?: NodeDefValidations
+  visibleWhen?: NodeDefExpression[]
   // file attribute
   fileNameExpression?: string
   // code and taxon attribute

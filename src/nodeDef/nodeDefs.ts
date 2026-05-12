@@ -93,6 +93,15 @@ const isInCycle =
 
 const isExcludedInClone = (nodeDef: NodeDef<NodeDefType>): boolean => !!nodeDef.propsAdvanced?.excludedInClone
 
+const getEditableWhen = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
+  nodeDef.propsAdvanced?.editableWhen ?? []
+
+const isAlwaysEditable = (nodeDef: NodeDef<NodeDefType>): boolean => getEditableWhen(nodeDef).length === 0
+
+const getVisibleWhen = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.visibleWhen ?? []
+
+const isAlwaysVisible = (nodeDef: NodeDef<NodeDefType>): boolean => getVisibleWhen(nodeDef).length === 0
+
 // code
 const getCategoryUuid = (nodeDef: NodeDefCode): string | undefined => nodeDef.props.categoryUuid
 const getParentCodeDefUuid = (nodeDef: NodeDefCode): string | undefined => nodeDef.props.parentCodeDefUuid
@@ -274,6 +283,11 @@ export const NodeDefs = {
   isFieldVisible,
   isInCycle,
   isExcludedInClone,
+  getEditableWhen,
+  isAlwaysEditable,
+  getVisibleWhen,
+  isAlwaysVisible,
+
   getCategoryUuid,
   getParentCodeDefUuid,
   isAllowOnlyDeviceCoordinate,
