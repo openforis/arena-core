@@ -8,7 +8,7 @@ const findNodeDefByName = (params: { survey: Survey; name: string }): NodeDef<an
   const { survey, name } = params
   try {
     return Surveys.getNodeDefByName({ survey, name })
-  } catch (error) {
+  } catch {
     return undefined
   }
 }
