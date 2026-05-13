@@ -1,3 +1,5 @@
+import { describe } from '@jest/globals'
+
 import { testQueries } from './common'
 import { canEditSurveyQueries } from './survey/canEditSurvey'
 import { canViewSurveyQueries } from './survey/canViewSurvey'
