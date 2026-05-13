@@ -93,14 +93,13 @@ const isInCycle =
 
 const isExcludedInClone = (nodeDef: NodeDef<NodeDefType>): boolean => !!nodeDef.propsAdvanced?.excludedInClone
 
-const getEditableWhen = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
-  nodeDef.propsAdvanced?.editableWhen ?? []
+const getEditableIf = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.editableIf ?? []
 
-const isAlwaysEditable = (nodeDef: NodeDef<NodeDefType>): boolean => getEditableWhen(nodeDef).length === 0
+const isAlwaysEditable = (nodeDef: NodeDef<NodeDefType>): boolean => getEditableIf(nodeDef).length === 0
 
-const getVisibleWhen = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.visibleWhen ?? []
+const getVisibleIf = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.visibleIf ?? []
 
-const isAlwaysVisible = (nodeDef: NodeDef<NodeDefType>): boolean => getVisibleWhen(nodeDef).length === 0
+const isAlwaysVisible = (nodeDef: NodeDef<NodeDefType>): boolean => getVisibleIf(nodeDef).length === 0
 
 // code
 const getCategoryUuid = (nodeDef: NodeDefCode): string | undefined => nodeDef.props.categoryUuid
@@ -283,9 +282,9 @@ export const NodeDefs = {
   isFieldVisible,
   isInCycle,
   isExcludedInClone,
-  getEditableWhen,
+  getEditableIf,
   isAlwaysEditable,
-  getVisibleWhen,
+  getVisibleIf,
   isAlwaysVisible,
 
   getCategoryUuid,

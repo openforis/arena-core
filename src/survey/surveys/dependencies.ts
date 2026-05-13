@@ -210,9 +210,9 @@ export const addNodeDefDependencies = async (params: {
   }
   graphsUpdated = await _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
   graphsUpdated = await _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
-  graphsUpdated = await _addDependencies(SurveyDependencyType.editable, NodeDefs.getEditableWhen(nodeDef))
+  graphsUpdated = await _addDependencies(SurveyDependencyType.editable, NodeDefs.getEditableIf(nodeDef))
   graphsUpdated = await _addDependencies(SurveyDependencyType.validations, NodeDefs.getValidationsExpressions(nodeDef))
-  graphsUpdated = await _addDependencies(SurveyDependencyType.visible, NodeDefs.getVisibleWhen(nodeDef))
+  graphsUpdated = await _addDependencies(SurveyDependencyType.visible, NodeDefs.getVisibleIf(nodeDef))
   const maxCount = NodeDefs.getMaxCount(nodeDef)
   if (Array.isArray(maxCount)) {
     graphsUpdated = await _addDependencies(SurveyDependencyType.maxCount, maxCount)

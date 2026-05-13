@@ -24,7 +24,7 @@ const calculateEditableNext = async ({
   const { uuid: nodeDefUuid } = nodeDefNodePointer
 
   const editablePrev = Nodes.isChildEditable(nodeCtx, nodeDefUuid)
-  const expressionsToEvaluate = NodeDefs.getEditableWhen(nodeDefNodePointer)
+  const expressionsToEvaluate = NodeDefs.getEditableIf(nodeDefNodePointer)
   if (expressionsToEvaluate.length === 0) {
     if (editablePrev) {
       return undefined

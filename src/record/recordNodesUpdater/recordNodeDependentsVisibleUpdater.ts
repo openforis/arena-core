@@ -24,7 +24,7 @@ const calculateVisibleNext = async ({
   const { uuid: nodeDefUuid } = nodeDefNodePointer
 
   const visiblePrev = Nodes.isChildVisible(nodeCtx, nodeDefUuid)
-  const expressionsToEvaluate = NodeDefs.getVisibleWhen(nodeDefNodePointer)
+  const expressionsToEvaluate = NodeDefs.getVisibleIf(nodeDefNodePointer)
   if (expressionsToEvaluate.length === 0) {
     if (visiblePrev) {
       return undefined

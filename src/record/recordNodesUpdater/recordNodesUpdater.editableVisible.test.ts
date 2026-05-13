@@ -25,8 +25,8 @@ describe('Record nodes updater - editable/visible', () => {
         'root_entity',
         integerDef('identifier').key(),
         integerDef('source_attribute'),
-        integerDef('dependent_editable_attribute').editableWhen('source_attribute > 10'),
-        integerDef('dependent_visible_attribute').visibleWhen('source_attribute > 10')
+        integerDef('dependent_editable_attribute').editableIf('source_attribute > 10'),
+        integerDef('dependent_visible_attribute').visibleIf('source_attribute > 10')
       )
     ).build()
 
