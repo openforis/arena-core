@@ -39,7 +39,7 @@ export const transform = (point: Point, srsCodeTo: string, srsIndex: SRSIndex = 
     const [long, lat] = proj4(srsFrom.wkt, srsTo.wkt, [Number(x), Number(y)])
 
     return PointFactory.createInstance({ ...point, srs: srsCodeTo, x: long, y: lat })
-  } catch (error) {
+  } catch {
     return null
   }
 }
