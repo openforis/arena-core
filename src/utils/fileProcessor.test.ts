@@ -1,9 +1,17 @@
-import { FileProcessor } from './fileProcessor'
+import { describe, expect, jest, test } from '@jest/globals'
+
+import { FileProcessor, type FileProcessorConstructorArgs } from './fileProcessor'
+
+type ChunkProcessor = FileProcessorConstructorArgs['chunkProcessor']
+type ChunkProcessorArgs = Parameters<ChunkProcessor>[0]
+
+const createChunkProcessorMock = (): jest.MockedFunction<ChunkProcessor> => jest.fn<ChunkProcessor>()
+
+const chunkProcessor = createChunkProcessorMock()
 
 describe('FileProcessor', () => {
   describe('constructor', () => {
     test('should throw error if neither file nor filePath is provided', () => {
-      const chunkProcessor = jest.fn()
       expect(
         () =>
           new FileProcessor({
@@ -14,27 +22,23 @@ describe('FileProcessor', () => {
 
     test('should create instance with file', () => {
       const file = new File(['test content'], 'test.txt', { type: 'text/plain' })
-      const chunkProcessor = jest.fn()
       const processor = new FileProcessor({ file, chunkProcessor })
       expect(processor).toBeDefined()
     })
 
     test('should create instance with filePath', () => {
-      const chunkProcessor = jest.fn()
       const processor = new FileProcessor({ filePath: '/path/to/file', chunkProcessor })
       expect(processor).toBeDefined()
     })
 
     test('should use default chunk size and max tryings', () => {
       const file = new File(['test'], 'test.txt')
-      const chunkProcessor = jest.fn()
       const processor = new FileProcessor({ file, chunkProcessor })
       expect(processor).toBeDefined()
     })
 
     test('should use custom chunk size and max tryings', () => {
       const file = new File(['test'], 'test.txt')
-      const chunkProcessor = jest.fn()
       const processor = new FileProcessor({
         file,
         chunkProcessor,
@@ -49,7 +53,7 @@ describe('FileProcessor', () => {
     test('should call chunkProcessor when starting', (done) => {
       const content = 'a'.repeat(100)
       const file = new File([content], 'test.txt', { type: 'text/plain' })
-      const chunkProcessor = jest.fn().mockResolvedValue(null)
+      const chunkProcessor = createChunkProcessorMock().mockResolvedValue(null)
       const onComplete = jest.fn()
 
       const processor = new FileProcessor({
@@ -80,7 +84,7 @@ describe('FileProcessor', () => {
     test('should process multiple chunks', (done) => {
       const content = 'a'.repeat(2100)
       const file = new File([content], 'test.txt', { type: 'text/plain' })
-      const chunkProcessor = jest.fn().mockResolvedValue(null)
+      const chunkProcessor = createChunkProcessorMock().mockResolvedValue(null)
       const onComplete = jest.fn()
 
       const processor = new FileProcessor({
@@ -126,7 +130,7 @@ describe('FileProcessor', () => {
     test('should stop processing', (done) => {
       const content = 'a'.repeat(100)
       const file = new File([content], 'test.txt', { type: 'text/plain' })
-      const chunkProcessor = jest.fn().mockResolvedValue(null)
+      const chunkProcessor = createChunkProcessorMock().mockResolvedValue(null)
 
       const processor = new FileProcessor({
         file,
@@ -148,9 +152,9 @@ describe('FileProcessor', () => {
     test('should pause processing', (done) => {
       const content = 'a'.repeat(2100)
       const file = new File([content], 'test.txt', { type: 'text/plain' })
-      const chunkProcessor = jest.fn().mockImplementation(
-        () =>
-          new Promise((resolve) => {
+      const chunkProcessor = createChunkProcessorMock().mockImplementation(
+        async () =>
+          await new Promise((resolve) => {
             setTimeout(() => resolve(null), 50)
           })
       )
@@ -178,7 +182,7 @@ describe('FileProcessor', () => {
     test('should resume processing after pause', (done) => {
       const content = 'a'.repeat(2100)
       const file = new File([content], 'test.txt', { type: 'text/plain' })
-      const chunkProcessor = jest.fn().mockResolvedValue(null)
+      const chunkProcessor = createChunkProcessorMock().mockResolvedValue(null)
       const onComplete = jest.fn()
 
       const processor = new FileProcessor({
@@ -210,7 +214,7 @@ describe('FileProcessor', () => {
       const content = 'a'.repeat(100)
       const file = new File([content], 'test.txt', { type: 'text/plain' })
       const testError = new Error('Processing failed')
-      const chunkProcessor = jest.fn().mockRejectedValue(testError)
+      const chunkProcessor = createChunkProcessorMock().mockRejectedValue(testError)
       const onError = jest.fn()
 
       const processor = new FileProcessor({
@@ -233,7 +237,7 @@ describe('FileProcessor', () => {
       const content = 'a'.repeat(100)
       const file = new File([content], 'test.txt', { type: 'text/plain' })
       const testError = new Error('Chunk processing failed')
-      const chunkProcessor = jest.fn().mockRejectedValueOnce(testError).mockRejectedValue(testError)
+      const chunkProcessor = createChunkProcessorMock().mockRejectedValueOnce(testError).mockRejectedValue(testError)
       const onError = jest.fn()
 
       const processor = new FileProcessor({
@@ -257,7 +261,7 @@ describe('FileProcessor', () => {
     test('should start processing from specified chunk', (done) => {
       const content = 'a'.repeat(3100)
       const file = new File([content], 'test.txt', { type: 'text/plain' })
-      const chunkProcessor = jest.fn().mockResolvedValue(null)
+      const chunkProcessor = createChunkProcessorMock().mockResolvedValue(null)
 
       const processor = new FileProcessor({
         file,
@@ -269,7 +273,7 @@ describe('FileProcessor', () => {
 
       setTimeout(() => {
         // Should process chunks 2 and 3 only
-        const chunkNumbers = chunkProcessor.mock.calls.map((call) => call[0].chunk)
+        const chunkNumbers = chunkProcessor.mock.calls.map(([args]) => args.chunk)
         expect(chunkNumbers).toContain(2)
         expect(chunkNumbers).toContain(3)
         done()
@@ -281,7 +285,7 @@ describe('FileProcessor', () => {
     test('should correctly calculate number of chunks', (done) => {
       const content = 'a'.repeat(2500)
       const file = new File([content], 'test.txt', { type: 'text/plain' })
-      const chunkProcessor = jest.fn().mockResolvedValue(null)
+      const chunkProcessor = createChunkProcessorMock().mockResolvedValue(null)
 
       const processor = new FileProcessor({
         file,
@@ -302,7 +306,7 @@ describe('FileProcessor', () => {
 
     test('should handle empty file', (done) => {
       const file = new File([], 'test.txt', { type: 'text/plain' })
-      const chunkProcessor = jest.fn()
+      const chunkProcessor = createChunkProcessorMock()
       const onComplete = jest.fn()
 
       const processor = new FileProcessor({
@@ -326,7 +330,7 @@ describe('FileProcessor', () => {
     test('should pass correct chunk information to processor', (done) => {
       const content = 'a'.repeat(2100)
       const file = new File([content], 'test.txt', { type: 'text/plain' })
-      const chunkProcessor = jest.fn().mockResolvedValue(null)
+      const chunkProcessor = createChunkProcessorMock().mockResolvedValue(null)
 
       const processor = new FileProcessor({
         file,
@@ -337,7 +341,7 @@ describe('FileProcessor', () => {
       processor.start()
 
       setTimeout(() => {
-        const firstCall = chunkProcessor.mock.calls[0][0]
+        const firstCall: ChunkProcessorArgs = chunkProcessor.mock.calls[0][0]
         expect(firstCall).toHaveProperty('chunk')
         expect(firstCall).toHaveProperty('content')
         expect(firstCall).toHaveProperty('totalChunks')
@@ -352,7 +356,7 @@ describe('FileProcessor', () => {
       const content = 'test'
       const file = new File([content], 'test.txt')
       const chunkResult = { status: 'ok' }
-      const chunkProcessor = jest.fn().mockResolvedValue(chunkResult)
+      const chunkProcessor = createChunkProcessorMock().mockResolvedValue(chunkResult)
       const onComplete = jest.fn()
 
       const processor = new FileProcessor({

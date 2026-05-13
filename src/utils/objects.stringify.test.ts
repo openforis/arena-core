@@ -1,3 +1,5 @@
+import { describe, it, expect } from '@jest/globals'
+
 import { Objects } from './_objects'
 
 const tests = [
