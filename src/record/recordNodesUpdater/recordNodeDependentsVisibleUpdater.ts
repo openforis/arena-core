@@ -55,6 +55,7 @@ export const updateSelfAndDependentsVisible = async (
     node,
     dependencyType: SurveyDependencyType.visible,
     includeSelfWhenSourceIsAttribute: true,
+    includeNewEntitySelf: true,
   })
 
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten

@@ -35,14 +35,23 @@ export const getDependentNodePointersByType = (params: {
   node: Node
   dependencyType: SurveyDependencyType
   includeSelfWhenSourceIsAttribute?: boolean
+  includeNewEntitySelf?: boolean
   filterFn?: (nodePointer: NodePointer) => boolean
 }): NodePointer[] => {
-  const { survey, record, node, dependencyType, includeSelfWhenSourceIsAttribute = false, filterFn } = params
+  const {
+    survey,
+    record,
+    node,
+    dependencyType,
+    includeSelfWhenSourceIsAttribute = false,
+    includeNewEntitySelf = false,
+    filterFn,
+  } = params
 
   const sourceNodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
   const includeSelf = includeSelfWhenSourceIsAttribute && !NodeDefs.isEntity(sourceNodeDef)
 
-  return Records.getDependentNodePointers({
+  const nodePointers = Records.getDependentNodePointers({
     survey,
     record,
     node,
@@ -50,4 +59,14 @@ export const getDependentNodePointersByType = (params: {
     includeSelf,
     filterFn,
   })
+
+  // For newly created entities, include a self-pointer so their own expression gets evaluated
+  if (includeNewEntitySelf && NodeDefs.isEntity(sourceNodeDef) && node.created && node.parentUuid) {
+    const parentNode = Records.getNodeByUuid(node.parentUuid)(record)
+    if (parentNode) {
+      nodePointers.push({ nodeCtx: parentNode, nodeDef: sourceNodeDef })
+    }
+  }
+
+  return nodePointers
 }

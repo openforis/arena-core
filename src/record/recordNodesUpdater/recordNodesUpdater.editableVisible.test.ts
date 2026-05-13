@@ -3,6 +3,7 @@ import { beforeAll, describe, test, expect } from '@jest/globals'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 import * as RecordNodesUpdater from './recordNodesUpdater'
+import { RecordUpdater } from '../recordUpdater'
 import { User } from '../../auth'
 import { Nodes } from '../../node'
 import { createTestAdminUser } from '../../tests/data'
@@ -82,5 +83,77 @@ describe('Record nodes updater - editable/visible', () => {
     expect(Nodes.isChildVisible(rootNodeUpdated, dependentVisibleDef.uuid)).toBe(true)
     expect(rootNodeUpdated.meta?.cEdit?.[dependentEditableDef.uuid]).toBeUndefined()
     expect(rootNodeUpdated.meta?.cVis?.[dependentVisibleDef.uuid]).toBeUndefined()
+  })
+
+  test('Nested multiple entities - deep entity editableIf root attribute condition', async () => {
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        integerDef('threshold'),
+        entityDef(
+          'plot',
+          integerDef('plot_id').key(),
+          entityDef('subplot', integerDef('subplot_id').key()).multiple().editableIf('threshold > 10')
+        ).multiple()
+      )
+    ).build()
+
+    // Build an initial record with threshold = 5 (condition NOT met) and one plot
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 1),
+        attribute('threshold', 5),
+        entity('plot', attribute('plot_id', 1))
+      )
+    ).build()
+
+    const subplotDef = Surveys.getNodeDefByName({ survey, name: 'subplot' })
+
+    // Get the existing plot entity and create a subplot inside it (condition not met)
+    const plotNode = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.plot[0]' })
+
+    const createResult = await RecordUpdater.createNodeAndDescendants({
+      user,
+      survey,
+      record,
+      parentNode: plotNode,
+      nodeDef: subplotDef,
+    })
+
+    const recordAfterCreate = createResult.record
+
+    // The plot node should have the new subplot marked as not editable (cEdit = false)
+    const plotNodeAfterCreate = TestUtils.getNodeByPath({
+      survey,
+      record: recordAfterCreate,
+      path: 'root_entity.plot[0]',
+    })
+    expect(Nodes.isChildEditable(plotNodeAfterCreate, subplotDef.uuid)).toBe(false)
+    expect(plotNodeAfterCreate.meta?.cEdit?.[subplotDef.uuid]).toBe(false)
+
+    // Now update threshold to 20 (condition met) and check the plot node reflects editability
+    const thresholdNode = TestUtils.getNodeByPath({ survey, record: recordAfterCreate, path: 'root_entity.threshold' })
+    const thresholdUpdated = { ...thresholdNode, value: 20 }
+    const recordWithThreshold = Records.addNode(thresholdUpdated)(recordAfterCreate)
+
+    const updateResult = await RecordNodesUpdater.updateNodesDependents({
+      user,
+      survey,
+      record: recordWithThreshold,
+      nodes: { [thresholdNode.uuid]: thresholdUpdated },
+    })
+
+    const plotNodeAfterUpdate = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.plot[0]',
+    })
+    expect(Nodes.isChildEditable(plotNodeAfterUpdate, subplotDef.uuid)).toBe(true)
+    expect(plotNodeAfterUpdate.meta?.cEdit?.[subplotDef.uuid]).toBeUndefined()
   })
 })
