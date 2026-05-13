@@ -8,15 +8,19 @@ import * as RecordGetters from './_records/recordGetters'
 
 type PrintOptions = {
   showNotApplicable?: boolean
+  showNotEditable?: boolean
+  showNotVisible?: boolean
 }
 
 const DefaultPrintOptions: PrintOptions = {
   showNotApplicable: false,
+  showNotEditable: false,
+  showNotVisible: false,
 }
 
 const print = (params: { survey: Survey; record: Record; options?: PrintOptions }): string => {
   const { survey, record, options = DefaultPrintOptions } = params
-  const { showNotApplicable } = options
+  const { showNotApplicable, showNotEditable, showNotVisible } = options
 
   const cycle = record.cycle!
   const rootNode = RecordGetters.getRoot(record)
@@ -29,16 +33,27 @@ const print = (params: { survey: Survey; record: Record; options?: PrintOptions 
     record,
     node: rootNode,
     visitor: (node) => {
-      const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
+      const { nodeDefUuid } = node
+      const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
       const value = NodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
       const depth = Nodes.getHierarchy(node).length
       const indentation = Strings.repeat(' ', depth)
       let part = `${indentation}${NodeDefs.getName(nodeDef)}: ${value}`
-      if (showNotApplicable) {
-        const parentNode = RecordGetters.getParent(node)(record)
-        if (parentNode && !Nodes.isChildApplicable(parentNode, node.nodeDefUuid)) {
-          part += ' (not applicable)'
+      const infoParts: string[] = []
+      const parentNode = NodeDefs.isRoot(nodeDef) ? null : RecordGetters.getParent(node)(record)
+      if (parentNode) {
+        if (showNotApplicable && !Nodes.isChildApplicable(parentNode, nodeDefUuid)) {
+          infoParts.push('not applicable')
         }
+        if (showNotEditable && !Nodes.isChildEditable(parentNode, nodeDefUuid)) {
+          infoParts.push('not editable')
+        }
+        if (showNotVisible && !Nodes.isChildVisible(parentNode, nodeDefUuid)) {
+          infoParts.push('not visible')
+        }
+      }
+      if (infoParts.length > 0) {
+        part += ` (${infoParts.join(', ')})`
       }
       parts.push(part)
       return false
