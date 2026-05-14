@@ -1,3 +1,4 @@
+import { Dictionary } from '../common'
 import { NodeDef, NodeDefCountType, NodeDefs } from '../nodeDef'
 import { Dates, Objects } from '../utils'
 import { Node } from './node'
@@ -84,39 +85,43 @@ const dissocChildApplicability = (node: Node, nodeDefUuid: string) => {
   }
 }
 
-const assocChildEditable = (node: Node, nodeDefUuid: string, editable: boolean, sideEffect = false): Node => {
+type MetaBooleanDictionaryProp = 'childApplicability' | 'cEdit' | 'cVis'
+
+const updateMetaDictionary = ({
+  node,
+  nodeDefUuid,
+  propName,
+  propValue,
+  sideEffect,
+}: {
+  node: Node
+  nodeDefUuid: string
+  propName: MetaBooleanDictionaryProp
+  propValue: any
+  sideEffect: boolean
+}): Node => {
   const nodeUpdated = sideEffect ? node : { ...node }
   const metaOriginal = nodeUpdated.meta ?? {}
   const meta = sideEffect ? metaOriginal : { ...metaOriginal }
-  const cEdit = sideEffect ? (meta.cEdit ?? {}) : { ...(meta.cEdit ?? {}) }
-  if (!editable) {
-    cEdit[nodeDefUuid] = editable
+  const existingDictionary: Dictionary<boolean> = meta[propName] ?? {}
+  const dictionary = sideEffect ? existingDictionary : { ...existingDictionary }
+  if (propValue) {
+    delete dictionary[nodeDefUuid]
   } else {
-    delete cEdit[nodeDefUuid]
+    dictionary[nodeDefUuid] = propValue
   }
-  meta.cEdit = cEdit
+  meta[propName] = dictionary
   nodeUpdated.meta = meta
   nodeUpdated.updated = true
   nodeUpdated.dateModified = Dates.nowFormattedForStorage()
   return nodeUpdated
 }
 
-const assocChildVisible = (node: Node, nodeDefUuid: string, visible: boolean, sideEffect = false): Node => {
-  const nodeUpdated = sideEffect ? node : { ...node }
-  const metaOriginal = nodeUpdated.meta ?? {}
-  const meta = sideEffect ? metaOriginal : { ...metaOriginal }
-  const cVis = sideEffect ? (meta.cVis ?? {}) : { ...(meta.cVis ?? {}) }
-  if (!visible) {
-    cVis[nodeDefUuid] = visible
-  } else {
-    delete cVis[nodeDefUuid]
-  }
-  meta.cVis = cVis
-  nodeUpdated.meta = meta
-  nodeUpdated.updated = true
-  nodeUpdated.dateModified = Dates.nowFormattedForStorage()
-  return nodeUpdated
-}
+const assocChildEditable = (node: Node, nodeDefUuid: string, editable: boolean, sideEffect = false): Node =>
+  updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
+
+const assocChildVisible = (node: Node, nodeDefUuid: string, visible: boolean, sideEffect = false): Node =>
+  updateMetaDictionary({ node, nodeDefUuid, propName: 'cVis', propValue: visible, sideEffect })
 
 const assocChildrenCount = (params: {
   node: Node
