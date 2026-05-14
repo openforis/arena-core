@@ -67,7 +67,10 @@ export const getDependentNodePointersByType = (params: {
     if (includeNewEntitySelf && node.parentUuid) {
       const parentNode = Records.getNodeByUuid(node.parentUuid)(record)
       if (parentNode) {
-        nodePointers.push({ nodeCtx: parentNode, nodeDef: sourceNodeDef })
+        const pointer = { nodeCtx: parentNode, nodeDef: sourceNodeDef }
+        if (!filterFn || filterFn(pointer)) {
+          nodePointers.push(pointer)
+        }
       }
     }
     if (includeNewEntityChildPointers) {
@@ -76,7 +79,10 @@ export const getDependentNodePointersByType = (params: {
         NodeDefs.isMultiple
       )
       for (const childDef of multipleNodeDefs) {
-        nodePointers.push({ nodeCtx: node, nodeDef: childDef })
+        const pointer = { nodeCtx: node, nodeDef: childDef }
+        if (!filterFn || filterFn(pointer)) {
+          nodePointers.push(pointer)
+        }
       }
     }
   }
