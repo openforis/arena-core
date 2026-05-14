@@ -36,6 +36,7 @@ export const getDependentNodePointersByType = (params: {
   dependencyType: SurveyDependencyType
   includeSelfWhenSourceIsAttribute?: boolean
   includeNewEntitySelf?: boolean
+  includeNewEntityChildPointers?: boolean
   filterFn?: (nodePointer: NodePointer) => boolean
 }): NodePointer[] => {
   const {
@@ -45,6 +46,7 @@ export const getDependentNodePointersByType = (params: {
     dependencyType,
     includeSelfWhenSourceIsAttribute = false,
     includeNewEntitySelf = false,
+    includeNewEntityChildPointers = false,
     filterFn,
   } = params
 
@@ -60,13 +62,23 @@ export const getDependentNodePointersByType = (params: {
     filterFn,
   })
 
-  // For newly created entities, include a self-pointer so their own expression gets evaluated
-  if (includeNewEntitySelf && NodeDefs.isEntity(sourceNodeDef) && node.created && node.parentUuid) {
-    const parentNode = Records.getNodeByUuid(node.parentUuid)(record)
-    if (parentNode) {
-      nodePointers.push({ nodeCtx: parentNode, nodeDef: sourceNodeDef })
+  if (NodeDefs.isEntity(sourceNodeDef) && node.created) {
+    // For newly created entities, include a self-pointer so their own expression gets evaluated
+    if (includeNewEntitySelf && node.parentUuid) {
+      const parentNode = Records.getNodeByUuid(node.parentUuid)(record)
+      if (parentNode) {
+        nodePointers.push({ nodeCtx: parentNode, nodeDef: sourceNodeDef })
+      }
+    }
+    if (includeNewEntityChildPointers) {
+      // for new entities, include children multiple nodes (to update their applicability too, in case they are empty)
+      const multipleNodeDefs = Surveys.getNodeDefChildren({ survey, nodeDef: sourceNodeDef }).filter(
+        NodeDefs.isMultiple
+      )
+      for (const childDef of multipleNodeDefs) {
+        nodePointers.push({ nodeCtx: node, nodeDef: childDef })
+      }
     }
   }
-
   return nodePointers
 }

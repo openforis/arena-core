@@ -56,6 +56,7 @@ export const updateSelfAndDependentsEditable = async (
     dependencyType: SurveyDependencyType.editable,
     includeSelfWhenSourceIsAttribute: true,
     includeNewEntitySelf: true,
+    includeNewEntityChildPointers: true,
   })
 
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten

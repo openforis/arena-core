@@ -16,23 +16,14 @@ const expressionEvaluator = new RecordExpressionEvaluator()
 const extractNodePointersToUpdate = (params: { survey: Survey; record: Record; node: Node }) => {
   const { survey, record, node } = params
 
-  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
-
   const nodePointersToUpdate = getDependentNodePointersByType({
     survey,
     record,
     node,
     dependencyType: SurveyDependencyType.applicable,
     includeSelfWhenSourceIsAttribute: true,
+    includeNewEntityChildPointers: true,
   })
-
-  if (NodeDefs.isEntity(nodeDef) && node.created) {
-    // for new entities, include children multiple nodes (to update their applicability too, in case they are empty)
-    const multipleNodeDefs = Surveys.getNodeDefChildren({ survey, nodeDef }).filter(NodeDefs.isMultiple)
-    for (const childDef of multipleNodeDefs) {
-      nodePointersToUpdate.push({ nodeCtx: node, nodeDef: childDef })
-    }
-  }
   return nodePointersToUpdate
 }
 
