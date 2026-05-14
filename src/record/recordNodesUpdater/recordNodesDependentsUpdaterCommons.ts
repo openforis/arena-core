@@ -80,6 +80,30 @@ const addNewEntityChildMultiplePointers = (params: {
   }
 }
 
+const addExistingEntityDependentSelfPointers = (params: {
+  nodePointers: NodePointer[]
+  record: Record
+  filterFn?: (nodePointer: NodePointer) => boolean
+}) => {
+  const { nodePointers, record, filterFn } = params
+  // For each entity node in the dependent list, add a self-pointer to reevaluate its own editable/visible status
+  // This handles existing entities that come through onUpdate dependency paths
+  for (const pointer of nodePointers) {
+    const nodeDef = pointer.nodeDef
+    const nodeCtx = pointer.nodeCtx
+    if (NodeDefs.isEntity(nodeDef) && nodeCtx.parentUuid) {
+      const parentNode = Records.getNodeByUuid(nodeCtx.parentUuid)(record)
+      if (parentNode) {
+        addPointerIfAccepted({
+          nodePointers,
+          pointer: { nodeCtx: parentNode, nodeDef },
+          filterFn,
+        })
+      }
+    }
+  }
+}
+
 export const getDependentNodePointersByType = (params: {
   survey: Survey
   record: Record
@@ -113,11 +137,17 @@ export const getDependentNodePointersByType = (params: {
     filterFn,
   })
 
+  // For any entity nodes in the dependent list (whether existing or new), add self-pointers
+  // to reevaluate their own editable/visible/applicable expressions relative to their parent.
+  if (includeNewEntitySelf) {
+    addExistingEntityDependentSelfPointers({ nodePointers, record, filterFn })
+  }
+
   if (!NodeDefs.isEntity(sourceNodeDef) || !node.created) {
     return nodePointers
   }
 
-  // For newly created entities, include a self-pointer so their own expression gets evaluated.
+  // For newly created entities, include a self-pointer for the source node.
   if (includeNewEntitySelf) {
     addNewEntitySelfPointer({ nodePointers, survey, record, node, sourceNodeDef, filterFn })
   }
