@@ -1,9 +1,7 @@
 import { SystemError } from '../../error'
 import { Node, NodePointer } from '../../node'
-import { NodeDefs } from '../../nodeDef'
-import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefType } from '../../nodeDef'
-import { Surveys } from '../../survey'
-import { Survey, SurveyDependencyType } from '../../survey'
+import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefType, NodeDefs } from '../../nodeDef'
+import { Survey, SurveyDependencyType, Surveys } from '../../survey'
 import { Record } from '../record'
 import { Records } from '../records'
 
@@ -27,6 +25,59 @@ export const throwError = (params: {
     error: error.toString(),
     errorJson: error instanceof SystemError ? error.toJSON() : null,
   })
+}
+
+const addPointerIfAccepted = (params: {
+  nodePointers: NodePointer[]
+  pointer: NodePointer
+  filterFn?: (nodePointer: NodePointer) => boolean
+}) => {
+  const { nodePointers, pointer, filterFn } = params
+  if (!filterFn || filterFn(pointer)) {
+    nodePointers.push(pointer)
+  }
+}
+
+const addNewEntitySelfPointer = (params: {
+  nodePointers: NodePointer[]
+  survey: Survey
+  record: Record
+  node: Node
+  sourceNodeDef: NodeDef<NodeDefType, NodeDefProps>
+  filterFn?: (nodePointer: NodePointer) => boolean
+}) => {
+  const { nodePointers, record, node, sourceNodeDef, filterFn } = params
+  if (!node.parentUuid) {
+    return
+  }
+  const parentNode = Records.getNodeByUuid(node.parentUuid)(record)
+  if (!parentNode) {
+    return
+  }
+  addPointerIfAccepted({
+    nodePointers,
+    pointer: { nodeCtx: parentNode, nodeDef: sourceNodeDef },
+    filterFn,
+  })
+}
+
+const addNewEntityChildMultiplePointers = (params: {
+  nodePointers: NodePointer[]
+  survey: Survey
+  node: Node
+  sourceNodeDef: NodeDef<NodeDefType, NodeDefProps>
+  filterFn?: (nodePointer: NodePointer) => boolean
+}) => {
+  const { nodePointers, survey, node, sourceNodeDef, filterFn } = params
+  const multipleNodeDefs = Surveys.getNodeDefChildren({ survey, nodeDef: sourceNodeDef }).filter(NodeDefs.isMultiple)
+
+  for (const childDef of multipleNodeDefs) {
+    addPointerIfAccepted({
+      nodePointers,
+      pointer: { nodeCtx: node, nodeDef: childDef },
+      filterFn,
+    })
+  }
 }
 
 export const getDependentNodePointersByType = (params: {
@@ -62,29 +113,19 @@ export const getDependentNodePointersByType = (params: {
     filterFn,
   })
 
-  if (NodeDefs.isEntity(sourceNodeDef) && node.created) {
-    // For newly created entities, include a self-pointer so their own expression gets evaluated
-    if (includeNewEntitySelf && node.parentUuid) {
-      const parentNode = Records.getNodeByUuid(node.parentUuid)(record)
-      if (parentNode) {
-        const pointer = { nodeCtx: parentNode, nodeDef: sourceNodeDef }
-        if (!filterFn || filterFn(pointer)) {
-          nodePointers.push(pointer)
-        }
-      }
-    }
-    if (includeNewEntityChildPointers) {
-      // for new entities, include child multiple nodes so their dependency metadata/status gets updated too, even when they are empty
-      const multipleNodeDefs = Surveys.getNodeDefChildren({ survey, nodeDef: sourceNodeDef }).filter(
-        NodeDefs.isMultiple
-      )
-      for (const childDef of multipleNodeDefs) {
-        const pointer = { nodeCtx: node, nodeDef: childDef }
-        if (!filterFn || filterFn(pointer)) {
-          nodePointers.push(pointer)
-        }
-      }
-    }
+  if (!NodeDefs.isEntity(sourceNodeDef) || !node.created) {
+    return nodePointers
   }
+
+  // For newly created entities, include a self-pointer so their own expression gets evaluated.
+  if (includeNewEntitySelf) {
+    addNewEntitySelfPointer({ nodePointers, survey, record, node, sourceNodeDef, filterFn })
+  }
+
+  // For new entities, include child multiple nodes so their dependency metadata/status gets updated too.
+  if (includeNewEntityChildPointers) {
+    addNewEntityChildMultiplePointers({ nodePointers, survey, node, sourceNodeDef, filterFn })
+  }
+
   return nodePointers
 }
