@@ -74,7 +74,7 @@ export const getDependentNodePointersByType = (params: {
       }
     }
     if (includeNewEntityChildPointers) {
-      // for new entities, include children multiple nodes (to update their applicability too, in case they are empty)
+      // for new entities, include child multiple nodes so their dependency metadata/status gets updated too, even when they are empty
       const multipleNodeDefs = Surveys.getNodeDefChildren({ survey, nodeDef: sourceNodeDef }).filter(
         NodeDefs.isMultiple
       )
