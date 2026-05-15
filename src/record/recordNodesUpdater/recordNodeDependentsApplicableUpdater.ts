@@ -7,6 +7,7 @@ import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records, RecordUpdateOptions } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
 import { deleteNodes } from './recordNodesDeleter'
+import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -15,23 +16,14 @@ const expressionEvaluator = new RecordExpressionEvaluator()
 const extractNodePointersToUpdate = (params: { survey: Survey; record: Record; node: Node }) => {
   const { survey, record, node } = params
 
-  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
-
-  const nodePointersToUpdate = Records.getDependentNodePointers({
+  const nodePointersToUpdate = getDependentNodePointersByType({
     survey,
     record,
     node,
     dependencyType: SurveyDependencyType.applicable,
-    includeSelf: !NodeDefs.isEntity(nodeDef),
+    includeSelfWhenSourceIsAttribute: true,
+    includeNewEntityChildPointers: true,
   })
-
-  if (NodeDefs.isEntity(nodeDef) && node.created) {
-    // for new entities, include children multiple nodes (to update their applicability too, in case they are empty)
-    const multipleNodeDefs = Surveys.getNodeDefChildren({ survey, nodeDef }).filter(NodeDefs.isMultiple)
-    for (const childDef of multipleNodeDefs) {
-      nodePointersToUpdate.push({ nodeCtx: node, nodeDef: childDef })
-    }
-  }
   return nodePointersToUpdate
 }
 

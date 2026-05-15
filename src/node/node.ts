@@ -12,8 +12,18 @@ export enum NodeMetaKeys {
 
 export interface NodeMeta {
   childApplicability?: { [uuid: string]: boolean }
+  /**
+   * Whether the node children (by definition UUID) are editable (true) or read-only (false).
+   * If not defined, the children are editable by default.
+   */
+  cEdit?: { [uuid: string]: boolean }
   childrenMaxCount?: { [uuid: string]: number }
   childrenMinCount?: { [uuid: string]: number }
+  /**
+   * Whether the node children (by definition UUID) are visible (true) or hidden (false).
+   * If not defined, the children are visible by default.
+   */
+  cVis?: { [uuid: string]: boolean }
   h?: string[]
   hCode?: string[]
   defaultValueApplied?: boolean

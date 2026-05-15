@@ -55,9 +55,14 @@ export const getChild =
   (parentNode: Node, childDefUuid: string) =>
   (record: Record): Node => {
     const children = getChildren(parentNode, childDefUuid)(record)
-    if (children.length > 1) throw new SystemError('systemError.record.multipleNodesFound')
-    if (children.length === 0) throw new SystemError('systemError.record.childNotFound')
-    return children[0]
+    const errorParams = { childDefUuid, parentNodeUuid: parentNode.uuid, recordUuid: record.uuid }
+    if (children.length === 1) {
+      return children[0]
+    }
+    if (children.length > 1) {
+      throw new SystemError('systemError.record.multipleNodesFound', errorParams)
+    }
+    throw new SystemError('systemError.record.childNotFound', errorParams)
   }
 
 export const getParent =

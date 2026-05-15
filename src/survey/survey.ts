@@ -17,12 +17,14 @@ export interface SurveyDependency {
 export enum SurveyDependencyType {
   applicable = 'applicable',
   defaultValues = 'defaultValues',
+  editable = 'editable',
   fileName = 'fileName',
   formula = 'formula',
   maxCount = 'maxCount',
   minCount = 'minCount',
   parentCode = 'parentCode',
   validations = 'validations',
+  visible = 'visible',
   onUpdate = 'onUpdate', // dependencies updated on every record update, stored as dictionary of booleans
 }
 

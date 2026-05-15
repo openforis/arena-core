@@ -7,40 +7,102 @@ import { Record } from './record'
 import * as RecordGetters from './_records/recordGetters'
 
 type PrintOptions = {
+  includeEmptyNodes?: boolean
   showNotApplicable?: boolean
+  showNotEditable?: boolean
+  showNotVisible?: boolean
 }
 
 const DefaultPrintOptions: PrintOptions = {
+  includeEmptyNodes: false,
   showNotApplicable: false,
+  showNotEditable: false,
+  showNotVisible: false,
 }
 
 const print = (params: { survey: Survey; record: Record; options?: PrintOptions }): string => {
   const { survey, record, options = DefaultPrintOptions } = params
-  const { showNotApplicable } = options
+  const { includeEmptyNodes, showNotApplicable, showNotEditable, showNotVisible } = options
 
-  const cycle = record.cycle!
+  const cycle = RecordGetters.getCycle(record)
   const rootNode = RecordGetters.getRoot(record)
   if (!rootNode) {
     return ''
   }
 
+  const getInfoParts = (params: { parentNode?: Node | null; childDefUuid: string }): string[] => {
+    const { parentNode, childDefUuid } = params
+    if (!parentNode) {
+      return []
+    }
+    const infoParts: string[] = []
+    if (showNotApplicable && !Nodes.isChildApplicable(parentNode, childDefUuid)) {
+      infoParts.push('not applicable')
+    }
+    if (showNotEditable && !Nodes.isChildEditable(parentNode, childDefUuid)) {
+      infoParts.push('not editable')
+    }
+    if (showNotVisible && !Nodes.isChildVisible(parentNode, childDefUuid)) {
+      infoParts.push('not visible')
+    }
+    return infoParts
+  }
+
+  const toPart = (params: { depth: number; name: string; value: string; infoParts?: string[] }): string => {
+    const { depth, name, value, infoParts = [] } = params
+    const indentation = Strings.repeat(' ', depth)
+    let part = `${indentation}${name}: ${value}`
+    if (infoParts.length > 0) {
+      part += ` (${infoParts.join(', ')})`
+    }
+    return part
+  }
+
   const parts: string[] = []
+
+  if (includeEmptyNodes) {
+    const printNodeAndChildren = (params: { node: Node; parentNode: Node | null }): void => {
+      const { node, parentNode } = params
+      const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
+      const value = NodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
+      const depth = Nodes.getHierarchy(node).length
+      const infoParts = getInfoParts({ parentNode, childDefUuid: node.nodeDefUuid })
+      parts.push(toPart({ depth, name: NodeDefs.getName(nodeDef), value, infoParts }))
+
+      const childDefs = Surveys.getNodeDefChildrenSorted({ survey, nodeDef, cycle })
+      childDefs.forEach((childDef) => {
+        const children = RecordGetters.getChildren(node, childDef.uuid)(record)
+        if (children.length === 0) {
+          const childInfoParts = getInfoParts({ parentNode: node, childDefUuid: childDef.uuid })
+          parts.push(
+            toPart({
+              depth: depth + 1,
+              name: NodeDefs.getName(childDef),
+              value: '<empty>',
+              infoParts: childInfoParts,
+            })
+          )
+          return
+        }
+        children.forEach((child) => printNodeAndChildren({ node: child, parentNode: node }))
+      })
+    }
+
+    printNodeAndChildren({ node: rootNode, parentNode: null })
+    return parts.join('\n')
+  }
+
   RecordGetters.visitDescendantsAndSelf({
     record,
     node: rootNode,
     visitor: (node) => {
-      const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
+      const { nodeDefUuid } = node
+      const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
       const value = NodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
       const depth = Nodes.getHierarchy(node).length
-      const indentation = Strings.repeat(' ', depth)
-      let part = `${indentation}${NodeDefs.getName(nodeDef)}: ${value}`
-      if (showNotApplicable) {
-        const parentNode = RecordGetters.getParent(node)(record)
-        if (parentNode && !Nodes.isChildApplicable(parentNode, node.nodeDefUuid)) {
-          part += ' (not applicable)'
-        }
-      }
-      parts.push(part)
+      const parentNode = NodeDefs.isRoot(nodeDef) ? null : RecordGetters.getParent(node)(record)
+      const infoParts = getInfoParts({ parentNode, childDefUuid: nodeDefUuid })
+      parts.push(toPart({ depth, name: NodeDefs.getName(nodeDef), value, infoParts }))
       return false
     },
     traverseMethod: TraverseMethod.dfs,

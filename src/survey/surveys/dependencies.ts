@@ -20,6 +20,7 @@ const functionsRequiringOnUpdateDependency = ['recordDateLastModified']
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
   [SurveyDependencyType.defaultValues]: true,
+  [SurveyDependencyType.editable]: true,
   [SurveyDependencyType.fileName]: true,
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: true,
@@ -27,11 +28,13 @@ const isContextParentByDependencyType = {
   [SurveyDependencyType.onUpdate]: true,
   [SurveyDependencyType.parentCode]: false,
   [SurveyDependencyType.validations]: true,
+  [SurveyDependencyType.visible]: true,
 }
 
 const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.applicable]: false,
   [SurveyDependencyType.defaultValues]: false,
+  [SurveyDependencyType.editable]: false,
   [SurveyDependencyType.fileName]: false,
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: false,
@@ -39,11 +42,13 @@ const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.onUpdate]: false,
   [SurveyDependencyType.parentCode]: false,
   [SurveyDependencyType.validations]: true,
+  [SurveyDependencyType.visible]: false,
 }
 
 const newDependecyGraph = () => ({
   [SurveyDependencyType.applicable]: {},
   [SurveyDependencyType.defaultValues]: {},
+  [SurveyDependencyType.editable]: {},
   [SurveyDependencyType.fileName]: {},
   [SurveyDependencyType.formula]: {},
   [SurveyDependencyType.maxCount]: {},
@@ -51,6 +56,7 @@ const newDependecyGraph = () => ({
   [SurveyDependencyType.onUpdate]: {},
   [SurveyDependencyType.parentCode]: {},
   [SurveyDependencyType.validations]: {},
+  [SurveyDependencyType.visible]: {},
 })
 
 const getDependencyGraph = (survey: Survey): SurveyDependencyGraph => survey.dependencyGraph ?? newDependecyGraph()
@@ -202,9 +208,11 @@ export const addNodeDefDependencies = async (params: {
     }
     return _graphUpdated
   }
-  graphsUpdated = await _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
   graphsUpdated = await _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
+  graphsUpdated = await _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
+  graphsUpdated = await _addDependencies(SurveyDependencyType.editable, NodeDefs.getEditableIf(nodeDef))
   graphsUpdated = await _addDependencies(SurveyDependencyType.validations, NodeDefs.getValidationsExpressions(nodeDef))
+  graphsUpdated = await _addDependencies(SurveyDependencyType.visible, NodeDefs.getVisibleIf(nodeDef))
   const maxCount = NodeDefs.getMaxCount(nodeDef)
   if (Array.isArray(maxCount)) {
     graphsUpdated = await _addDependencies(SurveyDependencyType.maxCount, maxCount)

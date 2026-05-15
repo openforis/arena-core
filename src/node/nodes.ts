@@ -1,3 +1,4 @@
+import { Dictionary } from '../common'
 import { NodeDef, NodeDefCountType, NodeDefs } from '../nodeDef'
 import { Dates, Objects } from '../utils'
 import { Node } from './node'
@@ -10,6 +11,17 @@ const isChildApplicable = (node: Node, nodeDefUuid: string): boolean => {
   // if child applicability is not defined for a node definition, consider it applicable
   return node.meta?.childApplicability?.[nodeDefUuid] !== false
 }
+
+const isChildEditable = (node: Node, nodeDefUuid: string): boolean => {
+  // if child editability is not defined for a node definition, consider it editable
+  return node.meta?.cEdit?.[nodeDefUuid] !== false
+}
+
+const isChildVisible = (node: Node, nodeDefUuid: string): boolean => {
+  // if child visibility is not defined for a node definition, consider it visible
+  return node.meta?.cVis?.[nodeDefUuid] !== false
+}
+
 const getChildrenMinOrMaxCount = (params: {
   parentNode: Node
   nodeDef: NodeDef<any>
@@ -72,6 +84,44 @@ const dissocChildApplicability = (node: Node, nodeDefUuid: string) => {
     meta: { ...node.meta, childApplicability },
   }
 }
+
+type MetaBooleanDictionaryProp = 'childApplicability' | 'cEdit' | 'cVis'
+
+const updateMetaDictionary = ({
+  node,
+  nodeDefUuid,
+  propName,
+  propValue,
+  sideEffect,
+}: {
+  node: Node
+  nodeDefUuid: string
+  propName: MetaBooleanDictionaryProp
+  propValue: any
+  sideEffect: boolean
+}): Node => {
+  const nodeUpdated = sideEffect ? node : { ...node }
+  const metaOriginal = nodeUpdated.meta ?? {}
+  const meta = sideEffect ? metaOriginal : { ...metaOriginal }
+  const existingDictionary: Dictionary<boolean> = meta[propName] ?? {}
+  const dictionary = sideEffect ? existingDictionary : { ...existingDictionary }
+  if (propValue) {
+    delete dictionary[nodeDefUuid]
+  } else {
+    dictionary[nodeDefUuid] = propValue
+  }
+  meta[propName] = dictionary
+  nodeUpdated.meta = meta
+  nodeUpdated.updated = true
+  nodeUpdated.dateModified = Dates.nowFormattedForStorage()
+  return nodeUpdated
+}
+
+const assocChildEditable = (node: Node, nodeDefUuid: string, editable: boolean, sideEffect = false): Node =>
+  updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
+
+const assocChildVisible = (node: Node, nodeDefUuid: string, visible: boolean, sideEffect = false): Node =>
+  updateMetaDictionary({ node, nodeDefUuid, propName: 'cVis', propValue: visible, sideEffect })
 
 const assocChildrenCount = (params: {
   node: Node
@@ -138,6 +188,8 @@ export const Nodes = {
   isRoot,
   areEqual,
   isChildApplicable,
+  isChildEditable,
+  isChildVisible,
   getChildrenMinOrMaxCount,
   getChildrenMaxCount,
   getChildrenMinCount,
@@ -150,6 +202,8 @@ export const Nodes = {
   // update
   assocChildApplicability,
   dissocChildApplicability,
+  assocChildEditable,
+  assocChildVisible,
   assocChildrenCount,
   assocChildrenMaxCount,
   assocChildrenMinCount,
