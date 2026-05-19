@@ -1,3 +1,4 @@
+import { bearing } from './bearing'
 import { distance } from './distance'
 import { equals } from './equals'
 import { isValid } from './isValid'
@@ -8,6 +9,7 @@ import { toString } from './toString'
 import { transform } from './transform'
 
 export const Points = {
+  bearing,
   distance,
   equals,
   isValid,
