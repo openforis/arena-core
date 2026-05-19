@@ -37,7 +37,9 @@
   },
   "dependencies": {
     "@jsep-plugin/regex": "^1.0.4",
+    "@turf/bearing": "^7.3.5",
     "@turf/destination": "^7.3.5",
+    "@turf/distance": "^7.3.5",
     "bignumber.js": "^11.1.1",
     "change-case": "^5.4.4",
     "jsep": "^1.4.0",
@@ -64,7 +66,7 @@
     "**/*.{js,jsx,ts,tsx}": "eslint --cache --fix",
     "**/*.{js,ts,json,css,md}": "prettier --write"
   },
-  "packageManager": "yarn@4.13.0",
+  "packageManager": "yarn@4.14.1",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }

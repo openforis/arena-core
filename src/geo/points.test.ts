@@ -3,6 +3,26 @@ import { describe, test, expect } from '@jest/globals'
 import { PointFactory } from './pointFactory'
 import { Points } from './points'
 import { DEFAULT_SRS_INDEX } from '../srs'
+import { Point } from './point'
+
+// Helper function to test bearing between points
+const testBearing = (origin: Point, distanceMeters: number, expectedBearing: number) => {
+  const location = Points.pointAtDistance({
+    origin,
+    distanceMeters,
+    bearingDeg: expectedBearing,
+    srsIndex: DEFAULT_SRS_INDEX,
+  })
+
+  expect(location).not.toBeNull()
+  if (location) {
+    const actualBearing = Points.bearing(origin, location, DEFAULT_SRS_INDEX)
+    expect(actualBearing).not.toBeNull()
+    const normalizedBearing = (actualBearing! + 360) % 360
+    const normalizedExpected = (expectedBearing + 360) % 360
+    expect(normalizedBearing).toBeCloseTo(normalizedExpected, 0)
+  }
+}
 
 describe('Points test', () => {
   test('parsing incomplete coordinate (missing srs)', () => {
@@ -64,5 +84,25 @@ describe('Points test', () => {
       const actualDistance = Points.distance(origin, location, DEFAULT_SRS_INDEX)
       expect(actualDistance).toBeCloseTo(distanceMeters, 0)
     }
+  })
+
+  test('bearing between points - east direction', () => {
+    const origin = PointFactory.createInstance({ x: 12, y: 41 })
+    testBearing(origin, 1000, 90)
+  })
+
+  test('bearing between points - north direction', () => {
+    const origin = PointFactory.createInstance({ x: 12, y: 41 })
+    testBearing(origin, 1000, 0)
+  })
+
+  test('bearing between points - south direction', () => {
+    const origin = PointFactory.createInstance({ x: 12, y: 41 })
+    testBearing(origin, 1000, 180)
+  })
+
+  test('bearing between points - west direction', () => {
+    const origin = PointFactory.createInstance({ x: 12, y: 41 })
+    testBearing(origin, 1000, 270)
   })
 })
