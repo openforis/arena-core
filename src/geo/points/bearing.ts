@@ -3,6 +3,7 @@ import { bearing as bearingTurf } from '@turf/bearing'
 import { Point } from '../point'
 import { DEFAULT_SRS_INDEX, SRSIndex } from '../../srs'
 import { toLatLong } from './toLatLong'
+import { Numbers } from '../../utils'
 
 /**
  * Calculates the angle (bearing) in degrees from pointFrom to pointTo.
@@ -23,6 +24,7 @@ export const bearing = (pointFrom: Point, pointTo: Point, srsIndex: SRSIndex = D
   const from = [point1LatLong.x, point1LatLong.y]
   const to = [point2LatLong.x, point2LatLong.y]
 
-  // Returns bearing in degrees (0-360, with 0 being north)
-  return bearingTurf(from, to)
+  // Turf returns bearings in the range [-180, 180]; normalize to [0, 360)
+  const rawBearing = bearingTurf(from, to)
+  return Numbers.absMod(360)(rawBearing)
 }
