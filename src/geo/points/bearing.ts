@@ -12,7 +12,7 @@ import { Numbers } from '../../utils'
  * @param {!object} pointFrom - Start point.
  * @param {!object} pointTo - End point.
  * @param {!SRSIndex} srsIndex - SRSs indexed by SRS code.
- * @returns {number} - Bearing angle in degrees (0-360).
+ * @returns {number} - Bearing angle in degrees [0-360).
  */
 export const bearing = (pointFrom: Point, pointTo: Point, srsIndex: SRSIndex = DEFAULT_SRS_INDEX): number | null => {
   const point1LatLong = toLatLong(pointFrom, srsIndex)
