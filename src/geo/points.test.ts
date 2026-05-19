@@ -18,9 +18,7 @@ const testBearing = (origin: Point, distanceMeters: number, expectedBearing: num
   if (location) {
     const actualBearing = Points.bearing(origin, location, DEFAULT_SRS_INDEX)
     expect(actualBearing).not.toBeNull()
-    const normalizedBearing = (actualBearing! + 360) % 360
-    const normalizedExpected = (expectedBearing + 360) % 360
-    expect(normalizedBearing).toBeCloseTo(normalizedExpected, 0)
+    expect(actualBearing).toBeCloseTo(expectedBearing, 0)
   }
 }
 
