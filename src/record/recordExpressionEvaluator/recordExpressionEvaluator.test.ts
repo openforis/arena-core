@@ -1,4 +1,4 @@
-import { describe, test, expect } from '@jest/globals'
+import { beforeAll, describe, test, expect } from '@jest/globals'
 
 import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
@@ -44,6 +44,38 @@ describe('RecordExpressionEvaluator', () => {
 
     record = createTestRecord({ user, survey })
   }, 10000)
+
+  test('prevCycleValue(remarks)', async () => {
+    const currentRecord = createTestRecord({ user, survey })
+    currentRecord.cycle = '1'
+
+    const prevCycleRecord = createTestRecord({ user, survey })
+    prevCycleRecord.cycle = '0'
+
+    const prevCycleRemarks = TestUtils.getNodeByPath({
+      survey,
+      record: prevCycleRecord,
+      path: 'cluster.remarks',
+    })
+    prevCycleRemarks.value = 'Previous cycle remarks'
+
+    const nodeCurrent = TestUtils.getNodeByPath({ survey, record: currentRecord, path: 'cluster.remarks' })
+    const nodeContext = Records.getParent(nodeCurrent)(currentRecord)
+    if (!nodeContext) throw new Error('Cannot find context node: cluster.remarks')
+    const context: RecordExpressionContext = {
+      user,
+      survey,
+      record: currentRecord,
+      prevCycleRecord,
+      nodeContext,
+      nodeCurrent,
+      object: nodeContext,
+    }
+
+    const res = await new RecordExpressionEvaluator().evaluate('prevCycleValue(remarks)', context)
+    expect(res).toEqual(prevCycleRemarks)
+  })
+
   const queries: Query[] = [
     { expression: 'invalid_node_name + 1', error: new SystemError('expression.identifierNotFound') },
     { expression: 'cluster_id + 1', result: 13 },

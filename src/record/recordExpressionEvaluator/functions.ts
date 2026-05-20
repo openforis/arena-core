@@ -1,11 +1,40 @@
 import { ExpressionFunctions } from '../../expression'
 import { Point, Points } from '../../geo'
-import { Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
 import { nodeDefExpressionFunctions } from '../../nodeDefExpressionEvaluator/functions'
 import { Surveys } from '../../survey'
 import { Arrays } from '../../utils'
 import { Records } from '../records'
 import { RecordExpressionContext } from './context'
+
+const extractPreviousCycleValues = ({
+  node,
+  context,
+}: {
+  node: ArenaRecordNode | null
+  context: RecordExpressionContext
+}): ArenaRecordNode[] | null => {
+  const { record, prevCycleRecord, survey } = context
+  if (!node || !prevCycleRecord) {
+    return null
+  }
+  const currentRecordEntity = Records.getParent(node)(record)
+  if (!currentRecordEntity) {
+    return null
+  }
+  const { uuid: entityUuid } = currentRecordEntity
+  const prevCycleEntity = Records.findEntityWithSameKeysInAnotherRecord({
+    survey,
+    cycle: Records.getCycle(record),
+    entityUuid,
+    record,
+    recordOther: prevCycleRecord,
+  })
+  if (!prevCycleEntity) {
+    return null
+  }
+  return Records.getChildren(prevCycleEntity, node.nodeDefUuid)(prevCycleRecord)
+}
 
 export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionContext> = {
   ...nodeDefExpressionFunctions,
@@ -115,6 +144,18 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       const { record } = context
       return Records.getParent(node)(record)
     },
+  },
+  prevCycleValue: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (context: RecordExpressionContext) => async (node) => extractPreviousCycleValues({ node, context })?.[0],
+  },
+  prevCycleValues: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (context: RecordExpressionContext) => async (node) => extractPreviousCycleValues({ node, context }),
   },
   recordCycle: {
     minArity: 0,
