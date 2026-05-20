@@ -1,4 +1,4 @@
-import { ArenaRecord } from '..'
+import type { ArenaRecord } from '../record'
 import { User } from '../../auth'
 import { CategoryItem } from '../../category'
 import { ExpressionNodeType, JavascriptExpressionEvaluator } from '../../expression'

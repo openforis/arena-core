@@ -2,7 +2,7 @@ import { User } from '../../auth'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Survey } from '../../survey'
-import { ArenaRecord } from '../record'
+import type { ArenaRecord } from '../record'
 
 export interface RecordExpressionEvaluationContext {
   user: User
