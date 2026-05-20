@@ -13,7 +13,7 @@ const extractPreviousCycleValues = ({
 }: {
   node: ArenaRecordNode | null
   context: RecordExpressionContext
-}): Promise<ArenaRecordNode[] | null> => {
+}): ArenaRecordNode[] | null => {
   const { record, prevCycleRecord, survey } = context
   if (!node || !prevCycleRecord) {
     return null
