@@ -1,22 +1,23 @@
+import type { ArenaRecord } from '../record'
+import { User } from '../../auth'
+import { CategoryItem } from '../../category'
 import { ExpressionNodeType, JavascriptExpressionEvaluator } from '../../expression'
-import { RecordIdentifierEvaluator } from './node/identifier'
-import { RecordThisEvaluator } from './node/thisEvaluator'
-import { recordExpressionFunctions } from './functions'
-import { RecordExpressionContext } from './context'
-import { Survey, Surveys } from '../../survey'
-import { Record } from '../record'
 import { Node } from '../../node'
 import { NodeDefExpression, NodeDefs } from '../../nodeDef'
+import { Survey, Surveys } from '../../survey'
+import { Taxon } from '../../taxonomy'
 import { Objects } from '../../utils'
 import { Records } from '../records'
-import { CategoryItem } from '../../category'
-import { Taxon } from '../../taxonomy'
-import { User } from '../../auth'
+import { RecordExpressionContext } from './context'
+import { recordExpressionFunctions } from './functions'
+import { RecordIdentifierEvaluator } from './node/identifier'
+import { RecordThisEvaluator } from './node/thisEvaluator'
 
 type ExpressionEvaluateParams = {
   user: User
   survey: Survey
-  record: Record
+  record: ArenaRecord
+  prevCycleRecord?: ArenaRecord
   timezoneOffset?: number
 }
 
