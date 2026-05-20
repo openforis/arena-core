@@ -149,8 +149,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (context: RecordExpressionContext) => async (node) =>
-      (await extractPreviousCycleValues({ node, context }))?.[0],
+    executor: (context: RecordExpressionContext) => async (node) => extractPreviousCycleValues({ node, context })?.[0],
   },
   prevCycleValues: {
     minArity: 1,
