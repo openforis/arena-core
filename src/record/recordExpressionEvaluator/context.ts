@@ -10,6 +10,7 @@ export interface RecordExpressionContext extends ExpressionContext {
   user: User
   survey: Survey
   record: Record
+  prevCycleRecord?: Record
   nodeContext: Node
   nodeCurrent?: Node
   item?: any

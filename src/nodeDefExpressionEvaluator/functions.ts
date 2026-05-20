@@ -216,6 +216,16 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       return getNodeDefParent({ survey, nodeDef })
     },
   },
+  prevCycleValue: {
+    minArity: 1,
+    maxArity: 1,
+    executor: emptyExecutor,
+  },
+  prevCycleValues: {
+    minArity: 1,
+    maxArity: 1,
+    executor: emptyExecutor,
+  },
   recordCycle: {
     minArity: 0,
     maxArity: 0,
