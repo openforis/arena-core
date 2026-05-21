@@ -13,7 +13,7 @@ const extractPreviousCycleValues = ({
 }: {
   node: ArenaRecordNode | null
   context: RecordExpressionContext
-}): ArenaRecordNode[] | null => {
+}): any[] | null => {
   const { record, prevCycleRecord, survey } = context
   if (!node || !prevCycleRecord) {
     return null
@@ -33,7 +33,7 @@ const extractPreviousCycleValues = ({
   if (!prevCycleEntity) {
     return null
   }
-  return Records.getChildren(prevCycleEntity, node.nodeDefUuid)(prevCycleRecord)
+  return Records.getChildren(prevCycleEntity, node.nodeDefUuid)(prevCycleRecord).map((prevNode) => prevNode.value)
 }
 
 export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionContext> = {
