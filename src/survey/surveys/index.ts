@@ -79,6 +79,7 @@ import {
 
 import {
   getSecurity,
+  isDataAnalystViewNotOwnedRecordsAllowed,
   isDataEditorViewNotOwnedRecordsAllowed,
   isRecordsDownloadInMobileAllowed,
   isRecordsUploadFromMobileAllowed,
@@ -168,6 +169,7 @@ export const Surveys = {
 
   // security
   getSecurity,
+  isDataAnalystViewNotOwnedRecordsAllowed,
   isDataEditorViewNotOwnedRecordsAllowed,
   isVisibleInMobile,
   isRecordsDownloadInMobileAllowed,
