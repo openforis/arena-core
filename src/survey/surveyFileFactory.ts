@@ -6,13 +6,7 @@ export enum SurveyFileType {
   surveyDocImage = 'surveyDocImage',
 }
 
-export type SurveyFileFactoryParams = {
-  name?: SurveyFileProps['name']
-  labels?: SurveyFileProps['labels'] | null
-  size?: SurveyFileProps['size']
-  type?: SurveyFileProps['type']
-  temporary?: SurveyFileProps['temporary']
-}
+export type SurveyFileFactoryParams = Pick<SurveyFileProps, 'name' | 'labels' | 'size' | 'type' | 'temporary'>
 
 export const SurveyFileFactory: Factory<SurveyFile, SurveyFileFactoryParams> = {
   createInstance: (params: SurveyFileFactoryParams = {}): SurveyFile => {
