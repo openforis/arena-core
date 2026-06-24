@@ -176,7 +176,7 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
 
   const entityDef = nodeDef as NodeDefEntity
 
-  const childrenEntitiesInOwnPageUudis = NodeDefs.getChildrenEntitiesInOwnPageUudis(cycle)(entityDef) ?? []
+  const childrenEntitiesInOwnPageSortedUuids = NodeDefs.getChildrenEntitiesInOwnPageUudis(cycle)(entityDef) ?? []
   const layoutChildren = NodeDefs.getLayoutChildren(cycle)(entityDef) ?? []
   const childrenByUuids = children.reduce((acc: NodeDefMap, child) => {
     acc[child.uuid] = child
@@ -184,7 +184,7 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
   }, {})
   const childrenUuids = Object.keys(childrenByUuids)
 
-  if (layoutChildren.length === 0 && childrenEntitiesInOwnPageUudis.length === 0) {
+  if (layoutChildren.length === 0 && childrenEntitiesInOwnPageSortedUuids.length === 0) {
     return childrenUuids
   }
   const sortedChildrenDefsInSamePageUuids = NodeDefs.isLayoutRenderTypeTable(cycle)(entityDef)
@@ -201,7 +201,7 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
     const childDef = childrenByUuids[childUuid]
     return (
       !sortedChildrenDefsInSamePageUuids.includes(childUuid) &&
-      !childrenEntitiesInOwnPageUudis.includes(childUuid) &&
+      !childrenEntitiesInOwnPageSortedUuids.includes(childUuid) &&
       NodeDefs.isInCycle(cycle)(childDef)
     )
   })
@@ -211,7 +211,7 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
       // add child uuids missing in layout at the end
       .concat(missingChildrenUuidsInLayout)
       // add child entities in own page at the very end
-      .concat(childrenEntitiesInOwnPageUudis)
+      .concat(childrenEntitiesInOwnPageSortedUuids)
   )
 }
 

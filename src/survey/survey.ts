@@ -59,6 +59,47 @@ export const surveySecurityDefaults: SurveySecurity = {
   [SurveySecurityProp.allowRecordsWithErrorsUploadFromMobile]: true,
 }
 
+export enum SurveyDocPlace {
+  header = 'header',
+  footer = 'footer',
+}
+
+export const surveyDocImagePropKeys = {
+  documentPlace: 'documentPlace',
+  applyIf: 'applyIf',
+} as const
+
+export type SurveyDocImageProps = SurveyFileProps & {
+  documentPlace?: SurveyDocPlace
+  applyIf?: string
+}
+
+export type SurveyFileProps = {
+  deleted?: boolean
+  labels?: Labels
+  name?: string
+  nodeUuid?: string
+  recordUuid?: string
+  size?: number | null
+  temporary?: boolean
+  type?: string
+}
+
+export type SurveyFile = {
+  uuid: string
+  props: SurveyFileProps
+  content?: Buffer | null
+  dateCreated: string
+}
+
+export type SurveyDocImage = SurveyFile & {
+  props: SurveyDocImageProps
+}
+
+export type SurveyDocOptions = {
+  headerOnFirstPageOnly?: boolean // default: true
+}
+
 export interface SurveyProps {
   collectUri?: string
   cycles: {
@@ -70,8 +111,12 @@ export interface SurveyProps {
   labels?: Labels
   languages: LanguageCode[]
   name: string
+  preloadedMapLayers?: SurveyFile[]
+  preloadedMapLayersEnabled?: boolean
   security?: SurveySecurity
   srs: SRS[]
+  surveyDocImages?: SurveyDocImage[]
+  surveyDocOptions?: SurveyDocOptions
 }
 
 export interface SurveyNodeDefsIndex {

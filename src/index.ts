@@ -204,11 +204,15 @@ export type { SRS, SRSIndex } from './srs'
 
 export {
   NodeDefsFixer,
+  SurveyDocImages,
+  SurveyDocImageFactory,
+  SurveyDocPlace,
   SurveyDependencyType,
   SurveyFactory,
   SurveyRefDataFactory,
   SurveySecurityProp,
   Surveys,
+  surveyDocImagePropKeys,
   surveySecurityDefaults,
 } from './survey'
 export type {
@@ -216,6 +220,11 @@ export type {
   SurveyCycle,
   SurveyDependency,
   SurveyDependencyGraph,
+  SurveyDocImage,
+  SurveyDocImageFactoryParams,
+  SurveyDocImageProps,
+  SurveyFile,
+  SurveyFileProps,
   SurveyProps,
   SurveyRefData,
   SurveySecurity,
