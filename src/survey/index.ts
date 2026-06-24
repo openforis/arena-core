@@ -1,9 +1,9 @@
 export { NodeDefsFixer } from './nodeDefsFixer'
 export { SurveyDocImages } from './surveyDocImages'
-export { SurveyFileFactory } from './surveyFileFactory'
-export { SurveyDocImageFactory } from './surveyDocFileFactory'
+export { SurveyFileFactory, SurveyFileType } from './surveyFileFactory'
+export { SurveyDocImageFactory } from './surveyDocImageFactory'
 export type { SurveyFileFactoryParams } from './surveyFileFactory'
-export type { SurveyDocImageFactoryParams } from './surveyDocFileFactory'
+export type { SurveyDocImageFactoryParams } from './surveyDocImageFactory'
 
 export type {
   Survey,

@@ -2,6 +2,10 @@ import { Factory } from '../common'
 import { Dates, UUIDs } from '../utils'
 import { SurveyFile, SurveyFileProps } from './survey'
 
+export enum SurveyFileType {
+  surveyDocImage = 'surveyDocImage',
+}
+
 export type SurveyFileFactoryParams = {
   name?: SurveyFileProps['name']
   labels?: SurveyFileProps['labels'] | null
