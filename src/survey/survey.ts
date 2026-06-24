@@ -39,6 +39,7 @@ export interface SurveyCycle {
 
 export enum SurveySecurityProp {
   dataEditorViewNotOwnedRecordsAllowed = 'dataEditorViewNotOwnedRecordsAllowed',
+  dataAnalystViewNotOwnedRecordsAllowed = 'dataAnalystViewNotOwnedRecordsAllowed',
   visibleInMobile = 'visibleInMobile',
   allowRecordsDownloadInMobile = 'allowRecordsDownloadInMobile',
   allowRecordsUploadFromMobile = 'allowRecordsUploadFromMobile',
@@ -51,6 +52,7 @@ export type SurveySecurity = {
 
 export const surveySecurityDefaults: SurveySecurity = {
   [SurveySecurityProp.dataEditorViewNotOwnedRecordsAllowed]: true,
+  [SurveySecurityProp.dataAnalystViewNotOwnedRecordsAllowed]: true,
   [SurveySecurityProp.visibleInMobile]: true,
   [SurveySecurityProp.allowRecordsDownloadInMobile]: true,
   [SurveySecurityProp.allowRecordsUploadFromMobile]: true,

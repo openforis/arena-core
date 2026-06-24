@@ -16,6 +16,7 @@ import {
   getDependentCodeAttributeDefs,
   getDependentEnumeratedEntityDefs,
   getDescendantsInSingleEntities,
+  getNodeDefsArray,
   getNodeDefAncestorCodes,
   getNodeDefAncestorMultipleEntity,
   getNodeDefByName,
@@ -78,6 +79,7 @@ import {
 
 import {
   getSecurity,
+  isDataAnalystViewNotOwnedRecordsAllowed,
   isDataEditorViewNotOwnedRecordsAllowed,
   isRecordsDownloadInMobileAllowed,
   isRecordsUploadFromMobileAllowed,
@@ -111,6 +113,7 @@ export const Surveys = {
   findNodeDefByName,
   findNodeDefByUuid,
   findNodeDefsByUuids,
+  getNodeDefsArray,
   getNodeDefByName,
   getNodeDefsByUuids,
   getNodeDefByUuid,
@@ -166,6 +169,7 @@ export const Surveys = {
 
   // security
   getSecurity,
+  isDataAnalystViewNotOwnedRecordsAllowed,
   isDataEditorViewNotOwnedRecordsAllowed,
   isVisibleInMobile,
   isRecordsDownloadInMobileAllowed,

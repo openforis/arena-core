@@ -45,7 +45,7 @@ describe('RecordExpressionEvaluator', () => {
     record = createTestRecord({ user, survey })
   }, 10000)
 
-  test('prevCycleValue(remarks)', async () => {
+  test('prevCycleValue(remarks) / prevCycleValues(remarks)', async () => {
     const currentRecord = createTestRecord({ user, survey })
     currentRecord.cycle = '1'
 
@@ -72,8 +72,13 @@ describe('RecordExpressionEvaluator', () => {
       object: nodeContext,
     }
 
-    const res = await new RecordExpressionEvaluator().evaluate('prevCycleValue(remarks)', context)
-    expect(res).toEqual(prevCycleRemarks)
+    const evaluator = new RecordExpressionEvaluator()
+
+    const prevCycleValue = await evaluator.evaluate('prevCycleValue(remarks)', context)
+    expect(prevCycleValue).toEqual(prevCycleRemarks.value)
+
+    const prevCycleValues = await evaluator.evaluate('prevCycleValues(remarks)', context)
+    expect(prevCycleValues).toEqual([prevCycleRemarks.value])
   })
 
   const queries: Query[] = [
