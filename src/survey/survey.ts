@@ -69,14 +69,9 @@ export const surveyDocImagePropKeys = {
   applyIf: 'applyIf',
 } as const
 
-export type SurveyDocImageProps = {
+export type SurveyDocImageProps = SurveyFileProps & {
   documentPlace?: SurveyDocPlace
   applyIf?: string
-  labels?: Record<string, string>
-  name?: string
-  size?: number | null
-  temporary?: boolean
-  type?: string
 }
 
 export type SurveyFileProps = {

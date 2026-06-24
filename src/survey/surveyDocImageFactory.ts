@@ -10,9 +10,12 @@ export type SurveyDocImageFactoryParams = SurveyFileFactoryParams & {
 
 export const SurveyDocImageFactory: Factory<SurveyDocImage, SurveyDocImageFactoryParams> = {
   createInstance: (params: SurveyDocImageFactoryParams = {}): SurveyDocImage => {
-    const { documentPlace, applyIf } = params
+    const { documentPlace, applyIf, ...fileParams } = params
 
-    let image = SurveyFileFactory.createInstance({ ...params, type: SurveyFileType.surveyDocImage }) as SurveyDocImage
+    let image = SurveyFileFactory.createInstance({
+      ...fileParams,
+      type: SurveyFileType.surveyDocImage,
+    }) as SurveyDocImage
 
     if (documentPlace) image = SurveyDocImages.assocDocumentPlace(documentPlace)(image)
     if (applyIf) image = SurveyDocImages.assocApplyIf(applyIf)(image)

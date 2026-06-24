@@ -1,3 +1,4 @@
+import { Labels } from '../language'
 import { Objects } from '../utils'
 import { SurveyDocImage, SurveyDocPlace, surveyDocImagePropKeys } from './survey'
 
@@ -22,7 +23,7 @@ const assocApplyIf =
     Objects.assocPath({ obj: image, path: ['props', surveyDocImagePropKeys.applyIf], value: expr }) as SurveyDocImage
 
 const assocLabels =
-  (labels: Record<string, string>) =>
+  (labels: Labels) =>
   (image: SurveyDocImage): SurveyDocImage =>
     Objects.assocPath({ obj: image, path: ['props', 'labels'], value: labels }) as SurveyDocImage
 
