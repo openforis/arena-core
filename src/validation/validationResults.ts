@@ -12,7 +12,7 @@ const getMessages = (result: ValidationResult): Labels | undefined => result.mes
 const getMessage =
   (lang: LanguageCode) =>
   (result: ValidationResult): string | undefined =>
-    result.messages?.[lang]
+    result.messages?.[lang] ?? Object.values(result.messages ?? {})[0] // fallback to first message if the requested language is not available
 
 const hasMessages = (result: ValidationResult): boolean =>
   result.messages != null && Object.keys(result.messages).length > 0
