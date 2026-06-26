@@ -272,6 +272,7 @@ export {
   FieldValidators,
   ValidationFactory,
   ValidationResultFactory,
+  ValidationResults,
   Validations,
   ValidationSeverity,
   Validator,
