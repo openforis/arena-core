@@ -11,30 +11,30 @@ const keys = {
   warnings: 'warnings',
 }
 
-const hasValidation = (obj: any): boolean => !!obj.validation
+const hasValidation = (obj: any): boolean => !!obj?.validation
 
-const getValidation = (obj: any): Validation => obj.validation || ValidationFactory.createInstance()
+const getValidation = (obj: any): Validation => obj?.validation || ValidationFactory.createInstance()
 
 const getFieldValidations = (validation: Validation): ValidationFields => validation.fields ?? {}
 
 const _getFieldValidation =
-  (field: string | number, defaultValue: Validation | null = ValidationFactory.createInstance()) =>
-  (validation: Validation): Validation =>
-    getFieldValidations(validation)[field] ?? defaultValue
+  (field: string | number) =>
+  (validation: Validation): Validation | undefined =>
+    getFieldValidations(validation)[field]
 
 const getFieldValidation =
   (field: string | number, defaultValue: Validation | null = ValidationFactory.createInstance()) =>
-  (validation: Validation): Validation => {
+  (validation: Validation): Validation | null => {
     if (typeof field === 'string') {
-      let validationCurrent = validation
+      let validationCurrent: Validation | undefined = validation
       const parts = field.split('.')
       parts.some((part) => {
-        validationCurrent = _getFieldValidation(part, defaultValue)(validationCurrent)
+        validationCurrent = _getFieldValidation(part)(validationCurrent!)
         return !validationCurrent // breaks the loop if there is no field validation
       })
-      return validationCurrent
+      return validationCurrent ?? defaultValue
     } else {
-      return _getFieldValidation(field, defaultValue)(validation)
+      return _getFieldValidation(field)(validation) ?? defaultValue
     }
   }
 
@@ -78,13 +78,13 @@ const recalculateValidity = (validation: Validation): Validation => {
 
   const fieldsWithValidationRecalculated: ValidationFields = {}
 
-  Object.entries(validation.fields ?? {}).forEach(([fieldKey, fieldValidation]) => {
+  for (const [fieldKey, fieldValidation] of Object.entries(getFieldValidations(validation))) {
     const fieldValidationUpdated = recalculateValidity(fieldValidation)
     fieldsWithValidationRecalculated[fieldKey] = fieldValidationUpdated
     if (!fieldValidationUpdated.valid) {
       allFieldsValid = false
     }
-  })
+  }
   const valid: boolean = allFieldsValid && !hasErrors(validation) && !hasWarnings(validation)
 
   return ValidationFactory.createInstance({
@@ -161,8 +161,8 @@ const mergeValidations =
     const validationFieldsNext = getFieldValidations(validationNext)
 
     // iterate over new field validations: remove valid ones, merge invalid ones with previous ones
-    Object.entries(validationFieldsNext).forEach(([fieldKey, validationFieldNext]) => {
-      if (validationFieldNext.valid) {
+    for (const [fieldKey, validationFieldNext] of Object.entries(validationFieldsNext)) {
+      if (isValid(validationFieldNext)) {
         if (doCleanup) {
           // field validation valid: remove it from resulting validation
           delete validationFieldsResult[fieldKey]
@@ -177,7 +177,7 @@ const mergeValidations =
           : validationFieldNext
         validationFieldsResult[fieldKey] = validationFieldMerged
       }
-    })
+    }
     const validationResult: Validation = { ...validationPrev, [keys.fields]: validationFieldsResult }
     validationResult.errors = getErrors(validationNext)
     validationResult.warnings = getWarnings(validationNext)
@@ -185,27 +185,29 @@ const mergeValidations =
   }
 
 const dissocFieldValidation =
-  (fieldKey: string, sideEffect = false) =>
-  (validation: Validation): Validation =>
-    cleanup(Objects.dissocPath({ obj: validation, path: ['fields', fieldKey], sideEffect }))
+  (fieldKey: string, sideEffect = false, doCleanup = true) =>
+  (validation: Validation): Validation => {
+    const validationUpdated = Objects.dissocPath({ obj: validation, path: ['fields', fieldKey], sideEffect })
+    return doCleanup ? cleanup(validationUpdated) : validationUpdated
+  }
 
 const dissocFieldValidationsStartingWith =
-  (fieldStartsWith: string, sideEffect = false) =>
+  (fieldStartsWith: string, sideEffect = false, doCleanup = true) =>
   (validation: Validation): Validation => {
     if (!validation.fields) return validation
 
     const fieldsUpdated = sideEffect ? validation.fields : { ...validation.fields }
-    Object.keys(fieldsUpdated).forEach((fieldKey: string) => {
+    for (const fieldKey of Object.keys(fieldsUpdated)) {
       if (fieldKey.startsWith(fieldStartsWith)) {
         delete fieldsUpdated[fieldKey]
       }
-    })
+    }
     if (sideEffect) {
       validation.fields = fieldsUpdated
       return validation
     }
     const validationUpdated = { ...validation, fields: fieldsUpdated }
-    return cleanup(validationUpdated)
+    return doCleanup ? cleanup(validationUpdated) : validationUpdated
   }
 
 const mergeValidation =
