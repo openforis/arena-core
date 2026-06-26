@@ -15,7 +15,7 @@ const getMessage =
     result?.messages?.[lang] ?? Object.values(result?.messages ?? {})[0] // fallback to first message if the requested language is not available
 
 const hasMessages = (result: ValidationResult): boolean =>
-  result?.messages != null && Object.keys(result?.messages).length > 0
+  result?.messages != null && Object.keys(result.messages).length > 0
 
 const isError = (result: ValidationResult): boolean => result?.severity === ValidationSeverity.error
 
