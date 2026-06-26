@@ -15,7 +15,7 @@ const hasValidation = (obj: any): boolean => !!obj?.validation
 
 const getValidation = (obj: any): Validation => obj?.validation || ValidationFactory.createInstance()
 
-const getFieldValidations = (validation: Validation): ValidationFields => validation.fields ?? {}
+const getFieldValidations = (validation: Validation): ValidationFields => validation?.fields ?? {}
 
 const getFieldValidationUnsafe =
   (field: string | number) =>
@@ -51,9 +51,9 @@ const getFieldValidationsByFields =
     return result
   }
 
-const getErrors = (validation: Validation): ValidationResult[] => validation.errors ?? []
+const getErrors = (validation: Validation): ValidationResult[] => validation?.errors ?? []
 
-const getWarnings = (validation: Validation): ValidationResult[] => validation.warnings ?? []
+const getWarnings = (validation: Validation): ValidationResult[] => validation?.warnings ?? []
 
 const hasErrors = (validation: Validation): boolean => {
   const errors = getErrors(validation)
@@ -69,7 +69,7 @@ const isValid = (validation: Validation): boolean => Objects.isEmpty(validation)
 const isNotValid = (validation: Validation): boolean => !isValid(validation)
 const isObjValid = (obj: Record<string, unknown>): boolean => isValid(getValidation(obj))
 
-const getCounts = (validation: Validation): ValidationCounts | undefined => validation.counts
+const getCounts = (validation: Validation): ValidationCounts | undefined => validation?.counts
 const getErrorsCount = (validation: Validation): number => getCounts(validation)?.errors ?? 0
 const getWarningsCount = (validation: Validation): number => getCounts(validation)?.warnings ?? 0
 
@@ -194,7 +194,7 @@ const dissocFieldValidation =
 const dissocFieldValidationsStartingWith =
   (fieldStartsWith: string, sideEffect = false, doCleanup = true) =>
   (validation: Validation): Validation => {
-    if (!validation.fields) return validation
+    if (!validation?.fields) return validation
 
     const fieldsUpdated = sideEffect ? validation.fields : { ...validation.fields }
     for (const fieldKey of Object.keys(fieldsUpdated)) {
