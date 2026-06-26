@@ -17,33 +17,33 @@ const getValidation = (obj: any): Validation => obj?.validation || ValidationFac
 
 const getFieldValidations = (validation: Validation): ValidationFields => validation.fields ?? {}
 
-const _getFieldValidation =
+const getFieldValidationUnsafe =
   (field: string | number) =>
-  (validation: Validation): Validation | undefined =>
-    getFieldValidations(validation)[field]
-
-const getFieldValidation =
-  (field: string | number, defaultValue: Validation | null = ValidationFactory.createInstance()) =>
-  (validation: Validation): Validation | null => {
+  (validation: Validation): Validation | undefined => {
     if (typeof field === 'string') {
       let validationCurrent: Validation | undefined = validation
       const parts = field.split('.')
       parts.some((part) => {
-        validationCurrent = _getFieldValidation(part)(validationCurrent!)
+        validationCurrent = getFieldValidations(validationCurrent!)[part]
         return !validationCurrent // breaks the loop if there is no field validation
       })
-      return validationCurrent ?? defaultValue
+      return validationCurrent
     } else {
-      return _getFieldValidation(field)(validation) ?? defaultValue
+      return getFieldValidations(validation)[field]
     }
   }
+
+const getFieldValidation =
+  (field: string | number, defaultValue: Validation = ValidationFactory.createInstance()) =>
+  (validation: Validation): Validation =>
+    getFieldValidationUnsafe(field)(validation) ?? defaultValue
 
 const getFieldValidationsByFields =
   (fields: (string | number)[]) =>
   (validation: Validation): ValidationFields => {
     const result: ValidationFields = {}
     for (const field of fields) {
-      const fieldValidation = getFieldValidation(field, null)(validation)
+      const fieldValidation = getFieldValidationUnsafe(field)(validation)
       if (fieldValidation) {
         result[String(field)] = fieldValidation
       }
