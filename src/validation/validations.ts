@@ -269,8 +269,8 @@ const setWarnings = (warnings: ValidationResult[]) => (obj: object) =>
 const setFieldValidations = (fieldValidations: ValidationFields) => (obj: object) =>
   Objects.setInPath({ obj, path: [keys.fields], value: fieldValidations })
 
-const setFieldValidation = (field: string, fieldValidation: Validation) =>
-  Objects.setInPath({ obj: {}, path: [keys.fields, field], value: fieldValidation })
+const setFieldValidation = (field: string, fieldValidation: Validation) => (obj: object) =>
+  Objects.setInPath({ obj, path: [keys.fields, field], value: fieldValidation })
 
 const assocFieldValidation = (field: string, fieldValidation: Validation) => (validation: Validation) =>
   cleanup(Objects.assocPath({ obj: validation, path: [keys.fields, field], value: fieldValidation }))
