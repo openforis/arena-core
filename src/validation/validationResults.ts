@@ -5,7 +5,8 @@ const getKey = (result: ValidationResult): string | undefined => result?.key
 
 const getParams = (result: ValidationResult): { [key: string]: any } | undefined => result?.params
 
-const getSeverity = (result: ValidationResult): ValidationSeverity | undefined => result?.severity
+const getSeverity = (result: ValidationResult): ValidationSeverity | undefined =>
+  result?.severity ?? ValidationSeverity.error
 
 const getMessages = (result: ValidationResult): Labels | undefined => result?.messages
 
