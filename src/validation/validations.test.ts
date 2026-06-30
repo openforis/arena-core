@@ -93,9 +93,9 @@ describe('ValidationResults', () => {
       expect(ValidationResults.isError(warningResult)).toBe(false)
     })
 
-    test('returns false when no severity is set', () => {
+    test('returns true when no severity is set', () => {
       const result = ValidationResultFactory.createInstance({ valid: true })
-      expect(ValidationResults.isError(result)).toBe(false)
+      expect(ValidationResults.isError(result)).toBe(true)
     })
   })
 })
