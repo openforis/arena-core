@@ -157,6 +157,17 @@ export const getNodeDefChildren = (params: {
   })
 }
 
+export const getQualifierDefs = (params: { survey: Survey }): NodeDef<NodeDefType, NodeDefProps>[] => {
+  const { survey } = params
+  const qualifierPresence = survey.nodeDefsIndex?.qualifierPresenceByUuid
+  if (qualifierPresence) {
+    const qualifierUuids = Object.keys(qualifierPresence)
+    return getNodeDefsByUuids({ survey, uuids: qualifierUuids })
+  } else {
+    return getNodeDefsArray(survey).filter((nodeDef) => NodeDefs.isQualifier(nodeDef))
+  }
+}
+
 const getIndexInChain = (params: { survey: Survey; nodeDef: NodeDef<any> }): number => {
   const { survey, nodeDef } = params
   const areaBasedEstimatedOf = NodeDefs.getAreaBasedEstimatedOf(nodeDef)

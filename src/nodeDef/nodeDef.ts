@@ -37,6 +37,7 @@ export interface NodeDefProps {
   labels?: Labels
   multiple?: boolean
   name?: string
+  qualifier?: boolean
   readOnly?: boolean
 
   // available only when readOnly is true

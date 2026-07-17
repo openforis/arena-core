@@ -123,6 +123,7 @@ export interface SurveyNodeDefsIndex {
   rootDefUuid?: string
   childDefUuidPresenceByParentUuid?: { [parentUuid: string]: { [nodeDefUuid: string]: boolean } }
   nodeDefUuidByName?: Dictionary<string>
+  qualifierPresenceByUuid?: { [nodeDefUuid: string]: boolean }
 }
 
 export interface Survey extends ArenaObject<SurveyProps> {

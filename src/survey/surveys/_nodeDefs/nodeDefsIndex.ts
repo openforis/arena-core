@@ -1,12 +1,18 @@
 import { NodeDef, NodeDefs } from '../../../nodeDef'
 import { Objects } from '../../../utils'
-import { Survey } from '../../survey'
+import { Survey, SurveyNodeDefsIndex } from '../../survey'
 import { getNodeDefsArray } from './nodeDefsReader'
 
 const keys = {
   nodeDefsIndex: 'nodeDefsIndex',
+}
+
+// keys and values must match: forces every property of SurveyNodeDefsIndex to be present here,
+// and a rename/typo on either side becomes a compile error instead of a silent runtime mismatch.
+const indexKeys: { [K in keyof SurveyNodeDefsIndex]-?: K } = {
   childDefUuidPresenceByParentUuid: 'childDefUuidPresenceByParentUuid',
   nodeDefUuidByName: 'nodeDefUuidByName',
+  qualifierPresenceByUuid: 'qualifierPresenceByUuid',
   rootDefUuid: 'rootDefUuid',
 }
 
@@ -29,7 +35,7 @@ export const addNodeDefToIndex =
 
     let surveyUpdated: Survey = Objects.assocPath({
       obj: survey,
-      path: [keys.nodeDefsIndex, keys.nodeDefUuidByName, name],
+      path: [keys.nodeDefsIndex, indexKeys.nodeDefUuidByName, name],
       value: nodeDef.uuid,
       sideEffect,
     })
@@ -37,7 +43,7 @@ export const addNodeDefToIndex =
     if (parentUuid) {
       surveyUpdated = Objects.assocPath({
         obj: surveyUpdated,
-        path: [keys.nodeDefsIndex, keys.childDefUuidPresenceByParentUuid, parentUuid, uuid],
+        path: [keys.nodeDefsIndex, indexKeys.childDefUuidPresenceByParentUuid, parentUuid, uuid],
         value: true,
         sideEffect,
       }) as Survey
@@ -45,8 +51,17 @@ export const addNodeDefToIndex =
       // nodeDef is root
       surveyUpdated = Objects.assocPath({
         obj: surveyUpdated,
-        path: [keys.nodeDefsIndex, keys.rootDefUuid],
+        path: [keys.nodeDefsIndex, indexKeys.rootDefUuid],
         value: uuid,
+        sideEffect,
+      }) as Survey
+    }
+
+    if (NodeDefs.isQualifier(nodeDef)) {
+      surveyUpdated = Objects.assocPath({
+        obj: surveyUpdated,
+        path: [keys.nodeDefsIndex, indexKeys.qualifierPresenceByUuid, uuid],
+        value: true,
         sideEffect,
       }) as Survey
     }
@@ -63,12 +78,12 @@ export const updateNodeDefUuidByNameIndex =
     if (currentName !== previousName) {
       surveyUpdated = Objects.dissocPath({
         obj: surveyUpdated,
-        path: [keys.nodeDefsIndex, keys.nodeDefUuidByName, previousName],
+        path: [keys.nodeDefsIndex, indexKeys.nodeDefUuidByName, previousName],
         sideEffect,
       })
       surveyUpdated = Objects.assocPath({
         obj: surveyUpdated,
-        path: [keys.nodeDefsIndex, keys.nodeDefUuidByName, currentName],
+        path: [keys.nodeDefsIndex, indexKeys.nodeDefUuidByName, currentName],
         value: nodeDef.uuid,
         sideEffect,
       })
@@ -86,24 +101,31 @@ export const deleteNodeDefIndex =
 
     let surveyUpdated: Survey = Objects.dissocPath({
       obj: survey,
-      path: [keys.nodeDefsIndex, keys.childDefUuidPresenceByParentUuid, uuid],
+      path: [keys.nodeDefsIndex, indexKeys.childDefUuidPresenceByParentUuid, uuid],
     })
 
     surveyUpdated = Objects.dissocPath({
       obj: surveyUpdated,
-      path: [keys.nodeDefsIndex, keys.nodeDefUuidByName, name],
+      path: [keys.nodeDefsIndex, indexKeys.nodeDefUuidByName, name],
     })
 
     if (parentUuid) {
       surveyUpdated = Objects.dissocPath({
         obj: surveyUpdated,
-        path: [keys.nodeDefsIndex, keys.childDefUuidPresenceByParentUuid, parentUuid, uuid],
+        path: [keys.nodeDefsIndex, indexKeys.childDefUuidPresenceByParentUuid, parentUuid, uuid],
       })
     } else {
       // node def is root
       surveyUpdated = Objects.dissocPath({
         obj: surveyUpdated,
-        path: [keys.nodeDefsIndex, keys.rootDefUuid],
+        path: [keys.nodeDefsIndex, indexKeys.rootDefUuid],
+      })
+    }
+
+    if (NodeDefs.isQualifier(nodeDef)) {
+      surveyUpdated = Objects.dissocPath({
+        obj: surveyUpdated,
+        path: [keys.nodeDefsIndex, indexKeys.qualifierPresenceByUuid, uuid],
       })
     }
     return surveyUpdated
@@ -114,6 +136,7 @@ export const deleteNodeDefIndex =
 export const buildAndAssocNodeDefsIndex = (survey: Survey): Survey => {
   survey.nodeDefsIndex = {
     childDefUuidPresenceByParentUuid: {},
+    qualifierPresenceByUuid: {},
   }
   getNodeDefsArray(survey)
     .sort((nodeDef1: NodeDef<any>, nodeDef2: NodeDef<any>) => (nodeDef1.id ?? 0) - (nodeDef2.id ?? 0))
