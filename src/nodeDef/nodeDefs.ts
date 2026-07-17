@@ -63,6 +63,8 @@ const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: Langu
 const getDescription = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
   nodeDef.props.descriptions?.[lang] ?? ''
 
+const isQualifier = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.props.qualifier ?? false
+
 const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ?? false
 
 const isHidden = (nodeDef: NodeDef<any>): boolean => nodeDef.props.hidden ?? false
@@ -265,6 +267,7 @@ export const NodeDefs = {
   isMultipleAttribute,
   isKey,
   isAutoIncrementalKey,
+  isQualifier,
   isReadOnly,
   isHidden,
   isEnumerate,
