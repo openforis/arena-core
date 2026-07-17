@@ -18,6 +18,9 @@ export type {
   UserService,
   UserTokenPayload,
   DownloadAuthTokenPayload,
+  UserGroup,
+  UserGroupProps,
+  UserGroupQualifier,
 } from './auth'
 
 export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, CategoryLevelFactory } from './category'
