@@ -55,6 +55,8 @@ const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
 
 const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueApplied ?? false
 
+const isQualifierValueApplied = (node: Node): boolean => node?.meta?.qualifierValueApplied ?? false
+
 const isValueBlank = (node: Node): boolean => Objects.isEmpty(node.value)
 
 const isValueNotBlank = (node: Node): boolean => Objects.isNotEmpty(node.value)
@@ -196,6 +198,7 @@ export const Nodes = {
   getHierarchy,
   getHierarchyCode,
   isDefaultValueApplied,
+  isQualifierValueApplied,
   isValueBlank,
   isValueNotBlank,
   hasUserInputValue,
