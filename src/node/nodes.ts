@@ -55,11 +55,14 @@ const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
 
 const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueApplied ?? false
 
+const isQualifierValueApplied = (node: Node): boolean => node?.meta?.qualifierValueApplied ?? false
+
 const isValueBlank = (node: Node): boolean => Objects.isEmpty(node.value)
 
 const isValueNotBlank = (node: Node): boolean => Objects.isNotEmpty(node.value)
 
-const hasUserInputValue = (node: Node): boolean => node && !isValueBlank(node) && !isDefaultValueApplied(node)
+const hasUserInputValue = (node: Node): boolean =>
+  node && !isValueBlank(node) && !isDefaultValueApplied(node) && !isQualifierValueApplied(node)
 
 const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: boolean): Node => {
   const childApplicability = { ...(node.meta?.childApplicability ?? {}) }
@@ -175,11 +178,11 @@ const assocValue = (node: Node, value: any, sideEffect = false): Node => {
   nodeUpdated.value = value
   nodeUpdated.updated = true
   nodeUpdated.dateModified = Dates.nowFormattedForStorage()
-  if (isDefaultValueApplied(nodeUpdated)) {
-    // reset defaultValueApplied flag
+  if (isDefaultValueApplied(nodeUpdated) || isQualifierValueApplied(nodeUpdated)) {
+    // reset defaultValueApplied and qualifierValueApplied flags
     const metaOriginal = nodeUpdated.meta ?? {}
     const meta = sideEffect ? metaOriginal : { ...metaOriginal }
-    nodeUpdated.meta = { ...meta, defaultValueApplied: false }
+    nodeUpdated.meta = { ...meta, defaultValueApplied: false, qualifierValueApplied: false }
   }
   return nodeUpdated
 }
@@ -196,6 +199,7 @@ export const Nodes = {
   getHierarchy,
   getHierarchyCode,
   isDefaultValueApplied,
+  isQualifierValueApplied,
   isValueBlank,
   isValueNotBlank,
   hasUserInputValue,
