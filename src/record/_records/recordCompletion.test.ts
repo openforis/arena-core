@@ -41,6 +41,28 @@ describe('RecordCompletion', () => {
     expect(Records.getRecordCompletionPercent({ survey, record: emptyRecord })).toBe(0)
   })
 
+  test('key attribute is considered required even without the required validation', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef('cluster', integerDef('cluster_id').key(), textDef('remarks'))
+    ).build()
+
+    const emptyRecord = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', null), attribute('remarks', null))
+    ).build()
+    expect(Records.getRecordCompletionPercent({ survey, record: emptyRecord })).toBe(0)
+
+    const filledRecord = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', 10), attribute('remarks', null))
+    ).build()
+    expect(Records.getRecordCompletionPercent({ survey, record: filledRecord })).toBe(100)
+  })
+
   test('multiple attribute completion is based on min count', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(

@@ -33,7 +33,7 @@ const getAttributeCompletionStats = (params: {
     return { total: minCount, filled: Math.min(filledNodesCount, minCount) }
   }
 
-  if (!NodeDefs.isRequired(nodeDef)) return emptyStats()
+  if (!NodeDefs.isRequired(nodeDef) && !NodeDefs.isKey(nodeDef)) return emptyStats()
 
   const node = getChildren(entity, nodeDef.uuid)(record)[0]
   return { total: 1, filled: node && Nodes.isValueNotBlank(node) ? 1 : 0 }
@@ -95,8 +95,8 @@ const toCompletionPercent = (stats: EntityCompletionStats): number => {
 
 /**
  * Returns the percentage of completion of the given entity (0-100), considering every descendant recursively.
- * A required attribute is considered filled when it has a non empty value; multiple attributes and entities
- * are considered filled based on their min count (see Nodes.getChildrenMinCount).
+ * A required or key attribute is considered filled when it has a non empty value; multiple attributes and
+ * entities are considered filled based on their min count (see Nodes.getChildrenMinCount).
  */
 export const getEntityCompletionPercent = (params: { survey: Survey; record: Record; entity: Node }): number =>
   toCompletionPercent(getEntityCompletionStats(params))
