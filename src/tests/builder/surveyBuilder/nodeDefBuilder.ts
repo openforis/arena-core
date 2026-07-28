@@ -77,4 +77,13 @@ export abstract class NodeDefBuilder {
       sideEffect: true,
     })
   }
+
+  required(): this {
+    return Objects.assocPath({
+      obj: this,
+      path: ['propsAdvanced', 'validations', 'required'],
+      value: true,
+      sideEffect: true,
+    })
+  }
 }
