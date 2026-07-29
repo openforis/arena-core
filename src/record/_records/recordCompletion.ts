@@ -69,8 +69,13 @@ const getChildEntityCompletionStats = (params: {
   return stats
 }
 
-const getEntityCompletionStats = (params: { survey: Survey; record: Record; entity: Node }): EntityCompletionStats => {
-  const { survey, record, entity } = params
+const getEntityCompletionStats = (params: {
+  survey: Survey
+  record: Record
+  entity: Node
+  includeNestedEntities?: boolean
+}): EntityCompletionStats => {
+  const { survey, record, entity, includeNestedEntities = true } = params
   const entityDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
   const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef: entityDef })
 
@@ -78,11 +83,12 @@ const getEntityCompletionStats = (params: { survey: Survey; record: Record; enti
   for (const childDef of childDefs) {
     if (!Nodes.isChildApplicable(entity, childDef.uuid)) continue
 
-    const childStats = NodeDefs.isEntity(childDef)
-      ? getChildEntityCompletionStats({ survey, record, parentEntity: entity, nodeDef: childDef })
-      : getAttributeCompletionStats({ record, entity, nodeDef: childDef })
-
-    addStats(stats, childStats)
+    if (NodeDefs.isEntity(childDef)) {
+      if (!includeNestedEntities) continue
+      addStats(stats, getChildEntityCompletionStats({ survey, record, parentEntity: entity, nodeDef: childDef }))
+    } else {
+      addStats(stats, getAttributeCompletionStats({ record, entity, nodeDef: childDef }))
+    }
   }
   return stats
 }
@@ -100,6 +106,13 @@ const toCompletionPercent = (stats: EntityCompletionStats): number => {
  */
 export const getEntityCompletionPercent = (params: { survey: Survey; record: Record; entity: Node }): number =>
   toCompletionPercent(getEntityCompletionStats(params))
+
+/**
+ * Returns the percentage of completion of the given entity (0-100), considering only its own attributes
+ * (nested entities are ignored).
+ */
+export const getEntityOwnCompletionPercent = (params: { survey: Survey; record: Record; entity: Node }): number =>
+  toCompletionPercent(getEntityCompletionStats({ ...params, includeNestedEntities: false }))
 
 /**
  * Returns the percentage of completion of the given record (0-100), i.e. the completion of its root entity.
