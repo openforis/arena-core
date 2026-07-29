@@ -105,6 +105,45 @@ describe('RecordCompletion', () => {
     expect(Records.getEntityCompletionPercent({ survey, record, entity: plot0 })).toBe(100)
   })
 
+  test('own entity completion ignores nested entities', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'cluster',
+        integerDef('cluster_id').key().required(),
+        entityDef('plot', integerDef('plot_id').required()).multiple().minCount('2')
+      )
+    ).build()
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', null), entity('plot', attribute('plot_id', null)))
+    ).build()
+
+    const cluster = Records.getRoot(record)!
+
+    // full completion considers the missing plot repetitions too
+    expect(Records.getEntityCompletionPercent({ survey, record, entity: cluster })).toBe(0)
+
+    // own completion only considers cluster_id, ignoring the nested plot entities
+    expect(Records.getEntityOwnCompletionPercent({ survey, record, entity: cluster })).toBe(0)
+
+    const filledRecord = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('plot_id', null)))
+    ).build()
+    const filledCluster = Records.getRoot(filledRecord)!
+
+    // own completion is 100% even though nested plots are incomplete
+    expect(Records.getEntityOwnCompletionPercent({ survey, record: filledRecord, entity: filledCluster })).toBe(100)
+    expect(Records.getEntityCompletionPercent({ survey, record: filledRecord, entity: filledCluster })).toBeLessThan(
+      100
+    )
+  })
+
   test('non applicable required attribute is excluded from completion', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
