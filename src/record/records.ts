@@ -46,6 +46,16 @@ import {
   getEntityOwnCompletionPercent,
   getRecordCompletionPercent,
 } from './_records/recordCompletion'
+import {
+  getDescendantPageNodeDefUuids,
+  getNodeDefChildrenInOwnPage,
+  getPageNodeDefs,
+  getPageValidationStatus,
+  getRecordPagesValidationProgress,
+  nodeBelongsToOwnPage,
+  nodeBelongsToPage,
+  pageHasOwnErrors,
+} from './_records/recordPagesValidation'
 import { deleteNode, deleteNodes } from './recordNodesUpdater/recordNodesDeleter'
 
 export const Records = {
@@ -92,6 +102,14 @@ export const Records = {
   getEntityCompletionPercent,
   getEntityOwnCompletionPercent,
   getRecordCompletionPercent,
+  getNodeDefChildrenInOwnPage,
+  getPageNodeDefs,
+  getDescendantPageNodeDefUuids,
+  nodeBelongsToPage,
+  nodeBelongsToOwnPage,
+  getPageValidationStatus,
+  pageHasOwnErrors,
+  getRecordPagesValidationProgress,
   // UPDATE
   addNode,
   addNodes,
@@ -103,3 +121,7 @@ export const Records = {
 }
 
 export type { RecordUpdateOptions } from './_records/recordUpdateOptions'
+export type {
+  PageValidationStatus,
+  PagesValidationProgress,
+} from './_records/recordPagesValidation'
