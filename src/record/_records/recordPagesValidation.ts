@@ -29,7 +29,7 @@ export const nodeBelongsToPage = (params: {
   if (node.nodeDefUuid === pageNodeDefUuid) return true
   return Nodes.getHierarchy(node).some((ancestorUuid) => {
     const ancestor = getNodeByUuid(ancestorUuid)(record)
-    return Boolean(ancestor && ancestor.nodeDefUuid === pageNodeDefUuid)
+    return ancestor?.nodeDefUuid === pageNodeDefUuid
   })
 }
 
@@ -106,6 +106,28 @@ export const getDescendantPageNodeDefUuids = (params: {
   return uuids
 }
 
+const getOwnPageFieldValidationFlags = (params: {
+  nodeUuid: string
+  pageNodeDefUuid: string
+  descendantPageUuids: string[]
+  record: Record
+  recordValidation: ReturnType<typeof Validations.getValidation>
+}): PageValidationStatus | null => {
+  const { nodeUuid, pageNodeDefUuid, descendantPageUuids, record, recordValidation } = params
+  if (RecordValidations.isValidationChildrenCountKey(nodeUuid)) return null
+
+  const node = getNodeByUuid(nodeUuid)(record)
+  if (!node || !nodeBelongsToOwnPage({ node, pageNodeDefUuid, descendantPageUuids, record })) return null
+
+  const nodeValidation = RecordValidations.getValidationNode({ nodeUuid })(recordValidation)
+  if (!nodeValidation) return null
+
+  return {
+    hasErrors: Validations.hasErrors(nodeValidation),
+    hasWarnings: Validations.hasWarnings(nodeValidation),
+  }
+}
+
 /**
  * Aggregates error/warning flags for a page.
  * When descendantPageUuids is non-empty, nested page entities are excluded (own-page scope).
@@ -122,14 +144,16 @@ export const getPageValidationStatus = (params: {
   let hasWarnings = false
 
   for (const nodeUuid of Object.keys(fields)) {
-    if (RecordValidations.isValidationChildrenCountKey(nodeUuid)) continue
-    const node = getNodeByUuid(nodeUuid)(record)
-    if (!node) continue
-    if (!nodeBelongsToOwnPage({ node, pageNodeDefUuid, descendantPageUuids, record })) continue
-    const nodeValidation = RecordValidations.getValidationNode({ nodeUuid })(recordValidation)
-    if (!nodeValidation) continue
-    if (Validations.hasErrors(nodeValidation)) hasErrors = true
-    if (Validations.hasWarnings(nodeValidation)) hasWarnings = true
+    const flags = getOwnPageFieldValidationFlags({
+      nodeUuid,
+      pageNodeDefUuid,
+      descendantPageUuids,
+      record,
+      recordValidation,
+    })
+    if (!flags) continue
+    if (flags.hasErrors) hasErrors = true
+    if (flags.hasWarnings) hasWarnings = true
     if (hasErrors && hasWarnings) break
   }
 
