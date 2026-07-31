@@ -53,8 +53,10 @@ const getChildEntityCompletionStats = (params: {
     return childEntity ? getEntityCompletionStats({ survey, record, entity: childEntity }) : emptyStats()
   }
 
-  const minCount = Nodes.getChildrenMinCount({ parentNode: parentEntity, nodeDef })
-  const expectedCount = Number.isNaN(minCount) ? 0 : Math.max(minCount, 0)
+  const minCountRaw = Nodes.getChildrenMinCount({ parentNode: parentEntity, nodeDef })
+  const minCount = Number.isNaN(minCountRaw) ? 0 : Math.max(minCountRaw, 0)
+  // entities added beyond the min count are still expected to be complete
+  const expectedCount = Math.max(minCount, childEntities.length)
   if (expectedCount === 0) return emptyStats()
 
   const stats = emptyStats()
