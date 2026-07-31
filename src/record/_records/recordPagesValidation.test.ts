@@ -208,4 +208,134 @@ describe('RecordPagesValidationProgress', () => {
       })
     ).toEqual({ hasErrors: true, hasWarnings: false })
   })
+
+  test('childrenCount validation keys do not affect page validation progress', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
+    ).build()
+
+    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+    setOwnPage(plotDef, rootDef)
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('plot_id', 1)))
+    ).build()
+
+    const clusterNode = Records.getRoot(record)!
+    const childrenCountKey = `childrenCount_${clusterNode.uuid}_${plotDef.uuid}`
+    record.validation = ValidationFactory.createInstance({
+      valid: false,
+      fields: {
+        [childrenCountKey]: ValidationFactory.createInstance({
+          valid: false,
+          errors: [ValidationResultFactory.createInstance({ key: 'record.nodes.count.min', severity: ValidationSeverity.error })],
+        }),
+      },
+    })
+
+    expect(Records.getRecordPagesValidationProgress({ survey, record, cycle })).toEqual({
+      percent: 100,
+      validCount: 2,
+      totalCount: 2,
+    })
+  })
+
+  test('three-level own pages: middle page stays valid when only leaf has errors', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'cluster',
+        integerDef('cluster_id').key(),
+        entityDef(
+          'plot',
+          integerDef('plot_id').key(),
+          entityDef('tree', integerDef('tree_id').key()).multiple()
+        ).multiple()
+      )
+    ).build()
+
+    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+    const treeDef = Surveys.getNodeDefByName({ survey, name: 'tree' }) as NodeDefEntity
+    setOwnPage(plotDef, rootDef)
+    setOwnPage(treeDef, plotDef)
+
+    expect(Records.getPageNodeDefs({ survey, cycle }).map((d) => d.props.name).sort()).toEqual([
+      'cluster',
+      'plot',
+      'tree',
+    ])
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'cluster',
+        attribute('cluster_id', 10),
+        entity('plot', attribute('plot_id', 1), entity('tree', attribute('tree_id', 1)))
+      )
+    ).build()
+
+    const treeIdNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'tree_id' }).uuid)(record)[0]
+    record.validation = ValidationFactory.createInstance({
+      valid: false,
+      fields: {
+        [treeIdNode.uuid]: ValidationFactory.createInstance({
+          valid: false,
+          errors: [ValidationResultFactory.createInstance({ key: 'invalid', severity: ValidationSeverity.error })],
+        }),
+      },
+    })
+
+    // cluster + plot valid, tree invalid => 2/3
+    expect(Records.getRecordPagesValidationProgress({ survey, record, cycle })).toEqual({
+      percent: 67,
+      validCount: 2,
+      totalCount: 3,
+    })
+  })
+
+  test('nested entity without own page counts toward parent page validation', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'cluster',
+        integerDef('cluster_id').key(),
+        entityDef('plot_inline', integerDef('plot_id').key()).multiple()
+      )
+    ).build()
+
+    // plot_inline stays on parent page (no pageUuid)
+    expect(Records.getPageNodeDefs({ survey, cycle }).map((d) => d.props.name)).toEqual(['cluster'])
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', 10), entity('plot_inline', attribute('plot_id', 1)))
+    ).build()
+
+    const plotIdNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid)(record)[0]
+    record.validation = ValidationFactory.createInstance({
+      valid: false,
+      fields: {
+        [plotIdNode.uuid]: ValidationFactory.createInstance({
+          valid: false,
+          errors: [ValidationResultFactory.createInstance({ key: 'invalid', severity: ValidationSeverity.error })],
+        }),
+      },
+    })
+
+    expect(Records.getRecordPagesValidationProgress({ survey, record, cycle })).toEqual({
+      percent: 0,
+      validCount: 0,
+      totalCount: 1,
+    })
+  })
 })

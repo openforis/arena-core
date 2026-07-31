@@ -60,7 +60,7 @@ export const getNodeDefChildrenInOwnPage = (params: {
   cycle: string
 }): NodeDefEntity[] => {
   const { survey, nodeDef, cycle } = params
-  return Surveys.getNodeDefChildren({ survey, nodeDef }).filter((child): child is NodeDefEntity => {
+  return Surveys.getNodeDefChildren({ survey, nodeDef, includeAnalysis: true }).filter((child): child is NodeDefEntity => {
     if (!NodeDefs.isEntity(child)) return false
     return NodeDefs.isDisplayInOwnPage(cycle)(child as NodeDefEntity)
   })
