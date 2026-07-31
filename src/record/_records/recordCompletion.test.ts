@@ -105,6 +105,33 @@ describe('RecordCompletion', () => {
     expect(Records.getEntityCompletionPercent({ survey, record, entity: plot0 })).toBe(100)
   })
 
+  test('multiple entity completion accounts for instances added beyond the min count', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'cluster',
+        integerDef('cluster_id').key().required(),
+        entityDef('plot', integerDef('plot_id').required()).multiple()
+      )
+    ).build()
+
+    const emptyRecord = new RecordBuilder(user, survey, entity('cluster', attribute('cluster_id', 10))).build()
+
+    // no plot added yet and no min count defined => plots don't affect completion
+    expect(Records.getRecordCompletionPercent({ survey, record: emptyRecord })).toBe(100)
+
+    const recordWithEmptyPlot = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('plot_id', null)))
+    ).build()
+
+    // adding a plot instance increases the total required nodes, so completion should drop
+    // total units: cluster_id (1) + plot_id (1) = 2; filled: cluster_id (1) = 1
+    expect(Records.getRecordCompletionPercent({ survey, record: recordWithEmptyPlot })).toBeCloseTo((1 / 2) * 100, 2)
+  })
+
   test('own entity completion ignores nested entities', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
