@@ -2,6 +2,7 @@ import { describe, test, expect } from '@jest/globals'
 
 import { NodeDefEntity } from '../../nodeDef'
 import { Records } from '../records'
+import { RecordValidations } from '../recordValidations'
 import { Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
@@ -9,7 +10,7 @@ import { createTestAdminUser } from '../../tests/data'
 import { Objects, UUIDs } from '../../utils'
 import { ValidationFactory, ValidationResultFactory, ValidationSeverity } from '../../validation'
 
-const { entityDef, integerDef, textDef } = SurveyObjectBuilders
+const { entityDef, fileDef, integerDef, textDef } = SurveyObjectBuilders
 const { attribute, entity } = RecordNodeBuilders
 
 const cycle = '0'
@@ -209,7 +210,7 @@ describe('RecordPagesValidationProgress', () => {
     ).toEqual({ hasErrors: true, hasWarnings: false })
   })
 
-  test('childrenCount validation keys do not affect page validation progress', async () => {
+  test('childrenCount for descendant page entities does not affect parent page validation', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
       user,
@@ -242,6 +243,55 @@ describe('RecordPagesValidationProgress', () => {
       percent: 100,
       validCount: 2,
       totalCount: 2,
+    })
+  })
+
+  test('childrenCount for file/attribute min count marks the parent page invalid', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef('cluster', integerDef('cluster_id').key(), fileDef('attachment').multiple())
+    ).build()
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', 10))
+    ).build()
+
+    const clusterNode = Records.getRoot(record)!
+    const attachmentDef = Surveys.getNodeDefByName({ survey, name: 'attachment' })
+    const childrenCountKey = RecordValidations.getValidationChildrenCountKey({
+      nodeParentUuid: clusterNode.uuid,
+      nodeDefChildUuid: attachmentDef.uuid,
+    })
+    record.validation = ValidationFactory.createInstance({
+      valid: false,
+      fields: {
+        [childrenCountKey]: ValidationFactory.createInstance({
+          valid: false,
+          errors: [
+            ValidationResultFactory.createInstance({
+              key: 'record.nodes.count.minNotReached',
+              severity: ValidationSeverity.error,
+            }),
+          ],
+        }),
+      },
+    })
+
+    expect(
+      Records.getPageValidationStatus({
+        pageNodeDefUuid: Surveys.getNodeDefRoot({ survey }).uuid,
+        descendantPageUuids: [],
+        record,
+      })
+    ).toEqual({ hasErrors: true, hasWarnings: false })
+
+    expect(Records.getRecordPagesValidationProgress({ survey, record, cycle })).toEqual({
+      percent: 0,
+      validCount: 0,
+      totalCount: 1,
     })
   })
 

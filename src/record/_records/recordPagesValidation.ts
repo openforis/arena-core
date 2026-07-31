@@ -114,7 +114,16 @@ const getOwnPageFieldValidationFlags = (params: {
   recordValidation: ReturnType<typeof Validations.getValidation>
 }): PageValidationStatus | null => {
   const { nodeUuid, pageNodeDefUuid, descendantPageUuids, record, recordValidation } = params
-  if (RecordValidations.isValidationChildrenCountKey(nodeUuid)) return null
+
+  if (RecordValidations.isValidationChildrenCountKey(nodeUuid)) {
+    return getOwnPageChildrenCountValidationFlags({
+      childrenCountKey: nodeUuid,
+      pageNodeDefUuid,
+      descendantPageUuids,
+      record,
+      recordValidation,
+    })
+  }
 
   const node = getNodeByUuid(nodeUuid)(record)
   if (!node || !nodeBelongsToOwnPage({ node, pageNodeDefUuid, descendantPageUuids, record })) return null
@@ -125,6 +134,41 @@ const getOwnPageFieldValidationFlags = (params: {
   return {
     hasErrors: Validations.hasErrors(nodeValidation),
     hasWarnings: Validations.hasWarnings(nodeValidation),
+  }
+}
+
+/**
+ * Children-count validations (file min count, inline multiple min/max, etc.) are keyed as
+ * `childrenCount_{parentUuid}_{childDefUuid}`, not as node UUIDs.
+ * Include them when the parent is on this page, but skip counts that refer to descendant
+ * page entities (missing sub-page instances should not paint the parent page red).
+ */
+const getOwnPageChildrenCountValidationFlags = (params: {
+  childrenCountKey: string
+  pageNodeDefUuid: string
+  descendantPageUuids: string[]
+  record: Record
+  recordValidation: ReturnType<typeof Validations.getValidation>
+}): PageValidationStatus | null => {
+  const { childrenCountKey, pageNodeDefUuid, descendantPageUuids, record, recordValidation } = params
+  const parentUuid = RecordValidations.extractValidationChildrenCountKeyParentUuid(childrenCountKey)
+  const childDefUuid = RecordValidations.extractValidationChildrenCountKeyNodeDefUuid(childrenCountKey)
+  if (!parentUuid || !childDefUuid) return null
+
+  // Sub-page entity min/max counts belong to navigation of nested pages, not this page's fields.
+  if (descendantPageUuids.includes(childDefUuid)) return null
+
+  const parentNode = getNodeByUuid(parentUuid)(record)
+  if (!parentNode || !nodeBelongsToOwnPage({ node: parentNode, pageNodeDefUuid, descendantPageUuids, record })) {
+    return null
+  }
+
+  const fieldValidation = Validations.getFieldValidation(childrenCountKey)(recordValidation)
+  if (!fieldValidation) return null
+
+  return {
+    hasErrors: Validations.hasErrors(fieldValidation),
+    hasWarnings: Validations.hasWarnings(fieldValidation),
   }
 }
 
