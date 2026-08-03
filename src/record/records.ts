@@ -43,6 +43,7 @@ import { addNode, addNodes } from './_records/recordUpdater'
 import { getEnumeratingCategoryItems, findDependentEnumeratedEntityDefsNotEmpty } from './_records/recordUtils'
 import {
   getEntityCompletionPercent,
+  getEntityCompletionStats,
   getEntityOwnCompletionPercent,
   getRecordCompletionPercent,
 } from './_records/recordCompletion'
@@ -102,6 +103,7 @@ export const Records = {
   getStep,
   isInAnalysisStep,
   getEntityCompletionPercent,
+  getEntityCompletionStats,
   getEntityOwnCompletionPercent,
   getRecordCompletionPercent,
   getNodeDefChildrenInOwnPage,

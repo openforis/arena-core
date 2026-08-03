@@ -501,6 +501,65 @@ describe('RecordPagesValidationProgress', () => {
     expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: 'missing-uuid', cycle })).toBeNull()
   })
 
+  test('getEntitySubtreeStatus does not treat vacuous 100% completion as complete', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'cluster',
+        integerDef('cluster_id').key(),
+        entityDef('plot', textDef('remarks')).multiple()
+      )
+    ).build()
+
+    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+    setOwnPage(plotDef, rootDef)
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('remarks', null)))
+    ).build()
+
+    const plotEntity = Records.getChildren(
+      Records.getRoot(record)!,
+      plotDef.uuid
+    )(record)[0]
+
+    expect(Records.getEntityCompletionPercent({ survey, record, entity: plotEntity })).toBe(100)
+    expect(Records.getEntityCompletionStats({ survey, record, entity: plotEntity })).toEqual({
+      total: 0,
+      filled: 0,
+    })
+
+    expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: plotEntity.uuid, cycle })).toEqual({
+      hasErrors: false,
+      hasWarnings: false,
+      isComplete: false,
+    })
+  })
+
+  test('getEntitySubtreeStatus returns null for non-entity nodes', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef('cluster', integerDef('cluster_id').key(), textDef('remarks'))
+    ).build()
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', 10), attribute('remarks', null))
+    ).build()
+
+    const clusterIdNode = Records.getNodesByDefUuid(
+      Surveys.getNodeDefByName({ survey, name: 'cluster_id' }).uuid
+    )(record)[0]
+
+    expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: clusterIdNode.uuid, cycle })).toBeNull()
+  })
+
   test('getMultiplePageEntitiesStatus ORs errors across instances; complete only if all complete', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(

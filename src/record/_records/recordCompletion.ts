@@ -71,7 +71,7 @@ const getChildEntityCompletionStats = (params: {
   return stats
 }
 
-const getEntityCompletionStats = (params: {
+export const getEntityCompletionStats = (params: {
   survey: Survey
   record: Record
   entity: Node
