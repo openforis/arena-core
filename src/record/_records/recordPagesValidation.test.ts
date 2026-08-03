@@ -433,6 +433,156 @@ describe('RecordPagesValidationProgress', () => {
     ).toEqual({ hasErrors: false, hasWarnings: false })
   })
 
+  test('getEntitySubtreeStatus reflects only that instance subtree', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'cluster',
+        integerDef('cluster_id').key(),
+        entityDef(
+          'plot',
+          integerDef('plot_id').key(),
+          entityDef('land_use', textDef('land_use_code').required())
+        ).multiple()
+      )
+    ).build()
+
+    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+    const landUseDef = Surveys.getNodeDefByName({ survey, name: 'land_use' }) as NodeDefEntity
+    setOwnPage(plotDef, rootDef)
+    setOwnPage(landUseDef, plotDef)
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'cluster',
+        attribute('cluster_id', 10),
+        entity('plot', attribute('plot_id', 3), entity('land_use', attribute('land_use_code', null))),
+        entity('plot', attribute('plot_id', 4), entity('land_use', attribute('land_use_code', 'crop')))
+      )
+    ).build()
+
+    const plotIdDefUuid = Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid
+    const landUseCodeDefUuid = Surveys.getNodeDefByName({ survey, name: 'land_use_code' }).uuid
+    const findPlotEntityByPlotId = (plotId: number) => {
+      const plotIdNode = Records.getNodesByDefUuid(plotIdDefUuid)(record).find((n) => n.value === plotId)
+      return Records.getParent(plotIdNode!)(record)!
+    }
+    const plot3 = findPlotEntityByPlotId(3)
+    const plot4 = findPlotEntityByPlotId(4)
+
+    const plot3LandUse = Records.getChildren(plot3, landUseDef.uuid)(record)[0]
+    const plot3Code = Records.getChildren(plot3LandUse, landUseCodeDefUuid)(record)[0]
+    record.validation = ValidationFactory.createInstance({
+      valid: false,
+      fields: {
+        [plot3Code.uuid]: ValidationFactory.createInstance({
+          valid: false,
+          errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
+        }),
+      },
+    })
+
+    expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: plot3.uuid, cycle })).toEqual({
+      hasErrors: true,
+      hasWarnings: false,
+      isComplete: false,
+    })
+
+    expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: plot4.uuid, cycle })).toEqual({
+      hasErrors: false,
+      hasWarnings: false,
+      isComplete: true,
+    })
+
+    expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: 'missing-uuid', cycle })).toBeNull()
+  })
+
+  test('getMultiplePageEntitiesStatus ORs errors across instances; complete only if all complete', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'cluster',
+        integerDef('cluster_id').key(),
+        entityDef(
+          'plot',
+          integerDef('plot_id').key(),
+          entityDef('land_use', textDef('land_use_code').required())
+        ).multiple()
+      )
+    ).build()
+
+    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+    const landUseDef = Surveys.getNodeDefByName({ survey, name: 'land_use' }) as NodeDefEntity
+    setOwnPage(plotDef, rootDef)
+    setOwnPage(landUseDef, plotDef)
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'cluster',
+        attribute('cluster_id', 10),
+        entity('plot', attribute('plot_id', 3), entity('land_use', attribute('land_use_code', null))),
+        entity('plot', attribute('plot_id', 4), entity('land_use', attribute('land_use_code', 'crop')))
+      )
+    ).build()
+
+    const plotIdDefUuid = Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid
+    const landUseCodeDefUuid = Surveys.getNodeDefByName({ survey, name: 'land_use_code' }).uuid
+    const findPlotEntityByPlotId = (plotId: number) => {
+      const plotIdNode = Records.getNodesByDefUuid(plotIdDefUuid)(record).find((n) => n.value === plotId)
+      return Records.getParent(plotIdNode!)(record)!
+    }
+    const plot3 = findPlotEntityByPlotId(3)
+
+    const plot3LandUse = Records.getChildren(plot3, landUseDef.uuid)(record)[0]
+    const plot3Code = Records.getChildren(plot3LandUse, landUseCodeDefUuid)(record)[0]
+    record.validation = ValidationFactory.createInstance({
+      valid: false,
+      fields: {
+        [plot3Code.uuid]: ValidationFactory.createInstance({
+          valid: false,
+          errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
+        }),
+      },
+    })
+
+    expect(Records.getMultiplePageEntitiesStatus({ survey, record, pageNodeDefUuid: plotDef.uuid, cycle })).toEqual({
+      hasErrors: true,
+      hasWarnings: false,
+      isComplete: false,
+    })
+
+    plot3Code.value = 'crop'
+    record.validation = ValidationFactory.createInstance({ valid: true, fields: {} })
+
+    expect(Records.getMultiplePageEntitiesStatus({ survey, record, pageNodeDefUuid: plotDef.uuid, cycle })).toEqual({
+      hasErrors: false,
+      hasWarnings: false,
+      isComplete: true,
+    })
+
+    const emptyRecord = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', 10))
+    ).build()
+
+    expect(
+      Records.getMultiplePageEntitiesStatus({ survey, record: emptyRecord, pageNodeDefUuid: plotDef.uuid, cycle })
+    ).toEqual({
+      hasErrors: false,
+      hasWarnings: false,
+      isComplete: false,
+    })
+  })
+
   test('nested entity without own page counts toward parent page validation', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(

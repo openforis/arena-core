@@ -4,11 +4,18 @@ import { Survey, Surveys } from '../../survey'
 import { Validations } from '../../validation'
 import { Record } from '../record'
 import { RecordValidations } from '../recordValidations'
-import { getCycle, getNodeByUuid, getRoot } from './recordGetters'
+import { getEntityCompletionPercent } from './recordCompletion'
+import { getCycle, getNodeByUuid, getNodesByDefUuid, getRoot } from './recordGetters'
 
 export type PageValidationStatus = {
   hasErrors: boolean
   hasWarnings: boolean
+}
+
+export type EntitySubtreeStatus = {
+  hasErrors: boolean
+  hasWarnings: boolean
+  isComplete: boolean
 }
 
 export type PagesValidationProgress = {
@@ -216,6 +223,76 @@ export const getPageValidationStatus = (params: {
   }
 
   return { hasErrors, hasWarnings }
+}
+
+const aggregatePageValidationStatuses = (statuses: PageValidationStatus[]): PageValidationStatus => ({
+  hasErrors: statuses.some((status) => status.hasErrors),
+  hasWarnings: statuses.some((status) => status.hasWarnings),
+})
+
+/**
+ * Validation and completion status for one entity instance and its descendant pages.
+ * Returns null when the entity instance is missing from the record.
+ */
+export const getEntitySubtreeStatus = (params: {
+  survey: Survey
+  record: Record
+  entityUuid: string
+  cycle?: string
+}): EntitySubtreeStatus | null => {
+  const { survey, record, entityUuid } = params
+  const entity = getNodeByUuid(entityUuid)(record)
+  if (!entity) return null
+
+  const cycle = params.cycle ?? getCycle(record)
+  const entityPageDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid }) as NodeDefEntity
+  const descendantPageUuids = getDescendantPageNodeDefUuids({ survey, cycle, pageNodeDef: entityPageDef })
+  const pageUuidsToCheck = [entity.nodeDefUuid, ...descendantPageUuids]
+
+  const validationStatuses = pageUuidsToCheck.map((pageNodeDefUuid) => {
+    const pageNodeDef = Surveys.getNodeDefByUuid({ survey, uuid: pageNodeDefUuid }) as NodeDefEntity
+    const pageDescendantUuids = getDescendantPageNodeDefUuids({ survey, cycle, pageNodeDef })
+    return getPageValidationStatus({
+      pageNodeDefUuid,
+      descendantPageUuids: pageDescendantUuids,
+      record,
+      scopeEntityUuid: entityUuid,
+    })
+  })
+
+  const { hasErrors, hasWarnings } = aggregatePageValidationStatuses(validationStatuses)
+  const isComplete =
+    getEntityCompletionPercent({ survey, record, entity }) === 100 && !hasErrors && !hasWarnings
+
+  return { hasErrors, hasWarnings, isComplete }
+}
+
+/**
+ * Aggregates subtree status across all instances of a multiple page entity.
+ * Empty instance lists return a non-complete status with no validation flags.
+ */
+export const getMultiplePageEntitiesStatus = (params: {
+  survey: Survey
+  record: Record
+  pageNodeDefUuid: string
+  cycle?: string
+}): EntitySubtreeStatus => {
+  const { survey, record, pageNodeDefUuid } = params
+  const instances = getNodesByDefUuid(pageNodeDefUuid)(record)
+
+  if (instances.length === 0) {
+    return { hasErrors: false, hasWarnings: false, isComplete: false }
+  }
+
+  const instanceStatuses = instances
+    .map((instance) => getEntitySubtreeStatus({ survey, record, entityUuid: instance.uuid, cycle: params.cycle }))
+    .filter((status): status is EntitySubtreeStatus => status !== null)
+
+  return {
+    hasErrors: instanceStatuses.some((status) => status.hasErrors),
+    hasWarnings: instanceStatuses.some((status) => status.hasWarnings),
+    isComplete: instanceStatuses.length > 0 && instanceStatuses.every((status) => status.isComplete),
+  }
 }
 
 /**

@@ -48,6 +48,8 @@ import {
 } from './_records/recordCompletion'
 import {
   getDescendantPageNodeDefUuids,
+  getEntitySubtreeStatus,
+  getMultiplePageEntitiesStatus,
   getNodeDefChildrenInOwnPage,
   getPageNodeDefs,
   getPageValidationStatus,
@@ -110,6 +112,8 @@ export const Records = {
   getPageValidationStatus,
   pageHasOwnErrors,
   getRecordPagesValidationProgress,
+  getEntitySubtreeStatus,
+  getMultiplePageEntitiesStatus,
   // UPDATE
   addNode,
   addNodes,
@@ -122,6 +126,7 @@ export const Records = {
 
 export type { RecordUpdateOptions } from './_records/recordUpdateOptions'
 export type {
+  EntitySubtreeStatus,
   PageValidationStatus,
   PagesValidationProgress,
 } from './_records/recordPagesValidation'
