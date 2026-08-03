@@ -351,6 +351,88 @@ describe('RecordPagesValidationProgress', () => {
     })
   })
 
+  test('getPageValidationStatus with scopeEntityUuid ignores sibling entity instances', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'cluster',
+        integerDef('cluster_id').key(),
+        entityDef(
+          'plot',
+          integerDef('plot_id').key(),
+          entityDef('land_use', textDef('land_use_code').required())
+        ).multiple()
+      )
+    ).build()
+
+    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+    const landUseDef = Surveys.getNodeDefByName({ survey, name: 'land_use' }) as NodeDefEntity
+    setOwnPage(plotDef, rootDef)
+    setOwnPage(landUseDef, plotDef)
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'cluster',
+        attribute('cluster_id', 10),
+        entity('plot', attribute('plot_id', 3), entity('land_use', attribute('land_use_code', null))),
+        entity('plot', attribute('plot_id', 4), entity('land_use', attribute('land_use_code', 'crop')))
+      )
+    ).build()
+
+    const landUseCodeDefUuid = Surveys.getNodeDefByName({ survey, name: 'land_use_code' }).uuid
+    const plotIdDefUuid = Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid
+    const findPlotEntityByPlotId = (plotId: number) => {
+      const plotIdNode = Records.getNodesByDefUuid(plotIdDefUuid)(record).find((n) => n.value === plotId)
+      return Records.getParent(plotIdNode!)(record)!
+    }
+    const plot3 = findPlotEntityByPlotId(3)
+    const plot4 = findPlotEntityByPlotId(4)
+
+    const plot3LandUse = Records.getChildren(plot3, landUseDef.uuid)(record)[0]
+    const plot3Code = Records.getChildren(plot3LandUse, landUseCodeDefUuid)(record)[0]
+    record.validation = ValidationFactory.createInstance({
+      valid: false,
+      fields: {
+        [plot3Code.uuid]: ValidationFactory.createInstance({
+          valid: false,
+          errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
+        }),
+      },
+    })
+
+    const landUseDescendants: string[] = []
+
+    expect(
+      Records.getPageValidationStatus({
+        pageNodeDefUuid: landUseDef.uuid,
+        descendantPageUuids: landUseDescendants,
+        record,
+      })
+    ).toEqual({ hasErrors: true, hasWarnings: false })
+
+    expect(
+      Records.getPageValidationStatus({
+        pageNodeDefUuid: landUseDef.uuid,
+        descendantPageUuids: landUseDescendants,
+        record,
+        scopeEntityUuid: plot3.uuid,
+      })
+    ).toEqual({ hasErrors: true, hasWarnings: false })
+
+    expect(
+      Records.getPageValidationStatus({
+        pageNodeDefUuid: landUseDef.uuid,
+        descendantPageUuids: landUseDescendants,
+        record,
+        scopeEntityUuid: plot4.uuid,
+      })
+    ).toEqual({ hasErrors: false, hasWarnings: false })
+  })
+
   test('nested entity without own page counts toward parent page validation', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(

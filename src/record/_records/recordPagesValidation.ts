@@ -106,20 +106,28 @@ export const getDescendantPageNodeDefUuids = (params: {
   return uuids
 }
 
+const nodeIsUnderEntity = (params: { node: Node; entityUuid: string }): boolean => {
+  const { node, entityUuid } = params
+  if (node.uuid === entityUuid) return true
+  return Nodes.getHierarchy(node).includes(entityUuid)
+}
+
 const getOwnPageFieldValidationFlags = (params: {
   nodeUuid: string
   pageNodeDefUuid: string
   descendantPageUuids: string[]
+  scopeEntityUuid?: string
   record: Record
   recordValidation: ReturnType<typeof Validations.getValidation>
 }): PageValidationStatus | null => {
-  const { nodeUuid, pageNodeDefUuid, descendantPageUuids, record, recordValidation } = params
+  const { nodeUuid, pageNodeDefUuid, descendantPageUuids, scopeEntityUuid, record, recordValidation } = params
 
   if (RecordValidations.isValidationChildrenCountKey(nodeUuid)) {
     return getOwnPageChildrenCountValidationFlags({
       childrenCountKey: nodeUuid,
       pageNodeDefUuid,
       descendantPageUuids,
+      scopeEntityUuid,
       record,
       recordValidation,
     })
@@ -127,6 +135,7 @@ const getOwnPageFieldValidationFlags = (params: {
 
   const node = getNodeByUuid(nodeUuid)(record)
   if (!node || !nodeBelongsToOwnPage({ node, pageNodeDefUuid, descendantPageUuids, record })) return null
+  if (scopeEntityUuid && !nodeIsUnderEntity({ node, entityUuid: scopeEntityUuid })) return null
 
   const nodeValidation = RecordValidations.getValidationNode({ nodeUuid })(recordValidation)
   if (!nodeValidation) return null
@@ -147,10 +156,11 @@ const getOwnPageChildrenCountValidationFlags = (params: {
   childrenCountKey: string
   pageNodeDefUuid: string
   descendantPageUuids: string[]
+  scopeEntityUuid?: string
   record: Record
   recordValidation: ReturnType<typeof Validations.getValidation>
 }): PageValidationStatus | null => {
-  const { childrenCountKey, pageNodeDefUuid, descendantPageUuids, record, recordValidation } = params
+  const { childrenCountKey, pageNodeDefUuid, descendantPageUuids, scopeEntityUuid, record, recordValidation } = params
   const parentUuid = RecordValidations.extractValidationChildrenCountKeyParentUuid(childrenCountKey)
   const childDefUuid = RecordValidations.extractValidationChildrenCountKeyNodeDefUuid(childrenCountKey)
   if (!parentUuid || !childDefUuid) return null
@@ -162,6 +172,7 @@ const getOwnPageChildrenCountValidationFlags = (params: {
   if (!parentNode || !nodeBelongsToOwnPage({ node: parentNode, pageNodeDefUuid, descendantPageUuids, record })) {
     return null
   }
+  if (scopeEntityUuid && !nodeIsUnderEntity({ node: parentNode, entityUuid: scopeEntityUuid })) return null
 
   const fieldValidation = Validations.getFieldValidation(childrenCountKey)(recordValidation)
   if (!fieldValidation) return null
@@ -175,13 +186,15 @@ const getOwnPageChildrenCountValidationFlags = (params: {
 /**
  * Aggregates error/warning flags for a page.
  * When descendantPageUuids is non-empty, nested page entities are excluded (own-page scope).
+ * When scopeEntityUuid is set, only validations for nodes under that entity instance are included.
  */
 export const getPageValidationStatus = (params: {
   pageNodeDefUuid: string
   descendantPageUuids?: string[]
   record: Record
+  scopeEntityUuid?: string
 }): PageValidationStatus => {
-  const { pageNodeDefUuid, descendantPageUuids = [], record } = params
+  const { pageNodeDefUuid, descendantPageUuids = [], record, scopeEntityUuid } = params
   const recordValidation = Validations.getValidation(record)
   const fields = Validations.getFieldValidations(recordValidation)
   let hasErrors = false
@@ -192,6 +205,7 @@ export const getPageValidationStatus = (params: {
       nodeUuid,
       pageNodeDefUuid,
       descendantPageUuids,
+      scopeEntityUuid,
       record,
       recordValidation,
     })
