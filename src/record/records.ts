@@ -43,11 +43,14 @@ import { addNode, addNodes } from './_records/recordUpdater'
 import { getEnumeratingCategoryItems, findDependentEnumeratedEntityDefsNotEmpty } from './_records/recordUtils'
 import {
   getEntityCompletionPercent,
+  getEntityCompletionStats,
   getEntityOwnCompletionPercent,
   getRecordCompletionPercent,
 } from './_records/recordCompletion'
 import {
   getDescendantPageNodeDefUuids,
+  getEntitySubtreeStatus,
+  getMultiplePageEntitiesStatus,
   getNodeDefChildrenInOwnPage,
   getPageNodeDefs,
   getPageValidationStatus,
@@ -100,6 +103,7 @@ export const Records = {
   getStep,
   isInAnalysisStep,
   getEntityCompletionPercent,
+  getEntityCompletionStats,
   getEntityOwnCompletionPercent,
   getRecordCompletionPercent,
   getNodeDefChildrenInOwnPage,
@@ -110,6 +114,8 @@ export const Records = {
   getPageValidationStatus,
   pageHasOwnErrors,
   getRecordPagesValidationProgress,
+  getEntitySubtreeStatus,
+  getMultiplePageEntitiesStatus,
   // UPDATE
   addNode,
   addNodes,
@@ -122,6 +128,7 @@ export const Records = {
 
 export type { RecordUpdateOptions } from './_records/recordUpdateOptions'
 export type {
+  EntitySubtreeStatus,
   PageValidationStatus,
   PagesValidationProgress,
 } from './_records/recordPagesValidation'
