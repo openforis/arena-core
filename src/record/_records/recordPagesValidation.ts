@@ -271,7 +271,9 @@ export const getEntitySubtreeStatus = (params: {
 }
 
 /**
- * Aggregates subtree status across all instances of a multiple page entity.
+ * Aggregates subtree status across instances of a multiple page entity.
+ * When `scopeEntityUuid` is set, only instances under that ancestor entity are included
+ * (needed for nested multiples, e.g. Tree under the currently selected Plot).
  * Empty instance lists return a non-complete status with no validation flags.
  */
 export const getMultiplePageEntitiesStatus = (params: {
@@ -279,9 +281,13 @@ export const getMultiplePageEntitiesStatus = (params: {
   record: Record
   pageNodeDefUuid: string
   cycle?: string
+  /** When set, only instances under this ancestor entity are aggregated. */
+  scopeEntityUuid?: string
 }): EntitySubtreeStatus => {
-  const { survey, record, pageNodeDefUuid } = params
-  const instances = getNodesByDefUuid(pageNodeDefUuid)(record)
+  const { survey, record, pageNodeDefUuid, scopeEntityUuid } = params
+  const instances = getNodesByDefUuid(pageNodeDefUuid)(record).filter((instance) =>
+    scopeEntityUuid ? nodeIsUnderEntity({ node: instance, entityUuid: scopeEntityUuid }) : true
+  )
 
   if (instances.length === 0) {
     return { hasErrors: false, hasWarnings: false, isComplete: false }

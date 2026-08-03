@@ -642,6 +642,107 @@ describe('RecordPagesValidationProgress', () => {
     })
   })
 
+  test('getMultiplePageEntitiesStatus with scopeEntityUuid ignores nested instances under sibling parents', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'cluster',
+        integerDef('cluster_id').key(),
+        entityDef(
+          'plot',
+          integerDef('plot_id').key(),
+          entityDef('tree', integerDef('tree_id').key(), textDef('health').required()).multiple()
+        ).multiple()
+      )
+    ).build()
+
+    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+    const treeDef = Surveys.getNodeDefByName({ survey, name: 'tree' }) as NodeDefEntity
+    setOwnPage(plotDef, rootDef)
+    setOwnPage(treeDef, plotDef)
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'cluster',
+        attribute('cluster_id', 10),
+        entity(
+          'plot',
+          attribute('plot_id', 3),
+          entity('tree', attribute('tree_id', 1), attribute('health', null))
+        ),
+        entity(
+          'plot',
+          attribute('plot_id', 4),
+          entity('tree', attribute('tree_id', 2), attribute('health', 'ok'))
+        )
+      )
+    ).build()
+
+    const plotIdDefUuid = Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid
+    const healthDefUuid = Surveys.getNodeDefByName({ survey, name: 'health' }).uuid
+    const findPlotEntityByPlotId = (plotId: number) => {
+      const plotIdNode = Records.getNodesByDefUuid(plotIdDefUuid)(record).find((n) => n.value === plotId)
+      return Records.getParent(plotIdNode!)(record)!
+    }
+    const plot3 = findPlotEntityByPlotId(3)
+    const plot4 = findPlotEntityByPlotId(4)
+
+    const plot3Tree = Records.getChildren(plot3, treeDef.uuid)(record)[0]
+    const plot3Health = Records.getChildren(plot3Tree, healthDefUuid)(record)[0]
+    record.validation = ValidationFactory.createInstance({
+      valid: false,
+      fields: {
+        [plot3Health.uuid]: ValidationFactory.createInstance({
+          valid: false,
+          errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
+        }),
+      },
+    })
+
+    // Unscoped: any tree in the record keeps Tree red.
+    expect(
+      Records.getMultiplePageEntitiesStatus({ survey, record, pageNodeDefUuid: treeDef.uuid, cycle })
+    ).toEqual({
+      hasErrors: true,
+      hasWarnings: false,
+      isComplete: false,
+    })
+
+    // Scoped to Plot 4: only Plot 4's trees — valid.
+    expect(
+      Records.getMultiplePageEntitiesStatus({
+        survey,
+        record,
+        pageNodeDefUuid: treeDef.uuid,
+        cycle,
+        scopeEntityUuid: plot4.uuid,
+      })
+    ).toEqual({
+      hasErrors: false,
+      hasWarnings: false,
+      isComplete: true,
+    })
+
+    // Scoped to Plot 3: only Plot 3's trees — invalid.
+    expect(
+      Records.getMultiplePageEntitiesStatus({
+        survey,
+        record,
+        pageNodeDefUuid: treeDef.uuid,
+        cycle,
+        scopeEntityUuid: plot3.uuid,
+      })
+    ).toEqual({
+      hasErrors: true,
+      hasWarnings: false,
+      isComplete: false,
+    })
+  })
+
   test('nested entity without own page counts toward parent page validation', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
