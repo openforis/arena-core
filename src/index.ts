@@ -158,6 +158,7 @@ export type {
   NodeDefEntityChildPosition,
   NodeDefEntityLayout,
   NodeDefEntityProps,
+  NodeDefPrintOrientation,
   NodeDefFile,
   NodeDefFileProps,
   NodeDefFormHeader,

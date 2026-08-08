@@ -21,6 +21,7 @@ import {
   NodeDefEntityLayout,
   NodeDefEntityLayoutChildItem,
   NodeDefEntityRenderType,
+  NodeDefPrintOrientation,
 } from './types/entity'
 import { NodeDefFile, NodeDefFileType } from './types/file'
 import { NodeDefTaxon } from './types/taxon'
@@ -70,6 +71,9 @@ const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ??
 const isHidden = (nodeDef: NodeDef<any>): boolean => nodeDef.props.hidden ?? false
 
 const isEnumerate = (nodeDef: NodeDefEntity): boolean => nodeDef.props.enumerate ?? false
+
+const getPrintOrientation = (nodeDef: NodeDefEntity): NodeDefPrintOrientation | undefined =>
+  nodeDef.props.printOrientation
 
 const getDefaultValues = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
   nodeDef.propsAdvanced?.defaultValues ?? []
@@ -271,6 +275,7 @@ export const NodeDefs = {
   isReadOnly,
   isHidden,
   isEnumerate,
+  getPrintOrientation,
   isAnalysis,
   isRoot,
   getType,
