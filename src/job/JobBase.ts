@@ -39,7 +39,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   status: JobStatus = JobStatus.pending
   startTime?: Date
   endTime?: Date
-  total = 1
+  total: number
   result: R | undefined = undefined
   errors: Record<string, any> = {}
 
@@ -60,6 +60,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
 
     this.uuid = UUIDs.v4()
     this.type = this.context.type ?? this.constructor.name
+    this.total = jobs.length > 0 ? jobs.length : 1
   }
 
   get processed(): number {
@@ -221,10 +222,9 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   }
 
   private async executeJobs(): Promise<void> {
-    this.total = this.jobs.length
     this.logDebug(`- ${this.total} inner jobs found`)
 
-    // Start each inner job and wait for it's completion before starting next one
+    // Start each inner job and wait for its completion before starting next one
     for (let i = 0; i < this.jobs.length; i++) {
       this.logDebug(`- executing inner job ${i + 1}`)
       this.currentInnerJobIndex = i
