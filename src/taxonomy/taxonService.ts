@@ -1,6 +1,6 @@
 import { User } from '../auth'
 import { ArenaService } from '../common'
-import { JobSummary } from '../job'
+import { JobSerialized } from '../job'
 import { Taxon } from './taxon'
 import { VernacularName } from './taxonVernacularName'
 
@@ -34,5 +34,5 @@ export interface TaxonService extends ArenaService {
     surveyId: number
     taxonomyUuid: string
     filePath: string
-  }): Promise<JobSummary<any>>
+  }): Promise<JobSerialized<any>>
 }

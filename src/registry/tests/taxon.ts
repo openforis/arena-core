@@ -1,5 +1,5 @@
 import { Taxon, TaxonFactory, TaxonService, VernacularName } from '../../taxonomy'
-import { JobSummary } from '../../job'
+import { JobSerialized } from '../../job'
 
 export const taxonMock: Taxon = TaxonFactory.createInstance({
   props: {
@@ -28,7 +28,7 @@ export class TaxonServiceMock implements TaxonService {
     throw new Error('Not implemented')
   }
 
-  importTaxa(): Promise<JobSummary<any>> {
+  importTaxa(): Promise<JobSerialized<any>> {
     throw new Error('Not implemented')
   }
 }

@@ -1,6 +1,6 @@
 import { User } from '../auth'
 import { ArenaService } from '../common'
-import { JobSummary } from '../job'
+import { JobSerialized } from '../job'
 import { Category, CategoryProps } from './category'
 import { CategoryImportSummary } from './categoryImportSummary'
 
@@ -15,7 +15,7 @@ export interface CategoryService extends ArenaService {
     summary: CategoryImportSummary
     surveyId: number
     user: User
-  }): Promise<JobSummary<any>>
+  }): Promise<JobSerialized<any>>
 
   // ==== READ
   count(options: { draft?: boolean; user: User }): Promise<number>

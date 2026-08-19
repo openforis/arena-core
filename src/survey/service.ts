@@ -1,6 +1,6 @@
 import { User } from '../auth'
 import { ArenaService } from '../common'
-import { JobSummary } from '../job'
+import { JobSerialized } from '../job'
 import { LanguageCode } from '../language'
 import { Survey, SurveyProps } from './survey'
 
@@ -14,7 +14,7 @@ export interface SurveyService extends ArenaService {
     lang: LanguageCode
     surveyId: number
     user: User
-  }): Promise<JobSummary<any>>
+  }): Promise<JobSerialized<any>>
 
   // ==== READ
   count(options: { user: User }): Promise<number>
@@ -34,7 +34,7 @@ export interface SurveyService extends ArenaService {
   // ==== UPDATE
   update(options: { props: SurveyProps; surveyId: number; user: User }): Promise<Survey>
 
-  publish(options: { surveyId: number; user: User }): Promise<JobSummary<any>>
+  publish(options: { surveyId: number; user: User }): Promise<JobSerialized<any>>
 
   // ==== DELETE
   delete(options: { surveyId: number; user: User }): Promise<void>
