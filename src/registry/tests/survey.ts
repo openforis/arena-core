@@ -1,5 +1,5 @@
 import { Survey, SurveyFactory, SurveyService } from '../../survey'
-import { JobSummary } from '../../job'
+import { JobSerialized } from '../../job'
 
 export const surveyMock: Survey = SurveyFactory.createInstance({
   ownerUuid: 'survey_owner_uuid',
@@ -11,7 +11,7 @@ export class SurveyServiceMock implements SurveyService {
     throw new Error('Not implemented')
   }
 
-  clone(): Promise<JobSummary<any>> {
+  clone(): Promise<JobSerialized<any>> {
     throw new Error('Not implemented')
   }
 
@@ -35,7 +35,7 @@ export class SurveyServiceMock implements SurveyService {
     throw new Error('Not implemented')
   }
 
-  publish(): Promise<JobSummary<any>> {
+  publish(): Promise<JobSerialized<any>> {
     throw new Error('Not implemented')
   }
 
