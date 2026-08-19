@@ -1,53 +1,130 @@
-import { EventEmitter } from 'events'
-import { DebouncedFunc, throttle } from 'lodash'
-
 import { Logger } from '../logger'
 import { UUIDs } from '../utils'
 
 import { Job } from './job'
 import { JobContext } from './jobContext'
-import { JobMessageOutType } from './jobMessage'
+import { JobEvent, JobEventType } from './jobEvent'
+import { JobSerialized } from './jobSerialized'
 import { JobStatus } from './status'
-import { JobSummary } from './summary'
 
 export interface JobConstructor {
   new <C extends JobContext, R>(context: C, jobs?: JobBase<any>[]): JobBase<C, R>
   readonly prototype: JobBase<any, any>
 }
 
-export abstract class JobBase<C extends JobContext, R = undefined> extends EventEmitter implements Job<R> {
+const PROGRESS_NOTIFICATION_THROTTLE_MILLIS = 1000
+
+/**
+ * Asynchronous task handler.
+ *
+ * Status workflow:
+ * - pending
+ * - running
+ * - (end)
+ * -- succeeded
+ * -- failed
+ * -- canceled
+ *
+ * Methods that can be overwritten by subclasses:
+ * - shouldExecute (in tx)
+ * - onStart (in tx)
+ * - execute (in tx)
+ * - prepareResult (in tx)
+ * - cleanup (in tx)
+ * - onEnd (out of tx)
+ */
+export abstract class JobBase<C extends JobContext, R = undefined> implements Job<R> {
+  readonly uuid: string
+  readonly type: string
+  status: JobStatus = JobStatus.pending
+  startTime?: Date
+  endTime?: Date
+  total = 1
+  result: R | undefined = undefined
+  errors: Record<string, any> = {}
+
   protected logger: Logger
-  summary: JobSummary<R>
   protected context: C
   protected jobs: JobBase<C, any>[]
-  protected readonly emitSummaryUpdateEvent: DebouncedFunc<() => boolean>
-  protected jobCurrent: JobBase<C, any> | undefined = undefined
+  protected currentInnerJobIndex = -1
+
+  private _processed = 0
+  private eventListener: ((event: JobEvent) => void) | undefined = undefined
+  private progressThrottleTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined
+  private progressThrottleLastRunTime = 0
 
   public constructor(context: C, jobs: JobBase<C, any>[] = []) {
-    super()
-    this.jobs = jobs
     this.context = context
+    this.jobs = jobs
     this.logger = this.createLogger()
 
-    this.summary = {
-      jobs: this.jobs.map((job) => job.summary),
-      processed: 0,
-      status: JobStatus.pending,
-      surveyId: this.context.surveyId ?? 0,
-      total: 1,
-      type: this.context.type ?? this.constructor.name,
-      userUuid: this.context.user.uuid,
-      uuid: UUIDs.v4(),
-    }
+    this.uuid = UUIDs.v4()
+    this.type = this.context.type ?? this.constructor.name
+  }
 
-    this.emitSummaryUpdateEvent = throttle(() => this.emit(JobMessageOutType.summaryUpdate, this.summary), 500)
-    this.jobs.forEach((job) => job.on(JobMessageOutType.summaryUpdate, this.onInnerJobSummaryUpdate.bind(this)))
+  get processed(): number {
+    return this._processed
+  }
+
+  set processed(value: number) {
+    this._processed = value
+    this.notifyProgress()
+  }
+
+  protected get surveyId(): number {
+    return this.context.surveyId ?? 0
+  }
+
+  protected get userUuid(): string {
+    return this.context.user.uuid
+  }
+
+  /**
+   * Registers the listener notified of job events (status changes and progress).
+   * Only one listener can be registered at a time; registering a new one replaces the previous one.
+   */
+  onEvent(listener: (event: JobEvent) => void): this {
+    this.eventListener = listener
+    return this
+  }
+
+  isPending(): boolean {
+    return this.status === JobStatus.pending
+  }
+
+  isRunning(): boolean {
+    return this.status === JobStatus.running
+  }
+
+  isSucceeded(): boolean {
+    return this.status === JobStatus.succeeded
+  }
+
+  isFailed(): boolean {
+    return this.status === JobStatus.failed
+  }
+
+  isCanceled(): boolean {
+    return this.status === JobStatus.canceled
+  }
+
+  isEnded(): boolean {
+    return [JobStatus.succeeded, JobStatus.failed, JobStatus.canceled].includes(this.status)
+  }
+
+  hasErrors(): boolean {
+    return Object.keys(this.errors).length > 0
+  }
+
+  protected getCurrentInnerJob(): JobBase<C, any> | undefined {
+    return this.jobs[this.currentInnerJobIndex]
   }
 
   async cancel(): Promise<void> {
-    if (this.jobCurrent) {
-      if (this.jobCurrent.summary.status === JobStatus.running) {
-        await this.jobCurrent.cancel()
+    const currentInnerJob = this.getCurrentInnerJob()
+    if (currentInnerJob) {
+      if (currentInnerJob.isRunning()) {
+        await currentInnerJob.cancel()
       }
     } else {
       await this.setStatus(JobStatus.canceled)
@@ -55,30 +132,30 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
   }
 
   async start(client: any = null): Promise<void> {
-    this.logger.debug('start')
+    this.logDebug('start')
 
     try {
       if (client) {
         // 1. create db transaction and execute job inside of it
         await client.tx(async (tx: any) => {
           this.context.tx = tx
-          this.executeInternalJobsOrCurrentOne()
+          await this.executeInternalJobsOrCurrentOne()
         })
       } else {
         await this.executeInternalJobsOrCurrentOne()
       }
-      if (this.summary.status === JobStatus.running) {
+      if (this.isRunning()) {
         // 2. if successful, prepare result and set status succeeded
-        this.summary.result = await this.prepareResult()
+        this.result = await this.prepareResult()
         await this.setStatus(JobStatus.succeeded)
       } else {
         // 3. if errors found or job has been canceled, throw an error to rollback transaction
         this.throwError('jobCanceledOrErrorsFound')
       }
     } catch (error: any) {
-      if (this.summary.status === JobStatus.running) {
+      if (this.isRunning()) {
         // Error found, change status only if not changed already
-        this.logger.error(error.stack ?? error)
+        this.logError(error.stack ?? error)
         this.addError({
           error: {
             valid: false,
@@ -89,15 +166,51 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
       }
     } finally {
       this.context.tx = undefined
-      if (this.summary.status !== JobStatus.canceled) {
+      if (!this.isCanceled()) {
         await this.cleanup()
       }
+    }
+  }
+
+  /**
+   * Generates a plain JSON-serializable representation of the job, including its inner jobs.
+   */
+  toJSON(): JobSerialized<R> {
+    const { errors, processed, result, status, total, type, userUuid, uuid } = this
+
+    return {
+      uuid,
+      type,
+      userUuid,
+      surveyId: this.surveyId,
+      innerJobs: this.jobs.map((job) => job.toJSON()),
+      currentInnerJobIndex: this.currentInnerJobIndex,
+
+      status,
+      pending: this.isPending(),
+      running: this.isRunning(),
+      succeeded: this.isSucceeded(),
+      canceled: this.isCanceled(),
+      failed: this.isFailed(),
+      ended: this.isEnded(),
+
+      total,
+      processed,
+      progressPercent: this.calculateProgressPercent(),
+      elapsedMillis: this.calculateElapsedMillis(),
+
+      errors: this.isFailed() ? errors : undefined,
+      result: this.isSucceeded() ? result : undefined,
     }
   }
 
   private async executeInternalJobsOrCurrentOne(): Promise<void> {
     // notify start
     await this.onStart()
+
+    const shouldExecute = await this.shouldExecute()
+    if (!shouldExecute) return
+
     // execute internal jobs
     if (this.jobs.length > 0) {
       await this.executeJobs()
@@ -108,67 +221,86 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
   }
 
   private async executeJobs(): Promise<void> {
-    this.summary.total = this.jobs.length
-    this.logger.debug(`- ${this.summary.total} inner jobs found`)
+    this.total = this.jobs.length
+    this.logDebug(`- ${this.total} inner jobs found`)
 
     // Start each inner job and wait for it's completion before starting next one
     for (let i = 0; i < this.jobs.length; i++) {
-      this.logger.debug(`- executing inner job ${i + 1}`)
-      this.jobCurrent = this.jobs[i]
-      this.jobCurrent.context = this.context
+      this.logDebug(`- executing inner job ${i + 1}`)
+      this.currentInnerJobIndex = i
+      const currentInnerJob = this.jobs[i]
+      currentInnerJob.context = this.context
+      currentInnerJob.onEvent(this.onInnerJobEvent.bind(this))
 
-      await this.jobCurrent.start(this.context.tx)
+      await currentInnerJob.start(this.context.tx)
 
-      if (this.jobCurrent.summary.status === JobStatus.succeeded) {
+      if (currentInnerJob.isSucceeded()) {
         this.incrementProcessedItems()
       } else {
         break
       }
     }
 
-    this.logger.debug(`- ${this.summary.processed} inner jobs processed successfully`)
+    this.logDebug(`- ${this.processed} inner jobs processed successfully`)
   }
 
   protected abstract execute(): Promise<void>
 
+  /**
+   * Determines whether the job should actually run.
+   * When it returns false, "execute" (or the inner jobs) will be skipped, but the job will still succeed.
+   */
+  protected async shouldExecute(): Promise<boolean> {
+    return true
+  }
+
   protected incrementProcessedItems(incrementBy = 1): void {
-    this.summary.processed += incrementBy
-    this.emitSummaryUpdateEvent()
+    this.processed += incrementBy
   }
 
   protected async setStatus(status: JobStatus): Promise<void> {
-    this.logger.debug(`set status: ${status}`)
-    this.summary.status = status
+    this.logDebug(`set status: ${status}`)
+    this.status = status
 
-    if ([JobStatus.succeeded, JobStatus.failed, JobStatus.canceled].includes(status)) {
-      this.logger.debug('onEnd...')
-      await this.onEnd()
-      this.logger.debug('onEnd run')
+    const event: JobEvent = { type: JobEventType.statusChange, status, total: this.total, processed: this.processed }
+    if (status === JobStatus.failed) {
+      event.errors = this.errors
     }
 
-    this.emitSummaryUpdateEvent()
+    if (this.isEnded()) {
+      this.logDebug('onEnd...')
+      await this.onEnd()
+      this.logDebug(`onEnd run. Job completed in ${this.elapsedTimePrettyFormat}`)
+    }
+
+    this.notifyEvent(event)
   }
 
   /**
-   * Inner job summary update handler.
+   * Inner job event handler.
    */
-  protected async onInnerJobSummaryUpdate(summary: JobSummary<any>): Promise<void> {
-    const { status } = summary
+  protected async onInnerJobEvent(event: JobEvent): Promise<void> {
+    const { status } = event
     if ([JobStatus.canceled, JobStatus.failed].includes(status)) {
       return this.setStatus(status)
     }
     if (status === JobStatus.running) {
-      this.emitSummaryUpdateEvent()
+      this.notifyEvent({
+        type: JobEventType.progress,
+        status: this.status,
+        total: this.total,
+        processed: this.processed,
+      })
       return
     }
-    this.logger.debug(`Unknown inner job status: ${status}`)
+    this.logDebug(`Unknown inner job status: ${status}`)
   }
 
   /**
    * Called when the job just has been started.
    */
   protected async onStart(): Promise<void> {
-    this.summary.startTime = new Date()
+    this.startTime = new Date()
     await this.setStatus(JobStatus.running)
   }
 
@@ -177,7 +309,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
    * It runs INSIDE the current db transaction.
    */
   protected prepareResult(): Promise<R | undefined> {
-    this.logger.debug('Prepare result')
+    this.logDebug('Prepare result')
     return Promise.resolve(undefined)
   }
 
@@ -186,7 +318,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
    * It runs INSIDE the current db transaction.
    */
   protected cleanup(): Promise<void> {
-    this.logger.debug('Cleanup')
+    this.logDebug('Cleanup')
     return Promise.resolve()
   }
 
@@ -195,15 +327,13 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
    * (it runs OUTSIDE of the current db transaction)
    */
   protected async onEnd(): Promise<void> {
-    this.summary.endTime = new Date()
-    this.emitSummaryUpdateEvent.flush()
-    this.emitSummaryUpdateEvent.cancel()
+    this.endTime = new Date()
+    this.cancelNotifyProgress()
   }
 
   protected addError(error: any, errorKey?: string): void {
-    if (!this.summary.errors) this.summary.errors = {}
-    const key = errorKey ?? String(this.summary.processed + 1)
-    this.summary.errors[key] = error
+    const key = errorKey ?? String(this.processed + 1)
+    this.errors[key] = error
   }
 
   protected throwError(errorKey: string): void {
@@ -211,4 +341,94 @@ export abstract class JobBase<C extends JobContext, R = undefined> extends Event
   }
 
   protected abstract createLogger(): Logger
+
+  protected logDebug(...msgs: any[]): void {
+    this.logger.debug(...msgs)
+  }
+
+  protected logInfo(...msgs: any[]): void {
+    this.logger.info(...msgs)
+  }
+
+  protected logWarn(...msgs: any[]): void {
+    this.logger.warn(...msgs)
+  }
+
+  protected logError(...msgs: any[]): void {
+    this.logger.error(...msgs)
+  }
+
+  private get elapsedTimePrettyFormat(): string {
+    const elapsedTime = this.calculateElapsedMillis()
+    const elapsedMins = Math.floor(elapsedTime / 1000 / 60)
+    const elapsedSeconds = String(Math.floor(elapsedTime / 1000) % 60).padStart(2, '0')
+    const elapsedMillis = String(elapsedTime % 1000).padStart(3, '0')
+    return `${elapsedMins}:${elapsedSeconds}.${elapsedMillis}`
+  }
+
+  private calculatePartialProgress(): number {
+    if (this.isSucceeded()) return 100
+    if (this.total > 0) return Math.floor((100 * this.processed) / this.total)
+    return 0
+  }
+
+  private calculateProgressPercent(): number {
+    const partialProgress = this.calculatePartialProgress()
+    const currentInnerJob = this.getCurrentInnerJob()
+    if (
+      !currentInnerJob ||
+      this.currentInnerJobIndex < 0 ||
+      partialProgress === 100 ||
+      this.processed > this.currentInnerJobIndex
+    ) {
+      return partialProgress
+    }
+    return partialProgress + Math.floor(currentInnerJob.calculateProgressPercent() / this.total)
+  }
+
+  private calculateElapsedMillis(): number {
+    if (!this.startTime) return 0
+    return (this.endTime ?? new Date()).getTime() - this.startTime.getTime()
+  }
+
+  /**
+   * Notifies a progress event to the registered listener, throttled so that fast-changing
+   * progress does not flood consumers (e.g. web socket clients).
+   */
+  private notifyProgress(): void {
+    const run = (): void => {
+      this.progressThrottleTimeoutId = undefined
+      this.progressThrottleLastRunTime = Date.now()
+      this.notifyEvent({
+        type: JobEventType.progress,
+        status: this.status,
+        total: this.total,
+        processed: this.processed,
+      })
+    }
+
+    if (this.progressThrottleTimeoutId) return
+
+    const elapsed = Date.now() - this.progressThrottleLastRunTime
+    if (!this.progressThrottleLastRunTime || elapsed >= PROGRESS_NOTIFICATION_THROTTLE_MILLIS) {
+      run()
+    } else {
+      this.progressThrottleTimeoutId = setTimeout(run, PROGRESS_NOTIFICATION_THROTTLE_MILLIS - elapsed)
+    }
+  }
+
+  /**
+   * Cancels any pending throttled progress notification and resets the throttle state.
+   */
+  private cancelNotifyProgress(): void {
+    if (this.progressThrottleTimeoutId) {
+      clearTimeout(this.progressThrottleTimeoutId)
+      this.progressThrottleTimeoutId = undefined
+    }
+    this.progressThrottleLastRunTime = 0
+  }
+
+  private notifyEvent(event: JobEvent): void {
+    this.eventListener?.(event)
+  }
 }
