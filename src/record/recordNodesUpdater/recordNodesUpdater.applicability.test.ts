@@ -309,5 +309,49 @@ describe('Record nodes updater - applicability', () => {
       expect(getDependentEntityNodes(updateResult.record)).toHaveLength(0)
       expect(Object.keys(updateResult.nodesDeleted)).toHaveLength(2)
     })
+
+    test('Auto-generates missing min-count entities when a multiple entity becomes applicable', async () => {
+      const surveyWithAutoGeneration = await new SurveyBuilder(
+        user,
+        entityDef(
+          'root_entity',
+          integerDef('identifier').key(),
+          integerDef('source_attribute'),
+          entityDef('dependent_entity', integerDef('entity_attr').key())
+            .multiple()
+            .minCount('2')
+            .autoCreateMinCountItems()
+            .applyIf('source_attribute > 10')
+        )
+      ).build()
+
+      let record = new RecordBuilder(
+        user,
+        surveyWithAutoGeneration,
+        entity('root_entity', attribute('identifier', 1), attribute('source_attribute', 5))
+      ).build()
+
+      const sourceNode = TestUtils.getNodeByPath({
+        survey: surveyWithAutoGeneration,
+        record,
+        path: 'root_entity.source_attribute',
+      })
+
+      const sourceNodeUpdated = { ...sourceNode, value: 20 }
+      const updateResult = await RecordNodesUpdater.updateNodesDependents({
+        user,
+        survey: surveyWithAutoGeneration,
+        record: Records.addNode(sourceNodeUpdated)(record),
+        nodes: { [sourceNode.uuid]: sourceNodeUpdated },
+      })
+      record = updateResult.record
+
+      const dependentEntityDef = Surveys.getNodeDefByName({
+        survey: surveyWithAutoGeneration,
+        name: 'dependent_entity',
+      })
+      const dependentEntities = Records.getNodesByDefUuid(dependentEntityDef.uuid)(record)
+      expect(dependentEntities).toHaveLength(2)
+    })
   })
 })

@@ -72,6 +72,9 @@ const isHidden = (nodeDef: NodeDef<any>): boolean => nodeDef.props.hidden ?? fal
 
 const isEnumerate = (nodeDef: NodeDefEntity): boolean => nodeDef.props.enumerate ?? false
 
+const isAutoCreateMinCountItems = (nodeDef: NodeDefEntity): boolean =>
+  isMultipleEntity(nodeDef) && (nodeDef.props.autoCreateMinCountItems ?? false)
+
 const getPrintOrientation = (nodeDef: NodeDefEntity): NodeDefPrintOrientation | undefined =>
   nodeDef.props.printOrientation
 
@@ -275,6 +278,7 @@ export const NodeDefs = {
   isReadOnly,
   isHidden,
   isEnumerate,
+  isAutoCreateMinCountItems,
   getPrintOrientation,
   isAnalysis,
   isRoot,

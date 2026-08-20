@@ -16,6 +16,12 @@ export class NodeDefEntityBuilder extends NodeDefBuilder {
     return this
   }
 
+  autoCreateMinCountItems(): this {
+    const p = this.props as NodeDefEntityProps
+    p.autoCreateMinCountItems = true
+    return this
+  }
+
   build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> } {
     const { survey, nodeDefParent } = params
     const def: NodeDefEntity = this.createNodeDef({ nodeDefParent }) as NodeDefEntity

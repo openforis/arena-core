@@ -25,7 +25,12 @@ const getNodesToInsertCount = (params: { parentNode: Node | undefined; nodeDef: 
   const { nodeDef, parentNode } = params
   if (!parentNode || NodeDefs.isSingle(nodeDef)) return 1
   if (nodeDef.type === NodeDefType.code) return 0 // never create nodes for multiple code attributes
-  return Nodes.getChildrenMinCount({ parentNode, nodeDef }) ?? 0
+
+  if (NodeDefs.isMultipleEntity(nodeDef) && !NodeDefs.isAutoCreateMinCountItems(nodeDef)) return 0
+
+  const minCount = Nodes.getChildrenMinCount({ parentNode, nodeDef })
+  if (Number.isNaN(minCount) || minCount <= 0) return 0
+  return minCount
 }
 
 export const createEnumeratedEntityNodes = async (params: {
