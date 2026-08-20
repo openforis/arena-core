@@ -6,6 +6,7 @@ import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records, RecordUpdateOptions } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
+import { createNodeAndDescendants } from './recordNodesCreator'
 import { deleteNodes } from './recordNodesDeleter'
 import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
@@ -109,6 +110,36 @@ const updateDescendantsApplicability = ({
   }
 }
 
+const createMissingApplicableMultipleEntities = async ({
+  params,
+  updateResult,
+  parentNode,
+  nodeDef,
+}: {
+  params: RecordNodeDependentsUpdateParams
+  updateResult: RecordUpdateResult
+  parentNode: Node
+  nodeDef: NodeDefEntity
+}): Promise<void> => {
+  if (!NodeDefs.isAutoCreateMinCountItems(nodeDef)) return
+
+  const minCount = Nodes.getChildrenMinCount({ parentNode, nodeDef })
+  if (Number.isNaN(minCount) || minCount <= 0) return
+
+  const existingChildren = Records.getChildren(parentNode, nodeDef.uuid)(updateResult.record)
+  const missingCount = Math.max(0, minCount - existingChildren.length)
+
+  for (let index = 0; index < missingCount; index++) {
+    const childUpdateResult = await createNodeAndDescendants({
+      ...params,
+      record: updateResult.record,
+      parentNode,
+      nodeDef,
+    })
+    updateResult.merge(childUpdateResult)
+  }
+}
+
 export const updateSelfAndDependentsApplicable = async (
   params: RecordNodeDependentsUpdateParams
 ): Promise<RecordUpdateResult> => {
@@ -142,6 +173,16 @@ export const updateSelfAndDependentsApplicable = async (
     if (applicable === undefined) {
       continue
     }
+
+    if (applicable && NodeDefs.isMultipleEntity(nodeDefNodePointer)) {
+      await createMissingApplicableMultipleEntities({
+        params,
+        updateResult,
+        parentNode: nodeCtx,
+        nodeDef: nodeDefNodePointer as NodeDefEntity,
+      })
+    }
+
     // 4. persist updated applicability if changed, and return updated nodes
 
     if (applicablePrev !== applicable) {
