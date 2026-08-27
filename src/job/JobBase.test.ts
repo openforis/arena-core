@@ -82,6 +82,10 @@ class TestJob extends JobBase<JobContext, any> {
   protected createLogger(): Logger {
     return silentLogger
   }
+
+  get contextForTest(): JobContext {
+    return this.context
+  }
 }
 
 test('job is pending before start and succeeds after execution completes', async () => {
@@ -328,4 +332,22 @@ test('continues running inner jobs after a failure when stopOnInnerJobFailure is
   expect(calls).toEqual(['job1', 'job2'])
   expect(parentJob.isFailed()).toBe(true)
   expect(innerJob2.isSucceeded()).toBe(true)
+})
+
+test('constructor copies the context instead of holding the caller-owned reference', () => {
+  const callerContext = createContext()
+  const job = new TestJob(callerContext)
+
+  expect(job.contextForTest).not.toBe(callerContext)
+  expect(job.contextForTest).toEqual(callerContext)
+})
+
+test("merges an inner job's own context into the shared context before overwriting it", async () => {
+  const innerJob = new TestJob(createContext())
+  ;(innerJob.contextForTest as any).customFlag = true
+  const parentJob = new TestJob(createContext(), [innerJob])
+
+  await parentJob.start()
+
+  expect((parentJob.contextForTest as any).customFlag).toBe(true)
 })

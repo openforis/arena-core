@@ -58,7 +58,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   private _stopOnInnerJobFailure = true
 
   public constructor(context: C, innerJobs: JobBase<C, any>[] = []) {
-    this.context = context
+    this.context = { ...context }
     this.innerJobs = innerJobs
     this.logger = this.createLogger()
 
@@ -243,6 +243,9 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       this.logDebug(`- executing inner job ${i + 1}`)
       this.currentInnerJobIndex = i
       const currentInnerJob = this.innerJobs[i]
+      if (currentInnerJob.context) {
+        Object.assign(this.context, currentInnerJob.context)
+      }
       currentInnerJob.context = this.context
       currentInnerJob.onEvent(this.onInnerJobEvent.bind(this))
 
