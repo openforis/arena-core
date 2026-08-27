@@ -86,6 +86,26 @@ class TestJob extends JobBase<JobContext, any> {
   get contextForTest(): JobContext {
     return this.context
   }
+
+  getContextPropForTest(prop: string, defaultValue: any = null): any {
+    return this.getContextProp(prop, defaultValue)
+  }
+
+  setContextForTest(context: Partial<JobContext>): void {
+    this.setContext(context)
+  }
+
+  deleteContextPropsForTest(...propNames: string[]): void {
+    this.deleteContextProps(...propNames)
+  }
+
+  get surveyIdForTest(): number | null {
+    return this.surveyId
+  }
+
+  get userUuidForTest(): string | undefined {
+    return this.userUuid
+  }
 }
 
 test('job is pending before start and succeeds after execution completes', async () => {
@@ -350,4 +370,44 @@ test("merges an inner job's own context into the shared context before overwriti
   await parentJob.start()
 
   expect((parentJob.contextForTest as any).customFlag).toBe(true)
+})
+
+test('getContextProp returns the context value or the default when absent', () => {
+  const job = new TestJob(createContext({ surveyId: 42 }))
+
+  expect(job.getContextPropForTest('surveyId')).toBe(42)
+  expect(job.getContextPropForTest('missingProp', 'fallback')).toBe('fallback')
+  expect(job.getContextPropForTest('missingProp')).toBeNull()
+})
+
+test('setContext merges new values into the existing context', () => {
+  const job = new TestJob(createContext())
+
+  job.setContextForTest({ survey: { uuid: 'survey-uuid' } as any })
+
+  expect(job.getContextPropForTest('survey')).toEqual({ uuid: 'survey-uuid' })
+})
+
+test('deleteContextProps removes the given keys from the context', () => {
+  const job = new TestJob(createContext({ survey: { uuid: 'survey-uuid' } as any }))
+
+  job.deleteContextPropsForTest('survey')
+
+  expect(job.getContextPropForTest('survey')).toBeNull()
+})
+
+test('surveyId defaults to null when absent from the context', () => {
+  const job = new TestJob({ user } as JobContext)
+
+  expect(job.surveyIdForTest).toBeNull()
+})
+
+test('userUuid is undefined instead of throwing when the context has no user', () => {
+  const job = new TestJob({ surveyId: 1 } as unknown as JobContext)
+
+  expect(job.userUuidForTest).toBeUndefined()
+})
+
+test('JobBase.keysContext exposes the well-known context property names', () => {
+  expect(JobBase.keysContext).toEqual({ surveyId: 'surveyId', survey: 'survey', user: 'user' })
 })

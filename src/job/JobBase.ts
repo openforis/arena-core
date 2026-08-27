@@ -36,6 +36,12 @@ const PROGRESS_NOTIFICATION_THROTTLE_MILLIS = 1000
  * - getErrorInfo
  */
 export abstract class JobBase<C extends JobContext, R = undefined> implements Job<R> {
+  static readonly keysContext = {
+    surveyId: 'surveyId',
+    survey: 'survey',
+    user: 'user',
+  }
+
   readonly uuid: string
   readonly type: string
   status: JobStatus = JobStatus.pending
@@ -84,12 +90,35 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     this._stopOnInnerJobFailure = value
   }
 
-  protected get surveyId(): number {
-    return this.context.surveyId ?? 0
+  protected get surveyId(): number | null {
+    return this.getContextProp(JobBase.keysContext.surveyId)
   }
 
-  protected get userUuid(): string {
-    return this.context.user.uuid
+  protected get user(): any {
+    return this.getContextProp(JobBase.keysContext.user)
+  }
+
+  protected get userUuid(): string | undefined {
+    return this.user?.uuid
+  }
+
+  protected get contextSurvey(): any {
+    return this.getContextProp(JobBase.keysContext.survey)
+  }
+
+  protected getContextProp<T = any>(prop: string, defaultValue: T | null = null): T | null {
+    const value = (this.context as any)[prop]
+    return value ?? defaultValue
+  }
+
+  protected setContext(context: Partial<C>): void {
+    Object.assign(this.context, context)
+  }
+
+  protected deleteContextProps(...propNames: string[]): void {
+    propNames.forEach((propName) => {
+      delete (this.context as any)[propName]
+    })
   }
 
   /**
