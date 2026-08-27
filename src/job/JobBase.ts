@@ -44,6 +44,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   total: number
   result: R | undefined = undefined
   errors: Record<string, any> = {}
+  canceledByAdmin?: boolean
 
   protected logger: Logger
   protected context: C
@@ -132,13 +133,15 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     return this.innerJobs[this.currentInnerJobIndex]
   }
 
-  async cancel(): Promise<void> {
+  async cancel(options: { canceledByAdmin?: boolean } = {}): Promise<void> {
+    const { canceledByAdmin = false } = options
     const currentInnerJob = this.getCurrentInnerJob()
     if (currentInnerJob) {
       if (currentInnerJob.isRunning()) {
-        await currentInnerJob.cancel()
+        await currentInnerJob.cancel({ canceledByAdmin })
       }
     } else {
+      this.canceledByAdmin = canceledByAdmin
       await this.setStatus(JobStatus.canceled)
     }
   }
@@ -292,7 +295,11 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
    */
   protected async onInnerJobEvent(event: JobEvent): Promise<void> {
     const { status } = event
-    if ([JobStatus.canceled, JobStatus.failed].includes(status)) {
+    if (status === JobStatus.canceled) {
+      this.canceledByAdmin = this.getCurrentInnerJob()?.canceledByAdmin ?? false
+      return this.setStatus(status)
+    }
+    if (status === JobStatus.failed) {
       return this.setStatus(status)
     }
     if (status === JobStatus.running) {

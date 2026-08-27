@@ -140,6 +140,31 @@ test('cancel sets status to canceled when no inner job is running', async () => 
   expect(job.isCanceled()).toBe(true)
 })
 
+test('cancel propagates canceledByAdmin from the currently running inner job to the parent', async () => {
+  let releaseInnerJob: () => void = () => undefined
+  const innerJobGate = new Promise<void>((resolve) => {
+    releaseInnerJob = resolve
+  })
+  const innerJob = new TestJob(createContext(), [], {
+    execute: async () => {
+      await innerJobGate
+    },
+  })
+  const parentJob = new TestJob(createContext(), [innerJob])
+
+  const startPromise = parentJob.start()
+  // let the inner job's execute() actually start and reach the gate before canceling
+  await new Promise((resolve) => setTimeout(resolve, 0))
+
+  await parentJob.cancel({ canceledByAdmin: true })
+  releaseInnerJob()
+  await startPromise
+
+  expect(parentJob.canceledByAdmin).toBe(true)
+  expect(innerJob.canceledByAdmin).toBe(true)
+  expect(parentJob.isCanceled()).toBe(true)
+})
+
 test('onEvent notifies the listener of status transitions', async () => {
   const events: JobEvent[] = []
   const job = new TestJob(createContext())

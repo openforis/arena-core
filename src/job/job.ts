@@ -23,7 +23,7 @@ export interface Job<R> {
   /**
    * Cancels the execution of the job.
    */
-  cancel(): Promise<void>
+  cancel(options?: { canceledByAdmin?: boolean }): Promise<void>
   /**
    * Generates a plain JSON-serializable representation of the job.
    */
