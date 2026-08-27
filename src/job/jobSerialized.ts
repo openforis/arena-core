@@ -6,8 +6,8 @@ import { JobStatus } from './status'
 export interface JobSerialized<R = undefined> {
   uuid: string
   type: string
-  userUuid: string
-  surveyId: number
+  userUuid: string | undefined
+  surveyId: number | null
   innerJobs: JobSerialized<any>[]
   currentInnerJobIndex: number
 
