@@ -49,6 +49,9 @@ type TestJobOptions = {
   execute?: () => Promise<void>
   shouldExecute?: boolean
   result?: any
+  // Partial results applied via setResult() (in order) during execute(), to exercise
+  // setResult()'s object-merge behavior rather than only its overwrite behavior.
+  setResults?: any[]
 }
 
 class TestJob extends JobBase<JobContext, any> {
@@ -61,6 +64,9 @@ class TestJob extends JobBase<JobContext, any> {
 
   protected async execute(): Promise<void> {
     await this.options.execute?.()
+    for (const partialResult of this.options.setResults ?? []) {
+      this.setResult(partialResult)
+    }
   }
 
   protected async shouldExecute(): Promise<boolean> {
@@ -68,7 +74,9 @@ class TestJob extends JobBase<JobContext, any> {
   }
 
   protected async generateResult(): Promise<any> {
-    return this.options.result
+    // Explicit `result` option wins (used by tests asserting a canned result); otherwise fall
+    // back to the base behavior (return whatever was accumulated via setResult() during execute()).
+    return this.options.result ?? (await super.generateResult())
   }
 
   protected createLogger(): Logger {
@@ -263,4 +271,13 @@ test('commits the transaction when the job succeeds', async () => {
   expect(job.isSucceeded()).toBe(true)
   expect(wasCommitted()).toBe(true)
   expect(wasRolledBack()).toBe(false)
+})
+
+test('setResult merges successive object results instead of overwriting', async () => {
+  const job = new TestJob(createContext(), [], { setResults: [{ a: 1 }, { b: 2 }] })
+
+  await job.start()
+
+  expect(job.isSucceeded()).toBe(true)
+  expect(job.result).toEqual({ a: 1, b: 2 })
 })
