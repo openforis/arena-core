@@ -281,3 +281,26 @@ test('setResult merges successive object results instead of overwriting', async 
   expect(job.isSucceeded()).toBe(true)
   expect(job.result).toEqual({ a: 1, b: 2 })
 })
+
+test('continues running inner jobs after a failure when stopOnInnerJobFailure is false', async () => {
+  const calls: string[] = []
+  const innerJob1 = new TestJob(createContext(), [], {
+    execute: async () => {
+      calls.push('job1')
+      throw new Error('inner job failure')
+    },
+  })
+  const innerJob2 = new TestJob(createContext(), [], {
+    execute: async () => {
+      calls.push('job2')
+    },
+  })
+  const parentJob = new TestJob(createContext(), [innerJob1, innerJob2])
+  parentJob.stopOnInnerJobFailure = false
+
+  await parentJob.start()
+
+  expect(calls).toEqual(['job1', 'job2'])
+  expect(parentJob.isFailed()).toBe(true)
+  expect(innerJob2.isSucceeded()).toBe(true)
+})

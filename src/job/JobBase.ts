@@ -54,6 +54,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   private eventListener: ((event: JobEvent) => void) | undefined = undefined
   private progressThrottleTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined
   private progressThrottleLastRunTime = 0
+  private _stopOnInnerJobFailure = true
 
   public constructor(context: C, innerJobs: JobBase<C, any>[] = []) {
     this.context = context
@@ -72,6 +73,14 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   set processed(value: number) {
     this._processed = value
     this.notifyProgress()
+  }
+
+  get stopOnInnerJobFailure(): boolean {
+    return this._stopOnInnerJobFailure
+  }
+
+  set stopOnInnerJobFailure(value: boolean) {
+    this._stopOnInnerJobFailure = value
   }
 
   protected get surveyId(): number {
@@ -238,7 +247,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
 
       if (currentInnerJob.isSucceeded()) {
         this.incrementProcessedItems()
-      } else {
+      } else if (this.stopOnInnerJobFailure) {
         break
       }
     }
