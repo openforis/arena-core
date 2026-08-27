@@ -106,6 +106,14 @@ class TestJob extends JobBase<JobContext, any> {
   get userUuidForTest(): string | undefined {
     return this.userUuid
   }
+
+  get userForTest(): any {
+    return this.user
+  }
+
+  get contextSurveyForTest(): any {
+    return this.contextSurvey
+  }
 }
 
 test('job is pending before start and succeeds after execution completes', async () => {
@@ -406,6 +414,25 @@ test('userUuid is undefined instead of throwing when the context has no user', (
   const job = new TestJob({ surveyId: 1 } as unknown as JobContext)
 
   expect(job.userUuidForTest).toBeUndefined()
+})
+
+test('userUuid returns the actual user uuid when context.user is set', () => {
+  const job = new TestJob(createContext())
+
+  expect(job.userUuidForTest).toBe(user.uuid)
+})
+
+test('user returns the context user when set', () => {
+  const job = new TestJob(createContext())
+
+  expect(job.userForTest).toEqual(user)
+})
+
+test('contextSurvey returns the context survey when set', () => {
+  const survey = { uuid: 'survey-uuid' } as any
+  const job = new TestJob(createContext({ survey }))
+
+  expect(job.contextSurveyForTest).toEqual(survey)
 })
 
 test('JobBase.keysContext exposes the well-known context property names', () => {
