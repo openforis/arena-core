@@ -162,6 +162,20 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     return this.innerJobs[this.currentInnerJobIndex]
   }
 
+  protected combineInnerJobsResults(): Record<string, any> {
+    const results: Record<string, any> = {}
+    this.innerJobs.forEach((innerJob) => Object.assign(results, innerJob.result ?? {}))
+    return results
+  }
+
+  protected combineInnerJobsErrors(): Record<string, any> {
+    const errors: Record<string, any> = {}
+    this.innerJobs.forEach((innerJob, index) => {
+      errors[String(index)] = innerJob.errors
+    })
+    return errors
+  }
+
   async cancel(options: { canceledByAdmin?: boolean } = {}): Promise<void> {
     const { canceledByAdmin = false } = options
     const currentInnerJob = this.getCurrentInnerJob()

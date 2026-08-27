@@ -114,6 +114,14 @@ class TestJob extends JobBase<JobContext, any> {
   get contextSurveyForTest(): any {
     return this.contextSurvey
   }
+
+  combineInnerJobsResultsForTest(): Record<string, any> {
+    return this.combineInnerJobsResults()
+  }
+
+  combineInnerJobsErrorsForTest(): Record<string, any> {
+    return this.combineInnerJobsErrors()
+  }
 }
 
 test('job is pending before start and succeeds after execution completes', async () => {
@@ -437,4 +445,33 @@ test('contextSurvey returns the context survey when set', () => {
 
 test('JobBase.keysContext exposes the well-known context property names', () => {
   expect(JobBase.keysContext).toEqual({ surveyId: 'surveyId', survey: 'survey', user: 'user' })
+})
+
+test('combineInnerJobsResults merges the result objects of all inner jobs', async () => {
+  const innerJob1 = new TestJob(createContext(), [], { result: { a: 1 } })
+  const innerJob2 = new TestJob(createContext(), [], { result: { b: 2 } })
+  const parentJob = new TestJob(createContext(), [innerJob1, innerJob2])
+
+  await parentJob.start()
+
+  expect(parentJob.combineInnerJobsResultsForTest()).toEqual({ a: 1, b: 2 })
+})
+
+test('combineInnerJobsErrors merges the errors of all inner jobs', async () => {
+  const innerJob1 = new TestJob(createContext(), [], {
+    execute: async () => {
+      throw new Error('e1')
+    },
+  })
+  const innerJob2 = new TestJob(createContext(), [], {
+    execute: async () => {
+      throw new Error('e2')
+    },
+  })
+  const parentJob = new TestJob(createContext(), [innerJob1, innerJob2])
+  parentJob.stopOnInnerJobFailure = false
+
+  await parentJob.start()
+
+  expect(Object.keys(parentJob.combineInnerJobsErrorsForTest())).toHaveLength(2)
 })
