@@ -8,7 +8,7 @@ import { JobSerialized } from './jobSerialized'
 import { JobStatus } from './status'
 
 export interface JobConstructor {
-  new <C extends JobContext, R>(context: C, jobs?: JobBase<any>[]): JobBase<C, R>
+  new <C extends JobContext, R>(context: C, innerJobs?: JobBase<any>[]): JobBase<C, R>
   readonly prototype: JobBase<any, any>
 }
 
@@ -29,9 +29,11 @@ const PROGRESS_NOTIFICATION_THROTTLE_MILLIS = 1000
  * - shouldExecute (in tx)
  * - onStart (in tx)
  * - execute (in tx)
- * - prepareResult (in tx)
- * - cleanup (in tx)
+ * - beforeSuccess (in tx)
+ * - generateResult (in tx)
+ * - beforeEnd (in tx)
  * - onEnd (out of tx)
+ * - getErrorInfo
  */
 export abstract class JobBase<C extends JobContext, R = undefined> implements Job<R> {
   readonly uuid: string
@@ -45,7 +47,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
 
   protected logger: Logger
   protected context: C
-  protected jobs: JobBase<C, any>[]
+  protected innerJobs: JobBase<C, any>[]
   protected currentInnerJobIndex = -1
 
   private _processed = 0
@@ -53,14 +55,14 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   private progressThrottleTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined
   private progressThrottleLastRunTime = 0
 
-  public constructor(context: C, jobs: JobBase<C, any>[] = []) {
+  public constructor(context: C, innerJobs: JobBase<C, any>[] = []) {
     this.context = context
-    this.jobs = jobs
+    this.innerJobs = innerJobs
     this.logger = this.createLogger()
 
     this.uuid = UUIDs.v4()
     this.type = this.context.type ?? this.constructor.name
-    this.total = jobs.length > 0 ? jobs.length : 1
+    this.total = innerJobs.length > 0 ? innerJobs.length : 1
   }
 
   get processed(): number {
@@ -118,7 +120,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   }
 
   protected getCurrentInnerJob(): JobBase<C, any> | undefined {
-    return this.jobs[this.currentInnerJobIndex]
+    return this.innerJobs[this.currentInnerJobIndex]
   }
 
   async cancel(): Promise<void> {
@@ -137,25 +139,18 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
 
     try {
       if (client) {
-        // 1. create db transaction and execute job inside of it
         await client.tx(async (tx: any) => {
           this.context.tx = tx
-          await this.executeInternalJobsOrCurrentOne()
+          await this.executeInTransaction()
         })
       } else {
-        await this.executeInternalJobsOrCurrentOne()
+        await this.executeInTransaction()
       }
       if (this.isRunning()) {
-        // 2. if successful, prepare result and set status succeeded
-        this.result = await this.prepareResult()
         await this.setStatus(JobStatus.succeeded)
-      } else {
-        // 3. if errors found or job has been canceled, throw an error to rollback transaction
-        this.throwError('jobCanceledOrErrorsFound')
       }
     } catch (error: any) {
-      if (this.isRunning()) {
-        // Error found, change status only if not changed already
+      if (!this.isFailed() && (this.isRunning() || this.isSucceeded())) {
         this.logError(error.stack ?? error)
         this.addError({
           error: {
@@ -167,9 +162,33 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       }
     } finally {
       this.context.tx = undefined
-      if (!this.isCanceled()) {
-        await this.cleanup()
+    }
+  }
+
+  private async executeInTransaction(): Promise<void> {
+    try {
+      await this.onStart()
+
+      const shouldExecute = await this.shouldExecute()
+      if (shouldExecute) {
+        if (this.innerJobs.length > 0) {
+          await this.executeJobs()
+        } else {
+          await this.execute()
+        }
+        if (this.isRunning()) {
+          await this.beforeSuccess()
+        }
       }
+    } finally {
+      if (!this.isCanceled()) {
+        await this.beforeEnd()
+      }
+      this.context.tx = undefined
+    }
+
+    if (!this.isRunning()) {
+      this.throwError('jobCanceledOrErrorsFound')
     }
   }
 
@@ -184,7 +203,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       type,
       userUuid,
       surveyId: this.surveyId,
-      innerJobs: this.jobs.map((job) => job.toJSON()),
+      innerJobs: this.innerJobs.map((job) => job.toJSON()),
       currentInnerJobIndex: this.currentInnerJobIndex,
 
       status,
@@ -205,30 +224,13 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     }
   }
 
-  private async executeInternalJobsOrCurrentOne(): Promise<void> {
-    // notify start
-    await this.onStart()
-
-    const shouldExecute = await this.shouldExecute()
-    if (!shouldExecute) return
-
-    // execute internal jobs
-    if (this.jobs.length > 0) {
-      await this.executeJobs()
-    } else {
-      // or execute single job
-      await this.execute()
-    }
-  }
-
   private async executeJobs(): Promise<void> {
     this.logDebug(`- ${this.total} inner jobs found`)
 
-    // Start each inner job and wait for its completion before starting next one
-    for (let i = 0; i < this.jobs.length; i++) {
+    for (let i = 0; i < this.innerJobs.length; i++) {
       this.logDebug(`- executing inner job ${i + 1}`)
       this.currentInnerJobIndex = i
-      const currentInnerJob = this.jobs[i]
+      const currentInnerJob = this.innerJobs[i]
       currentInnerJob.context = this.context
       currentInnerJob.onEvent(this.onInnerJobEvent.bind(this))
 
@@ -305,19 +307,42 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   }
 
   /**
-   * Called before cleanup only if the status will change to 'success'.
+   * Called before beforeEnd only if the status will change to 'success'.
+   * Default implementation stores the value returned by generateResult() via setResult().
    * It runs INSIDE the current db transaction.
    */
-  protected prepareResult(): Promise<R | undefined> {
-    this.logDebug('Prepare result')
-    return Promise.resolve(undefined)
+  protected async beforeSuccess(): Promise<void> {
+    this.setResult(await this.generateResult())
+  }
+
+  /**
+   * Computes the value beforeSuccess() will store as this job's result.
+   * Default implementation returns whatever is already in `this.result`
+   * (e.g. accumulated via earlier setResult() calls during execute()).
+   */
+  protected async generateResult(): Promise<R | undefined> {
+    return this.result
+  }
+
+  /**
+   * Updates this job's result. When both the current and incoming values are plain objects,
+   * they are merged (Object.assign); otherwise the incoming value replaces the current one.
+   * This keeps it safe for subclasses whose result is a primitive (e.g. a plain number) as
+   * well as ones that build an object result incrementally across multiple setResult() calls.
+   */
+  protected setResult(result: R | undefined): void {
+    if (result && typeof result === 'object' && this.result && typeof this.result === 'object') {
+      Object.assign(this.result, result)
+    } else {
+      this.result = result
+    }
   }
 
   /**
    * Called before onEnd. Useful for flushing resources used by the job before it terminates completely.
    * It runs INSIDE the current db transaction.
    */
-  protected cleanup(): Promise<void> {
+  protected beforeEnd(): Promise<void> {
     this.logDebug('Cleanup')
     return Promise.resolve()
   }

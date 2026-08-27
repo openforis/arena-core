@@ -23,6 +23,28 @@ const user = UserFactory.createInstance({ email: 'job-test@arena.org', name: 'Jo
 
 const createContext = (overrides: Partial<JobContext> = {}): JobContext => ({ user, surveyId: 1, ...overrides })
 
+const createTrackedClient = () => {
+  let committed = false
+  let rolledBack = false
+  // Real pg-promise transaction/task objects expose their own `tx()` for nested transactions
+  // (savepoints), which is what lets an inner job start its own transaction on top of the
+  // parent's. `fakeTx` mirrors that by passing itself through, so inner-job failures propagate
+  // instead of throwing "fakeTx.tx is not a function" and being swallowed.
+  const fakeTx = { marker: 'fake-tx', tx: async (fn: (tx: any) => Promise<void>) => fn(fakeTx) }
+  const client = {
+    tx: async (fn: (tx: any) => Promise<void>) => {
+      try {
+        await fn(fakeTx)
+        committed = true
+      } catch (error) {
+        rolledBack = true
+        throw error
+      }
+    },
+  }
+  return { client, wasCommitted: () => committed, wasRolledBack: () => rolledBack }
+}
+
 type TestJobOptions = {
   execute?: () => Promise<void>
   shouldExecute?: boolean
@@ -45,7 +67,7 @@ class TestJob extends JobBase<JobContext, any> {
     return this.options.shouldExecute ?? true
   }
 
-  protected async prepareResult(): Promise<any> {
+  protected async generateResult(): Promise<any> {
     return this.options.result
   }
 
@@ -79,7 +101,7 @@ test('job fails and records an error when execute throws', async () => {
   expect(job.hasErrors()).toBe(true)
 })
 
-test('result returned by prepareResult is exposed only when succeeded', async () => {
+test('result returned by generateResult is exposed only when succeeded', async () => {
   const job = new TestJob(createContext(), [], { result: { foo: 'bar' } })
 
   await job.start()
@@ -214,4 +236,31 @@ test('toJSON exposes errors only when the job failed', async () => {
   expect(json.failed).toBe(true)
   expect(json.errors).toBeDefined()
   expect(json.result).toBeUndefined()
+})
+
+test('rolls back the transaction when an inner job fails without throwing', async () => {
+  const { client, wasCommitted, wasRolledBack } = createTrackedClient()
+  const innerJob = new TestJob(createContext(), [], {
+    execute: async () => {
+      throw new Error('inner job failure')
+    },
+  })
+  const parentJob = new TestJob(createContext(), [innerJob])
+
+  await parentJob.start(client)
+
+  expect(parentJob.isFailed()).toBe(true)
+  expect(wasRolledBack()).toBe(true)
+  expect(wasCommitted()).toBe(false)
+})
+
+test('commits the transaction when the job succeeds', async () => {
+  const { client, wasCommitted, wasRolledBack } = createTrackedClient()
+  const job = new TestJob(createContext())
+
+  await job.start(client)
+
+  expect(job.isSucceeded()).toBe(true)
+  expect(wasCommitted()).toBe(true)
+  expect(wasRolledBack()).toBe(false)
 })
