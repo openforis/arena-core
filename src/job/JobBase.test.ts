@@ -29,13 +29,19 @@ const createTrackedClient = () => {
   let rolledBack = false
   // Real pg-promise transaction/task objects expose their own `tx()` for nested transactions
   // (savepoints), which is what lets an inner job start its own transaction on top of the
-  // parent's. `fakeTx` mirrors that by passing itself through, so inner-job failures propagate
-  // instead of throwing "fakeTx.tx is not a function" and being swallowed.
-  const fakeTx = { marker: 'fake-tx', tx: async (fn: (tx: any) => Promise<void>) => fn(fakeTx) }
+  // parent's. `createFakeTx` mirrors that, so inner-job failures propagate instead of throwing
+  // "fakeTx.tx is not a function" and being swallowed. Each nesting level gets its own distinct
+  // object (tagged with `depth`) so tests can tell a parent's transaction handle apart from the
+  // nested one an inner job runs in.
+  const createFakeTx = (depth: number): any => ({
+    marker: `fake-tx-${depth}`,
+    depth,
+    tx: async (fn: (tx: any) => Promise<void>) => fn(createFakeTx(depth + 1)),
+  })
   const client = {
     tx: async (fn: (tx: any) => Promise<void>) => {
       try {
-        await fn(fakeTx)
+        await fn(createFakeTx(0))
         committed = true
       } catch (error) {
         rolledBack = true
@@ -47,7 +53,8 @@ const createTrackedClient = () => {
 }
 
 type TestJobOptions = {
-  execute?: () => Promise<void>
+  // Receives the running job, so tests can observe its state (e.g. context.tx) at execution time.
+  execute?: (job: TestJob) => Promise<void>
   shouldExecute?: boolean
   result?: any
   // Partial results applied via setResult() (in order) during execute(), to exercise
@@ -69,7 +76,7 @@ class TestJob extends JobBase<JobContext, any> {
     if (this.options.processedBeforeExecute !== undefined) {
       this.incrementProcessedItems(this.options.processedBeforeExecute)
     }
-    await this.options.execute?.()
+    await this.options.execute?.(this)
     for (const partialResult of this.options.setResults ?? []) {
       this.setResult(partialResult)
     }
@@ -130,6 +137,31 @@ class TestJob extends JobBase<JobContext, any> {
   }
 }
 
+/**
+ * TestJob variant that records when the post-execution hooks run and which transaction handle
+ * they observed, so tests can assert on hooks that are protected on JobBase.
+ */
+class HookTrackingJob extends TestJob {
+  beforeSuccessCallCount = 0
+  beforeEndCallCount = 0
+  txAtBeforeSuccess: any = undefined
+  txAtBeforeEnd: any = undefined
+  statusAtBeforeEnd: JobStatus | undefined = undefined
+
+  protected async beforeSuccess(): Promise<void> {
+    this.beforeSuccessCallCount += 1
+    this.txAtBeforeSuccess = this.contextForTest.tx
+    await super.beforeSuccess()
+  }
+
+  protected async beforeEnd(): Promise<void> {
+    this.beforeEndCallCount += 1
+    this.txAtBeforeEnd = this.contextForTest.tx
+    this.statusAtBeforeEnd = this.status
+    await super.beforeEnd()
+  }
+}
+
 test('job is pending before start and succeeds after execution completes', async () => {
   const job = new TestJob(createContext())
 
@@ -184,6 +216,42 @@ test('cancel sets status to canceled when no inner job is running', async () => 
   await job.cancel()
 
   expect(job.isCanceled()).toBe(true)
+})
+
+test('cancel runs beforeEnd (resource cleanup) before setting the canceled status', async () => {
+  const job = new HookTrackingJob(createContext())
+
+  await job.cancel()
+
+  expect(job.beforeEndCallCount).toBe(1)
+  expect(job.statusAtBeforeEnd).toBe(JobStatus.pending)
+  expect(job.isCanceled()).toBe(true)
+})
+
+test('beforeEnd runs exactly once when a running job is canceled', async () => {
+  let releaseJob: () => void = () => undefined
+  const jobGate = new Promise<void>((resolve) => {
+    releaseJob = resolve
+  })
+  const job = new HookTrackingJob(createContext(), [], {
+    execute: async () => {
+      await jobGate
+    },
+  })
+
+  const startPromise = job.start()
+  // let execute() actually start and reach the gate before canceling
+  await new Promise((resolve) => setTimeout(resolve, 0))
+
+  await job.cancel({ canceledByAdmin: true })
+  releaseJob()
+  await startPromise
+
+  expect(job.isCanceled()).toBe(true)
+  expect(job.canceledByAdmin).toBe(true)
+  // once from cancel(), and NOT again from executeInTransaction()'s finally block
+  expect(job.beforeEndCallCount).toBe(1)
+  expect(job.statusAtBeforeEnd).toBe(JobStatus.running)
 })
 
 test('cancel propagates canceledByAdmin from the currently running inner job to the parent', async () => {
@@ -344,6 +412,36 @@ test('commits the transaction when the job succeeds', async () => {
   expect(wasRolledBack()).toBe(false)
 })
 
+test('every inner job and the parent post-execution hooks still run inside the parent transaction', async () => {
+  const { client, wasCommitted } = createTrackedClient()
+  const txSeenByInnerJobs: any[] = []
+  const captureTx = async (job: TestJob): Promise<void> => {
+    txSeenByInnerJobs.push(job.contextForTest.tx)
+  }
+  const innerJob1 = new TestJob(createContext(), [], { execute: captureTx })
+  const innerJob2 = new TestJob(createContext(), [], { execute: captureTx })
+  const innerJob3 = new TestJob(createContext(), [], { execute: captureTx })
+  const parentJob = new HookTrackingJob(createContext(), [innerJob1, innerJob2, innerJob3])
+
+  await parentJob.start(client)
+
+  expect(parentJob.isSucceeded()).toBe(true)
+  expect(wasCommitted()).toBe(true)
+  // each inner job runs in its own nested transaction (savepoint) opened on the parent's one
+  expect(txSeenByInnerJobs).toHaveLength(3)
+  txSeenByInnerJobs.forEach((tx) => {
+    expect(tx).toBeDefined()
+    expect(tx.depth).toBe(1)
+  })
+  // the parent's own hooks still see the parent's transaction, not a wiped/undefined one
+  expect(parentJob.beforeSuccessCallCount).toBe(1)
+  expect(parentJob.txAtBeforeSuccess).toBeDefined()
+  expect(parentJob.txAtBeforeSuccess.depth).toBe(0)
+  expect(parentJob.beforeEndCallCount).toBe(1)
+  expect(parentJob.txAtBeforeEnd).toBeDefined()
+  expect(parentJob.txAtBeforeEnd.depth).toBe(0)
+})
+
 test('setResult merges successive object results instead of overwriting', async () => {
   const job = new TestJob(createContext(), [], { setResults: [{ a: 1 }, { b: 2 }] })
 
@@ -382,6 +480,30 @@ test('constructor copies the context instead of holding the caller-owned referen
 
   expect(job.contextForTest).not.toBe(callerContext)
   expect(job.contextForTest).toEqual(callerContext)
+})
+
+test('createLogger overrides can read the already-assigned uuid/type', () => {
+  // Arena's Job builds its logger as `Job <ClassName> (<uuid>)`: if createLogger() runs before
+  // the uuid is assigned, every job's log correlation id is permanently "undefined".
+  let createLoggerCalls = 0
+  let uuidAtLoggerCreation: string | undefined = undefined
+  let typeAtLoggerCreation: string | undefined = undefined
+
+  class LoggerCapturingJob extends TestJob {
+    protected createLogger(): Logger {
+      createLoggerCalls += 1
+      uuidAtLoggerCreation = this.uuid
+      typeAtLoggerCreation = this.type
+      return silentLogger
+    }
+  }
+
+  const job = new LoggerCapturingJob(createContext())
+
+  expect(createLoggerCalls).toBe(1)
+  expect(typeof uuidAtLoggerCreation).toBe('string')
+  expect(uuidAtLoggerCreation).toBe(job.uuid)
+  expect(typeAtLoggerCreation).toBe(job.type)
 })
 
 test("merges an inner job's own context into the shared context before overwriting it", async () => {

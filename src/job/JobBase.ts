@@ -67,11 +67,14 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   public constructor(context: C, innerJobs: JobBase<C, any>[] = []) {
     this.context = { ...context }
     this.innerJobs = innerJobs
-    this.logger = this.createLogger()
 
     this.uuid = UUIDs.v4()
     this.type = this.context.type ?? this.constructor.name
     this.total = innerJobs.length > 0 ? innerJobs.length : 1
+
+    // Created last, so that createLogger() overrides can safely build the logger name out of
+    // the job identity (e.g. arena's `Job <ClassName> (<uuid>)` log correlation id).
+    this.logger = this.createLogger()
   }
 
   get processed(): number {
@@ -184,6 +187,10 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       }
     } else {
       this.canceledByAdmin = canceledByAdmin
+      // Cleanup must happen here: executeInTransaction()'s finally block skips beforeEnd() when
+      // the job is canceled, so this is the only chance subclasses get to release the resources
+      // (temp files/directories, streams) they allocated before the cancellation.
+      await this.beforeEnd()
       await this.setStatus(JobStatus.canceled)
     }
   }
@@ -287,7 +294,14 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       currentInnerJob.context = this.context
       currentInnerJob.onEvent(this.onInnerJobEvent.bind(this))
 
-      await currentInnerJob.start(this.context.tx)
+      // The inner job shares this very context object, and its own start()/executeInTransaction()
+      // clear `context.tx` when they terminate: without saving and restoring it here, the first
+      // inner job would wipe the parent's transaction handle, leaving every following inner job
+      // (and the parent's own beforeSuccess()/beforeEnd()) running outside of the transaction.
+      // start() never throws (it swallows/records errors internally), so a plain restore is enough.
+      const parentTx = this.context.tx
+      await currentInnerJob.start(parentTx)
+      this.context.tx = parentTx
 
       if (currentInnerJob.isSucceeded()) {
         this.incrementProcessedItems()
