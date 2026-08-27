@@ -170,9 +170,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
 
   protected combineInnerJobsErrors(): Record<string, any> {
     const errors: Record<string, any> = {}
-    this.innerJobs.forEach((innerJob, index) => {
-      errors[String(index)] = innerJob.errors
-    })
+    this.innerJobs.forEach((innerJob) => Object.assign(errors, innerJob.errors ?? {}))
     return errors
   }
 

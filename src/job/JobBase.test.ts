@@ -52,6 +52,8 @@ type TestJobOptions = {
   // Partial results applied via setResult() (in order) during execute(), to exercise
   // setResult()'s object-merge behavior rather than only its overwrite behavior.
   setResults?: any[]
+  // Number of items to increment processed by before execute() runs (for testing error key generation)
+  processedBeforeExecute?: number
 }
 
 class TestJob extends JobBase<JobContext, any> {
@@ -63,6 +65,9 @@ class TestJob extends JobBase<JobContext, any> {
   }
 
   protected async execute(): Promise<void> {
+    if (this.options.processedBeforeExecute !== undefined) {
+      this.incrementProcessedItems(this.options.processedBeforeExecute)
+    }
     await this.options.execute?.()
     for (const partialResult of this.options.setResults ?? []) {
       this.setResult(partialResult)
@@ -464,6 +469,7 @@ test('combineInnerJobsErrors merges the errors of all inner jobs', async () => {
     },
   })
   const innerJob2 = new TestJob(createContext(), [], {
+    processedBeforeExecute: 1,
     execute: async () => {
       throw new Error('e2')
     },
