@@ -1,3 +1,4 @@
+import { SystemError } from '../error'
 import { Logger } from '../logger'
 import { UUIDs } from '../utils'
 
@@ -205,12 +206,8 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     } catch (error: any) {
       if (!this.isFailed() && (this.isRunning() || this.isSucceeded())) {
         this.logError(error.stack ?? error)
-        this.addError({
-          error: {
-            valid: false,
-            errors: [{ key: 'appErrors.generic', params: { text: error.toString() } }],
-          },
-        })
+        const { key, params } = this.getErrorInfo(error)
+        this.addError({ error: { valid: false, errors: [{ key, params }] } })
         await this.setStatus(JobStatus.failed)
       }
     } finally {
@@ -423,6 +420,13 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
 
   protected throwError(errorKey: string): void {
     throw new Error(errorKey)
+  }
+
+  protected getErrorInfo(error: any): { key: string; params: Record<string, any> } {
+    if (error instanceof SystemError) {
+      return { key: `appErrors:${error.key}`, params: error.params }
+    }
+    return { key: 'appErrors:generic', params: { text: error.toString() } }
   }
 
   protected abstract createLogger(): Logger

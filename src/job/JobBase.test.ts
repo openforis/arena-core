@@ -1,6 +1,7 @@
 import { expect, test } from '@jest/globals'
 
 import { UserFactory } from '../auth'
+import { SystemError } from '../error'
 import { Logger } from '../logger'
 
 import { JobBase } from './JobBase'
@@ -480,4 +481,31 @@ test('combineInnerJobsErrors merges the errors of all inner jobs', async () => {
   await parentJob.start()
 
   expect(Object.keys(parentJob.combineInnerJobsErrorsForTest())).toHaveLength(2)
+})
+
+test('getErrorInfo recognizes arena-core SystemError and extracts its key/params', async () => {
+  const job = new TestJob(createContext(), [], {
+    execute: async () => {
+      throw new SystemError('my.error.key', { foo: 'bar' })
+    },
+  })
+
+  await job.start()
+
+  expect(job.isFailed()).toBe(true)
+  const [errorEntry] = Object.values(job.errors) as any[]
+  expect(errorEntry.error.errors[0]).toEqual({ key: 'appErrors:my.error.key', params: { foo: 'bar' } })
+})
+
+test('getErrorInfo falls back to a generic appErrors:generic key for unknown errors', async () => {
+  const job = new TestJob(createContext(), [], {
+    execute: async () => {
+      throw new Error('boom')
+    },
+  })
+
+  await job.start()
+
+  const [errorEntry] = Object.values(job.errors) as any[]
+  expect(errorEntry.error.errors[0].key).toBe('appErrors:generic')
 })
