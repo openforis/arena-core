@@ -313,7 +313,18 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     this.logDebug(`- ${this.processed} inner jobs processed successfully`)
   }
 
-  protected abstract execute(): Promise<void>
+  /**
+   * Runs the job's own work when it has no inner jobs. Default implementation is a no-op, so
+   * subclasses that only supply inner jobs (and never override this) don't need to. It also means
+   * a subclass can safely call `super.execute()` defensively without knowing whether any ancestor
+   * overrides it - if this were `abstract` instead, TypeScript would compile away any runtime
+   * property for it entirely, so `super.execute()` would throw the moment no ancestor overrides it
+   * (confirmed in production: a subclass whose immediate parent didn't override `execute()` crashed
+   * with "(intermediate value).execute is not a function" the instant it called `super.execute()`).
+   */
+  protected async execute(): Promise<void> {
+    // to be extended by subclasses
+  }
 
   /**
    * Determines whether the job should actually run.
