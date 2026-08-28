@@ -631,3 +631,28 @@ test('getErrorInfo falls back to a generic appErrors:generic key for unknown err
   const [errorEntry] = Object.values(job.errors) as any[]
   expect(errorEntry.error.errors[0].key).toBe('appErrors:generic')
 })
+
+// Regression test for a production bug: a real-world subclass (arena's Job, an external consumer
+// of this class) called `super.execute()` defensively, relying on execute() having a real, callable
+// default. When execute() was `abstract`, that default didn't exist at runtime at all, so
+// `super.execute()` threw "(intermediate value).execute is not a function" the moment a subclass
+// whose parent doesn't override execute() reached it.
+class NoExecuteOverrideJob extends JobBase<JobContext, any> {
+  protected createLogger(): Logger {
+    return silentLogger
+  }
+}
+
+class SuperCallingExecuteJob extends NoExecuteOverrideJob {
+  protected async execute(): Promise<void> {
+    await super.execute()
+  }
+}
+
+test('execute() has a real, concrete no-op default that a subclass can safely call via super.execute()', async () => {
+  const job = new SuperCallingExecuteJob(createContext())
+
+  await job.start()
+
+  expect(job.isSucceeded()).toBe(true)
+})
