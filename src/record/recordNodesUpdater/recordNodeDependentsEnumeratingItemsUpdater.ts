@@ -124,6 +124,7 @@ export const syncEnumeratingItemsEntities = async (
         survey,
         parentNode,
         nodeDef: entityDef,
+        enumeratorDef,
         categoryItem,
         updateResult,
         sideEffect,

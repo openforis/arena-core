@@ -1,6 +1,6 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { NodeValueFormatter, NodeValues } from '../node'
+import { NodeValueFormatter } from '../node'
 import { Survey, Surveys } from '../survey'
 import { createTestAdminUser } from '../tests/data'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'

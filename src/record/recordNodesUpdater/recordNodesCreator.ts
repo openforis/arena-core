@@ -3,7 +3,7 @@ import { SystemError } from '../../error'
 import { CategoryItem } from '../../category'
 import { Node, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
-import { NodeDef, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
+import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { Survey } from '../../survey'
 import { getNodeDefChildren, getNodeDefEnumerator } from '../../survey/surveys/nodeDefs'
@@ -40,13 +40,13 @@ export const createEnumeratedEntityNode = async (params: {
   survey: Survey
   parentNode: Node
   nodeDef: NodeDefEntity
+  enumeratorDef: NodeDefCode
   categoryItem: CategoryItem
   updateResult: RecordUpdateResult
   sideEffect?: boolean
 }): Promise<void> => {
-  const { user, survey, parentNode, nodeDef, categoryItem, updateResult, sideEffect } = params
+  const { user, survey, parentNode, nodeDef, enumeratorDef, categoryItem, updateResult, sideEffect } = params
 
-  const enumeratorDef = getNodeDefEnumerator({ survey, entityDef: nodeDef })!
   const { record } = updateResult
 
   const childUpdateResult = await createNodeAndDescendants({
@@ -106,7 +106,7 @@ export const createEnumeratedEntityNodes = async (params: {
   if (categoryItems.length === 0) return false
 
   for (const categoryItem of categoryItems) {
-    await createEnumeratedEntityNode({ ...params, categoryItem })
+    await createEnumeratedEntityNode({ ...params, enumeratorDef, categoryItem })
   }
   return true
 }
