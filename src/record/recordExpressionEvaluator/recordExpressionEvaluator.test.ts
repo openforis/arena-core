@@ -282,6 +282,10 @@ describe('RecordExpressionEvaluator', () => {
       expression: 'sum(cluster.plot[plot_id <= 2].tree.tree_height)',
       result: 73,
     },
+    {
+      expression: 'unique(plot.tree.tree_height)',
+      result: [10, 11, 12, 30, 13, 33],
+    },
     // geoPolygon (error, parameters not specified)
     {
       expression: 'geoPolygon()',
