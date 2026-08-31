@@ -1,5 +1,6 @@
 import { User } from '../../auth'
 import { SystemError } from '../../error'
+import { CategoryItem } from '../../category'
 import { Node, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { NodeDef, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
@@ -7,6 +8,7 @@ import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryI
 import { Survey } from '../../survey'
 import { getNodeDefChildren, getNodeDefEnumerator } from '../../survey/surveys/nodeDefs'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
+import { getEnumeratingItemsAllowedCodes } from './recordEnumeratingItemsExpressionEvaluator'
 import { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -33,6 +35,45 @@ const getNodesToInsertCount = (params: { parentNode: Node | undefined; nodeDef: 
   return minCount
 }
 
+export const createEnumeratedEntityNode = async (params: {
+  user: User
+  survey: Survey
+  parentNode: Node
+  nodeDef: NodeDefEntity
+  categoryItem: CategoryItem
+  updateResult: RecordUpdateResult
+  sideEffect?: boolean
+}): Promise<void> => {
+  const { user, survey, parentNode, nodeDef, categoryItem, updateResult, sideEffect } = params
+
+  const enumeratorDef = getNodeDefEnumerator({ survey, entityDef: nodeDef })!
+  const { record } = updateResult
+
+  const childUpdateResult = await createNodeAndDescendants({
+    user,
+    survey,
+    record: updateResult.record,
+    parentNode,
+    nodeDef,
+    sideEffect,
+  })
+  const enumeratorNode = Object.values(childUpdateResult.nodes).find(
+    (node) => node.nodeDefUuid === enumeratorDef.uuid
+  )
+  if (!enumeratorNode) {
+    throw new SystemError('record.enumeratorNodeNotFound', {
+      recordUuid: record.uuid,
+      entityDef: NodeDefs.getName(nodeDef),
+      enumerator: NodeDefs.getName(enumeratorDef),
+    })
+  }
+  enumeratorNode.value = NodeValues.newCodeValue({ itemUuid: categoryItem.uuid })
+  enumeratorNode.meta = { ...(enumeratorNode.meta ?? {}), defaultValueApplied: true }
+  enumeratorNode.refData = { categoryItem }
+
+  updateResult.merge(childUpdateResult)
+}
+
 export const createEnumeratedEntityNodes = async (params: {
   user: User
   survey: Survey
@@ -42,42 +83,30 @@ export const createEnumeratedEntityNodes = async (params: {
   categoryItemProvider?: CategoryItemProvider
   sideEffect?: boolean
 }): Promise<boolean> => {
-  const { user, survey, parentNode, nodeDef, updateResult, sideEffect, categoryItemProvider } = params
+  const { user, survey, parentNode, nodeDef, updateResult, categoryItemProvider } = params
 
   const enumeratorDef = getNodeDefEnumerator({ survey, entityDef: nodeDef })
   if (!enumeratorDef) return false
 
-  const categoryItems = await getEnumeratingCategoryItems({ survey, enumeratorDef, parentNode, categoryItemProvider })(
-    updateResult.record
-  )
+  const allowedCodes = await getEnumeratingItemsAllowedCodes({
+    survey,
+    user,
+    record: updateResult.record,
+    entityDef: nodeDef,
+    parentNode,
+  })
+
+  const categoryItems = await getEnumeratingCategoryItems({
+    survey,
+    enumeratorDef,
+    parentNode,
+    categoryItemProvider,
+    allowedCodes,
+  })(updateResult.record)
   if (categoryItems.length === 0) return false
 
   for (const categoryItem of categoryItems) {
-    const { record } = updateResult
-    const childUpdateResult = await createNodeAndDescendants({
-      user,
-      survey,
-      record: updateResult.record,
-      parentNode,
-      nodeDef,
-      sideEffect,
-    })
-    const enumeratorNode = Object.values(childUpdateResult.nodes).find(
-      (node) => node.nodeDefUuid === enumeratorDef.uuid
-    )
-    if (!enumeratorNode) {
-      // it should never happen
-      throw new SystemError('record.enumeratorNodeNotFound', {
-        recordUuid: record.uuid,
-        entityDef: NodeDefs.getName(nodeDef),
-        enumerator: NodeDefs.getName(enumeratorDef),
-      })
-    }
-    enumeratorNode.value = NodeValues.newCodeValue({ itemUuid: categoryItem.uuid })
-    enumeratorNode.meta = { ...(enumeratorNode.meta ?? {}), defaultValueApplied: true }
-    enumeratorNode.refData = { categoryItem }
-
-    updateResult.merge(childUpdateResult)
+    await createEnumeratedEntityNode({ ...params, categoryItem })
   }
   return true
 }

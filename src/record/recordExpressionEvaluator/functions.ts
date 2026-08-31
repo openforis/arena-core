@@ -203,7 +203,9 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     evaluateArgsToNodes: false,
     executor: (_context: RecordExpressionContext) => async (nodeSet) => {
       if (!nodeSet || !Array.isArray(nodeSet)) return []
-      return [...new Set(nodeSet)]
+      return [
+        ...new Set(nodeSet.filter((value) => value !== null && value !== undefined && value !== '')),
+      ]
     },
   },
   userIsRecordOwner: {

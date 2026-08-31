@@ -16,6 +16,11 @@ export class NodeDefEntityBuilder extends NodeDefBuilder {
     return this
   }
 
+  enumeratingItemsExpression(expression: string): this {
+    this.propsAdvanced.enumeratingItemsExpression = expression
+    return this
+  }
+
   autoCreateMinCountItems(): this {
     const p = this.props as NodeDefEntityProps
     p.autoCreateMinCountItems = true

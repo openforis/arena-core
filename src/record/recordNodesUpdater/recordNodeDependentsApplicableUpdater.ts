@@ -6,6 +6,7 @@ import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records, RecordUpdateOptions } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
+import { syncEnumeratingItemsEntities } from './recordNodeDependentsEnumeratingItemsUpdater'
 import { createNodeAndDescendants } from './recordNodesCreator'
 import { deleteNodes } from './recordNodesDeleter'
 import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
@@ -195,12 +196,22 @@ export const updateSelfAndDependentsApplicable = async (
       let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
 
       if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
-        await createOrDeleteEnumeratedEntities({
-          ...params,
-          parentNode: nodeCtxUpdated,
-          entityDef: nodeDefNodePointer as NodeDefEntity,
-          updateResult,
-        })
+        const entityDef = nodeDefNodePointer as NodeDefEntity
+        if (NodeDefs.getEnumeratingItemsExpression(entityDef)) {
+          await syncEnumeratingItemsEntities({
+            ...params,
+            parentNode: nodeCtxUpdated,
+            entityDef,
+            updateResult,
+          })
+        } else {
+          await createOrDeleteEnumeratedEntities({
+            ...params,
+            parentNode: nodeCtxUpdated,
+            entityDef,
+            updateResult,
+          })
+        }
         nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
       }
       for (const nodeCtxChild of nodeCtxChildren) {

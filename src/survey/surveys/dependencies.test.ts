@@ -3,7 +3,7 @@ import { beforeAll, describe, test, expect } from '@jest/globals'
 import { Survey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
-const { booleanDef, category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectBuilders
+const { booleanDef, category, categoryItem, codeDef, entityDef, integerDef, textDef } = SurveyObjectBuilders
 
 import { SurveyDependencyType } from '../survey'
 
@@ -266,5 +266,41 @@ describe('Survey Dependencies - identifiers referenced inside a filter predicate
       dependencyType: SurveyDependencyType.defaultValues,
       expectedDependentNames: ['herd_summary_total'],
     })
+  })
+})
+
+describe('Survey Dependencies - enumeratingItemsExpression', () => {
+  let enumeratingItemsSurvey: Survey
+
+  beforeAll(async () => {
+    const user = createTestAdminUser()
+
+    enumeratingItemsSurvey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        entityDef('table_source', textDef('source_type')).multiple(),
+        entityDef(
+          'table_sum',
+          codeDef('sum_type', 'types').key()
+        )
+          .multiple()
+          .enumerate()
+          .enumeratingItemsExpression('unique(table_source.source_type)')
+      )
+    )
+      .categories(category('types').items(categoryItem('A'), categoryItem('B')))
+      .build()
+  }, 10000)
+
+  test('Enumerating items dependency on source attribute', () => {
+    const sourceDef = Surveys.getNodeDefByName({ survey: enumeratingItemsSurvey, name: 'source_type' })
+    const dependentDefs = Surveys.getNodeDefDependents({
+      survey: enumeratingItemsSurvey,
+      nodeDefUuid: sourceDef.uuid,
+      dependencyType: SurveyDependencyType.enumeratingItems,
+    })
+    const dependentNames = dependentDefs.map((dependentDef) => dependentDef?.props?.name)
+    expect(dependentNames).toEqual(['table_sum'])
   })
 })
