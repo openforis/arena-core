@@ -84,7 +84,12 @@ describe('NodeDefExpressionValidator', () => {
       referencedNodeDefNames: ['accessible', 'cluster_id', 'plot', 'plot_id'],
     },
     { expression: 'count(plot) == 2', validationResult: true, referencedNodeDefNames: ['plot'] },
-    { expression: 'count(plot[plot_id == 1]) == 1', validationResult: true, referencedNodeDefNames: ['plot'] },
+    {
+      expression: 'count(plot[plot_id == 1]) == 1',
+      validationResult: true,
+      // "plot_id" is referenced inside the filter predicate, in addition to "plot" itself
+      referencedNodeDefNames: ['plot', 'plot_id'],
+    },
     {
       expression: 'sum(cluster.plot.tree.tree_height) == 110',
       validationResult: true,

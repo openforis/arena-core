@@ -196,3 +196,75 @@ describe('Survey Dependencies', () => {
     survey = surveyOld
   })
 })
+
+describe('Survey Dependencies - identifiers referenced inside a filter predicate', () => {
+  // Reproduces a bug where a default value expression filtering a sibling/cousin multiple entity
+  // (e.g. "herd[$context.herd_summary_species == herd_species].herd_count") only registered the
+  // filtered entity itself ("herd") as a dependency, but not the node defs referenced inside the
+  // filter predicate ("herd_species" and, via "$context", "herd_summary_species"). As a result, the
+  // readonly attribute using this expression was computed once (typically with an empty "$context"
+  // attribute, resulting in an empty/zero result) and never recomputed when the user filled in or
+  // edited those attributes afterwards.
+  let filterSurvey: Survey
+
+  beforeAll(async () => {
+    const user = createTestAdminUser()
+
+    filterSurvey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'herd_cluster',
+        entityDef('herd', codeDef('herd_species', 'species'), integerDef('herd_count')).multiple(),
+        entityDef(
+          'herd_summary',
+          codeDef('herd_summary_species', 'species'),
+          integerDef('herd_summary_total')
+            .readOnly()
+            .defaultValue('sum(herd[$context.herd_summary_species == herd_species].herd_count)')
+        ).multiple()
+      )
+    )
+      .categories(category('species').items(categoryItem('cow'), categoryItem('goat')))
+      .build()
+  }, 10000)
+
+  const expectFilterSurveyDependents = (params: {
+    sourceName: string
+    dependencyType: SurveyDependencyType
+    expectedDependentNames: string[]
+  }) => {
+    const { sourceName, dependencyType, expectedDependentNames } = params
+    const sourceDef = Surveys.getNodeDefByName({ survey: filterSurvey, name: sourceName })
+    const dependentDefs = Surveys.getNodeDefDependents({
+      survey: filterSurvey,
+      nodeDefUuid: sourceDef?.uuid,
+      dependencyType,
+    })
+    const dependentNames = dependentDefs.map((dependentDef) => dependentDef?.props?.name)
+    expect(dependentNames).toEqual(expectedDependentNames)
+  }
+
+  test('Default values dependency (entity being filtered)', () => {
+    expectFilterSurveyDependents({
+      sourceName: 'herd',
+      dependencyType: SurveyDependencyType.defaultValues,
+      expectedDependentNames: ['herd_summary_total'],
+    })
+  })
+
+  test('Default values dependency (identifier referenced inside the filter predicate)', () => {
+    expectFilterSurveyDependents({
+      sourceName: 'herd_species',
+      dependencyType: SurveyDependencyType.defaultValues,
+      expectedDependentNames: ['herd_summary_total'],
+    })
+  })
+
+  test('Default values dependency (identifier referenced via $context inside the filter predicate)', () => {
+    expectFilterSurveyDependents({
+      sourceName: 'herd_summary_species',
+      dependencyType: SurveyDependencyType.defaultValues,
+      expectedDependentNames: ['herd_summary_total'],
+    })
+  })
+})
