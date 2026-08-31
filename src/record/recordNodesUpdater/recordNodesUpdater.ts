@@ -93,7 +93,7 @@ export const updateNodesDependents = async (
       updateResult.merge(visibleUpdateResult)
 
       // code attributes
-      const dependentCodeAttributesUpdateResult = updateDependentCodeAttributes(createNodeUpdateParams(node))
+      const dependentCodeAttributesUpdateResult = await updateDependentCodeAttributes(createNodeUpdateParams(node))
       updateResult.merge(dependentCodeAttributesUpdateResult)
 
       // enumerated entities
