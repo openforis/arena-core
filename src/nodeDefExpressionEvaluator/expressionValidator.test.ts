@@ -96,6 +96,11 @@ describe('NodeDefExpressionValidator', () => {
       referencedNodeDefNames: ['cluster', 'plot', 'tree', 'tree_height'],
     },
     {
+      expression: 'unique(cluster.plot.tree.tree_height)',
+      validationResult: true,
+      referencedNodeDefNames: ['cluster', 'plot', 'tree', 'tree_height'],
+    },
+    {
       expression: '/[a-z\\s]+/i.test(remarks)',
       validationResult: true,
       referencedNodeDefNames: ['remarks'],

@@ -18,6 +18,7 @@ export enum SurveyDependencyType {
   applicable = 'applicable',
   defaultValues = 'defaultValues',
   editable = 'editable',
+  enumeratingItems = 'enumeratingItems',
   fileName = 'fileName',
   formula = 'formula',
   maxCount = 'maxCount',

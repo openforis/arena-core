@@ -6,6 +6,7 @@ import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records, RecordUpdateOptions } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
+import { syncEnumeratingItemsEntities } from './recordNodeDependentsEnumeratingItemsUpdater'
 import { createNodeAndDescendants } from './recordNodesCreator'
 import { deleteNodes } from './recordNodesDeleter'
 import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
@@ -140,6 +141,88 @@ const createMissingApplicableMultipleEntities = async ({
   }
 }
 
+const updateNodePointerApplicability = async ({
+  params,
+  updateResult,
+  nodePointer,
+  recordUpdateOptions,
+}: {
+  params: RecordNodeDependentsUpdateParams
+  updateResult: RecordUpdateResult
+  nodePointer: NodePointer
+  recordUpdateOptions: RecordUpdateOptions
+}): Promise<void> => {
+  const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
+
+  const nodeCtxUuid = nodeCtxNodePointer.uuid
+  const nodeDefUuid = nodeDefNodePointer.uuid
+
+  // nodeCtx could have been updated in a previous iteration
+  const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
+
+  const applicablePrev = Nodes.isChildApplicable(nodeCtx, nodeDefUuid)
+  const applicable = await calculateApplicableNext({
+    params,
+    updateResult,
+    nodePointer,
+    nodeCtx,
+  })
+  if (applicable === undefined) {
+    return
+  }
+
+  if (applicable && NodeDefs.isMultipleEntity(nodeDefNodePointer)) {
+    await createMissingApplicableMultipleEntities({
+      params,
+      updateResult,
+      parentNode: nodeCtx,
+      nodeDef: nodeDefNodePointer as NodeDefEntity,
+    })
+  }
+
+  // 4. persist updated applicability if changed, and return updated nodes
+  if (applicablePrev === applicable) {
+    return
+  }
+  // Applicability changed
+
+  // update node and add it to nodes updated
+  const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
+  updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
+
+  let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
+
+  if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
+    const entityDef = nodeDefNodePointer as NodeDefEntity
+    if (NodeDefs.getEnumeratingItemsExpression(entityDef)) {
+      await syncEnumeratingItemsEntities({
+        ...params,
+        parentNode: nodeCtxUpdated,
+        entityDef,
+        updateResult,
+      })
+    } else {
+      await createOrDeleteEnumeratedEntities({
+        ...params,
+        parentNode: nodeCtxUpdated,
+        entityDef,
+        updateResult,
+      })
+    }
+    nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
+  }
+  for (const nodeCtxChild of nodeCtxChildren) {
+    // add nodeCtxChild and its descendants to nodesUpdated
+    updateDescendantsApplicability({
+      updateResult,
+      nodeCtxChild,
+      applicable,
+      params,
+      recordUpdateOptions,
+    })
+  }
+}
+
 export const updateSelfAndDependentsApplicable = async (
   params: RecordNodeDependentsUpdateParams
 ): Promise<RecordUpdateResult> => {
@@ -155,65 +238,7 @@ export const updateSelfAndDependentsApplicable = async (
   // 2. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
   for (const nodePointer of nodePointersToUpdate) {
-    const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
-
-    const nodeCtxUuid = nodeCtxNodePointer.uuid
-    const nodeDefUuid = nodeDefNodePointer.uuid
-
-    // nodeCtx could have been updated in a previous iteration
-    const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
-
-    const applicablePrev = Nodes.isChildApplicable(nodeCtx, nodeDefUuid)
-    const applicable = await calculateApplicableNext({
-      params,
-      updateResult,
-      nodePointer,
-      nodeCtx,
-    })
-    if (applicable === undefined) {
-      continue
-    }
-
-    if (applicable && NodeDefs.isMultipleEntity(nodeDefNodePointer)) {
-      await createMissingApplicableMultipleEntities({
-        params,
-        updateResult,
-        parentNode: nodeCtx,
-        nodeDef: nodeDefNodePointer as NodeDefEntity,
-      })
-    }
-
-    // 4. persist updated applicability if changed, and return updated nodes
-
-    if (applicablePrev !== applicable) {
-      // Applicability changed
-
-      // update node and add it to nodes updated
-      const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
-      updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
-
-      let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
-
-      if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
-        await createOrDeleteEnumeratedEntities({
-          ...params,
-          parentNode: nodeCtxUpdated,
-          entityDef: nodeDefNodePointer as NodeDefEntity,
-          updateResult,
-        })
-        nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
-      }
-      for (const nodeCtxChild of nodeCtxChildren) {
-        // add nodeCtxChild and its descendants to nodesUpdated
-        updateDescendantsApplicability({
-          updateResult,
-          nodeCtxChild,
-          applicable,
-          params,
-          recordUpdateOptions,
-        })
-      }
-    }
+    await updateNodePointerApplicability({ params, updateResult, nodePointer, recordUpdateOptions })
   }
   return updateResult
 }

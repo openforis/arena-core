@@ -5,6 +5,7 @@ import { Survey, Surveys } from '../../survey'
 import { Objects } from '../../utils'
 import { getAncestor, getChild, getChildren } from '../_records/recordGetters'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
+import { getEnumeratingItemsAllowedCodes } from './recordEnumeratingItemsExpressionEvaluator'
 import { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { createEnumeratedEntityNodes } from './recordNodesCreator'
@@ -20,8 +21,9 @@ const shouldExistingEntitiesBeDeleted = async (params: {
   parentNode: Node
   updateResult: RecordUpdateResult
   categoryItemProvider?: CategoryItemProvider
+  user: RecordExpressionEvaluationContext['user']
 }) => {
-  const { survey, entityDef, existingEntities, parentNode, updateResult, categoryItemProvider } = params
+  const { survey, entityDef, existingEntities, parentNode, updateResult, categoryItemProvider, user } = params
   const enumeratorDef = Surveys.getNodeDefEnumerator({ survey, entityDef })!
   const existingEnumeratingItemUuids = existingEntities
     .map((existingEntity) => {
@@ -30,11 +32,20 @@ const shouldExistingEntitiesBeDeleted = async (params: {
     })
     .sort(uuidsCompare)
 
+  const allowedCodes = await getEnumeratingItemsAllowedCodes({
+    survey,
+    user,
+    record: updateResult.record,
+    entityDef,
+    parentNode,
+  })
+
   const enumeratingCategoryItems = await getEnumeratingCategoryItems({
     survey,
     enumeratorDef,
     parentNode,
     categoryItemProvider,
+    allowedCodes,
   })(updateResult.record)
   const newEnumeratingItemUuids = enumeratingCategoryItems.map((item) => item.uuid).sort(uuidsCompare)
 
@@ -71,6 +82,7 @@ export const createOrDeleteEnumeratedEntities = async (
         parentNode,
         updateResult,
         categoryItemProvider,
+        user: params.user,
       }))
     ) {
       deleteExistingEntities()

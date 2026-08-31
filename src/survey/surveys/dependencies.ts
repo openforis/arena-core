@@ -2,6 +2,7 @@ import * as SurveyNodeDefs from './nodeDefs'
 import {
   NodeDef,
   NodeDefCode,
+  NodeDefEntity,
   NodeDefExpression,
   NodeDefFile,
   NodeDefProps,
@@ -21,6 +22,7 @@ const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
   [SurveyDependencyType.defaultValues]: true,
   [SurveyDependencyType.editable]: true,
+  [SurveyDependencyType.enumeratingItems]: true,
   [SurveyDependencyType.fileName]: true,
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: true,
@@ -35,6 +37,7 @@ const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.applicable]: false,
   [SurveyDependencyType.defaultValues]: false,
   [SurveyDependencyType.editable]: false,
+  [SurveyDependencyType.enumeratingItems]: false,
   [SurveyDependencyType.fileName]: false,
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: false,
@@ -49,6 +52,7 @@ const newDependecyGraph = () => ({
   [SurveyDependencyType.applicable]: {},
   [SurveyDependencyType.defaultValues]: {},
   [SurveyDependencyType.editable]: {},
+  [SurveyDependencyType.enumeratingItems]: {},
   [SurveyDependencyType.fileName]: {},
   [SurveyDependencyType.formula]: {},
   [SurveyDependencyType.maxCount]: {},
@@ -227,6 +231,14 @@ export const addNodeDefDependencies = async (params: {
     if (fileNameExpression) {
       graphsUpdated = await _addDependencies(SurveyDependencyType.fileName, [
         NodeDefExpressionFactory.createInstance({ expression: fileNameExpression }),
+      ])
+    }
+  }
+  if (NodeDefs.isEntity(nodeDef)) {
+    const enumeratingItemsExpression = NodeDefs.getEnumeratingItemsExpression(nodeDef as NodeDefEntity)
+    if (enumeratingItemsExpression) {
+      graphsUpdated = await _addDependencies(SurveyDependencyType.enumeratingItems, [
+        NodeDefExpressionFactory.createInstance({ expression: enumeratingItemsExpression }),
       ])
     }
   }

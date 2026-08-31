@@ -62,9 +62,10 @@ export const getEnumeratingCategoryItems =
     enumeratorDef: NodeDefCode
     parentNode: Node
     categoryItemProvider?: CategoryItemProvider
+    allowedCodes?: Set<string>
   }) =>
   async (record: Record): Promise<CategoryItem[]> => {
-    const { survey, enumeratorDef, parentNode, categoryItemProvider } = params
+    const { survey, enumeratorDef, parentNode, categoryItemProvider, allowedCodes } = params
     const categoryUuid = NodeDefs.getCategoryUuid(enumeratorDef)
     if (!categoryUuid) return []
     const category = Surveys.getCategoryByUuid({ survey, categoryUuid })
@@ -77,8 +78,12 @@ export const getEnumeratingCategoryItems =
       parentItemUuid = parentCodeAttribute ? NodeValues.getItemUuid(parentCodeAttribute) : null
       if (!parentItemUuid) return []
     }
-    const items = Surveys.getEnumeratingCategoryItems({ survey, enumerator: enumeratorDef, parentItemUuid })
-    if (items.length > 0) return items
-    if (!categoryItemProvider) return []
-    return categoryItemProvider.getItems({ survey, categoryUuid, parentItemUuid, draft: !!record.preview })
+    let items = Surveys.getEnumeratingCategoryItems({ survey, enumerator: enumeratorDef, parentItemUuid })
+    if (items.length === 0 && categoryItemProvider) {
+      items = await categoryItemProvider.getItems({ survey, categoryUuid, parentItemUuid, draft: !!record.preview })
+    }
+    if (allowedCodes) {
+      items = items.filter((item) => item.props.code != null && allowedCodes.has(item.props.code))
+    }
+    return items
   }

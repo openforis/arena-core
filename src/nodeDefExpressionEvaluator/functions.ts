@@ -312,6 +312,12 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         return firstVernacularName?.props?.name
       },
   },
+  unique: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (_context: NodeDefExpressionContext) => async (_nodeSet) => [],
+  },
   userEmail: {
     minArity: 0,
     maxArity: 0,

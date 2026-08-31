@@ -11,6 +11,7 @@ import { updateDependentsCount } from './recordNodeDependentsCountUpdater'
 import { updateSelfAndDependentsDefaultValues } from './recordNodeDependentsDefaultValuesUpdater'
 import { updateSelfAndDependentsEditable } from './recordNodeDependentsEditableUpdater'
 import { updateDependentEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
+import { updateDependentEnumeratingItemsEntities } from './recordNodeDependentsEnumeratingItemsUpdater'
 import { updateSelfAndDependentsFileNames } from './recordNodeDependentsFileNamesEvaluator'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { updateSelfAndDependentsVisible } from './recordNodeDependentsVisibleUpdater'
@@ -101,6 +102,11 @@ export const updateNodesDependents = async (
       )
       updateResult.merge(dependentEnumeratedEntitiesUpdateResult)
 
+      const dependentEnumeratingItemsUpdateResult = await updateDependentEnumeratingItemsEntities(
+        createNodeUpdateParams(node)
+      )
+      updateResult.merge(dependentEnumeratingItemsUpdateResult)
+
       // Update dependents (file names)
       const dependentFileNamesUpdateResult = await updateSelfAndDependentsFileNames(createNodeUpdateParams(node))
       updateResult.merge(dependentFileNamesUpdateResult)
@@ -114,6 +120,7 @@ export const updateNodesDependents = async (
         ...visibleUpdateResult.nodes,
         ...dependentCodeAttributesUpdateResult.nodes,
         ...dependentEnumeratedEntitiesUpdateResult.nodes,
+        ...dependentEnumeratingItemsUpdateResult.nodes,
         ...dependentFileNamesUpdateResult.nodes,
       }
 

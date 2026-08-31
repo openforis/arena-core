@@ -108,6 +108,8 @@ export interface NodeDefPropsAdvanced {
   visibleIf?: NodeDefExpression[]
   // file attribute
   fileNameExpression?: string
+  // enumerate entity
+  enumeratingItemsExpression?: string
   // code and taxon attribute
   itemsFilter?: string
 

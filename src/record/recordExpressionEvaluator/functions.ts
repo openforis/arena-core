@@ -197,6 +197,17 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       return 0
     },
   },
+  unique: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: false,
+    executor: (_context: RecordExpressionContext) => async (nodeSet) => {
+      if (!nodeSet || !Array.isArray(nodeSet)) return []
+      return [
+        ...new Set(nodeSet.filter((value) => value !== null && value !== undefined && value !== '')),
+      ]
+    },
+  },
   userIsRecordOwner: {
     minArity: 0,
     maxArity: 0,
