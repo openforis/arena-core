@@ -33,9 +33,5 @@ export const getEnumeratingItemsAllowedCodes = async (params: {
   })
 
   if (!result || !Array.isArray(result)) return new Set<string>()
-  return new Set(
-    result
-      .filter((value) => value !== null && value !== undefined && value !== '')
-      .map((value) => String(value))
-  )
+  return new Set(result.filter((value) => value !== null && value !== undefined && value !== '').map(String))
 }
