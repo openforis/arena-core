@@ -1,4 +1,4 @@
-import { Node, Nodes } from '../../node'
+import { Node, Nodes, NodesMap } from '../../node'
 import { Objects } from '../../utils'
 import { Record, RecordNodesIndex } from '../record'
 
@@ -73,7 +73,7 @@ const _addNodeToIndex =
   }
 
 const addNodes =
-  (nodes: { [internalId: number]: Node }, sideEffect = false, sortNodes = false) =>
+  (nodes: NodesMap, sideEffect = false, sortNodes = false) =>
   (nodesIndex: RecordNodesIndex): RecordNodesIndex => {
     let indexUpdated = sideEffect ? nodesIndex : { ...nodesIndex }
     const nodesArray = Object.values(nodes)

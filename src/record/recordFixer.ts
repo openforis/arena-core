@@ -1,4 +1,4 @@
-import { NodeFactory, Nodes } from '../node'
+import { NodeFactory, Nodes, NodesMap } from '../node'
 import { NodeDef, NodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Objects } from '../utils'
@@ -19,7 +19,7 @@ const initInternalIds = (params: { record: ArenaRecord; nodes: NodeOld[] }) => {
   let lastInternalId = 0
   const uuidByInternalId: { [internalId: number]: string } = {}
   const internalIdByUuid: { [uuid: string]: number } = {}
-  const indexedNodes: { [internalId: number]: ArenaRecordNode } = {}
+  const indexedNodes: NodesMap = {}
 
   const nextInternalId = (uuid: string): number => {
     const internalId = (lastInternalId += 1)
@@ -56,7 +56,7 @@ const initInternalIds = (params: { record: ArenaRecord; nodes: NodeOld[] }) => {
   record.lastInternalId = lastInternalId
 
   // Rebuild record.nodes to be keyed by internal IDs instead of the old UUIDs
-  const newNodesMap: { [internalId: number]: ArenaRecordNode } = {}
+  const newNodesMap: NodesMap = {}
   for (const node of nodes) {
     newNodesMap[node.iId] = node
   }

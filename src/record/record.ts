@@ -1,5 +1,5 @@
 import { AppInfo } from '../app'
-import { Node } from '../node'
+import { Node, NodesMap } from '../node'
 import { Validation } from '../validation'
 
 export const RECORD_STEP_DEFAULT = '1'
@@ -16,9 +16,9 @@ export interface RecordNodesIndex {
    */
   nodeRootIId?: number
   /**
-   * node internal IDs by parent entity internal ID and child def UUID
+   * node internal IDs by parent entity internal ID (pIId) and child def UUID
    */
-  nodesByParentAndChildDef?: { [parentId: number]: { [childDefUuid: string]: NodeIdsPresence } }
+  nodesByParentAndChildDef?: { [parentIId: number]: { [childDefUuid: string]: NodeIdsPresence } }
   /**
    * node internal IDs by node def UUID
    */
@@ -40,7 +40,7 @@ export interface Record {
   dateModified?: string
   id?: number
   lastInternalId?: number
-  nodes?: { [internalId: number]: Node }
+  nodes?: NodesMap
   ownerEmail?: string
   ownerName: string
   ownerRole?: string
