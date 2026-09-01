@@ -15,6 +15,7 @@ export type {
   SurveyFile,
   SurveyFileProps,
   SurveyProps,
+  SurveyRecordFileProps,
   SurveySecurity,
 } from './survey'
 
