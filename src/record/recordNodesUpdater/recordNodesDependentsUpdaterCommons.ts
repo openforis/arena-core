@@ -47,10 +47,11 @@ const addNewEntitySelfPointer = (params: {
   filterFn?: (nodePointer: NodePointer) => boolean
 }) => {
   const { nodePointers, record, node, sourceNodeDef, filterFn } = params
-  if (!node.pIId) {
+  const parentInternalId = node.pIId
+  if (!parentInternalId) {
     return
   }
-  const parentNode = Records.getNodeByInternalId(node.pIId)(record)
+  const parentNode = Records.getNodeByInternalId(parentInternalId)(record)
   if (!parentNode) {
     return
   }
