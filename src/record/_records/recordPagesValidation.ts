@@ -178,7 +178,7 @@ const getOwnPageChildrenCountValidationFlags = (params: {
   // Sub-page entity min/max counts belong to navigation of nested pages, not this page's fields.
   if (descendantPageUuids.includes(childDefUuid)) return null
 
-  const parentNode = getNodeByInternalId(Number(parentInternalId))(record)
+  const parentNode = getNodeByInternalId(parentInternalId)(record)
   if (!parentNode || !nodeBelongsToOwnPage({ node: parentNode, pageNodeDefUuid, descendantPageUuids, record })) {
     return null
   }

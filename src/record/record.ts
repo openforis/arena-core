@@ -14,7 +14,7 @@ export interface RecordNodesIndex {
   /**
    * Root entity internal ID.
    */
-  nodeRootId?: number
+  nodeRootIId?: number
   /**
    * node internal IDs by parent entity internal ID and child def UUID
    */

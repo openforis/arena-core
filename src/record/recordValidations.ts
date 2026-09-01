@@ -10,8 +10,10 @@ const getValidationChildrenCountKey = (params: { nodeParentInternalId: number; n
   return `${prefixValidationFieldChildrenCount}${nodeParentInternalId}_${nodeDefChildUuid}`
 }
 
-const extractValidationChildrenCountKeyParentInternalId = (validationFieldKey: string) =>
-  validationFieldKey?.split('_')[1]
+const extractValidationChildrenCountKeyParentInternalId = (validationFieldKey: string): number | undefined => {
+  const value = Number(validationFieldKey?.split('_')[1])
+  return Number.isNaN(value) ? undefined : value
+}
 
 const extractValidationChildrenCountKeyNodeDefUuid = (validationFieldKey: string) => validationFieldKey?.split('_')[2]
 

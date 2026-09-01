@@ -3,7 +3,7 @@ import { Objects } from '../../utils'
 import { Record, RecordNodesIndex } from '../record'
 
 const keys = {
-  nodeRootId: 'nodeRootId',
+  nodeRootIId: 'nodeRootIId',
   nodesByParentAndChildDef: 'nodesByParentAndChildDef',
   nodesByDef: 'nodesByDef',
   nodeCodeDependents: 'nodeCodeDependents',
@@ -55,7 +55,7 @@ const _addNodeToIndex =
       })
     } else {
       // root entity index
-      indexUpdated.nodeRootId = nodeIId
+      indexUpdated.nodeRootIId = nodeIId
     }
 
     // nodes by def uuid
@@ -133,7 +133,7 @@ const removeNode =
       indexUpdated = Objects.dissocPathIfEmpty({ obj: indexUpdated, path: nodesByParentAndChildDefPath, sideEffect })
     } else {
       // dissoc root entity
-      indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeRootId], sideEffect })
+      indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeRootIId], sideEffect })
     }
     // dissoc from nodes by def uuid
     indexUpdated = Objects.dissocPath({

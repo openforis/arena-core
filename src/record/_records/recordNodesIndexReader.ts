@@ -2,7 +2,7 @@ import { RecordNodesIndex } from '../record'
 
 const objectKeysToNumbers = (obj: object): number[] => Object.keys(obj).map(Number)
 
-const getNodeRootInternalId = (index: RecordNodesIndex): number | undefined => index.nodeRootId
+const getNodeRootInternalId = (index: RecordNodesIndex): number | undefined => index.nodeRootIId
 
 const getNodeInternalIdsByDef =
   (nodeDefUuid: string) =>
