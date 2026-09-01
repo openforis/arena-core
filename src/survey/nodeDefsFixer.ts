@@ -1,3 +1,4 @@
+import { SystemError } from '../error'
 import { NodeDef, NodeDefEntity, NodeDefMap, NodeDefs } from '../nodeDef'
 import { NodeDefEntityLayoutChildItem } from '../nodeDef/types/entity'
 import { Objects } from '../utils'
@@ -25,8 +26,17 @@ type LayoutPropFixerFnParams = LayoutPropFixParams & { propOld: any }
 const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: NodeDefMap }): string[] => {
   const { nodeDef, nodeDefs } = params
   const hiearchy = []
+  const visitedNodeDefUuids = new Set<string>()
   let currentParentUuid = nodeDef.parentUuid
   while (currentParentUuid) {
+    if (visitedNodeDefUuids.has(currentParentUuid)) {
+      throw new SystemError('nodeDef.hierarchyCircularDependency', {
+        nodeDefName: nodeDef.props?.name,
+        nodeDefUuid: nodeDef.uuid,
+        parentUuid: currentParentUuid,
+      })
+    }
+    visitedNodeDefUuids.add(currentParentUuid)
     hiearchy.unshift(currentParentUuid)
     const currentParentNode = nodeDefs[currentParentUuid]
     currentParentUuid = currentParentNode.parentUuid

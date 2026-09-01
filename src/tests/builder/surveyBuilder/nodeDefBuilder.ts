@@ -7,7 +7,7 @@ import {
   NodeDefPropsAdvanced,
   NodeDefType,
 } from '../../../nodeDef'
-import { NodeDefCountExpression, NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
+import { NodeDefCountExpression, NodeDefExpression, NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
 import { Objects } from '../../../utils'
 
 export abstract class NodeDefBuilder {
@@ -46,6 +46,20 @@ export abstract class NodeDefBuilder {
     return this
   }
 
+  editableIf(...expressions: (string | NodeDefExpression)[]): this {
+    this.propsAdvanced.editableIf = expressions.map((expression) =>
+      typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression
+    )
+    return this
+  }
+
+  visibleIf(...expressions: (string | NodeDefExpression)[]): this {
+    this.propsAdvanced.visibleIf = expressions.map((expression) =>
+      typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression
+    )
+    return this
+  }
+
   maxCount(countExpr: NodeDefCountExpression): this {
     return Objects.assocPath({
       obj: this,
@@ -60,6 +74,15 @@ export abstract class NodeDefBuilder {
       obj: this,
       path: ['propsAdvanced', 'validations', 'count', 'min'],
       value: countExpr,
+      sideEffect: true,
+    })
+  }
+
+  required(): this {
+    return Objects.assocPath({
+      obj: this,
+      path: ['propsAdvanced', 'validations', 'required'],
+      value: true,
       sideEffect: true,
     })
   }

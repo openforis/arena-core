@@ -1,4 +1,5 @@
-import { JobSummary } from './summary'
+import { JobSerialized } from './jobSerialized'
+import { JobStatus } from './status'
 
 /**
  * Asynchronous task handler.
@@ -7,21 +8,24 @@ import { JobSummary } from './summary'
  * - pending
  * - running
  * - (end)
- * -- succeed
+ * -- succeeded
  * -- failed
  * -- canceled
  *  */
 export interface Job<R> {
-  /**
-   * Summary of the job with the information about its status.
-   */
-  summary: JobSummary<R>
+  readonly uuid: string
+  readonly type: string
+  status: JobStatus
   /**
    * Starts the execution of the job.
    */
-  start(): Promise<void>
+  start(client?: any): Promise<void>
   /**
    * Cancels the execution of the job.
    */
-  cancel(): Promise<void>
+  cancel(options?: { canceledByAdmin?: boolean }): Promise<void>
+  /**
+   * Generates a plain JSON-serializable representation of the job.
+   */
+  toJSON(): JobSerialized<R>
 }

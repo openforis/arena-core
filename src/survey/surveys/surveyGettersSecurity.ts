@@ -13,6 +13,9 @@ export const isSecurityPropEnabled =
 export const isDataEditorViewNotOwnedRecordsAllowed = (survey: Survey): boolean =>
   isSecurityPropEnabled(SurveySecurityProp.dataEditorViewNotOwnedRecordsAllowed)(survey)
 
+export const isDataAnalystViewNotOwnedRecordsAllowed = (survey: Survey): boolean =>
+  isSecurityPropEnabled(SurveySecurityProp.dataAnalystViewNotOwnedRecordsAllowed)(survey)
+
 export const isVisibleInMobile = (survey: Survey): boolean =>
   isSecurityPropEnabled(SurveySecurityProp.visibleInMobile)(survey)
 

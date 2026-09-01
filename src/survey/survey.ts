@@ -17,11 +17,15 @@ export interface SurveyDependency {
 export enum SurveyDependencyType {
   applicable = 'applicable',
   defaultValues = 'defaultValues',
+  editable = 'editable',
+  enumeratingItems = 'enumeratingItems',
   fileName = 'fileName',
   formula = 'formula',
   maxCount = 'maxCount',
   minCount = 'minCount',
+  parentCode = 'parentCode',
   validations = 'validations',
+  visible = 'visible',
   onUpdate = 'onUpdate', // dependencies updated on every record update, stored as dictionary of booleans
 }
 
@@ -36,6 +40,7 @@ export interface SurveyCycle {
 
 export enum SurveySecurityProp {
   dataEditorViewNotOwnedRecordsAllowed = 'dataEditorViewNotOwnedRecordsAllowed',
+  dataAnalystViewNotOwnedRecordsAllowed = 'dataAnalystViewNotOwnedRecordsAllowed',
   visibleInMobile = 'visibleInMobile',
   allowRecordsDownloadInMobile = 'allowRecordsDownloadInMobile',
   allowRecordsUploadFromMobile = 'allowRecordsUploadFromMobile',
@@ -48,10 +53,52 @@ export type SurveySecurity = {
 
 export const surveySecurityDefaults: SurveySecurity = {
   [SurveySecurityProp.dataEditorViewNotOwnedRecordsAllowed]: true,
+  [SurveySecurityProp.dataAnalystViewNotOwnedRecordsAllowed]: true,
   [SurveySecurityProp.visibleInMobile]: true,
   [SurveySecurityProp.allowRecordsDownloadInMobile]: true,
   [SurveySecurityProp.allowRecordsUploadFromMobile]: true,
   [SurveySecurityProp.allowRecordsWithErrorsUploadFromMobile]: true,
+}
+
+export enum SurveyDocPlace {
+  header = 'header',
+  footer = 'footer',
+}
+
+export const surveyDocImagePropKeys = {
+  documentPlace: 'documentPlace',
+  applyIf: 'applyIf',
+} as const
+
+export type SurveyDocImageProps = SurveyFileProps & {
+  documentPlace?: SurveyDocPlace
+  applyIf?: string
+}
+
+export type SurveyFileProps = {
+  deleted?: boolean
+  labels?: Labels
+  name?: string
+  nodeUuid?: string
+  recordUuid?: string
+  size?: number | null
+  temporary?: boolean
+  type?: string
+}
+
+export type SurveyFile = {
+  uuid: string
+  props: SurveyFileProps
+  content?: Buffer | null
+  dateCreated: string
+}
+
+export type SurveyDocImage = SurveyFile & {
+  props: SurveyDocImageProps
+}
+
+export type SurveyDocOptions = {
+  headerOnFirstPageOnly?: boolean // default: true
 }
 
 export interface SurveyProps {
@@ -65,14 +112,19 @@ export interface SurveyProps {
   labels?: Labels
   languages: LanguageCode[]
   name: string
+  preloadedMapLayers?: SurveyFile[]
+  preloadedMapLayersEnabled?: boolean
   security?: SurveySecurity
   srs: SRS[]
+  surveyDocImages?: SurveyDocImage[]
+  surveyDocOptions?: SurveyDocOptions
 }
 
 export interface SurveyNodeDefsIndex {
   rootDefUuid?: string
   childDefUuidPresenceByParentUuid?: { [parentUuid: string]: { [nodeDefUuid: string]: boolean } }
   nodeDefUuidByName?: Dictionary<string>
+  qualifierPresenceByUuid?: { [nodeDefUuid: string]: boolean }
 }
 
 export interface Survey extends ArenaObject<SurveyProps> {

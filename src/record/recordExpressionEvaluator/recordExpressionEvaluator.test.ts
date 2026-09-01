@@ -1,3 +1,5 @@
+import { beforeAll, describe, test, expect } from '@jest/globals'
+
 import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Node } from '../../node'
@@ -42,6 +44,43 @@ describe('RecordExpressionEvaluator', () => {
 
     record = createTestRecord({ user, survey })
   }, 10000)
+
+  test('prevCycleValue(remarks) / prevCycleValues(remarks)', async () => {
+    const currentRecord = createTestRecord({ user, survey })
+    currentRecord.cycle = '1'
+
+    const prevCycleRecord = createTestRecord({ user, survey })
+    prevCycleRecord.cycle = '0'
+
+    const prevCycleRemarks = TestUtils.getNodeByPath({
+      survey,
+      record: prevCycleRecord,
+      path: 'cluster.remarks',
+    })
+    prevCycleRemarks.value = 'Previous cycle remarks'
+
+    const nodeCurrent = TestUtils.getNodeByPath({ survey, record: currentRecord, path: 'cluster.remarks' })
+    const nodeContext = Records.getParent(nodeCurrent)(currentRecord)
+    if (!nodeContext) throw new Error('Cannot find context node: cluster.remarks')
+    const context: RecordExpressionContext = {
+      user,
+      survey,
+      record: currentRecord,
+      prevCycleRecord,
+      nodeContext,
+      nodeCurrent,
+      object: nodeContext,
+    }
+
+    const evaluator = new RecordExpressionEvaluator()
+
+    const prevCycleValue = await evaluator.evaluate('prevCycleValue(remarks)', context)
+    expect(prevCycleValue).toEqual(prevCycleRemarks.value)
+
+    const prevCycleValues = await evaluator.evaluate('prevCycleValues(remarks)', context)
+    expect(prevCycleValues).toEqual([prevCycleRemarks.value])
+  })
+
   const queries: Query[] = [
     { expression: 'invalid_node_name + 1', error: new SystemError('expression.identifierNotFound') },
     { expression: 'cluster_id + 1', result: 13 },
@@ -213,7 +252,7 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'dateTimeDiff(end_date, end_time, visit_date, visit_time)', result: 1675 },
     { expression: 'dateTimeDiff(end_date, end_time, "2021-01-01", "10:10")', result: 1695 },
     // distance
-    { expression: 'distance(plot[0].plot_location, plot[1].plot_location).toFixed(2)', result: '2171.94' },
+    { expression: 'distance(plot[0].plot_location, plot[1].plot_location).toFixed(2)', result: '2171.95' },
     {
       expression:
         'distance(plot[0].plot_location, plot[1].plot_location) == distance(plot[1].plot_location, plot[0].plot_location)',
@@ -224,11 +263,11 @@ describe('RecordExpressionEvaluator', () => {
     // distance (using categoryItemProp)
     {
       expression: `distance(cluster_location, categoryItemProp('sampling_point_data', 'location', cluster_id)).toFixed(2)`,
-      result: '4307919.62',
+      result: '4307925.57',
     },
     {
       expression: `distance(plot_location, categoryItemProp('sampling_point_data', 'location', cluster_id, plot_id)).toFixed(2)`,
-      result: '4311422.21',
+      result: '4311428.16',
       node: 'cluster.plot[1].plot_id',
     },
     // count
@@ -242,6 +281,10 @@ describe('RecordExpressionEvaluator', () => {
     {
       expression: 'sum(cluster.plot[plot_id <= 2].tree.tree_height)',
       result: 73,
+    },
+    {
+      expression: 'unique(plot.tree.tree_height)',
+      result: [10, 11, 12, 30, 13, 33],
     },
     // geoPolygon (error, parameters not specified)
     {

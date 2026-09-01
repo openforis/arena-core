@@ -18,6 +18,11 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     return this
   }
 
+  qualifier(): this {
+    this.props.qualifier = true
+    return this
+  }
+
   autoIncrementalKey(): this {
     this.props.autoIncrementalKey = true
     return this

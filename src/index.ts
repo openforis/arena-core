@@ -18,6 +18,9 @@ export type {
   UserService,
   UserTokenPayload,
   DownloadAuthTokenPayload,
+  UserGroup,
+  UserGroupProps,
+  UserGroupQualifier,
 } from './auth'
 
 export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, CategoryLevelFactory } from './category'
@@ -50,7 +53,7 @@ export type {
 } from './chain'
 
 export { TraverseMethod } from './common'
-export type { ArenaObject, ArenaService, Dictionary, Factory } from './common'
+export type { ArenaObject, ArenaService, Dictionary, Factory, I18n } from './common'
 
 export type { FlatDataExportOptions, ArenaExportInfoFactoryParams, ArenaExportInfo } from './dataExport'
 export {
@@ -98,8 +101,8 @@ export type { ExtraPropDef, ExtraPropDataType } from './extraProp'
 export { PointFactory, Points } from './geo'
 export type { Point } from './geo'
 
-export { JobBase, JobMessageInType, JobMessageOutType, JobStatus } from './job'
-export type { Job, JobContext, JobSummary } from './job'
+export { JobBase, JobEventType, JobStatus } from './job'
+export type { Job, JobContext, JobEvent, JobSerialized } from './job'
 
 export { LanguageCode, Languages, LanguagesISO639part2 } from './language'
 export type { Labels } from './language'
@@ -155,6 +158,7 @@ export type {
   NodeDefEntityChildPosition,
   NodeDefEntityLayout,
   NodeDefEntityProps,
+  NodeDefPrintOrientation,
   NodeDefFile,
   NodeDefFileProps,
   NodeDefFormHeader,
@@ -204,11 +208,15 @@ export type { SRS, SRSIndex } from './srs'
 
 export {
   NodeDefsFixer,
+  SurveyDocImages,
+  SurveyDocImageFactory,
+  SurveyDocPlace,
   SurveyDependencyType,
   SurveyFactory,
   SurveyRefDataFactory,
   SurveySecurityProp,
   Surveys,
+  surveyDocImagePropKeys,
   surveySecurityDefaults,
 } from './survey'
 export type {
@@ -216,6 +224,11 @@ export type {
   SurveyCycle,
   SurveyDependency,
   SurveyDependencyGraph,
+  SurveyDocImage,
+  SurveyDocImageFactoryParams,
+  SurveyDocImageProps,
+  SurveyFile,
+  SurveyFileProps,
   SurveyProps,
   SurveyRefData,
   SurveySecurity,
@@ -254,14 +267,16 @@ export {
   Strings,
   UnitOfTime,
   UUIDs,
+  Versions,
 } from './utils'
 
-export type { FileProcessorConstructorArgs } from './utils'
+export type { FileProcessorConstructorArgs, ParsedVersion } from './utils'
 
 export {
   FieldValidators,
   ValidationFactory,
   ValidationResultFactory,
+  ValidationResults,
   Validations,
   ValidationSeverity,
   Validator,

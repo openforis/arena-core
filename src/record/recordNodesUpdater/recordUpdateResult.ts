@@ -2,17 +2,26 @@ import { Node, NodesMap } from '../../node'
 import { Validation } from '../../validation'
 import { Record } from '../record'
 import { addNode } from '../_records/recordUpdater'
+import { RecordUpdateOptions } from '../records'
 
 export class RecordUpdateResult {
   record: Record
   nodes: NodesMap
   nodesDeleted: NodesMap
+  clearedDefUuids: Set<string>
   validation?: Validation
 
-  constructor(params: { record: Record; nodes?: NodesMap; nodesDeleted?: NodesMap; validation?: Validation }) {
+  constructor(params: {
+    record: Record
+    nodes?: NodesMap
+    nodesDeleted?: NodesMap
+    clearedDefUuids?: Set<string>
+    validation?: Validation
+  }) {
     this.record = params.record
     this.nodes = params.nodes ?? {}
     this.nodesDeleted = params.nodesDeleted ?? {}
+    this.clearedDefUuids = params.clearedDefUuids ?? new Set<string>()
     this.validation = params.validation
   }
 
@@ -20,10 +29,13 @@ export class RecordUpdateResult {
     return this.nodes[internalId]
   }
 
-  addNode(node: Node, options?: { sideEffect: boolean }) {
-    const { sideEffect = false } = options ?? {}
+  addNode(node: Node, options?: RecordUpdateOptions) {
     this.nodes[node.iId] = node
-    this.record = addNode(node, { sideEffect })(this.record)
+    this.record = addNode(node, options)(this.record)
+  }
+
+  addClearedDefUuid(nodeDefUuid: string) {
+    this.clearedDefUuids.add(nodeDefUuid)
   }
 
   /**
@@ -38,6 +50,9 @@ export class RecordUpdateResult {
     this.record = recordUpdateResult.record
     Object.assign(this.nodes, recordUpdateResult.nodes)
     Object.assign(this.nodesDeleted, recordUpdateResult.nodesDeleted)
+    for (const nodeDefUuid of recordUpdateResult.clearedDefUuids) {
+      this.addClearedDefUuid(nodeDefUuid)
+    }
     return this
   }
 }

@@ -157,6 +157,17 @@ export const getNodeDefChildren = (params: {
   })
 }
 
+export const getQualifierDefs = (params: { survey: Survey }): NodeDef<NodeDefType, NodeDefProps>[] => {
+  const { survey } = params
+  const qualifierPresence = survey.nodeDefsIndex?.qualifierPresenceByUuid
+  if (qualifierPresence) {
+    const qualifierUuids = Object.keys(qualifierPresence)
+    return getNodeDefsByUuids({ survey, uuids: qualifierUuids })
+  } else {
+    return getNodeDefsArray(survey).filter((nodeDef) => NodeDefs.isQualifier(nodeDef))
+  }
+}
+
 const getIndexInChain = (params: { survey: Survey; nodeDef: NodeDef<any> }): number => {
   const { survey, nodeDef } = params
   const areaBasedEstimatedOf = NodeDefs.getAreaBasedEstimatedOf(nodeDef)
@@ -176,7 +187,7 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
 
   const entityDef = nodeDef as NodeDefEntity
 
-  const childrenEntitiesInOwnPageUudis = NodeDefs.getChildrenEntitiesInOwnPageUudis(cycle)(entityDef) ?? []
+  const childrenEntitiesInOwnPageSortedUuids = NodeDefs.getChildrenEntitiesInOwnPageUudis(cycle)(entityDef) ?? []
   const layoutChildren = NodeDefs.getLayoutChildren(cycle)(entityDef) ?? []
   const childrenByUuids = children.reduce((acc: NodeDefMap, child) => {
     acc[child.uuid] = child
@@ -184,7 +195,7 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
   }, {})
   const childrenUuids = Object.keys(childrenByUuids)
 
-  if (layoutChildren.length === 0 && childrenEntitiesInOwnPageUudis.length === 0) {
+  if (layoutChildren.length === 0 && childrenEntitiesInOwnPageSortedUuids.length === 0) {
     return childrenUuids
   }
   const sortedChildrenDefsInSamePageUuids = NodeDefs.isLayoutRenderTypeTable(cycle)(entityDef)
@@ -201,7 +212,7 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
     const childDef = childrenByUuids[childUuid]
     return (
       !sortedChildrenDefsInSamePageUuids.includes(childUuid) &&
-      !childrenEntitiesInOwnPageUudis.includes(childUuid) &&
+      !childrenEntitiesInOwnPageSortedUuids.includes(childUuid) &&
       NodeDefs.isInCycle(cycle)(childDef)
     )
   })
@@ -211,7 +222,7 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
       // add child uuids missing in layout at the end
       .concat(missingChildrenUuidsInLayout)
       // add child entities in own page at the very end
-      .concat(childrenEntitiesInOwnPageUudis)
+      .concat(childrenEntitiesInOwnPageSortedUuids)
   )
 }
 
@@ -408,7 +419,7 @@ export const isNodeDefParentCode = (params: {
   return nodeDefsArray.some((def) => {
     try {
       return nodeDef.uuid === (def as NodeDef<NodeDefType.code, NodeDefCodeProps>).props.parentCodeDefUuid
-    } catch (error) {
+    } catch {
       // ignore it: def is not a code attribute definition
       return
     }
@@ -490,6 +501,7 @@ export const getNodeDefEnumerator = (params: { survey: Survey; entityDef: NodeDe
 
 export const isNodeDefEnumerator = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType> }): boolean => {
   const { survey, nodeDef } = params
+  if (nodeDef.type !== NodeDefType.code) return false
   const entityDef = getNodeDefParent({ survey, nodeDef })
   if (!entityDef) return false
   const enumerator = getNodeDefEnumerator({ survey, entityDef })
@@ -501,8 +513,9 @@ export const getDescendantsInSingleEntities = (params: {
   cycle?: string
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   predicate?: (visitedNodeDef: NodeDef<NodeDefType, NodeDefProps>) => boolean
+  includeAnalysis?: boolean
 }): NodeDef<NodeDefType, NodeDefProps>[] => {
-  const { survey, cycle, nodeDef, predicate } = params
+  const { survey, cycle, nodeDef, predicate, includeAnalysis } = params
   const result: NodeDef<any>[] = []
   visitDescendantsAndSelfNodeDef({
     survey,
@@ -513,6 +526,7 @@ export const getDescendantsInSingleEntities = (params: {
         result.push(visitedNodeDef)
       }
     },
+    includeAnalysis,
     traverseOnlySingleEntities: true,
   })
   return result

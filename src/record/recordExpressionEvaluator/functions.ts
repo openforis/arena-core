@@ -1,11 +1,40 @@
 import { ExpressionFunctions } from '../../expression'
 import { Point, Points } from '../../geo'
-import { Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
 import { nodeDefExpressionFunctions } from '../../nodeDefExpressionEvaluator/functions'
 import { Surveys } from '../../survey'
 import { Arrays } from '../../utils'
 import { Records } from '../records'
 import { RecordExpressionContext } from './context'
+
+const extractPreviousCycleValues = ({
+  node,
+  context,
+}: {
+  node: ArenaRecordNode | null
+  context: RecordExpressionContext
+}): any[] | null => {
+  const { record, prevCycleRecord, survey } = context
+  if (!node || !prevCycleRecord) {
+    return null
+  }
+  const currentRecordEntity = Records.getParent(node)(record)
+  if (!currentRecordEntity) {
+    return null
+  }
+  const { iId: entityIId } = currentRecordEntity
+  const prevCycleEntity = Records.findEntityWithSameKeysInAnotherRecord({
+    survey,
+    cycle: Records.getCycle(record),
+    entityIId,
+    record,
+    recordOther: prevCycleRecord,
+  })
+  if (!prevCycleEntity) {
+    return null
+  }
+  return Records.getChildren(prevCycleEntity, node.nodeDefUuid)(prevCycleRecord).map((prevNode) => prevNode.value)
+}
 
 export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionContext> = {
   ...nodeDefExpressionFunctions,
@@ -116,6 +145,18 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       return Records.getParent(node)(record)
     },
   },
+  prevCycleValue: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (context: RecordExpressionContext) => async (node) => extractPreviousCycleValues({ node, context })?.[0],
+  },
+  prevCycleValues: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (context: RecordExpressionContext) => async (node) => extractPreviousCycleValues({ node, context }),
+  },
   recordCycle: {
     minArity: 0,
     maxArity: 0,
@@ -154,6 +195,15 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       if (!nodeSet) return 0
       if (Array.isArray(nodeSet)) return nodeSet.reduce((acc, value) => acc + (Number(value) || 0), 0)
       return 0
+    },
+  },
+  unique: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: false,
+    executor: (_context: RecordExpressionContext) => async (nodeSet) => {
+      if (!nodeSet || !Array.isArray(nodeSet)) return []
+      return [...new Set(nodeSet.filter((value) => value !== null && value !== undefined && value !== ''))]
     },
   },
   userIsRecordOwner: {

@@ -1,3 +1,5 @@
+import { describe, test, expect } from '@jest/globals'
+
 import { NodeDefFactory, NodeDefFactoryParams } from './factory'
 import { NodeDef, NodeDefType } from './nodeDef'
 

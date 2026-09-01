@@ -56,9 +56,14 @@ export const getChild =
   (parentNode: Node, childDefUuid: string) =>
   (record: Record): Node => {
     const children = getChildren(parentNode, childDefUuid)(record)
-    if (children.length > 1) throw new SystemError('systemError.record.multipleNodesFound')
-    if (children.length === 0) throw new SystemError('systemError.record.childNotFound')
-    return children[0]
+    const errorParams = { childDefUuid, parentNodeInternalId: parentNode.iId, recordUuid: record.uuid }
+    if (children.length === 1) {
+      return children[0]
+    }
+    if (children.length > 1) {
+      throw new SystemError('systemError.record.multipleNodesFound', errorParams)
+    }
+    throw new SystemError('systemError.record.childNotFound', errorParams)
   }
 
 export const getParent =
@@ -79,16 +84,22 @@ export const getNodesByDefUuid =
     return getNodesArray(record).filter((node) => node.nodeDefUuid === nodeDefUuid)
   }
 
-export const isNodeApplicable = (params: { record: Record; node: Node }): boolean => {
-  const { record, node } = params
-  const nodeParent = getParent(node)(record)
-  if (!nodeParent) return true
-
-  if (isNodeApplicable({ record, node: nodeParent })) {
-    return Nodes.isChildApplicable(nodeParent, node.nodeDefUuid)
+const isNodeFlagTrue =
+  (isChildFlagTrue: (parent: Node, nodeDefUuid: string) => boolean) =>
+  (params: { record: Record; node: Node }): boolean => {
+    const { record, node } = params
+    const ancestorsAndSelf = getAncestorsAndSelf({ record, node })
+    for (let i = 0; i < ancestorsAndSelf.length - 1; i++) {
+      const child = ancestorsAndSelf[i]
+      const parent = ancestorsAndSelf[i + 1]
+      if (!isChildFlagTrue(parent, child.nodeDefUuid)) return false
+    }
+    return true
   }
-  return false
-}
+
+export const isNodeApplicable = isNodeFlagTrue((parent, nodeDefUuid) => Nodes.isChildApplicable(parent, nodeDefUuid))
+export const isNodeEditable = isNodeFlagTrue((parent, nodeDefUuid) => Nodes.isChildEditable(parent, nodeDefUuid))
+export const isNodeVisible = isNodeFlagTrue((parent, nodeDefUuid) => Nodes.isChildVisible(parent, nodeDefUuid))
 
 export const getDependentCodeAttributes =
   (node: Node) =>

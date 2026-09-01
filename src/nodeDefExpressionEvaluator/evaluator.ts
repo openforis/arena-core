@@ -61,7 +61,7 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
     try {
       const { referencedNodeDefUuids } = await this._eval(params)
       return referencedNodeDefUuids
-    } catch (error) {
+    } catch {
       return new Set()
     }
   }

@@ -1,3 +1,5 @@
+import { describe, test, expect, beforeAll } from '@jest/globals'
+
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 
@@ -11,6 +13,7 @@ import { User } from '../../auth'
 import { Records } from '../records'
 import { Surveys } from '../../survey'
 import { Record } from '../record'
+import { Nodes } from '../../node'
 import { Strings } from '../../utils'
 
 let user: User
@@ -102,6 +105,254 @@ describe('Record nodes updater - applicability', () => {
       sourceValue: 21,
       expectDependentUpdate: true,
       expectedApplicability: true,
+    })
+  })
+
+  test('Clear non-applicable values when node becomes non-applicable', async () => {
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        integerDef('source_attribute'),
+        integerDef('dependent_attribute').applyIf('source_attribute > 10'),
+        integerDef('dependent_attribute_read_only').readOnly().defaultValue('dependent_attribute + 1')
+      )
+    ).build()
+
+    let record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        attribute('source_attribute', 20),
+        attribute('dependent_attribute', 100),
+        attribute('dependent_attribute_read_only', null)
+      )
+    ).build()
+
+    // First verify the dependent attribute is applicable and has a value
+    let dependentNode = TestUtils.getNodeByPath({
+      survey,
+      record,
+      path: 'root_entity.dependent_attribute',
+    })
+    let dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
+    expect(Records.isNodeApplicable({ record, node: dependentNode })).toBe(true)
+    expect(dependentNode.value).toBe(100)
+    expect(dependentReadOnlyNode.value).toBeNull()
+
+    // Update source attribute to make dependent non-applicable WITHOUT clearNonApplicableValues
+    const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
+    const nodeUpdated = { ...nodeToUpdate, value: 5 }
+    let recordUpdated = Records.addNode(nodeUpdated)(record)
+
+    let updateResult = await RecordNodesUpdater.updateNodesDependents({
+      user,
+      survey,
+      record: recordUpdated,
+      nodes: { [nodeToUpdate.iId]: nodeUpdated },
+      clearNonApplicableValues: false, // explicitly set to false
+    })
+
+    dependentNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute',
+    })
+    dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
+    expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(false)
+    expect(dependentNode.value).toBe(100) // Value should still be there
+    expect(dependentReadOnlyNode.value).toBe(101)
+    expect(updateResult.clearedDefUuids.size).toBe(0)
+
+    // Now update with clearNonApplicableValues enabled
+    recordUpdated = Records.addNode({ ...nodeToUpdate, value: 20 })(updateResult.record)
+    updateResult = await RecordNodesUpdater.updateNodesDependents({
+      user,
+      survey,
+      record: recordUpdated,
+      nodes: { [nodeToUpdate.iId]: { ...nodeToUpdate, value: 20 } },
+      clearNonApplicableValues: false, // first make it applicable again
+    })
+
+    dependentNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute',
+    })
+    dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
+    expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(true)
+    expect(dependentNode.value).toBe(100) // Value restored
+    expect(dependentReadOnlyNode.value).toBe(101)
+    expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(true)
+
+    // Now make it non-applicable WITH clearNonApplicableValues
+    recordUpdated = Records.addNode({ ...nodeToUpdate, value: 5 })(updateResult.record)
+    updateResult = await RecordNodesUpdater.updateNodesDependents({
+      user,
+      survey,
+      record: recordUpdated,
+      nodes: { [nodeToUpdate.iId]: { ...nodeToUpdate, value: 5 } },
+      clearNonApplicableValues: true, // Enable value clearing
+    })
+
+    dependentNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute',
+    })
+    dependentReadOnlyNode = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: 'root_entity.dependent_attribute_read_only',
+    })
+    expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(false)
+    expect(dependentNode.value).toBeNull() // Value should be cleared
+    expect(dependentReadOnlyNode.value).toBeNull()
+    expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(false) // defaultValueApplied should be reset
+    expect(updateResult.clearedDefUuids.has(dependentNode.nodeDefUuid)).toBe(true)
+  })
+
+  describe('Multiple entity applicability', () => {
+    let survey: Awaited<ReturnType<typeof SurveyBuilder.prototype.build>>
+
+    beforeAll(async () => {
+      survey = await new SurveyBuilder(
+        user,
+        entityDef(
+          'root_entity',
+          integerDef('identifier').key(),
+          integerDef('source_attribute'),
+          entityDef('dependent_entity', integerDef('entity_attr').key()).multiple().applyIf('source_attribute > 10')
+        )
+      ).build()
+    })
+
+    const makeSourceNonApplicable = async (record: Record, clearNonApplicableValues = false) => {
+      const sourceNode = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
+      const sourceNodeUpdated = { ...sourceNode, value: 5 }
+      return RecordNodesUpdater.updateNodesDependents({
+        user,
+        survey,
+        record: Records.addNode(sourceNodeUpdated)(record),
+        nodes: { [sourceNode.iId]: sourceNodeUpdated },
+        clearNonApplicableValues,
+      })
+    }
+
+    const getDependentEntityNodes = (record: Record) =>
+      Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'dependent_entity' }).uuid)(record)
+
+    test('Empty multiple entity is deleted when becoming non-applicable', async () => {
+      const record = new RecordBuilder(
+        user,
+        survey,
+        entity(
+          'root_entity',
+          attribute('identifier', 1),
+          attribute('source_attribute', 20),
+          entity('dependent_entity', attribute('entity_attr', null))
+        )
+      ).build()
+
+      const updateResult = await makeSourceNonApplicable(record, true)
+
+      expect(getDependentEntityNodes(updateResult.record)).toHaveLength(0)
+      expect(Object.keys(updateResult.nodesDeleted).length).toBeGreaterThan(0)
+    })
+
+    test('Non-empty multiple entity is preserved when becoming non-applicable (and clearNonApplicableValues is false)', async () => {
+      const record = new RecordBuilder(
+        user,
+        survey,
+        entity(
+          'root_entity',
+          attribute('identifier', 1),
+          attribute('source_attribute', 20),
+          entity('dependent_entity', attribute('entity_attr', 42))
+        )
+      ).build()
+
+      const updateResult = await makeSourceNonApplicable(record, false)
+
+      expect(getDependentEntityNodes(updateResult.record)).toHaveLength(1)
+      expect(Object.keys(updateResult.nodesDeleted)).toHaveLength(0)
+    })
+
+    test('Non-empty multiple entity is deleted when becoming non-applicable (and clearNonApplicableValues is true)', async () => {
+      const record = new RecordBuilder(
+        user,
+        survey,
+        entity(
+          'root_entity',
+          attribute('identifier', 1),
+          attribute('source_attribute', 20),
+          entity('dependent_entity', attribute('entity_attr', 42))
+        )
+      ).build()
+
+      const updateResult = await makeSourceNonApplicable(record, true)
+
+      expect(getDependentEntityNodes(updateResult.record)).toHaveLength(0)
+      expect(Object.keys(updateResult.nodesDeleted)).toHaveLength(2)
+    })
+
+    test('Auto-generates missing min-count entities when a multiple entity becomes applicable', async () => {
+      const surveyWithAutoGeneration = await new SurveyBuilder(
+        user,
+        entityDef(
+          'root_entity',
+          integerDef('identifier').key(),
+          integerDef('source_attribute'),
+          entityDef('dependent_entity', integerDef('entity_attr').key())
+            .multiple()
+            .minCount('2')
+            .autoCreateMinCountItems()
+            .applyIf('source_attribute > 10')
+        )
+      ).build()
+
+      let record = new RecordBuilder(
+        user,
+        surveyWithAutoGeneration,
+        entity('root_entity', attribute('identifier', 1), attribute('source_attribute', 5))
+      ).build()
+
+      const sourceNode = TestUtils.getNodeByPath({
+        survey: surveyWithAutoGeneration,
+        record,
+        path: 'root_entity.source_attribute',
+      })
+
+      const sourceNodeUpdated = { ...sourceNode, value: 20 }
+      const updateResult = await RecordNodesUpdater.updateNodesDependents({
+        user,
+        survey: surveyWithAutoGeneration,
+        record: Records.addNode(sourceNodeUpdated)(record),
+        nodes: { [sourceNode.iId]: sourceNodeUpdated },
+      })
+      record = updateResult.record
+
+      const dependentEntityDef = Surveys.getNodeDefByName({
+        survey: surveyWithAutoGeneration,
+        name: 'dependent_entity',
+      })
+      const dependentEntities = Records.getNodesByDefUuid(dependentEntityDef.uuid)(record)
+      expect(dependentEntities).toHaveLength(2)
     })
   })
 })

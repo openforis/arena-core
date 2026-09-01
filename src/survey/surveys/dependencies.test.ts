@@ -1,7 +1,9 @@
+import { beforeAll, describe, test, expect } from '@jest/globals'
+
 import { Survey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
-const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
+const { booleanDef, category, categoryItem, codeDef, entityDef, integerDef, textDef } = SurveyObjectBuilders
 
 import { SurveyDependencyType } from '../survey'
 
@@ -33,6 +35,8 @@ describe('Survey Dependencies', () => {
         'cluster',
         integerDef('cluster_id').key().defaultValue('1').validationExpressions('cluster_id > 0 && cluster_id <= 1000'),
         booleanDef('accessible'),
+        integerDef('cluster_editable').editableIf('cluster_id > 0'),
+        integerDef('cluster_visible').visibleIf('cluster_id > 0'),
         entityDef(
           'plot',
           integerDef('plot_id').key(),
@@ -41,9 +45,20 @@ describe('Survey Dependencies', () => {
         )
           .multiple()
           .applyIf('accessible'),
-        integerDef('plot_count').readOnly().defaultValue('plot.length')
+        integerDef('plot_count').readOnly().defaultValue('plot.length'),
+        codeDef('region', 'region_district'),
+        codeDef('district', 'region_district').parentCodeAttribute('region')
       )
-    ).build()
+    )
+      .categories(
+        category('region_district')
+          .levels('region', 'district')
+          .items(
+            categoryItem('N').items(categoryItem('N1'), categoryItem('N2')),
+            categoryItem('S').items(categoryItem('S1'))
+          )
+      )
+      .build()
   }, 10000)
 
   test('Default values dependency (empty - constant value)', () => {
@@ -86,11 +101,35 @@ describe('Survey Dependencies', () => {
     })
   })
 
+  test('Editable when dependency', () => {
+    expectDependents({
+      sourceName: 'cluster_id',
+      dependencyType: SurveyDependencyType.editable,
+      expectedDependentNames: ['cluster_editable'],
+    })
+  })
+
+  test('Visible when dependency', () => {
+    expectDependents({
+      sourceName: 'cluster_id',
+      dependencyType: SurveyDependencyType.visible,
+      expectedDependentNames: ['cluster_visible'],
+    })
+  })
+
   test('Validation expression dependency', () => {
     expectDependents({
       sourceName: 'cluster_id',
       dependencyType: SurveyDependencyType.validations,
       expectedDependentNames: ['cluster_id'],
+    })
+  })
+
+  test('Parent code dependency', () => {
+    expectDependents({
+      sourceName: 'region',
+      dependencyType: SurveyDependencyType.parentCode,
+      expectedDependentNames: ['district'],
     })
   })
 
@@ -155,5 +194,110 @@ describe('Survey Dependencies', () => {
     })
 
     survey = surveyOld
+  })
+})
+
+describe('Survey Dependencies - identifiers referenced inside a filter predicate', () => {
+  // Reproduces a bug where a default value expression filtering a sibling/cousin multiple entity
+  // (e.g. "herd[$context.herd_summary_species == herd_species].herd_count") only registered the
+  // filtered entity itself ("herd") as a dependency, but not the node defs referenced inside the
+  // filter predicate ("herd_species" and, via "$context", "herd_summary_species"). As a result, the
+  // readonly attribute using this expression was computed once (typically with an empty "$context"
+  // attribute, resulting in an empty/zero result) and never recomputed when the user filled in or
+  // edited those attributes afterwards.
+  let filterSurvey: Survey
+
+  beforeAll(async () => {
+    const user = createTestAdminUser()
+
+    filterSurvey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'herd_cluster',
+        entityDef('herd', codeDef('herd_species', 'species'), integerDef('herd_count')).multiple(),
+        entityDef(
+          'herd_summary',
+          codeDef('herd_summary_species', 'species'),
+          integerDef('herd_summary_total')
+            .readOnly()
+            .defaultValue('sum(herd[$context.herd_summary_species == herd_species].herd_count)')
+        ).multiple()
+      )
+    )
+      .categories(category('species').items(categoryItem('cow'), categoryItem('goat')))
+      .build()
+  }, 10000)
+
+  const expectFilterSurveyDependents = (params: {
+    sourceName: string
+    dependencyType: SurveyDependencyType
+    expectedDependentNames: string[]
+  }) => {
+    const { sourceName, dependencyType, expectedDependentNames } = params
+    const sourceDef = Surveys.getNodeDefByName({ survey: filterSurvey, name: sourceName })
+    const dependentDefs = Surveys.getNodeDefDependents({
+      survey: filterSurvey,
+      nodeDefUuid: sourceDef?.uuid,
+      dependencyType,
+    })
+    const dependentNames = dependentDefs.map((dependentDef) => dependentDef?.props?.name)
+    expect(dependentNames).toEqual(expectedDependentNames)
+  }
+
+  test('Default values dependency (entity being filtered)', () => {
+    expectFilterSurveyDependents({
+      sourceName: 'herd',
+      dependencyType: SurveyDependencyType.defaultValues,
+      expectedDependentNames: ['herd_summary_total'],
+    })
+  })
+
+  test('Default values dependency (identifier referenced inside the filter predicate)', () => {
+    expectFilterSurveyDependents({
+      sourceName: 'herd_species',
+      dependencyType: SurveyDependencyType.defaultValues,
+      expectedDependentNames: ['herd_summary_total'],
+    })
+  })
+
+  test('Default values dependency (identifier referenced via $context inside the filter predicate)', () => {
+    expectFilterSurveyDependents({
+      sourceName: 'herd_summary_species',
+      dependencyType: SurveyDependencyType.defaultValues,
+      expectedDependentNames: ['herd_summary_total'],
+    })
+  })
+})
+
+describe('Survey Dependencies - enumeratingItemsExpression', () => {
+  let enumeratingItemsSurvey: Survey
+
+  beforeAll(async () => {
+    const user = createTestAdminUser()
+
+    enumeratingItemsSurvey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        entityDef('table_source', textDef('source_type')).multiple(),
+        entityDef('table_sum', codeDef('sum_type', 'types').key())
+          .multiple()
+          .enumerate()
+          .enumeratingItemsExpression('unique(table_source.source_type)')
+      )
+    )
+      .categories(category('types').items(categoryItem('A'), categoryItem('B')))
+      .build()
+  }, 10000)
+
+  test('Enumerating items dependency on source attribute', () => {
+    const sourceDef = Surveys.getNodeDefByName({ survey: enumeratingItemsSurvey, name: 'source_type' })
+    const dependentDefs = Surveys.getNodeDefDependents({
+      survey: enumeratingItemsSurvey,
+      nodeDefUuid: sourceDef.uuid,
+      dependencyType: SurveyDependencyType.enumeratingItems,
+    })
+    const dependentNames = dependentDefs.map((dependentDef) => dependentDef?.props?.name)
+    expect(dependentNames).toEqual(['table_sum'])
   })
 })

@@ -1,3 +1,5 @@
+import { beforeAll, describe, test, expect } from '@jest/globals'
+
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { Survey, Surveys } from '../survey'
 import { NodeDefExpressionValidator } from './validator'
@@ -83,9 +85,19 @@ describe('NodeDefExpressionValidator', () => {
       referencedNodeDefNames: ['accessible', 'cluster_id', 'plot', 'plot_id'],
     },
     { expression: 'count(plot) == 2', validationResult: true, referencedNodeDefNames: ['plot'] },
-    { expression: 'count(plot[plot_id == 1]) == 1', validationResult: true, referencedNodeDefNames: ['plot'] },
+    {
+      expression: 'count(plot[plot_id == 1]) == 1',
+      validationResult: true,
+      // "plot_id" is referenced inside the filter predicate, in addition to "plot" itself
+      referencedNodeDefNames: ['plot', 'plot_id'],
+    },
     {
       expression: 'sum(cluster.plot.tree.tree_height) == 110',
+      validationResult: true,
+      referencedNodeDefNames: ['cluster', 'plot', 'tree', 'tree_height'],
+    },
+    {
+      expression: 'unique(cluster.plot.tree.tree_height)',
       validationResult: true,
       referencedNodeDefNames: ['cluster', 'plot', 'tree', 'tree_height'],
     },

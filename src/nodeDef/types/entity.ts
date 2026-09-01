@@ -12,8 +12,14 @@ export interface NodeDefEntityChildPosition {
 
 export type NodeDefEntityLayoutChildItem = NodeDefEntityChildPosition | string
 
+export type NodeDefPrintOrientation = 'portrait' | 'landscape'
+
 export interface NodeDefEntityProps extends NodeDefPropsWithLayout<NodeDefEntityLayout> {
+  // Applies only to multiple entities; when true, missing repetitions up to min count are auto-created.
+  autoCreateMinCountItems?: boolean
   enumerate?: boolean
+  /** When set, printable export uses this orientation for the entity's print section. */
+  printOrientation?: NodeDefPrintOrientation
 }
 
 export enum NodeDefEntityRenderType {

@@ -38,14 +38,17 @@ export const deleteNodes =
       nodesDeleted[visitedNodeInternalId] = visitedNodeUpdated
 
       // 2. delete node from validation
+      const doCleanup = false // we will cleanup at the end of the process, after all nodes have been deleted
       recordValidationUpdated = Validations.dissocFieldValidation(
         String(visitedNodeInternalId),
-        sideEffect
+        sideEffect,
+        doCleanup
       )(recordValidationUpdated)
 
       recordValidationUpdated = Validations.dissocFieldValidationsStartingWith(
         `${RecordValidations.prefixValidationFieldChildrenCount}${visitedNodeInternalId}`,
-        sideEffect
+        sideEffect,
+        doCleanup
       )(recordValidationUpdated)
 
       // 3. update nodes index

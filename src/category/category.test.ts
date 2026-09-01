@@ -1,3 +1,6 @@
+import { expect, test } from '@jest/globals'
+
+import { LanguageCode } from '../language'
 import {
   CategoryFactory,
   CategoryFactoryParams,
@@ -6,7 +9,6 @@ import {
   CategoryLevelFactory,
   CategoryLevelFactoryParams,
 } from './factory'
-import { LanguageCode } from '../language'
 
 test('ExpectedCategory === Category', () => {
   const categoryParams: CategoryFactoryParams = {

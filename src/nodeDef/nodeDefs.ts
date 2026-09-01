@@ -21,6 +21,7 @@ import {
   NodeDefEntityLayout,
   NodeDefEntityLayoutChildItem,
   NodeDefEntityRenderType,
+  NodeDefPrintOrientation,
 } from './types/entity'
 import { NodeDefFile, NodeDefFileType } from './types/file'
 import { NodeDefTaxon } from './types/taxon'
@@ -63,11 +64,22 @@ const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: Langu
 const getDescription = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
   nodeDef.props.descriptions?.[lang] ?? ''
 
+const isQualifier = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.props.qualifier ?? false
+
 const isReadOnly = (nodeDef: NodeDef<any>): boolean => nodeDef.props.readOnly ?? false
 
 const isHidden = (nodeDef: NodeDef<any>): boolean => nodeDef.props.hidden ?? false
 
 const isEnumerate = (nodeDef: NodeDefEntity): boolean => nodeDef.props.enumerate ?? false
+
+const getEnumeratingItemsExpression = (nodeDef: NodeDefEntity): string | undefined =>
+  nodeDef.propsAdvanced?.enumeratingItemsExpression
+
+const isAutoCreateMinCountItems = (nodeDef: NodeDefEntity): boolean =>
+  isMultipleEntity(nodeDef) && (nodeDef.props.autoCreateMinCountItems ?? false)
+
+const getPrintOrientation = (nodeDef: NodeDefEntity): NodeDefPrintOrientation | undefined =>
+  nodeDef.props.printOrientation
 
 const getDefaultValues = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] =>
   nodeDef.propsAdvanced?.defaultValues ?? []
@@ -92,6 +104,14 @@ const isInCycle =
   }
 
 const isExcludedInClone = (nodeDef: NodeDef<NodeDefType>): boolean => !!nodeDef.propsAdvanced?.excludedInClone
+
+const getEditableIf = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.editableIf ?? []
+
+const isAlwaysEditable = (nodeDef: NodeDef<NodeDefType>): boolean => getEditableIf(nodeDef).length === 0
+
+const getVisibleIf = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => nodeDef.propsAdvanced?.visibleIf ?? []
+
+const isAlwaysVisible = (nodeDef: NodeDef<NodeDefType>): boolean => getVisibleIf(nodeDef).length === 0
 
 // code
 const getCategoryUuid = (nodeDef: NodeDefCode): string | undefined => nodeDef.props.categoryUuid
@@ -257,9 +277,13 @@ export const NodeDefs = {
   isMultipleAttribute,
   isKey,
   isAutoIncrementalKey,
+  isQualifier,
   isReadOnly,
   isHidden,
   isEnumerate,
+  getEnumeratingItemsExpression,
+  isAutoCreateMinCountItems,
+  getPrintOrientation,
   isAnalysis,
   isRoot,
   getType,
@@ -274,6 +298,11 @@ export const NodeDefs = {
   isFieldVisible,
   isInCycle,
   isExcludedInClone,
+  getEditableIf,
+  isAlwaysEditable,
+  getVisibleIf,
+  isAlwaysVisible,
+
   getCategoryUuid,
   getParentCodeDefUuid,
   isAllowOnlyDeviceCoordinate,

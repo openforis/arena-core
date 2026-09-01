@@ -2,18 +2,58 @@ import { Objects } from '../utils'
 import { ValidationFactory } from './factory'
 import { Validation, ValidationCounts, ValidationFields, ValidationResult } from './validation'
 
-const getValidation = (obj: any): Validation => obj.validation || ValidationFactory.createInstance()
+const keys = {
+  counts: 'counts',
+  errors: 'errors',
+  fields: 'fields',
+  valid: 'valid',
+  validation: 'validation',
+  warnings: 'warnings',
+}
 
-const getFieldValidations = (validation: Validation): ValidationFields => validation.fields ?? {}
+const hasValidation = (obj: any): boolean => !!obj?.validation
+
+const getValidation = (obj: any): Validation => obj?.validation || ValidationFactory.createInstance()
+
+const getFieldValidations = (validation: Validation): ValidationFields => validation?.fields ?? {}
+
+const getFieldValidationUnsafe =
+  (field: string | number) =>
+  (validation: Validation): Validation | undefined => {
+    if (typeof field === 'string') {
+      let validationCurrent: Validation | undefined = validation
+      const parts = field.split('.')
+      parts.some((part) => {
+        validationCurrent = getFieldValidations(validationCurrent!)[part]
+        return !validationCurrent // breaks the loop if there is no field validation
+      })
+      return validationCurrent
+    } else {
+      return getFieldValidations(validation)[field]
+    }
+  }
 
 const getFieldValidation =
-  (field: string) =>
+  (field: string | number, defaultValue: Validation = ValidationFactory.createInstance()) =>
   (validation: Validation): Validation =>
-    getFieldValidations(validation)[field] || ValidationFactory.createInstance()
+    getFieldValidationUnsafe(field)(validation) ?? defaultValue
 
-const getErrors = (validation: Validation): ValidationResult[] => validation.errors ?? []
+const getFieldValidationsByFields =
+  (fields: (string | number)[]) =>
+  (validation: Validation): ValidationFields => {
+    const result: ValidationFields = {}
+    for (const field of fields) {
+      const fieldValidation = getFieldValidationUnsafe(field)(validation)
+      if (fieldValidation) {
+        result[String(field)] = fieldValidation
+      }
+    }
+    return result
+  }
 
-const getWarnings = (validation: Validation): ValidationResult[] => validation.warnings ?? []
+const getErrors = (validation: Validation): ValidationResult[] => validation?.errors ?? []
+
+const getWarnings = (validation: Validation): ValidationResult[] => validation?.warnings ?? []
 
 const hasErrors = (validation: Validation): boolean => {
   const errors = getErrors(validation)
@@ -27,16 +67,18 @@ const hasWarnings = (validation: Validation): boolean => {
 
 const isValid = (validation: Validation): boolean => Objects.isEmpty(validation) || validation.valid
 const isNotValid = (validation: Validation): boolean => !isValid(validation)
+const isObjValid = (obj: Record<string, unknown>): boolean => isValid(getValidation(obj))
 
-const getErrorsCount = (validation: Validation): number => validation?.counts?.errors ?? 0
-const getWarningsCount = (validation: Validation): number => validation?.counts?.warnings ?? 0
+const getCounts = (validation: Validation): ValidationCounts | undefined => validation?.counts
+const getErrorsCount = (validation: Validation): number => getCounts(validation)?.errors ?? 0
+const getWarningsCount = (validation: Validation): number => getCounts(validation)?.warnings ?? 0
 
 const recalculateValidity = (validation: Validation): Validation => {
   let allFieldsValid = true
 
   const fieldsWithValidationRecalculated: ValidationFields = {}
 
-  for (const [fieldKey, fieldValidation] of Object.entries(validation.fields ?? {})) {
+  for (const [fieldKey, fieldValidation] of Object.entries(getFieldValidations(validation))) {
     const fieldValidationUpdated = recalculateValidity(fieldValidation)
     fieldsWithValidationRecalculated[fieldKey] = fieldValidationUpdated
     if (!fieldValidationUpdated.valid) {
@@ -113,38 +155,46 @@ const cleanup = (validation: Validation): Validation => {
 }
 
 const mergeValidations =
-  (validationNext: Validation) =>
+  (validationNext: Validation, doCleanup = true) =>
   (validationPrev: Validation): Validation => {
     const validationFieldsResult = { ...getFieldValidations(validationPrev) }
     const validationFieldsNext = getFieldValidations(validationNext)
 
     // iterate over new field validations: remove valid ones, merge invalid ones with previous ones
     for (const [fieldKey, validationFieldNext] of Object.entries(validationFieldsNext)) {
-      if (validationFieldNext.valid) {
-        // field validation valid: remove it from resulting validation
-        delete validationFieldsResult[fieldKey]
+      if (isValid(validationFieldNext)) {
+        if (doCleanup) {
+          // field validation valid: remove it from resulting validation
+          delete validationFieldsResult[fieldKey]
+        } else {
+          validationFieldsResult[fieldKey] = ValidationFactory.createInstance()
+        }
       } else {
         // field validation not valid: deep merge it with the previous one
-        const previousFieldValidation = validationFieldsResult[fieldKey]
-        validationFieldsResult[fieldKey] = Objects.deepMerge(
-          previousFieldValidation,
-          validationFieldNext
-        ) as unknown as Validation
+        const validationFieldPrev = validationFieldsResult[fieldKey]
+        const validationFieldMerged = validationFieldPrev
+          ? mergeValidation(validationFieldNext, false)(validationFieldPrev)
+          : validationFieldNext
+        validationFieldsResult[fieldKey] = validationFieldMerged
       }
     }
-    const validationResult = ValidationFactory.createInstance({ ...validationPrev, fields: validationFieldsResult })
-    return cleanup(validationResult)
+    const validationResult: Validation = { ...validationPrev, [keys.fields]: validationFieldsResult }
+    validationResult.errors = getErrors(validationNext)
+    validationResult.warnings = getWarnings(validationNext)
+    return doCleanup ? cleanup(validationResult) : recalculateValidity(validationResult)
   }
 
 const dissocFieldValidation =
-  (fieldKey: string, sideEffect = false) =>
-  (validation: Validation): Validation =>
-    Objects.dissocPath({ obj: validation, path: ['fields', fieldKey], sideEffect })
+  (fieldKey: string, sideEffect = false, doCleanup = true) =>
+  (validation: Validation): Validation => {
+    const validationUpdated = Objects.dissocPath({ obj: validation, path: ['fields', fieldKey], sideEffect })
+    return doCleanup ? cleanup(validationUpdated) : validationUpdated
+  }
 
 const dissocFieldValidationsStartingWith =
-  (fieldStartsWith: string, sideEffect = false) =>
+  (fieldStartsWith: string, sideEffect = false, doCleanup = true) =>
   (validation: Validation): Validation => {
-    if (!validation.fields) return validation
+    if (!validation?.fields) return validation
 
     const fieldsUpdated = sideEffect ? validation.fields : { ...validation.fields }
     for (const fieldKey of Object.keys(fieldsUpdated)) {
@@ -156,17 +206,95 @@ const dissocFieldValidationsStartingWith =
       validation.fields = fieldsUpdated
       return validation
     }
-    return { ...validation, fields: fieldsUpdated }
+    const validationUpdated = { ...validation, fields: fieldsUpdated }
+    return doCleanup ? cleanup(validationUpdated) : validationUpdated
   }
 
+const mergeValidation =
+  (validationNext: Validation, doCleanup = true) =>
+  (validationPrev: Validation): Validation => {
+    const validationFieldsResult: ValidationFields = {
+      ...getFieldValidations(validationPrev),
+    }
+    const validationFieldsNext = getFieldValidations(validationNext)
+
+    // iterate over new field validations: remove valid ones, merge invalid ones with previous ones
+    for (const [fieldKey, validationFieldNext] of Object.entries(validationFieldsNext)) {
+      if (isValid(validationFieldNext)) {
+        if (doCleanup) {
+          // field validation valid: remove it from resulting validation
+          delete validationFieldsResult[fieldKey]
+        } else {
+          validationFieldsResult[fieldKey] = ValidationFactory.createInstance()
+        }
+      } else {
+        // field validation not valid: deep merge it with the previous one
+        const validationFieldPrev = validationFieldsResult[fieldKey]
+        const validationFieldMerged = validationFieldPrev
+          ? mergeValidation(validationFieldNext, false)(validationFieldPrev)
+          : validationFieldNext
+        validationFieldsResult[fieldKey] = validationFieldMerged
+      }
+    }
+
+    const validationResult: Validation = { ...validationPrev, fields: validationFieldsResult }
+    validationResult.errors = getErrors(validationNext)
+    validationResult.warnings = getWarnings(validationNext)
+
+    return doCleanup ? cleanup(validationResult) : recalculateValidity(validationResult)
+  }
+
+const mergeFieldValidations = (
+  fieldValidationsNext: ValidationFields,
+  fieldValidationsPrev: ValidationFields
+): ValidationFields => {
+  const result: ValidationFields = { ...fieldValidationsPrev }
+  for (const [fieldKey, fieldValidationNext] of Object.entries(fieldValidationsNext)) {
+    const fieldValidationPrev = fieldValidationsPrev[fieldKey]
+    result[fieldKey] = fieldValidationPrev
+      ? mergeValidation(fieldValidationNext, false)(fieldValidationPrev)
+      : fieldValidationNext
+  }
+  return result
+}
+
+const setValid = (valid: boolean) => (obj: object) => Objects.setInPath({ obj, path: [keys.valid], value: valid })
+
+const setErrors = (errors: ValidationResult[]) => (obj: object) =>
+  Objects.setInPath({ obj, path: [keys.errors], value: errors })
+
+const setWarnings = (warnings: ValidationResult[]) => (obj: object) =>
+  Objects.setInPath({ obj, path: [keys.warnings], value: warnings })
+
+const setFieldValidations = (fieldValidations: ValidationFields) => (obj: object) =>
+  Objects.setInPath({ obj, path: [keys.fields], value: fieldValidations })
+
+const setFieldValidation = (field: string, fieldValidation: Validation) => (obj: object) =>
+  Objects.setInPath({ obj, path: [keys.fields, field], value: fieldValidation })
+
+const assocFieldValidation = (field: string, fieldValidation: Validation) => (validation: Validation) =>
+  cleanup(Objects.assocPath({ obj: validation, path: [keys.fields, field], value: fieldValidation }))
+
+const assocValidation = (v: Validation) => (obj: Record<string, unknown>) =>
+  Objects.assoc({ obj, prop: 'validation', value: v })
+
+const dissocValidation = (obj: Record<string, unknown>) => Objects.dissoc({ obj, prop: 'validation' })
+
 export const Validations = {
+  keys,
+  hasValidation,
   getValidation,
-  getFieldValidations,
   getFieldValidation,
+  getFieldValidations,
+  getFieldValidationsByFields,
   getErrors,
   getWarnings,
+  hasErrors,
+  hasWarnings,
   isValid,
   isNotValid,
+  isObjValid,
+  getCounts,
   getErrorsCount,
   getWarningsCount,
   recalculateValidity,
@@ -179,4 +307,14 @@ export const Validations = {
   mergeValidations,
   dissocFieldValidation,
   dissocFieldValidationsStartingWith,
+  mergeValidation,
+  mergeFieldValidations,
+  setValid,
+  setErrors,
+  setWarnings,
+  setFieldValidations,
+  assocFieldValidation,
+  setFieldValidation,
+  assocValidation,
+  dissocValidation,
 }

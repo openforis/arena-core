@@ -50,7 +50,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     try {
       const identifierAsGlobalObject = await super.evaluate(expressionNode)
       return identifierAsGlobalObject
-    } catch (e) {
+    } catch {
       // ignore it
     }
 

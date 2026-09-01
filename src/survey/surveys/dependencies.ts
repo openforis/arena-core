@@ -1,5 +1,14 @@
 import * as SurveyNodeDefs from './nodeDefs'
-import { NodeDef, NodeDefExpression, NodeDefFile, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import {
+  NodeDef,
+  NodeDefCode,
+  NodeDefEntity,
+  NodeDefExpression,
+  NodeDefFile,
+  NodeDefProps,
+  NodeDefs,
+  NodeDefType,
+} from '../../nodeDef'
 import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 
 import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
@@ -12,34 +21,46 @@ const functionsRequiringOnUpdateDependency = ['recordDateLastModified']
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
   [SurveyDependencyType.defaultValues]: true,
+  [SurveyDependencyType.editable]: true,
+  [SurveyDependencyType.enumeratingItems]: true,
   [SurveyDependencyType.fileName]: true,
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: true,
   [SurveyDependencyType.minCount]: true,
   [SurveyDependencyType.onUpdate]: true,
+  [SurveyDependencyType.parentCode]: false,
   [SurveyDependencyType.validations]: true,
+  [SurveyDependencyType.visible]: true,
 }
 
 const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.applicable]: false,
   [SurveyDependencyType.defaultValues]: false,
+  [SurveyDependencyType.editable]: false,
+  [SurveyDependencyType.enumeratingItems]: false,
   [SurveyDependencyType.fileName]: false,
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: false,
   [SurveyDependencyType.minCount]: false,
   [SurveyDependencyType.onUpdate]: false,
+  [SurveyDependencyType.parentCode]: false,
   [SurveyDependencyType.validations]: true,
+  [SurveyDependencyType.visible]: false,
 }
 
 const newDependecyGraph = () => ({
   [SurveyDependencyType.applicable]: {},
   [SurveyDependencyType.defaultValues]: {},
+  [SurveyDependencyType.editable]: {},
+  [SurveyDependencyType.enumeratingItems]: {},
   [SurveyDependencyType.fileName]: {},
   [SurveyDependencyType.formula]: {},
   [SurveyDependencyType.maxCount]: {},
   [SurveyDependencyType.minCount]: {},
   [SurveyDependencyType.onUpdate]: {},
+  [SurveyDependencyType.parentCode]: {},
   [SurveyDependencyType.validations]: {},
+  [SurveyDependencyType.visible]: {},
 })
 
 const getDependencyGraph = (survey: Survey): SurveyDependencyGraph => survey.dependencyGraph ?? newDependecyGraph()
@@ -134,7 +155,7 @@ const addDependencies = async (params: {
     return referencedNodeDefsByUuid
   }
 
-  const referencedNodeDefs = {}
+  const referencedNodeDefs: Dictionary<NodeDef<any>> = {}
   for (const nodeDefExpr of expressions) {
     Object.assign(
       referencedNodeDefs,
@@ -143,8 +164,7 @@ const addDependencies = async (params: {
     )
   }
 
-  const referencedNodeDefsArray: NodeDef<any>[] = Object.values(referencedNodeDefs)
-  for (const nodeDefRef of referencedNodeDefsArray) {
+  for (const nodeDefRef of Object.values(referencedNodeDefs)) {
     graphsUpdated = addDependency({
       graphs: graphsUpdated,
       type,
@@ -192,9 +212,11 @@ export const addNodeDefDependencies = async (params: {
     }
     return _graphUpdated
   }
-  graphsUpdated = await _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
   graphsUpdated = await _addDependencies(SurveyDependencyType.applicable, NodeDefs.getApplicable(nodeDef))
+  graphsUpdated = await _addDependencies(SurveyDependencyType.defaultValues, NodeDefs.getDefaultValues(nodeDef))
+  graphsUpdated = await _addDependencies(SurveyDependencyType.editable, NodeDefs.getEditableIf(nodeDef))
   graphsUpdated = await _addDependencies(SurveyDependencyType.validations, NodeDefs.getValidationsExpressions(nodeDef))
+  graphsUpdated = await _addDependencies(SurveyDependencyType.visible, NodeDefs.getVisibleIf(nodeDef))
   const maxCount = NodeDefs.getMaxCount(nodeDef)
   if (Array.isArray(maxCount)) {
     graphsUpdated = await _addDependencies(SurveyDependencyType.maxCount, maxCount)
@@ -210,6 +232,27 @@ export const addNodeDefDependencies = async (params: {
       graphsUpdated = await _addDependencies(SurveyDependencyType.fileName, [
         NodeDefExpressionFactory.createInstance({ expression: fileNameExpression }),
       ])
+    }
+  }
+  if (NodeDefs.isEntity(nodeDef)) {
+    const enumeratingItemsExpression = NodeDefs.getEnumeratingItemsExpression(nodeDef as NodeDefEntity)
+    if (enumeratingItemsExpression) {
+      graphsUpdated = await _addDependencies(SurveyDependencyType.enumeratingItems, [
+        NodeDefExpressionFactory.createInstance({ expression: enumeratingItemsExpression }),
+      ])
+    }
+  }
+  // parent code
+  if (NodeDefs.getType(nodeDef) === NodeDefType.code) {
+    const parentCodeDefUuid = NodeDefs.getParentCodeDefUuid(nodeDef as NodeDefCode)
+    if (parentCodeDefUuid) {
+      graphsUpdated = addDependency({
+        graphs: graphsUpdated,
+        type: SurveyDependencyType.parentCode,
+        nodeDefUuid: parentCodeDefUuid,
+        nodeDefDepUuid: nodeDef.uuid,
+        sideEffect,
+      })
     }
   }
   if (sideEffect) {

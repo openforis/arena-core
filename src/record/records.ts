@@ -21,6 +21,8 @@ import {
   getAttributeSiblings,
   getNodeIndex,
   isNodeApplicable,
+  isNodeEditable,
+  isNodeVisible,
   visitAncestorsAndSelf,
   getAncestorsAndSelf,
   getDescendant,
@@ -39,6 +41,24 @@ import {
 } from './_records/recordGetters'
 import { addNode, addNodes } from './_records/recordUpdater'
 import { getEnumeratingCategoryItems, findDependentEnumeratedEntityDefsNotEmpty } from './_records/recordUtils'
+import {
+  getEntityCompletionPercent,
+  getEntityCompletionStats,
+  getEntityOwnCompletionPercent,
+  getRecordCompletionPercent,
+} from './_records/recordCompletion'
+import {
+  getDescendantPageNodeDefUuids,
+  getEntitySubtreeStatus,
+  getMultiplePageEntitiesStatus,
+  getNodeDefChildrenInOwnPage,
+  getPageNodeDefs,
+  getPageValidationStatus,
+  getRecordPagesValidationProgress,
+  nodeBelongsToOwnPage,
+  nodeBelongsToPage,
+  pageHasOwnErrors,
+} from './_records/recordPagesValidation'
 import { deleteNode, deleteNodes } from './recordNodesUpdater/recordNodesDeleter'
 
 export const Records = {
@@ -65,6 +85,8 @@ export const Records = {
   getAttributeSiblings,
   getNodeIndex,
   isNodeApplicable,
+  isNodeEditable,
+  isNodeVisible,
   visitAncestorsAndSelf,
   getAncestorsAndSelf,
   getDescendant,
@@ -80,6 +102,20 @@ export const Records = {
   isEmpty,
   getStep,
   isInAnalysisStep,
+  getEntityCompletionPercent,
+  getEntityCompletionStats,
+  getEntityOwnCompletionPercent,
+  getRecordCompletionPercent,
+  getNodeDefChildrenInOwnPage,
+  getPageNodeDefs,
+  getDescendantPageNodeDefUuids,
+  nodeBelongsToPage,
+  nodeBelongsToOwnPage,
+  getPageValidationStatus,
+  pageHasOwnErrors,
+  getRecordPagesValidationProgress,
+  getEntitySubtreeStatus,
+  getMultiplePageEntitiesStatus,
   // UPDATE
   addNode,
   addNodes,
@@ -91,3 +127,8 @@ export const Records = {
 }
 
 export type { RecordUpdateOptions } from './_records/recordUpdateOptions'
+export type {
+  EntitySubtreeStatus,
+  PageValidationStatus,
+  PagesValidationProgress,
+} from './_records/recordPagesValidation'

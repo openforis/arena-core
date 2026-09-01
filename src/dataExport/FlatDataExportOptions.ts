@@ -9,6 +9,7 @@ export enum FlatDataExportOption {
   includeFileAttributeDefs = 'includeFileAttributeDefs',
   includeFiles = 'includeFiles',
   includeInternalUuids = 'includeInternalUuids',
+  includeMultipleAttributes = 'includeMultipleAttributes',
   includeReadOnlyAttributes = 'includeReadOnlyAttributes',
   includeTaxonScientificName = 'includeTaxonScientificName',
   keepFileNamesUnique = 'keepFileNamesUnique',
@@ -24,6 +25,7 @@ export const FlatDataExportDefaultOptions: FlatDataExportOptions = {
   includeAncestorAttributes: false,
   includeCategoryItemsLabels: true,
   includeFiles: true,
+  includeMultipleAttributes: false,
   includeReadOnlyAttributes: true,
   includeTaxonScientificName: true,
 }

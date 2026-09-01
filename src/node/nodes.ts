@@ -1,3 +1,4 @@
+import { Dictionary } from '../common'
 import { NodeDef, NodeDefCountType, NodeDefs } from '../nodeDef'
 import { Dates, Objects } from '../utils'
 import { Node } from './node'
@@ -10,6 +11,17 @@ const isChildApplicable = (node: Node, nodeDefUuid: string): boolean => {
   // if child applicability is not defined for a node definition, consider it applicable
   return node.meta?.childApplicability?.[nodeDefUuid] !== false
 }
+
+const isChildEditable = (node: Node, nodeDefUuid: string): boolean => {
+  // if child editability is not defined for a node definition, consider it editable
+  return node.meta?.cEdit?.[nodeDefUuid] !== false
+}
+
+const isChildVisible = (node: Node, nodeDefUuid: string): boolean => {
+  // if child visibility is not defined for a node definition, consider it visible
+  return node.meta?.cVis?.[nodeDefUuid] !== false
+}
+
 const getChildrenMinOrMaxCount = (params: {
   parentNode: Node
   nodeDef: NodeDef<any>
@@ -43,9 +55,14 @@ const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
 
 const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueApplied ?? false
 
+const isQualifierValueApplied = (node: Node): boolean => node?.meta?.qualifierValueApplied ?? false
+
 const isValueBlank = (node: Node): boolean => Objects.isEmpty(node.value)
 
-const hasUserInputValue = (node: Node): boolean => node && !isValueBlank(node) && !isDefaultValueApplied(node)
+const isValueNotBlank = (node: Node): boolean => Objects.isNotEmpty(node.value)
+
+const hasUserInputValue = (node: Node): boolean =>
+  node && !isValueBlank(node) && !isDefaultValueApplied(node) && !isQualifierValueApplied(node)
 
 const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: boolean): Node => {
   const childApplicability = { ...(node.meta?.childApplicability ?? {}) }
@@ -70,6 +87,44 @@ const dissocChildApplicability = (node: Node, nodeDefUuid: string) => {
     meta: { ...node.meta, childApplicability },
   }
 }
+
+type MetaBooleanDictionaryProp = 'childApplicability' | 'cEdit' | 'cVis'
+
+const updateMetaDictionary = ({
+  node,
+  nodeDefUuid,
+  propName,
+  propValue,
+  sideEffect,
+}: {
+  node: Node
+  nodeDefUuid: string
+  propName: MetaBooleanDictionaryProp
+  propValue: any
+  sideEffect: boolean
+}): Node => {
+  const nodeUpdated = sideEffect ? node : { ...node }
+  const metaOriginal = nodeUpdated.meta ?? {}
+  const meta = sideEffect ? metaOriginal : { ...metaOriginal }
+  const existingDictionary: Dictionary<boolean> = meta[propName] ?? {}
+  const dictionary = sideEffect ? existingDictionary : { ...existingDictionary }
+  if (propValue) {
+    delete dictionary[nodeDefUuid]
+  } else {
+    dictionary[nodeDefUuid] = propValue
+  }
+  meta[propName] = dictionary
+  nodeUpdated.meta = meta
+  nodeUpdated.updated = true
+  nodeUpdated.dateModified = Dates.nowFormattedForStorage()
+  return nodeUpdated
+}
+
+const assocChildEditable = (node: Node, nodeDefUuid: string, editable: boolean, sideEffect = false): Node =>
+  updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
+
+const assocChildVisible = (node: Node, nodeDefUuid: string, visible: boolean, sideEffect = false): Node =>
+  updateMetaDictionary({ node, nodeDefUuid, propName: 'cVis', propValue: visible, sideEffect })
 
 const assocChildrenCount = (params: {
   node: Node
@@ -118,24 +173,45 @@ const removeStatusFlags = ({ node, sideEffect = false }: { node: Node; sideEffec
   }
 }
 
+const assocValue = (node: Node, value: any, sideEffect = false): Node => {
+  let nodeUpdated = sideEffect ? node : { ...node }
+  nodeUpdated.value = value
+  nodeUpdated.updated = true
+  nodeUpdated.dateModified = Dates.nowFormattedForStorage()
+  if (isDefaultValueApplied(nodeUpdated) || isQualifierValueApplied(nodeUpdated)) {
+    // reset defaultValueApplied and qualifierValueApplied flags
+    const metaOriginal = nodeUpdated.meta ?? {}
+    const meta = sideEffect ? metaOriginal : { ...metaOriginal }
+    nodeUpdated.meta = { ...meta, defaultValueApplied: false, qualifierValueApplied: false }
+  }
+  return nodeUpdated
+}
+
 export const Nodes = {
   isRoot,
   areEqual,
   isChildApplicable,
+  isChildEditable,
+  isChildVisible,
   getChildrenMinOrMaxCount,
   getChildrenMaxCount,
   getChildrenMinCount,
   getHierarchy,
   getHierarchyCode,
   isDefaultValueApplied,
+  isQualifierValueApplied,
   isValueBlank,
+  isValueNotBlank,
   hasUserInputValue,
   // update
   assocChildApplicability,
   dissocChildApplicability,
+  assocChildEditable,
+  assocChildVisible,
   assocChildrenCount,
   assocChildrenMaxCount,
   assocChildrenMinCount,
   mergeNodes,
   removeStatusFlags,
+  assocValue,
 }

@@ -18,6 +18,8 @@ export const updateDependentsCount = async (
 
   const updateResult = new RecordUpdateResult({ record })
 
+  const recordUpdateOptions = { sideEffect }
+
   // 1. fetch dependent nodes
   const dependencyType =
     countType === NodeDefCountType.max ? SurveyDependencyType.maxCount : SurveyDependencyType.minCount
@@ -59,7 +61,7 @@ export const updateDependentsCount = async (
 
       // 5. update node and add it to nodes updated
       const nodeCtxUpdated = Nodes.assocChildrenCount({ node: nodeCtx, nodeDefUuid, count, countType })
-      updateResult.addNode(nodeCtxUpdated, { sideEffect })
+      updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
     }
   }
   return updateResult

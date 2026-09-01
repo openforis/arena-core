@@ -2,8 +2,9 @@ import { RetryProcessor } from './retryProcessor'
 
 type ChunkProcessor = (args: {
   chunk: number
-  totalChunks: number
   content: Blob | string | Uint8Array
+  totalChunks: number
+  totalFileSize: number
 }) => Promise<any>
 
 export type FileProcessorConstructorArgs = {
@@ -29,6 +30,7 @@ export class FileProcessor {
   private readonly onComplete?: (result?: any) => void
 
   // State properties
+  protected totalFileSize: number = 0
   protected running: boolean = false
   protected totalChunks: number = 0
   protected currentChunkNumber: number = 0
@@ -61,6 +63,7 @@ export class FileProcessor {
     this.running = false
     this.totalChunks = 0
     this.currentChunkNumber = 0
+    this.totalFileSize = 0
   }
 
   protected async calculateFileSize(): Promise<number> {
@@ -83,13 +86,13 @@ export class FileProcessor {
   }
 
   protected processNextChunk(): void {
-    const { chunkProcessor, currentChunkNumber, totalChunks, maxTryings } = this
+    const { chunkProcessor, currentChunkNumber, totalFileSize, totalChunks, maxTryings } = this
 
     this.extractCurrentFileChunk()
       .then((content) => {
         const retryProcessor = new RetryProcessor<void>({
           processor: async () => {
-            const chunkResult = await chunkProcessor({ chunk: currentChunkNumber, totalChunks, content })
+            const chunkResult = await chunkProcessor({ chunk: currentChunkNumber, totalFileSize, totalChunks, content })
             if (this.currentChunkNumber === totalChunks && this.onComplete) {
               this.onComplete(chunkResult)
             }
@@ -119,6 +122,7 @@ export class FileProcessor {
     this.currentChunkNumber = startFromChunk
     this.calculateFileSize()
       .then((fileSize) => {
+        this.totalFileSize = fileSize
         this.totalChunks = Math.ceil(fileSize / this.chunkSize)
         if (this.totalChunks > 0) {
           this.processNextChunk()

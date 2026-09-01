@@ -37,6 +37,7 @@ export interface NodeDefProps {
   labels?: Labels
   multiple?: boolean
   name?: string
+  qualifier?: boolean
   readOnly?: boolean
 
   // available only when readOnly is true
@@ -100,11 +101,15 @@ export interface NodeDefPropsAdvanced {
   applicable?: NodeDefExpression[]
   defaultValues?: NodeDefExpression[]
   defaultValueEvaluatedOneTime?: boolean
+  editableIf?: NodeDefExpression[]
   excludedInClone?: boolean
   formula?: NodeDefExpression[]
   validations?: NodeDefValidations
+  visibleIf?: NodeDefExpression[]
   // file attribute
   fileNameExpression?: string
+  // enumerate entity
+  enumeratingItemsExpression?: string
   // code and taxon attribute
   itemsFilter?: string
 
@@ -132,7 +137,6 @@ export interface NodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDef
   parentUuid?: string
   propsAdvanced?: NodeDefPropsAdvanced
   propsAdvancedDraft?: NodeDefPropsAdvanced
-  propsDraft?: P
   published?: boolean
   temporary?: boolean
   type: T

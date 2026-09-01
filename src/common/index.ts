@@ -1,10 +1,12 @@
 export type { Dictionary } from './Dictionary'
+export type { I18n } from './i18n'
 
 import { Validation } from '../validation'
 
 export interface ArenaObject<T> {
   readonly uuid: string
   props: T
+  propsDraft?: T
   validation?: Validation
 }
 

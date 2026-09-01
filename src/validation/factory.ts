@@ -1,5 +1,6 @@
 import { Dictionary, Factory } from '../common'
 import { Labels } from '../language'
+import { Objects } from '../utils'
 import { Validation, ValidationResult, ValidationSeverity } from './validation'
 
 type ValidationFactoryParams = {
@@ -18,12 +19,17 @@ export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
       ...defaultParams,
       ...(params ?? {}),
     }
-    return {
-      errors,
-      fields,
-      valid,
-      warnings,
+    const result: Validation = { valid }
+    if (Objects.isNotEmpty(errors)) {
+      result.errors = errors
     }
+    if (Objects.isNotEmpty(fields)) {
+      result.fields = fields
+    }
+    if (Objects.isNotEmpty(warnings)) {
+      result.warnings = warnings
+    }
+    return result
   },
 }
 

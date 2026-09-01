@@ -1,5 +1,5 @@
 import { Category, CategoryFactory, CategoryService, CategoryImportSummary } from '../../category'
-import { JobSummary } from '../../job'
+import { JobSerialized } from '../../job'
 
 export const categoryMock: Category = CategoryFactory.createInstance({ props: { name: 'category_mock' } })
 
@@ -12,7 +12,7 @@ export class CategoryServiceMock implements CategoryService {
     throw new Error('Not implemented')
   }
 
-  createImportCategory(): Promise<JobSummary<any>> {
+  createImportCategory(): Promise<JobSerialized<any>> {
     throw new Error('Not implemented')
   }
 

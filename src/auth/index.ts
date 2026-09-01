@@ -29,4 +29,6 @@ export { UserFactory } from './factory'
 
 export { Permission } from './permission'
 
+export type { UserGroupQualifier, UserGroupProps, UserGroup } from './userGroup'
+
 export { Users } from './users'

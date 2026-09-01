@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { describe, test, expect, beforeAll } from '@jest/globals'
+
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 
@@ -11,6 +12,8 @@ import { TestUtils } from '../../tests/testUtils'
 import { User } from '../../auth'
 import { Records } from './../records'
 import { Surveys } from '../../survey'
+import { CategoryItem, CategoryItemFactory } from '../../category'
+import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { ExtraPropDataType } from '../../extraProp'
 import { NodeValues } from '../../node/nodeValues'
 import { Strings } from '../../utils'
@@ -68,9 +71,10 @@ describe('Record nodes updater - dependent code attributes', () => {
     expect(dependentNode).not.toBeNull()
     expect(dependentNode.value).toEqual({ itemUuid: item1a.uuid })
 
-    // update source node value
+    // update source node value to a different top-level item, invalidating the dependent's current item
+    const item2 = TestUtils.getCategoryItem({ survey, categoryName, codePaths: ['2'] })
     const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.parent_code' })
-    const nodeUpdated = { ...nodeToUpdate, value: 2 }
+    const nodeUpdated = { ...nodeToUpdate, value: NodeValues.newCodeValue({ itemUuid: item2.uuid }) }
     const recordUpdated = Records.addNode(nodeUpdated)(record)
 
     const updateResult = await RecordNodesUpdater.updateNodesDependents({
@@ -96,6 +100,158 @@ describe('Record nodes updater - dependent code attributes', () => {
     })
     expect(dependentNodeUpdated).not.toBeNull()
     expect(dependentNodeUpdated.value).toBeNull()
+    expect(updateResult.clearedDefUuids).toEqual(new Set([dependentNodeUpdated.nodeDefUuid]))
+  })
+
+  test('Dependent code attribute value preserved when parent node is revisited without an actual value change', async () => {
+    // Reproduces publish-time record checks, which can re-visit every node of a node def whose
+    // definition changed (e.g. only its validations) without any of its nodes' values actually changing.
+    const categoryName = 'hierarchical_category'
+
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        codeDef('parent_code', 'hierarchical_category'),
+        codeDef('dependent_code', 'hierarchical_category').parentCodeAttribute('parent_code')
+      )
+    )
+      .categories(
+        category(categoryName)
+          .levels('level_1', 'level_2')
+          .items(
+            categoryItem('1').items(categoryItem('1a')),
+            categoryItem('2').items(categoryItem('2a'), categoryItem('2b'), categoryItem('2c'))
+          )
+      )
+      .build()
+
+    const item1a = TestUtils.getCategoryItem({ survey, categoryName, codePaths: ['1', '1a'] })
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        attribute('parent_code', '1'),
+        attribute('dependent_code', { itemUuid: item1a.uuid })
+      )
+    ).build()
+
+    const dependentNodePath = 'root_entity.dependent_code'
+
+    // re-visit the parent node without changing its value (its node def changed, not this node's value)
+    const nodeToRevisit = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.parent_code' })
+    const nodeRevisited = { ...nodeToRevisit }
+
+    const updateResult = await RecordNodesUpdater.updateNodesDependents({
+      user,
+      survey,
+      record,
+      nodes: { [nodeRevisited.iId]: nodeRevisited },
+    })
+    expect(updateResult).not.toBeNull()
+    expect(updateResult.clearedDefUuids.size).toBe(0)
+
+    const dependentNodeAfter = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: dependentNodePath,
+    })
+    expect(dependentNodeAfter).not.toBeNull()
+    expect(dependentNodeAfter.value).toEqual({ itemUuid: item1a.uuid })
+  })
+
+  test('Dependent code attribute belonging to a "big" category (not in the survey ref data index) is validated through the categoryItemProvider', async () => {
+    const categoryName = 'hierarchical_category'
+
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        codeDef('parent_code', 'hierarchical_category'),
+        codeDef('dependent_code', 'hierarchical_category').parentCodeAttribute('parent_code')
+      )
+    )
+      .categories(
+        category(categoryName)
+          .levels('level_1', 'level_2')
+          .items(categoryItem('1').items(categoryItem('1a')), categoryItem('2').items(categoryItem('2a')))
+      )
+      .build()
+
+    const item1 = TestUtils.getCategoryItem({ survey, categoryName, codePaths: ['1'] })
+    const item2 = TestUtils.getCategoryItem({ survey, categoryName, codePaths: ['2'] })
+    const categoryUuid = Surveys.getCategoryByName({ survey, categoryName })!.uuid
+    const dependentDef = Surveys.getNodeDefByName({ survey, name: 'dependent_code' })
+
+    // A "big" category item that only the categoryItemProvider knows about (e.g. loaded from an
+    // external reference data source) - deliberately not part of the survey's own ref data index, so
+    // Surveys.getCategoryItemByUuid alone cannot resolve it.
+    const bigItem: CategoryItem = CategoryItemFactory.createInstance({
+      levelUuid: item1.levelUuid!,
+      parentUuid: item1.uuid,
+      props: { code: '1z' },
+    })
+    const categoryItemProvider: CategoryItemProvider = {
+      getItemByCodePaths: async () => undefined,
+      getItems: async () => [],
+      getItemByUuid: async ({ categoryUuid: categoryUuidParam, itemUuid }) =>
+        categoryUuidParam === categoryUuid && itemUuid === bigItem.uuid ? bigItem : undefined,
+    }
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        attribute('parent_code', '1'),
+        attribute('dependent_code', { itemUuid: bigItem.uuid })
+      )
+    ).build()
+
+    const dependentNodePath = 'root_entity.dependent_code'
+
+    // Phase 1: parent node revisited without an actual value change - the big item is still a valid
+    // child of item1, but only the categoryItemProvider can confirm that. Should NOT be cleared.
+    const nodeToRevisit = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.parent_code' })
+    const revisitResult = await RecordNodesUpdater.updateNodesDependents({
+      user,
+      survey,
+      record,
+      nodes: { [nodeToRevisit.iId]: { ...nodeToRevisit } },
+      categoryItemProvider,
+    })
+    expect(revisitResult.clearedDefUuids.size).toBe(0)
+    const dependentNodeAfterRevisit = TestUtils.getNodeByPath({
+      survey,
+      record: revisitResult.record,
+      path: dependentNodePath,
+    })
+    expect(dependentNodeAfterRevisit.value).toEqual({ itemUuid: bigItem.uuid })
+
+    // Phase 2: parent value genuinely changes to a different top-level item - the big item (a child of
+    // item1) is no longer valid under item2, and the categoryItemProvider is what makes that detectable.
+    const nodeUpdated = { ...nodeToRevisit, value: NodeValues.newCodeValue({ itemUuid: item2.uuid }) }
+    const recordUpdated = Records.addNode(nodeUpdated)(revisitResult.record)
+    const updateResult = await RecordNodesUpdater.updateNodesDependents({
+      user,
+      survey,
+      record: recordUpdated,
+      nodes: { [nodeUpdated.iId]: nodeUpdated },
+      categoryItemProvider,
+    })
+    expect(updateResult.clearedDefUuids).toEqual(new Set([dependentDef!.uuid]))
+    const dependentNodeAfterChange = TestUtils.getNodeByPath({
+      survey,
+      record: updateResult.record,
+      path: dependentNodePath,
+    })
+    expect(dependentNodeAfterChange.value).toBeNull()
   })
 
   test('Hierarchical read-only code attributes evaluation', async () => {
@@ -197,6 +353,7 @@ describe('Record nodes updater - dependent code attributes', () => {
         nodes: { [nodeToUpdate.iId]: nodeUpdated },
       })
       expect(updateResult).not.toBeNull()
+      expect(updateResult.clearedDefUuids.size).toBe(0)
 
       record = updateResult.record
     }

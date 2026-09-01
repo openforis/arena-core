@@ -216,6 +216,16 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       return getNodeDefParent({ survey, nodeDef })
     },
   },
+  prevCycleValue: {
+    minArity: 1,
+    maxArity: 1,
+    executor: emptyExecutor,
+  },
+  prevCycleValues: {
+    minArity: 1,
+    maxArity: 1,
+    executor: emptyExecutor,
+  },
   recordCycle: {
     minArity: 0,
     maxArity: 0,
@@ -301,6 +311,12 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         const firstVernacularName = vernacularNameArray?.[0]
         return firstVernacularName?.props?.name
       },
+  },
+  unique: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (_context: NodeDefExpressionContext) => async (_nodeSet) => [],
   },
   userEmail: {
     minArity: 0,

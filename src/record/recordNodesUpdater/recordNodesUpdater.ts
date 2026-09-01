@@ -9,9 +9,12 @@ import { updateSelfAndDependentsApplicable } from './recordNodeDependentsApplica
 import { updateDependentCodeAttributes } from './recordNodeDependentsCodeAttributesUpdater'
 import { updateDependentsCount } from './recordNodeDependentsCountUpdater'
 import { updateSelfAndDependentsDefaultValues } from './recordNodeDependentsDefaultValuesUpdater'
+import { updateSelfAndDependentsEditable } from './recordNodeDependentsEditableUpdater'
 import { updateDependentEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
+import { updateDependentEnumeratingItemsEntities } from './recordNodeDependentsEnumeratingItemsUpdater'
 import { updateSelfAndDependentsFileNames } from './recordNodeDependentsFileNamesEvaluator'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
+import { updateSelfAndDependentsVisible } from './recordNodeDependentsVisibleUpdater'
 import { NodesUpdateParams } from './recordNodesCreator'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -81,8 +84,16 @@ export const updateNodesDependents = async (
       const defaultValuesUpdateResult = await updateSelfAndDependentsDefaultValues(createNodeUpdateParams(node))
       updateResult.merge(defaultValuesUpdateResult)
 
+      // editable when
+      const editableUpdateResult = await updateSelfAndDependentsEditable(createNodeUpdateParams(node))
+      updateResult.merge(editableUpdateResult)
+
+      // visible when
+      const visibleUpdateResult = await updateSelfAndDependentsVisible(createNodeUpdateParams(node))
+      updateResult.merge(visibleUpdateResult)
+
       // code attributes
-      const dependentCodeAttributesUpdateResult = updateDependentCodeAttributes(createNodeUpdateParams(node))
+      const dependentCodeAttributesUpdateResult = await updateDependentCodeAttributes(createNodeUpdateParams(node))
       updateResult.merge(dependentCodeAttributesUpdateResult)
 
       // enumerated entities
@@ -90,6 +101,11 @@ export const updateNodesDependents = async (
         createNodeUpdateParams(node)
       )
       updateResult.merge(dependentEnumeratedEntitiesUpdateResult)
+
+      const dependentEnumeratingItemsUpdateResult = await updateDependentEnumeratingItemsEntities(
+        createNodeUpdateParams(node)
+      )
+      updateResult.merge(dependentEnumeratingItemsUpdateResult)
 
       // Update dependents (file names)
       const dependentFileNamesUpdateResult = await updateSelfAndDependentsFileNames(createNodeUpdateParams(node))
@@ -100,8 +116,11 @@ export const updateNodesDependents = async (
         ...maxCountUpdateResult.nodes,
         ...applicabilityUpdateResult.nodes,
         ...defaultValuesUpdateResult.nodes,
+        ...editableUpdateResult.nodes,
+        ...visibleUpdateResult.nodes,
         ...dependentCodeAttributesUpdateResult.nodes,
         ...dependentEnumeratedEntitiesUpdateResult.nodes,
+        ...dependentEnumeratingItemsUpdateResult.nodes,
         ...dependentFileNamesUpdateResult.nodes,
       }
 
