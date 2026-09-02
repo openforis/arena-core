@@ -1,6 +1,6 @@
 import { Dictionary, TraverseMethod } from '../../common'
 import { SystemError } from '../../error'
-import { Node, NodePointer, Nodes } from '../../node'
+import { Node, NodePointer, Nodes, NodesMap } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { defaultCycle, Surveys } from '../../survey'
@@ -12,7 +12,7 @@ import { RecordNodesIndexReader } from './recordNodesIndexReader'
 
 export const getCycle = (record: Record): string => record.cycle ?? defaultCycle
 
-export const getNodes = (record: Record): Dictionary<Node> => record.nodes ?? {}
+export const getNodes = (record: Record): NodesMap => record.nodes ?? {}
 
 export const getNodesArray = (record: Record): Node[] => Object.values(getNodes(record))
 
