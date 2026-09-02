@@ -1,10 +1,69 @@
-import { NodeFactory, Nodes } from '../node'
+import { NodeFactory, Nodes, NodesMap } from '../node'
 import { NodeDef, NodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Objects } from '../utils'
 import type { ArenaRecord, ArenaRecordNode } from './record'
 import { RecordUpdateResult } from './recordNodesUpdater'
 import { Records } from './records'
+
+const metaHierarchyPath = ['meta', 'h']
+
+interface NodeOld extends ArenaRecordNode {
+  uuid?: string
+  parentUuid?: string
+}
+
+const initInternalIds = (params: { record: ArenaRecord; nodes: NodeOld[] }) => {
+  const { record, nodes } = params
+
+  let lastInternalId = 0
+  const uuidByInternalId: { [internalId: number]: string } = {}
+  const internalIdByUuid: { [uuid: string]: number } = {}
+  const indexedNodes: NodesMap = {}
+
+  const nextInternalId = (uuid: string): number => {
+    const internalId = (lastInternalId += 1)
+    uuidByInternalId[internalId] = uuid
+    internalIdByUuid[uuid] = internalId
+    return internalId
+  }
+
+  for (const node of nodes) {
+    const { uuid, parentUuid } = node
+    if (!uuid) {
+      continue
+    }
+    const internalId = nextInternalId(uuid)
+    node.iId = internalId
+    if (parentUuid) {
+      const newParentId = internalIdByUuid[parentUuid]
+      if (!newParentId) {
+        throw new Error('Invalid nodes hierarchy; descendant node found before parent node: ' + JSON.stringify(node))
+      }
+      node.pIId = newParentId
+      delete node['parentUuid']
+
+      const parentNode = indexedNodes[newParentId]
+      const metaHierarchy = [...Nodes.getHierarchy(parentNode), newParentId]
+      Objects.assocPath({ obj: node, path: metaHierarchyPath, value: metaHierarchy, sideEffect: true })
+    } else {
+      Objects.dissocPath({ obj: node, path: metaHierarchyPath, sideEffect: true })
+    }
+    indexedNodes[internalId] = node
+    delete node['uuid']
+  }
+
+  record.lastInternalId = lastInternalId
+
+  // Rebuild record.nodes to be keyed by internal IDs instead of the old UUIDs
+  const newNodesMap: NodesMap = {}
+  for (const node of nodes) {
+    newNodesMap[node.iId] = node
+  }
+  record.nodes = newNodesMap
+
+  return record
+}
 
 const fixCodeAttribute = (params: {
   survey: Survey
@@ -23,12 +82,12 @@ const fixCodeAttribute = (params: {
     // missing parent node; node parentUuid could be invalid
     return node
   }
-  // populate meta.hCode with ancestor code attribute node uuids
-  const hCode: string[] = []
+  // populate meta.hCode with ancestor code attribute node internal ids
+  const hCode: number[] = []
   let currentCodeDef: NodeDefCode = nodeDef
   let currentParentCodeAttribute = Records.getParentCodeAttribute({ parentNode, nodeDef: currentCodeDef })(record)
   while (currentParentCodeAttribute) {
-    hCode.unshift(currentParentCodeAttribute.uuid)
+    hCode.unshift(currentParentCodeAttribute.iId)
     currentCodeDef = Surveys.getNodeDefByUuid({ survey, uuid: currentParentCodeAttribute.nodeDefUuid }) as NodeDefCode
     currentParentCodeAttribute = Records.getParentCodeAttribute({ parentNode, nodeDef: currentCodeDef })(record)
   }
@@ -56,15 +115,14 @@ const insertMissingSingleNode = (params: {
     return null
   }
   // insert missing single node
-  const recordUuid = record.uuid
-  let node = NodeFactory.createInstance({ nodeDefUuid, recordUuid, parentNode })
+  let node = NodeFactory.createInstance({ record, nodeDefUuid, parentNode })
 
   if (nodeDef.type === NodeDefType.code) {
     node = fixCodeAttribute({ survey, nodeDef: nodeDef as NodeDefCode, record, node, sideEffect })
   }
 
   const recordUpdated = Records.addNode(node, { sideEffect })(record)
-  return new RecordUpdateResult({ record: recordUpdated, nodes: { [node.uuid]: node } })
+  return new RecordUpdateResult({ record: recordUpdated, nodes: { [node.iId]: node } })
 }
 
 const insertMissingSingleNodes = (params: {
@@ -114,8 +172,9 @@ const deleteNodesByDefUuid = (params: { record: ArenaRecord; nodeDefUuid: string
       updateResult.merge(new RecordUpdateResult({ record: recordWithParentNodeUpdated }))
     }
   }
-  const nodeUuidsToDelete = nodesToDelete.map((node) => node.uuid)
-  const nodesDeleteUpdateResult = Records.deleteNodes(nodeUuidsToDelete, recordUpdateOptions)(updateResult.record)
+  const nodeInternalIdsToDelete = nodesToDelete.map((node) => node.iId)
+  const nodesDeleteUpdateResult = Records.deleteNodes(nodeInternalIdsToDelete, recordUpdateOptions)(updateResult.record)
+
   updateResult.merge(nodesDeleteUpdateResult)
 
   return updateResult
@@ -159,6 +218,7 @@ const fixRecord = (params: { survey: Survey; record: ArenaRecord; sideEffect?: b
 }
 
 export const RecordFixer = {
+  initInternalIds,
   fixRecord,
   insertMissingSingleNodes,
 }

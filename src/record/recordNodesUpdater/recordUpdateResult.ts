@@ -25,12 +25,12 @@ export class RecordUpdateResult {
     this.validation = params.validation
   }
 
-  getNodeByUuid(uuid: string) {
-    return this.nodes[uuid]
+  getNodeByInternalId(internalId: number) {
+    return this.nodes[internalId]
   }
 
   addNode(node: Node, options?: RecordUpdateOptions) {
-    this.nodes[node.uuid] = node
+    this.nodes[node.iId] = node
     this.record = addNode(node, options)(this.record)
   }
 

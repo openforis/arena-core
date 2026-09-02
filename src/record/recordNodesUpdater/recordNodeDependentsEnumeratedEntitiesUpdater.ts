@@ -67,8 +67,8 @@ export const createOrDeleteEnumeratedEntities = async (
   const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
 
   const deleteExistingEntities = () => {
-    const existingEntityUuids = existingEntities.map((node) => node.uuid)
-    const nodesDeleteUpdatedResult = deleteNodes(existingEntityUuids, recordUpdateOptions)(updateResult.record)
+    const existingEntityInternalIds = existingEntities.map((node) => node.iId)
+    const nodesDeleteUpdatedResult = deleteNodes(existingEntityInternalIds, recordUpdateOptions)(updateResult.record)
     updateResult.merge(nodesDeleteUpdatedResult)
   }
 

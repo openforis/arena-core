@@ -52,11 +52,7 @@ describe('RecordPagesValidationProgress', () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
       user,
-      entityDef(
-        'cluster',
-        integerDef('cluster_id').key(),
-        entityDef('plot', integerDef('plot_id').key()).multiple()
-      )
+      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
     ).build()
 
     const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
@@ -76,16 +72,16 @@ describe('RecordPagesValidationProgress', () => {
       )
     ).build()
 
-    const clusterIdNode = Records.getNodesByDefUuid(
-      Surveys.getNodeDefByName({ survey, name: 'cluster_id' }).uuid
-    )(record)[0]
+    const clusterIdNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'cluster_id' }).uuid)(
+      record
+    )[0]
     const plotIdNodes = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid)(record)
 
     // Error only on nested plot field → parent cluster stays valid; 1 of 2 pages invalid.
     record.validation = ValidationFactory.createInstance({
       valid: false,
       fields: {
-        [plotIdNodes[0].uuid]: ValidationFactory.createInstance({
+        [plotIdNodes[0].iId]: ValidationFactory.createInstance({
           valid: false,
           errors: [ValidationResultFactory.createInstance({ key: 'invalid', severity: ValidationSeverity.error })],
         }),
@@ -102,11 +98,11 @@ describe('RecordPagesValidationProgress', () => {
     record.validation = ValidationFactory.createInstance({
       valid: false,
       fields: {
-        [clusterIdNode.uuid]: ValidationFactory.createInstance({
+        [clusterIdNode.iId]: ValidationFactory.createInstance({
           valid: false,
           errors: [ValidationResultFactory.createInstance({ key: 'invalid', severity: ValidationSeverity.error })],
         }),
-        [plotIdNodes[0].uuid]: ValidationFactory.createInstance({
+        [plotIdNodes[0].iId]: ValidationFactory.createInstance({
           valid: false,
           errors: [ValidationResultFactory.createInstance({ key: 'invalid', severity: ValidationSeverity.error })],
         }),
@@ -137,7 +133,7 @@ describe('RecordPagesValidationProgress', () => {
     record.validation = ValidationFactory.createInstance({
       valid: true,
       fields: {
-        [remarksNode.uuid]: ValidationFactory.createInstance({
+        [remarksNode.iId]: ValidationFactory.createInstance({
           valid: true,
           warnings: [ValidationResultFactory.createInstance({ key: 'warn', severity: ValidationSeverity.warning })],
         }),
@@ -162,11 +158,7 @@ describe('RecordPagesValidationProgress', () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
       user,
-      entityDef(
-        'cluster',
-        integerDef('cluster_id').key(),
-        entityDef('plot', integerDef('plot_id').key()).multiple()
-      )
+      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
     ).build()
 
     const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
@@ -183,7 +175,7 @@ describe('RecordPagesValidationProgress', () => {
     record.validation = ValidationFactory.createInstance({
       valid: false,
       fields: {
-        [plotIdNode.uuid]: ValidationFactory.createInstance({
+        [plotIdNode.iId]: ValidationFactory.createInstance({
           valid: false,
           errors: [ValidationResultFactory.createInstance({ key: 'invalid', severity: ValidationSeverity.error })],
         }),
@@ -228,13 +220,18 @@ describe('RecordPagesValidationProgress', () => {
     ).build()
 
     const clusterNode = Records.getRoot(record)!
-    const childrenCountKey = `childrenCount_${clusterNode.uuid}_${plotDef.uuid}`
+    const childrenCountKey = `childrenCount_${clusterNode.iId}_${plotDef.uuid}`
     record.validation = ValidationFactory.createInstance({
       valid: false,
       fields: {
         [childrenCountKey]: ValidationFactory.createInstance({
           valid: false,
-          errors: [ValidationResultFactory.createInstance({ key: 'record.nodes.count.min', severity: ValidationSeverity.error })],
+          errors: [
+            ValidationResultFactory.createInstance({
+              key: 'record.nodes.count.min',
+              severity: ValidationSeverity.error,
+            }),
+          ],
         }),
       },
     })
@@ -253,16 +250,12 @@ describe('RecordPagesValidationProgress', () => {
       entityDef('cluster', integerDef('cluster_id').key(), fileDef('attachment').multiple())
     ).build()
 
-    const record = new RecordBuilder(
-      user,
-      survey,
-      entity('cluster', attribute('cluster_id', 10))
-    ).build()
+    const record = new RecordBuilder(user, survey, entity('cluster', attribute('cluster_id', 10))).build()
 
     const clusterNode = Records.getRoot(record)!
     const attachmentDef = Surveys.getNodeDefByName({ survey, name: 'attachment' })
     const childrenCountKey = RecordValidations.getValidationChildrenCountKey({
-      nodeParentUuid: clusterNode.uuid,
+      nodeParentInternalId: clusterNode.iId,
       nodeDefChildUuid: attachmentDef.uuid,
     })
     record.validation = ValidationFactory.createInstance({
@@ -316,11 +309,11 @@ describe('RecordPagesValidationProgress', () => {
     setOwnPage(plotDef, rootDef)
     setOwnPage(treeDef, plotDef)
 
-    expect(Records.getPageNodeDefs({ survey, cycle }).map((d) => d.props.name).sort()).toEqual([
-      'cluster',
-      'plot',
-      'tree',
-    ])
+    expect(
+      Records.getPageNodeDefs({ survey, cycle })
+        .map((d) => d.props.name)
+        .sort()
+    ).toEqual(['cluster', 'plot', 'tree'])
 
     const record = new RecordBuilder(
       user,
@@ -336,7 +329,7 @@ describe('RecordPagesValidationProgress', () => {
     record.validation = ValidationFactory.createInstance({
       valid: false,
       fields: {
-        [treeIdNode.uuid]: ValidationFactory.createInstance({
+        [treeIdNode.iId]: ValidationFactory.createInstance({
           valid: false,
           errors: [ValidationResultFactory.createInstance({ key: 'invalid', severity: ValidationSeverity.error })],
         }),
@@ -351,7 +344,7 @@ describe('RecordPagesValidationProgress', () => {
     })
   })
 
-  test('getPageValidationStatus with scopeEntityUuid ignores sibling entity instances', async () => {
+  test('getPageValidationStatus with scopeEntityInternalId ignores sibling entity instances', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
       user,
@@ -397,7 +390,7 @@ describe('RecordPagesValidationProgress', () => {
     record.validation = ValidationFactory.createInstance({
       valid: false,
       fields: {
-        [plot3Code.uuid]: ValidationFactory.createInstance({
+        [plot3Code.iId]: ValidationFactory.createInstance({
           valid: false,
           errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
         }),
@@ -419,7 +412,7 @@ describe('RecordPagesValidationProgress', () => {
         pageNodeDefUuid: landUseDef.uuid,
         descendantPageUuids: landUseDescendants,
         record,
-        scopeEntityUuid: plot3.uuid,
+        scopeEntityInternalId: plot3.iId,
       })
     ).toEqual({ hasErrors: true, hasWarnings: false })
 
@@ -428,7 +421,7 @@ describe('RecordPagesValidationProgress', () => {
         pageNodeDefUuid: landUseDef.uuid,
         descendantPageUuids: landUseDescendants,
         record,
-        scopeEntityUuid: plot4.uuid,
+        scopeEntityInternalId: plot4.iId,
       })
     ).toEqual({ hasErrors: false, hasWarnings: false })
   })
@@ -479,37 +472,33 @@ describe('RecordPagesValidationProgress', () => {
     record.validation = ValidationFactory.createInstance({
       valid: false,
       fields: {
-        [plot3Code.uuid]: ValidationFactory.createInstance({
+        [plot3Code.iId]: ValidationFactory.createInstance({
           valid: false,
           errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
         }),
       },
     })
 
-    expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: plot3.uuid, cycle })).toEqual({
+    expect(Records.getEntitySubtreeStatus({ survey, record, entityInternalId: plot3.iId, cycle })).toEqual({
       hasErrors: true,
       hasWarnings: false,
       isComplete: false,
     })
 
-    expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: plot4.uuid, cycle })).toEqual({
+    expect(Records.getEntitySubtreeStatus({ survey, record, entityInternalId: plot4.iId, cycle })).toEqual({
       hasErrors: false,
       hasWarnings: false,
       isComplete: true,
     })
 
-    expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: 'missing-uuid', cycle })).toBeNull()
+    expect(Records.getEntitySubtreeStatus({ survey, record, entityInternalId: 999999, cycle })).toBeNull()
   })
 
   test('getEntitySubtreeStatus does not treat vacuous 100% completion as complete', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
       user,
-      entityDef(
-        'cluster',
-        integerDef('cluster_id').key(),
-        entityDef('plot', textDef('remarks')).multiple()
-      )
+      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', textDef('remarks')).multiple())
     ).build()
 
     const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
@@ -522,10 +511,7 @@ describe('RecordPagesValidationProgress', () => {
       entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('remarks', null)))
     ).build()
 
-    const plotEntity = Records.getChildren(
-      Records.getRoot(record)!,
-      plotDef.uuid
-    )(record)[0]
+    const plotEntity = Records.getChildren(Records.getRoot(record)!, plotDef.uuid)(record)[0]
 
     expect(Records.getEntityCompletionPercent({ survey, record, entity: plotEntity })).toBe(100)
     expect(Records.getEntityCompletionStats({ survey, record, entity: plotEntity })).toEqual({
@@ -533,7 +519,7 @@ describe('RecordPagesValidationProgress', () => {
       filled: 0,
     })
 
-    expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: plotEntity.uuid, cycle })).toEqual({
+    expect(Records.getEntitySubtreeStatus({ survey, record, entityInternalId: plotEntity.iId, cycle })).toEqual({
       hasErrors: false,
       hasWarnings: false,
       isComplete: false,
@@ -553,11 +539,11 @@ describe('RecordPagesValidationProgress', () => {
       entity('cluster', attribute('cluster_id', 10), attribute('remarks', null))
     ).build()
 
-    const clusterIdNode = Records.getNodesByDefUuid(
-      Surveys.getNodeDefByName({ survey, name: 'cluster_id' }).uuid
-    )(record)[0]
+    const clusterIdNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'cluster_id' }).uuid)(
+      record
+    )[0]
 
-    expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: clusterIdNode.uuid, cycle })).toBeNull()
+    expect(Records.getEntitySubtreeStatus({ survey, record, entityInternalId: clusterIdNode.iId, cycle })).toBeNull()
   })
 
   test('getMultiplePageEntitiesStatus ORs errors across instances; complete only if all complete', async () => {
@@ -605,7 +591,7 @@ describe('RecordPagesValidationProgress', () => {
     record.validation = ValidationFactory.createInstance({
       valid: false,
       fields: {
-        [plot3Code.uuid]: ValidationFactory.createInstance({
+        [plot3Code.iId]: ValidationFactory.createInstance({
           valid: false,
           errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
         }),
@@ -627,11 +613,7 @@ describe('RecordPagesValidationProgress', () => {
       isComplete: true,
     })
 
-    const emptyRecord = new RecordBuilder(
-      user,
-      survey,
-      entity('cluster', attribute('cluster_id', 10))
-    ).build()
+    const emptyRecord = new RecordBuilder(user, survey, entity('cluster', attribute('cluster_id', 10))).build()
 
     expect(
       Records.getMultiplePageEntitiesStatus({ survey, record: emptyRecord, pageNodeDefUuid: plotDef.uuid, cycle })
@@ -642,7 +624,7 @@ describe('RecordPagesValidationProgress', () => {
     })
   })
 
-  test('getMultiplePageEntitiesStatus with scopeEntityUuid ignores nested instances under sibling parents', async () => {
+  test('getMultiplePageEntitiesStatus with scopeEntityInternalId ignores nested instances under sibling parents', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
       user,
@@ -669,16 +651,8 @@ describe('RecordPagesValidationProgress', () => {
       entity(
         'cluster',
         attribute('cluster_id', 10),
-        entity(
-          'plot',
-          attribute('plot_id', 3),
-          entity('tree', attribute('tree_id', 1), attribute('health', null))
-        ),
-        entity(
-          'plot',
-          attribute('plot_id', 4),
-          entity('tree', attribute('tree_id', 2), attribute('health', 'ok'))
-        )
+        entity('plot', attribute('plot_id', 3), entity('tree', attribute('tree_id', 1), attribute('health', null))),
+        entity('plot', attribute('plot_id', 4), entity('tree', attribute('tree_id', 2), attribute('health', 'ok')))
       )
     ).build()
 
@@ -696,7 +670,7 @@ describe('RecordPagesValidationProgress', () => {
     record.validation = ValidationFactory.createInstance({
       valid: false,
       fields: {
-        [plot3Health.uuid]: ValidationFactory.createInstance({
+        [plot3Health.iId]: ValidationFactory.createInstance({
           valid: false,
           errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
         }),
@@ -704,9 +678,7 @@ describe('RecordPagesValidationProgress', () => {
     })
 
     // Unscoped: any tree in the record keeps Tree red.
-    expect(
-      Records.getMultiplePageEntitiesStatus({ survey, record, pageNodeDefUuid: treeDef.uuid, cycle })
-    ).toEqual({
+    expect(Records.getMultiplePageEntitiesStatus({ survey, record, pageNodeDefUuid: treeDef.uuid, cycle })).toEqual({
       hasErrors: true,
       hasWarnings: false,
       isComplete: false,
@@ -719,7 +691,7 @@ describe('RecordPagesValidationProgress', () => {
         record,
         pageNodeDefUuid: treeDef.uuid,
         cycle,
-        scopeEntityUuid: plot4.uuid,
+        scopeEntityInternalId: plot4.iId,
       })
     ).toEqual({
       hasErrors: false,
@@ -734,7 +706,7 @@ describe('RecordPagesValidationProgress', () => {
         record,
         pageNodeDefUuid: treeDef.uuid,
         cycle,
-        scopeEntityUuid: plot3.uuid,
+        scopeEntityInternalId: plot3.iId,
       })
     ).toEqual({
       hasErrors: true,
@@ -767,7 +739,7 @@ describe('RecordPagesValidationProgress', () => {
     record.validation = ValidationFactory.createInstance({
       valid: false,
       fields: {
-        [plotIdNode.uuid]: ValidationFactory.createInstance({
+        [plotIdNode.iId]: ValidationFactory.createInstance({
           valid: false,
           errors: [ValidationResultFactory.createInstance({ key: 'invalid', severity: ValidationSeverity.error })],
         }),

@@ -41,7 +41,7 @@ const updateAttributeAndExpectValidation = async (params: {
     user,
     survey,
     record,
-    attributeUuid: nodeToUpdate.uuid,
+    attributeIId: nodeToUpdate.iId,
     value,
   })
 
@@ -50,9 +50,9 @@ const updateAttributeAndExpectValidation = async (params: {
   const validation = Validations.getValidation(updateResult.record)
 
   const validationNode = TestUtils.getNodeByPath({ survey, record, path: validationNodePath })
-  const expectedFieldValidationNodeUuid = validationNode?.uuid
+  const expectedFieldValidationNodeInternalId = validationNode?.iId
 
-  const fieldValidation = Validations.getFieldValidation(expectedFieldValidationNodeUuid)(validation)
+  const fieldValidation = Validations.getFieldValidation(String(expectedFieldValidationNodeInternalId))(validation)
 
   expect(fieldValidation.valid).toBe(expectedFieldValidation)
   expect(Object.values(Validations.getFieldValidations(validation)).length).toBe(expectedValidationFieldsSize)

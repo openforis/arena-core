@@ -101,10 +101,10 @@ const updateDescendantsApplicability = ({
 
   // if a multiple entity became not applicable and it's empty, delete it instead of just marking descendants as not applicable
   if (!applicable && clearNonApplicableValues) {
-    const { uuid: nodeCtxChildUuid, nodeDefUuid: nodeCtxChildDefUuid } = nodeCtxChild
+    const { iId: nodeCtxChildInternalId, nodeDefUuid: nodeCtxChildDefUuid } = nodeCtxChild
     const nodeCtxChildDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtxChildDefUuid })
     if (NodeDefs.isMultipleEntity(nodeCtxChildDef) && Records.isNodeEmpty(nodeCtxChild)(updateResult.record)) {
-      const deleteResult = deleteNodes([nodeCtxChildUuid], recordUpdateOptions)(updateResult.record)
+      const deleteResult = deleteNodes([nodeCtxChildInternalId], recordUpdateOptions)(updateResult.record)
       updateResult.merge(deleteResult)
       updateResult.addClearedDefUuid(nodeCtxChildDefUuid)
     }
@@ -154,11 +154,11 @@ const updateNodePointerApplicability = async ({
 }): Promise<void> => {
   const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
 
-  const nodeCtxUuid = nodeCtxNodePointer.uuid
+  const nodeCtxInternalId = nodeCtxNodePointer.iId
   const nodeDefUuid = nodeDefNodePointer.uuid
 
   // nodeCtx could have been updated in a previous iteration
-  const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
+  const nodeCtx = updateResult.getNodeByInternalId(nodeCtxInternalId) ?? nodeCtxNodePointer
 
   const applicablePrev = Nodes.isChildApplicable(nodeCtx, nodeDefUuid)
   const applicable = await calculateApplicableNext({

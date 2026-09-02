@@ -128,7 +128,7 @@ const validateChildrenCountNodesArray = (params: {
       const { nodeCtx, nodeDef } = nodePointer
       // check if validated already
       const validationChildrenCountKey = RecordValidations.getValidationChildrenCountKey({
-        nodeParentUuid: nodeCtx.uuid,
+        nodeParentInternalId: nodeCtx.iId,
         nodeDefChildUuid: nodeDef.uuid,
       })
       if (!(validationChildrenCountKey in validationsAcc)) {

@@ -13,12 +13,12 @@ export class Validator {
     const validations = await Promise.all(fieldValidators.map((fieldValidator) => fieldValidator(field, obj)))
     const errors: Array<ValidationResult> = []
     const warnings: Array<ValidationResult> = []
-    validations.forEach((validationResult) => {
+    for (const validationResult of validations) {
       if (!validationResult.valid) {
         const arr = validationResult.severity === ValidationSeverity.error ? errors : warnings
         arr.push(validationResult)
       }
-    })
+    }
     const valid = errors.length === 0 && warnings.length === 0
     return ValidationFactory.createInstance({ valid, errors, warnings })
   }
@@ -35,13 +35,15 @@ export class Validator {
     )
     const fields: ValidationFields = {}
     let valid = true
-    Object.keys(fieldsValidators).forEach((field, index) => {
+    const fieldValidatorsKeys = Object.keys(fieldsValidators)
+    for (let index = 0; index < fieldValidatorsKeys.length; index++) {
+      const field = fieldValidatorsKeys[index]
       const fieldValidation: Validation = fieldsValidationArray[index]
       if (!options.removeValid || !fieldValidation.valid) {
         fields[field] = fieldValidation
         valid = false
       }
-    })
+    }
     return ValidationFactory.createInstance({ valid, fields })
   }
 }

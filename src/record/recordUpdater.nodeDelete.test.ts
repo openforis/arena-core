@@ -15,6 +15,7 @@ import { RecordValidations } from './recordValidations'
 import { Records } from './records'
 import { Surveys } from '../survey'
 import { Validations } from '../validation'
+import { Strings } from '../utils'
 
 let user: User
 
@@ -47,14 +48,14 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDeletePath = 'root_entity.mult_entity[1]'
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
-    const updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeUuid: nodeToDelete.uuid })
+    const updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeInternalId: nodeToDelete.iId })
     const { nodesDeleted, record: recordUpdated } = updateResult
 
     // check record updated is a new object
     expect(recordUpdated).not.toBe(record)
 
     // check deleted nodes
-    const nodesDeletedNames = Object.values(nodesDeleted).map(TestUtils.getNodeName({ survey })).sort()
+    const nodesDeletedNames = Object.values(nodesDeleted).map(TestUtils.getNodeName({ survey })).sort(Strings.compare)
     expect(nodesDeletedNames).toEqual(['mult_entity', 'mult_entity_attr', 'mult_entity_id'])
 
     // check deleted node not in updated record anymore
@@ -96,11 +97,11 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDeletePath = 'root_entity.mult_entity[1]'
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
-    const updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeUuid: nodeToDelete.uuid })
+    const updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeInternalId: nodeToDelete.iId })
     const { nodes: nodesUpdated, record: recordUpdated } = updateResult
 
     // check updated nodes (including deleted ones)
-    const nodesUpdatedNames = Object.values(nodesUpdated).map(TestUtils.getNodeName({ survey })).sort()
+    const nodesUpdatedNames = Object.values(nodesUpdated).map(TestUtils.getNodeName({ survey })).sort(Strings.compare)
     expect(nodesUpdatedNames).toEqual([
       'mult_entity',
       'mult_entity_attr',
@@ -129,7 +130,7 @@ describe('RecordUpdater - node delete', () => {
     const root = Records.getRoot(recordUpdated)
     const multEntityDef = Surveys.getNodeDefByName({ survey, name: 'mult_entity' })
     const multEntityCountValidation = RecordValidations.getValidationChildrenCount({
-      nodeParentUuid: root!.uuid,
+      nodeParentInternalId: root!.iId,
       nodeDefChildUuid: multEntityDef.uuid,
     })(Validations.getValidation(recordUpdated))
 
@@ -170,7 +171,7 @@ describe('RecordUpdater - node delete', () => {
       user,
       survey,
       record,
-      attributeUuid: intGt5.uuid,
+      attributeIId: intGt5.iId,
       value: 4,
     })
     record = updateResult.record
@@ -183,7 +184,7 @@ describe('RecordUpdater - node delete', () => {
       user,
       survey,
       record,
-      attributeUuid: multEntityIntGt10.uuid,
+      attributeIId: multEntityIntGt10.iId,
       value: 7,
     })
     record = updateResult.record
@@ -194,7 +195,7 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDeletePath = 'root_entity.mult_entity[1]'
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
-    updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeUuid: nodeToDelete.uuid })
+    updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeInternalId: nodeToDelete.iId })
     record = updateResult.record
     expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record))).length).toBe(1)
 
@@ -203,7 +204,7 @@ describe('RecordUpdater - node delete', () => {
       user,
       survey,
       record,
-      attributeUuid: intGt5.uuid,
+      attributeIId: intGt5.iId,
       value: 6,
     })
     record = updateResult.record
@@ -254,7 +255,7 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDeletePath = 'root_entity.mult_entity[2]'
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
-    updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeUuid: nodeToDelete.uuid })
+    updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeInternalId: nodeToDelete.iId })
     expect(Object.values(updateResult.record._nodesIndex?.nodesByDef?.[multEntityDef.uuid] ?? {}).length).toBe(2)
 
     record = updateResult.record

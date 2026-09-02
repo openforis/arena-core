@@ -59,7 +59,7 @@ describe('Record fixer', () => {
       user,
       survey,
       record,
-      attributeUuid: clusterIdAttr.uuid,
+      attributeIId: clusterIdAttr.iId,
       value: 6,
     })
     record = recordUpdated
@@ -136,7 +136,7 @@ describe('Record fixer', () => {
     // Delete the province node properly (including index) so insertMissingSingleNodes will recreate it
     const provinceDef = Surveys.getNodeDefByName({ survey: surveyWithCode, name: 'province' })
     const [provinceNode] = Records.getNodesByDefUuid(provinceDef.uuid)(builtRecord)
-    const { record: recordWithoutProvince } = Records.deleteNodes([provinceNode.uuid])(builtRecord)
+    const { record: recordWithoutProvince } = Records.deleteNodes([provinceNode.iId])(builtRecord)
 
     const fixResult = RecordFixer.insertMissingSingleNodes({
       survey: surveyWithCode,
@@ -146,6 +146,6 @@ describe('Record fixer', () => {
 
     const [reinsertedProvince] = Records.getNodesByDefUuid(provinceDef.uuid)(fixResult.record)
     expect(reinsertedProvince).toBeDefined()
-    expect(reinsertedProvince.meta?.hCode).toEqual([regionNode.uuid])
+    expect(reinsertedProvince.meta?.hCode).toEqual([regionNode.iId])
   })
 })

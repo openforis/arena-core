@@ -46,7 +46,7 @@ export const validateRecord = async (params: RecordValidatorParams): Promise<Val
     node: Records.getRoot(record)!,
     visitor: (node) => {
       nodesArray.push(node)
-      nodes[node.uuid] = node
+      nodes[node.iId] = node
     },
   })
 

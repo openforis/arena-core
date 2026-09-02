@@ -57,9 +57,7 @@ export const createEnumeratedEntityNode = async (params: {
     nodeDef,
     sideEffect,
   })
-  const enumeratorNode = Object.values(childUpdateResult.nodes).find(
-    (node) => node.nodeDefUuid === enumeratorDef.uuid
-  )
+  const enumeratorNode = Object.values(childUpdateResult.nodes).find((node) => node.nodeDefUuid === enumeratorDef.uuid)
   if (!enumeratorNode) {
     throw new SystemError('record.enumeratorNodeNotFound', {
       recordUuid: record.uuid,
@@ -156,8 +154,8 @@ export const createNodeAndDescendants = async (params: NodeCreateParams): Promis
   const { survey, record, parentNode, nodeDef, sideEffect = false } = params
 
   const node = NodeFactory.createInstance({
+    record,
     nodeDefUuid: nodeDef.uuid,
-    recordUuid: record.uuid,
     parentNode,
     surveyUuid: survey.uuid,
   })
