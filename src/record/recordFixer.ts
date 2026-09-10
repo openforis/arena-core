@@ -13,8 +13,24 @@ interface NodeOld extends ArenaRecordNode {
   parentUuid?: string
 }
 
+/**
+ * True if the record's nodes are still linked by uuid/parentUuid (the shape produced by
+ * arena-mobile versions built before the node internal-id migration), rather than by iId/pIId.
+ * Only the first node is checked: a record is either fully in the legacy shape or fully in the
+ * current one, since both shapes are always written by a single client version in one pass.
+ */
+const isLegacyNodeFormat = (record: ArenaRecord): boolean => {
+  const [firstNode] = Object.values(record.nodes ?? {}) as NodeOld[]
+  return Boolean(firstNode) && !firstNode.iId && Boolean(firstNode.uuid)
+}
+
 const initInternalIds = (params: { record: ArenaRecord; nodes: NodeOld[] }) => {
-  const { record, nodes } = params
+  const { record, nodes: nodesParam } = params
+
+  // a node's parent must already have an internal id assigned before the node itself is
+  // processed, so shallower nodes (closer to the root) need to come first, regardless of the
+  // order they were passed in
+  const nodes = [...nodesParam].sort((nodeA, nodeB) => (nodeA.meta?.h?.length ?? 0) - (nodeB.meta?.h?.length ?? 0))
 
   let lastInternalId = 0
   const uuidByInternalId: { [internalId: number]: string } = {}
@@ -219,6 +235,7 @@ const fixRecord = (params: { survey: Survey; record: ArenaRecord; sideEffect?: b
 
 export const RecordFixer = {
   initInternalIds,
+  isLegacyNodeFormat,
   fixRecord,
   insertMissingSingleNodes,
 }

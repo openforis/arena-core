@@ -148,4 +148,98 @@ describe('Record fixer', () => {
     expect(reinsertedProvince).toBeDefined()
     expect(reinsertedProvince.meta?.hCode).toEqual([regionNode.iId])
   })
+
+  describe('node internal id migration', () => {
+    const recordUuid = 'record-uuid'
+    const rootUuid = 'root-uuid'
+    const childUuid = 'child-uuid'
+    const grandchildUuid = 'grandchild-uuid'
+
+    const buildLegacyRecord = (): any => ({
+      uuid: recordUuid,
+      nodes: {
+        [rootUuid]: {
+          uuid: rootUuid,
+          recordUuid,
+          nodeDefUuid: 'cluster-def-uuid',
+          meta: { h: [] },
+        },
+        [childUuid]: {
+          uuid: childUuid,
+          parentUuid: rootUuid,
+          recordUuid,
+          nodeDefUuid: 'plot-def-uuid',
+          meta: { h: [rootUuid] },
+        },
+        [grandchildUuid]: {
+          uuid: grandchildUuid,
+          parentUuid: childUuid,
+          recordUuid,
+          nodeDefUuid: 'tree-def-uuid',
+          value: 10,
+          meta: { h: [rootUuid, childUuid] },
+        },
+      },
+    })
+
+    test('isLegacyNodeFormat detects a uuid/parentUuid-linked record', () => {
+      expect(RecordFixer.isLegacyNodeFormat(buildLegacyRecord())).toBe(true)
+    })
+
+    test('isLegacyNodeFormat returns false for a record with no nodes', () => {
+      expect(RecordFixer.isLegacyNodeFormat({ uuid: recordUuid, nodes: {} })).toBe(false)
+    })
+
+    test('isLegacyNodeFormat returns false once nodes are iId/pIId-linked', () => {
+      const legacyRecord = buildLegacyRecord()
+      const migratedRecord = RecordFixer.initInternalIds({
+        record: legacyRecord,
+        nodes: Object.values(legacyRecord.nodes),
+      })
+      expect(RecordFixer.isLegacyNodeFormat(migratedRecord)).toBe(false)
+    })
+
+    test('initInternalIds reassigns node identity and preserves the tree shape, regardless of input order', () => {
+      const legacyRecord = buildLegacyRecord()
+      // pass nodes out of hierarchy order (grandchild before child before root): initInternalIds
+      // must sort them itself rather than relying on the caller to do so
+      const unorderedNodes = Object.values(legacyRecord.nodes).reverse() as any[]
+
+      const migrated = RecordFixer.initInternalIds({ record: legacyRecord, nodes: unorderedNodes })
+      const nodesByIId = migrated.nodes as any
+      const migratedNodes = Object.values(nodesByIId) as any[]
+
+      expect(migratedNodes).toHaveLength(3)
+      expect(migrated.lastInternalId).toBe(3)
+
+      const root = migratedNodes.find((node) => node.nodeDefUuid === 'cluster-def-uuid')
+      const child = migratedNodes.find((node) => node.nodeDefUuid === 'plot-def-uuid')
+      const grandchild = migratedNodes.find((node) => node.nodeDefUuid === 'tree-def-uuid')
+
+      // uuid-based linkage is gone
+      ;[root, child, grandchild].forEach((node) => {
+        expect(node.uuid).toBeUndefined()
+        expect(node.parentUuid).toBeUndefined()
+      })
+
+      // iId-based linkage is consistent
+      expect(root.pIId).toBeUndefined()
+      expect(child.pIId).toBe(root.iId)
+      expect(grandchild.pIId).toBe(child.iId)
+
+      // hierarchy meta remapped from ancestor uuids to ancestor iIds (root's empty hierarchy is dropped)
+      expect(root.meta?.h).toBeUndefined()
+      expect(child.meta.h).toEqual([root.iId])
+      expect(grandchild.meta.h).toEqual([root.iId, child.iId])
+
+      // nodes are stored keyed by their own iId
+      expect(nodesByIId[root.iId]).toBe(root)
+      expect(nodesByIId[child.iId]).toBe(child)
+      expect(nodesByIId[grandchild.iId]).toBe(grandchild)
+
+      // unrelated node data is untouched
+      expect(grandchild.value).toBe(10)
+      expect(migrated.uuid).toBe(recordUuid)
+    })
+  })
 })
