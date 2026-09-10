@@ -39,7 +39,7 @@ export interface Record {
   dateCreated?: string
   dateModified?: string
   id?: number
-  lastInternalId?: number
+  lastNodeInternalId?: number
   nodes?: NodesMap
   ownerEmail?: string
   ownerName: string

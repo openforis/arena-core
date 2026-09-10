@@ -69,7 +69,7 @@ const initInternalIds = (params: { record: ArenaRecord; nodes: NodeOld[] }) => {
     delete node['uuid']
   }
 
-  record.lastInternalId = lastInternalId
+  record.lastNodeInternalId = lastInternalId
 
   // Rebuild record.nodes to be keyed by internal IDs instead of the old UUIDs
   const newNodesMap: NodesMap = {}

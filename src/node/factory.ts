@@ -15,7 +15,7 @@ export const NodeFactory: Factory<Node, NodeFactoryParams> = {
   createInstance: (params: NodeFactoryParams): Node => {
     const { nodeDefUuid, record, parentNode, surveyUuid, value } = params
 
-    const iId = (record.lastInternalId ?? 0) + 1
+    const iId = (record.lastNodeInternalId ?? 0) + 1
 
     const now = Dates.nowFormattedForStorage()
 

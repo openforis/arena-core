@@ -18,7 +18,10 @@ export const addNodes =
       recordUpdated.nodes = { ...recordNodes, ...nodes }
     }
     // update last internal ID
-    recordUpdated.lastInternalId = Math.max(...Object.values(nodes).map((node) => node.iId), record.lastInternalId ?? 0)
+    recordUpdated.lastNodeInternalId = Math.max(
+      ...Object.values(nodes).map((node) => node.iId),
+      record.lastNodeInternalId ?? 0
+    )
 
     if (updateNodesIndex) {
       recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(

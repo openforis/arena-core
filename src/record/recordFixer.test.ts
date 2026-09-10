@@ -210,7 +210,7 @@ describe('Record fixer', () => {
       const migratedNodes = Object.values(nodesByIId) as any[]
 
       expect(migratedNodes).toHaveLength(3)
-      expect(migrated.lastInternalId).toBe(3)
+      expect(migrated.lastNodeInternalId).toBe(3)
 
       const root = migratedNodes.find((node) => node.nodeDefUuid === 'cluster-def-uuid')
       const child = migratedNodes.find((node) => node.nodeDefUuid === 'plot-def-uuid')
