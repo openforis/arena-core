@@ -22,4 +22,9 @@ describe('NodeValues time getters', () => {
     const node = buildTimeNode('14:30')
     expect(NodeValues.getTimeSeconds(node)).toBe(0)
   })
+
+  test('getTimeMinute still returns NaN for a malformed value with a missing part (unchanged by the seconds fix)', () => {
+    const node = buildTimeNode('14')
+    expect(Number.isNaN(NodeValues.getTimeMinute(node))).toBe(true)
+  })
 })
