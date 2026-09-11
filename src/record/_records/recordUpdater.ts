@@ -1,11 +1,11 @@
-import { Node } from '../../node'
+import { Node, NodesMap } from '../../node'
 import { Record } from '../record'
 import * as RecordGetters from './recordGetters'
 import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
 import { RecordUpdateOptions, RecordUpdateOptionsDefaults } from './recordUpdateOptions'
 
 export const addNodes =
-  (nodes: { [key: string]: Node }, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+  (nodes: NodesMap, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: Record): Record => {
     const { sideEffect, updateNodesIndex, sortNodes } = { ...RecordUpdateOptionsDefaults, ...options }
 
