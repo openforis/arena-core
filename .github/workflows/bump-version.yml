@@ -21,7 +21,15 @@ jobs:
         if: always()
         env:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        run: gh api -X DELETE repos/${{ github.repository }}/branches/master/protection/enforce_admins
+        run: |
+          if ! output=$(gh api -X DELETE repos/${{ github.repository }}/branches/master/protection/enforce_admins 2>&1); then
+            if echo "$output" | grep -q '(HTTP 404)'; then
+              echo "enforce_admins already disabled, continuing"
+            else
+              echo "$output" >&2
+              exit 1
+            fi
+          fi
       - name: 'Automated Version Bump'
         uses: 'phips28/gh-action-bump-version@master'
         env:
@@ -49,4 +57,12 @@ jobs:
         if: always() # Force to always run this step to ensure "include administrators" is always turned back on
         env:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        run: gh api -X POST repos/${{ github.repository }}/branches/master/protection/enforce_admins
+        run: |
+          if ! output=$(gh api -X POST repos/${{ github.repository }}/branches/master/protection/enforce_admins 2>&1); then
+            if echo "$output" | grep -q '(HTTP 404)'; then
+              echo "branch protection not configured, continuing"
+            else
+              echo "$output" >&2
+              exit 1
+            fi
+          fi
