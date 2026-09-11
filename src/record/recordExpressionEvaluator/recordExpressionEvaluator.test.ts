@@ -398,7 +398,7 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'visit_date.week', error: new SystemError('expression.invalidAttributeValuePropertyName') },
     { expression: 'visit_time.hour', result: 10 },
     { expression: 'visit_time.minute', result: 30 },
-    { expression: 'visit_time.seconds', error: new SystemError('expression.invalidAttributeValuePropertyName') },
+    { expression: 'visit_time.seconds', result: 0 },
     { expression: 'this.x', node: 'cluster_location', result: 41.883012 },
     { expression: 'this.year', node: 'visit_date', result: 2021 },
     // identifier with multiple nodes
