@@ -241,7 +241,7 @@ const valueComparatorByNodeDefType: { [key in NodeDefType]?: (params: NodeValues
   [NodeDefType.text]: singlePropValueEqualComparator,
   [NodeDefType.time]: dateTimeComparator({
     formatsSource: [DateFormats.timeStorage, DateFormats.timeWithSeconds],
-    formatTo: DateFormats.timeStorage,
+    formatTo: DateFormats.timeWithSeconds,
   }),
 }
 
