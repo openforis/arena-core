@@ -18,10 +18,11 @@ jobs:
         with:
           token: ${{ secrets.ACCESS_TOKEN }}
       - name: Temporarily disable "include administrators" branch protection
-        uses: benjefferies/branch-protection-bot@master
-        if: always()
+        uses: ./.github/actions/toggle-branch-protection
         with:
-          access_token: ${{ secrets.ACCESS_TOKEN }}
+          token: ${{ secrets.ACCESS_TOKEN }}
+          enforce_admins: 'false'
+          branch: ${{ github.ref_name }}
       - name: 'Automated Version Bump'
         uses: 'phips28/gh-action-bump-version@master'
         env:
@@ -46,9 +47,9 @@ jobs:
       - run: yarn build
       - run: yarn npm publish
       - name: Enable "include administrators" branch protection
-        uses: benjefferies/branch-protection-bot@master
         if: always() # Force to always run this step to ensure "include administrators" is always turned back on
+        uses: ./.github/actions/toggle-branch-protection
         with:
-          access_token: ${{ secrets.ACCESS_TOKEN }}
-          owner: openforis
-          repo: arena-core
+          token: ${{ secrets.ACCESS_TOKEN }}
+          enforce_admins: 'true'
+          branch: ${{ github.ref_name }}

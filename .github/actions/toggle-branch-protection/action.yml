@@ -1,0 +1,30 @@
+name: 'Toggle branch protection "include administrators"'
+description: 'Enables or disables the "include administrators" (enforce_admins) branch protection setting. A 404 when disabling is treated as a no-op (already disabled); a 404 when enabling is treated as an error, since it means the branch has no protection to enable.'
+inputs:
+  token:
+    description: 'GitHub token with permission to manage branch protection.'
+    required: true
+  enforce_admins:
+    description: 'Whether to enable ("true") or disable ("false") enforce_admins.'
+    required: true
+  branch:
+    description: 'Branch to update.'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Toggle enforce_admins
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        METHOD: ${{ inputs.enforce_admins == 'true' && 'POST' || 'DELETE' }}
+        ENFORCE_ADMINS: ${{ inputs.enforce_admins }}
+      run: |
+        if ! output=$(gh api -X "$METHOD" repos/${{ github.repository }}/branches/${{ inputs.branch }}/protection/enforce_admins 2>&1); then
+          if [ "$ENFORCE_ADMINS" = "false" ] && echo "$output" | grep -q 'HTTP 404'; then
+            echo "enforce_admins already disabled, continuing"
+          else
+            echo "$output" >&2
+            exit 1
+          fi
+        fi
