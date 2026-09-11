@@ -26,6 +26,7 @@ import {
 import { NodeDefFile, NodeDefFileType } from './types/file'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText, NodeDefTextRenderType, NodeDefTextInputType } from './types/text'
+import { NodeDefTime } from './types/time'
 
 const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
@@ -139,6 +140,9 @@ const getFileType = (nodeDef: NodeDefFile): NodeDefFileType | undefined => nodeD
 const getFileNameExpression = (nodeDef: NodeDefFile): string | undefined => nodeDef.propsAdvanced?.fileNameExpression
 const getFileMaxSize = (nodeDef: NodeDefFile): number | undefined => nodeDef.props.maxFileSize
 const isGeotagInformationShown = (nodeDef: NodeDefFile): boolean => !!nodeDef.props.geotagInformationShown
+
+// time
+const isSecondsIncluded = (nodeDef: NodeDefTime): boolean => !!nodeDef.props.includeSeconds
 
 // taxon
 const getTaxonomyUuid = (nodeDef: NodeDefTaxon): string | undefined => nodeDef.props.taxonomyUuid
@@ -312,6 +316,7 @@ export const NodeDefs = {
   getFileType,
   getFileMaxSize,
   isGeotagInformationShown,
+  isSecondsIncluded,
   getTaxonomyUuid,
   isVernacularNameSelectionKept,
   isVernacularNameAlwaysIncludedIfSingle,

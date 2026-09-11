@@ -151,12 +151,17 @@ const _valueExprToValueNodeFns: { [key in NodeDefType]?: (params: ToNodeValuePar
   [NodeDefType.integer]: _toPrimitive(Number),
   [NodeDefType.taxon]: _toTaxon,
   [NodeDefType.text]: _toPrimitive(String),
-  [NodeDefType.time]: (params: { valueExpr: any; timezoneOffset?: number }) => {
-    const { valueExpr, timezoneOffset } = params
+  [NodeDefType.time]: (params: { nodeDef: NodeDef<any>; valueExpr: any; timezoneOffset?: number }) => {
+    const { nodeDef, valueExpr, timezoneOffset } = params
     return _toDateTime({
       valueExpr,
-      format: DateFormats.timeStorage,
-      formatsFrom: [DateFormats.datetimeStorage, DateFormats.datetimeDefault, DateFormats.timeStorage],
+      format: NodeDefs.isSecondsIncluded(nodeDef) ? DateFormats.timeWithSeconds : DateFormats.timeStorage,
+      formatsFrom: [
+        DateFormats.datetimeStorage,
+        DateFormats.datetimeDefault,
+        DateFormats.timeWithSeconds,
+        DateFormats.timeStorage,
+      ],
       timezoneOffset,
     })
   },

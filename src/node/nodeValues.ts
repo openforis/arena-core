@@ -114,10 +114,15 @@ const _getTimePart =
     getDateTimePart({ node, index, separator: ':' })
 const getTimeHour = _getTimePart(0)
 const getTimeMinute = _getTimePart(1)
+const getTimeSeconds = (node: Node): number => {
+  const parts = (node.value ?? '').split(':')
+  return parts.length > 2 ? _getTimePart(2)(node) : 0
+}
 
 const _timePropGetters: { [key in ValuePropsTime]: any } = {
   [ValuePropsTime.hour]: getTimeHour,
   [ValuePropsTime.minute]: getTimeMinute,
+  [ValuePropsTime.seconds]: getTimeSeconds,
 }
 
 const _valuePropGetters: { [key in NodeDefType]?: (prop: string) => (node: Node) => number } = {
@@ -239,7 +244,7 @@ const valueComparatorByNodeDefType: { [key in NodeDefType]?: (params: NodeValues
   [NodeDefType.text]: singlePropValueEqualComparator,
   [NodeDefType.time]: dateTimeComparator({
     formatsSource: [DateFormats.timeStorage, DateFormats.timeWithSeconds],
-    formatTo: DateFormats.timeStorage,
+    formatTo: DateFormats.timeWithSeconds,
   }),
 }
 
@@ -328,6 +333,7 @@ export const NodeValues = {
   // time
   getTimeHour,
   getTimeMinute,
+  getTimeSeconds,
 
   // utils
   isValueEqual,

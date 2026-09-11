@@ -117,8 +117,12 @@ const typeValidatorFns: {
 
   [NodeDefType.time]: async (params: AttributeTypeValidatorInternalParams): Promise<boolean> => {
     const { node } = params
-    const [hour, minute] = [NodeValues.getTimeHour(node), NodeValues.getTimeMinute(node)]
-    return Dates.isValidTime(hour, minute)
+    const [hour, minute, seconds] = [
+      NodeValues.getTimeHour(node),
+      NodeValues.getTimeMinute(node),
+      NodeValues.getTimeSeconds(node),
+    ]
+    return Dates.isValidTime(hour, minute, seconds)
   },
 }
 

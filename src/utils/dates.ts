@@ -85,10 +85,11 @@ const isValidDate = (year: any, month: any, day: any): boolean => {
   )
 }
 
-const isValidTime = (hour: any = '', minutes: any = ''): boolean =>
-  Objects.isEmpty(hour) || Objects.isEmpty(minutes)
-    ? false
-    : Number(hour) >= 0 && Number(hour) < 24 && Number(minutes) >= 0 && Number(minutes) < 60
+const isValidTime = (hour: any = '', minutes: any = '', seconds: any = 0): boolean => {
+  if (Objects.isEmpty(hour) || Objects.isEmpty(minutes)) return false
+  if (!(Number(hour) >= 0 && Number(hour) < 24 && Number(minutes) >= 0 && Number(minutes) < 60)) return false
+  return Number(seconds) >= 0 && Number(seconds) < 60
+}
 
 const toDate = (date: DateType): Date | undefined => {
   if (Objects.isEmpty(date)) return undefined
