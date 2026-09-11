@@ -64,7 +64,7 @@ const getValueItemUuid = (value: any): string | undefined =>
 
 const getDateTimePart = (params: { node: Node; index: number; separator: string }): number => {
   const { node, index, separator } = params
-  return Number((node.value ?? '').split(separator)[index]?.trim())
+  return Number((node.value ?? '').split(separator)[index]?.trim() ?? '0')
 }
 
 // Date
@@ -114,10 +114,12 @@ const _getTimePart =
     getDateTimePart({ node, index, separator: ':' })
 const getTimeHour = _getTimePart(0)
 const getTimeMinute = _getTimePart(1)
+const getTimeSeconds = _getTimePart(2)
 
 const _timePropGetters: { [key in ValuePropsTime]: any } = {
   [ValuePropsTime.hour]: getTimeHour,
   [ValuePropsTime.minute]: getTimeMinute,
+  [ValuePropsTime.seconds]: getTimeSeconds,
 }
 
 const _valuePropGetters: { [key in NodeDefType]?: (prop: string) => (node: Node) => number } = {
@@ -328,6 +330,7 @@ export const NodeValues = {
   // time
   getTimeHour,
   getTimeMinute,
+  getTimeSeconds,
 
   // utils
   isValueEqual,
