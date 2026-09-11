@@ -1,5 +1,6 @@
 import { describe, test, expect } from '@jest/globals'
 
+import { NodeDefType } from '../nodeDef'
 import { DateFormats } from '../utils'
 import { NodeFactory } from './factory'
 import { NodeValues } from './nodeValues'
@@ -27,6 +28,11 @@ describe('NodeValues time getters', () => {
   test('getTimeMinute still returns NaN for a malformed value with a missing part (unchanged by the seconds fix)', () => {
     const node = buildTimeNode('14')
     expect(Number.isNaN(NodeValues.getTimeMinute(node))).toBe(true)
+  })
+
+  test('getTimeSeconds returns NaN for a malformed (present but non-numeric) seconds part, unlike a missing one', () => {
+    const node = buildTimeNode('14:30:xx')
+    expect(Number.isNaN(NodeValues.getTimeSeconds(node))).toBe(true)
   })
 })
 
@@ -61,5 +67,19 @@ describe('time value equality (via record-level comparator wiring)', () => {
       formatTo: DateFormats.timeWithSeconds,
     })
     expect(a).not.toBe(b)
+  })
+})
+
+describe('NodeValues.isValueEqual - time', () => {
+  const nodeDef = { type: NodeDefType.time } as any
+
+  test('treats "14:30" and "14:30:00" as equal', () => {
+    expect(NodeValues.isValueEqual({ survey: {} as any, nodeDef, value: '14:30', valueSearch: '14:30:00' })).toBe(true)
+  })
+
+  test('treats "14:30:00" and "14:30:45" as different', () => {
+    expect(NodeValues.isValueEqual({ survey: {} as any, nodeDef, value: '14:30:00', valueSearch: '14:30:45' })).toBe(
+      false
+    )
   })
 })

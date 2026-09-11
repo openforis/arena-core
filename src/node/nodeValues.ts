@@ -114,7 +114,10 @@ const _getTimePart =
     getDateTimePart({ node, index, separator: ':' })
 const getTimeHour = _getTimePart(0)
 const getTimeMinute = _getTimePart(1)
-const getTimeSeconds = (node: Node): number => _getTimePart(2)(node) || 0
+const getTimeSeconds = (node: Node): number => {
+  const parts = (node.value ?? '').split(':')
+  return parts.length > 2 ? _getTimePart(2)(node) : 0
+}
 
 const _timePropGetters: { [key in ValuePropsTime]: any } = {
   [ValuePropsTime.hour]: getTimeHour,
