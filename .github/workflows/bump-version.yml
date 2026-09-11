@@ -23,6 +23,7 @@ jobs:
         with:
           token: ${{ secrets.ACCESS_TOKEN }}
           enforce_admins: 'false'
+          branch: ${{ github.ref_name }}
       - name: 'Automated Version Bump'
         uses: 'phips28/gh-action-bump-version@master'
         env:
@@ -52,3 +53,4 @@ jobs:
         with:
           token: ${{ secrets.ACCESS_TOKEN }}
           enforce_admins: 'true'
+          branch: ${{ github.ref_name }}
