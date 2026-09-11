@@ -1,11 +1,11 @@
-import { Node } from '../../node'
+import { Node, NodesMap } from '../../node'
 import { Record } from '../record'
 import * as RecordGetters from './recordGetters'
 import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
 import { RecordUpdateOptions, RecordUpdateOptionsDefaults } from './recordUpdateOptions'
 
 export const addNodes =
-  (nodes: { [key: string]: Node }, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+  (nodes: NodesMap, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: Record): Record => {
     const { sideEffect, updateNodesIndex, sortNodes } = { ...RecordUpdateOptionsDefaults, ...options }
 
@@ -17,6 +17,12 @@ export const addNodes =
     } else {
       recordUpdated.nodes = { ...recordNodes, ...nodes }
     }
+    // update last internal ID
+    recordUpdated.lastNodeInternalId = Math.max(
+      ...Object.values(nodes).map((node) => node.iId),
+      record.lastNodeInternalId ?? 0
+    )
+
     if (updateNodesIndex) {
       recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(
         nodes,
@@ -29,5 +35,5 @@ export const addNodes =
 
 export const addNode =
   (node: Node, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
-  (record: Record) =>
-    addNodes({ [node.uuid]: node }, options)(record)
+  (record: Record): Record =>
+    addNodes({ [node.iId]: node }, options)(record)

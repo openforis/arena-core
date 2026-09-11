@@ -12,11 +12,7 @@ import { createEnumeratedEntityNode } from './recordNodesCreator'
 import { deleteNodes } from './recordNodesDeleter'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-const getEnumeratingItemsNodePointers = (params: {
-  survey: Survey
-  record: Record
-  node: Node
-}): NodePointer[] => {
+const getEnumeratingItemsNodePointers = (params: { survey: Survey; record: Record; node: Node }): NodePointer[] => {
   const { survey, record, node } = params
   const nodePointers = Records.getDependentNodePointers({
     survey,
@@ -72,8 +68,8 @@ export const syncEnumeratingItemsEntities = async (
   const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
 
   const deleteExistingEntities = () => {
-    const existingEntityUuids = existingEntities.map((node) => node.uuid)
-    const nodesDeleteUpdatedResult = deleteNodes(existingEntityUuids, recordUpdateOptions)(updateResult.record)
+    const existingEntityInternalIds = existingEntities.map((node) => node.iId)
+    const nodesDeleteUpdatedResult = deleteNodes(existingEntityInternalIds, recordUpdateOptions)(updateResult.record)
     updateResult.merge(nodesDeleteUpdatedResult)
   }
 
@@ -110,7 +106,7 @@ export const syncEnumeratingItemsEntities = async (
     const existingEnumerator = getChild(existingEntity, enumeratorDef.uuid)(updateResult.record)
     const itemUuid = NodeValues.getItemUuid(existingEnumerator)
     if (!itemUuid || !targetItemUuids.has(itemUuid)) {
-      const nodesDeleteUpdatedResult = deleteNodes([existingEntity.uuid], recordUpdateOptions)(updateResult.record)
+      const nodesDeleteUpdatedResult = deleteNodes([existingEntity.iId], recordUpdateOptions)(updateResult.record)
       updateResult.merge(nodesDeleteUpdatedResult)
     } else {
       existingItemUuids.add(itemUuid)

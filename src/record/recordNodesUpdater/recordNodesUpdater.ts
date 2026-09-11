@@ -1,7 +1,7 @@
 import { Queue } from '../../utils'
 
 import { Dictionary } from '../../common'
-import { Node } from '../../node'
+import { Node, NodesMap } from '../../node'
 import { NodeDefCountType } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { getNodesByDefUuid } from '../_records/recordGetters'
@@ -26,7 +26,7 @@ import { RecordUpdateResult } from './recordUpdateResult'
 const MAX_DEPENDENTS_VISITING_TIMES = 2
 
 export const updateNodesDependents = async (
-  params: NodesUpdateParams & { nodes: Dictionary<Node> }
+  params: NodesUpdateParams & { nodes: NodesMap }
 ): Promise<RecordUpdateResult> => {
   const { survey, record, nodes, sideEffect = false } = params
   const initialNodesToVisit = sideEffect ? nodes : { ...nodes }
@@ -37,7 +37,7 @@ export const updateNodesDependents = async (
     for (const dependentDef of onUpdateDependentDefs) {
       const dependentNodes = getNodesByDefUuid(dependentDef.uuid)(record)
       for (const node of dependentNodes) {
-        initialNodesToVisit[node.uuid] = node
+        initialNodesToVisit[node.iId] = node
       }
     }
   }
@@ -50,16 +50,16 @@ export const updateNodesDependents = async (
     node,
   })
 
-  const nodeUuidsToVisit = new Queue(Object.keys(initialNodesToVisit))
+  const nodeInternalIdsToVisit = new Queue<number>(Object.keys(initialNodesToVisit).map(Number))
 
   // Avoid loops: visit the same node maximum 2 times (the second time the applicability could have been changed)
-  const visitedCountByUuid: Dictionary<number> = {}
+  const visitedCountByInternalId: Dictionary<number> = {}
 
-  while (!nodeUuidsToVisit.isEmpty()) {
-    const nodeUuid = nodeUuidsToVisit.dequeue()
-    const node = updateResult.getNodeByUuid(nodeUuid)
+  while (!nodeInternalIdsToVisit.isEmpty()) {
+    const nodeInternalId = nodeInternalIdsToVisit.dequeue()!
+    const node = updateResult.getNodeByInternalId(nodeInternalId)
 
-    const visitedCount = visitedCountByUuid[nodeUuid] ?? 0
+    const visitedCount = visitedCountByInternalId[nodeInternalId] ?? 0
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
       // min count
@@ -125,10 +125,10 @@ export const updateNodesDependents = async (
       }
 
       // Mark updated nodes to visit
-      nodeUuidsToVisit.enqueueItems(Object.keys(nodesUpdatedCurrent))
+      nodeInternalIdsToVisit.enqueueItems(Object.keys(nodesUpdatedCurrent).map(Number))
 
       // Mark node as visited
-      visitedCountByUuid[nodeUuid] = visitedCount + 1
+      visitedCountByInternalId[nodeInternalId] = visitedCount + 1
     }
   }
 

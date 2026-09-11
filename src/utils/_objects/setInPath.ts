@@ -7,8 +7,9 @@ export const setInPath = (params: { obj: any; path: string[]; value: any; exclud
   }
 
   let objCurrent: any = obj
-  path.forEach((pathPart, i) => {
-    if (i === path.length - 1) {
+  for (let index = 0; index < path.length; index++) {
+    const pathPart = path[index]
+    if (index === path.length - 1) {
       objCurrent[pathPart] = value
     } else {
       if (!Object.prototype.hasOwnProperty.call(objCurrent, pathPart)) {
@@ -16,6 +17,6 @@ export const setInPath = (params: { obj: any; path: string[]; value: any; exclud
       }
       objCurrent = objCurrent[pathPart]
     }
-  })
+  }
   return obj
 }

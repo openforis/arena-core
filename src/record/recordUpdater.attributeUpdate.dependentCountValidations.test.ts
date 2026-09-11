@@ -23,7 +23,7 @@ let user: User
 const updateSourceAndExpectMinCountValidation = async ({
   survey,
   record,
-  attributeUuid,
+  attributeIId,
   dependentNodeDef,
   value,
   expectedMinCount,
@@ -31,7 +31,7 @@ const updateSourceAndExpectMinCountValidation = async ({
 }: {
   survey: Survey
   record: Record
-  attributeUuid: string
+  attributeIId: number
   dependentNodeDef: NodeDef<any>
   value: number
   expectedMinCount: number
@@ -41,7 +41,7 @@ const updateSourceAndExpectMinCountValidation = async ({
     user,
     survey,
     record,
-    attributeUuid,
+    attributeIId,
     value,
   })
 
@@ -56,7 +56,7 @@ const updateSourceAndExpectMinCountValidation = async ({
   const validation = Validations.getValidation(record)
 
   const minCountValid = RecordValidations.getValidationChildrenCount({
-    nodeParentUuid: root.uuid,
+    nodeParentInternalId: root.iId,
     nodeDefChildUuid: dependentNodeDef.uuid,
   })(validation).valid
 
@@ -97,10 +97,10 @@ describe('RecordUpdater - attribute update => update dependent count validations
     ).build()
 
     const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
-    const attributeUuid = nodeToUpdate.uuid
+    const attributeIId = nodeToUpdate.iId
     const dependentNodeDef = Surveys.getNodeDefByName({ survey, name: 'dependent_attribute' })
 
-    const commonParams = { survey, attributeUuid, dependentNodeDef }
+    const commonParams = { survey, attributeIId, dependentNodeDef }
 
     record = await updateSourceAndExpectMinCountValidation({
       ...commonParams,
@@ -166,12 +166,12 @@ describe('RecordUpdater - attribute update => update dependent count validations
       expectedValid: boolean
     }): Promise<Record> => {
       const triggerNode = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.relevancy_trigger' })
-      const triggerAttributeUuid = triggerNode.uuid
+      const triggerAttributeIId = triggerNode.iId
       const updateResult = await RecordUpdater.updateAttributeValue({
         user,
         survey,
         record,
-        attributeUuid: triggerAttributeUuid,
+        attributeIId: triggerAttributeIId,
         value: String(value),
       })
 
@@ -181,7 +181,7 @@ describe('RecordUpdater - attribute update => update dependent count validations
       // check validation
       const validation = Validations.getValidation(record)
       const minCountValid = RecordValidations.getValidationChildrenCount({
-        nodeParentUuid: root.uuid,
+        nodeParentInternalId: root.iId,
         nodeDefChildUuid: dependentNodeDef.uuid,
       })(validation).valid
 
@@ -191,9 +191,9 @@ describe('RecordUpdater - attribute update => update dependent count validations
     }
 
     const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
-    const attributeUuid = nodeToUpdate.uuid
+    const attributeIId = nodeToUpdate.iId
 
-    const commonParams = { survey, attributeUuid, dependentNodeDef }
+    const commonParams = { survey, attributeIId, dependentNodeDef }
 
     record = await updateSourceAndExpectMinCountValidation({
       ...commonParams,

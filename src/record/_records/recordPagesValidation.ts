@@ -5,7 +5,7 @@ import { Validations } from '../../validation'
 import { Record } from '../record'
 import { RecordValidations } from '../recordValidations'
 import { getEntityCompletionStats } from './recordCompletion'
-import { getCycle, getNodeByUuid, getNodesByDefUuid, getRoot } from './recordGetters'
+import { getCycle, getNodeByInternalId, getNodesByDefUuid, getRoot } from './recordGetters'
 
 export type PageValidationStatus = {
   hasErrors: boolean
@@ -27,15 +27,11 @@ export type PagesValidationProgress = {
 /**
  * Whether a node belongs under a page entity (itself or any descendant of that page).
  */
-export const nodeBelongsToPage = (params: {
-  node: Node
-  pageNodeDefUuid: string
-  record: Record
-}): boolean => {
+export const nodeBelongsToPage = (params: { node: Node; pageNodeDefUuid: string; record: Record }): boolean => {
   const { node, pageNodeDefUuid, record } = params
   if (node.nodeDefUuid === pageNodeDefUuid) return true
-  return Nodes.getHierarchy(node).some((ancestorUuid) => {
-    const ancestor = getNodeByUuid(ancestorUuid)(record)
+  return Nodes.getHierarchy(node).some((ancestorInternalId) => {
+    const ancestor = getNodeByInternalId(ancestorInternalId)(record)
     return ancestor?.nodeDefUuid === pageNodeDefUuid
   })
 }
@@ -67,10 +63,12 @@ export const getNodeDefChildrenInOwnPage = (params: {
   cycle: string
 }): NodeDefEntity[] => {
   const { survey, nodeDef, cycle } = params
-  return Surveys.getNodeDefChildren({ survey, nodeDef, includeAnalysis: true }).filter((child): child is NodeDefEntity => {
-    if (!NodeDefs.isEntity(child)) return false
-    return NodeDefs.isDisplayInOwnPage(cycle)(child as NodeDefEntity)
-  })
+  return Surveys.getNodeDefChildren({ survey, nodeDef, includeAnalysis: true }).filter(
+    (child): child is NodeDefEntity => {
+      if (!NodeDefs.isEntity(child)) return false
+      return NodeDefs.isDisplayInOwnPage(cycle)(child as NodeDefEntity)
+    }
+  )
 }
 
 /**
@@ -113,38 +111,42 @@ export const getDescendantPageNodeDefUuids = (params: {
   return uuids
 }
 
-const nodeIsUnderEntity = (params: { node: Node; entityUuid: string }): boolean => {
-  const { node, entityUuid } = params
-  if (node.uuid === entityUuid) return true
-  return Nodes.getHierarchy(node).includes(entityUuid)
+const nodeIsUnderEntity = (params: { node: Node; entityInternalId: number }): boolean => {
+  const { node, entityInternalId } = params
+  if (node.iId === entityInternalId) return true
+  return Nodes.getHierarchy(node).includes(entityInternalId)
 }
 
 const getOwnPageFieldValidationFlags = (params: {
-  nodeUuid: string
+  nodeInternalId: string
   pageNodeDefUuid: string
   descendantPageUuids: string[]
-  scopeEntityUuid?: string
+  scopeEntityInternalId?: number
   record: Record
   recordValidation: ReturnType<typeof Validations.getValidation>
 }): PageValidationStatus | null => {
-  const { nodeUuid, pageNodeDefUuid, descendantPageUuids, scopeEntityUuid, record, recordValidation } = params
+  const { nodeInternalId, pageNodeDefUuid, descendantPageUuids, scopeEntityInternalId, record, recordValidation } =
+    params
 
-  if (RecordValidations.isValidationChildrenCountKey(nodeUuid)) {
+  if (RecordValidations.isValidationChildrenCountKey(nodeInternalId)) {
     return getOwnPageChildrenCountValidationFlags({
-      childrenCountKey: nodeUuid,
+      childrenCountKey: nodeInternalId,
       pageNodeDefUuid,
       descendantPageUuids,
-      scopeEntityUuid,
+      scopeEntityInternalId,
       record,
       recordValidation,
     })
   }
 
-  const node = getNodeByUuid(nodeUuid)(record)
+  const node = getNodeByInternalId(Number(nodeInternalId))(record)
   if (!node || !nodeBelongsToOwnPage({ node, pageNodeDefUuid, descendantPageUuids, record })) return null
-  if (scopeEntityUuid && !nodeIsUnderEntity({ node, entityUuid: scopeEntityUuid })) return null
+  if (scopeEntityInternalId !== undefined && !nodeIsUnderEntity({ node, entityInternalId: scopeEntityInternalId }))
+    return null
 
-  const nodeValidation = RecordValidations.getValidationNode({ nodeUuid })(recordValidation)
+  const nodeValidation = RecordValidations.getValidationNode({ nodeInternalId: Number(nodeInternalId) })(
+    recordValidation
+  )
   if (!nodeValidation) return null
 
   return {
@@ -163,23 +165,28 @@ const getOwnPageChildrenCountValidationFlags = (params: {
   childrenCountKey: string
   pageNodeDefUuid: string
   descendantPageUuids: string[]
-  scopeEntityUuid?: string
+  scopeEntityInternalId?: number
   record: Record
   recordValidation: ReturnType<typeof Validations.getValidation>
 }): PageValidationStatus | null => {
-  const { childrenCountKey, pageNodeDefUuid, descendantPageUuids, scopeEntityUuid, record, recordValidation } = params
-  const parentUuid = RecordValidations.extractValidationChildrenCountKeyParentUuid(childrenCountKey)
+  const { childrenCountKey, pageNodeDefUuid, descendantPageUuids, scopeEntityInternalId, record, recordValidation } =
+    params
+  const parentInternalId = RecordValidations.extractValidationChildrenCountKeyParentInternalId(childrenCountKey)
   const childDefUuid = RecordValidations.extractValidationChildrenCountKeyNodeDefUuid(childrenCountKey)
-  if (!parentUuid || !childDefUuid) return null
+  if (!parentInternalId || !childDefUuid) return null
 
   // Sub-page entity min/max counts belong to navigation of nested pages, not this page's fields.
   if (descendantPageUuids.includes(childDefUuid)) return null
 
-  const parentNode = getNodeByUuid(parentUuid)(record)
+  const parentNode = getNodeByInternalId(parentInternalId)(record)
   if (!parentNode || !nodeBelongsToOwnPage({ node: parentNode, pageNodeDefUuid, descendantPageUuids, record })) {
     return null
   }
-  if (scopeEntityUuid && !nodeIsUnderEntity({ node: parentNode, entityUuid: scopeEntityUuid })) return null
+  if (
+    scopeEntityInternalId !== undefined &&
+    !nodeIsUnderEntity({ node: parentNode, entityInternalId: scopeEntityInternalId })
+  )
+    return null
 
   const fieldValidation = Validations.getFieldValidation(childrenCountKey)(recordValidation)
   if (!fieldValidation) return null
@@ -199,20 +206,20 @@ export const getPageValidationStatus = (params: {
   pageNodeDefUuid: string
   descendantPageUuids?: string[]
   record: Record
-  scopeEntityUuid?: string
+  scopeEntityInternalId?: number
 }): PageValidationStatus => {
-  const { pageNodeDefUuid, descendantPageUuids = [], record, scopeEntityUuid } = params
+  const { pageNodeDefUuid, descendantPageUuids = [], record, scopeEntityInternalId } = params
   const recordValidation = Validations.getValidation(record)
   const fields = Validations.getFieldValidations(recordValidation)
   let hasErrors = false
   let hasWarnings = false
 
-  for (const nodeUuid of Object.keys(fields)) {
+  for (const nodeInternalId of Object.keys(fields)) {
     const flags = getOwnPageFieldValidationFlags({
-      nodeUuid,
+      nodeInternalId,
       pageNodeDefUuid,
       descendantPageUuids,
-      scopeEntityUuid,
+      scopeEntityInternalId,
       record,
       recordValidation,
     })
@@ -237,11 +244,11 @@ const aggregatePageValidationStatuses = (statuses: PageValidationStatus[]): Page
 export const getEntitySubtreeStatus = (params: {
   survey: Survey
   record: Record
-  entityUuid: string
+  entityInternalId: number
   cycle?: string
 }): EntitySubtreeStatus | null => {
-  const { survey, record, entityUuid } = params
-  const entity = getNodeByUuid(entityUuid)(record)
+  const { survey, record, entityInternalId } = params
+  const entity = getNodeByInternalId(entityInternalId)(record)
   if (!entity) return null
 
   const entityDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
@@ -259,7 +266,7 @@ export const getEntitySubtreeStatus = (params: {
       pageNodeDefUuid,
       descendantPageUuids: pageDescendantUuids,
       record,
-      scopeEntityUuid: entityUuid,
+      scopeEntityInternalId: entityInternalId,
     })
   })
 
@@ -282,11 +289,13 @@ export const getMultiplePageEntitiesStatus = (params: {
   pageNodeDefUuid: string
   cycle?: string
   /** When set, only instances under this ancestor entity are aggregated. */
-  scopeEntityUuid?: string
+  scopeEntityInternalId?: number
 }): EntitySubtreeStatus => {
-  const { survey, record, pageNodeDefUuid, scopeEntityUuid } = params
+  const { survey, record, pageNodeDefUuid, scopeEntityInternalId } = params
   const instances = getNodesByDefUuid(pageNodeDefUuid)(record).filter((instance) =>
-    scopeEntityUuid ? nodeIsUnderEntity({ node: instance, entityUuid: scopeEntityUuid }) : true
+    scopeEntityInternalId !== undefined
+      ? nodeIsUnderEntity({ node: instance, entityInternalId: scopeEntityInternalId })
+      : true
   )
 
   if (instances.length === 0) {
@@ -294,7 +303,7 @@ export const getMultiplePageEntitiesStatus = (params: {
   }
 
   const instanceStatuses = instances
-    .map((instance) => getEntitySubtreeStatus({ survey, record, entityUuid: instance.uuid, cycle: params.cycle }))
+    .map((instance) => getEntitySubtreeStatus({ survey, record, entityInternalId: instance.iId, cycle: params.cycle }))
     .filter((status): status is EntitySubtreeStatus => status !== null)
 
   return {

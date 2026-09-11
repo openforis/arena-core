@@ -230,6 +230,7 @@ export type {
   SurveyFile,
   SurveyFileProps,
   SurveyProps,
+  SurveyRecordFileProps,
   SurveyRefData,
   SurveySecurity,
   SurveyService,

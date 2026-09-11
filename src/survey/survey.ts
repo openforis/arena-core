@@ -79,16 +79,20 @@ export type SurveyFileProps = {
   deleted?: boolean
   labels?: Labels
   name?: string
-  nodeUuid?: string
-  recordUuid?: string
   size?: number | null
   temporary?: boolean
   type?: string
 }
 
+export type SurveyRecordFileProps = SurveyFileProps & {
+  recordUuid: string
+  nodeIId: number
+  nodeUuid?: string // deprecated
+}
+
 export type SurveyFile = {
   uuid: string
-  props: SurveyFileProps
+  props: SurveyFileProps | SurveyRecordFileProps
   content?: Buffer | null
   dateCreated: string
 }

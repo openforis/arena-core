@@ -14,33 +14,33 @@ export interface NodeMeta {
   /**
    * Applicability of the node children (by definition UUID). If not defined, the children are applicable by default.
    */
-  childApplicability?: { [uuid: string]: boolean }
+  childApplicability?: { [nodeDefUuid: string]: boolean }
   /**
    * Whether the node children (by definition UUID) are editable (true) or read-only (false).
    * If not defined, the children are editable by default.
    */
-  cEdit?: { [uuid: string]: boolean }
+  cEdit?: { [nodeDefUuid: string]: boolean }
   /**
    * Maximum number of children (by definition UUID) for the node.
    */
-  childrenMaxCount?: { [uuid: string]: number }
+  childrenMaxCount?: { [nodeDefUuid: string]: number }
   /**
    * Minimum number of children (by definition UUID) for the node.
    */
-  childrenMinCount?: { [uuid: string]: number }
+  childrenMinCount?: { [nodeDefUuid: string]: number }
   /**
    * Whether the node children (by definition UUID) are visible (true) or hidden (false).
    * If not defined, the children are visible by default.
    */
-  cVis?: { [uuid: string]: boolean }
+  cVis?: { [nodeDefUuid: string]: boolean }
   /**
-   * Hierarchy of ancestor node UUIDs.
+   * Hierarchy of ancestor node internal IDs.
    */
-  h?: string[]
+  h?: number[]
   /**
-   * Hierarchy of code attribute ancestor UUIDs (according to the parent code defs specified).
+   * Hierarchy of code attribute ancestor node internal IDs (according to the parent code defs specified).
    */
-  hCode?: string[]
+  hCode?: number[]
   /**
    * True if the value has been auto-filled from the node default value
    */
@@ -59,13 +59,22 @@ export interface NodeRefData {
 export interface Node {
   dateCreated?: string
   dateModified?: string
+  /**
+   * ID used when node is stored (unique relatively to the entire survey; e.g. DB table PK).
+   */
   id?: number
+  /**
+   * Internal ID (unique relatively to the record).
+   */
+  iId: number
   meta?: NodeMeta
   nodeDefUuid: string
-  parentUuid?: string
+  /**
+   * Parent node internal ID.
+   */
+  pIId?: number
   recordUuid: string
   refData?: NodeRefData
-  uuid: string
   value?: any
   placeholder?: boolean
   surveyUuid?: string
@@ -86,5 +95,5 @@ export interface Node {
 }
 
 export interface NodesMap {
-  [key: string]: Node
+  [internalId: number]: Node
 }

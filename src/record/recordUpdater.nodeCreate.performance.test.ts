@@ -13,7 +13,7 @@ import { Records } from './records'
 import { RecordUpdater } from './recordUpdater'
 import { Record } from './record'
 
-const nodeCreationTimeFactor = 0.003
+const nodeCreationTimeFactor = 0.001
 
 let user: User
 let record: Record

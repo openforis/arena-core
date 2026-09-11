@@ -67,7 +67,7 @@ const findNodesByPath = (params: { survey: Survey; record: Record; path: string 
   const pathParts = path.split('.')
   for (let partIndex = 0; partIndex < pathParts.length; partIndex++) {
     const pathPart = pathParts[partIndex]
-    currentNodes = processFindNodesByPathPart({ survey, record, pathPart, currentNodes: currentNodes!, partIndex })
+    currentNodes = processFindNodesByPathPart({ survey, record, pathPart, currentNodes, partIndex })
     if (!currentNodes) return undefined
   }
   return currentNodes
@@ -84,8 +84,8 @@ const getNodeByPath = (params: { survey: Survey; record: Record; path: string })
   return node
 }
 
-const getNodeUuidByPath = (params: { survey: Survey; record: Record; path: string }): string =>
-  getNodeByPath(params).uuid
+const getNodeInternalIdByPath = (params: { survey: Survey; record: Record; path: string }): number =>
+  getNodeByPath(params).iId
 
 const getNodeName =
   (params: { survey: Survey }) =>
@@ -112,7 +112,7 @@ export const TestUtils = {
   findNodesByPath,
   findNodeByPath,
   getNodeByPath,
-  getNodeUuidByPath,
+  getNodeInternalIdByPath,
   getNodeName,
   getCategoryItem,
 }

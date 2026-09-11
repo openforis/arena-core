@@ -1,30 +1,30 @@
-export class Queue {
-  items: any[]
+export class Queue<T> {
+  items: T[]
 
-  constructor(items: any[] = []) {
+  constructor(items: T[] = []) {
     this.items = []
     this.enqueueItems(items)
   }
 
-  enqueue(item: any): void {
+  enqueue(item: T): void {
     this.items.unshift(item)
   }
 
-  enqueueItems(items: any[]) {
+  enqueueItems(items: T[]) {
     for (const item of items) {
       this.enqueue(item)
     }
   }
 
-  dequeue(): any {
+  dequeue(): T | undefined {
     return this.items.pop()
   }
 
-  get first(): any {
+  get first(): T | undefined {
     return this.items[this.size - 1]
   }
 
-  get last(): any {
+  get last(): T | undefined {
     return this.items[0]
   }
 

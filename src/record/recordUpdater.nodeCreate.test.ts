@@ -1,16 +1,16 @@
 import { describe, test, expect, beforeAll } from '@jest/globals'
 
 import { User } from '../auth'
-import { Validations } from '../validation/validations'
-import { RecordFactory } from './factory'
-import { RecordUpdater } from './recordUpdater'
+import { Nodes } from '../node'
 import { Surveys } from '../survey'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
+import { Validations } from '../validation/validations'
+import { RecordFactory } from './factory'
 import { Records } from './records'
-import { Nodes } from '../node'
+import { RecordUpdater } from './recordUpdater'
 
 const { category, categoryItem, codeDef, dateDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
@@ -58,7 +58,7 @@ describe('RecordUpdater - node create', () => {
 
     // check nodes are validated
     const validation = Validations.getValidation(record)
-    const identifierValidation = Validations.getFieldValidation(identifier.uuid)(validation)
+    const identifierValidation = Validations.getFieldValidation(String(identifier.iId))(validation)
     expect(identifierValidation.valid).toBeFalsy()
   })
 

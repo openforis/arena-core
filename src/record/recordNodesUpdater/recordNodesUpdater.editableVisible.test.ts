@@ -54,7 +54,7 @@ describe('Record nodes updater - editable/visible', () => {
       user,
       survey,
       record: Records.addNode(sourceNodeUpdatedToFalse)(record),
-      nodes: { [sourceNode.uuid]: sourceNodeUpdatedToFalse },
+      nodes: { [sourceNode.iId]: sourceNodeUpdatedToFalse },
     })
 
     let rootNodeUpdated = TestUtils.getNodeByPath({ survey, record: updateResult.record, path: 'root_entity' })
@@ -74,7 +74,7 @@ describe('Record nodes updater - editable/visible', () => {
       user,
       survey,
       record: Records.addNode(sourceNodeUpdatedToTrue)(record),
-      nodes: { [sourceNodeUpdatedToTrue.uuid]: sourceNodeUpdatedToTrue },
+      nodes: { [sourceNodeUpdatedToTrue.iId]: sourceNodeUpdatedToTrue },
     })
 
     rootNodeUpdated = TestUtils.getNodeByPath({ survey, record: updateResult.record, path: 'root_entity' })
@@ -145,7 +145,7 @@ describe('Record nodes updater - editable/visible', () => {
       user,
       survey,
       record: recordWithThreshold,
-      nodes: { [thresholdNode.uuid]: thresholdUpdated },
+      nodes: { [thresholdNode.iId]: thresholdUpdated },
     })
 
     const plotNodeAfterUpdate = TestUtils.getNodeByPath({

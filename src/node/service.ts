@@ -7,14 +7,14 @@ export interface NodeService extends ArenaService {
   create(options: { filePath?: string; node: Node; socketId: string; surveyId: number; user: User }): Promise<Node>
 
   // ==== READ
-  get(options: { surveyId: number; nodeUuid: string }): Promise<Node>
+  get(options: { surveyId: number; nodeInternalId: number }): Promise<Node>
 
   // ==== UPDATE
   update(options: { filePath?: string; node: Node; socketId: string; surveyId: number; user: User }): Promise<Node>
 
   // ==== DELETE
   delete(options: {
-    nodeUuid: string
+    nodeInternalId: number
     recordUuid: string
     socketId: string
     surveyId: number
