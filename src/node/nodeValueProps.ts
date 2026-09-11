@@ -37,4 +37,5 @@ export enum ValuePropsTaxon {
 export enum ValuePropsTime {
   hour = 'hour',
   minute = 'minute',
+  seconds = 'seconds',
 }
