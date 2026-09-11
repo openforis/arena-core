@@ -90,7 +90,8 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 **Authorization** (`src/auth/`)
 
 - `Authorizer` - permission checks for users
-- Auth groups: systemAdmin, surveyAdmin, dataManager, dataEditor, dataCleanser, dataAnalyst, guest
+- Auth groups (`AuthGroupName` in `src/auth/authGroup.ts`): systemAdmin, surveyManager, surveyAdmin, surveyEditor, dataAnalyst, dataCleanser, dataEditor, surveyGuest
+- `permissionsByGroupName` maps each group to its default `Permission` set; `DEFAULT_AUTH_GROUPS` also assigns default `RecordStepPermission` (own/all) per record step
 - Permissions for survey operations (view/edit), record operations (CRUD), user management
 
 **Reference Data** (`src/category/`, `src/taxonomy/`)
@@ -104,6 +105,14 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 - Singleton pattern for registering domain services
 - Allows dependency injection of custom implementations
 - Services extend `ArenaService` interface
+
+**Job System** (`src/job/`)
+
+- `JobBase<C, R>` is an abstract base class for asynchronous tasks with a status workflow: pending → running → (succeeded | failed | canceled)
+- Subclasses override lifecycle hooks (`shouldExecute`, `onStart`, `execute`, `beforeSuccess`, `generateResult`, `beforeEnd`, `onEnd`), several of which run "in tx" (inside a transaction) per the class doc comment
+- Jobs can be composed of `innerJobs` and emit throttled `JobEvent` progress notifications
+
+**Other supporting modules** — smaller, mostly self-contained: `src/chain/` (processing chains and their node defs), `src/dataExport/` (flattening record data for export), `src/dataQuery/`, `src/extraProp/` (arbitrary extra properties on domain objects), `src/geo/` (points, SRS conversion via `src/srs/`), `src/language/` and `src/message/` (i18n labels/messages), `src/error/` (`SystemError`), `src/app/` (`AppInfo`).
 
 ### Common Patterns
 
@@ -148,10 +157,11 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 ## Linting Rules
 
-- ESLint with TypeScript support
+- ESLint flat config (`eslint.config.mjs`), scoped to `src/**/*.{ts,tsx}`
 - Unused vars/args starting with `_` are allowed
 - `@typescript-eslint/no-explicit-any` is OFF
-- **Important:** `no-explicit-type-exports` plugin enforces using `export type { ... }` for type-only exports
+- The codebase consistently uses `export type { ... }` for type-only exports (see `src/index.ts`), even though the `no-explicit-type-exports` plugin that used to enforce it is currently disabled in `eslint.config.mjs` pending ESLint 10 compatibility — keep following the convention regardless
+- `tslint.json` is a stale leftover (no `tslint` dependency in `package.json`); ESLint is the only linter actually in use
 
 ## Package Publishing
 
