@@ -68,8 +68,12 @@ const extractorsByNodeDefType: { [key in NodeDefType]?: Extractor } = {
   [NodeDefType.text]: (params: ExtractorParams) => params.node.value,
   [NodeDefType.time]: (params: ExtractorParams) => {
     const { node } = params
-    const [hour, minute] = [NodeValues.getTimeHour(node), NodeValues.getTimeMinute(node)]
-    if (Dates.isValidTime(hour, minute)) {
+    const [hour, minute, seconds] = [
+      NodeValues.getTimeHour(node),
+      NodeValues.getTimeMinute(node),
+      NodeValues.getTimeSeconds(node),
+    ]
+    if (Dates.isValidTime(hour, minute, seconds)) {
       return node.value
     }
     return null
