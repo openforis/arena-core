@@ -99,9 +99,13 @@ const toCardinalByLang: Partial<Record<LanguageCode, (value: number | string | b
  */
 const toWords = (value: any, lang: LanguageCode = LanguageCode.en): string | null => {
   const number = toNumber(value)
-  if (Number.isNaN(number)) return null
+  if (!Number.isFinite(number)) return null
   const toCardinal = toCardinalByLang[lang] ?? toCardinalByLang[LanguageCode.en]!
-  return toCardinal(number)
+  try {
+    return toCardinal(number)
+  } catch {
+    return null
+  }
 }
 
 export const Numbers = {
