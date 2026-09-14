@@ -106,6 +106,9 @@ describe('NodeDefExpressionEvaluator', () => {
     },
     // regular exprssions
     { expression: '/[a-z\\s]+/i.test(remarks)', result: true, resultIsNotNodeDef: true },
+    // numberToText (no lang in context => falls back to English)
+    { expression: 'numberToText(1114)', result: 'one thousand one hundred fourteen', resultIsNotNodeDef: true },
+    { expression: 'numberToText(null)', result: null },
     // user properties
     { expression: 'userName()', result: 'test', resultIsNotNodeDef: true },
     { expression: 'userEmail()', result: 'test@openforis-arena.org', resultIsNotNodeDef: true },

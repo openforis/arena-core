@@ -2,6 +2,7 @@ import type { ArenaRecord } from '../record'
 import { User } from '../../auth'
 import { CategoryItem } from '../../category'
 import { ExpressionNodeType, JavascriptExpressionEvaluator } from '../../expression'
+import { LanguageCode } from '../../language'
 import { Node } from '../../node'
 import { NodeDefExpression, NodeDefs } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
@@ -19,6 +20,7 @@ type ExpressionEvaluateParams = {
   record: ArenaRecord
   prevCycleRecord?: ArenaRecord
   timezoneOffset?: number
+  lang?: LanguageCode
 }
 
 export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<RecordExpressionContext> {
