@@ -97,10 +97,11 @@ const _toDateTime = (params: {
   const date = Dates.parse(valueExpr, formatFrom)
   if (!date) return null
 
-  const localTimezoneOffset = Dates.getTimezoneOffset()
-  const timezoneOffsetDiff = localTimezoneOffset - (timezoneOffset ?? localTimezoneOffset)
-  const dateWithTimezoneOffset = timezoneOffsetDiff ? new Date(date.getTime() + timezoneOffsetDiff * 60000) : date
-  return Dates.format(dateWithTimezoneOffset, format)
+  // `date` encodes the parsed digits as if they were UTC (see Dates.parse/parseZone), so shift by the
+  // client's offset (if any) and read the result back out in UTC - never in this machine's local time zone,
+  // which would otherwise silently reintroduce the server's own timezone into the result.
+  const dateWithTimezoneOffset = timezoneOffset ? new Date(date.getTime() - timezoneOffset * 60000) : date
+  return Dates.formatUTC(dateWithTimezoneOffset, format)
 }
 
 const findTaxonByCode = async (params: {
