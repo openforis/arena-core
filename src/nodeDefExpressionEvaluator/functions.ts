@@ -206,7 +206,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     evaluateToNode: false,
     executor: () => async () => Dates.nowFormattedForStorage(),
   },
-  numberToText: {
+  numberToWords: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: false,
