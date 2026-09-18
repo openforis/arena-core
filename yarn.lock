@@ -114,7 +114,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:^7.29.0":
+"@babel/core@npm:^7.29.7":
   version: 7.29.7
   resolution: "@babel/core@npm:7.29.7"
   dependencies:
@@ -807,7 +807,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-typescript@npm:^7.28.5":
+"@babel/preset-typescript@npm:^7.29.7":
   version: 7.29.7
   resolution: "@babel/preset-typescript@npm:7.29.7"
   dependencies:
@@ -1551,8 +1551,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@openforis/arena-core@workspace:."
   dependencies:
-    "@babel/core": "npm:^7.29.0"
-    "@babel/preset-typescript": "npm:^7.28.5"
+    "@babel/core": "npm:^7.29.7"
+    "@babel/preset-typescript": "npm:^7.29.7"
     "@jsep-plugin/regex": "npm:^1.0.4"
     "@turf/bearing": "npm:^7.3.5"
     "@turf/destination": "npm:^7.3.5"
@@ -1568,28 +1568,28 @@ __metadata:
     "@types/uuid": "npm:^11.0.0"
     "@typescript-eslint/eslint-plugin": "npm:^8"
     "@typescript-eslint/parser": "npm:^8"
-    bignumber.js: "npm:^11.1.4"
+    bignumber.js: "npm:^11.1.5"
     change-case: "npm:^5.4.4"
-    eslint: "npm:^10.6.0"
+    eslint: "npm:^10.10.0"
     eslint-plugin-no-explicit-type-exports: "npm:^0.12.1"
     husky: "npm:^9.1.7"
-    jest: "npm:^30.4.2"
+    jest: "npm:^30.5.1"
     jsep: "npm:^1.4.0"
-    lint-staged: "npm:^17.0.8"
+    lint-staged: "npm:^17.5.1"
     lodash.differencewith: "npm:^4.5.0"
     lodash.frompairs: "npm:^4.0.1"
     lodash.isequal: "npm:^4.5.0"
     lodash.topairs: "npm:^4.3.0"
-    moment: "npm:^2.30.1"
+    moment: "npm:^2.31.0"
     n2words: "npm:^6.2.0"
     npm-run-all: "npm:^4.1.5"
-    prettier: "npm:^3.9.4"
-    proj4: "npm:^2.20.9"
-    ts-jest: "npm:^29.4.11"
+    prettier: "npm:^3.9.8"
+    proj4: "npm:^2.22.0"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     typescript: "npm:6.0.3"
     typescript-eslint: "npm:^8"
-    uuid: "npm:^14.0.1"
+    uuid: "npm:^14.0.2"
   languageName: unknown
   linkType: soft
 
@@ -2819,14 +2819,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:^11.1.4":
+"bignumber.js@npm:^11.1.5":
   version: 11.1.5
   resolution: "bignumber.js@npm:11.1.5"
   checksum: 10c0/8e829402c6c190d92becb2495d62581c66f170deae99f43ae859e54cdc586d4375c752131d07f60fcc709b84c9ca4c362623c97f3703629e69792c7bb1def00c
   languageName: node
   linkType: hard
 
-"brace-expansion@npm:^1.1.18":
+"brace-expansion@npm:^1.1.7":
   version: 1.1.21
   resolution: "brace-expansion@npm:1.1.21"
   dependencies:
@@ -3559,7 +3559,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^10.6.0":
+"eslint@npm:^10.10.0":
   version: 10.10.0
   resolution: "eslint@npm:10.10.0"
   dependencies:
@@ -4963,7 +4963,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^30.4.2":
+"jest@npm:^30.5.1":
   version: 30.5.1
   resolution: "jest@npm:30.5.1"
   dependencies:
@@ -4989,7 +4989,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:^3.15.2":
+"js-yaml@npm:^3.13.1":
   version: 3.15.2
   resolution: "js-yaml@npm:3.15.2"
   dependencies:
@@ -5096,7 +5096,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lint-staged@npm:^17.0.8":
+"lint-staged@npm:^17.5.1":
   version: 17.5.1
   resolution: "lint-staged@npm:17.5.1"
   dependencies:
@@ -5178,7 +5178,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.18.0":
+"lodash@npm:^4.17.15":
   version: 4.18.1
   resolution: "lodash@npm:4.18.1"
   checksum: 10c0/757228fc68805c59789e82185135cf85f05d0b2d3d54631d680ca79ec21944ec8314d4533639a14b8bcfbd97a517e78960933041a5af17ecb693ec6eecb99a27
@@ -5309,7 +5309,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:^2.30.1":
+"moment@npm:^2.31.0":
   version: 2.31.0
   resolution: "moment@npm:2.31.0"
   checksum: 10c0/3755b186b8ff62c565685ce69dde55bf46003c0329139be5c8dd7845cd567bfd7d02be3a13e379a25acb9e98f6b87136c4776745e440615a4f5ca8dd9a8815b9
@@ -5704,14 +5704,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"picomatch@npm:^2.3.2":
+"picomatch@npm:^2.0.4":
   version: 2.3.2
   resolution: "picomatch@npm:2.3.2"
   checksum: 10c0/a554d1709e59be97d1acb9eaedbbc700a5c03dbd4579807baed95100b00420bc729335440ef15004ae2378984e2487a7c1cebd743cfdb72b6fa9ab69223c0d61
   languageName: node
   linkType: hard
 
-"picomatch@npm:^4.0.4, picomatch@npm:^4.0.7":
+"picomatch@npm:^4.0.3, picomatch@npm:^4.0.4, picomatch@npm:^4.0.7":
   version: 4.0.7
   resolution: "picomatch@npm:4.0.7"
   checksum: 10c0/beb6ae02c43ae44e84883b90830196d9046b1726ead292adcf7f57945e0bb0d992d68563d87e03b484b6f3c9a5c6defda7523477f047d7f0e663f126cc01787f
@@ -5764,7 +5764,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.9.4":
+"prettier@npm:^3.9.8":
   version: 3.9.8
   resolution: "prettier@npm:3.9.8"
   bin:
@@ -5792,7 +5792,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proj4@npm:*, proj4@npm:^2.20.9":
+"proj4@npm:*, proj4@npm:^2.22.0":
   version: 2.22.0
   resolution: "proj4@npm:2.22.0"
   dependencies:
@@ -6463,7 +6463,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^29.4.11":
+"ts-jest@npm:^29.4.12":
   version: 29.4.12
   resolution: "ts-jest@npm:29.4.12"
   dependencies:
@@ -6824,7 +6824,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:*, uuid@npm:^14.0.1":
+"uuid@npm:*, uuid@npm:^14.0.2":
   version: 14.0.2
   resolution: "uuid@npm:14.0.2"
   bin:
