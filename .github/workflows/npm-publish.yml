@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-      - run: yarn install --immutable
+      - run: yarn install --immutable --mode=skip-build
       - run: yarn test
 
   publish:
@@ -29,7 +29,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-      - run: yarn install --immutable
+      - run: yarn install --immutable --mode=skip-build
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: yarn build
