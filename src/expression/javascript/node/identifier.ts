@@ -12,18 +12,33 @@ const getNativeProperty = (name: string, object: any) => {
 }
 
 export class IdentifierEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, IdentifierExpression> {
-  async evaluate(expressionNode: IdentifierExpression): Promise<any> {
+  /**
+   * Looks for the identifier among global or native properties, without throwing when it is not found
+   * (creating errors captures stack traces, which is expensive when it happens for every evaluated identifier).
+   *
+   * @param expressionNode - The identifier expression node.
+   * @returns The property value wrapped in an object, or null if the identifier has not been found.
+   */
+  protected findGlobalOrNativeProperty(expressionNode: IdentifierExpression): { value: any } | null {
     const { name } = expressionNode
     const { object: contextObject } = this.context
 
     const globalProp = getGlobalObjectProperty(name, contextObject)
     if (globalProp !== null) {
-      return globalProp
+      return { value: globalProp }
     }
     const nativeProperty = getNativeProperty(name, contextObject)
     if (nativeProperty !== undefined) {
-      return nativeProperty
+      return { value: nativeProperty }
     }
-    throw new SystemError('expression.identifierNotFound', { name })
+    return null
+  }
+
+  async evaluate(expressionNode: IdentifierExpression): Promise<any> {
+    const property = this.findGlobalOrNativeProperty(expressionNode)
+    if (property) {
+      return property.value
+    }
+    throw new SystemError('expression.identifierNotFound', { name: expressionNode.name })
   }
 }
