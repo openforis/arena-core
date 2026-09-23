@@ -99,9 +99,12 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
     }
 
     // try to find identifier among global or native properties
+    // (not-found is signaled without throwing; the try/catch only handles the rare case of an unknown member of a global object)
     try {
-      const result = await super.evaluate(expressionNode)
-      return result
+      const property = this.findGlobalOrNativeProperty(expressionNode)
+      if (property) {
+        return property.value
+      }
     } catch {
       // ignore it
     }
