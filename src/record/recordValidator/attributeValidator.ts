@@ -47,8 +47,17 @@ export interface SortedAttributesValidatorParams extends RecordValidatorParams {
   nodesArray: Node[]
 }
 
-const _getSiblingNodeKeys = (params: AttributeValidatorParams): Node[] => {
-  const { survey, record, attribute } = params
+type SiblingKeyNodeItem = { entityUuid: string; keyNode: Node; hasErrors: boolean }
+
+// sibling key nodes are cached by ancestor multiple entity parent and def uuid during the same validation call:
+// when many entities are added to the same parent entity (e.g. data import), computing them for every updated
+// key attribute would take a time that grows quadratically with the number of entities
+type SiblingKeyNodesCache = Map<string, SiblingKeyNodeItem[]>
+
+const _getSiblingNodeKeys = (
+  params: AttributeValidatorParams & { siblingKeyNodesCache?: SiblingKeyNodesCache }
+): SiblingKeyNodeItem[] => {
+  const { survey, record, attribute, siblingKeyNodesCache } = params
 
   const attributeDef = Surveys.getNodeDefByUuid({ survey, uuid: attribute.nodeDefUuid })
   const ancestorMultipleEntityDef = Surveys.getNodeDefAncestorMultipleEntity({ survey, nodeDef: attributeDef })
@@ -62,11 +71,27 @@ const _getSiblingNodeKeys = (params: AttributeValidatorParams): Node[] => {
   })
   if (!ancestorMultipleEntity) return []
 
-  const siblingAncestorEntities = Records.getEntitySiblings({ record, entity: ancestorMultipleEntity })
-  return siblingAncestorEntities.reduce((acc, siblingAncestorEntity) => {
-    acc.push(...Records.getEntityKeyNodes({ survey, record, entity: siblingAncestorEntity }))
-    return acc
-  }, [] as Node[])
+  const ancestorMultipleEntityParent = Records.getParent(ancestorMultipleEntity)(record)
+  if (!ancestorMultipleEntityParent) return []
+
+  const cacheKey = `${ancestorMultipleEntityParent.uuid}_${ancestorMultipleEntityDef.uuid}`
+  let items = siblingKeyNodesCache?.get(cacheKey)
+  if (!items) {
+    const keyDefs = Surveys.getNodeDefKeys({ survey, nodeDef: ancestorMultipleEntityDef })
+    const entities = Records.getEntitySiblings({ record, entity: ancestorMultipleEntity, includeSelf: true })
+    items = []
+    for (const entity of entities) {
+      const keyNodes = Records.getEntityKeyNodes({ survey, record, entity, keyDefs })
+      for (const keyNode of keyNodes) {
+        if (!keyNode) continue
+        const nodeValidation =
+          record.validation && RecordValidations.getValidationNode({ nodeUuid: keyNode.uuid })(record.validation)
+        items.push({ entityUuid: entity.uuid, keyNode, hasErrors: !!nodeValidation && !nodeValidation.valid })
+      }
+    }
+    siblingKeyNodesCache?.set(cacheKey, items)
+  }
+  return items.filter((item) => item.entityUuid !== ancestorMultipleEntity.uuid)
 }
 
 const _getValidationMessagesWithDefault = (params: {
@@ -170,9 +195,10 @@ const findSiblingKeyNodesToValidate = (
   params: AttributeValidatorParams & {
     nodeDef: NodeDef<NodeDefType, NodeDefProps>
     nodeParent?: Node
+    siblingKeyNodesCache?: SiblingKeyNodesCache
   }
 ) => {
-  const { survey, record, nodeDef, nodeParent: parentNode, attribute } = params
+  const { survey, nodeDef, nodeParent: parentNode, attribute } = params
   if (
     !NodeDefs.isKey(nodeDef) ||
     !parentNode ||
@@ -187,14 +213,12 @@ const findSiblingKeyNodesToValidate = (
   const siblingNodeKeys = _getSiblingNodeKeys(params)
   const siblingNodeKeysWithSameValue: Node[] = []
   const siblingNodeKeysWithErrors: Node[] = []
-  siblingNodeKeys.forEach((nodeKey) => {
-    if (NodeValues.isValueEqual({ survey, nodeDef, parentNode, value: nodeKey.value, valueSearch: attribute.value })) {
-      siblingNodeKeysWithSameValue.push(nodeKey)
+  siblingNodeKeys.forEach(({ keyNode, hasErrors }) => {
+    if (NodeValues.isValueEqual({ survey, nodeDef, parentNode, value: keyNode.value, valueSearch: attribute.value })) {
+      siblingNodeKeysWithSameValue.push(keyNode)
     }
-    const nodeValidation =
-      record.validation && RecordValidations.getValidationNode({ nodeUuid: nodeKey.uuid })(record.validation)
-    if (nodeValidation && !nodeValidation.valid) {
-      siblingNodeKeysWithErrors.push(nodeKey)
+    if (hasErrors) {
+      siblingNodeKeysWithErrors.push(keyNode)
     }
   })
   return [...siblingNodeKeysWithSameValue, ...siblingNodeKeysWithErrors]
@@ -204,6 +228,7 @@ const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Nod
   const { survey, record, nodesArray } = params
 
   const result = []
+  const siblingKeyNodesCache: SiblingKeyNodesCache = new Map()
   for (const node of nodesArray) {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     if (!NodeDefs.isAttribute(nodeDef)) {
@@ -222,7 +247,7 @@ const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Nod
 
     result.push(
       ...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }),
-      ...findSiblingKeyNodesToValidate({ ...params, nodeDef, nodeParent, attribute: node })
+      ...findSiblingKeyNodesToValidate({ ...params, nodeDef, nodeParent, attribute: node, siblingKeyNodesCache })
     )
 
     if (NodeDefs.getValidations(nodeDef)?.unique) {
