@@ -27,3 +27,6 @@ export const isRecordsUploadFromMobileAllowed = (survey: Survey): boolean =>
 
 export const isRecordsWithErrorsUploadFromMobileAllowed = (survey: Survey): boolean =>
   isSecurityPropEnabled(SurveySecurityProp.allowRecordsWithErrorsUploadFromMobile)(survey)
+
+export const isRecordsMergeWithSameKeysAllowed = (survey: Survey): boolean =>
+  isSecurityPropEnabled(SurveySecurityProp.allowRecordsMergeWithSameKeys)(survey)
