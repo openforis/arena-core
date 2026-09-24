@@ -83,6 +83,7 @@ import {
   isDataAnalystViewNotOwnedRecordsAllowed,
   isDataEditorViewNotOwnedRecordsAllowed,
   isRecordsDownloadInMobileAllowed,
+  isRecordsMergeWithSameKeysAllowed,
   isRecordsUploadFromMobileAllowed,
   isRecordsWithErrorsUploadFromMobileAllowed,
   isVisibleInMobile,
@@ -177,6 +178,7 @@ export const Surveys = {
   isRecordsDownloadInMobileAllowed,
   isRecordsUploadFromMobileAllowed,
   isRecordsWithErrorsUploadFromMobileAllowed,
+  isRecordsMergeWithSameKeysAllowed,
 
   // utils
   getEnumeratingCategoryItems,
