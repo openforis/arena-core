@@ -272,7 +272,7 @@ const _removeNodeDefDependenciesOfType = (params: {
   const { graphs, nodeDefUuid, dependencyType } = params
 
   const graphsUpdated = { ...graphs }
-  let graphUpdated = { ...(graphsUpdated[dependencyType] ?? {}) }
+  let graphUpdated = { ...graphsUpdated[dependencyType] }
   // dissoc nodeDefUuid dependency as dependent
   graphUpdated = Objects.dissoc({ obj: graphUpdated, prop: nodeDefUuid })
 

@@ -43,7 +43,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       # -----------------------------------------------
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install --immutable --mode=skip-build
       - run: yarn build
       - name: Publish to GitHub Packages
         run: yarn npm publish

@@ -1,7 +1,13 @@
-import { describe } from '@jest/globals'
+import { describe, expect, test } from '@jest/globals'
 
-import { testQueries } from './common'
+import { createQueryTestCases } from './common'
 import { canEditSurveyQueries } from './survey/canEditSurvey'
 import { canViewSurveyQueries } from './survey/canViewSurvey'
 
-describe('Authorizer - Survey', testQueries([...canEditSurveyQueries, ...canViewSurveyQueries]))
+const testCases = createQueryTestCases([...canEditSurveyQueries, ...canViewSurveyQueries])
+
+describe('Authorizer - Survey', () => {
+  test.each(testCases)('$title', ({ authorizer, params, resultExpected }) => {
+    expect(authorizer(...params)).toBe(resultExpected)
+  })
+})

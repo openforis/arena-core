@@ -2,7 +2,7 @@ import { Survey, SurveySecurity, surveySecurityDefaults, SurveySecurityProp } fr
 
 export const getSecurity = (survey: Survey): SurveySecurity => ({
   ...surveySecurityDefaults,
-  ...(survey?.props?.security ?? {}),
+  ...survey?.props?.security,
 })
 
 export const isSecurityPropEnabled =

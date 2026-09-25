@@ -37,7 +37,7 @@ export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryPa
           sideEffect: true,
         })
         categoryItemIndex[item.uuid] = item
-      }, {})
+      })
     })
 
     return { categoryItemUuidIndex, categoryItemIndex, taxonUuidIndex, taxonIndex }

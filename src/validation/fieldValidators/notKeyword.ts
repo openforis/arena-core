@@ -2,7 +2,7 @@ import { Objects } from '../../utils'
 import { ValidationResultFactory } from '../factory'
 import { ValidationResult, ValidationSeverity } from '../validation'
 
-const keywords = [
+const keywords = new Set([
   'asc',
   'date_created',
   'date_modified',
@@ -21,13 +21,13 @@ const keywords = [
   'step',
   'uuid',
   'value',
-]
+])
 
 export const notKeyword =
   (messageKey: string) =>
   async (field: string, obj: any): Promise<ValidationResult> => {
     const value = Objects.path(field)(obj)
-    const valid = Objects.isEmpty(value) || !keywords.includes(value)
+    const valid = Objects.isEmpty(value) || !keywords.has(value)
 
     return ValidationResultFactory.createInstance({
       valid,

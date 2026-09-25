@@ -17,7 +17,7 @@ BigNumber.config({
   },
 })
 
-const toNumber = (num: any): number => (Objects.isEmpty(num) ? NaN : Number(num))
+const toNumber = (num: any): number => (Objects.isEmpty(num) ? Number.NaN : Number(num))
 
 /**
  * Returns the absolute modulus of the specified value. The result will always be a positive number.
@@ -44,7 +44,7 @@ const isInteger = (value: any): boolean => {
 /**
  * Formats the given value to the specified fixed dicimal digits.
  */
-const formatDecimal = (value: number, decimalDigits = NaN) => {
+const formatDecimal = (value: number, decimalDigits = Number.NaN) => {
   if (Number.isNaN(value) || value === null) return null
   const num = new BigNumber(value)
 
@@ -68,7 +68,7 @@ const formatDecimal = (value: number, decimalDigits = NaN) => {
 const formatInteger = (value: number): string | null => formatDecimal(value, 0)
 
 const limit =
-  ({ minValue = NaN, maxValue = NaN }) =>
+  ({ minValue = Number.NaN, maxValue = Number.NaN }) =>
   (value: number) => {
     let result = Number(value)
     if (minValue) result = Math.max(minValue, result)
@@ -76,9 +76,9 @@ const limit =
     return result
   }
 
-const roundToPrecision = (value: any, precision = NaN) => {
+const roundToPrecision = (value: any, precision = Number.NaN) => {
   const num = toNumber(value)
-  if (Number.isNaN(num)) return NaN
+  if (Number.isNaN(num)) return Number.NaN
   if (Number.isNaN(precision)) return num
   const exp = Math.pow(10, precision)
   return Math.round(num * exp) / exp

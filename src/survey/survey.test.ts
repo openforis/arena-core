@@ -46,7 +46,7 @@ test('ExpectedSurvey === Survey', () => {
 
   // props.srs
   expect(surveyProps).toHaveProperty('srs')
-  expect(surveyProps.srs.length).toBe(1)
+  expect(surveyProps.srs).toHaveLength(1)
   expect(surveyProps.srs[0].code).toBeTruthy()
   expect(surveyProps.srs[0].code).toBe(DEFAULT_SRS.code)
   expect(surveyProps.srs[0].name).toBeTruthy()

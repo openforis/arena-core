@@ -80,7 +80,7 @@ describe('Record fixer', () => {
 
     // fix record
     const fixResult = RecordFixer.fixRecord({ survey, record })
-    expect(Object.values(fixResult.nodesDeleted).length).toBe(4)
+    expect(Object.values(fixResult.nodesDeleted)).toHaveLength(4)
     record = fixResult.record
 
     // test nodes deleted from record

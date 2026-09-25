@@ -28,13 +28,20 @@ export const createThirdUser = ({ status = UserStatus.ACCEPTED } = {}) =>
     status,
   })
 
-export const testQueries = (queries: Query[]) => () => {
+export type QueryTestCase = {
+  title: string
+  authorizer: any
+  params: any[]
+  resultExpected: boolean
+}
+
+export const createQueryTestCases = (queries: Query[]): QueryTestCase[] => {
   const ownerUser = UserFactory.createInstance({ email: 'owner@arena.org', name: 'survey owner' })
   const defaultUser = UserFactory.createInstance({ email: 'user@arena.org', name: 'user' })
   const survey = SurveyFactory.createInstance({ name: 'test_authorizer', ownerUuid: ownerUser.uuid })
   survey.authGroups = AuthGroups.getDefaultAuthGroups(survey.uuid)
 
-  queries.forEach((query) => {
+  return queries.map((query) => {
     const { title, groups, authorizer, result: resultExpected, getParams = false } = query
 
     const authGroups: AuthGroup[] =
@@ -43,11 +50,8 @@ export const testQueries = (queries: Query[]) => () => {
         : survey.authGroups.filter((group) => groups.includes(group.name))
 
     const user = { ...defaultUser, authGroups }
+    const params = getParams ? getParams({ user, survey, authGroups }) : [user, survey]
 
-    test(title, () => {
-      const params = getParams ? getParams({ user, survey, authGroups }) : [user, survey]
-      const result = authorizer(...params)
-      expect(result).toBe(resultExpected)
-    })
+    return { title, authorizer, params, resultExpected }
   })
 }

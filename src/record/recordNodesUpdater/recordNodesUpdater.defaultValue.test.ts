@@ -52,7 +52,7 @@ describe('Record nodes updater - default values', () => {
       nodes: { [nodeToUpdate.uuid]: nodeUpdated },
     })
     expect(updateResult).not.toBeNull()
-    expect(Object.values(updateResult.nodes).length).toBe(2)
+    expect(Object.values(updateResult.nodes)).toHaveLength(2)
 
     const dependentNode = TestUtils.getNodeByPath({
       survey,

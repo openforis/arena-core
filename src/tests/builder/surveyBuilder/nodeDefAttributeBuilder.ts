@@ -44,7 +44,6 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
   }
 
   defaultValues(...expressions: string[]): this {
-    if (!this.propsAdvanced.defaultValues) this.propsAdvanced.defaultValues = []
     this.propsAdvanced.defaultValues = expressions.map((expression) =>
       NodeDefExpressionFactory.createInstance({ expression })
     )
@@ -57,7 +56,7 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
   }
 
   validationExpressions(...expressions: (string | NodeDefExpression)[]): this {
-    if (!this.propsAdvanced.validations) this.propsAdvanced.validations = {}
+    this.propsAdvanced.validations ??= {}
     this.propsAdvanced.validations.expressions = expressions.map((expression) =>
       typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression
     )

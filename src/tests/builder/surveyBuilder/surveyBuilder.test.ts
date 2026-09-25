@@ -26,7 +26,7 @@ describe('SurveyBuilder', () => {
     expect(survey.nodeDefs).toBeDefined()
 
     const nodeDefs = survey.nodeDefs || {}
-    expect(Object.entries(nodeDefs).length).toBe(4)
+    expect(Object.entries(nodeDefs)).toHaveLength(4)
 
     // check cluster
     expectNodeDefToExist({ survey, name: 'cluster' })

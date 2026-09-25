@@ -127,7 +127,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     evaluateArgsToNodes: false,
     executor: (_context: RecordExpressionContext) => async (nodeSet) => {
       if (nodeSet && Array.isArray(nodeSet) && nodeSet.length > 0) {
-        return nodeSet[nodeSet.length - 1]
+        return nodeSet.at(-1)
       }
       return null
     },
@@ -203,9 +203,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     evaluateArgsToNodes: false,
     executor: (_context: RecordExpressionContext) => async (nodeSet) => {
       if (!nodeSet || !Array.isArray(nodeSet)) return []
-      return [
-        ...new Set(nodeSet.filter((value) => value !== null && value !== undefined && value !== '')),
-      ]
+      return [...new Set(nodeSet.filter((value) => value !== null && value !== undefined && value !== ''))]
     },
   },
   userIsRecordOwner: {

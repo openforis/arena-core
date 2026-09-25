@@ -57,9 +57,7 @@ export const createEnumeratedEntityNode = async (params: {
     nodeDef,
     sideEffect,
   })
-  const enumeratorNode = Object.values(childUpdateResult.nodes).find(
-    (node) => node.nodeDefUuid === enumeratorDef.uuid
-  )
+  const enumeratorNode = Object.values(childUpdateResult.nodes).find((node) => node.nodeDefUuid === enumeratorDef.uuid)
   if (!enumeratorNode) {
     throw new SystemError('record.enumeratorNodeNotFound', {
       recordUuid: record.uuid,
@@ -68,7 +66,7 @@ export const createEnumeratedEntityNode = async (params: {
     })
   }
   enumeratorNode.value = NodeValues.newCodeValue({ itemUuid: categoryItem.uuid })
-  enumeratorNode.meta = { ...(enumeratorNode.meta ?? {}), defaultValueApplied: true }
+  enumeratorNode.meta = { ...enumeratorNode.meta, defaultValueApplied: true }
   enumeratorNode.refData = { categoryItem }
 
   updateResult.merge(childUpdateResult)
