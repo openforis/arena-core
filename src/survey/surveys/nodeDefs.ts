@@ -174,7 +174,7 @@ const getIndexInChain = (params: { survey: Survey; nodeDef: NodeDef<any> }): num
   const areaBasedEstimatedOfNodeDef = areaBasedEstimatedOf
     ? getNodeDefByUuid({ survey, uuid: areaBasedEstimatedOf })
     : null
-  const nodeDefToConsider = areaBasedEstimatedOfNodeDef ? areaBasedEstimatedOfNodeDef : nodeDef
+  const nodeDefToConsider = areaBasedEstimatedOfNodeDef ?? nodeDef
   return nodeDefToConsider?.propsAdvanced?.index ?? 0
 }
 
@@ -311,6 +311,49 @@ export const findAncestorNodeDef = (params: {
   return result
 }
 
+type NodeDefTraverseParams = {
+  nodeDef: NodeDef<any>
+  visitor: (nodeDef: NodeDef<any>) => void
+  shouldTraverse: (nodeDef: NodeDef<any>) => boolean
+  getChildren: (nodeDef: NodeDef<any>) => NodeDef<any>[]
+}
+
+const traverseBreadthFirst = ({ nodeDef, visitor, shouldTraverse, getChildren }: NodeDefTraverseParams) => {
+  const queue = new Queue()
+
+  queue.enqueue(nodeDef)
+
+  while (!queue.isEmpty()) {
+    const visitedNodeDef = queue.dequeue()
+
+    visitor(visitedNodeDef)
+
+    if (shouldTraverse(visitedNodeDef)) {
+      queue.enqueueItems(getChildren(visitedNodeDef))
+    }
+  }
+}
+
+const traverseDepthFirst = ({ nodeDef, visitor, shouldTraverse, getChildren }: NodeDefTraverseParams) => {
+  const stack: NodeDef<any>[] = []
+
+  stack.push(nodeDef)
+
+  while (stack.length > 0) {
+    const visitedNodeDef = stack.pop()!
+
+    visitor(visitedNodeDef)
+
+    if (shouldTraverse(visitedNodeDef)) {
+      const children = getChildren(visitedNodeDef)
+      // add children to stack in reverse order
+      for (let index = children.length - 1; index >= 0; index--) {
+        stack.push(children[index])
+      }
+    }
+  }
+}
+
 export const visitDescendantsAndSelfNodeDef = (params: {
   survey: Survey
   cycle?: string
@@ -342,40 +385,11 @@ export const visitDescendantsAndSelfNodeDef = (params: {
       !traverseOnlySingleEntities ||
       NodeDefs.isSingle(visitedNodeDef))
 
+  const traverseParams = { nodeDef, visitor, shouldTraverse, getChildren: getNodeDefChildrenInternal }
   if (traverseMethod === TraverseMethod.bfs) {
-    const queue = new Queue()
-
-    queue.enqueue(nodeDef)
-
-    while (!queue.isEmpty()) {
-      const visitedNodeDef = queue.dequeue()
-
-      visitor(visitedNodeDef)
-
-      if (shouldTraverse(visitedNodeDef)) {
-        const childrenDefs = getNodeDefChildrenInternal(visitedNodeDef)
-        queue.enqueueItems(childrenDefs)
-      }
-    }
+    traverseBreadthFirst(traverseParams)
   } else {
-    const stack = []
-
-    stack.push(nodeDef)
-
-    while (stack.length > 0) {
-      const visitedNodeDef = stack.pop()!
-
-      visitor(visitedNodeDef)
-
-      if (shouldTraverse(visitedNodeDef)) {
-        const children = getNodeDefChildrenInternal(visitedNodeDef)
-        // add children to stack in reverse order
-        for (let index = children.length - 1; index >= 0; index--) {
-          const child = children[index]
-          stack.push(child)
-        }
-      }
-    }
+    traverseDepthFirst(traverseParams)
   }
 }
 

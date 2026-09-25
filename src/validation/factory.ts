@@ -17,7 +17,7 @@ export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
     }
     const { errors, fields, valid, warnings } = {
       ...defaultParams,
-      ...(params ?? {}),
+      ...params,
     }
     const result: Validation = { valid }
     if (Objects.isNotEmpty(errors)) {

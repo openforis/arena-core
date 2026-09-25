@@ -103,8 +103,8 @@ describe('UniqueFileNamesGenerator', () => {
       const fileNamesByKey = generator.fileNamesByKey
       const keysByFileName = generator.keysByFileName
 
-      expect(Object.keys(fileNamesByKey).length).toBe(3)
-      expect(Object.keys(keysByFileName).length).toBe(3)
+      expect(Object.keys(fileNamesByKey)).toHaveLength(3)
+      expect(Object.keys(keysByFileName)).toHaveLength(3)
 
       expect(fileNamesByKey).toMatchObject({
         key1: 'data.csv',

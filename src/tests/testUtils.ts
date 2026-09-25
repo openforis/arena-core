@@ -22,7 +22,7 @@ const parsePathPart = (
 
   const childName = partMatch[1]
   const indexStr = partMatch[3]
-  const childIndex = indexStr ? parseInt(indexStr, 10) : null
+  const childIndex = indexStr ? Number.parseInt(indexStr, 10) : null
   const childDef = findNodeDefByName({ survey, name: childName })
   if (!childDef) return undefined
 
@@ -50,7 +50,7 @@ const processFindNodesByPathPart = (params: {
     if (!currentNode) return undefined
     const singleDef = NodeDefs.isSingle(childDef)
     const children = Records.getChildren(currentNode, childDef.uuid)(record)
-    const childIndex = partChildIndex ?? (singleDef ? 0 : NaN)
+    const childIndex = partChildIndex ?? (singleDef ? 0 : Number.NaN)
     const child = childIndex >= 0 ? children[childIndex] : null
     if (singleDef && !child) return undefined
     return childIndex ? Arrays.toArray(child) : children

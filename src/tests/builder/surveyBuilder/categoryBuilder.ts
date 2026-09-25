@@ -4,7 +4,7 @@ import { ExtraPropDefs } from '../../../extraProp'
 import { CategoryItemBuilder } from './categoryItemBuilder'
 
 export class CategoryBuilder {
-  private name: string
+  private readonly name: string
   private itemBuilders: CategoryItemBuilder[]
   private levelNames: string[]
   private _extraProps: ExtraPropDefs

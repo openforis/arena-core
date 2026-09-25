@@ -83,8 +83,7 @@ const fixIndexChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
       (indexChildren as string[]).filter((childDefUuid) => {
         const childDef = nodeDefs[childDefUuid]
         return (
-          childDef &&
-          childDef.parentUuid === params.nodeDef.uuid &&
+          childDef?.parentUuid === params.nodeDef.uuid &&
           NodeDefs.isEntity(childDef) &&
           NodeDefs.isDisplayInOwnPage(cycle)(childDef as NodeDefEntity)
         )
@@ -100,8 +99,7 @@ const fixLayoutChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
         const childDefUuid = typeof item === 'string' ? item : item.i
         const childDef = nodeDefs[childDefUuid]
         return (
-          childDef &&
-          childDef.parentUuid === params.nodeDef.uuid &&
+          childDef?.parentUuid === params.nodeDef.uuid &&
           (!NodeDefs.isEntity(childDef) || !NodeDefs.isDisplayInOwnPage(cycle)(childDef as NodeDefEntity))
         )
       }),

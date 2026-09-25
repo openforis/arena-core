@@ -10,7 +10,7 @@ export const isEmpty = (value: any): boolean => {
   if (isNil(value) || Number.isNaN(value)) {
     return true
   }
-  if (value instanceof Function) {
+  if (typeof value === 'function') {
     return false
   }
   if (value.length !== undefined) {

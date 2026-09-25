@@ -8,7 +8,7 @@ const getNativeProperty = (name: string, object: any) => {
   if (prop === undefined) {
     return undefined
   }
-  return prop instanceof Function ? prop.bind(object) : prop
+  return typeof prop === 'function' ? prop.bind(object) : prop
 }
 
 export class IdentifierEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, IdentifierExpression> {

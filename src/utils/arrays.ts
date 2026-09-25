@@ -16,11 +16,11 @@ const addItem =
   (array: T[]): T[] =>
     addItems([item], options)(array)
 
-const fromNumberOfElements = (numOfElements: number): number[] => Array.from(Array(numOfElements).keys())
+const fromNumberOfElements = (numOfElements: number): number[] => Array.from(new Array(numOfElements).keys())
 
-const intersection = <T>(array1: T[], array2: T[]): T[] => array1.filter((item) => array2.indexOf(item) !== -1)
+const intersection = <T>(array1: T[], array2: T[]): T[] => array1.filter((item) => array2.includes(item))
 
-const last = <T>(array: T[] = []): T | undefined => (array.length > 0 ? array[array.length - 1] : undefined)
+const last = <T>(array: T[] = []): T | undefined => (array.length > 0 ? array.at(-1) : undefined)
 
 const removeItem =
   <T>(item: T) =>

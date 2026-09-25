@@ -55,7 +55,7 @@ const updateAttributeAndExpectValidation = async (params: {
   const fieldValidation = Validations.getFieldValidation(expectedFieldValidationNodeUuid)(validation)
 
   expect(fieldValidation.valid).toBe(expectedFieldValidation)
-  expect(Object.values(Validations.getFieldValidations(validation)).length).toBe(expectedValidationFieldsSize)
+  expect(Object.values(Validations.getFieldValidations(validation))).toHaveLength(expectedValidationFieldsSize)
 
   return updateResult.record
 }

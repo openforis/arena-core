@@ -1,22 +1,25 @@
-import { describe } from '@jest/globals'
+import { describe, expect, test } from '@jest/globals'
 
-import { testQueries } from './common'
+import { createQueryTestCases } from './common'
 import { canAnalyzeRecordQueries } from './record/canAnalyzeRecord'
 import { canCleanseRecordQueries } from './record/canCleanseRecord'
 import { canCreateRecordQueries } from './record/canCreateRecord'
 import { canEditRecordQueries } from './record/canEditRecord'
 import { canViewRecordQueries } from './record/canViewRecord'
 
-describe(
-  'Authorizer - Record',
-  testQueries([
-    // CREATE
-    ...canCreateRecordQueries,
-    // VIEW
-    ...canViewRecordQueries,
-    // UPDATE
-    ...canEditRecordQueries,
-    ...canCleanseRecordQueries,
-    ...canAnalyzeRecordQueries,
-  ])
-)
+const testCases = createQueryTestCases([
+  // CREATE
+  ...canCreateRecordQueries,
+  // VIEW
+  ...canViewRecordQueries,
+  // UPDATE
+  ...canEditRecordQueries,
+  ...canCleanseRecordQueries,
+  ...canAnalyzeRecordQueries,
+])
+
+describe('Authorizer - Record', () => {
+  test.each(testCases)('$title', ({ authorizer, params, resultExpected }) => {
+    expect(authorizer(...params)).toBe(resultExpected)
+  })
+})

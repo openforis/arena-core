@@ -167,7 +167,7 @@ const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffec
     visitor: (nodeDef) => {
       const hasAncestorCodeDefExcludedInClone =
         nodeDef.type === NodeDefType.code &&
-        !!Surveys.getNodeDefAncestorCodes({ survey, nodeDef: nodeDef as NodeDefCode }).find(NodeDefs.isExcludedInClone)
+        Surveys.getNodeDefAncestorCodes({ survey, nodeDef: nodeDef as NodeDefCode }).some(NodeDefs.isExcludedInClone)
 
       if (
         !NodeDefs.isInCycle(cycle)(nodeDef) ||

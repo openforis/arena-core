@@ -1,7 +1,7 @@
 import { Category, CategoryItem, CategoryItemFactory } from '../../../category'
 
 export class CategoryItemBuilder {
-  private code: string
+  private readonly code: string
   private _label?: string
   private extraProps: { [key: string]: any }
   private childItemBuilders: CategoryItemBuilder[]

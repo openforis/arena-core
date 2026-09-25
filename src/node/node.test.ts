@@ -26,7 +26,7 @@ const checkNode = (node: Node, nodeParams: NodeFactoryParams) => {
     ...(nodeParams.parentNode?.uuid ? [nodeParams.parentNode?.uuid] : []),
   ]
   const nodeHierarchy = [...(node.meta?.h ?? [])]
-  expect(nodeHierarchy.length).toBe(expectedHierarchy.length)
+  expect(nodeHierarchy).toHaveLength(expectedHierarchy.length)
   expect(nodeHierarchy).toMatchObject(expectedHierarchy)
 }
 
