@@ -54,7 +54,7 @@ export class Queue {
   }
 
   get last(): any {
-    return this.isEmpty() ? undefined : this._items[this._items.length - 1]
+    return this.isEmpty() ? undefined : this._items.at(-1)
   }
 
   get size(): number {
