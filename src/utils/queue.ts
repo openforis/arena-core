@@ -16,9 +16,10 @@ export class Queue {
   }
 
   /**
-   * Items still in the queue, from the last enqueued to the first one (the next one to be dequeued).
+   * Snapshot of the items still in the queue, from the last enqueued to the first one (the next one to be dequeued).
+   * The returned array is a copy: modifying it does not affect the queue.
    */
-  get items(): any[] {
+  get items(): readonly any[] {
     return this._items.slice(this._headIndex).reverse()
   }
 
