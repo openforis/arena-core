@@ -1,157 +1,197 @@
 import { Node, Nodes, NodesMap } from '../../node'
-import { Objects } from '../../utils'
 import { Record, RecordNodesIndex } from '../record'
 
-const keys = {
-  nodeRootIId: 'nodeRootIId',
-  nodesByParentAndChildDef: 'nodesByParentAndChildDef',
-  nodesByDef: 'nodesByDef',
-  nodeCodeDependents: 'nodeCodeDependents',
+/**
+ * Returns the position of the given internal ID in the sorted array, or the position where it should be inserted
+ * (as a negative number: -(insertion position) - 1) if not found.
+ */
+const binarySearch = (internalIds: number[], internalId: number): number => {
+  let low = 0
+  let high = internalIds.length - 1
+  while (low <= high) {
+    const mid = (low + high) >>> 1
+    const midValue = internalIds[mid]
+    if (midValue < internalId) {
+      low = mid + 1
+    } else if (midValue > internalId) {
+      high = mid - 1
+    } else {
+      return mid
+    }
+  }
+  return -low - 1
 }
 
-const sortNodesByHierarchyAndIdOrCreationDate = (nodeA: Node, nodeB: Node): number => {
-  // root node first
-  if (!nodeA.pIId) return -1
-  if (!nodeB.pIId) return 1
-  // then by hierarchy depth (parents before descendants)
-  const hierarchyDepthA = Nodes.getHierarchy(nodeA).length
-  const hierarchyDepthB = Nodes.getHierarchy(nodeB).length
-  const depthDiff = hierarchyDepthA - hierarchyDepthB
-  if (depthDiff !== 0) return depthDiff
-  // then by id or creation date
-  if (nodeA.id && nodeB.id) return nodeA.id - nodeB.id
-  if (nodeA.dateCreated && nodeB.dateCreated) return nodeA.dateCreated.localeCompare(nodeB.dateCreated)
-  return 0
-}
+/**
+ * Applies changes to a nodes index.
+ * When sideEffect is false, every object or array in the index is copied (only once) before being modified,
+ * so the original index is never modified.
+ */
+class RecordNodesIndexMutator {
+  index: RecordNodesIndex
+  private readonly sideEffect: boolean
+  private readonly copies: Set<object> = new Set()
 
-const _addNodeToCodeDependents =
-  (node: Node, sideEffect: boolean) =>
-  (index: RecordNodesIndex): RecordNodesIndex =>
-    Nodes.getHierarchyCode(node).reduce(
-      (indexAcc, ancestorCodeAttributeInternalId: number) =>
-        Objects.assocPath({
-          obj: indexAcc,
-          path: [keys.nodeCodeDependents, String(ancestorCodeAttributeInternalId), String(node.iId)],
-          value: true,
-          sideEffect,
-        }),
-      index
-    )
+  constructor(index: RecordNodesIndex, sideEffect: boolean) {
+    this.sideEffect = sideEffect
+    this.index = sideEffect ? index : this.registerCopy({ ...index })
+  }
 
-const _addNodeToIndex =
-  (node: Node, sideEffect = false) =>
-  (index: RecordNodesIndex): RecordNodesIndex => {
-    const { iId: nodeIId, nodeDefUuid, pIId } = node
+  private registerCopy<T extends object>(obj: T): T {
+    this.copies.add(obj)
+    return obj
+  }
 
-    let indexUpdated = sideEffect ? index : { ...index }
+  /**
+   * Returns a modifiable version of the child with the given key (the parent must be modifiable).
+   */
+  private getWritableChild(parent: any, key: string | number, createIfMissing: boolean): any {
+    const child = parent[key]
+    if (child === undefined) {
+      if (!createIfMissing) return undefined
+      const childCreated = this.registerCopy({})
+      parent[key] = childCreated
+      return childCreated
+    }
+    if (this.sideEffect || this.copies.has(child)) return child
+    const childCopy = this.registerCopy(Array.isArray(child) ? [...child] : { ...child })
+    parent[key] = childCopy
+    return childCopy
+  }
+
+  private addToList(parent: any, key: string | number, internalId: number): void {
+    const internalIds: number[] | undefined = parent[key]
+    if (!internalIds) {
+      parent[key] = this.registerCopy([internalId])
+      return
+    }
+    // internal IDs are usually added in ascending order: append without copying the array when possible
+    const last = internalIds[internalIds.length - 1]
+    if (internalId === last) return
+    const position = internalId > last ? -internalIds.length - 1 : binarySearch(internalIds, internalId)
+    if (position >= 0) return // already in the list
+    const internalIdsWritable: number[] = this.getWritableChild(parent, key, false)
+    internalIdsWritable.splice(-position - 1, 0, internalId)
+  }
+
+  /**
+   * Removes the internal ID from the list with the given key; the list is removed if it becomes empty.
+   * Returns true if the parent object has become empty.
+   */
+  private removeFromList(parent: any, key: string | number, internalId: number): boolean {
+    const internalIds: number[] | undefined = parent[key]
+    if (!internalIds) return false
+    const position = binarySearch(internalIds, internalId)
+    if (position < 0) return false
+    if (internalIds.length === 1) {
+      delete parent[key]
+      return Object.keys(parent).length === 0
+    }
+    const internalIdsWritable: number[] = this.getWritableChild(parent, key, false)
+    internalIdsWritable.splice(position, 1)
+    return false
+  }
+
+  addNode(node: Node): void {
+    const { iId: nodeInternalId, nodeDefUuid, pIId } = node
+    const index = this.index
 
     if (pIId) {
       // nodes by parent and child def uuid
-      indexUpdated = Objects.assocPath({
-        obj: indexUpdated,
-        path: [keys.nodesByParentAndChildDef, String(pIId), nodeDefUuid, String(nodeIId)],
-        value: true,
-        sideEffect,
-      })
+      const nodesByParentAndChildDef = this.getWritableChild(index, 'nodesByParentAndChildDef', true)
+      const nodesByChildDef = this.getWritableChild(nodesByParentAndChildDef, pIId, true)
+      this.addToList(nodesByChildDef, nodeDefUuid, nodeInternalId)
     } else {
       // root entity index
-      indexUpdated.nodeRootIId = nodeIId
+      index.nodeRootIId = nodeInternalId
     }
-
     // nodes by def uuid
-    indexUpdated = Objects.assocPath({
-      obj: indexUpdated,
-      path: [keys.nodesByDef, nodeDefUuid, String(nodeIId)],
-      value: true,
-      sideEffect,
-    })
+    const nodesByDef = this.getWritableChild(index, 'nodesByDef', true)
+    this.addToList(nodesByDef, nodeDefUuid, nodeInternalId)
 
     // code dependents
-    indexUpdated = _addNodeToCodeDependents(node, sideEffect)(indexUpdated)
-
-    return indexUpdated
+    const hierarchyCode = Nodes.getHierarchyCode(node)
+    if (hierarchyCode.length > 0) {
+      const nodeCodeDependents = this.getWritableChild(index, 'nodeCodeDependents', true)
+      for (const ancestorCodeAttributeInternalId of hierarchyCode) {
+        this.addToList(nodeCodeDependents, ancestorCodeAttributeInternalId, nodeInternalId)
+      }
+    }
   }
 
+  removeNode(node: Node): void {
+    const { iId: nodeInternalId, nodeDefUuid, pIId } = node
+    const index = this.index
+
+    if (pIId) {
+      // remove from nodes by parent and child def
+      if (index.nodesByParentAndChildDef?.[pIId]?.[nodeDefUuid]) {
+        const nodesByParentAndChildDef = this.getWritableChild(index, 'nodesByParentAndChildDef', false)
+        const nodesByChildDef = this.getWritableChild(nodesByParentAndChildDef, pIId, false)
+        if (this.removeFromList(nodesByChildDef, nodeDefUuid, nodeInternalId)) {
+          delete nodesByParentAndChildDef[pIId]
+        }
+      }
+    } else if (index.nodeRootIId === nodeInternalId) {
+      delete index.nodeRootIId
+    }
+    // remove from nodes by def uuid
+    if (index.nodesByDef?.[nodeDefUuid]) {
+      const nodesByDef = this.getWritableChild(index, 'nodesByDef', false)
+      this.removeFromList(nodesByDef, nodeDefUuid, nodeInternalId)
+    }
+    // remove from code dependents
+    if (index.nodeCodeDependents) {
+      const hierarchyCode = Nodes.getHierarchyCode(node)
+      const hasOwnDependents = !!index.nodeCodeDependents[nodeInternalId]
+      if (hierarchyCode.length > 0 || hasOwnDependents) {
+        const nodeCodeDependents = this.getWritableChild(index, 'nodeCodeDependents', false)
+        for (const ancestorCodeAttributeInternalId of hierarchyCode) {
+          this.removeFromList(nodeCodeDependents, ancestorCodeAttributeInternalId, nodeInternalId)
+        }
+        delete nodeCodeDependents[nodeInternalId]
+      }
+    }
+  }
+}
+
 const addNodes =
-  (nodes: NodesMap, sideEffect = false, sortNodes = false) =>
+  (nodes: NodesMap, sideEffect = false) =>
   (nodesIndex: RecordNodesIndex): RecordNodesIndex => {
-    let indexUpdated = sideEffect ? nodesIndex : { ...nodesIndex }
-    const nodesArray = Object.values(nodes)
-    if (sortNodes) {
-      nodesArray.sort(sortNodesByHierarchyAndIdOrCreationDate)
+    const mutator = new RecordNodesIndexMutator(nodesIndex, sideEffect)
+    // nodes map keys are internal IDs, iterated in ascending order: internal IDs are appended to the index lists
+    for (const node of Object.values(nodes)) {
+      mutator.addNode(node)
     }
-    for (const node of nodesArray) {
-      indexUpdated = _addNodeToIndex(node, sideEffect)(indexUpdated)
-    }
-    return indexUpdated
+    return mutator.index
   }
 
 const addNode =
-  (node: Node) =>
-  (index: RecordNodesIndex): RecordNodesIndex =>
-    addNodes({ [node.iId]: node })(index)
-
-const initializeIndex = (record: Record): RecordNodesIndex => addNodes(record.nodes ?? {}, true, true)({})
-
-const _removeNodeFromCodeDependentsIndex =
   (node: Node, sideEffect = false) =>
-  (index: RecordNodesIndex): RecordNodesIndex => {
-    const { iId: nodeInternalId } = node
+  (index: RecordNodesIndex): RecordNodesIndex =>
+    addNodes({ [node.iId]: node }, sideEffect)(index)
 
-    let indexUpdated = Nodes.getHierarchyCode(node).reduce(
-      (indexAcc, ancestorCodeAttributeId: number) =>
-        Objects.dissocPath({
-          obj: indexAcc,
-          path: [keys.nodeCodeDependents, String(ancestorCodeAttributeId), String(nodeInternalId)],
-          sideEffect,
-        }),
-      index
-    )
-    indexUpdated = Objects.dissocPath({
-      obj: indexUpdated,
-      path: [keys.nodeCodeDependents, String(nodeInternalId)],
-      sideEffect,
-    })
-    return indexUpdated
+const initializeIndex = (record: Record): RecordNodesIndex => addNodes(record.nodes ?? {}, true)({})
+
+const removeNodes =
+  (nodes: Node[], sideEffect = false) =>
+  (index: RecordNodesIndex): RecordNodesIndex => {
+    const mutator = new RecordNodesIndexMutator(index, sideEffect)
+    for (const node of nodes) {
+      mutator.removeNode(node)
+    }
+    return mutator.index
   }
 
 const removeNode =
   (node: Node, sideEffect = false) =>
-  (index: RecordNodesIndex): RecordNodesIndex => {
-    const { iId: nodeId, pIId, nodeDefUuid } = node
-
-    let indexUpdated = sideEffect ? index : { ...index }
-
-    if (pIId) {
-      // dissoc from nodes by parent and child def
-      const nodesByParentAndChildDefPath = [keys.nodesByParentAndChildDef, String(pIId), nodeDefUuid]
-      indexUpdated = Objects.dissocPath({
-        obj: indexUpdated,
-        path: [...nodesByParentAndChildDefPath, String(nodeId)],
-        sideEffect,
-      })
-      indexUpdated = Objects.dissocPathIfEmpty({ obj: indexUpdated, path: nodesByParentAndChildDefPath, sideEffect })
-    } else {
-      // dissoc root entity
-      indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeRootIId], sideEffect })
-    }
-    // dissoc from nodes by def uuid
-    indexUpdated = Objects.dissocPath({
-      obj: indexUpdated,
-      path: [keys.nodesByDef, nodeDefUuid, String(nodeId)],
-      sideEffect,
-    })
-    const nodesByDefPath = [keys.nodesByDef, nodeDefUuid]
-    indexUpdated = Objects.dissocPathIfEmpty({ obj: indexUpdated, path: nodesByDefPath, sideEffect })
-
-    indexUpdated = _removeNodeFromCodeDependentsIndex(node, sideEffect)(indexUpdated)
-
-    return indexUpdated
-  }
+  (index: RecordNodesIndex): RecordNodesIndex =>
+    removeNodes([node], sideEffect)(index)
 
 export const RecordNodesIndexUpdater = {
   addNode,
   addNodes,
   initializeIndex,
   removeNode,
+  removeNodes,
 }

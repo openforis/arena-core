@@ -34,7 +34,9 @@ export interface NodeMeta {
    */
   cVis?: { [nodeDefUuid: string]: boolean }
   /**
-   * Hierarchy of ancestor node internal IDs.
+   * Hierarchy of ancestor node internal IDs (root first).
+   * Only part of the stored node (e.g. to query descendants in the DB); it's not kept in memory:
+   * use Records.getNodeHierarchy to compute it from the parent internal IDs.
    */
   h?: number[]
   /**

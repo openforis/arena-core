@@ -19,19 +19,11 @@ export const NodeFactory: Factory<Node, NodeFactoryParams> = {
 
     const now = Dates.nowFormattedForStorage()
 
-    const { iId: pId, meta: pMeta } = parentNode ?? {}
-
-    const h = [...(pMeta?.h ?? [])]
-    if (pId) {
-      h.push(pId)
-    }
-
     return {
       created: true,
       dateCreated: now,
       dateModified: now,
       iId,
-      meta: { h },
       nodeDefUuid,
       pIId: parentNode?.iId,
       recordUuid: record.uuid,

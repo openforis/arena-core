@@ -22,7 +22,7 @@ export const getNodeByInternalId =
     record.nodes?.[internalId]
 
 export const getNodesByInternalIds =
-  (internalIds: number[]) =>
+  (internalIds: readonly number[]) =>
   (record: Record): Node[] =>
     internalIds.map((internalId: number) => getNodeByInternalId(internalId)(record)) as Node[]
 
@@ -169,6 +169,37 @@ export const getAncestor = (params: { record: Record; node: Node; ancestorDefUui
 }
 
 /**
+ * Returns the internal IDs of the ancestors of the given node, from the root entity down to its parent
+ * (the same content previously kept in node meta.h, now computed walking the parent internal IDs).
+ */
+export const getNodeHierarchy =
+  (node: Node) =>
+  (record: Record): number[] => {
+    const hierarchy: number[] = []
+    let currentParentInternalId = node.pIId
+    while (currentParentInternalId) {
+      hierarchy.push(currentParentInternalId)
+      currentParentInternalId = getNodeByInternalId(currentParentInternalId)(record)?.pIId
+    }
+    return hierarchy.reverse()
+  }
+
+/**
+ * Returns the depth of the node in the record hierarchy (0 for the root entity)
+ */
+export const getNodeDepth =
+  (node: Node) =>
+  (record: Record): number => {
+    let depth = 0
+    let currentParentInternalId = node.pIId
+    while (currentParentInternalId) {
+      depth++
+      currentParentInternalId = getNodeByInternalId(currentParentInternalId)(record)?.pIId
+    }
+    return depth
+  }
+
+/**
  * Returns the list of ancestors from the given node to the root entity
  */
 export const getAncestorsAndSelf = (params: { record: Record; node: Node }): Array<Node> => {
@@ -216,9 +247,15 @@ export const getDescendant = (params: { record: Record; node: Node; nodeDefDesce
   return getDescendantsOrSelf({ record, node, nodeDefDescendant })[0]
 }
 
-export const isDescendantOf = (params: { node: Node; ancestor: Node }): boolean => {
-  const { node, ancestor } = params
-  return Nodes.getHierarchy(node).includes(ancestor.iId)
+export const isDescendantOf = (params: { record: Record; node: Node; ancestor: Node }): boolean => {
+  const { record, node, ancestor } = params
+  const { iId: ancestorInternalId } = ancestor
+  let currentParentInternalId = node.pIId
+  while (currentParentInternalId) {
+    if (currentParentInternalId === ancestorInternalId) return true
+    currentParentInternalId = getNodeByInternalId(currentParentInternalId)(record)?.pIId
+  }
+  return false
 }
 
 export const visitDescendantsAndSelf = (params: {

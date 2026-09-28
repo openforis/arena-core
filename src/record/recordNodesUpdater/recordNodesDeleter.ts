@@ -19,8 +19,6 @@ export const deleteNodes =
     const nodesDeleted: NodesMap = {}
     const recordNodesUpdated = sideEffect ? recordNodes : { ...recordNodes }
 
-    let recordNodesIndex = record._nodesIndex ?? {}
-
     const recordValidation = Validations.getValidation(record)
     let recordValidationUpdated = sideEffect
       ? recordValidation
@@ -50,11 +48,6 @@ export const deleteNodes =
         sideEffect,
         doCleanup
       )(recordValidationUpdated)
-
-      // 3. update nodes index
-      if (updateNodesIndex) {
-        recordNodesIndex = RecordNodesIndexUpdater.removeNode(visitedNode, sideEffect)(recordNodesIndex)
-      }
     }
 
     for (const nodeInternalId of nodeInternalIds) {
@@ -75,7 +68,11 @@ export const deleteNodes =
     recordUpdated.nodes = recordNodesUpdated
     recordUpdated.validation = recordValidationUpdated
     if (updateNodesIndex) {
-      recordUpdated._nodesIndex = recordNodesIndex
+      // 3. update nodes index
+      recordUpdated._nodesIndex = RecordNodesIndexUpdater.removeNodes(
+        Object.values(nodesDeleted),
+        sideEffect
+      )(record._nodesIndex ?? {})
     }
     return new RecordUpdateResult({ record: recordUpdated, nodes: nodesDeleted, nodesDeleted })
   }

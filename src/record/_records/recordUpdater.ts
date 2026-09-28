@@ -7,7 +7,7 @@ import { RecordUpdateOptions, RecordUpdateOptionsDefaults } from './recordUpdate
 export const addNodes =
   (nodes: NodesMap, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: Record): Record => {
-    const { sideEffect, updateNodesIndex, sortNodes } = { ...RecordUpdateOptionsDefaults, ...options }
+    const { sideEffect, updateNodesIndex } = { ...RecordUpdateOptionsDefaults, ...options }
 
     const recordUpdated = sideEffect ? record : { ...record }
     const recordNodes = RecordGetters.getNodes(recordUpdated)
@@ -17,18 +17,17 @@ export const addNodes =
     } else {
       recordUpdated.nodes = { ...recordNodes, ...nodes }
     }
-    // update last internal ID
-    recordUpdated.lastNodeInternalId = Math.max(
-      ...Object.values(nodes).map((node) => node.iId),
-      record.lastNodeInternalId ?? 0
-    )
+    // update last internal ID (loop instead of Math.max(...ids): spreading many ids exceeds the call stack size)
+    let lastNodeInternalId = record.lastNodeInternalId ?? 0
+    for (const node of Object.values(nodes)) {
+      if (node.iId > lastNodeInternalId) {
+        lastNodeInternalId = node.iId
+      }
+    }
+    recordUpdated.lastNodeInternalId = lastNodeInternalId
 
     if (updateNodesIndex) {
-      recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(
-        nodes,
-        sideEffect,
-        sortNodes
-      )(recordUpdated._nodesIndex ?? {})
+      recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(nodes, sideEffect)(recordUpdated._nodesIndex ?? {})
     }
     return recordUpdated
   }

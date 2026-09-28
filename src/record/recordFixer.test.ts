@@ -227,10 +227,13 @@ describe('Record fixer', () => {
       expect(child.pIId).toBe(root.iId)
       expect(grandchild.pIId).toBe(child.iId)
 
-      // hierarchy meta remapped from ancestor uuids to ancestor iIds (root's empty hierarchy is dropped)
-      expect(root.meta?.h).toBeUndefined()
-      expect(child.meta.h).toEqual([root.iId])
-      expect(grandchild.meta.h).toEqual([root.iId, child.iId])
+      // legacy uuid-based hierarchy meta is dropped: hierarchy is derived from pIId
+      ;[root, child, grandchild].forEach((node) => {
+        expect(node.meta?.h).toBeUndefined()
+      })
+      expect(Records.getNodeHierarchy(root)(migrated)).toEqual([])
+      expect(Records.getNodeHierarchy(child)(migrated)).toEqual([root.iId])
+      expect(Records.getNodeHierarchy(grandchild)(migrated)).toEqual([root.iId, child.iId])
 
       // nodes are stored keyed by their own iId
       expect(nodesByIId[root.iId]).toBe(root)

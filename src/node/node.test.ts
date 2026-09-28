@@ -22,16 +22,8 @@ const checkNode = (node: Node, nodeParams: NodeFactoryParams) => {
   expect(node).toHaveProperty('value')
   expect(node.value).toBe(nodeParams.value)
 
-  expect(node).toHaveProperty('meta')
-  expect(node.meta).toHaveProperty('h')
-
-  const expectedHierarchy = [
-    ...(nodeParams.parentNode?.meta?.h ?? []),
-    ...(nodeParams.parentNode?.iId ? [nodeParams.parentNode.iId] : []),
-  ]
-  const nodeHierarchy = [...(node.meta?.h ?? [])]
-  expect(nodeHierarchy).toHaveLength(expectedHierarchy.length)
-  expect(nodeHierarchy).toMatchObject(expectedHierarchy)
+  // hierarchy is not stored in node meta (it's derived from pIId)
+  expect(node.meta?.h).toBeUndefined()
 }
 
 describe('NodeFactory', () => {
@@ -44,9 +36,6 @@ describe('NodeFactory', () => {
         iId: 2,
         nodeDefUuid: 'nodeDefUuid',
         recordUuid: 'nodeDefUuid',
-        meta: {
-          h: [1],
-        },
       },
       value: 'VALUE',
     }
@@ -76,9 +65,6 @@ describe('NodeFactory', () => {
         iId: 3,
         nodeDefUuid: 'nodeDefUuid',
         recordUuid: 'nodeDefUuid',
-        meta: {
-          h: [2],
-        },
       },
       value: 'VALUE',
     }

@@ -1,4 +1,4 @@
-import { Node, NodeKeys, Nodes, NodeValues } from '../node'
+import { Node, NodeKeys, NodeValues } from '../node'
 import { NodeDefCode, NodeDefType, NodeDefs } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Dates, Objects, UUIDs } from '../utils'
@@ -116,10 +116,7 @@ const cloneRecord = (params: {
 
   recordUpdated = updateResult.record
 
-  // preserve hierarchy order during node updates
-  const nodesArray = Records.getNodesArray(recordUpdated).sort(
-    (nodeA: Node, nodeB: Node): number => Nodes.getHierarchy(nodeA).length - Nodes.getHierarchy(nodeB).length
-  )
+  const nodesArray = Records.getNodesArray(recordUpdated)
   const { newFileUuidsByOldUuid, record: recordUpdatedUuids } = updateNodesForClone({
     record: recordUpdated,
     nodesArray,

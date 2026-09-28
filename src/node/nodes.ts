@@ -46,8 +46,6 @@ const getChildrenMaxCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }
 const getChildrenMinCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
   getChildrenMinOrMaxCount({ ...params, countType: NodeDefCountType.min })
 
-const getHierarchy = (node: Node): number[] => [...(node.meta?.h ?? [])]
-
 const getHierarchyCode = (node: Node): number[] => [...(node.meta?.hCode ?? [])]
 
 const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
@@ -196,7 +194,6 @@ export const Nodes = {
   getChildrenMinOrMaxCount,
   getChildrenMaxCount,
   getChildrenMinCount,
-  getHierarchy,
   getHierarchyCode,
   isDefaultValueApplied,
   isQualifierValueApplied,

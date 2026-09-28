@@ -35,7 +35,6 @@ const initInternalIds = (params: { record: ArenaRecord; nodes: NodeOld[] }) => {
   let lastInternalId = 0
   const uuidByInternalId: { [internalId: number]: string } = {}
   const internalIdByUuid: { [uuid: string]: number } = {}
-  const indexedNodes: NodesMap = {}
 
   const nextInternalId = (uuid: string): number => {
     const internalId = (lastInternalId += 1)
@@ -58,14 +57,9 @@ const initInternalIds = (params: { record: ArenaRecord; nodes: NodeOld[] }) => {
       }
       node.pIId = newParentId
       delete node['parentUuid']
-
-      const parentNode = indexedNodes[newParentId]
-      const metaHierarchy = [...Nodes.getHierarchy(parentNode), newParentId]
-      Objects.assocPath({ obj: node, path: metaHierarchyPath, value: metaHierarchy, sideEffect: true })
-    } else {
-      Objects.dissocPath({ obj: node, path: metaHierarchyPath, sideEffect: true })
     }
-    indexedNodes[internalId] = node
+    // legacy meta.h contains ancestor uuids: hierarchy is now derived from pIId (see Records.getNodeHierarchy)
+    Objects.dissocPath({ obj: node, path: metaHierarchyPath, sideEffect: true })
     delete node['uuid']
   }
 

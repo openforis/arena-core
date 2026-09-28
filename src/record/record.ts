@@ -6,9 +6,10 @@ export const RECORD_STEP_DEFAULT = '1'
 
 export const steps = ['entry', 'cleansing', 'analysis']
 
-interface NodeIdsPresence {
-  [internalId: number]: boolean
-}
+/**
+ * Node internal IDs, sorted in ascending order (without duplicates).
+ */
+type NodeInternalIds = number[]
 
 export interface RecordNodesIndex {
   /**
@@ -18,15 +19,15 @@ export interface RecordNodesIndex {
   /**
    * node internal IDs by parent entity internal ID (pIId) and child def UUID
    */
-  nodesByParentAndChildDef?: { [parentIId: number]: { [childDefUuid: string]: NodeIdsPresence } }
+  nodesByParentAndChildDef?: { [parentIId: number]: { [childDefUuid: string]: NodeInternalIds } }
   /**
    * node internal IDs by node def UUID
    */
-  nodesByDef?: { [nodeDefUuid: string]: NodeIdsPresence }
+  nodesByDef?: { [nodeDefUuid: string]: NodeInternalIds }
   /**
    * Code attribute internal IDs by ancestor code attribute internal ID
    */
-  nodeCodeDependents?: { [internalId: number]: NodeIdsPresence }
+  nodeCodeDependents?: { [internalId: number]: NodeInternalIds }
 }
 
 export interface RecordInfo {
