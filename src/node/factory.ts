@@ -11,6 +11,11 @@ export type NodeFactoryParams = {
   value?: any
 }
 
+/**
+ * Creates a node with internal ID = record.lastNodeInternalId + 1.
+ * The record is not modified: the node must be added to the record (Records.addNode/addNodes, which update
+ * record.lastNodeInternalId) before creating another node, otherwise the same internal ID would be generated.
+ */
 export const NodeFactory: Factory<Node, NodeFactoryParams> = {
   createInstance: (params: NodeFactoryParams): Node => {
     const { nodeDefUuid, record, parentNode, surveyUuid, value } = params

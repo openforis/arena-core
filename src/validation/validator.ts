@@ -41,6 +41,8 @@ export class Validator {
       const fieldValidation: Validation = fieldsValidationArray[index]
       if (!options.removeValid || !fieldValidation.valid) {
         fields[field] = fieldValidation
+      }
+      if (!fieldValidation.valid) {
         valid = false
       }
     }

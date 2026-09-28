@@ -65,8 +65,8 @@ class RecordNodesIndexMutator {
       parent[key] = this.registerCopy([internalId])
       return
     }
-    // internal IDs are usually added in ascending order: append without copying the array when possible
-    const last = internalIds[internalIds.length - 1]
+    // internal IDs are usually added in ascending order: append without searching the insert position when possible
+    const last = internalIds.at(-1) ?? 0
     if (internalId === last) return
     const position = internalId > last ? -internalIds.length - 1 : binarySearch(internalIds, internalId)
     if (position >= 0) return // already in the list

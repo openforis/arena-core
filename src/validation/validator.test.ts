@@ -161,4 +161,17 @@ describe('Validator', () => {
       }
     })
   })
+
+  test('Validator: valid fields kept (removeValid = false) do not invalidate the validation', async () => {
+    const fieldsValidators = { a: [required('required_field')], b: [numeric('invalid_number')] }
+
+    const validation = await validator.validate({ a: 1, b: 2 }, fieldsValidators, { removeValid: false })
+    expect(validation.valid).toBe(true)
+    expect(Object.keys(validation.fields ?? {})).toEqual(['a', 'b'])
+
+    const validationNotValid = await validator.validate({ a: 1, b: 'x' }, fieldsValidators, { removeValid: false })
+    expect(validationNotValid.valid).toBe(false)
+    expect(validationNotValid.fields?.a?.valid).toBe(true)
+    expect(validationNotValid.fields?.b?.valid).toBe(false)
+  })
 })
