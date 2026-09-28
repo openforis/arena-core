@@ -13,6 +13,8 @@ import { Records } from './records'
 import { RecordUpdater } from './recordUpdater'
 import { Record } from './record'
 
+// lower bound of the node creation time growth (relative to the number of nodes);
+// reduced from 0.003 after moving from node uuids to internal ids, which makes the growth smaller
 const nodeCreationTimeFactor = 0.001
 
 let user: User
