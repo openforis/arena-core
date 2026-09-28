@@ -25,6 +25,15 @@ type DateType = Date | number | string
 
 const format = (date: number | Date | undefined, format: string): string => (date ? moment(date).format(format) : '')
 
+/**
+ * Like `format`, but renders in UTC instead of the machine's local time zone.
+ * Use this when formatting a `Date` produced by `parse`/`parseZone`-style parsing, whose
+ * underlying timestamp already encodes the source digits as if they were UTC (see `parse`) -
+ * formatting with the local-time `format` above would silently re-shift them by the host's offset.
+ */
+const formatUTC = (date: number | Date | undefined, format: string): string =>
+  date ? moment.utc(date).format(format) : ''
+
 const formatForStorage = (date: DateType): string => new Date(date).toISOString()
 const formatForExpression = (date: DateType): string => format(new Date(date), DateFormats.datetimeDefault)
 
@@ -157,6 +166,7 @@ export const Dates = {
   nowFormattedForExpression,
   convertDate,
   format,
+  formatUTC,
   formatForStorage,
   formatForExpression,
   parse,

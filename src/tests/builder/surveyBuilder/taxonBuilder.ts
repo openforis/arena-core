@@ -1,12 +1,12 @@
 import { Taxonomy, Taxon, TaxonFactory, VernacularName, VernacularNameFactory } from '../../../taxonomy'
 
 export class TaxonBuilder {
-  private code: string
-  private family: string
-  private genus: string
-  private scientificName: string
+  private readonly code: string
+  private readonly family: string
+  private readonly genus: string
+  private readonly scientificName: string
   private extraProps: { [key: string]: any }
-  private vernacularNames: { [key: string]: VernacularName[] }
+  private readonly vernacularNames: { [key: string]: VernacularName[] }
 
   constructor(code: string, family: string, genus: string, scientificName: string) {
     this.code = code

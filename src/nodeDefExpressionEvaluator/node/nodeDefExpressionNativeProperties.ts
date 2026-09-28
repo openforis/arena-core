@@ -29,7 +29,7 @@ const _getJsType = (nodeDefOrValue: any) => {
 
 const _hasProperty = (params: { JsType: any; propName: string }) => {
   const { JsType, propName } = params
-  return Object.prototype.hasOwnProperty.call(JsType, propName)
+  return Object.hasOwn(JsType, propName)
 }
 
 const _hasFunction = (params: { JsType: any; funcName: string }) => {

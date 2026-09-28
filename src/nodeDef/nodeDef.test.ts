@@ -39,7 +39,7 @@ const testNodeDef = (nodeDef: NodeDef<any>, params: NodeDefFactoryParams) =>
     expect(nodeDef).toHaveProperty('meta')
     expect(nodeDef.meta).toHaveProperty('h')
     const expectedHierarchy: Array<string> = nodeDefParent ? [...nodeDefParent.meta.h, nodeDefParent.uuid] : []
-    expect(nodeDef.meta.h.length).toBe(expectedHierarchy.length)
+    expect(nodeDef.meta.h).toHaveLength(expectedHierarchy.length)
     expect(nodeDef.meta.h).toMatchObject(expectedHierarchy)
 
     expect(nodeDef).toHaveProperty('parentUuid')

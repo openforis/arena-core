@@ -6,7 +6,7 @@ export const numeric =
   (messageKey = 'invalid_number', messageParams: any = {}) =>
   async (field: string, obj: any): Promise<ValidationResult> => {
     const value = Objects.path(field)(obj)
-    const valid = Objects.isEmpty(value) || !isNaN(value)
+    const valid = Objects.isEmpty(value) || !Number.isNaN(Number(value))
 
     return ValidationResultFactory.createInstance({
       valid,

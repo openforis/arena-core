@@ -1,12 +1,13 @@
 import { describe, test, expect } from '@jest/globals'
 
 import { NodeDefType } from '../nodeDef'
+import { Record } from '../record'
 import { DateFormats } from '../utils'
 import { NodeFactory } from './factory'
 import { NodeValues } from './nodeValues'
 
 const buildTimeNode = (value: string | undefined) =>
-  NodeFactory.createInstance({ nodeDefUuid: 'time-def-uuid', recordUuid: 'record-uuid', value })
+  NodeFactory.createInstance({ nodeDefUuid: 'time-def-uuid', record: { uuid: 'record-uuid' } as Record, value })
 
 describe('NodeValues time getters', () => {
   test('getTimeHour and getTimeMinute read an HH:mm value', () => {

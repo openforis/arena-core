@@ -26,10 +26,10 @@ const createNodes = async (params: { nodeDefName: string; totalNodes: number }) 
 
   let nodeCreationTime = NaN
   let lastNodeCreationTime = NaN
-  const startAll = Date.now()
+  const startAll = performance.now()
 
   for (let index = 0; index < totalNodes; index++) {
-    const start = Date.now()
+    const start = performance.now()
     const { record: recordUpdated } = await RecordUpdater.createNodeAndDescendants({
       user,
       survey,
@@ -38,7 +38,7 @@ const createNodes = async (params: { nodeDefName: string; totalNodes: number }) 
       parentNode: rootEntity,
     })
     record = recordUpdated
-    const end = Date.now()
+    const end = performance.now()
     const elapsedTime = end - start
     if (index === 0) {
       nodeCreationTime = elapsedTime
@@ -46,7 +46,7 @@ const createNodes = async (params: { nodeDefName: string; totalNodes: number }) 
       lastNodeCreationTime = elapsedTime
     }
   }
-  const endAll = Date.now()
+  const endAll = performance.now()
   return { totalTime: endAll - startAll, nodeCreationTime, lastNodeCreationTime }
 }
 

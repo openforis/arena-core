@@ -12,7 +12,7 @@ export const setInPath = (params: { obj: any; path: string[]; value: any; exclud
     if (index === path.length - 1) {
       objCurrent[pathPart] = value
     } else {
-      if (!Object.prototype.hasOwnProperty.call(objCurrent, pathPart)) {
+      if (!Object.hasOwn(objCurrent, pathPart)) {
         objCurrent[pathPart] = {}
       }
       objCurrent = objCurrent[pathPart]

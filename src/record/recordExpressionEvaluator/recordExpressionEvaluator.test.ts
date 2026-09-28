@@ -11,6 +11,7 @@ import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../t
 import { SystemError } from '../../error'
 import { TestUtils } from '../../tests/testUtils'
 import { AuthGroupName } from '../../auth'
+import { LanguageCode } from '../../language'
 
 type Query = {
   expression: string
@@ -79,6 +80,20 @@ describe('RecordExpressionEvaluator', () => {
 
     const prevCycleValues = await evaluator.evaluate('prevCycleValues(remarks)', context)
     expect(prevCycleValues).toEqual([prevCycleRemarks.value])
+  })
+
+  test('numberToWords(value) uses the language passed in the expression context', async () => {
+    const nodeCurrent = TestUtils.getNodeByPath({ survey, record, path: 'cluster.remarks' })
+    const nodeContext = Records.getParent(nodeCurrent)(record)
+    if (!nodeContext) throw new Error('Cannot find context node: cluster.remarks')
+
+    const evaluator = new RecordExpressionEvaluator()
+
+    const contextEn: RecordExpressionContext = { user, survey, record, nodeContext, nodeCurrent, object: nodeContext }
+    expect(await evaluator.evaluate('numberToWords(cluster_id)', contextEn)).toBe('twelve')
+
+    const contextFr: RecordExpressionContext = { ...contextEn, lang: LanguageCode.fr }
+    expect(await evaluator.evaluate('numberToWords(cluster_id)', contextFr)).toBe('douze')
   })
 
   const queries: Query[] = [
@@ -270,6 +285,9 @@ describe('RecordExpressionEvaluator', () => {
       result: '4311428.16',
       node: 'cluster.plot[1].plot_id',
     },
+    // numberToWords (no lang in context => falls back to English)
+    { expression: 'numberToWords(cluster_id)', result: 'twelve' },
+    { expression: 'numberToWords(null)', result: null },
     // count
     { expression: 'count(plot)', result: 3 },
     { expression: 'count(plot[plot_id == 1])', result: 1 },

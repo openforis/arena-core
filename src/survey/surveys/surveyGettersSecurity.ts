@@ -2,7 +2,7 @@ import { Survey, SurveySecurity, surveySecurityDefaults, SurveySecurityProp } fr
 
 export const getSecurity = (survey: Survey): SurveySecurity => ({
   ...surveySecurityDefaults,
-  ...(survey?.props?.security ?? {}),
+  ...survey?.props?.security,
 })
 
 export const isSecurityPropEnabled =
@@ -27,3 +27,6 @@ export const isRecordsUploadFromMobileAllowed = (survey: Survey): boolean =>
 
 export const isRecordsWithErrorsUploadFromMobileAllowed = (survey: Survey): boolean =>
   isSecurityPropEnabled(SurveySecurityProp.allowRecordsWithErrorsUploadFromMobile)(survey)
+
+export const isRecordsMergeWithSameKeysAllowed = (survey: Survey): boolean =>
+  isSecurityPropEnabled(SurveySecurityProp.allowRecordsMergeWithSameKeys)(survey)

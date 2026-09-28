@@ -8,17 +8,17 @@ import { CategoryBuilder } from './categoryBuilder'
 import { TaxonomyBuilder } from './taxonomyBuilder'
 
 export class SurveyBuilder {
-  private user: User
-  private name: string
-  private label: string
-  private lang: LanguageCode
-  private rootDefBuilder: NodeDefEntityBuilder
+  private readonly user: User
+  private readonly name: string
+  private readonly label: string
+  private readonly lang: LanguageCode
+  private readonly rootDefBuilder: NodeDefEntityBuilder
   private categoryBuilders: CategoryBuilder[]
   private taxonomyBuilders: TaxonomyBuilder[]
 
   constructor(user: User, rootDefBuilder: NodeDefEntityBuilder) {
     this.user = user
-    this.name = `do_not_use__test_${new Date().getTime()}`
+    this.name = `do_not_use__test_${Date.now()}`
     this.label = 'DO NOT USE! Test'
     this.lang = LanguageCode.en
     this.rootDefBuilder = rootDefBuilder

@@ -1,7 +1,5 @@
 import { ArenaService } from '../common'
 
-export type ServiceKey = string
-
 export class ServiceRegistry {
   private static _instance: ServiceRegistry
   private readonly services: { [key: string]: ArenaService }
@@ -17,13 +15,13 @@ export class ServiceRegistry {
     return ServiceRegistry._instance
   }
 
-  getService<S extends ArenaService>(key: ServiceKey): S {
+  getService<S extends ArenaService>(key: string): S {
     const service = this.services[key]
     if (!service) throw new Error(`Service ${key} not registered`)
     return service as S
   }
 
-  registerService(type: ServiceKey, service: ArenaService): this {
+  registerService(type: string, service: ArenaService): this {
     this.services[type] = service
     return this
   }

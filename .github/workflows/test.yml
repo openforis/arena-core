@@ -14,5 +14,5 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 24
-      - run: yarn
+      - run: yarn install --mode=skip-build
       - run: yarn test

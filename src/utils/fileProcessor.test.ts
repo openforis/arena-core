@@ -173,7 +173,7 @@ describe('FileProcessor', () => {
         const callsAfterPause = chunkProcessor.mock.calls.length
 
         setTimeout(() => {
-          expect(chunkProcessor.mock.calls.length).toBe(callsAfterPause)
+          expect(chunkProcessor.mock.calls).toHaveLength(callsAfterPause)
           done()
         }, 100)
       }, 100)

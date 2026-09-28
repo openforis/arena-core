@@ -54,9 +54,9 @@ describe('Survey NodeDefsFixer', () => {
 
     const updatedNodeDefsArray = Object.values(updatedNodeDefs)
     // all node defs in "nodeDefs"
-    expect(Object.values(nodeDefs).length).toBe(7)
+    expect(Object.values(nodeDefs)).toHaveLength(7)
     // expect 1 updated node def (plot)
-    expect(updatedNodeDefsArray.length).toBe(1)
+    expect(updatedNodeDefsArray).toHaveLength(1)
     expect(NodeDefs.getName(updatedNodeDefsArray[0])).toBe('plot')
     // expect same node defs objects in nodeDefs and updatedNodeDefs
     expect(updatedNodeDefs[plotDef.uuid]).toBe(nodeDefs[plotDef.uuid])
@@ -70,8 +70,8 @@ describe('Survey NodeDefsFixer', () => {
 
     const { nodeDefs, updatedNodeDefs } = NodeDefsFixer.fixNodeDefs({ nodeDefs: survey.nodeDefs!, cycles: [cycle] })
     const updatedNodeDefsArray = Object.values(updatedNodeDefs)
-    expect(Object.values(nodeDefs).length).toBe(7)
-    expect(updatedNodeDefsArray.length).toBe(1)
+    expect(Object.values(nodeDefs)).toHaveLength(7)
+    expect(updatedNodeDefsArray).toHaveLength(1)
     const updatedNodeDef = updatedNodeDefsArray[0]
     expect(NodeDefs.getName(updatedNodeDef)).toBe('cluster')
 
@@ -88,11 +88,11 @@ describe('Survey NodeDefsFixer', () => {
 
     const { nodeDefs, updatedNodeDefs } = NodeDefsFixer.fixNodeDefs({ nodeDefs: survey.nodeDefs!, cycles: [cycle] })
     const updatedNodeDefsArray = Object.values(updatedNodeDefs)
-    expect(Object.values(nodeDefs).length).toBe(7)
-    expect(updatedNodeDefsArray.length).toBe(1)
+    expect(Object.values(nodeDefs)).toHaveLength(7)
+    expect(updatedNodeDefsArray).toHaveLength(1)
     const updatedNodeDef = updatedNodeDefsArray[0]
     expect(NodeDefs.getName(updatedNodeDef)).toBe('cluster')
 
-    expect(NodeDefs.getLayoutChildren(cycle)(updatedNodeDef).length).toBe(2)
+    expect(NodeDefs.getLayoutChildren(cycle)(updatedNodeDef)).toHaveLength(2)
   })
 })

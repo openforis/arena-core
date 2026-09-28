@@ -4,7 +4,7 @@ import { Survey } from '../../../survey'
 import { NodeBuilder } from './nodeBuilder'
 
 export class EntityBuilder extends NodeBuilder {
-  private childBuilders: NodeBuilder[] = []
+  private readonly childBuilders: NodeBuilder[] = []
 
   constructor(nodeDefName: string, ...childBuilders: NodeBuilder[]) {
     super(nodeDefName)

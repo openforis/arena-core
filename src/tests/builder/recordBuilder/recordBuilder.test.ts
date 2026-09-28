@@ -34,7 +34,7 @@ describe('RecordBuilder', () => {
     expect(record).toBeDefined()
     expect(record.nodes).toBeDefined()
     const nodes = record.nodes || {}
-    expect(Object.entries(nodes).length).toBe(8)
+    expect(Object.entries(nodes)).toHaveLength(8)
 
     const cluster = Records.getRoot(record)
     expect(cluster).toBeDefined()
@@ -42,7 +42,7 @@ describe('RecordBuilder', () => {
 
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
     const plots = Records.getChildren(cluster, plotDef.uuid)(record)
-    expect(plots.length).toBe(3)
+    expect(plots).toHaveLength(3)
 
     const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
     const plot1 = plots[0]

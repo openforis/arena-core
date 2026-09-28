@@ -84,7 +84,7 @@ describe('ServiceRegistry', () => {
     const chainNodeDef = chainNodeDefs[0]
 
     expect(service).toBeDefined()
-    expect(chainNodeDefs.length).toBe(1)
+    expect(chainNodeDefs).toHaveLength(1)
     expect(chainNodeDef.chainUuid).toBe(chainNodeDefMock.chainUuid)
     expect(chainNodeDef.nodeDefUuid).toBe(chainNodeDefMock.nodeDefUuid)
     expect(chainNodeDef.props.active).toBe(true)

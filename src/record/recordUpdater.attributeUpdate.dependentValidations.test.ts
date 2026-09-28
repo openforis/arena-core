@@ -60,7 +60,7 @@ describe('RecordUpdater - attribute update => update dependent validations', () 
     record = updateResult.record
     let validation = Validations.getValidation(record)
     const fieldValidations = Validations.getFieldValidations(validation)
-    expect(Object.keys(fieldValidations).length).toEqual(2)
+    expect(Object.keys(fieldValidations)).toHaveLength(2)
     expect(Validations.getFieldValidation(String(nodeToUpdate.iId))(validation).valid).toBeFalsy()
     expect(Validations.getFieldValidation(String(siblingNode.iId))(validation).valid).toBeFalsy()
 

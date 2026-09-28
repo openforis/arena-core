@@ -1,5 +1,12 @@
 import BigNumber from 'bignumber.js'
+import { toCardinal as toCardinalEn } from 'n2words/en'
+import { toCardinal as toCardinalEs } from 'n2words/es'
+import { toCardinal as toCardinalFr } from 'n2words/fr'
+import { toCardinal as toCardinalJa } from 'n2words/ja'
+import { toCardinal as toCardinalPt } from 'n2words/pt-PT'
+import { toCardinal as toCardinalRu } from 'n2words/ru'
 
+import { LanguageCode } from '../language'
 import { Objects } from './_objects'
 
 BigNumber.config({
@@ -10,7 +17,7 @@ BigNumber.config({
   },
 })
 
-const toNumber = (num: any): number => (Objects.isEmpty(num) ? NaN : Number(num))
+const toNumber = (num: any): number => (Objects.isEmpty(num) ? Number.NaN : Number(num))
 
 /**
  * Returns the absolute modulus of the specified value. The result will always be a positive number.
@@ -37,7 +44,7 @@ const isInteger = (value: any): boolean => {
 /**
  * Formats the given value to the specified fixed dicimal digits.
  */
-const formatDecimal = (value: number, decimalDigits = NaN) => {
+const formatDecimal = (value: number, decimalDigits = Number.NaN) => {
   if (Number.isNaN(value) || value === null) return null
   const num = new BigNumber(value)
 
@@ -61,7 +68,7 @@ const formatDecimal = (value: number, decimalDigits = NaN) => {
 const formatInteger = (value: number): string | null => formatDecimal(value, 0)
 
 const limit =
-  ({ minValue = NaN, maxValue = NaN }) =>
+  ({ minValue = Number.NaN, maxValue = Number.NaN }) =>
   (value: number) => {
     let result = Number(value)
     if (minValue) result = Math.max(minValue, result)
@@ -69,12 +76,36 @@ const limit =
     return result
   }
 
-const roundToPrecision = (value: any, precision = NaN) => {
+const roundToPrecision = (value: any, precision = Number.NaN) => {
   const num = toNumber(value)
-  if (Number.isNaN(num)) return NaN
+  if (Number.isNaN(num)) return Number.NaN
   if (Number.isNaN(precision)) return num
   const exp = Math.pow(10, precision)
   return Math.round(num * exp) / exp
+}
+
+const toCardinalByLang: Partial<Record<LanguageCode, (value: number | string | bigint) => string>> = {
+  [LanguageCode.en]: toCardinalEn,
+  [LanguageCode.es]: toCardinalEs,
+  [LanguageCode.fr]: toCardinalFr,
+  [LanguageCode.ja]: toCardinalJa,
+  [LanguageCode.pt]: toCardinalPt,
+  [LanguageCode.ru]: toCardinalRu,
+}
+
+/**
+ * Converts the given number to words (cardinal form) in the specified language.
+ * Falls back to English if the specified language is not supported.
+ */
+const toWords = (value: any, lang: LanguageCode = LanguageCode.en): string | null => {
+  const number = toNumber(value)
+  if (!Number.isFinite(number)) return null
+  const toCardinal = toCardinalByLang[lang] ?? toCardinalByLang[LanguageCode.en]!
+  try {
+    return toCardinal(number)
+  } catch {
+    return null
+  }
 }
 
 export const Numbers = {
@@ -87,4 +118,5 @@ export const Numbers = {
   limit,
   roundToPrecision,
   toNumber,
+  toWords,
 }

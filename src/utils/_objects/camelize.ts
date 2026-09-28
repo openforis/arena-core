@@ -1,7 +1,7 @@
 export const _camelCase = (str: string): string => str.replace(/[_.-](\w|$)/g, (_, x) => x.toUpperCase())
 
 export const _walk = (options: { object: any; skip?: string[]; limitToLevel?: number; sideEffect?: boolean }): any => {
-  const { object, skip = [], limitToLevel = NaN, sideEffect } = options
+  const { object, skip = [], limitToLevel = Number.NaN, sideEffect } = options
   if (!object || !(object instanceof Object) || object instanceof Date || object instanceof RegExp) {
     return object
   }
@@ -48,7 +48,7 @@ export const camelize = (
   object: any,
   options: { skip?: string[]; limitToLevel?: number; sideEffect?: boolean } = {}
 ): any => {
-  if (typeof object === 'string' || object instanceof String) {
+  if (typeof object === 'string') {
     return _camelCase(object as string)
   }
 

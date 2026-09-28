@@ -1,4 +1,4 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# Runs tests and then publishes the package to both GitHub Packages and npmjs when a release is created
 # For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
 
 name: Node.js Package
@@ -8,52 +8,44 @@ on:
     types: [created]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-    env:
-      NPM_TOKEN: ${{secrets.ACCESS_TOKEN}}
     steps:
       - uses: actions/checkout@v5
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable --mode=skip-build
       - run: yarn test
 
-  publish-npm:
-    needs: build
+  publish:
+    needs: test
     runs-on: ubuntu-latest
-    env:
-      NPM_TOKEN: ${{secrets.ACCESS_TOKEN}}
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v5
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org/
-      - run: yarn install --frozen-lockfile
-      - run: yarn publish
+      - run: yarn install --immutable --mode=skip-build
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: yarn build
 
-  publish-gpr:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      NPM_TOKEN: ${{secrets.ACCESS_TOKEN}}
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          registry-url: https://npm.pkg.github.com/
-      - run: yarn install --frozen-lockfile
-      - run: yarn publish
+      # GitHub Packages: registry and auth come from .yarnrc.yml (npmScopes.openforis) and package.json publishConfig
+      - name: Publish to GitHub Packages
+        run: yarn npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # npmjs: drop the GitHub-specific registry config (.npmrc scope mapping and publishConfig) before publishing
+      - name: Publish to npmjs
+        run: |
+          rm -f .npmrc
+          npm pkg delete publishConfig
+          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > "$RUNNER_TEMP/npmjs.npmrc"
+          npm publish --registry https://registry.npmjs.org/ --access public --userconfig "$RUNNER_TEMP/npmjs.npmrc"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

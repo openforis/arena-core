@@ -10,7 +10,7 @@ import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 import { getCategoryItemByCodePaths, getTaxonByCode } from '../survey/surveys/refsData'
 import { getCategoryByName, getSRSIndex, getTaxonomyByName } from '../survey/surveys/surveysGetters'
 import { Taxon } from '../taxonomy'
-import { Dates, Objects } from '../utils'
+import { Dates, Numbers, Objects } from '../utils'
 import { NodeDefExpressionContext } from './context'
 
 const sampleGeoJsonPolygon = {
@@ -205,6 +205,17 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 0,
     evaluateToNode: false,
     executor: () => async () => Dates.nowFormattedForStorage(),
+  },
+  numberToWords: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: false,
+    executor:
+      (context: NodeDefExpressionContext) =>
+      async (value: any): Promise<string | null> => {
+        if (Objects.isEmpty(value)) return null
+        return Numbers.toWords(value, context.lang)
+      },
   },
   parent: {
     minArity: 1,

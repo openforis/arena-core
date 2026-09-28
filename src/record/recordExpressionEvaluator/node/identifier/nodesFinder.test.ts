@@ -33,7 +33,7 @@ describe('ReferencedNodes', () => {
       nodeDefReferenced: plotDef,
     })
     const plotsExpected = Records.getChildren(cluster, plotDef.uuid)(record)
-    expect(plotsReferenced.length).toBe(3)
+    expect(plotsReferenced).toHaveLength(3)
     expect(plotsReferenced).toStrictEqual(plotsExpected)
   })
 
@@ -49,7 +49,7 @@ describe('ReferencedNodes', () => {
       nodeContext: plot2,
       nodeDefReferenced: plotIdDef,
     })
-    expect(nodesReferenced.length).toBe(1)
+    expect(nodesReferenced).toHaveLength(1)
     const plotIdReferenced = nodesReferenced[0]
     const plotIdExpected = Records.getChild(plot2, plotIdDef.uuid)(record)
     expect(plotIdReferenced).toStrictEqual(plotIdExpected)

@@ -45,6 +45,7 @@ export enum SurveySecurityProp {
   allowRecordsDownloadInMobile = 'allowRecordsDownloadInMobile',
   allowRecordsUploadFromMobile = 'allowRecordsUploadFromMobile',
   allowRecordsWithErrorsUploadFromMobile = 'allowRecordsWithErrorsUploadFromMobile',
+  allowRecordsMergeWithSameKeys = 'allowRecordsMergeWithSameKeys',
 }
 
 export type SurveySecurity = {
@@ -58,6 +59,7 @@ export const surveySecurityDefaults: SurveySecurity = {
   [SurveySecurityProp.allowRecordsDownloadInMobile]: true,
   [SurveySecurityProp.allowRecordsUploadFromMobile]: true,
   [SurveySecurityProp.allowRecordsWithErrorsUploadFromMobile]: true,
+  [SurveySecurityProp.allowRecordsMergeWithSameKeys]: true,
 }
 
 export enum SurveyDocPlace {

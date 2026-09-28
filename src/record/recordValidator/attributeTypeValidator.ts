@@ -112,7 +112,7 @@ const typeValidatorFns: {
 
   [NodeDefType.text]: async (params: AttributeTypeValidatorInternalParams): Promise<boolean> => {
     const { value } = params
-    return typeof value === 'string' || value instanceof String
+    return typeof value === 'string'
   },
 
   [NodeDefType.time]: async (params: AttributeTypeValidatorInternalParams): Promise<boolean> => {

@@ -176,7 +176,7 @@ describe('RecordUpdater - node delete', () => {
     })
     record = updateResult.record
     expect(Validations.getValidation(record).valid).toBeFalsy()
-    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record))).length).toBe(1)
+    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record)))).toHaveLength(1)
 
     // set mult_entity[1].mult_entity_int_gt_10 to 7 => 2 errors
     const multEntityIntGt10 = TestUtils.getNodeByPath({ survey, record, path: 'mult_entity[1].mult_entity_int_gt_10' })
@@ -189,7 +189,7 @@ describe('RecordUpdater - node delete', () => {
     })
     record = updateResult.record
     expect(Validations.getValidation(record).valid).toBeFalsy()
-    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record))).length).toBe(2)
+    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record)))).toHaveLength(2)
 
     // delete mult_entity[1] => 1 error
     const nodeToDeletePath = 'root_entity.mult_entity[1]'
@@ -197,7 +197,7 @@ describe('RecordUpdater - node delete', () => {
 
     updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeInternalId: nodeToDelete.iId })
     record = updateResult.record
-    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record))).length).toBe(1)
+    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record)))).toHaveLength(1)
 
     // set int_gt_5 to 6 => 0 errors
     updateResult = await RecordUpdater.updateAttributeValue({
@@ -209,7 +209,7 @@ describe('RecordUpdater - node delete', () => {
     })
     record = updateResult.record
     expect(Validations.getValidation(record).valid).toBeTruthy()
-    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record))).length).toBe(0)
+    expect(Object.values(Validations.getFieldValidations(Validations.getValidation(record)))).toHaveLength(0)
   })
 
   test('Entity deletion: nodes index consistency', async () => {
@@ -247,7 +247,7 @@ describe('RecordUpdater - node delete', () => {
       parentNode: rootNode,
       nodeDef: multEntityDef,
     })
-    expect(Object.values(updateResult.record._nodesIndex?.nodesByDef?.[multEntityDef.uuid] ?? {}).length).toBe(3)
+    expect(Object.values(updateResult.record._nodesIndex?.nodesByDef?.[multEntityDef.uuid] ?? {})).toHaveLength(3)
 
     record = updateResult.record
 
@@ -256,7 +256,7 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
     updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeInternalId: nodeToDelete.iId })
-    expect(Object.values(updateResult.record._nodesIndex?.nodesByDef?.[multEntityDef.uuid] ?? {}).length).toBe(2)
+    expect(Object.values(updateResult.record._nodesIndex?.nodesByDef?.[multEntityDef.uuid] ?? {})).toHaveLength(2)
 
     record = updateResult.record
 

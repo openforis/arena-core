@@ -1,8 +1,8 @@
 import { Dictionary } from '../common'
 
 export class SystemError extends Error {
-  private _key: string
-  private _params: Dictionary<any>
+  private readonly _key: string
+  private readonly _params: Dictionary<any>
 
   constructor(key: string, params?: Dictionary<any>) {
     super(key)

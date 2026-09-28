@@ -3,7 +3,7 @@ import { Taxonomy, TaxonomyFactory, Taxon } from '../../../taxonomy'
 import { TaxonBuilder } from './taxonBuilder'
 
 export class TaxonomyBuilder {
-  private name: string
+  private readonly name: string
   private taxonBuilders: TaxonBuilder[]
   private _extraProps: ExtraPropDefs
 

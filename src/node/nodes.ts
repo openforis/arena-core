@@ -37,7 +37,7 @@ const getChildrenMinOrMaxCount = (params: {
   // count can be a constant value, specified in the node def min/max count prop
   const nodeDefCount =
     countType === NodeDefCountType.max ? NodeDefs.getMaxCount(nodeDef) : NodeDefs.getMinCount(nodeDef)
-  return nodeDefCount ? Number(nodeDefCount) : NaN
+  return nodeDefCount ? Number(nodeDefCount) : Number.NaN
 }
 
 const getChildrenMaxCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
@@ -65,7 +65,7 @@ const hasUserInputValue = (node: Node): boolean =>
   node && !isValueBlank(node) && !isDefaultValueApplied(node) && !isQualifierValueApplied(node)
 
 const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: boolean): Node => {
-  const childApplicability = { ...(node.meta?.childApplicability ?? {}) }
+  const childApplicability = { ...node.meta?.childApplicability }
   if (!applicable) {
     childApplicability[nodeDefUuid] = applicable
   } else {
@@ -80,7 +80,7 @@ const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: bo
 }
 
 const dissocChildApplicability = (node: Node, nodeDefUuid: string) => {
-  const childApplicability = { ...(node.meta?.childApplicability ?? {}) }
+  const childApplicability = { ...node.meta?.childApplicability }
   delete childApplicability[nodeDefUuid]
   return {
     ...node,
@@ -134,9 +134,9 @@ const assocChildrenCount = (params: {
 }): Node => {
   const { node, nodeDefUuid, count, countType } = params
   const countIndex = {
-    ...((countType === NodeDefCountType.max ? node.meta?.childrenMaxCount : node.meta?.childrenMinCount) ?? {}),
+    ...(countType === NodeDefCountType.max ? node.meta?.childrenMaxCount : node.meta?.childrenMinCount),
   }
-  if (isNaN(count)) {
+  if (Number.isNaN(count)) {
     delete countIndex[nodeDefUuid]
   } else {
     countIndex[nodeDefUuid] = count

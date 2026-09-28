@@ -132,7 +132,7 @@ const getCoordinateAdditionalFields = (nodeDef: NodeDefCoordinate): string[] => 
 // decimal
 const getMaxNumberDecimalDigits = (nodeDef: NodeDefDecimal) => {
   const decimalDigits = nodeDef.props.maxNumberDecimalDigits
-  return Objects.isEmpty(decimalDigits) ? NaN : Number(decimalDigits)
+  return Objects.isEmpty(decimalDigits) ? Number.NaN : Number(decimalDigits)
 }
 
 // file

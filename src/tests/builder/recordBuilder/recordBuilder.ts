@@ -4,9 +4,9 @@ import { Survey } from '../../../survey'
 import { EntityBuilder } from './entityBuilder'
 
 export class RecordBuilder {
-  private survey: Survey
-  private user: User
-  private rootEntityBuilder: EntityBuilder
+  private readonly survey: Survey
+  private readonly user: User
+  private readonly rootEntityBuilder: EntityBuilder
 
   constructor(user: User, survey: Survey, rootEntityBuilder: EntityBuilder) {
     this.survey = survey

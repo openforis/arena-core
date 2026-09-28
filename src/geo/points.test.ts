@@ -84,23 +84,13 @@ describe('Points test', () => {
     }
   })
 
-  test('bearing between points - east direction', () => {
+  test.each([
+    { direction: 'east', bearingDeg: 90 },
+    { direction: 'north', bearingDeg: 0 },
+    { direction: 'south', bearingDeg: 180 },
+    { direction: 'west', bearingDeg: 270 },
+  ])('bearing between points - $direction direction', ({ bearingDeg }) => {
     const origin = PointFactory.createInstance({ x: 12, y: 41 })
-    testBearing(origin, 1000, 90)
-  })
-
-  test('bearing between points - north direction', () => {
-    const origin = PointFactory.createInstance({ x: 12, y: 41 })
-    testBearing(origin, 1000, 0)
-  })
-
-  test('bearing between points - south direction', () => {
-    const origin = PointFactory.createInstance({ x: 12, y: 41 })
-    testBearing(origin, 1000, 180)
-  })
-
-  test('bearing between points - west direction', () => {
-    const origin = PointFactory.createInstance({ x: 12, y: 41 })
-    testBearing(origin, 1000, 270)
+    testBearing(origin, 1000, bearingDeg)
   })
 })

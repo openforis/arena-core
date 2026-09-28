@@ -10,7 +10,7 @@ const getName = (fileName: string | null | undefined): string => {
 const getExtension = (fileName: string | null | undefined): string => {
   if (Objects.isEmpty(fileName)) return ''
   const parts = String(fileName).split('.')
-  return parts.length <= 1 ? '' : parts[parts.length - 1]
+  return parts.length <= 1 ? '' : (parts.at(-1) ?? '')
 }
 
 const addExtensionIfMissing = (fileName: string, defaultExtension: string): string => {
