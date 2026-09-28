@@ -244,5 +244,39 @@ describe('Record fixer', () => {
       expect(grandchild.value).toBe(10)
       expect(migrated.uuid).toBe(recordUuid)
     })
+
+    test('initInternalIds converts legacy meta.hCode uuids into internal ids', () => {
+      const regionUuid = 'region-uuid'
+      const provinceUuid = 'province-uuid'
+      const legacyRecord = {
+        uuid: recordUuid,
+        nodes: {
+          [rootUuid]: { uuid: rootUuid, recordUuid, nodeDefUuid: 'cluster-def-uuid', meta: { h: [] } },
+          // province is processed before its parent code attribute (same hierarchy depth)
+          [provinceUuid]: {
+            uuid: provinceUuid,
+            parentUuid: rootUuid,
+            recordUuid,
+            nodeDefUuid: 'province-def-uuid',
+            meta: { h: [rootUuid], hCode: [regionUuid] },
+          },
+          [regionUuid]: {
+            uuid: regionUuid,
+            parentUuid: rootUuid,
+            recordUuid,
+            nodeDefUuid: 'region-def-uuid',
+            meta: { h: [rootUuid] },
+          },
+        },
+      } as any
+
+      const migrated = RecordFixer.initInternalIds({ record: legacyRecord, nodes: Object.values(legacyRecord.nodes) })
+      const migratedNodes = Object.values(migrated.nodes as any) as any[]
+      const region = migratedNodes.find((node) => node.nodeDefUuid === 'region-def-uuid')
+      const province = migratedNodes.find((node) => node.nodeDefUuid === 'province-def-uuid')
+
+      expect(province.meta.hCode).toEqual([region.iId])
+      expect(province.meta.h).toBeUndefined()
+    })
   })
 })

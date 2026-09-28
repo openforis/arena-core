@@ -163,7 +163,7 @@ const getOwnPageFieldValidationFlags = (params: {
 
 /**
  * Children-count validations (file min count, inline multiple min/max, etc.) are keyed as
- * `childrenCount_{parentUuid}_{childDefUuid}`, not as node UUIDs.
+ * `childrenCount_{parentInternalId}_{childDefUuid}`, not as node internal ids.
  * Include them when the parent is on this page, but skip counts that refer to descendant
  * page entities (missing sub-page instances should not paint the parent page red).
  */

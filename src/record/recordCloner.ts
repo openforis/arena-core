@@ -33,8 +33,8 @@ const updateNodesForClone = (params: {
   for (const node of nodesArray) {
     let nodeUpdated = sideEffect ? node : { ...node }
 
-    // delete node id (for storage only)
-    delete nodeUpdated.id
+    // clear node id (for storage only); not deleted to keep the node out of the V8 dictionary mode
+    nodeUpdated.id = undefined
 
     // assign new record uuid
     nodeUpdated.recordUuid = record.uuid

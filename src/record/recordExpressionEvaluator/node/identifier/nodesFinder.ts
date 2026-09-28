@@ -53,8 +53,8 @@ const getReferencedNodesParent = (params: {
 
   if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefCtx })) {
     const nodeDefReferencedH = nodeDefReferenced.meta.h
-    const nodeReferencedParentUuid = nodeCtxH[nodeDefReferencedH.length - 1]
-    const nodeReferencedParent = record.nodes?.[nodeReferencedParentUuid]
+    const nodeReferencedParentIId = nodeCtxH[nodeDefReferencedH.length - 1]
+    const nodeReferencedParent = record.nodes?.[nodeReferencedParentIId]
     if (!nodeReferencedParent) {
       throw new Error(`Cannot find parent node of ${nodeDefReferenced.props.name} from ${nodeDefCtx.props.name}`)
     }

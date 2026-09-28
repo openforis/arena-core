@@ -6,11 +6,16 @@ import type { ArenaRecord, ArenaRecordNode } from './record'
 import { RecordUpdateResult } from './recordNodesUpdater'
 import { Records } from './records'
 
-const metaHierarchyPath = ['meta', 'h']
+interface NodeOldMeta {
+  h?: string[]
+  hCode?: string[]
+  [key: string]: any
+}
 
-interface NodeOld extends ArenaRecordNode {
+interface NodeOld extends Omit<ArenaRecordNode, 'meta'> {
   uuid?: string
   parentUuid?: string
+  meta?: NodeOldMeta
 }
 
 /**
@@ -24,51 +29,54 @@ const isLegacyNodeFormat = (record: ArenaRecord): boolean => {
   return Boolean(firstNode) && !firstNode.iId && Boolean(firstNode.uuid)
 }
 
+const toInternalIds = (uuids: string[] | undefined, internalIdByUuid: { [uuid: string]: number }): number[] =>
+  (uuids ?? []).map((uuid) => internalIdByUuid[uuid]).filter((internalId) => internalId !== undefined)
+
+// builds a new node object instead of deleting the legacy props: "delete" would switch it to the (bigger) V8 dictionary mode
+const toInternalIdNode = (params: { node: NodeOld; internalIdByUuid: { [uuid: string]: number } }): ArenaRecordNode => {
+  const { node, internalIdByUuid } = params
+  const { uuid, parentUuid, meta, ...nodeProps } = node
+  const nodeUpdated: ArenaRecordNode = { ...nodeProps, iId: internalIdByUuid[uuid!] }
+  if (parentUuid) {
+    nodeUpdated.pIId = internalIdByUuid[parentUuid]
+  }
+  if (meta) {
+    // legacy meta.h contains ancestor uuids: hierarchy is now derived from pIId (see Records.getNodeHierarchy)
+    const { h: _h, hCode: hCodeUuids, ...metaProps } = meta as NodeOldMeta
+    nodeUpdated.meta = hCodeUuids ? { ...metaProps, hCode: toInternalIds(hCodeUuids, internalIdByUuid) } : metaProps
+  }
+  return nodeUpdated
+}
+
 const initInternalIds = (params: { record: ArenaRecord; nodes: NodeOld[] }) => {
   const { record, nodes: nodesParam } = params
 
   // a node's parent must already have an internal id assigned before the node itself is
   // processed, so shallower nodes (closer to the root) need to come first, regardless of the
   // order they were passed in
-  const nodes = [...nodesParam].sort((nodeA, nodeB) => (nodeA.meta?.h?.length ?? 0) - (nodeB.meta?.h?.length ?? 0))
+  const nodes = nodesParam
+    .filter((node) => !!node.uuid)
+    .sort((nodeA, nodeB) => (nodeA.meta?.h?.length ?? 0) - (nodeB.meta?.h?.length ?? 0))
 
   let lastInternalId = 0
-  const uuidByInternalId: { [internalId: number]: string } = {}
   const internalIdByUuid: { [uuid: string]: number } = {}
-
-  const nextInternalId = (uuid: string): number => {
-    const internalId = (lastInternalId += 1)
-    uuidByInternalId[internalId] = uuid
-    internalIdByUuid[uuid] = internalId
-    return internalId
-  }
 
   for (const node of nodes) {
     const { uuid, parentUuid } = node
-    if (!uuid) {
-      continue
+    if (parentUuid && !internalIdByUuid[parentUuid]) {
+      throw new Error('Invalid nodes hierarchy; descendant node found before parent node: ' + JSON.stringify(node))
     }
-    const internalId = nextInternalId(uuid)
-    node.iId = internalId
-    if (parentUuid) {
-      const newParentId = internalIdByUuid[parentUuid]
-      if (!newParentId) {
-        throw new Error('Invalid nodes hierarchy; descendant node found before parent node: ' + JSON.stringify(node))
-      }
-      node.pIId = newParentId
-      delete node['parentUuid']
-    }
-    // legacy meta.h contains ancestor uuids: hierarchy is now derived from pIId (see Records.getNodeHierarchy)
-    Objects.dissocPath({ obj: node, path: metaHierarchyPath, sideEffect: true })
-    delete node['uuid']
+    lastInternalId += 1
+    internalIdByUuid[uuid!] = lastInternalId
   }
-
   record.lastNodeInternalId = lastInternalId
 
-  // Rebuild record.nodes to be keyed by internal IDs instead of the old UUIDs
+  // Rebuild record.nodes to be keyed by internal IDs instead of the old UUIDs;
+  // done after assigning all the internal ids: meta.hCode can reference nodes at the same depth
   const newNodesMap: NodesMap = {}
   for (const node of nodes) {
-    newNodesMap[node.iId] = node
+    const nodeUpdated = toInternalIdNode({ node, internalIdByUuid })
+    newNodesMap[nodeUpdated.iId] = nodeUpdated
   }
   record.nodes = newNodesMap
 
