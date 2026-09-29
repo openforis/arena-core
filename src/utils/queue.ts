@@ -5,11 +5,11 @@ const COMPACTION_MIN_HEAD_INDEX = 1024
 /**
  * FIFO queue with constant time enqueue and dequeue operations.
  */
-export class Queue {
-  private _items: any[]
+export class Queue<T> {
+  private _items: (T | undefined)[]
   private _headIndex: number
 
-  constructor(items: any[] = []) {
+  constructor(items: T[] = []) {
     this._items = []
     this._headIndex = 0
     this.enqueueItems(items)
@@ -19,21 +19,21 @@ export class Queue {
    * Snapshot of the items still in the queue, from the last enqueued to the first one (the next one to be dequeued).
    * The returned array is a copy: modifying it does not affect the queue.
    */
-  get items(): readonly any[] {
-    return this._items.slice(this._headIndex).reverse()
+  get items(): readonly T[] {
+    return (this._items.slice(this._headIndex) as T[]).reverse()
   }
 
-  enqueue(item: any): void {
+  enqueue(item: T): void {
     this._items.push(item)
   }
 
-  enqueueItems(items: any[]) {
+  enqueueItems(items: T[]) {
     for (const item of items) {
       this.enqueue(item)
     }
   }
 
-  dequeue(): any {
+  dequeue(): T | undefined {
     if (this.isEmpty()) return undefined
 
     const item = this._items[this._headIndex]
@@ -50,11 +50,11 @@ export class Queue {
     return item
   }
 
-  get first(): any {
+  get first(): T | undefined {
     return this.isEmpty() ? undefined : this._items[this._headIndex]
   }
 
-  get last(): any {
+  get last(): T | undefined {
     return this.isEmpty() ? undefined : this._items.at(-1)
   }
 

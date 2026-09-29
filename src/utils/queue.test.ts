@@ -22,7 +22,7 @@ describe('Queue', () => {
   })
 
   test('enqueue and dequeue interleaved with many items', () => {
-    const queue = new Queue()
+    const queue = new Queue<number>()
     const dequeued = []
     let next = 0
     for (let round = 0; round < 50; round++) {

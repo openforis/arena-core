@@ -1,33 +1,39 @@
 import { Factory } from '../common'
-import { Dates, UUIDs } from '../utils'
+import { Record } from '../record'
+import { Dates } from '../utils'
 import { Node } from './node'
 
 export type NodeFactoryParams = {
+  record: Record
   nodeDefUuid: string
-  recordUuid: string
   parentNode?: Node
   surveyUuid?: string
   value?: any
 }
 
+/**
+ * Creates a node with internal ID = record.lastNodeInternalId + 1.
+ * The record is not modified: the node must be added to the record (Records.addNode/addNodes, which update
+ * record.lastNodeInternalId) before creating another node, otherwise the same internal ID would be generated.
+ */
 export const NodeFactory: Factory<Node, NodeFactoryParams> = {
   createInstance: (params: NodeFactoryParams): Node => {
-    const { nodeDefUuid, recordUuid, parentNode, surveyUuid, value } = params
+    const { nodeDefUuid, record, parentNode, surveyUuid, value } = params
+
+    const iId = (record.lastNodeInternalId ?? 0) + 1
+
     const now = Dates.nowFormattedForStorage()
 
     return {
       created: true,
       dateCreated: now,
       dateModified: now,
-      meta: {
-        h: [...(parentNode?.meta?.h ?? []), ...(parentNode?.uuid ? [parentNode?.uuid] : [])],
-      },
+      iId,
       nodeDefUuid,
-      parentUuid: parentNode?.uuid,
-      recordUuid,
+      pIId: parentNode?.iId,
+      recordUuid: record.uuid,
       surveyUuid,
       value,
-      uuid: UUIDs.v4(),
     }
   },
 }

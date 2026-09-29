@@ -1,35 +1,38 @@
 import { RecordNodesIndex } from '../record'
 
-const getNodeRootUuid = (index: RecordNodesIndex): string | undefined => index.nodeRootUuid
+// internal ID lists are returned as they are stored in the index: they must not be modified by the caller
+const emptyList: readonly number[] = []
 
-const getNodeUuidsByDef =
+const getNodeRootInternalId = (index: RecordNodesIndex): number | undefined => index.nodeRootIId
+
+const getNodeInternalIdsByDef =
   (nodeDefUuid: string) =>
-  (index: RecordNodesIndex): string[] =>
-    Object.keys(index.nodesByDef?.[nodeDefUuid] ?? {})
+  (index: RecordNodesIndex): readonly number[] =>
+    index.nodesByDef?.[nodeDefUuid] ?? emptyList
 
-const getNodeUuidsByParentAndChildDef =
-  (params: { parentNodeUuid: string; childDefUuid: string }) =>
-  (index: RecordNodesIndex): string[] => {
-    const { parentNodeUuid, childDefUuid } = params
-    return Object.keys(index.nodesByParentAndChildDef?.[parentNodeUuid]?.[childDefUuid] ?? {})
+const getNodeInternalIdsByParentAndChildDef =
+  (params: { parentNodeInternalId: number; childDefUuid: string }) =>
+  (index: RecordNodesIndex): readonly number[] => {
+    const { parentNodeInternalId, childDefUuid } = params
+    return index.nodesByParentAndChildDef?.[parentNodeInternalId]?.[childDefUuid] ?? emptyList
   }
 
-const getNodeUuidsByParent =
-  (parentNodeUuid: string) =>
-  (index: RecordNodesIndex): string[] => {
-    const nodesPresenceByChildDefUuid = index.nodesByParentAndChildDef?.[parentNodeUuid] ?? {}
-    return Object.values(nodesPresenceByChildDefUuid).flatMap((nodesPresence) => Object.keys(nodesPresence))
+const getNodeInternalIdsByParent =
+  (parentNodeInternalId: number) =>
+  (index: RecordNodesIndex): number[] => {
+    const internalIdsByChildDefUuid = index.nodesByParentAndChildDef?.[parentNodeInternalId] ?? {}
+    return Object.values(internalIdsByChildDefUuid).flat()
   }
 
-const getNodeCodeDependentUuids =
-  (nodeUuid: string) =>
-  (index: RecordNodesIndex): string[] =>
-    Object.keys(index.nodeCodeDependents?.[nodeUuid] ?? {})
+const getNodeCodeDependentInternalIds =
+  (nodeInternalId: number) =>
+  (index: RecordNodesIndex): readonly number[] =>
+    index.nodeCodeDependents?.[nodeInternalId] ?? emptyList
 
 export const RecordNodesIndexReader = {
-  getNodeRootUuid,
-  getNodeUuidsByDef,
-  getNodeUuidsByParentAndChildDef,
-  getNodeUuidsByParent,
-  getNodeCodeDependentUuids,
+  getNodeRootInternalId,
+  getNodeInternalIdsByDef,
+  getNodeInternalIdsByParentAndChildDef,
+  getNodeInternalIdsByParent,
+  getNodeCodeDependentInternalIds,
 }

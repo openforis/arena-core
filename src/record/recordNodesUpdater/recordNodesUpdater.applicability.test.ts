@@ -14,6 +14,7 @@ import { Records } from '../records'
 import { Surveys } from '../../survey'
 import { Record } from '../record'
 import { Nodes } from '../../node'
+import { Strings } from '../../utils'
 
 let user: User
 
@@ -62,7 +63,7 @@ describe('Record nodes updater - applicability', () => {
         user,
         survey,
         record: recordUpdated,
-        nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+        nodes: { [nodeToUpdate.iId]: nodeUpdated },
       })
 
       expect(updateResult).not.toBeNull()
@@ -77,7 +78,7 @@ describe('Record nodes updater - applicability', () => {
         expect(
           Object.values(updateResult.nodes)
             .map((updatedNode) => Surveys.getNodeDefByUuid({ survey, uuid: updatedNode.nodeDefUuid }).props.name)
-            .sort()
+            .sort(Strings.compare)
         ).toEqual(['dependent_attribute', 'root_entity', 'source_attribute'])
       }
       expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(expectedApplicability)
@@ -155,7 +156,7 @@ describe('Record nodes updater - applicability', () => {
       user,
       survey,
       record: recordUpdated,
-      nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+      nodes: { [nodeToUpdate.iId]: nodeUpdated },
       clearNonApplicableValues: false, // explicitly set to false
     })
 
@@ -180,7 +181,7 @@ describe('Record nodes updater - applicability', () => {
       user,
       survey,
       record: recordUpdated,
-      nodes: { [nodeToUpdate.uuid]: { ...nodeToUpdate, value: 20 } },
+      nodes: { [nodeToUpdate.iId]: { ...nodeToUpdate, value: 20 } },
       clearNonApplicableValues: false, // first make it applicable again
     })
 
@@ -205,7 +206,7 @@ describe('Record nodes updater - applicability', () => {
       user,
       survey,
       record: recordUpdated,
-      nodes: { [nodeToUpdate.uuid]: { ...nodeToUpdate, value: 5 } },
+      nodes: { [nodeToUpdate.iId]: { ...nodeToUpdate, value: 5 } },
       clearNonApplicableValues: true, // Enable value clearing
     })
 
@@ -248,7 +249,7 @@ describe('Record nodes updater - applicability', () => {
         user,
         survey,
         record: Records.addNode(sourceNodeUpdated)(record),
-        nodes: { [sourceNode.uuid]: sourceNodeUpdated },
+        nodes: { [sourceNode.iId]: sourceNodeUpdated },
         clearNonApplicableValues,
       })
     }
@@ -342,7 +343,7 @@ describe('Record nodes updater - applicability', () => {
         user,
         survey: surveyWithAutoGeneration,
         record: Records.addNode(sourceNodeUpdated)(record),
-        nodes: { [sourceNode.uuid]: sourceNodeUpdated },
+        nodes: { [sourceNode.iId]: sourceNodeUpdated },
       })
       record = updateResult.record
 

@@ -1,4 +1,4 @@
-import { Node, Nodes } from '../../../../node'
+import { Node } from '../../../../node'
 import { NodeDef, NodeDefType } from '../../../../nodeDef'
 import { Record } from '../../../record'
 import { Records } from '../../../records'
@@ -7,7 +7,7 @@ import { Arrays } from '../../../../utils'
 
 const getCommonAncestor = (params: {
   record: Record
-  nodeCtxHierarchy: string[]
+  nodeCtxHierarchy: number[]
   nodeDefCtx: NodeDef<any>
   nodeDefReferenced: NodeDef<any>
 }): Node | undefined => {
@@ -24,8 +24,8 @@ const getCommonAncestor = (params: {
     return Records.getRoot(record)
   }
   if (nodeDefCommonH.length > 1) {
-    const nodeCommonAncestorUuid = nodeCtxHierarchy[nodeDefCommonH.length - 1]
-    return record.nodes?.[nodeCommonAncestorUuid]
+    const nodeCommonAncestorInternalId = nodeCtxHierarchy[nodeDefCommonH.length - 1]
+    return record.nodes?.[nodeCommonAncestorInternalId]
   }
   return undefined
 }
@@ -45,16 +45,16 @@ const getReferencedNodesParent = (params: {
 
   const nodeDefCtx = Surveys.getNodeDefByUuid({ survey, uuid: nodeContext.nodeDefUuid })
 
-  const nodeCtxH = Nodes.getHierarchy(nodeContext)
+  const nodeCtxH = Records.getNodeHierarchy(nodeContext)(record)
   if (nodeDefCtx.type === NodeDefType.entity) {
     // When nodeDefCtx is entity, expression is type applicableIf (and context always starts from parent)
-    nodeCtxH.push(nodeContext.uuid)
+    nodeCtxH.push(nodeContext.iId)
   }
 
   if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefCtx })) {
     const nodeDefReferencedH = nodeDefReferenced.meta.h
-    const nodeReferencedParentUuid = nodeCtxH[nodeDefReferencedH.length - 1]
-    const nodeReferencedParent = record.nodes?.[nodeReferencedParentUuid]
+    const nodeReferencedParentIId = nodeCtxH[nodeDefReferencedH.length - 1]
+    const nodeReferencedParent = record.nodes?.[nodeReferencedParentIId]
     if (!nodeReferencedParent) {
       throw new Error(`Cannot find parent node of ${nodeDefReferenced.props.name} from ${nodeDefCtx.props.name}`)
     }

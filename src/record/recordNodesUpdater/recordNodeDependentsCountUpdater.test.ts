@@ -66,7 +66,7 @@ describe('Record nodes updater - dependents count updater', () => {
         user,
         survey,
         record,
-        nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+        nodes: { [nodeToUpdate.iId]: nodeUpdated },
       })
 
       expect(updateResult).not.toBeNull()

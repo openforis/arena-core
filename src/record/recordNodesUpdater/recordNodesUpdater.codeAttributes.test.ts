@@ -16,6 +16,7 @@ import { CategoryItem, CategoryItemFactory } from '../../category'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { ExtraPropDataType } from '../../extraProp'
 import { NodeValues } from '../../node/nodeValues'
+import { Strings } from '../../utils'
 
 let user: User
 
@@ -80,7 +81,7 @@ describe('Record nodes updater - dependent code attributes', () => {
       user,
       survey,
       record: recordUpdated,
-      nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+      nodes: { [nodeToUpdate.iId]: nodeUpdated },
     })
     expect(updateResult).not.toBeNull()
 
@@ -88,7 +89,7 @@ describe('Record nodes updater - dependent code attributes', () => {
     expect(
       Object.values(updateResult.nodes)
         .map((updatedNode) => Surveys.getNodeDefByUuid({ survey, uuid: updatedNode.nodeDefUuid }).props.name)
-        .sort()
+        .sort(Strings.compare)
     ).toEqual(['dependent_code', 'parent_code'])
 
     // check that dependent node value has been reset
@@ -149,7 +150,7 @@ describe('Record nodes updater - dependent code attributes', () => {
       user,
       survey,
       record,
-      nodes: { [nodeRevisited.uuid]: nodeRevisited },
+      nodes: { [nodeRevisited.iId]: nodeRevisited },
     })
     expect(updateResult).not.toBeNull()
     expect(updateResult.clearedDefUuids.size).toBe(0)
@@ -222,7 +223,7 @@ describe('Record nodes updater - dependent code attributes', () => {
       user,
       survey,
       record,
-      nodes: { [nodeToRevisit.uuid]: { ...nodeToRevisit } },
+      nodes: { [nodeToRevisit.iId]: { ...nodeToRevisit } },
       categoryItemProvider,
     })
     expect(revisitResult.clearedDefUuids.size).toBe(0)
@@ -241,7 +242,7 @@ describe('Record nodes updater - dependent code attributes', () => {
       user,
       survey,
       record: recordUpdated,
-      nodes: { [nodeUpdated.uuid]: nodeUpdated },
+      nodes: { [nodeUpdated.iId]: nodeUpdated },
       categoryItemProvider,
     })
     expect(updateResult.clearedDefUuids).toEqual(new Set([dependentDef!.uuid]))
@@ -349,7 +350,7 @@ describe('Record nodes updater - dependent code attributes', () => {
         user,
         survey,
         record: recordUpdated,
-        nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+        nodes: { [nodeToUpdate.iId]: nodeUpdated },
       })
       expect(updateResult).not.toBeNull()
       expect(updateResult.clearedDefUuids.size).toBe(0)

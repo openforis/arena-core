@@ -21,7 +21,7 @@ const isKeyValid = (params: { record: Record; path: string }): boolean => {
   const { record, path } = params
   const keyNode = TestUtils.getNodeByPath({ survey, record, path })
   const validation = Validations.getValidation(record)
-  return Validations.getFieldValidation(keyNode.uuid)(validation).valid
+  return Validations.getFieldValidation(String(keyNode.iId))(validation).valid
 }
 
 const buildRecord = (tableIds: number[]): Record =>
@@ -58,7 +58,7 @@ describe('AttributeKeyValidator - duplicate entity keys', () => {
       user,
       survey,
       record,
-      attributeUuid: keyNode.uuid,
+      attributeIId: keyNode.iId,
       value: 2,
     })
     record = updateResult.record
@@ -70,7 +70,7 @@ describe('AttributeKeyValidator - duplicate entity keys', () => {
       user,
       survey,
       record,
-      attributeUuid: keyNode.uuid,
+      attributeIId: keyNode.iId,
       value: 1,
     })
     record = updateResult.record

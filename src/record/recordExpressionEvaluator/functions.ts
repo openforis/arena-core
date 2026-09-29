@@ -22,11 +22,11 @@ const extractPreviousCycleValues = ({
   if (!currentRecordEntity) {
     return null
   }
-  const { uuid: entityUuid } = currentRecordEntity
+  const { iId: entityIId } = currentRecordEntity
   const prevCycleEntity = Records.findEntityWithSameKeysInAnotherRecord({
     survey,
     cycle: Records.getCycle(record),
-    entityUuid,
+    entityIId,
     record,
     recordOther: prevCycleRecord,
   })
@@ -80,13 +80,13 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
         }
 
         const pointsLatLon: Point[] = nodeSetOrPoints.reduce((acc, nodeSetOrPoint) => {
-          Arrays.toArray(nodeSetOrPoint).forEach((nodeOrPoint) => {
+          for (const nodeOrPoint of Arrays.toArray(nodeSetOrPoint)) {
             const point = toPoint(nodeOrPoint)
             const pointLatLon = point ? Points.toLatLong(point, srsIndex) : null
             if (pointLatLon) {
               acc.push(pointLatLon)
             }
-          })
+          }
           return acc
         }, [])
 

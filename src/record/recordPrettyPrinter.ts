@@ -65,7 +65,7 @@ const print = (params: { survey: Survey; record: Record; options?: PrintOptions 
       const { node, parentNode } = params
       const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
       const value = NodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
-      const depth = Nodes.getHierarchy(node).length
+      const depth = RecordGetters.getNodeDepth(node)(record)
       const infoParts = getInfoParts({ parentNode, childDefUuid: node.nodeDefUuid })
       parts.push(toPart({ depth, name: NodeDefs.getName(nodeDef), value, infoParts }))
 
@@ -99,7 +99,7 @@ const print = (params: { survey: Survey; record: Record; options?: PrintOptions 
       const { nodeDefUuid } = node
       const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
       const value = NodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
-      const depth = Nodes.getHierarchy(node).length
+      const depth = RecordGetters.getNodeDepth(node)(record)
       const parentNode = NodeDefs.isRoot(nodeDef) ? null : RecordGetters.getParent(node)(record)
       const infoParts = getInfoParts({ parentNode, childDefUuid: nodeDefUuid })
       parts.push(toPart({ depth, name: NodeDefs.getName(nodeDef), value, infoParts }))

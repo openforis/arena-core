@@ -12,42 +12,43 @@ import { RecordNodesIndexReader } from './recordNodesIndexReader'
 
 export const getCycle = (record: Record): string => record.cycle ?? defaultCycle
 
-export const getNodes = (record: Record): Dictionary<Node> => record.nodes ?? {}
+export const getNodes = (record: Record): NodesMap => record.nodes ?? {}
 
 export const getNodesArray = (record: Record): Node[] => Object.values(getNodes(record))
 
-export const getNodeByUuid =
-  (uuid: string) =>
+export const getNodeByInternalId =
+  (internalId: number) =>
   (record: Record): Node | undefined =>
-    record.nodes?.[uuid]
+    record.nodes?.[internalId]
 
-export const getNodesByUuids =
-  (uuids: string[]) =>
+export const getNodesByInternalIds =
+  (internalIds: readonly number[]) =>
   (record: Record): Node[] =>
-    uuids.map((uuid: string) => getNodeByUuid(uuid)(record)) as Node[]
+    internalIds.map((internalId: number) => getNodeByInternalId(internalId)(record)) as Node[]
 
 export const getRoot = (record: Record): Node | undefined => {
-  const rootUuid = record._nodesIndex ? RecordNodesIndexReader.getNodeRootUuid(record._nodesIndex) : null
-  if (rootUuid) {
-    return getNodeByUuid(rootUuid)(record)
+  const rootInternalId = record._nodesIndex ? RecordNodesIndexReader.getNodeRootInternalId(record._nodesIndex) : null
+  if (rootInternalId) {
+    return getNodeByInternalId(rootInternalId)(record)
   }
-  return getNodesArray(record).find((node) => !node.parentUuid)
+  return getNodesArray(record).find((node) => !node.pIId)
 }
 
 export const getChildren =
   (parentNode: Node, childDefUuid?: string) =>
   (record: Record): Node[] => {
     if (record._nodesIndex) {
-      const childrenUuids = childDefUuid
-        ? RecordNodesIndexReader.getNodeUuidsByParentAndChildDef({
-            parentNodeUuid: parentNode.uuid,
+      const { iId: parentNodeInternalId } = parentNode
+      const childrenIds = childDefUuid
+        ? RecordNodesIndexReader.getNodeInternalIdsByParentAndChildDef({
+            parentNodeInternalId,
             childDefUuid,
           })(record._nodesIndex)
-        : RecordNodesIndexReader.getNodeUuidsByParent(parentNode.uuid)(record._nodesIndex)
-      return getNodesByUuids(childrenUuids)(record)
+        : RecordNodesIndexReader.getNodeInternalIdsByParent(parentNodeInternalId)(record._nodesIndex)
+      return getNodesByInternalIds(childrenIds)(record)
     }
     return getNodesArray(record).filter(
-      (node) => node.parentUuid === parentNode.uuid && (!childDefUuid || node.nodeDefUuid == childDefUuid)
+      (node) => node.pIId === parentNode.iId && (!childDefUuid || node.nodeDefUuid == childDefUuid)
     )
   }
 
@@ -55,7 +56,7 @@ export const getChild =
   (parentNode: Node, childDefUuid: string) =>
   (record: Record): Node => {
     const children = getChildren(parentNode, childDefUuid)(record)
-    const errorParams = { childDefUuid, parentNodeUuid: parentNode.uuid, recordUuid: record.uuid }
+    const errorParams = { childDefUuid, parentNodeInternalId: parentNode.iId, recordUuid: record.uuid }
     if (children.length === 1) {
       return children[0]
     }
@@ -67,15 +68,18 @@ export const getChild =
 
 export const getParent =
   (node: Node) =>
-  (record: Record): Node | undefined =>
-    node.parentUuid ? getNodeByUuid(node.parentUuid)(record) : undefined
+  (record: Record): Node | undefined => {
+    const { pIId } = node
+    if (!pIId) return undefined
+    return getNodeByInternalId(pIId)(record)
+  }
 
 export const getNodesByDefUuid =
   (nodeDefUuid: string) =>
   (record: Record): Node[] => {
     if (record._nodesIndex) {
-      const nodeUuids = RecordNodesIndexReader.getNodeUuidsByDef(nodeDefUuid)(record._nodesIndex)
-      return getNodesByUuids(nodeUuids)(record)
+      const nodeInternalIds = RecordNodesIndexReader.getNodeInternalIdsByDef(nodeDefUuid)(record._nodesIndex)
+      return getNodesByInternalIds(nodeInternalIds)(record)
     }
     return getNodesArray(record).filter((node) => node.nodeDefUuid === nodeDefUuid)
   }
@@ -101,8 +105,8 @@ export const getDependentCodeAttributes =
   (node: Node) =>
   (record: Record): Node[] => {
     if (record._nodesIndex) {
-      const nodeUuids = RecordNodesIndexReader.getNodeCodeDependentUuids(node.uuid)(record._nodesIndex)
-      return getNodesByUuids(nodeUuids)(record)
+      const dependentInternalIds = RecordNodesIndexReader.getNodeCodeDependentInternalIds(node.iId)(record._nodesIndex)
+      return getNodesByInternalIds(dependentInternalIds)(record)
     }
     throw new SystemError('record.nodesIndexNotInitialized')
   }
@@ -165,6 +169,37 @@ export const getAncestor = (params: { record: Record; node: Node; ancestorDefUui
 }
 
 /**
+ * Returns the internal IDs of the ancestors of the given node, from the root entity down to its parent
+ * (the same content previously kept in node meta.h, now computed walking the parent internal IDs).
+ */
+export const getNodeHierarchy =
+  (node: Node) =>
+  (record: Record): number[] => {
+    const hierarchy: number[] = []
+    let currentParentInternalId = node.pIId
+    while (currentParentInternalId) {
+      hierarchy.push(currentParentInternalId)
+      currentParentInternalId = getNodeByInternalId(currentParentInternalId)(record)?.pIId
+    }
+    return hierarchy.reverse()
+  }
+
+/**
+ * Returns the depth of the node in the record hierarchy (0 for the root entity)
+ */
+export const getNodeDepth =
+  (node: Node) =>
+  (record: Record): number => {
+    let depth = 0
+    let currentParentInternalId = node.pIId
+    while (currentParentInternalId) {
+      depth++
+      currentParentInternalId = getNodeByInternalId(currentParentInternalId)(record)?.pIId
+    }
+    return depth
+  }
+
+/**
  * Returns the list of ancestors from the given node to the root entity
  */
 export const getAncestorsAndSelf = (params: { record: Record; node: Node }): Array<Node> => {
@@ -212,9 +247,15 @@ export const getDescendant = (params: { record: Record; node: Node; nodeDefDesce
   return getDescendantsOrSelf({ record, node, nodeDefDescendant })[0]
 }
 
-export const isDescendantOf = (params: { node: Node; ancestor: Node }): boolean => {
-  const { node, ancestor } = params
-  return Nodes.getHierarchy(node).includes(ancestor.uuid)
+export const isDescendantOf = (params: { record: Record; node: Node; ancestor: Node }): boolean => {
+  const { record, node, ancestor } = params
+  const { iId: ancestorInternalId } = ancestor
+  let currentParentInternalId = node.pIId
+  while (currentParentInternalId) {
+    if (currentParentInternalId === ancestorInternalId) return true
+    currentParentInternalId = getNodeByInternalId(currentParentInternalId)(record)?.pIId
+  }
+  return false
 }
 
 export const visitDescendantsAndSelf = (params: {
@@ -226,12 +267,12 @@ export const visitDescendantsAndSelf = (params: {
   const { record, node, visitor, traverseMethod = TraverseMethod.bfs } = params
 
   if (traverseMethod === TraverseMethod.bfs) {
-    const queue = new Queue()
+    const queue = new Queue<Node>()
 
     queue.enqueue(node)
 
     while (!queue.isEmpty()) {
-      const visitedNode = queue.dequeue()
+      const visitedNode = queue.dequeue()!
 
       if (visitor(visitedNode)) {
         // stop if visitor returns true
@@ -314,11 +355,11 @@ type EntityKeyNodesGetterParams = {
   keyDefs?: NodeDef<NodeDefType, NodeDefProps>[]
 }
 
-export const getEntityKeyNodesByDefUuid = (params: EntityKeyNodesGetterParams): NodesMap => {
+export const getEntityKeyNodesByDefUuid = (params: EntityKeyNodesGetterParams): Dictionary<Node> => {
   const { survey, cycle, record, entity, keyDefs } = params
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
   const nodeDefKeys = keyDefs ?? Surveys.getNodeDefKeys({ survey, cycle, nodeDef })
-  return nodeDefKeys.reduce((acc: NodesMap, nodeDefKey) => {
+  return nodeDefKeys.reduce((acc: Dictionary<Node>, nodeDefKey) => {
     const nodeKey = getDescendant({ record, node: entity, nodeDefDescendant: nodeDefKey })
     acc[nodeDefKey.uuid] = nodeKey
     return acc
@@ -409,12 +450,12 @@ export const findEntityByKeyValues = (params: {
 export const findEntityWithSameKeysInAnotherRecord = (params: {
   survey: Survey
   cycle: string
-  entityUuid: string
+  entityIId: number
   record: Record
   recordOther: Record
 }): Node | undefined => {
-  const { survey, cycle, entityUuid, record, recordOther } = params
-  const entity = getNodeByUuid(entityUuid)(record)
+  const { survey, cycle, entityIId, record, recordOther } = params
+  const entity = getNodeByInternalId(entityIId)(record)
   if (!entity) return undefined
 
   let otherRecordCurrentParentEntity = getRoot(recordOther)
@@ -483,7 +524,6 @@ export const getDependentNodePointers = (params: {
       node: commonAncestorNode,
       nodeDefDescendant: nodeDefDependentParent,
     })
-
     for (const dependentContextNode of dependentContextNodes) {
       addToNodePointers({
         nodeCtx: dependentContextNode,

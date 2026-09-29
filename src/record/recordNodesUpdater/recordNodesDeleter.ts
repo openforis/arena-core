@@ -8,7 +8,7 @@ import { RecordValidations } from '../recordValidations'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 export const deleteNodes =
-  (nodeUuids: string[], options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+  (nodeInternalIds: number[], options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: Record): RecordUpdateResult => {
     const { sideEffect, updateNodesIndex } = { ...RecordUpdateOptionsDefaults, ...options }
 
@@ -19,66 +19,65 @@ export const deleteNodes =
     const nodesDeleted: NodesMap = {}
     const recordNodesUpdated = sideEffect ? recordNodes : { ...recordNodes }
 
-    let recordNodesIndex = record._nodesIndex ?? {}
-
     const recordValidation = Validations.getValidation(record)
     let recordValidationUpdated = sideEffect
       ? recordValidation
       : { ...recordValidation, fields: { ...Validations.getFieldValidations(recordValidation) } }
 
     const deleteDescendantNode = (visitedNode: Node) => {
-      const visitedNodeUuid = visitedNode.uuid
-      if (nodesDeleted[visitedNodeUuid]) return
+      const { iId: visitedNodeInternalId } = visitedNode
+      if (nodesDeleted[visitedNodeInternalId]) return
 
       // 1. delete node from 'nodes'
-      delete recordNodesUpdated[visitedNodeUuid]
+      delete recordNodesUpdated[visitedNodeInternalId]
 
       const visitedNodeUpdated = sideEffect ? visitedNode : { ...visitedNode }
       visitedNodeUpdated.deleted = true
-      nodesDeleted[visitedNodeUuid] = visitedNodeUpdated
+      nodesDeleted[visitedNodeInternalId] = visitedNodeUpdated
 
       // 2. delete node from validation
       const doCleanup = false // we will cleanup at the end of the process, after all nodes have been deleted
       recordValidationUpdated = Validations.dissocFieldValidation(
-        visitedNodeUuid,
+        String(visitedNodeInternalId),
         sideEffect,
         doCleanup
       )(recordValidationUpdated)
 
       recordValidationUpdated = Validations.dissocFieldValidationsStartingWith(
-        `${RecordValidations.prefixValidationFieldChildrenCount}${visitedNodeUuid}`,
+        `${RecordValidations.prefixValidationFieldChildrenCount}${visitedNodeInternalId}`,
         sideEffect,
         doCleanup
       )(recordValidationUpdated)
-
-      // 3. update nodes index
-      if (updateNodesIndex) {
-        recordNodesIndex = RecordNodesIndexUpdater.removeNode(visitedNode, sideEffect)(recordNodesIndex)
-      }
     }
 
-    nodeUuids.forEach((nodeUuid) => {
-      const node = recordNodesUpdated[nodeUuid]
-      if (!node) return
+    for (const nodeInternalId of nodeInternalIds) {
+      const node = recordNodesUpdated[nodeInternalId]
+      if (!node) {
+        // node already deleted, and so its descendant; skip it
+        continue
+      }
 
       RecordGetters.visitDescendantsAndSelf({
         record,
         node,
         visitor: deleteDescendantNode,
       })
-    })
-
+    }
     recordValidationUpdated = Validations.cleanup(recordValidationUpdated)
 
     recordUpdated.nodes = recordNodesUpdated
     recordUpdated.validation = recordValidationUpdated
     if (updateNodesIndex) {
-      recordUpdated._nodesIndex = recordNodesIndex
+      // 3. update nodes index
+      recordUpdated._nodesIndex = RecordNodesIndexUpdater.removeNodes(
+        Object.values(nodesDeleted),
+        sideEffect
+      )(record._nodesIndex ?? {})
     }
     return new RecordUpdateResult({ record: recordUpdated, nodes: nodesDeleted, nodesDeleted })
   }
 
 export const deleteNode =
-  (nodeUuid: string, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+  (internalId: number, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: Record): RecordUpdateResult =>
-    deleteNodes([nodeUuid], options)(record)
+    deleteNodes([internalId], options)(record)

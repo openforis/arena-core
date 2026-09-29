@@ -319,12 +319,12 @@ type NodeDefTraverseParams = {
 }
 
 const traverseBreadthFirst = ({ nodeDef, visitor, shouldTraverse, getChildren }: NodeDefTraverseParams) => {
-  const queue = new Queue()
+  const queue = new Queue<NodeDef<any>>()
 
   queue.enqueue(nodeDef)
 
   while (!queue.isEmpty()) {
-    const visitedNodeDef = queue.dequeue()
+    const visitedNodeDef = queue.dequeue()!
 
     visitor(visitedNodeDef)
 

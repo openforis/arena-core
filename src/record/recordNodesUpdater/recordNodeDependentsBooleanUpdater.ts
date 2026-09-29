@@ -78,10 +78,10 @@ export const updateSelfAndDependentsBoolean = async ({
   for (const nodePointer of nodePointersToUpdate) {
     const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
 
-    const nodeCtxUuid = nodeCtxNodePointer.uuid
+    const nodeCtxInternalId = nodeCtxNodePointer.iId
     const nodeDefUuid = nodeDefNodePointer.uuid
 
-    const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
+    const nodeCtx = updateResult.getNodeByInternalId(nodeCtxInternalId) ?? nodeCtxNodePointer
 
     const valuePrev = getValuePrev(nodeCtx, nodeDefUuid)
     const value = await calculateBooleanValueNext({

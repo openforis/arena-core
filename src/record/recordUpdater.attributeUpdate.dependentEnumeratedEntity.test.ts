@@ -85,7 +85,7 @@ const updateAttributeAndExpectDependentEnumeratedKeys = async (params: {
     user,
     survey,
     record,
-    attributeUuid: nodeToUpdate.uuid,
+    attributeIId: nodeToUpdate.iId,
     value,
   })
 
@@ -173,7 +173,7 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       user,
       survey,
       record,
-      attributeUuid: nodeToUpdate.uuid,
+      attributeIId: nodeToUpdate.iId,
       value: false,
     })
     record = updateResult.record
