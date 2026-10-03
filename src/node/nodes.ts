@@ -163,9 +163,10 @@ const assocChildrenMinCount = (params: { node: Node; nodeDefUuid: string; count:
 
 const removeStatusFlags = ({ node, sideEffect = false }: { node: Node; sideEffect?: boolean }): Node => {
   if (sideEffect) {
-    delete node['created']
-    delete node['deleted']
-    delete node['updated']
+    // do not use "delete": it would switch the node object to the (much bigger) V8 dictionary mode
+    if (node.created !== undefined) node.created = undefined
+    if (node.deleted !== undefined) node.deleted = undefined
+    if (node.updated !== undefined) node.updated = undefined
     return node
   } else {
     const { created: _created, deleted: _deleted, updated: _updated, ...nodeCleaned } = node
