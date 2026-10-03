@@ -12,8 +12,9 @@ const keys = {
 const sortNodesByIdOrCreationDate = (nodeA: Node, nodeB: Node): number => {
   if (!nodeA.parentUuid) return -1
   if (!nodeB.parentUuid) return 1
-  const hierarchyDepthA = Nodes.getHierarchy(nodeA).length
-  const hierarchyDepthB = Nodes.getHierarchy(nodeB).length
+  // read the hierarchy length directly: Nodes.getHierarchy copies the array on every comparison
+  const hierarchyDepthA = nodeA.meta?.h?.length ?? 0
+  const hierarchyDepthB = nodeB.meta?.h?.length ?? 0
   const depthDiff = hierarchyDepthA - hierarchyDepthB
   if (depthDiff !== 0) return depthDiff
   if (nodeA.id && nodeB.id) return nodeA.id - nodeB.id
