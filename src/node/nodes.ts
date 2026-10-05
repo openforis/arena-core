@@ -161,18 +161,21 @@ const assocChildrenMaxCount = (params: { node: Node; nodeDefUuid: string; count:
 const assocChildrenMinCount = (params: { node: Node; nodeDefUuid: string; count: number }): Node =>
   assocChildrenCount({ ...params, countType: NodeDefCountType.min })
 
-const removeStatusFlags = ({ node, sideEffect = false }: { node: Node; sideEffect?: boolean }): Node => {
-  if (sideEffect) {
-    // do not use "delete": it would switch the node object to the (much bigger) V8 dictionary mode
-    if (node.created !== undefined) node.created = undefined
-    if (node.deleted !== undefined) node.deleted = undefined
-    if (node.updated !== undefined) node.updated = undefined
-    return node
-  } else {
-    const { created: _created, deleted: _deleted, updated: _updated, ...nodeCleaned } = node
-    return nodeCleaned
-  }
+const clearStatusFlagsInPlace = (node: Node): Node => {
+  // do not use "delete": it would switch the node object to the (much bigger) V8 dictionary mode
+  if (node.created !== undefined) node.created = undefined
+  if (node.deleted !== undefined) node.deleted = undefined
+  if (node.updated !== undefined) node.updated = undefined
+  return node
 }
+
+const omitStatusFlags = (node: Node): Node => {
+  const { created: _created, deleted: _deleted, updated: _updated, ...nodeCleaned } = node
+  return nodeCleaned
+}
+
+const removeStatusFlags = ({ node, sideEffect = false }: { node: Node; sideEffect?: boolean }): Node =>
+  sideEffect ? clearStatusFlagsInPlace(node) : omitStatusFlags(node)
 
 const assocValue = (node: Node, value: any, sideEffect = false): Node => {
   let nodeUpdated = sideEffect ? node : { ...node }
