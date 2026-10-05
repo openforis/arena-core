@@ -7,7 +7,7 @@ export interface ExpressionFunction<C extends ExpressionContext> {
    * Returns the function implementation, bound to the specified context.
    * The implementation can return either the result value or a Promise resolving to it.
    */
-  executor: (conxtext: C) => (...args: any[]) => any
+  executor: (context: C) => (...args: any[]) => any
   /**
    * True if the arguments of the function must be evaluated as nodes.
    * @default false
