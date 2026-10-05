@@ -8,10 +8,10 @@ import { TaxonGenerator } from '../../taxonomy/taxonGenerator'
 import { NodeDefExpressionContext } from '../context'
 
 export class NodeDefThisEvaluator extends ThisEvaluator<NodeDefExpressionContext> {
-  async evaluate(): Promise<any> {
+  evaluate(): Promise<any> {
     const { nodeDefCurrent, itemsFilter } = this.context
 
-    return itemsFilter ? this.createEmptyItem() : nodeDefCurrent
+    return Promise.resolve(itemsFilter ? this.createEmptyItem() : nodeDefCurrent)
   }
 
   createEmptyItem() {

@@ -66,22 +66,24 @@ export class FileProcessor {
     this.totalFileSize = 0
   }
 
-  protected async calculateFileSize(): Promise<number> {
-    return this.file?.size ?? 0
+  protected calculateFileSize(): Promise<number> {
+    return Promise.resolve(this.file?.size ?? 0)
   }
 
   protected onFail(error: Error): void {
     this.onError?.(error)
   }
 
-  protected async extractCurrentFileChunk(): Promise<Blob | string | Uint8Array> {
+  protected extractCurrentFileChunk(): Promise<Blob | string | Uint8Array> {
     const { file, currentChunkNumber, totalChunks, chunkSize } = this
     if (!file) {
-      throw new Error('File property not initialized')
+      return Promise.reject(new Error('File property not initialized'))
     }
-    return file.slice(
-      (currentChunkNumber - 1) * chunkSize,
-      currentChunkNumber === totalChunks ? undefined : currentChunkNumber * chunkSize
+    return Promise.resolve(
+      file.slice(
+        (currentChunkNumber - 1) * chunkSize,
+        currentChunkNumber === totalChunks ? undefined : currentChunkNumber * chunkSize
+      )
     )
   }
 

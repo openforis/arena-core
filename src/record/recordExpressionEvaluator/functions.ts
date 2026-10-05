@@ -41,7 +41,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
   count: {
     minArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: RecordExpressionContext) => async (nodeSet) => {
+    executor: (_context: RecordExpressionContext) => (nodeSet) => {
       if (!nodeSet) return 0
       if (Array.isArray(nodeSet)) return nodeSet.length
       return 0
@@ -51,7 +51,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: false,
-    executor: (_context: RecordExpressionContext) => async (nodeSet) => {
+    executor: (_context: RecordExpressionContext) => (nodeSet) => {
       if (nodeSet && Array.isArray(nodeSet) && nodeSet.length > 0) {
         return nodeSet[0]
       }
@@ -63,7 +63,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     evaluateArgsToNodes: true,
     executor:
       (context: RecordExpressionContext) =>
-      async (...nodeSetOrPoints): Promise<object | null> => {
+      (...nodeSetOrPoints): object | null => {
         if (nodeSetOrPoints.length === 0) return null
 
         const { survey } = context
@@ -105,7 +105,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (context: RecordExpressionContext) => async (node) => {
+    executor: (context: RecordExpressionContext) => (node) => {
       if (!node) {
         return -1
       }
@@ -125,7 +125,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: false,
-    executor: (_context: RecordExpressionContext) => async (nodeSet) => {
+    executor: (_context: RecordExpressionContext) => (nodeSet) => {
       if (nodeSet && Array.isArray(nodeSet) && nodeSet.length > 0) {
         return nodeSet.at(-1)
       }
@@ -137,7 +137,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     maxArity: 1,
     evaluateArgsToNodes: true,
     evaluateToNode: true,
-    executor: (context: RecordExpressionContext) => async (node) => {
+    executor: (context: RecordExpressionContext) => (node) => {
       if (!node || Nodes.isRoot(node)) {
         return null
       }
@@ -149,49 +149,49 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (context: RecordExpressionContext) => async (node) => extractPreviousCycleValues({ node, context })?.[0],
+    executor: (context: RecordExpressionContext) => (node) => extractPreviousCycleValues({ node, context })?.[0],
   },
   prevCycleValues: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (context: RecordExpressionContext) => async (node) => extractPreviousCycleValues({ node, context }),
+    executor: (context: RecordExpressionContext) => (node) => extractPreviousCycleValues({ node, context }),
   },
   recordCycle: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => async () => Number(context.record.cycle ?? 0) + 1,
+    executor: (context: RecordExpressionContext) => () => Number(context.record.cycle ?? 0) + 1,
   },
   recordDateCreated: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => async () => context.record.dateCreated,
+    executor: (context: RecordExpressionContext) => () => context.record.dateCreated,
   },
   recordDateLastModified: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => async () => context.record.dateModified,
+    executor: (context: RecordExpressionContext) => () => context.record.dateModified,
   },
   recordOwnerEmail: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => async () => context.record.ownerEmail,
+    executor: (context: RecordExpressionContext) => () => context.record.ownerEmail,
   },
   recordOwnerName: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => async () => context.record.ownerName,
+    executor: (context: RecordExpressionContext) => () => context.record.ownerName,
   },
   recordOwnerRole: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => async () => context.record.ownerRole,
+    executor: (context: RecordExpressionContext) => () => context.record.ownerRole,
   },
   sum: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: false,
-    executor: (_context: RecordExpressionContext) => async (nodeSet) => {
+    executor: (_context: RecordExpressionContext) => (nodeSet) => {
       if (!nodeSet) return 0
       if (Array.isArray(nodeSet)) return nodeSet.reduce((acc, value) => acc + (Number(value) || 0), 0)
       return 0
@@ -201,7 +201,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: false,
-    executor: (_context: RecordExpressionContext) => async (nodeSet) => {
+    executor: (_context: RecordExpressionContext) => (nodeSet) => {
       if (!nodeSet || !Array.isArray(nodeSet)) return []
       return [...new Set(nodeSet.filter((value) => value !== null && value !== undefined && value !== ''))]
     },
@@ -209,6 +209,6 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
   userIsRecordOwner: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: RecordExpressionContext) => async () => context.user?.uuid === context.record?.ownerUuid,
+    executor: (context: RecordExpressionContext) => () => context.user?.uuid === context.record?.ownerUuid,
   },
 }

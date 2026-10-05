@@ -117,16 +117,18 @@ const _getValidationMessagesWithDefault = (params: {
 
 const _validateRequired =
   (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  async (_field: string, node: any): Promise<ValidationResult> => {
+  (_field: string, node: any): Promise<ValidationResult> => {
     const { nodeDef } = params
     const valid = (!NodeDefs.isKey(nodeDef) && !NodeDefs.isRequired(nodeDef)) || !Nodes.isValueBlank(node)
-    return valid
-      ? ValidationResultFactory.createInstance()
-      : ValidationResultFactory.createInstance({
-          key: 'record.attribute.valueRequired',
-          severity: ValidationSeverity.error,
-          valid,
-        })
+    return Promise.resolve(
+      valid
+        ? ValidationResultFactory.createInstance()
+        : ValidationResultFactory.createInstance({
+            key: 'record.attribute.valueRequired',
+            severity: ValidationSeverity.error,
+            valid,
+          })
+    )
   }
 
 /**

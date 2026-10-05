@@ -34,11 +34,11 @@ export class IdentifierEvaluator<C extends ExpressionContext> extends Expression
     return null
   }
 
-  async evaluate(expressionNode: IdentifierExpression): Promise<any> {
+  evaluate(expressionNode: IdentifierExpression): Promise<any> {
     const property = this.findGlobalOrNativeProperty(expressionNode)
     if (property) {
-      return property.value
+      return Promise.resolve(property.value)
     }
-    throw new SystemError('expression.identifierNotFound', { name: expressionNode.name })
+    return Promise.reject(new SystemError('expression.identifierNotFound', { name: expressionNode.name }))
   }
 }

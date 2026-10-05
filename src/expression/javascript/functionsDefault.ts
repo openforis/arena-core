@@ -7,16 +7,16 @@ export const functionsDefault: { [key: string]: ExpressionFunction<ExpressionCon
   isEmpty: {
     minArity: 1,
     maxArity: 1,
-    executor: () => async (value: any) => Objects.isEmpty(value),
+    executor: () => (value: any) => Objects.isEmpty(value),
   },
   isNotEmpty: {
     minArity: 1,
     maxArity: 1,
-    executor: () => async (value: any) => Objects.isNotEmpty(value),
+    executor: () => (value: any) => Objects.isNotEmpty(value),
   },
   uuid: {
     minArity: 0,
     maxArity: 0,
-    executor: () => async () => UUIDs.v4(),
+    executor: () => () => UUIDs.v4(),
   },
 }

@@ -23,7 +23,7 @@ interface AttributeTypeValidatorInternalParams extends AttributeTypeValidatorPar
   value: any
 }
 
-const validateDecimal = async (params: AttributeTypeValidatorInternalParams): Promise<boolean> => {
+const validateDecimal = (params: AttributeTypeValidatorInternalParams): boolean => {
   const { value } = params
   return Numbers.isFloat(value)
   // TODO validate max number of decimal digits as warning?
@@ -75,12 +75,12 @@ const validateTaxon = async (params: AttributeTypeValidatorInternalParams): Prom
 }
 
 const typeValidatorFns: {
-  [key in NodeDefType]?: (params: AttributeTypeValidatorInternalParams) => Promise<boolean>
+  [key in NodeDefType]?: (params: AttributeTypeValidatorInternalParams) => boolean | Promise<boolean>
 } = {
-  [NodeDefType.boolean]: async (params: AttributeTypeValidatorInternalParams): Promise<boolean> =>
+  [NodeDefType.boolean]: (params: AttributeTypeValidatorInternalParams): boolean =>
     ['true', 'false'].includes(params.value),
   [NodeDefType.code]: validateCode,
-  [NodeDefType.coordinate]: async (params: AttributeTypeValidatorInternalParams): Promise<boolean> => {
+  [NodeDefType.coordinate]: (params: AttributeTypeValidatorInternalParams): boolean => {
     const { survey, node } = params
 
     const point = NodeValues.getValueAsPoint({ survey, node })
@@ -91,7 +91,7 @@ const typeValidatorFns: {
     return Points.isValid(point, srsIndex)
   },
 
-  [NodeDefType.date]: async (params: AttributeTypeValidatorInternalParams): Promise<boolean> => {
+  [NodeDefType.date]: (params: AttributeTypeValidatorInternalParams): boolean => {
     const { node } = params
     const [year, month, day] = [
       NodeValues.getDateYear(node),
@@ -103,19 +103,19 @@ const typeValidatorFns: {
 
   [NodeDefType.decimal]: validateDecimal,
 
-  [NodeDefType.integer]: async (params: AttributeTypeValidatorInternalParams): Promise<boolean> => {
+  [NodeDefType.integer]: (params: AttributeTypeValidatorInternalParams): boolean => {
     const { value } = params
     return Numbers.isInteger(value)
   },
 
   [NodeDefType.taxon]: validateTaxon,
 
-  [NodeDefType.text]: async (params: AttributeTypeValidatorInternalParams): Promise<boolean> => {
+  [NodeDefType.text]: (params: AttributeTypeValidatorInternalParams): boolean => {
     const { value } = params
     return typeof value === 'string'
   },
 
-  [NodeDefType.time]: async (params: AttributeTypeValidatorInternalParams): Promise<boolean> => {
+  [NodeDefType.time]: (params: AttributeTypeValidatorInternalParams): boolean => {
     const { node } = params
     const [hour, minute, seconds] = [
       NodeValues.getTimeHour(node),
