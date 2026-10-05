@@ -60,21 +60,23 @@ const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeD
 
 const validateAttributeKey =
   (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  async (_propName: string, node: Node): Promise<ValidationResult> => {
+  (_propName: string, node: Node): Promise<ValidationResult> => {
     const { survey, nodeDef, record } = params
 
     if (isNodeDefToBeValidated({ survey, nodeDef })) {
       const entity = Records.getParent(node)(record)
       if (entity && _isEntityDuplicate({ survey, record, entity })) {
-        return ValidationResultFactory.createInstance({
-          valid: false,
-          severity: ValidationSeverity.error,
-          key: 'record.entity.keyDuplicate',
-        })
+        return Promise.resolve(
+          ValidationResultFactory.createInstance({
+            valid: false,
+            severity: ValidationSeverity.error,
+            key: 'record.entity.keyDuplicate',
+          })
+        )
       }
     }
 
-    return ValidationResultFactory.createInstance()
+    return Promise.resolve(ValidationResultFactory.createInstance())
   }
 
 export const AttributeKeyValidator = {

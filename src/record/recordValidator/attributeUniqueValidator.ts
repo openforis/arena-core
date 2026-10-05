@@ -32,18 +32,20 @@ const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeD
 
 export const validateAttributeUnique =
   (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  async (_propName: string, node: Node): Promise<ValidationResult> => {
+  (_propName: string, node: Node): Promise<ValidationResult> => {
     const { survey, record, nodeDef } = params
 
     if (isNodeDefToBeValidated({ survey, nodeDef }) && _isAttributeDuplicate({ record, attribute: node, nodeDef })) {
-      return ValidationResultFactory.createInstance({
-        valid: false,
-        severity: ValidationSeverity.error,
-        key: 'record.attribute.uniqueDuplicate',
-      })
+      return Promise.resolve(
+        ValidationResultFactory.createInstance({
+          valid: false,
+          severity: ValidationSeverity.error,
+          key: 'record.attribute.uniqueDuplicate',
+        })
+      )
     }
 
-    return ValidationResultFactory.createInstance()
+    return Promise.resolve(ValidationResultFactory.createInstance())
   }
 
 export const AttributeUniqueValidator = {

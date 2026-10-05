@@ -84,14 +84,8 @@ export const updateSelfAndDependentsBoolean = async ({
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
     const valuePrev = getValuePrev(nodeCtx, nodeDefUuid)
-    const value = await calculateBooleanValueNext({
-      params,
-      updateResult,
-      nodePointer,
-      nodeCtx,
-      getExpressions,
-      getValuePrev,
-    })
+    const calculateParams = { params, updateResult, nodePointer, nodeCtx, getExpressions, getValuePrev }
+    const value = await calculateBooleanValueNext(calculateParams) // NOSONAR
 
     if (value === undefined || valuePrev === value) {
       continue

@@ -31,7 +31,7 @@ const sampleGeoJsonPolygon = {
 
 const isNotValidString = (value: string): boolean => Objects.isEmpty(value) || typeof value !== 'string'
 
-const emptyExecutor = (_context: NodeDefExpressionContext) => async () => null
+const emptyExecutor = (_context: NodeDefExpressionContext) => () => null
 
 const isUsingDraftProps = (context: NodeDefExpressionContext) => {
   // use draft props when validating expression or previewing record
@@ -78,7 +78,7 @@ const getOrFetchTaxon = async (params: {
 
 const geoDistanceExecutor =
   (context: NodeDefExpressionContext) =>
-  async (coordinateFrom: Point | string, coordinateTo: Point | string): Promise<number | null> => {
+  (coordinateFrom: Point | string, coordinateTo: Point | string): number | null => {
     const { survey } = context
     const srsIndex = getSRSIndex(survey)
 
@@ -118,7 +118,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 1,
     executor:
       (_context: NodeDefExpressionContext) =>
-      async (_nodeSet): Promise<any> =>
+      (_nodeSet): number =>
         1,
   },
   dateTimeDiff: {
@@ -126,7 +126,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 4,
     executor:
       (_context: NodeDefExpressionContext) =>
-      async (date1: string, time1: string, date2: string, time2: string): Promise<number | null> => {
+      (date1: string, time1: string, date2: string, time2: string): number | null => {
         if (isNotValidString(date1) || isNotValidString(time1) || isNotValidString(date2) || isNotValidString(time2))
           return null
         const [hours1, minutes1] = time1.split(':')
@@ -151,7 +151,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 3,
     executor:
       (context: NodeDefExpressionContext) =>
-      async (coordinate: Point | string, distanceMeters: number, bearingDeg: number): Promise<Point | null> => {
+      (coordinate: Point | string, distanceMeters: number, bearingDeg: number): Point | null => {
         // validate parameters
         const origin = Points.parse(coordinate)
         if (!origin) return null
@@ -177,7 +177,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
   geoPolygon: {
     minArity: 1,
     evaluateArgsToNodes: true,
-    executor: () => async () => sampleGeoJsonPolygon,
+    executor: () => () => sampleGeoJsonPolygon,
   },
   includes: {
     minArity: 2,
@@ -185,14 +185,14 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     evaluateArgsToNodes: false,
     executor:
       () =>
-      async (items: any, value: any): Promise<boolean> =>
+      (items: any, value: any): boolean =>
         Array.isArray(items) && items.map(String).includes(String(value)),
   },
   index: {
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: () => async () => -1,
+    executor: () => () => -1,
   },
   last: {
     minArity: 1,
@@ -204,7 +204,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 0,
     maxArity: 0,
     evaluateToNode: false,
-    executor: () => async () => Dates.nowFormattedForStorage(),
+    executor: () => () => Dates.nowFormattedForStorage(),
   },
   numberToWords: {
     minArity: 1,
@@ -212,7 +212,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     evaluateArgsToNodes: false,
     executor:
       (context: NodeDefExpressionContext) =>
-      async (value: any): Promise<string | null> => {
+      (value: any): string | null => {
         if (Objects.isEmpty(value)) return null
         return Numbers.toWords(value, context.lang)
       },
@@ -222,7 +222,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 1,
     evaluateArgsToNodes: true,
     evaluateToNode: true,
-    executor: (context: NodeDefExpressionContext) => async (nodeDef) => {
+    executor: (context: NodeDefExpressionContext) => (nodeDef) => {
       const { survey } = context
       return getNodeDefParent({ survey, nodeDef })
     },
@@ -271,7 +271,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: NodeDefExpressionContext) => async (_nodeSet) => 1,
+    executor: (_context: NodeDefExpressionContext) => (_nodeSet) => 1,
   },
   taxonProp: {
     minArity: 3,
@@ -327,27 +327,27 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     minArity: 1,
     maxArity: 1,
     evaluateArgsToNodes: true,
-    executor: (_context: NodeDefExpressionContext) => async (_nodeSet) => [],
+    executor: (_context: NodeDefExpressionContext) => (_nodeSet) => [],
   },
   userEmail: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: NodeDefExpressionContext) => async () => context.user?.email,
+    executor: (context: NodeDefExpressionContext) => () => context.user?.email,
   },
   userIsRecordOwner: {
     minArity: 0,
     maxArity: 0,
-    executor: (_context: NodeDefExpressionContext) => async () => false,
+    executor: (_context: NodeDefExpressionContext) => () => false,
   },
   userName: {
     minArity: 0,
     maxArity: 0,
-    executor: (context: NodeDefExpressionContext) => async () => context.user?.name,
+    executor: (context: NodeDefExpressionContext) => () => context.user?.name,
   },
   userProp: {
     minArity: 1,
     maxArity: 1,
-    executor: (context: NodeDefExpressionContext) => async (propName: string) => {
+    executor: (context: NodeDefExpressionContext) => (propName: string) => {
       const { user, survey } = context
       if (!survey || !user) return undefined
       const { uuid: surveyUuid } = survey

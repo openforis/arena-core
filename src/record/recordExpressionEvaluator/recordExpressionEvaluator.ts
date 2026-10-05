@@ -83,14 +83,12 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
     const { nodeCtx } = params
     const applicableExpressions = await this._getApplicableExpressions(params)
 
-    const result = []
-    for (const expression of applicableExpressions) {
-      result.push({
+    return Promise.all(
+      applicableExpressions.map(async (expression) => ({
         expression,
         value: await this.evalExpression({ ...params, node: nodeCtx, query: expression.expression ?? '' }),
-      })
-    }
-    return result
+      }))
+    )
   }
 
   async evalApplicableExpression(

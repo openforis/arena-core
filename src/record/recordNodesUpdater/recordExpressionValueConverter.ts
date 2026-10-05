@@ -168,12 +168,12 @@ const _valueExprToValueNodeFns: { [key in NodeDefType]?: (params: ToNodeValuePar
   },
 }
 
-const toNodeValue = async (params: ToNodeValueParams): Promise<any> => {
+const toNodeValue = (params: ToNodeValueParams): Promise<any> => {
   const { nodeDef, valueExpr } = params
-  if (Objects.isEmpty(valueExpr)) return null
+  if (Objects.isEmpty(valueExpr)) return Promise.resolve(null)
 
   const fn = _valueExprToValueNodeFns[NodeDefs.getType(nodeDef)]
-  return fn?.(params)
+  return Promise.resolve(fn?.(params))
 }
 
 export const RecordExpressionValueConverter = {

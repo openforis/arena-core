@@ -12,11 +12,7 @@ import { createEnumeratedEntityNode } from './recordNodesCreator'
 import { deleteNodes } from './recordNodesDeleter'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-const getEnumeratingItemsNodePointers = (params: {
-  survey: Survey
-  record: Record
-  node: Node
-}): NodePointer[] => {
+const getEnumeratingItemsNodePointers = (params: { survey: Survey; record: Record; node: Node }): NodePointer[] => {
   const { survey, record, node } = params
   const nodePointers = Records.getDependentNodePointers({
     survey,
@@ -119,7 +115,7 @@ export const syncEnumeratingItemsEntities = async (
 
   for (const categoryItem of categoryItems) {
     if (!existingItemUuids.has(categoryItem.uuid)) {
-      await createEnumeratedEntityNode({
+      const createParams = {
         user,
         survey,
         parentNode,
@@ -128,7 +124,9 @@ export const syncEnumeratingItemsEntities = async (
         categoryItem,
         updateResult,
         sideEffect,
-      })
+      }
+      // create entities sequentially: every iteration updates the record
+      await createEnumeratedEntityNode(createParams) // NOSONAR
     }
   }
 }
@@ -150,7 +148,8 @@ export const updateDependentEnumeratingItemsEntities = async (
     if (!NodeDefs.isEnumerate(entityDef)) continue
     if (!NodeDefs.getEnumeratingItemsExpression(entityDef)) continue
 
-    await syncEnumeratingItemsEntities({ ...params, parentNode, entityDef, updateResult })
+    // sequential: each iteration updates the record
+    await syncEnumeratingItemsEntities({ ...params, parentNode, entityDef, updateResult }) // NOSONAR
   }
 
   return updateResult

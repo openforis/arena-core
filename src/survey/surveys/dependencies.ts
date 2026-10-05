@@ -155,14 +155,13 @@ const addDependencies = async (params: {
     return referencedNodeDefsByUuid
   }
 
-  const referencedNodeDefs: Dictionary<NodeDef<any>> = {}
-  for (const nodeDefExpr of expressions) {
-    Object.assign(
-      referencedNodeDefs,
-      await findReferencedNodeDefs(nodeDefExpr.expression),
-      await findReferencedNodeDefs(nodeDefExpr.applyIf)
-    )
-  }
+  const referencedNodeDefsArray = await Promise.all(
+    expressions.flatMap((nodeDefExpr) => [
+      findReferencedNodeDefs(nodeDefExpr.expression),
+      findReferencedNodeDefs(nodeDefExpr.applyIf),
+    ])
+  )
+  const referencedNodeDefs: Dictionary<NodeDef<any>> = Object.assign({}, ...referencedNodeDefsArray)
 
   for (const nodeDefRef of Object.values(referencedNodeDefs)) {
     graphsUpdated = addDependency({
@@ -311,7 +310,8 @@ export const buildAndAssocDependencyGraph = async (survey: Survey): Promise<Surv
   // add dependencies for every node def
   let surveyUpdated = survey
   for (const nodeDef of SurveyNodeDefs.getNodeDefsArray(survey)) {
-    surveyUpdated = await addNodeDefDependencies({ nodeDef, survey: surveyUpdated, sideEffect })
+    // sequential: each iteration updates the survey
+    surveyUpdated = await addNodeDefDependencies({ nodeDef, survey: surveyUpdated, sideEffect }) // NOSONAR
   }
   return surveyUpdated
 }

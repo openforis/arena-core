@@ -330,8 +330,8 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
    * Determines whether the job should actually run.
    * When it returns false, "execute" (or the inner jobs) will be skipped, but the job will still succeed.
    */
-  protected async shouldExecute(): Promise<boolean> {
-    return true
+  protected shouldExecute(): Promise<boolean> {
+    return Promise.resolve(true)
   }
 
   protected incrementProcessedItems(incrementBy = 1): void {
@@ -402,8 +402,8 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
    * Default implementation returns whatever is already in `this.result`
    * (e.g. accumulated via earlier setResult() calls during execute()).
    */
-  protected async generateResult(): Promise<R | undefined> {
-    return this.result
+  protected generateResult(): Promise<R | undefined> {
+    return Promise.resolve(this.result)
   }
 
   /**
