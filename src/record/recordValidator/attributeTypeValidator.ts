@@ -25,11 +25,8 @@ interface AttributeTypeValidatorInternalParams extends AttributeTypeValidatorPar
 
 const validateDecimal = (params: AttributeTypeValidatorInternalParams): boolean => {
   const { value } = params
+  // the max number of decimal digits is not validated: it is applied when formatting the value (see nodeValueFormatter)
   return Numbers.isFloat(value)
-  // TODO validate max number of decimal digits as warning?
-  // const maxNumberDecimalDigits = NodeDef.getMaxNumberDecimalDigits(nodeDef)
-  // const numberDecimalDigits = (Number(value).toString().split('.')[1] || '').length
-  // return numberDecimalDigits <= maxNumberDecimalDigits
 }
 
 const validateCode = async (params: AttributeTypeValidatorInternalParams) => {

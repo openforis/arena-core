@@ -24,7 +24,7 @@ jobs:
           enforce_admins: 'false'
           branch: ${{ github.ref_name }}
       - name: 'Automated Version Bump'
-        uses: 'phips28/gh-action-bump-version@master'
+        uses: phips28/gh-action-bump-version@63bc5b97aade4390bf3f33416b8adb891a0f28d7 # v12.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         with:

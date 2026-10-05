@@ -433,9 +433,10 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
    * Called when the job status changes to success, failed or canceled
    * (it runs OUTSIDE of the current db transaction)
    */
-  protected async onEnd(): Promise<void> {
+  protected onEnd(): Promise<void> {
     this.endTime = new Date()
     this.cancelNotifyProgress()
+    return Promise.resolve()
   }
 
   protected addError(error: any, errorKey?: string): void {
