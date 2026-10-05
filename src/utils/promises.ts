@@ -17,7 +17,8 @@ const handleGeneratorNext =
  *
  * A useful application is when an array of promises must be resolved in order.
  */
-const resolveGenerator = handleGeneratorNext([])
+const resolveGenerator = <T>(generator: Iterator<Promise<T>, any>): Promise<any> =>
+  handleGeneratorNext<T>([])(generator) // use a new results array at every call
 
 /**
  * Given an Iterable, iterates serially over all the values in it, executing the given callback on each element.
