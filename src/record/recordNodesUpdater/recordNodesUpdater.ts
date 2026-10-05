@@ -25,6 +25,24 @@ import { RecordUpdateResult } from './recordUpdateResult'
  */
 const MAX_DEPENDENTS_VISITING_TIMES = 2
 
+type RecordNodeDependentsUpdater = (params: RecordNodeDependentsUpdateParams) => Promise<RecordUpdateResult>
+
+/**
+ * Updaters applied (in this order) to every visited node and to its dependents.
+ */
+const dependentsUpdaters: RecordNodeDependentsUpdater[] = [
+  (params) => updateDependentsCount({ ...params, countType: NodeDefCountType.min }),
+  (params) => updateDependentsCount({ ...params, countType: NodeDefCountType.max }),
+  updateSelfAndDependentsApplicable,
+  updateSelfAndDependentsDefaultValues,
+  updateSelfAndDependentsEditable,
+  updateSelfAndDependentsVisible,
+  updateDependentCodeAttributes,
+  updateDependentEnumeratedEntities,
+  updateDependentEnumeratingItemsEntities,
+  updateSelfAndDependentsFileNames,
+]
+
 export const updateNodesDependents = async (
   params: NodesUpdateParams & { nodes: Dictionary<Node> }
 ): Promise<RecordUpdateResult> => {
@@ -62,66 +80,12 @@ export const updateNodesDependents = async (
     const visitedCount = visitedCountByUuid[nodeUuid] ?? 0
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
-      // min count
-      const minCountUpdateResult = await updateDependentsCount({
-        ...createNodeUpdateParams(node),
-        countType: NodeDefCountType.min,
-      })
-      updateResult.merge(minCountUpdateResult)
-
-      // max count
-      const maxCountUpdateResult = await updateDependentsCount({
-        ...createNodeUpdateParams(node),
-        countType: NodeDefCountType.max,
-      })
-      updateResult.merge(maxCountUpdateResult)
-
-      // applicability
-      const applicabilityUpdateResult = await updateSelfAndDependentsApplicable(createNodeUpdateParams(node))
-      updateResult.merge(applicabilityUpdateResult)
-
-      // default values
-      const defaultValuesUpdateResult = await updateSelfAndDependentsDefaultValues(createNodeUpdateParams(node))
-      updateResult.merge(defaultValuesUpdateResult)
-
-      // editable when
-      const editableUpdateResult = await updateSelfAndDependentsEditable(createNodeUpdateParams(node))
-      updateResult.merge(editableUpdateResult)
-
-      // visible when
-      const visibleUpdateResult = await updateSelfAndDependentsVisible(createNodeUpdateParams(node))
-      updateResult.merge(visibleUpdateResult)
-
-      // code attributes
-      const dependentCodeAttributesUpdateResult = await updateDependentCodeAttributes(createNodeUpdateParams(node))
-      updateResult.merge(dependentCodeAttributesUpdateResult)
-
-      // enumerated entities
-      const dependentEnumeratedEntitiesUpdateResult = await updateDependentEnumeratedEntities(
-        createNodeUpdateParams(node)
-      )
-      updateResult.merge(dependentEnumeratedEntitiesUpdateResult)
-
-      const dependentEnumeratingItemsUpdateResult = await updateDependentEnumeratingItemsEntities(
-        createNodeUpdateParams(node)
-      )
-      updateResult.merge(dependentEnumeratingItemsUpdateResult)
-
-      // Update dependents (file names)
-      const dependentFileNamesUpdateResult = await updateSelfAndDependentsFileNames(createNodeUpdateParams(node))
-      updateResult.merge(dependentFileNamesUpdateResult)
-
-      const nodesUpdatedCurrent: Dictionary<Node> = {
-        ...minCountUpdateResult.nodes,
-        ...maxCountUpdateResult.nodes,
-        ...applicabilityUpdateResult.nodes,
-        ...defaultValuesUpdateResult.nodes,
-        ...editableUpdateResult.nodes,
-        ...visibleUpdateResult.nodes,
-        ...dependentCodeAttributesUpdateResult.nodes,
-        ...dependentEnumeratedEntitiesUpdateResult.nodes,
-        ...dependentEnumeratingItemsUpdateResult.nodes,
-        ...dependentFileNamesUpdateResult.nodes,
+      const nodesUpdatedCurrent: Dictionary<Node> = {}
+      for (const dependentsUpdater of dependentsUpdaters) {
+        // updaters must run sequentially: each one works on the record updated by the previous ones
+        const dependentsUpdateResult = await dependentsUpdater(createNodeUpdateParams(node)) // NOSONAR
+        updateResult.merge(dependentsUpdateResult)
+        Object.assign(nodesUpdatedCurrent, dependentsUpdateResult.nodes)
       }
 
       // Mark updated nodes to visit

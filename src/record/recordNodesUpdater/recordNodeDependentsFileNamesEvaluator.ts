@@ -82,7 +82,8 @@ const updateFileNamesInNodes = async (params: {
 
   for (const node of nodes) {
     if (!Nodes.isValueBlank(node)) {
-      await updateFileNameInNode({ user, survey, updateResult, sideEffect, nodeDef: nodeDef as NodeDefFile, node })
+      // sequential: each iteration updates the record
+      await updateFileNameInNode({ user, survey, updateResult, sideEffect, nodeDef: nodeDef as NodeDefFile, node }) // NOSONAR
     }
   }
 }
@@ -106,7 +107,8 @@ export const updateSelfAndDependentsFileNames = async (
 
   // 2. update expr to node and dependent nodes
   for (const nodePointer of nodePointersToUpdate) {
-    await updateFileNamesInNodes({ user, survey, nodePointer, updateResult, sideEffect })
+    // sequential: each iteration updates the record
+    await updateFileNamesInNodes({ user, survey, nodePointer, updateResult, sideEffect }) // NOSONAR
   }
   return updateResult
 }

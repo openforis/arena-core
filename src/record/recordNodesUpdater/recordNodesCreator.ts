@@ -104,7 +104,8 @@ export const createEnumeratedEntityNodes = async (params: {
   if (categoryItems.length === 0) return false
 
   for (const categoryItem of categoryItems) {
-    await createEnumeratedEntityNode({ ...params, enumeratorDef, categoryItem })
+    // sequential: each iteration updates the record
+    await createEnumeratedEntityNode({ ...params, enumeratorDef, categoryItem }) // NOSONAR
   }
   return true
 }
@@ -129,7 +130,8 @@ const createChildNodesBasedOnMinCount = async (
     return // do nothing
   }
   for (let index = 0; index < nodesToInsertCount; index++) {
-    const childUpdateResult = await createNodeAndDescendants({ ...params, record: updateResult.record })
+    // sequential: each iteration updates the record
+    const childUpdateResult = await createNodeAndDescendants({ ...params, record: updateResult.record }) // NOSONAR
     updateResult.merge(childUpdateResult)
   }
 }
@@ -144,7 +146,8 @@ export const createDescendants = async (params: NodeCreateParams): Promise<Recor
 
     // Add only child single nodes (it allows to apply default values)
     for (const childDef of childDefs) {
-      await createChildNodesBasedOnMinCount({ ...params, updateResult, nodeDef: childDef })
+      // sequential: each iteration updates the record
+      await createChildNodesBasedOnMinCount({ ...params, updateResult, nodeDef: childDef }) // NOSONAR
     }
   }
   return updateResult

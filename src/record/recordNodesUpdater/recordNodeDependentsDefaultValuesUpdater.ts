@@ -184,7 +184,8 @@ export const updateSelfAndDependentsDefaultValues = async (
 
   // 2. update expr to node and dependent nodes
   for (const nodePointer of nodePointersToUpdate) {
-    await updateDefaultValuesInNodes({ ...params, nodePointer, updateResult, sideEffect })
+    // sequential: each iteration updates the record
+    await updateDefaultValuesInNodes({ ...params, nodePointer, updateResult, sideEffect }) // NOSONAR
   }
   return updateResult
 }

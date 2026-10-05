@@ -68,14 +68,16 @@ export const updateDependentCodeAttributes = async (params: RecordNodeDependents
     }) as NodeDefCode
     if (NodeDefs.isReadOnly(dependentCodeAttributeDef) || !Nodes.hasUserInputValue(dependentCodeAttribute)) continue
 
-    const stillValid = await isDependentCodeAttributeValueStillValid({
+    const validityCheckParams = {
       survey,
       parentItemUuid,
       dependentCodeAttribute,
       dependentCodeAttributeDef,
       record,
       categoryItemProvider,
-    })
+    }
+    // check attributes sequentially: invalid values are cleared in the record at every iteration
+    const stillValid = await isDependentCodeAttributeValueStillValid(validityCheckParams) // NOSONAR
     if (stillValid) continue
 
     const nodeUpdated: Node = {

@@ -270,7 +270,8 @@ const validateSelfAndDependentSortedAttributes = async (
     const nodeUuid = nodeToValidate.uuid
     // Validate only attributes not deleted and not validated already
     if (!nodeToValidate.deleted && !validationsByNodeUuid[nodeUuid]) {
-      validationsByNodeUuid[nodeUuid] = await validateAttribute({ ...params, attribute: nodeToValidate })
+      // sequential: avoid concurrent item/taxon lookups on large node sets
+      validationsByNodeUuid[nodeUuid] = await validateAttribute({ ...params, attribute: nodeToValidate }) // NOSONAR
     }
   }
   return validationsByNodeUuid

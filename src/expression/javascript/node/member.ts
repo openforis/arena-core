@@ -20,13 +20,10 @@ export class MemberEvaluator<C extends ExpressionContext> extends ExpressionNode
 
       const filtered = []
       for (const objectEvalItem of objectEval) {
-        if (
-          await this.evaluator.evaluateNode(property, {
-            ...this.context,
-            object: objectEvalItem,
-            evaluateToNode: false,
-          })
-        ) {
+        const itemContext = { ...this.context, object: objectEvalItem, evaluateToNode: false }
+        // evaluate items sequentially, to avoid concurrent category item / taxon lookups on large node sets
+        const itemMatches = await this.evaluator.evaluateNode(property, itemContext) // NOSONAR
+        if (itemMatches) {
           filtered.push(objectEvalItem)
         }
       }

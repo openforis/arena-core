@@ -131,12 +131,9 @@ const createMissingApplicableMultipleEntities = async ({
   const missingCount = Math.max(0, minCount - existingChildren.length)
 
   for (let index = 0; index < missingCount; index++) {
-    const childUpdateResult = await createNodeAndDescendants({
-      ...params,
-      record: updateResult.record,
-      parentNode,
-      nodeDef,
-    })
+    const createParams = { ...params, record: updateResult.record, parentNode, nodeDef }
+    // create nodes sequentially: every iteration works on the record updated by the previous one
+    const childUpdateResult = await createNodeAndDescendants(createParams) // NOSONAR
     updateResult.merge(childUpdateResult)
   }
 }
@@ -238,7 +235,7 @@ export const updateSelfAndDependentsApplicable = async (
   // 2. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
   for (const nodePointer of nodePointersToUpdate) {
-    await updateNodePointerApplicability({ params, updateResult, nodePointer, recordUpdateOptions })
+    await updateNodePointerApplicability({ params, updateResult, nodePointer, recordUpdateOptions }) // NOSONAR
   }
   return updateResult
 }

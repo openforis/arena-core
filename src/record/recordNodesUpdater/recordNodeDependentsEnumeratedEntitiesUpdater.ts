@@ -114,7 +114,8 @@ export const updateDependentEnumeratedEntities = async (
 
   // 2. update enumerated entities
   for (const entityDef of dependentEnumeratedEntityDefs) {
-    await createOrDeleteEnumeratedEntities({ ...params, entityDef, parentNode: ancestorMultipleEntity, updateResult })
+    // sequential: each iteration updates the record
+    await createOrDeleteEnumeratedEntities({ ...params, entityDef, parentNode: ancestorMultipleEntity, updateResult }) // NOSONAR
   }
   return updateResult
 }
