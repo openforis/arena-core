@@ -82,18 +82,27 @@ const updateDescendantsApplicability = ({
 }): void => {
   const { survey, sideEffect = false, clearNonApplicableValues = false } = params
 
+  // only values entered by the user are reported as cleared (they need a confirmation)
+  let userValuesCleared = false
+
   Records.visitDescendantsAndSelf({
     record: updateResult.record,
     node: nodeCtxChild,
     visitor: (nodeDescendant): boolean => {
       const nodeDescendantCleared = clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
+      // values set by expressions (default values, read only attributes) are applied again when applicable: not reported
+      // (evaluated before clearing the value: with sideEffect the node is modified in place)
+      const nodeDescendantDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDescendant.nodeDefUuid })
+      const userValueCleared =
+        nodeDescendantCleared && !NodeDefs.isReadOnly(nodeDescendantDef) && Nodes.hasUserInputValue(nodeDescendant)
       // Clear value if becoming non-applicable and parameter is enabled
       const nodeDescendantUpdated = nodeDescendantCleared
         ? Nodes.assocValue(nodeDescendant, null, sideEffect)
         : nodeDescendant
       updateResult.addNode(nodeDescendantUpdated, recordUpdateOptions)
-      if (nodeDescendantCleared) {
+      if (userValueCleared) {
         updateResult.addClearedDefUuid(nodeDescendant.nodeDefUuid)
+        userValuesCleared = true
       }
       return false
     },
@@ -106,7 +115,9 @@ const updateDescendantsApplicability = ({
     if (NodeDefs.isMultipleEntity(nodeCtxChildDef) && Records.isNodeEmpty(nodeCtxChild)(updateResult.record)) {
       const deleteResult = deleteNodes([nodeCtxChildUuid], recordUpdateOptions)(updateResult.record)
       updateResult.merge(deleteResult)
-      updateResult.addClearedDefUuid(nodeCtxChildDefUuid)
+      if (userValuesCleared) {
+        updateResult.addClearedDefUuid(nodeCtxChildDefUuid)
+      }
     }
   }
 }
