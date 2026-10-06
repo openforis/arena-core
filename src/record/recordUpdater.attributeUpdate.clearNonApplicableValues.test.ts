@@ -36,8 +36,9 @@ const updateValue = async (params: {
   path: string
   value: any
   clearNonApplicableValues?: boolean
+  sideEffect?: boolean
 }) => {
-  const { survey, record, path, value, clearNonApplicableValues = true } = params
+  const { survey, record, path, value, clearNonApplicableValues = true, sideEffect = false } = params
   const node = TestUtils.getNodeByPath({ survey, record, path })
   return RecordUpdater.updateAttributeValue({
     user,
@@ -46,6 +47,7 @@ const updateValue = async (params: {
     attributeUuid: node.uuid,
     value,
     clearNonApplicableValues,
+    sideEffect,
   })
 }
 
@@ -98,18 +100,27 @@ describe('RecordUpdater: clear values of attributes becoming non-applicable', ()
     expect(getClearedDefNames(survey, clearedDefUuids)).toEqual([])
   })
 
-  test('values entered by the user are reported as cleared', async () => {
-    const survey = await createSurvey()
-    let record = await createRecord(survey, { userEnteredValue: 7 })
-    record = (await updateValue({ survey, record, path: 'mult_entity[0].mult_entity_attr', value: 8 })).record
+  test.each([false, true])(
+    'values entered by the user are reported as cleared (sideEffect: %s)',
+    async (sideEffect) => {
+      const survey = await createSurvey()
+      let record = await createRecord(survey, { userEnteredValue: 7 })
+      record = (await updateValue({ survey, record, path: 'mult_entity[0].mult_entity_attr', value: 8 })).record
 
-    const { record: recordUpdated, clearedDefUuids } = await updateValue({ survey, record, path: 'source', value: 5 })
+      const { record: recordUpdated, clearedDefUuids } = await updateValue({
+        survey,
+        record,
+        path: 'source',
+        value: 5,
+        sideEffect,
+      })
 
-    expect(getValue(survey, recordUpdated, 'user_entered')).toBeNull()
-    expect(getValue(survey, recordUpdated, 'with_default')).toBeNull()
-    expect(TestUtils.findNodeByPath({ survey, record: recordUpdated, path: 'mult_entity[0]' })).toBeUndefined()
-    expect(getClearedDefNames(survey, clearedDefUuids)).toEqual(['mult_entity', 'mult_entity_attr', 'user_entered'])
-  })
+      expect(getValue(survey, recordUpdated, 'user_entered')).toBeNull()
+      expect(getValue(survey, recordUpdated, 'with_default')).toBeNull()
+      expect(TestUtils.findNodeByPath({ survey, record: recordUpdated, path: 'mult_entity[0]' })).toBeUndefined()
+      expect(getClearedDefNames(survey, clearedDefUuids)).toEqual(['mult_entity', 'mult_entity_attr', 'user_entered'])
+    }
+  )
 
   test('default values are applied again when the attributes become applicable again', async () => {
     const survey = await createSurvey()
