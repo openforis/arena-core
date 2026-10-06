@@ -61,6 +61,8 @@ export const getCycleKeys = (survey: Survey): string[] => {
 
 export const getLastCycleKey = (survey: Survey): string => Arrays.last(getCycleKeys(survey)) as string
 
+export const isKeepNonApplicableValues = (survey: Survey): boolean => survey?.props?.keepNonApplicableValues === true
+
 export const getDefaultCycleKey = (survey: Survey) => {
   const defaultCycleKey = survey.props?.defaultCycleKey
   const lastCycleKey = getLastCycleKey(survey)
