@@ -111,6 +111,8 @@ export interface SurveyProps {
   defaultCycleKey?: string
   descriptions?: Labels
   fieldManualLinks?: Labels
+  // when true, values of attributes becoming non-applicable are kept during data entry (default: cleared)
+  keepNonApplicableValues?: boolean
   labels?: Labels
   languages: LanguageCode[]
   name: string
