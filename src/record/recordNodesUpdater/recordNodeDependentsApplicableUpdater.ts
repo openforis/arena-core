@@ -67,12 +67,6 @@ const calculateApplicableNext = async ({
   }
 }
 
-// values set by default value expressions are re-applied when the node becomes applicable again: they can be cleared silently
-const isValueEnteredByUser = ({ survey, node }: { survey: Survey; node: Node }): boolean => {
-  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
-  return !Nodes.isDefaultValueApplied(node) && !NodeDefs.isReadOnly(nodeDef)
-}
-
 const updateDescendantsApplicability = ({
   updateResult,
   nodeCtxChild,
@@ -101,7 +95,9 @@ const updateDescendantsApplicability = ({
         ? Nodes.assocValue(nodeDescendant, null, sideEffect)
         : nodeDescendant
       updateResult.addNode(nodeDescendantUpdated, recordUpdateOptions)
-      if (nodeDescendantCleared && isValueEnteredByUser({ survey, node: nodeDescendant })) {
+      // values set by expressions (default values, read only attributes) are applied again when applicable: not reported
+      const nodeDescendantDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDescendant.nodeDefUuid })
+      if (nodeDescendantCleared && !NodeDefs.isReadOnly(nodeDescendantDef) && Nodes.hasUserInputValue(nodeDescendant)) {
         updateResult.addClearedDefUuid(nodeDescendant.nodeDefUuid)
         userValuesCleared = true
       }
