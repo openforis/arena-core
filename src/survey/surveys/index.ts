@@ -76,6 +76,7 @@ import {
   getTaxonomyByUuid,
   getAuthGroups,
   getAuthGroupAdmin,
+  isKeepNonApplicableValues,
 } from './surveysGetters'
 
 import {
@@ -111,6 +112,7 @@ export const Surveys = {
   getTaxonomyByUuid,
   getAuthGroups,
   getAuthGroupAdmin,
+  isKeepNonApplicableValues,
 
   findNodeDefByName,
   findNodeDefByUuid,
