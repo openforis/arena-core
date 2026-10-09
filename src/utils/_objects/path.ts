@@ -16,7 +16,7 @@ export const path =
     for (; i < parts.length; i++) {
       const part = parts[i]
       // stop when a value along the path is missing (undefined) or null
-      if (current === null || current === undefined || current[part] === undefined) {
+      if (current?.[part] === undefined) {
         return undefined
       }
       current = current[part]
