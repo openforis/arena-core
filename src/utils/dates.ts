@@ -1,5 +1,10 @@
-import moment from 'moment'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+import utc from 'dayjs/plugin/utc'
 import { Objects } from './_objects'
+
+dayjs.extend(customParseFormat)
+dayjs.extend(utc)
 
 export enum DateFormats {
   dateDisplay = 'DD/MM/YYYY',
@@ -23,7 +28,7 @@ export enum UnitOfTime {
 
 type DateType = Date | number | string
 
-const format = (date: number | Date | undefined, format: string): string => (date ? moment(date).format(format) : '')
+const format = (date: number | Date | undefined, format: string): string => (date ? dayjs(date).format(format) : '')
 
 /**
  * Like `format`, but renders in UTC instead of the machine's local time zone.
@@ -32,7 +37,7 @@ const format = (date: number | Date | undefined, format: string): string => (dat
  * formatting with the local-time `format` above would silently re-shift them by the host's offset.
  */
 const formatUTC = (date: number | Date | undefined, format: string): string =>
-  date ? moment.utc(date).format(format) : ''
+  date ? dayjs.utc(date).format(format) : ''
 
 const formatForStorage = (date: DateType): string => new Date(date).toISOString()
 const formatForExpression = (date: DateType): string => format(new Date(date), DateFormats.datetimeDefault)
@@ -40,20 +45,38 @@ const formatForExpression = (date: DateType): string => format(new Date(date), D
 const nowFormattedForStorage = (): string => formatForStorage(new Date())
 const nowFormattedForExpression = (): string => formatForExpression(Date.now())
 
-const parseISO = (dateStr: string): Date | undefined => (dateStr ? moment(dateStr).toDate() : undefined)
+// ISO date or date time: YYYY-MM-DD[THH:mm[:ss[.SSS]]][Z|±HH:mm]
+const ISO_DATE_TIME_REGEX =
+  /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?)?(?:Z|[+-]\d{2}:?\d{2})?$/
+
+/**
+ * Parses an ISO date (or date time) string; values like 2020-02-30 are not valid (they are not moved to the next month).
+ * Date only strings and date times without offset are read as UTC.
+ */
+const parseISOStrict = (dateStr: string): Date => {
+  const match = ISO_DATE_TIME_REGEX.exec(dateStr)
+  if (!match) return new Date(Number.NaN)
+  const [, year, month, day, hours, minutes, seconds] = match
+  if (!isValidDate(year, month, day)) return new Date(Number.NaN)
+  if (hours !== undefined && !isValidTime(hours, minutes, seconds ?? 0)) return new Date(Number.NaN)
+  return dayjs.utc(dateStr).toDate()
+}
+
+const parseISO = (dateStr: string): Date | undefined => (dateStr ? dayjs(dateStr).toDate() : undefined)
 const parse = (
   dateStr: string,
   format: DateFormats,
   { keepTimeZone = true, strict = false } = {}
 ): Date | undefined => {
   if (!dateStr) return undefined
-  // ISO strings without an explicit offset (e.g. date only) are read as UTC, like the other formats parsed with parseZone
-  if (format == DateFormats.datetimeStorage) return moment.utc(dateStr, moment.ISO_8601, strict).toDate()
-  if (keepTimeZone) return moment.parseZone(dateStr, format, strict).toDate()
-  return moment(dateStr, format, strict).toDate()
+  // ISO strings without an explicit offset (e.g. date only) are read as UTC, like the other formats with keepTimeZone
+  if (format == DateFormats.datetimeStorage) return parseISOStrict(dateStr)
+  // keepTimeZone: the formats don't contain any time zone offset, so the digits are read as UTC
+  if (keepTimeZone) return dayjs.utc(dateStr, format, strict).toDate()
+  return dayjs(dateStr, format, strict).toDate()
 }
 
-const isValidDateObject = (date: Date | undefined): boolean => !!date && moment(date).isValid()
+const isValidDateObject = (date: Date | undefined): boolean => !!date && dayjs(date).isValid()
 
 const isValidDateInFormat = (dateStr: string, format: DateFormats) => {
   const parsed = parse(dateStr, format, { strict: true })
@@ -70,7 +93,7 @@ const convertDate = (params: {
   if (Objects.isEmpty(dateStr)) return undefined
 
   const dateParsed = parse(dateStr, formatFrom, { keepTimeZone })
-  if (!dateParsed || !moment(dateParsed).isValid()) {
+  if (!dateParsed || !dayjs(dateParsed).isValid()) {
     return undefined
   }
   // with keepTimeZone the parsed date encodes the source digits as if they were UTC (see parse/parseZone):
@@ -90,7 +113,7 @@ const isValidDate = (year: any, month: any, day: any): boolean => {
   const date = new Date(year, month - 1, day)
 
   return (
-    Boolean(moment(date).isValid()) &&
+    dayjs(date).isValid() &&
     date.getFullYear() === Number(year) &&
     date.getMonth() + 1 === Number(month) &&
     date.getDate() === Number(day)
@@ -115,17 +138,17 @@ const isAfter = (date: DateType, dateToCompare: DateType): boolean => {
   const _date = toDate(date)
   const _dateToCompare = toDate(dateToCompare)
   if (!_date || !_dateToCompare) return false
-  return moment(_date).isAfter(moment(_dateToCompare))
+  return dayjs(_date).isAfter(dayjs(_dateToCompare))
 }
 
 const isBefore = (date: DateType, dateToCompare: DateType): boolean => {
   const _date = toDate(date)
   const _dateToCompare = toDate(dateToCompare)
   if (!_date || !_dateToCompare) return false
-  return moment(_date).isBefore(moment(_dateToCompare))
+  return dayjs(_date).isBefore(dayjs(_dateToCompare))
 }
 
-const add = (date: DateType, value: number, unit: UnitOfTime): Date => moment(date).add(value, unit).toDate()
+const add = (date: DateType, value: number, unit: UnitOfTime): Date => dayjs(date).add(value, unit).toDate()
 const addSeconds = (date: DateType, value: number): Date => add(date, value, UnitOfTime.seconds)
 const addMinutes = (date: DateType, value: number): Date => add(date, value, UnitOfTime.minutes)
 const addHours = (date: DateType, value: number): Date => add(date, value, UnitOfTime.hours)
@@ -135,7 +158,7 @@ const addMonths = (date: DateType, value: number): Date => add(date, value, Unit
 const addYears = (date: DateType, value: number): Date => add(date, value, UnitOfTime.years)
 
 const diff = (dateA: DateType, dateB: DateType, unit: UnitOfTime, precise?: boolean): number =>
-  moment(dateA).diff(moment(dateB), unit, precise)
+  dayjs(dateA).diff(dayjs(dateB), unit, precise)
 const diffInSeconds = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.seconds)
 const diffInMinutes = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.minutes)
 const diffInHours = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.hours)
@@ -144,7 +167,7 @@ const diffInWeeks = (dateA: DateType, dateB: DateType): number => diff(dateA, da
 const diffInMonths = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.months)
 const diffInYears = (dateA: DateType, dateB: DateType): number => diff(dateA, dateB, UnitOfTime.years)
 
-const sub = (date: DateType, value: number, unit: UnitOfTime): Date => moment(date).subtract(value, unit).toDate()
+const sub = (date: DateType, value: number, unit: UnitOfTime): Date => dayjs(date).subtract(value, unit).toDate()
 const subSeconds = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.seconds)
 const subMinutes = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.minutes)
 const subHours = (date: DateType, value: number): Date => sub(date, value, UnitOfTime.hours)
