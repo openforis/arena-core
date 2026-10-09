@@ -125,4 +125,20 @@ describe('Objects', () => {
     // function
     expect(Objects.isEmpty(() => 1)).toBeFalsy()
   })
+
+  test('path: returns undefined (does not throw) when a value along the path is null', () => {
+    const obj = { a: { b: null as any }, c: 0 }
+    expect(Objects.path(['a', 'b', 'c'])(obj)).toBeUndefined()
+    expect(Objects.path('a.b')(obj)).toBeNull()
+    expect(Objects.path('c')(obj)).toBe(0)
+    expect(Objects.path('x.y')(obj)).toBeUndefined()
+  })
+
+  test('camelize: skipped keys are skipped at every level', () => {
+    const obj = { first_level: { skip_me: { inner_key: 1 }, other_key: 2 }, skip_me: { inner_key: 3 } }
+    expect(Objects.camelize(obj, { skip: ['skip_me'] })).toEqual({
+      firstLevel: { skip_me: { inner_key: 1 }, otherKey: 2 },
+      skip_me: { inner_key: 3 },
+    })
+  })
 })
