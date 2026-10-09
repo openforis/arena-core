@@ -5,9 +5,9 @@ const POINT_REGEX = /SRID=((EPSG:)?(\w+));POINT\((-?\d+(\.\d+)?) (-?\d+(\.\d+)?)
 
 /**
  * Parses a point in the format: SRID=SRS_CODE;POINT(X Y)
- * Valid examples are:
- * - SRID=EPSG:4326;POINT(12.489060, 41.882788)
- * - SRID=4326;POINT(12, 41).
+ * (X and Y separated by a space). Valid examples are:
+ * - SRID=EPSG:4326;POINT(12.489060 41.882788)
+ * - SRID=4326;POINT(12 41).
  *
  * @param {!(string | object)} value - The point to parse. It can be a string or an object.
  * @returns {Point} - The parsed Point object.

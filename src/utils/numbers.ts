@@ -71,8 +71,9 @@ const limit =
   ({ minValue = Number.NaN, maxValue = Number.NaN }) =>
   (value: number) => {
     let result = Number(value)
-    if (minValue) result = Math.max(minValue, result)
-    if (maxValue) result = Math.min(maxValue, result)
+    // NOTE: 0 is a valid bound
+    if (!Number.isNaN(minValue)) result = Math.max(minValue, result)
+    if (!Number.isNaN(maxValue)) result = Math.min(maxValue, result)
     return result
   }
 
