@@ -61,7 +61,7 @@ class NodesIndexDraft {
     for (let i = 0; i < path.length - 1; i++) {
       current = this.getWritableChild(current, path[i], true)
     }
-    current[path[path.length - 1]] = value
+    current[path.at(-1)!] = value
   }
 
   /**
@@ -75,7 +75,7 @@ class NodesIndexDraft {
       current = this.getWritableChild(current, path[i], false)
       containers.push(current)
     }
-    delete current[path[path.length - 1]]
+    delete current[path.at(-1)!]
     for (let i = path.length - 2; i >= 0; i--) {
       if (!Objects.isEmpty(containers[i + 1])) break
       delete containers[i][path[i]]
