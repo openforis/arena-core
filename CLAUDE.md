@@ -31,7 +31,7 @@ yarn format:check   # Check Prettier formatting of src/
 yarn typecheck      # Type-check sources and test files (tsconfig.test.json)
 ```
 
-PR CI (`.github/workflows/test.yml`) runs `install --immutable`, `lint`, `format:check`, `typecheck`, `build` and `test`.
+PR CI (`.github/workflows/test.yml`) runs `install --immutable`, `lint`, `format:check`, `typecheck`, `build` and `test`. The tests also run in non-UTC time zones (`test-timezones` job); locally they run in UTC unless `TZ` is set (`jest.config.ts`).
 
 **Note:** Pre-commit hooks automatically run `lint-staged`, which runs ESLint with `--fix` and Prettier on staged files.
 
@@ -172,5 +172,5 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 - Published to GitHub Packages as `@openforis/arena-core`
 - Requires GitHub authentication (see README.md)
-- Version bumps are automated via CI (.github workflows)
+- Version bumps are automated via CI: `release.yml` bumps the version and pushes a `v*` tag on every merge to master; `publish.yml`, triggered by the tag, builds, tests and publishes to GitHub Packages and npmjs (it can be re-run without bumping the version again)
 - Only `dist/**/*` files are included in the published package
