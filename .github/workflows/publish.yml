@@ -1,39 +1,27 @@
-name: Arena Core
+name: 'Publish package'
 
+# publishes the package to GitHub Packages and npmjs when a version tag is pushed (by release.yml).
+# If publishing fails, this workflow can be re-run without bumping the version again;
+# it can also be started manually on an existing v* tag (Run workflow > Use workflow from: tag).
 on:
   push:
-    branches:
-      - 'master'
-    paths-ignore:
-      - 'package.json'
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
-# never run two releases at the same time: merges close together would interleave version bumps, tags and publishing
 concurrency:
-  group: release
+  group: publish-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  publish-new-version:
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     env:
       NPM_TOKEN: ${{ secrets.ACCESS_TOKEN }}
     steps:
       - name: 'Checkout'
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
-        with:
-          token: ${{ secrets.ACCESS_TOKEN }}
-      - name: Temporarily disable "include administrators" branch protection
-        uses: ./.github/actions/toggle-branch-protection
-        with:
-          token: ${{ secrets.ACCESS_TOKEN }}
-          enforce_admins: 'false'
-          branch: ${{ github.ref_name }}
-      - name: 'Automated Version Bump'
-        uses: phips28/gh-action-bump-version@63bc5b97aade4390bf3f33416b8adb891a0f28d7 # v12.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        with:
-          tag-prefix: 'v'
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
@@ -50,6 +38,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable --mode=skip-build
       - run: yarn build
+      - run: yarn test
       - name: Publish to GitHub Packages
         run: yarn npm publish
       # npmjs: drop the GitHub-specific registry config (.npmrc scope mapping and publishConfig) before publishing
@@ -61,10 +50,3 @@ jobs:
           npm publish --registry https://registry.npmjs.org/ --access public --userconfig "$RUNNER_TEMP/npmjs.npmrc"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Enable "include administrators" branch protection
-        if: always() # Force to always run this step to ensure "include administrators" is always turned back on
-        uses: ./.github/actions/toggle-branch-protection
-        with:
-          token: ${{ secrets.ACCESS_TOKEN }}
-          enforce_admins: 'true'
-          branch: ${{ github.ref_name }}

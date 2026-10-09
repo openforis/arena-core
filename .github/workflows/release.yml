@@ -1,0 +1,45 @@
+name: 'Release: bump version'
+
+# on every merge to master: bump the package version, then commit and push it with a v* tag.
+# Publishing is done by publish.yml, triggered by the pushed tag.
+on:
+  push:
+    branches:
+      - 'master'
+    paths-ignore:
+      - 'package.json'
+
+# never run two releases at the same time: merges close together would interleave version bumps and tags
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+      - name: Temporarily disable "include administrators" branch protection
+        uses: ./.github/actions/toggle-branch-protection
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+          enforce_admins: 'false'
+          branch: ${{ github.ref_name }}
+      # NOTE: the version commit and the tag are pushed with ACCESS_TOKEN (not GITHUB_TOKEN),
+      # so the tag push triggers publish.yml
+      - name: 'Automated Version Bump'
+        uses: phips28/gh-action-bump-version@63bc5b97aade4390bf3f33416b8adb891a0f28d7 # v12.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        with:
+          tag-prefix: 'v'
+      - name: Enable "include administrators" branch protection
+        if: always() # Force to always run this step to ensure "include administrators" is always turned back on
+        uses: ./.github/actions/toggle-branch-protection
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+          enforce_admins: 'true'
+          branch: ${{ github.ref_name }}
