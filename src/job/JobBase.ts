@@ -64,6 +64,11 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   private progressThrottleTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined
   private progressThrottleLastRunTime = 0
   private _stopOnInnerJobFailure = true
+  // set as soon as cancel() is called (the canceled status is set only after beforeEnd has run)
+  private cancelRequested = false
+  private beforeEndCalled = false
+  // inner job events are handled in sequence; executeJobs waits for them before going on
+  private innerJobEventsQueue: Promise<void> = Promise.resolve()
 
   public constructor(context: C, innerJobs: JobBase<C, any>[] = []) {
     this.context = { ...context }
@@ -181,19 +186,34 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
 
   async cancel(options: { canceledByAdmin?: boolean } = {}): Promise<void> {
     const { canceledByAdmin = false } = options
+    if (this.isEnded()) return
+
+    this.cancelRequested = true
+
     const currentInnerJob = this.getCurrentInnerJob()
-    if (currentInnerJob) {
-      if (currentInnerJob.isRunning()) {
-        await currentInnerJob.cancel({ canceledByAdmin })
-      }
-    } else {
-      this.canceledByAdmin = canceledByAdmin
-      // Cleanup must happen here: executeInTransaction()'s finally block skips beforeEnd() when
-      // the job is canceled, so this is the only chance subclasses get to release the resources
-      // (temp files/directories, streams) they allocated before the cancellation.
-      await this.beforeEnd()
-      await this.setStatus(JobStatus.canceled)
+    if (currentInnerJob?.isRunning()) {
+      // the parent job status will be set to canceled when handling the canceled event of the inner job
+      await currentInnerJob.cancel({ canceledByAdmin })
+      return
     }
+    // no inner job running (job without inner jobs, or between two inner jobs)
+    this.canceledByAdmin = canceledByAdmin
+    // release the resources (temp files/directories, streams) allocated before the cancellation
+    await this.runBeforeEnd()
+    await this.setStatus(JobStatus.canceled)
+  }
+
+  private isCancelRequestedOrNotRunning(): boolean {
+    return this.cancelRequested || !this.isRunning()
+  }
+
+  /**
+   * Runs beforeEnd only once (it can be called by cancel() and when the job execution ends).
+   */
+  private async runBeforeEnd(): Promise<void> {
+    if (this.beforeEndCalled) return
+    this.beforeEndCalled = true
+    await this.beforeEnd()
   }
 
   async start(client: any = null): Promise<void> {
@@ -208,11 +228,11 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       } else {
         await this.executeInTransaction()
       }
-      if (this.isRunning()) {
+      if (!this.isCancelRequestedOrNotRunning()) {
         await this.setStatus(JobStatus.succeeded)
       }
     } catch (error: any) {
-      if (!this.isFailed() && (this.isRunning() || this.isSucceeded())) {
+      if (!this.cancelRequested && !this.isFailed() && (this.isRunning() || this.isSucceeded())) {
         this.logError(error.stack ?? error)
         const { key, params } = this.getErrorInfo(error)
         this.addError({ error: { valid: false, errors: [{ key, params }] } })
@@ -234,18 +254,17 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
         } else {
           await this.execute()
         }
-        if (this.isRunning()) {
+        if (!this.isCancelRequestedOrNotRunning()) {
           await this.beforeSuccess()
         }
       }
     } finally {
-      if (!this.isCanceled()) {
-        await this.beforeEnd()
-      }
+      // runs only if not already run by cancel()
+      await this.runBeforeEnd()
       this.context.tx = undefined
     }
 
-    if (!this.isRunning()) {
+    if (this.isCancelRequestedOrNotRunning()) {
       this.throwError('jobCanceledOrErrorsFound')
     }
   }
@@ -293,9 +312,12 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
         Object.assign(this.context, currentInnerJob.context)
       }
       currentInnerJob.context = this.context
-      // NOTE: the async listener is not awaited, so its rejections are unhandled (see #421, E5)
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      currentInnerJob.onEvent(this.onInnerJobEvent.bind(this))
+      currentInnerJob.onEvent((event) => {
+        // handle the inner job events in sequence; errors are logged (they would be unhandled rejections otherwise)
+        this.innerJobEventsQueue = this.innerJobEventsQueue
+          .then(() => this.onInnerJobEvent(event))
+          .catch((error) => this.logError(error?.stack ?? error))
+      })
 
       // The inner job shares this very context object, and its own start()/executeInTransaction()
       // clear `context.tx` when they terminate: without saving and restoring it here, the first
@@ -305,7 +327,12 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       const parentTx = this.context.tx
       await currentInnerJob.start(parentTx)
       this.context.tx = parentTx
+      // the inner job events (e.g. canceled, failed) update the status of this job
+      await this.innerJobEventsQueue
 
+      if (this.cancelRequested || this.isCanceled() || currentInnerJob.isCanceled()) {
+        break
+      }
       if (currentInnerJob.isSucceeded()) {
         this.incrementProcessedItems()
       } else if (this.stopOnInnerJobFailure) {
@@ -369,6 +396,8 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       return this.setStatus(status)
     }
     if (status === JobStatus.failed) {
+      // report the errors of the failed inner job in the failed event (and in the errors) of this job
+      Object.assign(this.errors, this.getCurrentInnerJob()?.errors ?? {})
       return this.setStatus(status)
     }
     if (status === JobStatus.running) {
