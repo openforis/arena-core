@@ -1,7 +1,7 @@
 export enum ValuePropsCode {
   code = 'code',
   itemUuid = 'itemUuid',
-  label = 'level',
+  label = 'label',
 }
 
 export enum ValuePropsCoordinate {

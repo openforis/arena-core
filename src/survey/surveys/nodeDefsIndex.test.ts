@@ -1,6 +1,6 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { NodeDef, NodeDefs } from '../../nodeDef'
+import { NodeDef, NodeDefFactory, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Survey } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
@@ -86,5 +86,15 @@ describe('Survey Node Definitionss index', () => {
       surveyWithoutQualifier
     )
     expect(surveyWithQualifierReAdded.nodeDefsIndex?.qualifierPresenceByUuid?.[clusterRemarksUuid]).toBe(true)
+  })
+
+  test('deleteNodeDefIndex of a node def without parent which is not the root keeps the root def uuid', () => {
+    const rootDefUuid = survey.nodeDefsIndex?.rootDefUuid
+    const temporaryDef = { ...NodeDefFactory.createInstance({ type: NodeDefType.entity, props: { name: 'temp' } }) }
+    const surveyWithTemporaryDef = addNodeDefToIndex(temporaryDef, { sideEffect: false })(survey)
+
+    const surveyUpdated = deleteNodeDefIndex(temporaryDef)(surveyWithTemporaryDef)
+
+    expect(surveyUpdated.nodeDefsIndex?.rootDefUuid).toBe(rootDefUuid)
   })
 })
