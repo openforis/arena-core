@@ -52,11 +52,7 @@ describe('RecordPagesValidationProgress', () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
       user,
-      entityDef(
-        'cluster',
-        integerDef('cluster_id').key(),
-        entityDef('plot', integerDef('plot_id').key()).multiple()
-      )
+      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
     ).build()
 
     const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
@@ -76,9 +72,9 @@ describe('RecordPagesValidationProgress', () => {
       )
     ).build()
 
-    const clusterIdNode = Records.getNodesByDefUuid(
-      Surveys.getNodeDefByName({ survey, name: 'cluster_id' }).uuid
-    )(record)[0]
+    const clusterIdNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'cluster_id' }).uuid)(
+      record
+    )[0]
     const plotIdNodes = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid)(record)
 
     // Error only on nested plot field → parent cluster stays valid; 1 of 2 pages invalid.
@@ -162,11 +158,7 @@ describe('RecordPagesValidationProgress', () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
       user,
-      entityDef(
-        'cluster',
-        integerDef('cluster_id').key(),
-        entityDef('plot', integerDef('plot_id').key()).multiple()
-      )
+      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
     ).build()
 
     const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
@@ -234,7 +226,12 @@ describe('RecordPagesValidationProgress', () => {
       fields: {
         [childrenCountKey]: ValidationFactory.createInstance({
           valid: false,
-          errors: [ValidationResultFactory.createInstance({ key: 'record.nodes.count.min', severity: ValidationSeverity.error })],
+          errors: [
+            ValidationResultFactory.createInstance({
+              key: 'record.nodes.count.min',
+              severity: ValidationSeverity.error,
+            }),
+          ],
         }),
       },
     })
@@ -253,11 +250,7 @@ describe('RecordPagesValidationProgress', () => {
       entityDef('cluster', integerDef('cluster_id').key(), fileDef('attachment').multiple())
     ).build()
 
-    const record = new RecordBuilder(
-      user,
-      survey,
-      entity('cluster', attribute('cluster_id', 10))
-    ).build()
+    const record = new RecordBuilder(user, survey, entity('cluster', attribute('cluster_id', 10))).build()
 
     const clusterNode = Records.getRoot(record)!
     const attachmentDef = Surveys.getNodeDefByName({ survey, name: 'attachment' })
@@ -316,11 +309,11 @@ describe('RecordPagesValidationProgress', () => {
     setOwnPage(plotDef, rootDef)
     setOwnPage(treeDef, plotDef)
 
-    expect(Records.getPageNodeDefs({ survey, cycle }).map((d) => d.props.name).sort()).toEqual([
-      'cluster',
-      'plot',
-      'tree',
-    ])
+    expect(
+      Records.getPageNodeDefs({ survey, cycle })
+        .map((d) => d.props.name)
+        .sort()
+    ).toEqual(['cluster', 'plot', 'tree'])
 
     const record = new RecordBuilder(
       user,
@@ -505,11 +498,7 @@ describe('RecordPagesValidationProgress', () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
       user,
-      entityDef(
-        'cluster',
-        integerDef('cluster_id').key(),
-        entityDef('plot', textDef('remarks')).multiple()
-      )
+      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', textDef('remarks')).multiple())
     ).build()
 
     const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
@@ -522,10 +511,7 @@ describe('RecordPagesValidationProgress', () => {
       entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('remarks', null)))
     ).build()
 
-    const plotEntity = Records.getChildren(
-      Records.getRoot(record)!,
-      plotDef.uuid
-    )(record)[0]
+    const plotEntity = Records.getChildren(Records.getRoot(record)!, plotDef.uuid)(record)[0]
 
     expect(Records.getEntityCompletionPercent({ survey, record, entity: plotEntity })).toBe(100)
     expect(Records.getEntityCompletionStats({ survey, record, entity: plotEntity })).toEqual({
@@ -553,9 +539,9 @@ describe('RecordPagesValidationProgress', () => {
       entity('cluster', attribute('cluster_id', 10), attribute('remarks', null))
     ).build()
 
-    const clusterIdNode = Records.getNodesByDefUuid(
-      Surveys.getNodeDefByName({ survey, name: 'cluster_id' }).uuid
-    )(record)[0]
+    const clusterIdNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'cluster_id' }).uuid)(
+      record
+    )[0]
 
     expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: clusterIdNode.uuid, cycle })).toBeNull()
   })
@@ -627,11 +613,7 @@ describe('RecordPagesValidationProgress', () => {
       isComplete: true,
     })
 
-    const emptyRecord = new RecordBuilder(
-      user,
-      survey,
-      entity('cluster', attribute('cluster_id', 10))
-    ).build()
+    const emptyRecord = new RecordBuilder(user, survey, entity('cluster', attribute('cluster_id', 10))).build()
 
     expect(
       Records.getMultiplePageEntitiesStatus({ survey, record: emptyRecord, pageNodeDefUuid: plotDef.uuid, cycle })
@@ -669,16 +651,8 @@ describe('RecordPagesValidationProgress', () => {
       entity(
         'cluster',
         attribute('cluster_id', 10),
-        entity(
-          'plot',
-          attribute('plot_id', 3),
-          entity('tree', attribute('tree_id', 1), attribute('health', null))
-        ),
-        entity(
-          'plot',
-          attribute('plot_id', 4),
-          entity('tree', attribute('tree_id', 2), attribute('health', 'ok'))
-        )
+        entity('plot', attribute('plot_id', 3), entity('tree', attribute('tree_id', 1), attribute('health', null))),
+        entity('plot', attribute('plot_id', 4), entity('tree', attribute('tree_id', 2), attribute('health', 'ok')))
       )
     ).build()
 
@@ -704,9 +678,7 @@ describe('RecordPagesValidationProgress', () => {
     })
 
     // Unscoped: any tree in the record keeps Tree red.
-    expect(
-      Records.getMultiplePageEntitiesStatus({ survey, record, pageNodeDefUuid: treeDef.uuid, cycle })
-    ).toEqual({
+    expect(Records.getMultiplePageEntitiesStatus({ survey, record, pageNodeDefUuid: treeDef.uuid, cycle })).toEqual({
       hasErrors: true,
       hasWarnings: false,
       isComplete: false,

@@ -23,6 +23,10 @@ export class RecordServiceMock implements RecordService {
     throw new Error('Not implemented')
   }
 
+  getManyByUuids(): Promise<Array<Record>> {
+    throw new Error('Not implemented')
+  }
+
   update(): Promise<Record> {
     throw new Error('Not implemented')
   }

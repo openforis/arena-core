@@ -441,7 +441,7 @@ describe('RecordExpressionEvaluator', () => {
     const testNameSuffix = node ? ` (node: ${node})` : ''
 
     test(`${expression}${testNameSuffix}`, async () => {
-      try {
+      const run = async () => {
         const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
         if (!nodeCurrent) throw new Error(`Cannot find current node: ${node}`)
 
@@ -450,12 +450,11 @@ describe('RecordExpressionEvaluator', () => {
         const context: RecordExpressionContext = { user, survey, record, nodeContext, nodeCurrent, object: nodeContext }
         const res = await new RecordExpressionEvaluator().evaluate(expression, context)
         expect(res).toEqual(result instanceof Function ? result() : result)
-      } catch (error) {
-        if (errorExpected) {
-          expect(error).toEqual(errorExpected)
-        } else {
-          throw error
-        }
+      }
+      if (errorExpected) {
+        await expect(run()).rejects.toEqual(errorExpected)
+      } else {
+        await run()
       }
     })
   })

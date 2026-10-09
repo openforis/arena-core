@@ -27,11 +27,7 @@ export type PagesValidationProgress = {
 /**
  * Whether a node belongs under a page entity (itself or any descendant of that page).
  */
-export const nodeBelongsToPage = (params: {
-  node: Node
-  pageNodeDefUuid: string
-  record: Record
-}): boolean => {
+export const nodeBelongsToPage = (params: { node: Node; pageNodeDefUuid: string; record: Record }): boolean => {
   const { node, pageNodeDefUuid, record } = params
   if (node.nodeDefUuid === pageNodeDefUuid) return true
   return Nodes.getHierarchy(node).some((ancestorUuid) => {
@@ -67,10 +63,12 @@ export const getNodeDefChildrenInOwnPage = (params: {
   cycle: string
 }): NodeDefEntity[] => {
   const { survey, nodeDef, cycle } = params
-  return Surveys.getNodeDefChildren({ survey, nodeDef, includeAnalysis: true }).filter((child): child is NodeDefEntity => {
-    if (!NodeDefs.isEntity(child)) return false
-    return NodeDefs.isDisplayInOwnPage(cycle)(child as NodeDefEntity)
-  })
+  return Surveys.getNodeDefChildren({ survey, nodeDef, includeAnalysis: true }).filter(
+    (child): child is NodeDefEntity => {
+      if (!NodeDefs.isEntity(child)) return false
+      return NodeDefs.isDisplayInOwnPage(cycle)(child as NodeDefEntity)
+    }
+  )
 }
 
 /**

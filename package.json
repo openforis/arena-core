@@ -55,10 +55,12 @@
   "scripts": {
     "build:watch": "tsc --watch",
     "build": "tsc",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx,json}'",
     "lint:fix": "npm run lint -- --fix",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "prepare": "yarn build && husky",
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc -p tsconfig.test.json"
   },
   "files": [
     "dist/**/*"

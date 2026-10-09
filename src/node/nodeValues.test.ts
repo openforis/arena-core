@@ -1,7 +1,7 @@
 import { describe, test, expect } from '@jest/globals'
 
 import { NodeDefType } from '../nodeDef'
-import { DateFormats } from '../utils'
+import { DateFormats, Dates } from '../utils'
 import { NodeFactory } from './factory'
 import { NodeValues } from './nodeValues'
 
@@ -40,7 +40,6 @@ describe('time value equality (via record-level comparator wiring)', () => {
   // Exercised indirectly through arena's core/record/nodeValues.js in the arena repo (Task 9);
   // here we only verify the underlying format-conversion primitives arena-core exposes.
   test('an HH:mm value and its HH:mm:ss equivalent convert to the same timeWithSeconds string', () => {
-    const { Dates } = require('../utils')
     const fromShort = Dates.convertDate({
       dateStr: '14:30',
       formatFrom: DateFormats.timeStorage,
@@ -55,7 +54,6 @@ describe('time value equality (via record-level comparator wiring)', () => {
   })
 
   test('two values that differ only in seconds convert to different timeWithSeconds strings', () => {
-    const { Dates } = require('../utils')
     const a = Dates.convertDate({
       dateStr: '14:30:00',
       formatFrom: DateFormats.timeWithSeconds,
