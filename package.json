@@ -7,7 +7,14 @@
   "version": "2.3.27",
   "description": "Arena core module",
   "main": "dist/index.js",
+  "module": "dist/esm/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": [
+    "./dist/expression/javascript/parser/jsep.js",
+    "./dist/esm/expression/javascript/parser/jsep.js",
+    "./dist/utils/numbers.js",
+    "./dist/esm/utils/numbers.js"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^8.0.6",
@@ -54,7 +61,8 @@
   },
   "scripts": {
     "build:watch": "tsc --watch",
-    "build": "tsc",
+    "build": "yarn clean && tsc && tsc -p tsconfig.esm.json",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
     "format:check": "prettier --check 'src/**/*.{ts,tsx,json}'",
     "lint:fix": "npm run lint -- --fix",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
