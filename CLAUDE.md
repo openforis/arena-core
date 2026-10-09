@@ -11,7 +11,7 @@ Arena Core is a TypeScript library that provides core type definitions and utili
 ### Building
 
 ```bash
-yarn build          # Compile TypeScript to dist/
+yarn build          # Clean dist/, compile TypeScript to dist/ (CommonJS + .d.ts) and dist/esm/ (ES modules)
 yarn build:watch    # Compile with watch mode
 ```
 
@@ -148,7 +148,8 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 - **Strict mode enabled** - all strict checks are on (noImplicitAny, strictNullChecks, etc.)
 - **Target:** ES6, **Module:** CommonJS
-- **Output:** `dist/` with declaration files (.d.ts)
+- **Output:** `dist/` with declaration files (.d.ts), plus an ES modules build in `dist/esm/` (`tsconfig.esm.json`, `module` field in package.json) used by bundlers for tree shaking
+- `package.json` `sideEffects` lists the only modules with import-time side effects (jsep plugins registration, BigNumber config): keep it updated when adding module-level side effects
 - **Excludes:** test files (`*.test.ts`, `src/**/tests/**`) from build
 
 ## Testing
