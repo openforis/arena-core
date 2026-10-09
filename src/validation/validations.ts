@@ -73,26 +73,46 @@ const getCounts = (validation: Validation): ValidationCounts | undefined => vali
 const getErrorsCount = (validation: Validation): number => getCounts(validation)?.errors ?? 0
 const getWarningsCount = (validation: Validation): number => getCounts(validation)?.warnings ?? 0
 
+/**
+ * Creates a validation object like ValidationFactory.createInstance does, but without checking again
+ * if fields is empty (checking it is O(N) for objects with many properties).
+ */
+const _createValidation = (params: {
+  valid: boolean
+  fields: ValidationFields
+  hasFields: boolean
+  errors: ValidationResult[]
+  warnings: ValidationResult[]
+}): Validation => {
+  const { valid, fields, hasFields, errors, warnings } = params
+  const result: Validation = { valid }
+  if (errors.length > 0) result.errors = errors
+  if (hasFields) result.fields = fields
+  if (warnings.length > 0) result.warnings = warnings
+  return result
+}
+
 const recalculateValidity = (validation: Validation): Validation => {
   let allFieldsValid = true
+  let hasFields = false
 
   const fieldsWithValidationRecalculated: ValidationFields = {}
 
   for (const [fieldKey, fieldValidation] of Object.entries(getFieldValidations(validation))) {
     const fieldValidationUpdated = recalculateValidity(fieldValidation)
     fieldsWithValidationRecalculated[fieldKey] = fieldValidationUpdated
+    hasFields = true
     if (!fieldValidationUpdated.valid) {
       allFieldsValid = false
     }
   }
-  const valid: boolean = allFieldsValid && !hasErrors(validation) && !hasWarnings(validation)
+  const errors = getErrors(validation)
+  const warnings = getWarnings(validation)
+  // nested errors and warnings already make the recalculated field validations not valid:
+  // checking only own errors and warnings is enough (hasErrors/hasWarnings would visit the whole subtree again)
+  const valid = allFieldsValid && errors.length === 0 && warnings.length === 0
 
-  return ValidationFactory.createInstance({
-    valid,
-    fields: fieldsWithValidationRecalculated,
-    errors: getErrors(validation),
-    warnings: getWarnings(validation),
-  })
+  return _createValidation({ valid, fields: fieldsWithValidationRecalculated, hasFields, errors, warnings })
 }
 
 const traverse = (visitor: (visitedItem: Validation) => void) => (validation: Validation) => {
@@ -132,26 +152,23 @@ const calculateHasNestedErrors = (validation: Validation): boolean => calculateC
 const calculateHasNestedWarnings = (validation: Validation): boolean => calculateCounts(validation).warnings > 0
 
 const cleanup = (validation: Validation): Validation => {
-  let allFieldsValid = true
+  // only not valid field validations are kept
+  let hasFields = false
+  const fieldsCleaned: ValidationFields = {}
+  for (const [field, fieldValidation] of Object.entries(getFieldValidations(validation))) {
+    const fieldValidationCleaned = cleanup(fieldValidation)
+    if (!fieldValidationCleaned.valid) {
+      fieldsCleaned[field] = fieldValidationCleaned
+      hasFields = true
+    }
+  }
+  const errors = getErrors(validation)
+  const warnings = getWarnings(validation)
+  // nested errors and warnings already make the cleaned field validations not valid:
+  // checking only own errors and warnings is enough (hasErrors/hasWarnings would visit the whole subtree again)
+  const valid = !hasFields && errors.length === 0 && warnings.length === 0
 
-  const fieldsCleaned = Object.entries(getFieldValidations(validation)).reduce(
-    (fieldsAcc, [field, fieldValidation]) => {
-      const fieldValidationCleaned = cleanup(fieldValidation)
-      if (!fieldValidationCleaned.valid) {
-        allFieldsValid = false
-        Objects.assoc({ obj: fieldsAcc, prop: field, value: fieldValidationCleaned, sideEffect: true })
-      }
-      return fieldsAcc
-    },
-    {}
-  )
-
-  return ValidationFactory.createInstance({
-    valid: allFieldsValid && !hasErrors(validation) && !hasWarnings(validation),
-    fields: fieldsCleaned,
-    errors: getErrors(validation),
-    warnings: getWarnings(validation),
-  })
+  return _createValidation({ valid, fields: fieldsCleaned, hasFields, errors, warnings })
 }
 
 const mergeValidations =

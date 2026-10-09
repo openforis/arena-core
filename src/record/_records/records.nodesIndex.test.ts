@@ -14,6 +14,7 @@ import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
 import { RecordNodesUpdater } from '../recordNodesUpdater'
+import { Records } from '../records'
 
 const user = createTestAdminUser()
 let survey: Survey
@@ -121,5 +122,58 @@ describe('Record nodes index', () => {
         childDefUuid: plotDef.uuid,
       })(indexUpdated)
     ).toEqual([plotNode1.uuid, plotNode2.uuid])
+  })
+
+  test('Record nodes index update and removal do not modify the original index', () => {
+    const index = record._nodesIndex ?? {}
+    const indexSnapshot = JSON.parse(JSON.stringify(index))
+
+    const plotNode1 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[0]' })
+    const plotNode2 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[1]' })
+    const plotNode3 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[2]' })
+
+    RecordNodesIndexUpdater.removeNodes([plotNode1, plotNode2, plotNode3])(index)
+    RecordNodesIndexUpdater.addNodes({ [plotNode1.uuid]: { ...plotNode1, parentUuid: 'other-parent-uuid' } })(index)
+
+    expect(index).toEqual(indexSnapshot)
+  })
+
+  test('Record nodes index removal removes the entries left empty', () => {
+    const index = record._nodesIndex ?? {}
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
+    const clusterNode = TestUtils.getNodeByPath({ survey, record, path: 'cluster' })
+    const plotNodes = [0, 1, 2].map((i) => TestUtils.getNodeByPath({ survey, record, path: `cluster.plot[${i}]` }))
+
+    const indexUpdated = RecordNodesIndexUpdater.removeNodes(plotNodes)(index)
+
+    expect(indexUpdated.nodesByDef?.[plotDef.uuid]).toBeUndefined()
+    expect(indexUpdated.nodesByParentAndChildDef?.[clusterNode.uuid]?.[plotDef.uuid]).toBeUndefined()
+    // other entries are kept
+    expect(RecordNodesIndexReader.getNodeRootUuid(indexUpdated)).toBe(clusterNode.uuid)
+  })
+
+  test('Record nodes index is not updated when only node values change', async () => {
+    const plotIdNode = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[0].plot_id' })
+    const recordUpdated = Records.addNode({ ...plotIdNode, value: 100 })(record)
+
+    // same index object: nothing to update
+    expect(recordUpdated._nodesIndex).toBe(record._nodesIndex)
+    expect(Records.getNodeByUuid(plotIdNode.uuid)(recordUpdated)?.value).toBe(100)
+  })
+
+  test('Record nodes index is updated when the parent of a node changes', () => {
+    const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
+    const plotNode2 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[1]' })
+    const plotIdNode1 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[0].plot_id' })
+
+    const recordUpdated = Records.addNode({ ...plotIdNode1, parentUuid: plotNode2.uuid })(record)
+    const indexUpdated = recordUpdated._nodesIndex ?? {}
+
+    expect(
+      RecordNodesIndexReader.getNodeUuidsByParentAndChildDef({
+        parentNodeUuid: plotNode2.uuid,
+        childDefUuid: plotIdDef.uuid,
+      })(indexUpdated)
+    ).toContain(plotIdNode1.uuid)
   })
 })
