@@ -141,6 +141,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 **Utility Modules** (`src/utils/`)
 
 - Arrays, Dates, Numbers, Objects, Strings, UUIDs, Promises, Queue
+- `Dates` is built on dayjs (moment-compatible format tokens, `utc` and `customParseFormat` plugins): use it instead of importing a date library directly
 - FileNames, FileProcessor, RetryProcessor
 - Prefer using these over re-implementing common operations
 
