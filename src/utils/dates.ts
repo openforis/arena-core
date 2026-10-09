@@ -46,19 +46,32 @@ const nowFormattedForStorage = (): string => formatForStorage(new Date())
 const nowFormattedForExpression = (): string => formatForExpression(Date.now())
 
 // ISO date or date time: YYYY-MM-DD[THH:mm[:ss[.SSS]]][Z|±HH:mm]
-const ISO_DATE_TIME_REGEX =
-  /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?)?(?:Z|[+-]\d{2}:?\d{2})?$/
+const ISO_OFFSET_REGEX = /(?:Z|[+-]\d{2}:?\d{2})$/
+const ISO_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/
+const ISO_TIME_REGEX = /^(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?$/
+
+const invalidDate = (): Date => new Date(Number.NaN)
 
 /**
  * Parses an ISO date (or date time) string; values like 2020-02-30 are not valid (they are not moved to the next month).
  * Date only strings and date times without offset are read as UTC.
  */
 const parseISOStrict = (dateStr: string): Date => {
-  const match = ISO_DATE_TIME_REGEX.exec(dateStr)
-  if (!match) return new Date(Number.NaN)
-  const [, year, month, day, hours, minutes, seconds] = match
-  if (!isValidDate(year, month, day)) return new Date(Number.NaN)
-  if (hours !== undefined && !isValidTime(hours, minutes, seconds ?? 0)) return new Date(Number.NaN)
+  const dateTimeStr = dateStr.replace(ISO_OFFSET_REGEX, '')
+  const [datePart, timePart, ...otherParts] = dateTimeStr.split(/[T ]/)
+  if (otherParts.length > 0) return invalidDate()
+
+  const dateMatch = ISO_DATE_REGEX.exec(datePart)
+  if (!dateMatch) return invalidDate()
+  const [, year, month, day] = dateMatch
+  if (!isValidDate(year, month, day)) return invalidDate()
+
+  if (timePart !== undefined) {
+    const timeMatch = ISO_TIME_REGEX.exec(timePart)
+    if (!timeMatch) return invalidDate()
+    const [, hours, minutes, seconds] = timeMatch
+    if (!isValidTime(hours, minutes, seconds ?? 0)) return invalidDate()
+  }
   return dayjs.utc(dateStr).toDate()
 }
 
