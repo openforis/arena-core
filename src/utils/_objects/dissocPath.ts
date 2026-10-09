@@ -18,7 +18,8 @@ export const dissocPath = <T extends object>(params: { obj: T; path: string[]; s
     return objUpdated
   }
 
-  const objPartUpdated = dissocPath({ obj: sideEffect ? objPart : { ...objPart }, path: otherPathParts, sideEffect })
+  // objPart is copied by dissocPath itself (when sideEffect is false)
+  const objPartUpdated = dissocPath({ obj: objPart, path: otherPathParts, sideEffect })
 
   if (isEmpty(objPartUpdated)) {
     delete objUpdated[firstPathPart]

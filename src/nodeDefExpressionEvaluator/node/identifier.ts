@@ -34,7 +34,15 @@ const findActualContextNode = (params: {
 }
 
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
-  async evaluate(expressionNode: IdentifierExpression): Promise<any> {
+  evaluate(expressionNode: IdentifierExpression): Promise<any> {
+    try {
+      return Promise.resolve(this.evaluateIdentifier(expressionNode))
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
+  private evaluateIdentifier(expressionNode: IdentifierExpression): any {
     const { context } = this
     const { nodeDefContext, nodeDefCurrent, selfReferenceAllowed, object: objectContext, itemsFilter } = context
     const { name: exprName } = expressionNode
@@ -47,11 +55,9 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     }
 
     // try to find the identifier among global objects or native properties
-    try {
-      const identifierAsGlobalObject = await super.evaluate(expressionNode)
-      return identifierAsGlobalObject
-    } catch {
-      // ignore it
+    const globalOrNativeProperty = this.findGlobalOrNativeProperty(expressionNode)
+    if (globalOrNativeProperty) {
+      return globalOrNativeProperty.value
     }
 
     if (itemsFilter) {
@@ -99,12 +105,13 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
   ): NodeDef<NodeDefType, NodeDefProps> | undefined {
     const { object: contextObject } = this.context
 
-    if (contextObject) {
-      const reachableNodeDefs = this.getReachableNodeDefs()
+    if (!contextObject) return undefined
 
-      return reachableNodeDefs.find(
-        (reachableNodeDef: NodeDef<NodeDefType, NodeDefProps>) => reachableNodeDef.props.name === expressionNode.name
-      )
+    // stop at the first match (same order as getReachableNodeDefs), without visiting all the reachable node defs
+    for (const reachableNodeDef of this.iterateReachableNodeDefs()) {
+      if (reachableNodeDef.props.name === expressionNode.name) {
+        return reachableNodeDef
+      }
     }
     return undefined
   }
@@ -114,39 +121,52 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
    * NOTE: The root node def is excluded, but it _should_ be an entity, so that is fine.
    */
   protected getReachableNodeDefs(): NodeDef<NodeDefType, NodeDefProps>[] {
+    return Array.from(this.iterateReachableNodeDefs())
+  }
+
+  /**
+   * Iterates over the reachable node defs (see getReachableNodeDefs), yielding every node def only once.
+   */
+  private *iterateReachableNodeDefs(): Generator<NodeDef<NodeDefType, NodeDefProps>> {
     const { context } = this
     const { survey, includeAnalysis } = context
 
-    const reachableNodeDefsByUuid: { [key: string]: NodeDef<any> } = {}
+    const reachableNodeDefUuids = new Set<string>()
+    const visitedUuids = new Set<string>()
 
     const queue = new Queue()
-    const visitedUuids: string[] = []
 
     const actualContextNode = findActualContextNode({ context })
     if (actualContextNode) {
       queue.enqueue(actualContextNode)
-      reachableNodeDefsByUuid[actualContextNode.uuid] = actualContextNode
+      reachableNodeDefUuids.add(actualContextNode.uuid)
+      yield actualContextNode
     }
 
     while (!queue.isEmpty()) {
       const entityDefCurrent = queue.dequeue()
       const entityDefCurrentChildren = getNodeDefChildren({ survey, nodeDef: entityDefCurrent, includeAnalysis })
       for (const childDef of entityDefCurrentChildren) {
-        reachableNodeDefsByUuid[childDef.uuid] = childDef
+        if (!reachableNodeDefUuids.has(childDef.uuid)) {
+          reachableNodeDefUuids.add(childDef.uuid)
+          yield childDef
+        }
       }
       // visit nodes inside single entities
       queue.enqueueItems(entityDefCurrentChildren.filter(NodeDefs.isSingleEntity))
 
       // avoid visiting 2 times the same entity definition when traversing single entities
-      if (!visitedUuids.includes(entityDefCurrent.uuid)) {
+      if (!visitedUuids.has(entityDefCurrent.uuid)) {
         const entityDefCurrentParent = getNodeDefParent({ survey, nodeDef: entityDefCurrent })
         if (entityDefCurrentParent) {
           queue.enqueue(entityDefCurrentParent)
         }
-        reachableNodeDefsByUuid[entityDefCurrent.uuid] = entityDefCurrent
-        visitedUuids.push(entityDefCurrent.uuid)
+        if (!reachableNodeDefUuids.has(entityDefCurrent.uuid)) {
+          reachableNodeDefUuids.add(entityDefCurrent.uuid)
+          yield entityDefCurrent
+        }
+        visitedUuids.add(entityDefCurrent.uuid)
       }
     }
-    return Object.values(reachableNodeDefsByUuid)
   }
 }

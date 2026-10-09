@@ -36,6 +36,26 @@ const defaultEvaluators = {
   [ExpressionNodeType.Unary]: UnaryEvaluator,
 }
 
+// Parsed expressions cache: the same expressions are evaluated many times (e.g. for every node during a record update).
+// The cached expression nodes are shared, so evaluators must never modify them.
+const PARSED_EXPRESSIONS_CACHE_MAX_SIZE = 1000
+const parsedExpressionsCache = new Map<string, ExpressionNode<ExpressionNodeType>>()
+const expressionParser = new JavascriptExpressionParser()
+
+const parseExpression = (expression: string): ExpressionNode<ExpressionNodeType> => {
+  let expressionNode = parsedExpressionsCache.get(expression)
+  if (!expressionNode) {
+    expressionNode = expressionParser.parse(expression)
+    if (parsedExpressionsCache.size >= PARSED_EXPRESSIONS_CACHE_MAX_SIZE) {
+      // evict the oldest entry (Map keeps insertion order)
+      const oldestExpression = parsedExpressionsCache.keys().next().value
+      if (oldestExpression !== undefined) parsedExpressionsCache.delete(oldestExpression)
+    }
+    parsedExpressionsCache.set(expression, expressionNode)
+  }
+  return expressionNode
+}
+
 export class JavascriptExpressionEvaluator<C extends ExpressionContext> implements ExpressionEvaluator<C> {
   functions: ExpressionFunctions<C>
   evaluators: Evaluators<C>
@@ -46,8 +66,7 @@ export class JavascriptExpressionEvaluator<C extends ExpressionContext> implemen
   }
 
   async evaluate(expression: string, context?: C): Promise<any> {
-    const parser = new JavascriptExpressionParser()
-    return this.evaluateNode(parser.parse(expression), context ?? ({} as C))
+    return this.evaluateNode(parseExpression(expression), context ?? ({} as C))
   }
 
   async evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: C): Promise<any> {
