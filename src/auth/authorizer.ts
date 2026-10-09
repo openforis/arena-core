@@ -11,7 +11,7 @@ import { Users } from './users'
 // ======
 
 const _getSurveyUserGroup = (user: User, surveyInfo: Survey, includeSystemAdmin = true): AuthGroup | undefined =>
-  Users.getAuthGroupBySurveyUuid(surveyInfo.uuid, includeSystemAdmin)(user)
+  surveyInfo ? Users.getAuthGroupBySurveyUuid(surveyInfo.uuid, includeSystemAdmin)(user) : undefined
 
 const _hasAuthGroupForSurvey = ({ user, surveyInfo }: { user: User; surveyInfo: Survey }): boolean =>
   Boolean(_getSurveyUserGroup(user, surveyInfo))
@@ -72,7 +72,7 @@ export const canCreateRecord = _hasSurveyPermission(Permission.recordCreate)
 export const canViewRecord = _hasSurveyPermission(Permission.recordView)
 export const canExportAllRecords = _hasSurveyPermission(Permission.recordCleanse)
 export const canViewNotOwnedRecords = (user: User, surveyInfo: Survey): boolean => {
-  if (!canViewSurvey(user, surveyInfo)) return false
+  if (!surveyInfo || !canViewSurvey(user, surveyInfo)) return false
 
   const { uuid: surveyUuid } = surveyInfo
   const groupInCurrentSurvey = Users.getAuthGroupBySurveyUuid(surveyUuid)(user)
@@ -111,7 +111,8 @@ export const canEditRecord = (user: User, record: Record, allowAnalysisStepEdit 
 
   // Level = 'all' or 'own'. If 'own', user can only edit records assigned to him
   // If 'all', he can edit all survey's records
-  const level = AuthGroups.getRecordEditLevel(Records.getStep(record))(userAuthGroup)
+  // permission checks must not throw: a group without record steps cannot edit records
+  const level = AuthGroups.getRecordSteps(userAuthGroup)?.[Records.getStep(record)]
   return level === RecordStepPermission.all || (level === RecordStepPermission.own && ownerUuid === user.uuid)
 }
 

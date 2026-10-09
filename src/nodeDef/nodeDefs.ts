@@ -13,8 +13,10 @@ import {
   NodeDefType,
   NodeDefValidations,
 } from './nodeDef'
+import { NodeDefBoolean } from './types/boolean'
 import { NodeDefCode } from './types/code'
 import { NodeDefCoordinate } from './types/coordinate'
+import { NodeDefDate } from './types/date'
 import { NodeDefDecimal } from './types/decimal'
 import {
   NodeDefEntity,
@@ -24,6 +26,8 @@ import {
   NodeDefPrintOrientation,
 } from './types/entity'
 import { NodeDefFile, NodeDefFileType } from './types/file'
+import { NodeDefFormHeader } from './types/formHeader'
+import { NodeDefInteger } from './types/integer'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText, NodeDefTextRenderType, NodeDefTextInputType } from './types/text'
 import { NodeDefTime } from './types/time'
@@ -32,17 +36,40 @@ const isRoot = (nodeDef: NodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
 
 const isAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => !isEntity(nodeDef)
 
-const isEntity = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.entity
+const isEntity = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefEntity => nodeDef.type === NodeDefType.entity
+
+const isBoolean = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefBoolean => nodeDef.type === NodeDefType.boolean
+
+const isCode = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefCode => nodeDef.type === NodeDefType.code
+
+const isCoordinate = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefCoordinate =>
+  nodeDef.type === NodeDefType.coordinate
+
+const isDate = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefDate => nodeDef.type === NodeDefType.date
+
+const isDecimal = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefDecimal => nodeDef.type === NodeDefType.decimal
+
+const isFile = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefFile => nodeDef.type === NodeDefType.file
+
+const isInteger = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefInteger => nodeDef.type === NodeDefType.integer
+
+const isTaxon = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefTaxon => nodeDef.type === NodeDefType.taxon
+
+const isText = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefText => nodeDef.type === NodeDefType.text
+
+const isTime = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefTime => nodeDef.type === NodeDefType.time
 
 const isMultiple = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.props.multiple ?? false
 
 const isSingle = (nodeDef: NodeDef<NodeDefType>): boolean => !isMultiple(nodeDef)
 
-const isSingleEntity = (nodeDef: NodeDef<NodeDefType>): boolean => isEntity(nodeDef) && isSingle(nodeDef)
+const isSingleEntity = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefEntity =>
+  isEntity(nodeDef) && isSingle(nodeDef)
 
 const isSingleAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => isAttribute(nodeDef) && isSingle(nodeDef)
 
-const isMultipleEntity = (nodeDef: NodeDef<NodeDefType>): boolean => isEntity(nodeDef) && isMultiple(nodeDef)
+const isMultipleEntity = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefEntity =>
+  isEntity(nodeDef) && isMultiple(nodeDef)
 
 const isMultipleAttribute = (nodeDef: NodeDef<NodeDefType>): boolean => isAttribute(nodeDef) && isMultiple(nodeDef)
 
@@ -55,7 +82,8 @@ const isAnalysis = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.analysis 
 
 const getType = (nodeDef: NodeDef<NodeDefType>): NodeDefType => nodeDef.type
 
-const isLayoutElement = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.type === NodeDefType.formHeader
+const isLayoutElement = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefFormHeader =>
+  nodeDef.type === NodeDefType.formHeader
 
 const getName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): string => nodeDef.props.name ?? ''
 
@@ -272,6 +300,16 @@ const getMetaHieararchy = (nodeDef: NodeDef<any>): string[] => nodeDef.meta?.h ?
 
 export const NodeDefs = {
   isEntity,
+  isBoolean,
+  isCode,
+  isCoordinate,
+  isDate,
+  isDecimal,
+  isFile,
+  isInteger,
+  isTaxon,
+  isText,
+  isTime,
   isMultiple,
   isMultipleEntity,
   isSingle,
