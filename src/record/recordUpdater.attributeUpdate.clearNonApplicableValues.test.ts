@@ -52,7 +52,7 @@ const updateValue = async (params: {
 }
 
 const getClearedDefNames = (survey: Survey, clearedDefUuids: Set<string>): string[] =>
-  [...clearedDefUuids].map((uuid) => Surveys.getNodeDefByUuid({ survey, uuid }).props.name).sort()
+  [...clearedDefUuids].map((uuid) => Surveys.getNodeDefByUuid({ survey, uuid }).props.name ?? '').sort()
 
 const getValue = (survey: Survey, record: Record, path: string) =>
   TestUtils.getNodeByPath({ survey, record, path }).value

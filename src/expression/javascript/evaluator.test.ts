@@ -72,15 +72,14 @@ describe('JavascriptExpressionEvaluator test', () => {
     test(query.expression, async () => {
       const { expression, result: resultExpected, error: errorExpected = false } = query
 
-      try {
+      const run = async () => {
         const res = await new JavascriptExpressionEvaluator().evaluate(expression)
         expect(res).toEqual(resultExpected)
-      } catch (error) {
-        if (errorExpected) {
-          expect(error).toBeDefined()
-        } else {
-          throw error
-        }
+      }
+      if (errorExpected) {
+        await expect(run()).rejects.toThrow()
+      } else {
+        await run()
       }
     })
   })

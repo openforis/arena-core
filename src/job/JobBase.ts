@@ -292,6 +292,8 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
         Object.assign(this.context, currentInnerJob.context)
       }
       currentInnerJob.context = this.context
+      // NOTE: the async listener is not awaited, so its rejections are unhandled (see #421, E5)
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       currentInnerJob.onEvent(this.onInnerJobEvent.bind(this))
 
       // The inner job shares this very context object, and its own start()/executeInTransaction()

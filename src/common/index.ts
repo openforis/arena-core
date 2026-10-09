@@ -17,4 +17,5 @@ export enum TraverseMethod {
   dfs = 'dfs',
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- marker interface extended by every service
 export interface ArenaService {}

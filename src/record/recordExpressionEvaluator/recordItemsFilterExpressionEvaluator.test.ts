@@ -45,7 +45,7 @@ describe('RecordItemFilterExpressionEvaluator', () => {
     const { expression, node, result, error: errorExpected = false } = query
 
     test(`${expression} (node: ${node})`, async () => {
-      try {
+      const run = async () => {
         const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
         if (!nodeCurrent) throw new Error(`Cannot find current node: ${node}`)
 
@@ -83,12 +83,11 @@ describe('RecordItemFilterExpressionEvaluator', () => {
         }
         const filteredItemCodes = filteredItems.map((item) => item.props.code)
         expect(filteredItemCodes).toEqual(result instanceof Function ? result() : result)
-      } catch (error) {
-        if (errorExpected) {
-          expect(error).toEqual(errorExpected)
-        } else {
-          throw error
-        }
+      }
+      if (errorExpected) {
+        await expect(run()).rejects.toEqual(errorExpected)
+      } else {
+        await run()
       }
     })
   })

@@ -178,7 +178,7 @@ const removeStatusFlags = ({ node, sideEffect = false }: { node: Node; sideEffec
   sideEffect ? clearStatusFlagsInPlace(node) : omitStatusFlags(node)
 
 const assocValue = (node: Node, value: any, sideEffect = false): Node => {
-  let nodeUpdated = sideEffect ? node : { ...node }
+  const nodeUpdated = sideEffect ? node : { ...node }
   nodeUpdated.value = value
   nodeUpdated.updated = true
   nodeUpdated.dateModified = Dates.nowFormattedForStorage()

@@ -27,7 +27,11 @@ jest path/to/test   # Run a single test file
 ```bash
 yarn lint           # Run ESLint on all TypeScript files
 yarn lint:fix       # Auto-fix ESLint issues
+yarn format:check   # Check Prettier formatting of src/
+yarn typecheck      # Type-check sources and test files (tsconfig.test.json)
 ```
+
+PR CI (`.github/workflows/test.yml`) runs `install --immutable`, `lint`, `format:check`, `typecheck`, `build` and `test`.
 
 **Note:** Pre-commit hooks automatically run `lint-staged`, which runs ESLint with `--fix` and Prettier on staged files.
 
@@ -157,7 +161,8 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 ## Linting Rules
 
-- ESLint flat config (`eslint.config.mjs`), scoped to `src/**/*.{ts,tsx}`
+- ESLint flat config (`eslint.config.mjs`), scoped to `src/**/*.{ts,tsx}`, extending `typescript-eslint` recommended
+- Type-aware rules (`no-floating-promises`, `no-misused-promises`, `only-throw-error`) use `tsconfig.test.json`, so test files are linted with type information too
 - Unused vars/args starting with `_` are allowed
 - `@typescript-eslint/no-explicit-any` is OFF
 - The codebase consistently uses `export type { ... }` for type-only exports (see `src/index.ts`), even though the `no-explicit-type-exports` plugin that used to enforce it is currently disabled in `eslint.config.mjs` pending ESLint 10 compatibility — keep following the convention regardless

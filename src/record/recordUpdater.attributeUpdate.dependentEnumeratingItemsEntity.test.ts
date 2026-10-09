@@ -29,9 +29,7 @@ const initTestSurvey = async () => {
       entityDef(
         'table_sum',
         codeDef('sum_type', 'types').key(),
-        integerDef('value_sum')
-          .readOnly()
-          .defaultValue('sum(table_source[$context.sum_type == source_type].value)')
+        integerDef('value_sum').readOnly().defaultValue('sum(table_source[$context.sum_type == source_type].value)')
       )
         .multiple()
         .enumerate()
@@ -81,7 +79,7 @@ const getTableSumKeys = (params: { survey: Survey; record: Record }): string[] =
   })
 }
 
-const getTableSumEntityUuidsByKey = (params: { survey: Survey; record: Record }): Record<string, string> => {
+const getTableSumEntityUuidsByKey = (params: { survey: Survey; record: Record }): { [key: string]: string } => {
   const { survey: surveyParam, record } = params
   const root = TestUtils.getNodeByPath({ survey: surveyParam, record, path: 'root_entity' })
   const tableSumDef = Surveys.getNodeDefByName({ survey: surveyParam, name: 'table_sum' })
@@ -106,7 +104,12 @@ const getTableSumEntityUuidsByKey = (params: { survey: Survey; record: Record })
   )
 }
 
-const addTableSourceRow = async (params: { survey: Survey; record: Record; type: string; value: number }): Promise<Record> => {
+const addTableSourceRow = async (params: {
+  survey: Survey
+  record: Record
+  type: string
+  value: number
+}): Promise<Record> => {
   const { survey: surveyParam, type, value } = params
   let { record } = params
   const getRoot = () => TestUtils.getNodeByPath({ survey: surveyParam, record, path: 'root_entity' })
@@ -151,7 +154,7 @@ const addTableSourceRow = async (params: { survey: Survey; record: Record; type:
 
 const deleteTableSourceEntity = async (params: { survey: Survey; record: Record; index: number }): Promise<Record> => {
   const { survey: surveyParam, index } = params
-  let { record } = params
+  const { record } = params
   const tableSourceEntities = TestUtils.findNodesByPath({ survey: surveyParam, record, path: 'table_source' })!
   const updateResult = await RecordUpdater.deleteNode({
     user,
@@ -232,12 +235,16 @@ describe('RecordUpdater - attribute update => update dependent enumerating items
     record = await addTableSourceRow({ survey, record, type: 'A', value: 20 })
     record = await addTableSourceRow({ survey, record, type: 'B', value: 30 })
 
-    const valueSumDef = Surveys.getNodeDefChildren({ survey, nodeDef: Surveys.getNodeDefByName({ survey, name: 'table_sum' }) }).find(
-      (childDef) => childDef.props.name === 'value_sum'
-    )!
+    const valueSumDef = Surveys.getNodeDefChildren({
+      survey,
+      nodeDef: Surveys.getNodeDefByName({ survey, name: 'table_sum' }),
+    }).find((childDef) => childDef.props.name === 'value_sum')!
     const root = TestUtils.getNodeByPath({ survey, record, path: 'root_entity' })
     const tableSumDef = Surveys.getNodeDefByName({ survey, name: 'table_sum' })
-    const values = Records.getChildren(root, tableSumDef.uuid)(record)
+    const values = Records.getChildren(
+      root,
+      tableSumDef.uuid
+    )(record)
       .map((entity) => Records.getChild(entity, valueSumDef.uuid)(record)?.value)
       .sort((a, b) => Number(a) - Number(b))
     expect(values).toEqual([30, 30])
@@ -264,7 +271,7 @@ describe('RecordUpdater - attribute update => update dependent enumerating items
     })
     record = updateResult.record
 
-    let tableSumEntities = TestUtils.findNodesByPath({ survey: surveyWithApplyIf, record, path: 'table_sum' })
+    const tableSumEntities = TestUtils.findNodesByPath({ survey: surveyWithApplyIf, record, path: 'table_sum' })
     expect(tableSumEntities?.length).toBe(0)
 
     updateResult = await RecordUpdater.updateAttributeValue({

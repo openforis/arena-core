@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@jest/globals'
 
+import { LanguageCode } from '../language'
 import { ValidationFactory, ValidationResultFactory } from './factory'
 import { Validation, ValidationSeverity } from './validation'
 import { ValidationResults } from './validationResults'
@@ -67,12 +68,12 @@ describe('ValidationResults', () => {
     })
 
     test('getMessage returns the message for the requested language', () => {
-      expect(ValidationResults.getMessage('en')(resultWithMessages)).toBe('Required')
-      expect(ValidationResults.getMessage('fr')(resultWithMessages)).toBe('Obligatoire')
+      expect(ValidationResults.getMessage(LanguageCode.en)(resultWithMessages)).toBe('Required')
+      expect(ValidationResults.getMessage(LanguageCode.fr)(resultWithMessages)).toBe('Obligatoire')
     })
 
     test('getMessage falls back to first available message for unknown language', () => {
-      expect(ValidationResults.getMessage('de')(resultWithMessages)).toBe('Required')
+      expect(ValidationResults.getMessage(LanguageCode.de)(resultWithMessages)).toBe('Required')
     })
 
     test('hasMessages returns true when messages are present', () => {
