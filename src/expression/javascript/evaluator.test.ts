@@ -84,3 +84,14 @@ describe('JavascriptExpressionEvaluator test', () => {
     })
   })
 })
+
+describe('JavascriptExpressionEvaluator parsed expressions cache', () => {
+  test('evaluates correctly the same expressions after many other expressions have been cached', async () => {
+    const evaluator = new JavascriptExpressionEvaluator()
+    for (let i = 0; i < 1100; i++) {
+      expect(await evaluator.evaluate(`${i} + 1`)).toBe(i + 1)
+    }
+    expect(await evaluator.evaluate('0 + 1')).toBe(1)
+    expect(await evaluator.evaluate('1099 + 1')).toBe(1100)
+  })
+})

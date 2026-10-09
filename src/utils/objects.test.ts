@@ -23,6 +23,17 @@ describe('Objects', () => {
     expect(obj).toEqual({ a: 1, b: { b1: 2, b2: { b2a: 10, b2b: 20 } } })
   })
 
+  test('assocPath (deep path) copies only the objects along the path', () => {
+    const obj = { a: { a1: 1 }, b: { b1: { c: 1 }, b2: { b2a: 10 } } }
+    const objectUpdated = Objects.assocPath({ obj, path: ['b', 'b2', 'b2a'], value: 12 })
+    expect(objectUpdated).not.toBe(obj)
+    expect(objectUpdated.b).not.toBe(obj.b)
+    expect(objectUpdated.b.b2).not.toBe(obj.b.b2)
+    // objects outside of the path are shared
+    expect(objectUpdated.a).toBe(obj.a)
+    expect(objectUpdated.b.b1).toBe(obj.b.b1)
+  })
+
   test('assocPath (deep path with missing properties)', () => {
     const obj = { a: 1 }
     const path = ['b', 'b2', 'b2a']

@@ -94,3 +94,31 @@ describe('Points test', () => {
     testBearing(origin, 1000, bearingDeg)
   })
 })
+
+describe('Points.transform', () => {
+  const utm33N = {
+    code: '32633',
+    name: 'WGS 84 / UTM zone 33N',
+    wkt: 'PROJCS["WGS 84 / UTM zone 33N",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",15],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1]]',
+  }
+  const srsIndex = { ...DEFAULT_SRS_INDEX, [utm33N.code]: utm33N }
+
+  test('transforms a point into another SRS and back (repeated calls give the same result)', () => {
+    const point = PointFactory.createInstance({ x: 12.5, y: 41.9 })
+    for (let i = 0; i < 3; i++) {
+      const transformed = Points.transform(point, utm33N.code, srsIndex)
+      expect(transformed?.srs).toBe(utm33N.code)
+      expect(transformed?.x).toBeCloseTo(292_765, -3)
+      expect(transformed?.y).toBeCloseTo(4_641_570, -3)
+
+      const transformedBack = Points.transform(transformed!, '4326', srsIndex)
+      expect(transformedBack?.x).toBeCloseTo(12.5, 6)
+      expect(transformedBack?.y).toBeCloseTo(41.9, 6)
+    }
+  })
+
+  test('returns null for an unknown SRS', () => {
+    const point = PointFactory.createInstance({ x: 12.5, y: 41.9 })
+    expect(Points.transform(point, '99999', srsIndex)).toBeNull()
+  })
+})
