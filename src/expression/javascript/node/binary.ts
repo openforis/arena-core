@@ -64,6 +64,10 @@ export class BinaryEvaluator<C extends ExpressionContext> extends ExpressionNode
     // string operators
     if (operator in stringOperators) {
       if (isString(leftResult) || isString(rightResult)) {
+        // string concatenation with null or undefined gives null (like arithmetic operations with null)
+        if (Objects.isNil(leftResult) || Objects.isNil(rightResult)) {
+          return null
+        }
         const strFn = stringOperators[operator]
         return strFn(leftResult as string, rightResult as string)
       }

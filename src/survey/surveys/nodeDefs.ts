@@ -301,6 +301,8 @@ export const findAncestorNodeDef = (params: {
   visitAncestorsAndSelfNodeDef({
     survey,
     nodeDef,
+    // ancestors only: the node def itself is never an ancestor (e.g. a multiple attribute)
+    includeSelf: false,
     visitor: (entityDef) => {
       if (predicate(entityDef)) {
         result = entityDef
