@@ -109,6 +109,10 @@ export const canEditRecord = (user: User, record: Record, allowAnalysisStepEdit 
   const userAuthGroup = Users.getAuthGroupBySurveyUuid(surveyUuid)(user)
   if (!userAuthGroup) return false
 
+  // groups without the record edit permission (e.g. survey guests) cannot edit records,
+  // even when their record steps permission allows it (record steps permissions are used also to view records)
+  if (!AuthGroups.getPermissions(userAuthGroup).includes(Permission.recordEdit)) return false
+
   // Level = 'all' or 'own'. If 'own', user can only edit records assigned to him
   // If 'all', he can edit all survey's records
   // permission checks must not throw: a group without record steps cannot edit records
