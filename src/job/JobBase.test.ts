@@ -672,3 +672,125 @@ test('execute() has a real, concrete no-op default that a subclass can safely ca
 
   expect(job.isSucceeded()).toBe(true)
 })
+
+// ==== cancel and failure of jobs with inner jobs (#421 B16)
+
+const createGate = () => {
+  let release: () => void = () => undefined
+  const promise = new Promise<void>((resolve) => {
+    release = resolve
+  })
+  return { promise, release }
+}
+
+const nextTick = () => new Promise((resolve) => setTimeout(resolve, 0))
+
+test('canceling a parent job while an inner job is running runs the parent beforeEnd exactly once', async () => {
+  const gate = createGate()
+  const innerJob = new TestJob(createContext(), [], { execute: async () => gate.promise })
+  const parentJob = new HookTrackingJob(createContext(), [innerJob])
+
+  const startPromise = parentJob.start()
+  await nextTick()
+
+  await parentJob.cancel()
+  gate.release()
+  await startPromise
+
+  expect(parentJob.isCanceled()).toBe(true)
+  expect(parentJob.beforeEndCallCount).toBe(1)
+})
+
+test('inner jobs are not started after an inner job is canceled (also when stopOnInnerJobFailure is false)', async () => {
+  const gate = createGate()
+  const calls: string[] = []
+  const innerJob1 = new TestJob(createContext(), [], {
+    execute: async () => {
+      calls.push('job1')
+      await gate.promise
+    },
+  })
+  const innerJob2 = new TestJob(createContext(), [], {
+    execute: async () => {
+      calls.push('job2')
+    },
+  })
+  const parentJob = new TestJob(createContext(), [innerJob1, innerJob2])
+  parentJob.stopOnInnerJobFailure = false
+
+  const startPromise = parentJob.start()
+  await nextTick()
+
+  await parentJob.cancel()
+  gate.release()
+  await startPromise
+
+  expect(calls).toEqual(['job1'])
+  expect(parentJob.isCanceled()).toBe(true)
+  expect(innerJob2.isPending()).toBe(true)
+})
+
+test('cancel between two inner jobs cancels the parent job and stops the inner jobs', async () => {
+  const calls: string[] = []
+  let parentJob: TestJob | null = null
+
+  // cancels the parent job when it ends (after the inner job status is set to succeeded, before the next one starts)
+  class CancelingParentOnEndJob extends TestJob {
+    protected async onEnd(): Promise<void> {
+      await super.onEnd()
+      await parentJob?.cancel()
+    }
+  }
+  const innerJob1 = new CancelingParentOnEndJob(createContext(), [], {
+    execute: async () => {
+      calls.push('job1')
+    },
+  })
+  const innerJob2 = new TestJob(createContext(), [], {
+    execute: async () => {
+      calls.push('job2')
+    },
+  })
+  parentJob = new TestJob(createContext(), [innerJob1, innerJob2])
+
+  await parentJob.start()
+
+  expect(calls).toEqual(['job1'])
+  expect(innerJob1.isSucceeded()).toBe(true)
+  expect(innerJob2.isPending()).toBe(true)
+  expect(parentJob.isCanceled()).toBe(true)
+})
+
+test('parent job status is updated by the inner job events before start() returns', async () => {
+  const innerJob = new TestJob(createContext(), [], {
+    execute: async () => {
+      throw new Error('inner job failure')
+    },
+  })
+  const parentJob = new TestJob(createContext(), [innerJob])
+  const events: JobEvent[] = []
+  parentJob.onEvent((event) => events.push(event))
+
+  await parentJob.start()
+
+  expect(parentJob.isFailed()).toBe(true)
+  // the failed status change event of the parent has been notified once start() returns
+  expect(events.filter((event) => event.status === JobStatus.failed)).toHaveLength(1)
+})
+
+test('the failed event of a parent job includes the errors of the failed inner job', async () => {
+  const innerJob = new TestJob(createContext(), [], {
+    execute: async () => {
+      throw new SystemError('innerJobErrorKey')
+    },
+  })
+  const parentJob = new TestJob(createContext(), [innerJob])
+  const events: JobEvent[] = []
+  parentJob.onEvent((event) => events.push(event))
+
+  await parentJob.start()
+
+  const failedEvent = events.find((event) => event.status === JobStatus.failed)
+  expect(JSON.stringify(failedEvent?.errors)).toContain('appErrors:innerJobErrorKey')
+  expect(JSON.stringify(parentJob.toJSON().errors)).toContain('appErrors:innerJobErrorKey')
+})
