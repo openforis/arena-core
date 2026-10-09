@@ -73,9 +73,8 @@ export const createOrDeleteEnumeratedEntities = async (
   }
 
   if (applicable) {
-    if (
-      hasExistingEntities &&
-      (await shouldExistingEntitiesBeDeleted({
+    if (hasExistingEntities) {
+      const existingEntitiesToBeDeleted = await shouldExistingEntitiesBeDeleted({
         survey,
         entityDef,
         existingEntities,
@@ -83,12 +82,15 @@ export const createOrDeleteEnumeratedEntities = async (
         updateResult,
         categoryItemProvider,
         user: params.user,
-      }))
-    ) {
+      })
+      if (!existingEntitiesToBeDeleted) {
+        // existing entities already match the enumerating items: nothing to do (do not create them again)
+        return
+      }
       deleteExistingEntities()
     }
     await createEnumeratedEntityNodes({ ...params, nodeDef: entityDef, parentNode })
-  } else if (!applicable && hasExistingEntities) {
+  } else if (hasExistingEntities) {
     deleteExistingEntities()
   }
 }
