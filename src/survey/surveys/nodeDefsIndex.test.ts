@@ -74,7 +74,7 @@ describe('Survey Node Definitionss index', () => {
   })
 
   test('deleteNodeDefIndex and addNodeDefToIndex update the qualifier index', () => {
-    const clusterRemarksUuid = survey.nodeDefsIndex?.nodeDefUuidByName?.['cluster_remarks']!
+    const clusterRemarksUuid = survey.nodeDefsIndex!.nodeDefUuidByName!['cluster_remarks']
     const clusterRemarksDef: NodeDef<any> = survey.nodeDefs![clusterRemarksUuid]
 
     const surveyWithoutQualifier = deleteNodeDefIndex(clusterRemarksDef)(survey)

@@ -2,6 +2,7 @@ import { describe, test, expect } from '@jest/globals'
 
 import { NodeDefFactory } from '../../nodeDef/factory'
 import { NodeDefType } from '../../nodeDef/nodeDef'
+import { NodeDefTimeProps } from '../../nodeDef/types/time'
 import { RecordExpressionValueConverter } from './recordExpressionValueConverter'
 
 describe('time expression value conversion', () => {
@@ -18,7 +19,10 @@ describe('time expression value conversion', () => {
   })
 
   test('keeps HH:mm:ss when includeSeconds is true', async () => {
-    const nodeDef = NodeDefFactory.createInstance({ type: NodeDefType.time, props: { includeSeconds: true } })
+    const nodeDef = NodeDefFactory.createInstance({
+      type: NodeDefType.time,
+      props: { includeSeconds: true } as NodeDefTimeProps,
+    })
     const result = await RecordExpressionValueConverter.toNodeValue({
       survey: {} as any,
       record: {} as any,

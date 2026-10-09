@@ -119,7 +119,7 @@ describe('Record nodes updater - applicability', () => {
       )
     ).build()
 
-    let record = new RecordBuilder(
+    const record = new RecordBuilder(
       user,
       survey,
       entity(

@@ -121,7 +121,7 @@ describe('NodeDefExpressionEvaluator', () => {
     const testNameSuffix = nodeDef ? ` (nodeDef: ${nodeDef})` : ''
 
     test(`${expression}${testNameSuffix}`, async () => {
-      try {
+      const run = async () => {
         const nodeDefCurrent = Surveys.getNodeDefByName({ survey, name: nodeDef ?? 'cluster_id' })
 
         const result = await new NodeDefExpressionEvaluator().evalExpression({
@@ -132,12 +132,11 @@ describe('NodeDefExpressionEvaluator', () => {
         })
 
         checkExpressionEvaluateResult({ result, expectedResultValue, resultIsNotNodeDef })
-      } catch (error) {
-        if (errorExpected) {
-          expect(error).toBeDefined()
-        } else {
-          throw error
-        }
+      }
+      if (errorExpected) {
+        await expect(run()).rejects.toThrow()
+      } else {
+        await run()
       }
     })
   })

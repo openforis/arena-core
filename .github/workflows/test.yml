@@ -3,6 +3,7 @@ name: Run yarn test
 on: [pull_request]
 
 jobs:
+  # NOTE: job id "build" is referenced by Mergify
   build:
     runs-on: ubuntu-latest
     env:
@@ -14,5 +15,9 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 24
-      - run: yarn install --mode=skip-build
+      - run: yarn install --immutable --mode=skip-build
+      - run: yarn lint
+      - run: yarn format:check
+      - run: yarn typecheck
+      - run: yarn build
       - run: yarn test

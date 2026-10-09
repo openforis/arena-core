@@ -1,5 +1,6 @@
 import { describe, test, expect } from '@jest/globals'
 
+import { NodeDef } from '../nodeDef'
 import { Survey, Surveys, defaultCycle } from '../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../tests/data'
@@ -306,7 +307,7 @@ describe('FlatDataExportModel', () => {
     test('exports getExpandedCategoryItemColumnHeader', () => {
       expect(FlatDataExportModel.getExpandedCategoryItemColumnHeader).toBeDefined()
       const header = FlatDataExportModel.getExpandedCategoryItemColumnHeader({
-        nodeDef: { props: { name: 'test_field' } },
+        nodeDef: { props: { name: 'test_field' } } as NodeDef<any>,
         code: 'A',
       })
       expect(header).toBe('test_field__A')

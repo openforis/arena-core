@@ -280,10 +280,7 @@ describe('Survey Dependencies - enumeratingItemsExpression', () => {
       entityDef(
         'root_entity',
         entityDef('table_source', textDef('source_type')).multiple(),
-        entityDef(
-          'table_sum',
-          codeDef('sum_type', 'types').key()
-        )
+        entityDef('table_sum', codeDef('sum_type', 'types').key())
           .multiple()
           .enumerate()
           .enumeratingItemsExpression('unique(table_source.source_type)')
