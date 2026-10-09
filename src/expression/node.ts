@@ -1,7 +1,7 @@
 import { ExpressionEvaluator } from './evaluator'
 import { ExpressionContext } from './context'
 
-export const enum ExpressionNodeType {
+export enum ExpressionNodeType {
   Array = 'ArrayExpression',
   Binary = 'BinaryExpression',
   Call = 'CallExpression',

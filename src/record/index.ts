@@ -9,8 +9,10 @@ export type { RecordUpdateOptions } from './records'
 
 export { RecordCloner } from './recordCloner'
 export { RecordExpressionEvaluator } from './recordExpressionEvaluator'
+export type { RecordExpressionContext } from './recordExpressionEvaluator'
 export { RecordFixer } from './recordFixer'
 export { RecordNodesUpdater, RecordUpdateResult } from './recordNodesUpdater'
+export type { NodeCreateParams, NodesUpdateParams, RecordExpressionEvaluationContext } from './recordNodesUpdater'
 export { RecordUpdater } from './recordUpdater'
 export { RecordValidator } from './recordValidator'
 export type {
