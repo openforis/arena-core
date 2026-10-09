@@ -8,7 +8,7 @@ export const _walk = (options: { object: any; skip?: string[]; limitToLevel?: nu
   if (Array.isArray(object)) {
     return object.reduce(
       (acc, item, index) => {
-        acc[index] = _walk({ object: item, limitToLevel, sideEffect })
+        acc[index] = _walk({ object: item, skip, limitToLevel, sideEffect })
         return acc
       },
       sideEffect ? object : []
@@ -21,7 +21,9 @@ export const _walk = (options: { object: any; skip?: string[]; limitToLevel?: nu
       const skipped = skip.includes(key)
       const keyTransformed: string = skipped ? key : _camelCase(key)
       const valueTranformed =
-        skipped || nextLimitToLevel === 0 ? value : _walk({ object: value, limitToLevel: nextLimitToLevel, sideEffect })
+        skipped || nextLimitToLevel === 0
+          ? value
+          : _walk({ object: value, skip, limitToLevel: nextLimitToLevel, sideEffect })
 
       objAcc[keyTransformed] = valueTranformed
 

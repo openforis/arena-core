@@ -87,13 +87,14 @@ const assocDateValidUntil =
 const isTargetingUser =
   (user: User) =>
   (message: Message): boolean => {
-    const now = new Date()
+    const now = Date.now()
+    // dates can be strings (e.g. when the message comes from JSON): compare timestamps
     const validUntil = getDateValidUntil(message)
-    if (validUntil && validUntil < now) {
+    if (validUntil && new Date(validUntil).getTime() < now) {
       return false
     }
     const scheduledAt = getDateScheduledAt(message)
-    if (scheduledAt && scheduledAt > now) {
+    if (scheduledAt && new Date(scheduledAt).getTime() > now) {
       return false
     }
     const targets = getTargetUserTypes(message)
