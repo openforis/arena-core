@@ -1,6 +1,6 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { NodeDefType } from '../nodeDef'
+import { NodeDefFactory, NodeDefType } from '../nodeDef'
 import { DateFormats, Dates } from '../utils'
 import { NodeFactory } from './factory'
 import { NodeValues } from './nodeValues'
@@ -79,5 +79,14 @@ describe('NodeValues.isValueEqual - time', () => {
     expect(NodeValues.isValueEqual({ survey: {} as any, nodeDef, value: '14:30:00', valueSearch: '14:30:45' })).toBe(
       false
     )
+  })
+})
+
+describe('code attribute value props', () => {
+  test('label is a value prop of code attributes', () => {
+    const nodeDef = NodeDefFactory.createInstance({ type: NodeDefType.code })
+    expect(NodeValues.ValuePropsCode.label).toBe('label')
+    expect(NodeValues.isValueProp({ nodeDef, prop: 'label' })).toBe(true)
+    expect(NodeValues.isValueProp({ nodeDef, prop: 'level' })).toBe(false)
   })
 })

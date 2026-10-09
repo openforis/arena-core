@@ -9,7 +9,8 @@ export class NodeDefMemberEvaluator extends MemberEvaluator<NodeDefExpressionCon
     const { object, property, computed } = expressionNode
 
     const objectEval = await this.evaluator.evaluateNode(object, this.context)
-    if (objectEval === null) {
+    // null or undefined object (e.g. parent of the root entity)
+    if (objectEval === null || objectEval === undefined) {
       return null
     }
     if (computed) {
@@ -45,6 +46,7 @@ export class NodeDefMemberEvaluator extends MemberEvaluator<NodeDefExpressionCon
       object: objectEval,
       nodeDefContext: propertyNodeDefContext,
       selfReferenceAllowed: true,
+      memberProperty: true,
     })
   }
 

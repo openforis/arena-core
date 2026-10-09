@@ -114,8 +114,8 @@ export const deleteNodeDefIndex =
         obj: surveyUpdated,
         path: [keys.nodeDefsIndex, indexKeys.childDefUuidPresenceByParentUuid, parentUuid, uuid],
       })
-    } else {
-      // node def is root
+    } else if (survey.nodeDefsIndex?.rootDefUuid === uuid) {
+      // node def is root (other node defs without parent, e.g. temporary or analysis ones, are not)
       surveyUpdated = Objects.dissocPath({
         obj: surveyUpdated,
         path: [keys.nodeDefsIndex, indexKeys.rootDefUuid],

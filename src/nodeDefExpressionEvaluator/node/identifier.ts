@@ -3,6 +3,7 @@ import { getNodeDefChildren, getNodeDefParent, getNodeDefSource } from '../../su
 import { NodeDefs } from '../../nodeDef/nodeDefs'
 import { Objects, Queue } from '../../utils'
 import { IdentifierEvaluator } from '../../expression/javascript/node/identifier'
+import { getGlobalObjectProperty } from '../../expression/javascript/global'
 import { NodeDefExpressionContext } from '../context'
 import { ExpressionVariable, IdentifierExpression } from '../../expression'
 import { SystemError } from '../../error'
@@ -44,7 +45,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
 
   private evaluateIdentifier(expressionNode: IdentifierExpression): any {
     const { context } = this
-    const { nodeDefContext, nodeDefCurrent, selfReferenceAllowed, object: objectContext, itemsFilter } = context
+    const { nodeDefContext, object: objectContext, itemsFilter, memberProperty } = context
     const { name: exprName } = expressionNode
 
     if (exprName === ExpressionVariable.CONTEXT) {
@@ -54,10 +55,10 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
       return nodeDefContext
     }
 
-    // try to find the identifier among global objects or native properties
-    const globalOrNativeProperty = this.findGlobalOrNativeProperty(expressionNode)
-    if (globalOrNativeProperty) {
-      return globalOrNativeProperty.value
+    // global objects (e.g. Math, String)
+    const globalObjectProperty = getGlobalObjectProperty(exprName, objectContext)
+    if (globalObjectProperty !== null) {
+      return globalObjectProperty
     }
 
     if (itemsFilter) {
@@ -67,27 +68,68 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
       }
     }
 
-    // check if identifier is a native property or function (e.g. String.length or String.toUpperCase())
-    if (NodeNativeProperties.hasNativeProperty({ nodeDefOrValue: objectContext, propName: exprName })) {
-      return NodeNativeProperties.evalNodeDefProperty({ nodeDefOrValue: objectContext, propName: exprName })
-    }
-
     // check if identifier is a composite attribute value prop
     if (NodeDefs.isAttribute(objectContext) && NodeValues.isValueProp({ nodeDef: objectContext, prop: exprName })) {
       return objectContext
     }
 
-    const referencedNodeDef = this.findIdentifierAmongReachableNodeDefs(expressionNode)
-    if (referencedNodeDef) {
-      if (!selfReferenceAllowed && referencedNodeDef.uuid === nodeDefCurrent?.uuid) {
-        throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: exprName })
-      }
-      this.addReferencedNodeDefUuid(referencedNodeDef.uuid)
-      return referencedNodeDef
+    if (memberProperty) {
+      // property of a member expression (e.g. text_attr.length or text_attr.toUpperCase()): native properties first
+      const nativeProperty = this.findNativeProperty(expressionNode)
+      if (nativeProperty) return nativeProperty.value
+      return this.getReferencedNodeDef(expressionNode)
     }
+    // identifier not in a member expression: node defs first, so that node defs named like native properties
+    // (e.g. "name", "type", "trim") are always found (and registered as dependencies)
+    const referencedNodeDef = this.findReferencedNodeDef(expressionNode)
+    if (referencedNodeDef) return referencedNodeDef
+
+    const nativeProperty = this.findNativeProperty(expressionNode)
+    if (nativeProperty) return nativeProperty.value
+
+    return this.throwIdentifierNotFound(expressionNode)
+  }
+
+  /**
+   * Finds the identifier among the native properties or functions of the context object
+   * (e.g. String.length or String.toUpperCase()).
+   */
+  private findNativeProperty(expressionNode: IdentifierExpression): { value: any } | null {
+    const { object: objectContext } = this.context
+    const { name: exprName } = expressionNode
+
+    const globalOrNativeProperty = this.findGlobalOrNativeProperty(expressionNode)
+    if (globalOrNativeProperty) {
+      return globalOrNativeProperty
+    }
+    if (NodeNativeProperties.hasNativeProperty({ nodeDefOrValue: objectContext, propName: exprName })) {
+      return {
+        value: NodeNativeProperties.evalNodeDefProperty({ nodeDefOrValue: objectContext, propName: exprName }),
+      }
+    }
+    return null
+  }
+
+  private findReferencedNodeDef(expressionNode: IdentifierExpression): NodeDef<NodeDefType, NodeDefProps> | undefined {
+    const { nodeDefCurrent, selfReferenceAllowed } = this.context
+    const referencedNodeDef = this.findIdentifierAmongReachableNodeDefs(expressionNode)
+    if (!referencedNodeDef) return undefined
+
+    if (!selfReferenceAllowed && referencedNodeDef.uuid === nodeDefCurrent?.uuid) {
+      throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: expressionNode.name })
+    }
+    this.addReferencedNodeDefUuid(referencedNodeDef.uuid)
+    return referencedNodeDef
+  }
+
+  private getReferencedNodeDef(expressionNode: IdentifierExpression): NodeDef<NodeDefType, NodeDefProps> {
+    return this.findReferencedNodeDef(expressionNode) ?? this.throwIdentifierNotFound(expressionNode)
+  }
+
+  private throwIdentifierNotFound(expressionNode: IdentifierExpression): never {
     throw new SystemError('expression.identifierNotFound', {
-      name: exprName,
-      contextObject: objectContext?.props?.name,
+      name: expressionNode.name,
+      contextObject: this.context.object?.props?.name,
     })
   }
 
