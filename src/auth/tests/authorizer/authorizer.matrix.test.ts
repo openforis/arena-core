@@ -25,7 +25,7 @@ const createUser = (groupName: AuthGroupName): User => {
   if (groupName === G.systemAdmin) {
     authGroups = [SYSTEM_ADMIN_GROUP]
   } else if (groupName === G.surveyManager) {
-    // survey managers have no default group in the survey
+    // survey manager not linked to the survey (no group in it): cannot do anything in the survey
     authGroups = [{ name: G.surveyManager }]
   } else {
     authGroups = survey.authGroups.filter((group) => group.name === groupName)
@@ -161,8 +161,8 @@ const changeRecordPropsExpectations: {
   [G.dataAnalyst]: { owned: [true, true, true], notOwned: [true, true, true] },
   [G.dataCleanser]: { owned: [true, true, false], notOwned: [true, true, false] },
   [G.dataEditor]: { owned: [true, false, false], notOwned: [false, false, false] },
-  // NOTE: survey guests have "all" permission on analysis step records
-  [G.surveyGuest]: { owned: [false, false, true], notOwned: [false, false, true] },
+  // survey guests have "all" record steps permission on analysis step records (to view them), but they cannot edit them
+  [G.surveyGuest]: { owned: [false, false, false], notOwned: [false, false, false] },
 }
 
 const recordCases = (expectations: typeof editRecordExpectations) =>
