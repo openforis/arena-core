@@ -49,12 +49,12 @@
     "@turf/distance": "^7.4.0",
     "bignumber.js": "^11.1.5",
     "change-case": "^5.4.4",
+    "dayjs": "^1.11.13",
     "jsep": "^1.4.0",
     "lodash.differencewith": "^4.5.0",
     "lodash.frompairs": "^4.0.1",
     "lodash.isequal": "^4.5.0",
     "lodash.topairs": "^4.3.0",
-    "moment": "^2.31.0",
     "n2words": "^6.3.0",
     "proj4": "^2.22.0",
     "uuid": "^14.0.2"
