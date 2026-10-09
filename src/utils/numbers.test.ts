@@ -29,3 +29,15 @@ describe('Numbers.toWords', () => {
     expect(Numbers.toWords('not a number')).toBeNull()
   })
 })
+
+describe('Numbers.limit', () => {
+  test('0 is a valid bound', () => {
+    expect(Numbers.limit({ minValue: 0 })(-5)).toBe(0)
+    expect(Numbers.limit({ maxValue: 0 })(5)).toBe(0)
+    expect(Numbers.limit({ minValue: 0, maxValue: 10 })(5)).toBe(5)
+  })
+
+  test('no bounds: value unchanged', () => {
+    expect(Numbers.limit({})(-5)).toBe(-5)
+  })
+})

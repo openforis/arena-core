@@ -209,6 +209,43 @@ describe('FileProcessor', () => {
     })
   })
 
+  describe('pause and resume while a chunk is being processed', () => {
+    test('processes every chunk only once', (done) => {
+      const content = 'a'.repeat(2100)
+      const file = new File([content], 'test.txt', { type: 'text/plain' })
+      const chunkProcessor = createChunkProcessorMock().mockImplementation(
+        async () =>
+          await new Promise((resolve) => {
+            setTimeout(() => resolve(null), 30)
+          })
+      )
+      const onComplete = jest.fn()
+
+      const processor = new FileProcessor({ file, chunkProcessor, chunkSize: 1000, onComplete })
+
+      processor.start()
+
+      // pause and resume while the first chunk is still being processed
+      setTimeout(() => {
+        processor.pause()
+        processor.resume()
+      }, 10)
+
+      setTimeout(() => {
+        const processedChunks = chunkProcessor.mock.calls.map((call: any[]) => call[0].chunk)
+        expect(processedChunks).toEqual([1, 2, 3])
+        expect(onComplete).toHaveBeenCalledTimes(1)
+
+        // resume after completion does nothing
+        processor.resume()
+        setTimeout(() => {
+          expect(chunkProcessor).toHaveBeenCalledTimes(3)
+          done()
+        }, 60)
+      }, 250)
+    })
+  })
+
   describe('error handling', () => {
     test('should call onError when chunkProcessor fails', (done) => {
       const content = 'a'.repeat(100)
