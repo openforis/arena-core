@@ -212,4 +212,34 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
     const recordValidationFields = Validations.getValidation(record).fields ?? {}
     expect(Object.keys(recordValidationFields)).not.toContain(tableNumNodeDeleted.uuid)
   })
+
+  test('Hierarchical code attribute set again to the same value -> enumerated entities not duplicated', async () => {
+    record = createRecord()
+
+    const updateParentCode = async (itemUuid: string) => {
+      const parentCodeNode = TestUtils.getNodeByPath({ survey, record, path: 'parent_code' })
+      const updateResult = await RecordUpdater.updateAttributeValue({
+        user,
+        survey,
+        record,
+        attributeUuid: parentCodeNode.uuid,
+        value: NodeValues.newCodeValue({ itemUuid }),
+      })
+      record = updateResult.record
+    }
+    const getEnumeratedEntities = () => TestUtils.findNodesByPath({ survey, record, path: 'enumerated_entity' }) ?? []
+
+    await updateParentCode(item1.uuid)
+    expect(getEnumeratedEntities()).toHaveLength(1)
+
+    // same value again
+    await updateParentCode(item1.uuid)
+    expect(getEnumeratedEntities()).toHaveLength(1)
+
+    await updateParentCode(item2.uuid)
+    expect(getEnumeratedEntities()).toHaveLength(3)
+
+    await updateParentCode(item2.uuid)
+    expect(getEnumeratedEntities()).toHaveLength(3)
+  })
 })
