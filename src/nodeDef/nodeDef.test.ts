@@ -70,4 +70,10 @@ const testNodeDef = (nodeDef: NodeDef<any>, params: NodeDefFactoryParams) =>
 describe('NodeDefFactory', () => {
   testNodeDef(cluster, clusterParams)
   testNodeDef(dbh, dbhParams)
+
+  test('default props are not shared between instances', () => {
+    const nodeDef1 = NodeDefFactory.createInstance({ type: NodeDefType.text })
+    const nodeDef2 = NodeDefFactory.createInstance({ type: NodeDefType.text })
+    expect(nodeDef1.props).not.toBe(nodeDef2.props)
+  })
 })

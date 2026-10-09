@@ -162,3 +162,28 @@ describe('Validator', () => {
     })
   })
 })
+
+describe('Validator (removeValid: false)', () => {
+  test('all fields valid => validation valid, valid fields kept', async () => {
+    const validation = await validator.validate(
+      { a: 20 },
+      { a: [greaterThan10(ValidationSeverity.error)] },
+      {
+        removeValid: false,
+      }
+    )
+    expect(validation.valid).toBe(true)
+    expect(validation.fields?.a?.valid).toBe(true)
+  })
+
+  test('one field not valid => validation not valid', async () => {
+    const validation = await validator.validate(
+      { a: 20, b: 5 },
+      { a: [greaterThan10(ValidationSeverity.error)], b: [greaterThan10(ValidationSeverity.error)] },
+      { removeValid: false }
+    )
+    expect(validation.valid).toBe(false)
+    expect(validation.fields?.a?.valid).toBe(true)
+    expect(validation.fields?.b?.valid).toBe(false)
+  })
+})

@@ -63,3 +63,14 @@ test('ExpectedSurvey === Survey', () => {
   expect(surveyProps).toHaveProperty('collectUri')
   expect(surveyProps.collectUri).toBeUndefined()
 })
+
+test('Survey factory: default objects are not shared between instances', () => {
+  const survey1 = SurveyFactory.createInstance({ ownerUuid: 'owner', name: 'survey_1' })
+  const survey2 = SurveyFactory.createInstance({ ownerUuid: 'owner', name: 'survey_2' })
+
+  survey1.props.languages.push(LanguageCode.fr)
+  survey1.authGroups[0].name = 'changed' as any
+
+  expect(survey2.props.languages).toEqual([LanguageCode.en])
+  expect(survey2.authGroups[0].name).not.toBe('changed')
+})

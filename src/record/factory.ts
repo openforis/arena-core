@@ -27,7 +27,7 @@ export const RecordFactory: Factory<Record, RecordFactoryParams> = {
     }
 
     const surveyGroup = user.authGroups?.find((group) => group.surveyUuid === surveyUuid)
-    const ownerRole = (surveyGroup?.name ?? Users.isSystemAdmin(user)) ? AuthGroupName.systemAdmin : undefined
+    const ownerRole = surveyGroup?.name ?? (Users.isSystemAdmin(user) ? AuthGroupName.systemAdmin : undefined)
 
     return {
       cycle,

@@ -85,7 +85,7 @@ const format = (params: FormatParams) => {
     return ''
   }
   const formatter = formatters[NodeDefs.getType(nodeDef)]
-  const formatValue = (v: any) => (formatter ? formatter(params) : v)
+  const formatValue = (v: any) => (formatter ? formatter({ ...params, value: v }) : v)
 
   return NodeDefs.isMultiple(nodeDef) && Array.isArray(value) ? value.map(formatValue).join(', ') : formatValue(value)
 }

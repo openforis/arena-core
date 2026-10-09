@@ -19,7 +19,7 @@ const getAuthGroupBySurveyUuid =
     const authGroups = getAuthGroups(user)
     if (!authGroups) return undefined
     return includeSystemAdmin && isSystemAdmin(user)
-      ? authGroups[0]
+      ? authGroups.find(AuthGroups.isSystemAdmin)
       : authGroups.find((authGroup) => authGroup.surveyUuid === surveyUuid)
   }
 

@@ -43,7 +43,7 @@ const getDependentValidationNodePointers = (params: {
 const _onRecordNodesCreateOrUpdate = async (
   params: NodesUpdateParams & { nodes: Dictionary<Node> }
 ): Promise<RecordUpdateResult> => {
-  const { user, survey, record, dateModified = Dates.nowFormattedForStorage() } = params
+  const { user, survey, dateModified = Dates.nowFormattedForStorage() } = params
 
   const updateResult = await RecordNodesUpdater.updateNodesDependents(params)
   const { nodes: updatedNodes, record: updatedRecord } = updateResult
@@ -68,7 +68,7 @@ const _onRecordNodesCreateOrUpdate = async (
     nodes: nodesToValidate,
   })
 
-  const validation = Validations.mergeValidations(validationUpdatedNodes)(Validations.getValidation(record))
+  const validation = Validations.mergeValidations(validationUpdatedNodes)(Validations.getValidation(updatedRecord))
   updatedRecord.validation = validation
   updatedRecord.dateModified = dateModified
 
