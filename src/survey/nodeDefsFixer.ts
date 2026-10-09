@@ -39,6 +39,13 @@ const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: No
     visitedNodeDefUuids.add(currentParentUuid)
     hiearchy.unshift(currentParentUuid)
     const currentParentNode = nodeDefs[currentParentUuid]
+    if (!currentParentNode) {
+      throw new SystemError('nodeDef.parentNotFound', {
+        nodeDefName: nodeDef.props?.name,
+        nodeDefUuid: nodeDef.uuid,
+        parentUuid: currentParentUuid,
+      })
+    }
     currentParentUuid = currentParentNode.parentUuid
   }
   return hiearchy
@@ -47,9 +54,10 @@ const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: No
 const fixHiearchy = (params: NodeDefFixParams): NodeDef<any> | null => {
   const { nodeDefs, nodeDef, sideEffect } = params
   const calculatedHierarchy = calculateNodeDefHierarchy({ nodeDefs, nodeDef })
-  return calculatedHierarchy.length !== NodeDefs.getMetaHieararchy(nodeDef).length
-    ? Objects.assocPath({ obj: nodeDef, path: ['meta', 'h'], value: calculatedHierarchy, sideEffect })
-    : null
+  // compare the whole hierarchy: a node def moved to another parent at the same depth has a hierarchy with the same length
+  return Objects.isEqual(calculatedHierarchy, NodeDefs.getMetaHieararchy(nodeDef))
+    ? null
+    : Objects.assocPath({ obj: nodeDef, path: ['meta', 'h'], value: calculatedHierarchy, sideEffect })
 }
 
 const fixLayoutProp = (
