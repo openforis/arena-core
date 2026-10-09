@@ -13,8 +13,6 @@ import { Records } from './records'
 import { RecordUpdater } from './recordUpdater'
 import { Record } from './record'
 
-const nodeCreationTimeFactor = 0.003
-
 let user: User
 let record: Record
 let survey: Survey
@@ -25,7 +23,6 @@ const createNodes = async (params: { nodeDefName: string; totalNodes: number }) 
   const rootEntity = Records.getRoot(record)
 
   let nodeCreationTime = NaN
-  let lastNodeCreationTime = NaN
   const startAll = performance.now()
 
   for (let index = 0; index < totalNodes; index++) {
@@ -42,12 +39,10 @@ const createNodes = async (params: { nodeDefName: string; totalNodes: number }) 
     const elapsedTime = end - start
     if (index === 0) {
       nodeCreationTime = elapsedTime
-    } else if (index === totalNodes - 1) {
-      lastNodeCreationTime = elapsedTime
     }
   }
   const endAll = performance.now()
-  return { totalTime: endAll - startAll, nodeCreationTime, lastNodeCreationTime }
+  return { totalTime: endAll - startAll, nodeCreationTime }
 }
 
 describe('RecordUpdater - node create - performance test', () => {
@@ -72,10 +67,17 @@ describe('RecordUpdater - node create - performance test', () => {
 
     const nodeDefName = 'mult_entity'
     const totalNodes = 500
-    const { nodeCreationTime, lastNodeCreationTime } = await createNodes({ nodeDefName, totalNodes })
+    const multEntityDef = Surveys.getNodeDefByName({ survey, name: nodeDefName })
+    const keyDef = Surveys.getNodeDefByName({ survey, name: 'mult_entity_id' })
+    const entitiesCountBefore = Records.getNodesByDefUuid(multEntityDef.uuid)(record).length
 
-    // without autoincremental key and without a default value, total time will be exponential (depends on the total number of nodes created)
-    expect(lastNodeCreationTime).toBeGreaterThan(nodeCreationTime * (totalNodes * nodeCreationTimeFactor))
+    await createNodes({ nodeDefName, totalNodes })
+
+    // NOTE: no assertion on the creation time here: it used to assert that creating the last entity is slower
+    // than creating the first one (wall-clock ratio), which fails randomly once node creation is fast enough
+    const expectedCount = entitiesCountBefore + totalNodes
+    expect(Records.getNodesByDefUuid(multEntityDef.uuid)(record)).toHaveLength(expectedCount)
+    expect(Records.getNodesByDefUuid(keyDef.uuid)(record)).toHaveLength(expectedCount)
   })
 
   test('Multiple entity with autoincrement', async () => {
