@@ -73,7 +73,9 @@ const convertDate = (params: {
   if (!dateParsed || !moment(dateParsed).isValid()) {
     return undefined
   }
-  return format(dateParsed, formatTo)
+  // with keepTimeZone the parsed date encodes the source digits as if they were UTC (see parse/parseZone):
+  // format it in UTC too, otherwise the digits would be shifted by the time zone of this machine
+  return keepTimeZone ? formatUTC(dateParsed, formatTo) : format(dateParsed, formatTo)
 }
 
 /**
