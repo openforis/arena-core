@@ -61,7 +61,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     }
 
     if (itemsFilter) {
-      const prop = objectContext?.props?.[exprName] || objectContext?.props?.extra?.[exprName]
+      const prop = objectContext?.props?.[exprName] ?? objectContext?.props?.extra?.[exprName]
       if (!Objects.isEmpty(prop)) {
         return prop
       }
