@@ -6,6 +6,19 @@ import { PointFactory } from '../pointFactory'
 import { isFilled } from './isFilled'
 import { getSrs } from './getSrs'
 
+// proj4 parses both WKT strings every time it is called with them: cache the converters by WKT pair
+const convertersCache = new Map<string, proj4.Converter>()
+
+const getConverter = (wktFrom: string, wktTo: string): proj4.Converter => {
+  const key = `${wktFrom}\n${wktTo}`
+  let converter = convertersCache.get(key)
+  if (!converter) {
+    converter = proj4(wktFrom, wktTo)
+    convertersCache.set(key, converter)
+  }
+  return converter
+}
+
 /**
  * Trasforms the specified point from one SRS into another.
  *
@@ -36,7 +49,7 @@ export const transform = (point: Point, srsCodeTo: string, srsIndex: SRSIndex = 
   }
   try {
     const { x, y } = point
-    const [long, lat] = proj4(srsFrom.wkt, srsTo.wkt, [Number(x), Number(y)])
+    const [long, lat] = getConverter(srsFrom.wkt, srsTo.wkt).forward([Number(x), Number(y)])
 
     return PointFactory.createInstance({ ...point, srs: srsCodeTo, x: long, y: lat })
   } catch {
