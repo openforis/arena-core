@@ -62,6 +62,24 @@ describe('Survey NodeDefsFixer', () => {
     expect(updatedNodeDefs[plotDef.uuid]).toBe(nodeDefs[plotDef.uuid])
   })
 
+  test('Hierarchy fixed when it has the right length but wrong content (node def moved at the same depth)', () => {
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
+    const rootDef = Surveys.getNodeDefRoot({ survey })
+    plotDef.meta.h = ['OTHER_PARENT_UUID']
+
+    const { updatedNodeDefs } = NodeDefsFixer.fixNodeDefs({ nodeDefs: survey.nodeDefs!, cycles: ['0'] })
+
+    expect(Object.keys(updatedNodeDefs)).toEqual([plotDef.uuid])
+    expect(NodeDefs.getMetaHieararchy(updatedNodeDefs[plotDef.uuid])).toEqual([rootDef.uuid])
+  })
+
+  test('Hierarchy fix with missing parent node def: explicit error', () => {
+    const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
+    const nodeDefs = { ...survey.nodeDefs!, [plotIdDef.uuid]: { ...plotIdDef, parentUuid: 'MISSING_PARENT_UUID' } }
+
+    expect(() => NodeDefsFixer.fixNodeDefs({ nodeDefs, cycles: ['0'] })).toThrow('nodeDef.parentNotFound')
+  })
+
   test('Layout index children fixed', () => {
     const cycle = '0'
     const rootDef = Surveys.getNodeDefRoot({ survey })

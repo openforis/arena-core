@@ -46,6 +46,13 @@ const queries: Query[] = [
   // global objects: String
   { expression: 'String.fromCharCode(65, 66, 67)', result: 'ABC' },
   { expression: 'String(65)', result: '65' },
+  // string concatenation
+  { expression: '"a" + "b"', result: 'ab' },
+  { expression: '"a" + 1', result: 'a1' },
+  // string concatenation with null gives null (like arithmetic operations with null)
+  { expression: '"a" + null', result: null },
+  { expression: 'null + "a"', result: null },
+  { expression: '1 + null', result: null },
   // global objects: Unknown object/function
   { expression: 'Math.unknownFunc(1)', error: true },
   { expression: 'Invalid.func(1)', error: true },
