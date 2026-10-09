@@ -31,7 +31,7 @@ yarn format:check   # Check Prettier formatting of src/
 yarn typecheck      # Type-check sources and test files (tsconfig.test.json)
 ```
 
-PR CI (`.github/workflows/test.yml`) runs `install --immutable`, `lint`, `format:check`, `typecheck`, `build` and `test`.
+PR CI (`.github/workflows/test.yml`) runs `install --immutable`, `lint`, `format:check`, `typecheck`, `build` and `test`. The tests also run in non-UTC time zones (`test-timezones` job); locally they run in UTC unless `TZ` is set (`jest.config.ts`).
 
 **Note:** Pre-commit hooks automatically run `lint-staged`, which runs ESLint with `--fix` and Prettier on staged files.
 

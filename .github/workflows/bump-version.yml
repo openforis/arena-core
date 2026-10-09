@@ -7,6 +7,11 @@ on:
     paths-ignore:
       - 'package.json'
 
+# never run two releases at the same time: merges close together would interleave version bumps, tags and publishing
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   publish-new-version:
     runs-on: ubuntu-latest
@@ -14,7 +19,7 @@ jobs:
       NPM_TOKEN: ${{ secrets.ACCESS_TOKEN }}
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           token: ${{ secrets.ACCESS_TOKEN }}
       - name: Temporarily disable "include administrators" branch protection
@@ -29,7 +34,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         with:
           tag-prefix: 'v'
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com/

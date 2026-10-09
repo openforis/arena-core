@@ -13,6 +13,8 @@ import { TestUtils } from '../../tests/testUtils'
 import { AuthGroupName } from '../../auth'
 import { LanguageCode } from '../../language'
 
+const testsLoadTime = Date.now()
+
 type Query = {
   expression: string
   result?: any
@@ -373,7 +375,8 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'Array.of(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', result: [1, 2, 3] },
     // global objects (Date)
     { expression: `Date.parse('01 Jan 1970 00:00:00 GMT')`, result: 0 },
-    { expression: 'Math.round(Date.now() / 1000)', result: () => Math.round(Date.now() / 1000) },
+    // compare with the time when the test file is loaded: comparing two Date.now() calls could fail on a time boundary
+    { expression: `Math.floor(Date.now() / 1000) >= ${Math.floor(testsLoadTime / 1000)}`, result: true },
     // global objects (Math)
     { expression: 'Math.PI', result: Math.PI },
     { expression: 'Math.min(plot[0].plot_id, plot[1].plot_id, plot[2].plot_id)', result: 1 },

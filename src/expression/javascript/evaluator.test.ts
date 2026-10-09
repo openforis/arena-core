@@ -2,6 +2,8 @@ import { describe, test, expect } from '@jest/globals'
 
 import { JavascriptExpressionEvaluator } from './evaluator'
 
+const testsLoadTime = Date.now()
+
 type Query = {
   expression: string
   result?: any
@@ -23,7 +25,8 @@ const queries: Query[] = [
   { expression: `Boolean('false')`, result: true },
   { expression: `Boolean(false)`, result: false },
   // global objects: Date
-  { expression: 'Math.round(Date.now() / 10000)', result: Math.round(Date.now() / 10000) },
+  // compare with the time when the test file is loaded: comparing two Date.now() calls could fail on a time boundary
+  { expression: `Date.now() >= ${testsLoadTime}`, result: true },
   // global objects: Math
   { expression: 'Math.pow(2,3) + 1', result: 9 },
   { expression: 'Math.pow(2,3) + 1 > 10', result: false },
