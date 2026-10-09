@@ -9,10 +9,10 @@ jobs:
     env:
       NPM_TOKEN: ${{secrets.ACCESS_TOKEN}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Use Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
       - run: yarn install --immutable --mode=skip-build
@@ -20,4 +20,24 @@ jobs:
       - run: yarn format:check
       - run: yarn typecheck
       - run: yarn build
+      - run: yarn test
+
+  # the tests run in UTC by default (see jest.config.ts): run them also in time zones east and west of UTC
+  # to catch date handling that depends on the local time zone
+  test-timezones:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        timezone: ['Asia/Tokyo', 'America/New_York']
+    env:
+      NPM_TOKEN: ${{secrets.ACCESS_TOKEN}}
+      TZ: ${{ matrix.timezone }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Use Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+      - run: yarn install --immutable --mode=skip-build
       - run: yarn test

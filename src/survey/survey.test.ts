@@ -1,8 +1,12 @@
 import { test, expect } from '@jest/globals'
 
+import { freezeDate } from '../tests/freezeDate'
+
 import { LanguageCode } from '../language'
 import { DEFAULT_SRS } from '../srs'
 import { SurveyFactory, SurveyFactoryParams } from './factory'
+
+freezeDate()
 
 test('ExpectedSurvey === Survey', () => {
   const surveyOptions: SurveyFactoryParams = {
