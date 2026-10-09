@@ -34,7 +34,15 @@ const findActualContextNode = (params: {
 }
 
 export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpressionContext> {
-  async evaluate(expressionNode: IdentifierExpression): Promise<any> {
+  evaluate(expressionNode: IdentifierExpression): Promise<any> {
+    try {
+      return Promise.resolve(this.evaluateIdentifier(expressionNode))
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
+  private evaluateIdentifier(expressionNode: IdentifierExpression): any {
     const { context } = this
     const { nodeDefContext, nodeDefCurrent, selfReferenceAllowed, object: objectContext, itemsFilter } = context
     const { name: exprName } = expressionNode
