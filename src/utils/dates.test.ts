@@ -157,3 +157,20 @@ describe('Dates add / sub / diff', () => {
     expect(Dates.isAfter('', later)).toBe(false)
   })
 })
+
+describe('Dates datetimeStorage (ISO) validation', () => {
+  test.each([
+    ['2020-01-31', true],
+    ['2020-01-31T10:20:30.000Z', true],
+    ['2020-01-31T10:20:30+02:00', true],
+    ['2020-01-31T10:20', true],
+    ['2020-02-30', false], // not moved to March 1st
+    ['2021-02-29', false],
+    ['2020-01-31T25:00:00Z', false],
+    ['2020-13-01', false],
+    ['31/01/2020', false],
+    ['not a date', false],
+  ])('%s => %s', (dateStr, expected) => {
+    expect(Dates.isValidDateInFormat(dateStr, DateFormats.datetimeStorage)).toBe(expected)
+  })
+})
