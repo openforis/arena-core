@@ -15,11 +15,11 @@ export const path =
 
     for (; i < parts.length; i++) {
       const part = parts[i]
-      if (current[part] === undefined) {
+      // stop when a value along the path is missing (undefined) or null
+      if (current === null || current === undefined || current[part] === undefined) {
         return undefined
-      } else {
-        current = current[part]
       }
+      current = current[part]
     }
     return current
   }

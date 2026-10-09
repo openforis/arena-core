@@ -34,6 +34,9 @@ export class FileProcessor {
   protected running: boolean = false
   protected totalChunks: number = 0
   protected currentChunkNumber: number = 0
+  // true while a chunk is being processed (resume must not start a second processing chain)
+  protected processingChunk: boolean = false
+  protected completed: boolean = false
 
   constructor({
     file,
@@ -64,6 +67,8 @@ export class FileProcessor {
     this.totalChunks = 0
     this.currentChunkNumber = 0
     this.totalFileSize = 0
+    this.processingChunk = false
+    this.completed = false
   }
 
   protected calculateFileSize(): Promise<number> {
@@ -90,6 +95,7 @@ export class FileProcessor {
   protected processNextChunk(): void {
     const { chunkProcessor, currentChunkNumber, totalFileSize, totalChunks, maxTryings } = this
 
+    this.processingChunk = true
     this.extractCurrentFileChunk()
       .then((content) => {
         const retryProcessor = new RetryProcessor<void>({
@@ -100,12 +106,20 @@ export class FileProcessor {
             }
           },
           onSuccess: () => {
-            if (this.running && this.currentChunkNumber < totalChunks) {
+            this.processingChunk = false
+            if (this.currentChunkNumber < totalChunks) {
+              // move to the next chunk also when paused: resume will continue from it
               this.currentChunkNumber += 1
-              this.processNextChunk()
+              if (this.running) {
+                this.processNextChunk()
+              }
+            } else {
+              this.running = false
+              this.completed = true
             }
           },
           onFail: (error: Error) => {
+            this.processingChunk = false
             this.onFail(error)
             this.running = false
           },
@@ -114,6 +128,7 @@ export class FileProcessor {
         retryProcessor.start()
       })
       .catch((error) => {
+        this.processingChunk = false
         this.onFail(error)
         this.running = false
       })
@@ -121,6 +136,7 @@ export class FileProcessor {
 
   start(startFromChunk: number = 1): void {
     this.running = true
+    this.completed = false
     this.currentChunkNumber = startFromChunk
     this.calculateFileSize()
       .then((fileSize) => {
@@ -145,7 +161,11 @@ export class FileProcessor {
   }
 
   resume(): void {
+    if (this.running || this.completed) return
     this.running = true
-    this.processNextChunk()
+    // if a chunk is still being processed, processing continues when it completes
+    if (!this.processingChunk && this.totalChunks > 0) {
+      this.processNextChunk()
+    }
   }
 }
