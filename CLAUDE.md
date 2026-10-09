@@ -19,6 +19,7 @@ yarn build:watch    # Compile with watch mode
 
 ```bash
 yarn test           # Run all Jest tests
+yarn test:coverage  # Run all Jest tests with coverage (fails below the thresholds in jest.config.ts)
 jest path/to/test   # Run a single test file
 ```
 
@@ -27,11 +28,11 @@ jest path/to/test   # Run a single test file
 ```bash
 yarn lint           # Run ESLint on all TypeScript files
 yarn lint:fix       # Auto-fix ESLint issues
-yarn format:check   # Check Prettier formatting of src/
+yarn format:check   # Check Prettier formatting of the whole repo (see .prettierignore)
 yarn typecheck      # Type-check sources and test files (tsconfig.test.json)
 ```
 
-PR CI (`.github/workflows/test.yml`) runs `install --immutable`, `lint`, `format:check`, `typecheck`, `build` and `test`. The tests also run in non-UTC time zones (`test-timezones` job); locally they run in UTC unless `TZ` is set (`jest.config.ts`).
+PR CI (`.github/workflows/test.yml`) runs `install --immutable`, `lint`, `format:check`, `typecheck`, `build` and `test:coverage`; the Node.js version comes from `.nvmrc`. The tests also run in non-UTC time zones (`test-timezones` job); locally they run in UTC unless `TZ` is set (`jest.config.ts`).
 
 **Note:** Pre-commit hooks automatically run `lint-staged`, which runs ESLint with `--fix` and Prettier on staged files.
 
@@ -168,7 +169,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 - Unused vars/args starting with `_` are allowed
 - `@typescript-eslint/no-explicit-any` is OFF
 - The codebase consistently uses `export type { ... }` for type-only exports (see `src/index.ts`), even though the `no-explicit-type-exports` plugin that used to enforce it is currently disabled in `eslint.config.mjs` pending ESLint 10 compatibility — keep following the convention regardless
-- `tslint.json` is a stale leftover (no `tslint` dependency in `package.json`); ESLint is the only linter actually in use
+- ESLint is the only linter in use
 
 ## Package Publishing
 

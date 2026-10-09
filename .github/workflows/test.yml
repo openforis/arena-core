@@ -14,13 +14,13 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 24
+          node-version-file: .nvmrc
       - run: yarn install --immutable --mode=skip-build
       - run: yarn lint
       - run: yarn format:check
       - run: yarn typecheck
       - run: yarn build
-      - run: yarn test
+      - run: yarn test:coverage
 
   # the tests run in UTC by default (see jest.config.ts): run them also in time zones east and west of UTC
   # to catch date handling that depends on the local time zone
@@ -38,6 +38,6 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 24
+          node-version-file: .nvmrc
       - run: yarn install --immutable --mode=skip-build
       - run: yarn test

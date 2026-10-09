@@ -4,7 +4,7 @@
     "name": "OpenForis",
     "email": "openforis.arena@gmail.com"
   },
-  "version": "2.3.33",
+  "version": "2.3.34",
   "description": "Arena core module",
   "main": "dist/index.js",
   "module": "dist/esm/index.js",
@@ -17,9 +17,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^8.0.6",
-    "@babel/preset-typescript": "^8.0.1",
-    "@types/babel__core": "^7.20.5",
+    "@jest/globals": "^30.5.2",
     "@types/jest": "^30.0.0",
     "@types/lodash.differencewith": "^4.5.9",
     "@types/lodash.frompairs": "^4.0.9",
@@ -27,7 +25,6 @@
     "@types/lodash.topairs": "^4.3.9",
     "@types/node": "^26.6.4",
     "@types/proj4": "^2.19.0",
-    "@types/uuid": "^11.0.0",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "eslint": "^10.11.0",
@@ -35,7 +32,6 @@
     "husky": "^9.1.7",
     "jest": "^30.5.2",
     "lint-staged": "^17.6.0",
-    "npm-run-all": "^4.1.5",
     "prettier": "^3.9.9",
     "ts-jest": "^29.4.14",
     "ts-node": "^10.9.2",
@@ -63,19 +59,20 @@
     "build:watch": "tsc --watch",
     "build": "yarn clean && tsc && tsc -p tsconfig.esm.json",
     "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
-    "format:check": "prettier --check 'src/**/*.{ts,tsx,json}'",
+    "format:check": "prettier --check .",
     "lint:fix": "npm run lint -- --fix",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "prepare": "yarn build && husky",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "typecheck": "tsc -p tsconfig.test.json"
   },
   "files": [
     "dist/**/*"
   ],
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": "eslint --cache --fix",
-    "**/*.{js,ts,json,css,md}": "prettier --write"
+    "src/**/*.{ts,tsx}": "eslint --cache --fix",
+    "*.{js,mjs,ts,tsx,json,md,yml,yaml}": "prettier --write"
   },
   "packageManager": "yarn@4.18.0",
   "publishConfig": {
