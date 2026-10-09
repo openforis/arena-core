@@ -29,7 +29,7 @@ export class Validator {
     options: ValidateOptions = defaultValidateOptions
   ): Promise<Validation> {
     const fieldsValidationArray: Array<Validation> = await Promise.all(
-      Object.entries(fieldsValidators).flatMap(async ([field, fieldValidators]) =>
+      Object.entries(fieldsValidators).map(async ([field, fieldValidators]) =>
         this.validateField(obj, field, fieldValidators)
       )
     )
@@ -37,9 +37,11 @@ export class Validator {
     let valid = true
     Object.keys(fieldsValidators).forEach((field, index) => {
       const fieldValidation: Validation = fieldsValidationArray[index]
+      if (!fieldValidation.valid) {
+        valid = false
+      }
       if (!options.removeValid || !fieldValidation.valid) {
         fields[field] = fieldValidation
-        valid = false
       }
     })
     return ValidationFactory.createInstance({ valid, fields })

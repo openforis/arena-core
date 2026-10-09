@@ -5,7 +5,7 @@ export enum DateFormats {
   dateDisplay = 'DD/MM/YYYY',
   dateStorage = 'YYYY-MM-DD',
   datetimeDisplay = 'DD/MM/YYYY HH:mm:ss',
-  datetimeStorage = `YYYY-MM-DD'T'HH:mm:ss.SSS'Z'`, // ISO
+  datetimeStorage = 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]', // ISO
   timeStorage = 'HH:mm',
   timeWithSeconds = 'HH:mm:ss',
   datetimeDefault = 'YYYY-MM-DD_HH-mm-ss',
@@ -47,7 +47,8 @@ const parse = (
   { keepTimeZone = true, strict = false } = {}
 ): Date | undefined => {
   if (!dateStr) return undefined
-  if (format == DateFormats.datetimeStorage) return parseISO(dateStr)
+  // ISO strings without an explicit offset (e.g. date only) are read as UTC, like the other formats parsed with parseZone
+  if (format == DateFormats.datetimeStorage) return moment.utc(dateStr, moment.ISO_8601, strict).toDate()
   if (keepTimeZone) return moment.parseZone(dateStr, format, strict).toDate()
   return moment(dateStr, format, strict).toDate()
 }

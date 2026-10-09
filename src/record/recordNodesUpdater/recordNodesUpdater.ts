@@ -75,14 +75,14 @@ export const updateNodesDependents = async (
 
   while (!nodeUuidsToVisit.isEmpty()) {
     const nodeUuid = nodeUuidsToVisit.dequeue()
-    const node = updateResult.getNodeByUuid(nodeUuid)
 
     const visitedCount = visitedCountByUuid[nodeUuid] ?? 0
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
       const nodesUpdatedCurrent: Dictionary<Node> = {}
       for (const dependentsUpdater of dependentsUpdaters) {
-        // updaters must run sequentially: each one works on the record updated by the previous ones
+        // updaters must run sequentially: each one works on the record (and node) updated by the previous ones
+        const node = updateResult.getNodeByUuid(nodeUuid)
         const dependentsUpdateResult = await dependentsUpdater(createNodeUpdateParams(node)) // NOSONAR
         updateResult.merge(dependentsUpdateResult)
         Object.assign(nodesUpdatedCurrent, dependentsUpdateResult.nodes)

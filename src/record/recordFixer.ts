@@ -132,6 +132,9 @@ const fixRecord = (params: { survey: Survey; record: ArenaRecord; sideEffect?: b
   const result = new RecordUpdateResult({ record })
 
   for (const node of Records.getNodesArray(record)) {
+    // skip nodes already deleted (e.g. descendants of nodes with non existing node defs)
+    if (result.nodesDeleted[node.uuid]) continue
+
     const { nodeDefUuid } = node
     const nodeDef = Surveys.findNodeDefByUuid({ survey, uuid: nodeDefUuid })
     if (nodeDef) {

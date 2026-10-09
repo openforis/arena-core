@@ -1,20 +1,23 @@
-import { Node } from '../../node'
+import { Node, Nodes, NodeValues } from '../../node'
 import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { ValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { Record } from '../record'
 import { Records } from '../records'
 
-import { Objects } from '../../utils'
-
 const _isAttributeDuplicate = (params: {
+  survey: Survey
   record: Record
   attribute: Node
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
 }): boolean => {
-  const { attribute, record, nodeDef } = params
+  const { survey, attribute, record, nodeDef } = params
+  // blank values are never considered duplicates
+  if (Nodes.isValueBlank(attribute)) return false
   const nodeSiblings = Records.getAttributeSiblings({ record, node: attribute, nodeDef })
-  return nodeSiblings.some((sibling) => Objects.isEqual(sibling.value, attribute.value))
+  return nodeSiblings.some((sibling) =>
+    NodeValues.isValueEqual({ survey, nodeDef, value: sibling.value, valueSearch: attribute.value })
+  )
 }
 
 const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps> }): boolean => {
@@ -35,7 +38,10 @@ export const validateAttributeUnique =
   (_propName: string, node: Node): Promise<ValidationResult> => {
     const { survey, record, nodeDef } = params
 
-    if (isNodeDefToBeValidated({ survey, nodeDef }) && _isAttributeDuplicate({ record, attribute: node, nodeDef })) {
+    if (
+      isNodeDefToBeValidated({ survey, nodeDef }) &&
+      _isAttributeDuplicate({ survey, record, attribute: node, nodeDef })
+    ) {
       return Promise.resolve(
         ValidationResultFactory.createInstance({
           valid: false,

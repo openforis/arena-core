@@ -148,4 +148,38 @@ describe('Record fixer', () => {
     expect(reinsertedProvince).toBeDefined()
     expect(reinsertedProvince.meta?.hCode).toEqual([regionNode.uuid])
   })
+
+  test('entity definition removed => descendant nodes removed too', async () => {
+    const surveyToFix = await new SurveyBuilder(
+      user,
+      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
+    ).build()
+
+    const recordToFix = new RecordBuilder(
+      user,
+      surveyToFix,
+      entity(
+        'cluster',
+        attribute('cluster_id', 1),
+        entity('plot', attribute('plot_id', 1)),
+        entity('plot', attribute('plot_id', 2))
+      )
+    ).build()
+
+    const rootDef = Surveys.getNodeDefRoot({ survey: surveyToFix })
+    const plotDef = Surveys.getNodeDefByName({ survey: surveyToFix, name: 'plot' })
+    const plotIdDef = Surveys.getNodeDefByName({ survey: surveyToFix, name: 'plot_id' })
+    // delete only the plot entity def: plot_id def still exists
+    deleteNodeDef({ survey: surveyToFix, parentUuid: rootDef.uuid, uuid: plotDef.uuid })
+
+    const fixResult = RecordFixer.fixRecord({ survey: surveyToFix, record: recordToFix })
+
+    expect(Object.values(fixResult.nodesDeleted)).toHaveLength(4)
+    expect(Records.getNodesByDefUuid(plotDef.uuid)(fixResult.record)).toHaveLength(0)
+    expect(Records.getNodesByDefUuid(plotIdDef.uuid)(fixResult.record)).toHaveLength(0)
+    const plotIdNodes = Object.values(fixResult.record.nodes ?? {}).filter(
+      (node) => node.nodeDefUuid === plotIdDef.uuid
+    )
+    expect(plotIdNodes).toHaveLength(0)
+  })
 })

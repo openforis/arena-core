@@ -13,6 +13,7 @@ import { TestUtils } from '../tests/testUtils'
 import { Record } from './record'
 import { RecordUpdater } from './recordUpdater'
 import { Category, CategoryItem } from '../category'
+import { Validations } from '../validation'
 
 const user = createTestAdminUser()
 let survey: Survey
@@ -31,7 +32,7 @@ const initTestSurvey = async () => {
       entityDef(
         'enumerated_entity',
         codeDef('enumerated_entity_key', 'hierarchical_category').parentCodeAttribute('parent_code').key(),
-        integerDef('table_num')
+        integerDef('table_num').required()
       )
         .multiple()
         .enumerate()
@@ -181,5 +182,34 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
     const dependentNodes = TestUtils.findNodesByPath({ survey, record, path: 'enumerated_entity' })
     expect(dependentNodes).not.toBeNull()
     expect(dependentNodes?.length).toBe(0)
+  })
+
+  test('Enumerated entities deleted -> their validations removed from record validation', async () => {
+    record = createRecord()
+
+    record = await updateAttributeAndExpectDependentEnumeratedKeys({
+      survey,
+      record,
+      nodePath: 'parent_code',
+      value: NodeValues.newCodeValue({ itemUuid: item1!.uuid }),
+      enumeratedKeysPath: 'enumerated_entity.enumerated_entity_key',
+      expectedKeys: ['1a'],
+    })
+    const tableNumNodeDeleted = TestUtils.getNodeByPath({ survey, record, path: 'enumerated_entity[0].table_num' })
+    // table_num is required and empty => invalid
+    expect(Validations.getFieldValidation(tableNumNodeDeleted.uuid)(Validations.getValidation(record)).valid).toBe(
+      false
+    )
+
+    record = await updateAttributeAndExpectDependentEnumeratedKeys({
+      survey,
+      record,
+      nodePath: 'parent_code',
+      value: NodeValues.newCodeValue({ itemUuid: item2!.uuid }),
+      enumeratedKeysPath: 'enumerated_entity.enumerated_entity_key',
+      expectedKeys: ['2a'],
+    })
+    const recordValidationFields = Validations.getValidation(record).fields ?? {}
+    expect(Object.keys(recordValidationFields)).not.toContain(tableNumNodeDeleted.uuid)
   })
 })

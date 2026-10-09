@@ -19,18 +19,19 @@ export type SurveyFactoryParams = {
   authGroups?: AuthGroup[]
 }
 
-const defaultParams = {
+// built at every call: default objects must not be shared between survey instances
+const createDefaultParams = () => ({
   languages: [LanguageCode.en],
   published: false,
   draft: true,
   template: false,
-  authGroups: DEFAULT_AUTH_GROUPS,
-}
+  authGroups: DEFAULT_AUTH_GROUPS.map((authGroup) => ({ ...authGroup })),
+})
 
 export const SurveyFactory: Factory<Survey, SurveyFactoryParams> = {
   createInstance: (params: SurveyFactoryParams): Survey => {
     const { ownerUuid, name, label, languages, published, draft, collectUri, descriptions, authGroups, template } = {
-      ...defaultParams,
+      ...createDefaultParams(),
       ...params,
     }
 
