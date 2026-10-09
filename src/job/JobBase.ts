@@ -1,3 +1,4 @@
+import { Dictionary } from '../common'
 import { SystemError } from '../error'
 import { Logger } from '../logger'
 import { UUIDs } from '../utils'
@@ -446,8 +447,9 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     this.errors[key] = error
   }
 
-  protected throwError(errorKey: string): void {
-    throw new Error(errorKey)
+  protected throwError(errorKey: string, params?: Dictionary<any>): void {
+    // SystemError: getErrorInfo will report the translatable key instead of a generic error
+    throw new SystemError(errorKey, params)
   }
 
   protected getErrorInfo(error: any): { key: string; params: Record<string, any> } {

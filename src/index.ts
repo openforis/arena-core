@@ -21,6 +21,7 @@ export type {
   UserGroup,
   UserGroupProps,
   UserGroupQualifier,
+  UserInvitation,
 } from './auth'
 
 export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, CategoryLevelFactory } from './category'
@@ -74,6 +75,7 @@ export { SystemError } from './error'
 export {
   ExpressionNodeType,
   ExpressionNodeEvaluator,
+  ExpressionVariable,
   JavascriptExpressionEvaluator,
   JavascriptExpressionParser,
 } from './expression'
@@ -86,6 +88,7 @@ export type {
   ExpressionContext,
   ExpressionEvaluator,
   ExpressionFunction,
+  ExpressionFunctions,
   ExpressionNode,
   ExpressionNodeEvaluatorConstructor,
   MemberExpression,
@@ -96,7 +99,8 @@ export type {
   UnaryExpression,
 } from './expression'
 
-export type { ExtraPropDef, ExtraPropDataType } from './extraProp'
+export { ExtraPropDataType, ExtraPropsDataGenerator } from './extraProp'
+export type { ExtraPropDef, ExtraPropDefs } from './extraProp'
 
 export { PointFactory, Points } from './geo'
 export type { Point } from './geo'
@@ -112,11 +116,13 @@ export type { Logger } from './logger'
 export type { Message } from './message'
 export { MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUserType, Messages } from './message'
 
-export { NodeFactory, Nodes, NodeValueFormatter, NodeValues } from './node'
+export { NodeFactory, NodeKeys, NodeMetaKeys, Nodes, NodeValueFormatter, NodeValues } from './node'
 export type {
   Node,
   Node as ArenaRecordNode,
+  NodeMeta,
   NodePointer,
+  NodeRefData,
   NodeService,
   NodesMap,
   NodeValueCode,
@@ -126,6 +132,7 @@ export type {
 } from './node'
 
 export {
+  NodeDefCountType,
   NodeDefType,
   NodeDefFactory,
   NodeDefs,
@@ -137,6 +144,7 @@ export {
 } from './nodeDef'
 
 export { NodeDefExpressionEvaluator, NodeDefExpressionValidator } from './nodeDefExpressionEvaluator'
+export type { CategoryItemProvider, TaxonProvider } from './nodeDefExpressionEvaluator'
 
 export type {
   NodeDef,
@@ -171,7 +179,9 @@ export type {
   NodeDefTextProps,
   NodeDefTextLayout,
   NodeDefTime,
+  NodeDefTimeProps,
   NodeDefExpression,
+  NodeDefMap,
   NodeDefService,
   NodeDefValidations,
 } from './nodeDef'
@@ -193,8 +203,13 @@ export {
 } from './record'
 export type {
   AttributeValidatorParams,
+  AttributesValidatorParams,
+  NodeCreateParams,
+  NodesUpdateParams,
   Record,
   Record as ArenaRecord,
+  RecordExpressionContext,
+  RecordExpressionEvaluationContext,
   RecordService,
   RecordUpdateOptions,
   RecordValidatorParams,
@@ -213,11 +228,14 @@ export {
   SurveyDocPlace,
   SurveyDependencyType,
   SurveyFactory,
+  SurveyFileFactory,
+  SurveyFileType,
   SurveyRefDataFactory,
   SurveySecurityProp,
   Surveys,
   surveyDocImagePropKeys,
   surveySecurityDefaults,
+  defaultCycle,
 } from './survey'
 export type {
   Survey,
@@ -228,6 +246,7 @@ export type {
   SurveyDocImageFactoryParams,
   SurveyDocImageProps,
   SurveyFile,
+  SurveyFileFactoryParams,
   SurveyFileProps,
   SurveyProps,
   SurveyRefData,
@@ -235,7 +254,7 @@ export type {
   SurveyService,
 } from './survey'
 
-export { Taxa, Taxonomies, TaxonomyFactory, TaxonFactory, VernacularNameFactory } from './taxonomy'
+export { Taxa, Taxonomies, TaxonomyFactory, TaxonFactory, TaxonGenerator, VernacularNameFactory } from './taxonomy'
 export type {
   VernacularNameParams,
   TaxonomyFactoryParams,

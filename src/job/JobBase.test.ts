@@ -187,6 +187,22 @@ test('job fails and records an error when execute throws', async () => {
   expect(job.hasErrors()).toBe(true)
 })
 
+test('throwError reports the error key (not a generic error) in the job errors', async () => {
+  class ThrowingJob extends TestJob {
+    protected async execute(): Promise<void> {
+      this.throwError('myErrorKey', { param: 'value' })
+    }
+  }
+  const job = new ThrowingJob(createContext())
+
+  await job.start()
+
+  expect(job.isFailed()).toBe(true)
+  expect(Object.values(job.errors)).toEqual([
+    { error: { valid: false, errors: [{ key: 'appErrors:myErrorKey', params: { param: 'value' } }] } },
+  ])
+})
+
 test('result returned by generateResult is exposed only when succeeded', async () => {
   const job = new TestJob(createContext(), [], { result: { foo: 'bar' } })
 
