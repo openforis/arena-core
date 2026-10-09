@@ -72,6 +72,8 @@ describe('NodeDefExpressionEvaluator', () => {
     { expression: 'accessible', nodeDef: 'accessible', result: 'accessible' },
     // parent of root entity should be undefined
     { expression: 'parent(cluster)', result: undefined },
+    // member of an undefined object (parent of the root entity)
+    { expression: 'parent(cluster).cluster_id', result: null },
     // computed expressions (access node at index)
     { expression: 'plot[0]', result: 'plot' },
     { expression: 'plot[index(parent(plot_id))]', nodeDef: 'plot_id', result: 'plot' },
