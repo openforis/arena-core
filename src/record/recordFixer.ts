@@ -131,31 +131,38 @@ const fixRecord = (params: { survey: Survey; record: ArenaRecord; sideEffect?: b
   const { survey, record, sideEffect = false } = params
   const result = new RecordUpdateResult({ record })
 
-  for (const node of Records.getNodesArray(record)) {
-    // skip nodes already deleted (e.g. descendants of nodes with non existing node defs)
-    if (result.nodesDeleted[node.uuid]) continue
-
-    const { nodeDefUuid } = node
-    const nodeDef = Surveys.findNodeDefByUuid({ survey, uuid: nodeDefUuid })
-    if (nodeDef) {
-      // remove status flags
-      let nodeUpdated = Nodes.removeStatusFlags({ node, sideEffect })
-
-      if (nodeDef.type === NodeDefType.code) {
-        nodeUpdated = fixCodeAttribute({
-          survey,
-          nodeDef: nodeDef as NodeDefCode,
-          record: result.record,
-          node: nodeUpdated,
-          sideEffect,
-        })
-      }
-      result.addNode(nodeUpdated, { sideEffect })
-    } else {
-      const nodesDeletedUpdatedResult = deleteNodesByDefUuid({ record: result.record, nodeDefUuid, sideEffect })
-      result.merge(nodesDeletedUpdatedResult)
+  // 1. delete nodes with non existing node defs (and their descendants), once per missing node def
+  const missingNodeDefUuids = new Set<string>()
+  for (const { nodeDefUuid } of Records.getNodesArray(record)) {
+    if (!Surveys.findNodeDefByUuid({ survey, uuid: nodeDefUuid })) {
+      missingNodeDefUuids.add(nodeDefUuid)
     }
   }
+  for (const nodeDefUuid of missingNodeDefUuids) {
+    result.merge(deleteNodesByDefUuid({ record: result.record, nodeDefUuid, sideEffect }))
+  }
+
+  // 2. fix the remaining nodes (read from the updated record, without the deleted nodes); add them all at once
+  const nodesUpdated: { [key: string]: ArenaRecordNode } = {}
+  for (const node of Records.getNodesArray(result.record)) {
+    const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
+    // remove status flags
+    let nodeUpdated = Nodes.removeStatusFlags({ node, sideEffect })
+
+    if (nodeDef.type === NodeDefType.code) {
+      nodeUpdated = fixCodeAttribute({
+        survey,
+        nodeDef: nodeDef as NodeDefCode,
+        record: result.record,
+        node: nodeUpdated,
+        sideEffect,
+      })
+    }
+    nodesUpdated[nodeUpdated.uuid] = nodeUpdated
+  }
+  const recordWithNodesUpdated = Records.addNodes(nodesUpdated, { sideEffect })(result.record)
+  result.merge(new RecordUpdateResult({ record: recordWithNodesUpdated, nodes: nodesUpdated }))
+
   const missingNodesUpdateResult = insertMissingSingleNodes({ survey, record: result.record, sideEffect })
   result.merge(missingNodesUpdateResult)
   return result

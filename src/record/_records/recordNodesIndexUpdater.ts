@@ -22,68 +22,111 @@ const sortNodesByIdOrCreationDate = (nodeA: Node, nodeB: Node): number => {
   return 0
 }
 
-const _addNodeToCodeDependents =
-  (node: Node, sideEffect: boolean) =>
-  (index: RecordNodesIndex): RecordNodesIndex => {
-    let indexUpdated = index
-    for (const ancestorCodeAttributeUuid of Nodes.getHierarchyCode(node)) {
-      indexUpdated = Objects.assocPath({
-        obj: indexUpdated,
-        path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.uuid],
-        value: true,
-        sideEffect,
-      })
-    }
-    return indexUpdated
+/**
+ * Mutable copy of a nodes index, used to apply many changes to it at once.
+ * When sideEffect is false, every object along a modified path is copied only the first time it is modified
+ * (copy on write): applying N changes costs one copy of each touched object instead of N copies.
+ */
+class NodesIndexDraft {
+  readonly index: RecordNodesIndex
+  private readonly sideEffect: boolean
+  private readonly copiedObjects = new Set<object>()
+
+  constructor(index: RecordNodesIndex, sideEffect: boolean) {
+    this.sideEffect = sideEffect
+    this.index = sideEffect ? index : this.markCopied({ ...index })
   }
 
-const _addNodeToIndex =
-  (node: Node, sideEffect = false) =>
-  (index: RecordNodesIndex): RecordNodesIndex => {
-    const { uuid: nodeUuid, nodeDefUuid } = node
+  private markCopied<T extends object>(obj: T): T {
+    this.copiedObjects.add(obj)
+    return obj
+  }
 
-    let indexUpdated = sideEffect ? index : { ...index }
+  private getWritableChild(parent: any, key: string, createIfMissing: boolean): any {
+    const child = parent[key]
+    if (child === undefined || child === null) {
+      if (!createIfMissing) return undefined
+      const childCreated = this.markCopied({})
+      parent[key] = childCreated
+      return childCreated
+    }
+    if (this.sideEffect || this.copiedObjects.has(child)) return child
+    const childCopy = this.markCopied({ ...child })
+    parent[key] = childCopy
+    return childCopy
+  }
 
-    const parentUuid = node.parentUuid
+  set(path: string[], value: any): void {
+    let current: any = this.index
+    for (let i = 0; i < path.length - 1; i++) {
+      current = this.getWritableChild(current, path[i], true)
+    }
+    current[path[path.length - 1]] = value
+  }
+
+  /**
+   * Deletes the value at the specified path, then removes the objects along the path left empty.
+   */
+  delete(path: string[]): void {
+    const containers: any[] = [this.index]
+    let current: any = this.index
+    for (let i = 0; i < path.length - 1; i++) {
+      if (current[path[i]] === undefined) return
+      current = this.getWritableChild(current, path[i], false)
+      containers.push(current)
+    }
+    delete current[path[path.length - 1]]
+    for (let i = path.length - 2; i >= 0; i--) {
+      if (!Objects.isEmpty(containers[i + 1])) break
+      delete containers[i][path[i]]
+    }
+  }
+
+  addNode(node: Node): void {
+    const { uuid: nodeUuid, nodeDefUuid, parentUuid } = node
     if (parentUuid) {
       // nodes by parent and child def uuid
-      indexUpdated = Objects.assocPath({
-        obj: indexUpdated,
-        path: [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid],
-        value: true,
-        sideEffect,
-      })
+      this.set([keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid], true)
     } else {
       // root entity index
-      indexUpdated.nodeRootUuid = nodeUuid
+      this.index.nodeRootUuid = nodeUuid
     }
-
     // nodes by def uuid
-    indexUpdated = Objects.assocPath({
-      obj: indexUpdated,
-      path: [keys.nodesByDef, nodeDefUuid, nodeUuid],
-      value: true,
-      sideEffect,
-    })
-
+    this.set([keys.nodesByDef, nodeDefUuid, nodeUuid], true)
     // code dependents
-    indexUpdated = _addNodeToCodeDependents(node, sideEffect)(indexUpdated)
-
-    return indexUpdated
+    for (const ancestorCodeAttributeUuid of node.meta?.hCode ?? []) {
+      this.set([keys.nodeCodeDependents, ancestorCodeAttributeUuid, nodeUuid], true)
+    }
   }
+
+  removeNode(node: Node): void {
+    const { uuid: nodeUuid, parentUuid, nodeDefUuid } = node
+    if (parentUuid) {
+      this.delete([keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid])
+    } else {
+      delete this.index.nodeRootUuid
+    }
+    this.delete([keys.nodesByDef, nodeDefUuid, nodeUuid])
+    // code dependents
+    for (const ancestorCodeAttributeUuid of Nodes.getHierarchyCode(node)) {
+      this.delete([keys.nodeCodeDependents, ancestorCodeAttributeUuid, nodeUuid])
+    }
+    this.delete([keys.nodeCodeDependents, nodeUuid])
+  }
+}
 
 const addNodes =
   (nodes: { [key: string]: Node }, sideEffect = false, sortNodes = false) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
-    let indexUpdated = sideEffect ? index : { ...index }
+    const draft = new NodesIndexDraft(index, sideEffect)
     const nodesArray = Object.values(nodes)
     if (sortNodes) {
       nodesArray.sort(sortNodesByIdOrCreationDate)
     }
     for (const node of nodesArray) {
-      indexUpdated = _addNodeToIndex(node, sideEffect)(indexUpdated)
+      draft.addNode(node)
     }
-    return indexUpdated
+    return draft.index
   }
 
 const addNode =
@@ -93,55 +136,47 @@ const addNode =
 
 const initializeIndex = (record: Record): RecordNodesIndex => addNodes(record.nodes ?? {}, true, true)({})
 
-const _removeNodeFromCodeDependentsIndex =
-  (node: Node, sideEffect = false) =>
+const removeNodes =
+  (nodes: Node[], sideEffect = false) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
-    let indexUpdated = Nodes.getHierarchyCode(node).reduce(
-      (indexAcc, ancestorCodeAttributeUuid) =>
-        Objects.dissocPath({
-          obj: indexAcc,
-          path: [keys.nodeCodeDependents, ancestorCodeAttributeUuid, node.uuid],
-          sideEffect,
-        }),
-      index
-    )
-    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeCodeDependents, node.uuid], sideEffect })
-    return indexUpdated
+    const draft = new NodesIndexDraft(index, sideEffect)
+    for (const node of nodes) {
+      draft.removeNode(node)
+    }
+    return draft.index
   }
 
 const removeNode =
   (node: Node, sideEffect = false) =>
-  (index: RecordNodesIndex): RecordNodesIndex => {
-    const { uuid: nodeUuid, parentUuid, nodeDefUuid } = node
+  (index: RecordNodesIndex): RecordNodesIndex =>
+    removeNodes([node], sideEffect)(index)
 
-    let indexUpdated = sideEffect ? index : { ...index }
+const _isSameHierarchyCode = (nodeA: Node, nodeB: Node): boolean => {
+  const hCodeA = nodeA.meta?.hCode ?? []
+  const hCodeB = nodeB.meta?.hCode ?? []
+  return hCodeA.length === hCodeB.length && hCodeA.every((uuid, index) => uuid === hCodeB[index])
+}
 
-    if (parentUuid) {
-      // dissoc from nodes by parent and child def
-      indexUpdated = Objects.dissocPath({
-        obj: indexUpdated,
-        path: [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid],
-        sideEffect,
-      })
-      const nodesByParentAndChildDefPath = [keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid]
-      indexUpdated = Objects.dissocPathIfEmpty({ obj: indexUpdated, path: nodesByParentAndChildDefPath, sideEffect })
-    } else {
-      // dissoc root entity
-      indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodeRootUuid], sideEffect })
-    }
-    // dissoc from nodes by def uuid
-    indexUpdated = Objects.dissocPath({ obj: indexUpdated, path: [keys.nodesByDef, nodeDefUuid, nodeUuid], sideEffect })
-    const nodesByDefPath = [keys.nodesByDef, nodeDefUuid]
-    indexUpdated = Objects.dissocPathIfEmpty({ obj: indexUpdated, path: nodesByDefPath, sideEffect })
-
-    indexUpdated = _removeNodeFromCodeDependentsIndex(node, sideEffect)(indexUpdated)
-
-    return indexUpdated
-  }
+/**
+ * Returns true if the index entries of the specified node would not change when the node replaces the previous version of it.
+ */
+const isNodeIndexUnchanged = (params: { index: RecordNodesIndex; node: Node; nodePrev?: Node }): boolean => {
+  const { index, node, nodePrev } = params
+  if (!nodePrev) return false
+  const { uuid, parentUuid, nodeDefUuid } = node
+  if (parentUuid !== nodePrev.parentUuid || nodeDefUuid !== nodePrev.nodeDefUuid) return false
+  if (!_isSameHierarchyCode(node, nodePrev)) return false
+  if (!index.nodesByDef?.[nodeDefUuid]?.[uuid]) return false
+  return parentUuid
+    ? !!index.nodesByParentAndChildDef?.[parentUuid]?.[nodeDefUuid]?.[uuid]
+    : index.nodeRootUuid === uuid
+}
 
 export const RecordNodesIndexUpdater = {
   addNode,
   addNodes,
   initializeIndex,
+  isNodeIndexUnchanged,
   removeNode,
+  removeNodes,
 }

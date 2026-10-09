@@ -21,7 +21,7 @@ import { Record } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
 import { RecordValidations } from '../recordValidations'
-import { AttributeKeyValidator } from './attributeKeyValidator'
+import { AttributeKeyValidator, createEntityKeysCache, EntityKeysCache } from './attributeKeyValidator'
 import { AttributeTypeValidator } from './attributeTypeValidator'
 import { AttributeUniqueValidator } from './attributeUniqueValidator'
 
@@ -175,7 +175,7 @@ const _validateNodeValidations =
     return validationResult
   }
 
-const validateAttribute = async (params: AttributeValidatorParams) => {
+const validateAttribute = async (params: AttributeValidatorParams & { entityKeysCache?: EntityKeysCache }) => {
   const { survey, record, attribute } = params
   if (Records.isNodeApplicable({ record, node: attribute })) {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: attribute.nodeDefUuid })
@@ -265,13 +265,19 @@ const validateSelfAndDependentSortedAttributes = async (
 ): Promise<ValidationFields> => {
   const nodesToValidate: Node[] = findSortedNodesToValidate(params)
   const validationsByNodeUuid: ValidationFields = {}
+  // the record doesn't change during the validation: entity keys can be cached
+  const entityKeysCache = createEntityKeysCache()
 
   for (const nodeToValidate of nodesToValidate) {
     const nodeUuid = nodeToValidate.uuid
     // Validate only attributes not deleted and not validated already
     if (!nodeToValidate.deleted && !validationsByNodeUuid[nodeUuid]) {
       // sequential: avoid concurrent item/taxon lookups on large node sets
-      validationsByNodeUuid[nodeUuid] = await validateAttribute({ ...params, attribute: nodeToValidate }) // NOSONAR
+      validationsByNodeUuid[nodeUuid] = await validateAttribute({
+        ...params,
+        attribute: nodeToValidate,
+        entityKeysCache,
+      }) // NOSONAR
     }
   }
   return validationsByNodeUuid

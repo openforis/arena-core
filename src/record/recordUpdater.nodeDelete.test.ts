@@ -262,4 +262,60 @@ describe('RecordUpdater - node delete', () => {
     // nodes index should have been turned back to how it was at the beginning
     expect(JSON.stringify(record._nodesIndex)).toEqual(initialRecordIndexStr)
   })
+
+  test('Records.deleteNodes removes the validations of deleted nodes (including children count) only', async () => {
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        entityDef('mult_entity', integerDef('mult_entity_id').key(), integerDef('mult_entity_attr')).multiple()
+      )
+    ).build()
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        entity('mult_entity', attribute('mult_entity_id', 1), attribute('mult_entity_attr', 10)),
+        entity('mult_entity', attribute('mult_entity_id', 2), attribute('mult_entity_attr', 20))
+      )
+    ).build()
+    const entityToDelete = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.mult_entity[1]' })
+    const attrToDelete = TestUtils.getNodeByPath({
+      survey,
+      record,
+      path: 'root_entity.mult_entity[1].mult_entity_attr',
+    })
+    const attrToKeep = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.mult_entity[0].mult_entity_attr' })
+    const attrDef = Surveys.getNodeDefByName({ survey, name: 'mult_entity_attr' })
+
+    const invalid = { valid: false, errors: [{ key: 'some_error', valid: false }] }
+    const childrenCountKeyToDelete = RecordValidations.getValidationChildrenCountKey({
+      nodeParentUuid: entityToDelete.uuid,
+      nodeDefChildUuid: attrDef.uuid,
+    })
+    const recordWithValidation = {
+      ...record,
+      validation: {
+        valid: false,
+        fields: {
+          [attrToDelete.uuid]: invalid,
+          [attrToKeep.uuid]: invalid,
+          [childrenCountKeyToDelete]: invalid,
+        },
+      },
+    }
+    const validationBefore = JSON.parse(JSON.stringify(recordWithValidation.validation))
+
+    const { record: recordUpdated } = Records.deleteNodes([entityToDelete.uuid])(recordWithValidation)
+
+    expect(Object.keys(Validations.getFieldValidations(Validations.getValidation(recordUpdated)))).toEqual([
+      attrToKeep.uuid,
+    ])
+    // original record validation not modified
+    expect(recordWithValidation.validation).toEqual(validationBefore)
+  })
 })
