@@ -42,7 +42,7 @@ const PARSED_EXPRESSIONS_CACHE_MAX_SIZE = 1000
 const parsedExpressionsCache = new Map<string, ExpressionNode<ExpressionNodeType>>()
 const expressionParser = new JavascriptExpressionParser()
 
-const parseExpression = (expression: string): ExpressionNode<ExpressionNodeType> => {
+export const parseExpression = (expression: string): ExpressionNode<ExpressionNodeType> => {
   let expressionNode = parsedExpressionsCache.get(expression)
   if (!expressionNode) {
     expressionNode = expressionParser.parse(expression)
