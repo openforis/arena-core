@@ -77,4 +77,59 @@ describe('RecordUpdater - attribute update => update dependent validations', () 
     expect(Validations.getFieldValidation(nodeToUpdate.uuid)(validation).valid).toBeTruthy()
     expect(Validations.getFieldValidation(siblingNode.uuid)(validation).valid).toBeTruthy()
   })
+
+  test('Self referencing validation rule (e.g. range check): only the updated node is validated', async () => {
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        entityDef(
+          'table',
+          integerDef('table_id').key(),
+          integerDef('coverage').validationExpressions(`coverage >= 0 && coverage <= 100`)
+        ).multiple()
+      )
+    ).build()
+
+    let record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        entity('table', attribute('table_id', 1), attribute('coverage', 10)),
+        entity('table', attribute('table_id', 2), attribute('coverage', 90))
+      )
+    ).build()
+
+    const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'table[0].coverage' })
+    const siblingNode = TestUtils.getNodeByPath({ survey, record, path: 'table[1].coverage' })
+
+    // set table[0].coverage to 150 => not valid; table[1].coverage is not affected
+    let updateResult = await RecordUpdater.updateAttributeValue({
+      user,
+      survey,
+      record,
+      attributeUuid: nodeToUpdate.uuid,
+      value: 150,
+    })
+    record = updateResult.record
+    let validation = Validations.getValidation(record)
+    expect(Object.keys(Validations.getFieldValidations(validation))).toEqual([nodeToUpdate.uuid])
+    expect(Validations.getFieldValidation(nodeToUpdate.uuid)(validation).valid).toBeFalsy()
+    expect(Object.keys(updateResult.nodes)).not.toContain(siblingNode.uuid)
+
+    // set table[0].coverage to 50 => valid
+    updateResult = await RecordUpdater.updateAttributeValue({
+      user,
+      survey,
+      record,
+      attributeUuid: nodeToUpdate.uuid,
+      value: 50,
+    })
+    record = updateResult.record
+    validation = Validations.getValidation(record)
+    expect(Validations.getFieldValidation(nodeToUpdate.uuid)(validation).valid).toBeTruthy()
+  })
 })
