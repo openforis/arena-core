@@ -9,6 +9,7 @@ import { Arrays, Queue } from '../../utils'
 import { Record, RECORD_STEP_DEFAULT } from '../record'
 import { RecordStepAnalysisCode } from '../recordStep'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
+import { NodeDefSelfReferences } from './nodeDefSelfReferences'
 
 export const getCycle = (record: Record): string => record.cycle ?? defaultCycle
 
@@ -289,14 +290,18 @@ const getClosestAncestorNode = (params: {
   node: Node
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
   dependentDef: NodeDef<NodeDefType, NodeDefProps>
+  dependencyType: SurveyDependencyType
 }): Node | undefined => {
-  const { record, node, nodeDef, dependentDef } = params
+  const { record, node, nodeDef, dependentDef, dependencyType } = params
 
   // 1a if dependent def is the same as node def, potentially all nodes with
   // nodeDefUuid === dependentDef.uuid in record could be dependent of nodeDef;
-  // consider the root node as the closest ancestor node
+  // consider the root node as the closest ancestor node,
+  // unless the node def references itself only among the children of its parent entity (e.g. validation "dbh > 0")
   if (nodeDef.uuid === dependentDef.uuid) {
-    return getRoot(record)
+    return NodeDefSelfReferences.isSelfReferenceLocal({ nodeDef, dependencyType })
+      ? getParent(node)(record)
+      : getRoot(record)
   }
   // 1 find common ancestor def
   const commonAncestorDefUuid = Arrays.last(Arrays.intersection(nodeDef.meta.h, dependentDef.meta.h))
@@ -471,7 +476,7 @@ export const getDependentNodePointers = (params: {
 
   for (const dependentDef of dependentDefs) {
     // 1 find common ancestor node
-    const commonAncestorNode = getClosestAncestorNode({ record, node, nodeDef, dependentDef })
+    const commonAncestorNode = getClosestAncestorNode({ record, node, nodeDef, dependentDef, dependencyType })
     if (!commonAncestorNode) continue
 
     const nodeDefDependentParent = Surveys.getNodeDefParent({ survey, nodeDef: dependentDef })

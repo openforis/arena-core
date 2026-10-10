@@ -29,6 +29,21 @@ const expectDependents = (params: {
   expect(dependentNames).toEqual(expectedDependentNames)
 }
 
+const expectDependentContextNodes = (params: {
+  sourcePath: string
+  dependencyType: SurveyDependencyType
+  expectedContextNodePaths: string[]
+}) => {
+  const { sourcePath, dependencyType, expectedContextNodePaths } = params
+  const source = TestUtils.getNodeByPath({ survey, record, path: sourcePath })
+  const dependentNodePointers = Records.getDependentNodePointers({ survey, record, node: source, dependencyType })
+  const contextNodeUuids = dependentNodePointers.map((pointer) => pointer.nodeCtx.uuid)
+  const expectedContextNodeUuids = expectedContextNodePaths.map(
+    (path) => TestUtils.getNodeByPath({ survey, record, path }).uuid
+  )
+  expect(contextNodeUuids).toEqual(expectedContextNodeUuids)
+}
+
 describe('Records: dependent node pointers', () => {
   beforeAll(async () => {
     const user = createTestAdminUser()
@@ -44,7 +59,12 @@ describe('Records: dependent node pointers', () => {
           'plot',
           integerDef('plot_id').key(),
           integerDef('plot_id_double').readOnly().defaultValue('plot_id * 2'),
-          integerDef('plot_relevant_if_cluster_boolean_attribute').applyIf('cluster_boolean_attribute')
+          integerDef('plot_relevant_if_cluster_boolean_attribute').applyIf('cluster_boolean_attribute'),
+          // self reference resolved inside the same plot
+          integerDef('plot_area').validationExpressions('plot_area > 0 && plot_area <= 10000'),
+          // self references to the attribute in the other plots (member property or filter)
+          integerDef('plot_coverage').validationExpressions('sum(parent($context).plot.plot_coverage) <= 100'),
+          integerDef('plot_slope').validationExpressions('count(parent($context).plot[plot_slope > 45]) < 2')
         )
           .multiple()
           .applyIf('accessible')
@@ -59,8 +79,20 @@ describe('Records: dependent node pointers', () => {
         attribute('cluster_id', 10),
         attribute('accessible', 'true'),
         attribute('cluster_boolean_attribute', 'true'),
-        entity('plot', attribute('plot_id', 1)),
-        entity('plot', attribute('plot_id', 2)),
+        entity(
+          'plot',
+          attribute('plot_id', 1),
+          attribute('plot_area', 100),
+          attribute('plot_coverage', 10),
+          attribute('plot_slope', 10)
+        ),
+        entity(
+          'plot',
+          attribute('plot_id', 2),
+          attribute('plot_area', 200),
+          attribute('plot_coverage', 10),
+          attribute('plot_slope', 10)
+        ),
         entity('plot', attribute('plot_id', 3))
       )
     ).build()
@@ -99,6 +131,30 @@ describe('Records: dependent node pointers', () => {
       sourcePath: 'cluster_id',
       dependencyType: SurveyDependencyType.validations,
       expectedDependentNames: ['cluster_id'],
+    })
+  })
+
+  test('Validation expression self reference: only the node in the same parent entity is dependent', () => {
+    expectDependentContextNodes({
+      sourcePath: 'plot[1].plot_area',
+      dependencyType: SurveyDependencyType.validations,
+      expectedContextNodePaths: ['plot[1]'],
+    })
+  })
+
+  test('Validation expression self reference through member expression: nodes in every entity are dependent', () => {
+    expectDependentContextNodes({
+      sourcePath: 'plot[1].plot_coverage',
+      dependencyType: SurveyDependencyType.validations,
+      expectedContextNodePaths: ['plot[0]', 'plot[1]', 'plot[2]'],
+    })
+  })
+
+  test('Validation expression self reference in filter: nodes in every entity are dependent', () => {
+    expectDependentContextNodes({
+      sourcePath: 'plot[1].plot_slope',
+      dependencyType: SurveyDependencyType.validations,
+      expectedContextNodePaths: ['plot[0]', 'plot[1]', 'plot[2]'],
     })
   })
 })
