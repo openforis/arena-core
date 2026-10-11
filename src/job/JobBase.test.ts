@@ -1,4 +1,4 @@
-import { expect, test } from '@jest/globals'
+import { expect, jest, test } from '@jest/globals'
 
 import { UserFactory } from '../auth'
 import { SystemError } from '../error'
@@ -6,7 +6,7 @@ import { Logger } from '../logger'
 
 import { JobBase } from './JobBase'
 import { JobContext } from './jobContext'
-import { JobEvent } from './jobEvent'
+import { JobEvent, JobEventType } from './jobEvent'
 import { JobStatus } from './status'
 
 const silentLogger: Logger = {
@@ -793,4 +793,78 @@ test('the failed event of a parent job includes the errors of the failed inner j
   const failedEvent = events.find((event) => event.status === JobStatus.failed)
   expect(JSON.stringify(failedEvent?.errors)).toContain('appErrors:innerJobErrorKey')
   expect(JSON.stringify(parentJob.toJSON().errors)).toContain('appErrors:innerJobErrorKey')
+})
+
+class ErrorLoggingTestJob extends TestJob {
+  readonly loggedErrors: string[] = []
+
+  protected logError(...msgs: any[]): void {
+    this.loggedErrors.push(msgs.join(' '))
+  }
+}
+
+test('a listener throwing an error does not affect the job execution (the error is logged)', async () => {
+  const job = new ErrorLoggingTestJob(createContext())
+  job.onEvent(() => {
+    throw new Error('listener sync error')
+  })
+
+  await job.start()
+
+  expect(job.isSucceeded()).toBe(true)
+  expect(job.loggedErrors.some((msg) => msg.includes('listener sync error'))).toBe(true)
+})
+
+test('a listener returning a rejected promise does not affect the job execution (the error is logged)', async () => {
+  const job = new ErrorLoggingTestJob(createContext())
+  job.onEvent(async () => {
+    throw new Error('listener async error')
+  })
+
+  await job.start()
+  await nextTick()
+
+  expect(job.isSucceeded()).toBe(true)
+  expect(job.loggedErrors.some((msg) => msg.includes('listener async error'))).toBe(true)
+})
+
+test('a listener throwing an error on a throttled progress notification is logged', async () => {
+  jest.useFakeTimers()
+  try {
+    const job = new ErrorLoggingTestJob(createContext(), [], {
+      execute: async (runningJob) => {
+        runningJob.processed = 1 // notified immediately
+        runningJob.processed = 2 // notified by the throttle timeout
+        jest.advanceTimersByTime(1000)
+      },
+    })
+    const progressEventsProcessed: number[] = []
+    job.onEvent((event) => {
+      if (event.type !== JobEventType.progress) return
+      progressEventsProcessed.push(event.processed)
+      throw new Error('listener progress error')
+    })
+
+    await job.start()
+
+    expect(job.isSucceeded()).toBe(true)
+    expect(progressEventsProcessed).toEqual([1, 2])
+    expect(job.loggedErrors.filter((msg) => msg.includes('listener progress error'))).toHaveLength(2)
+  } finally {
+    jest.useRealTimers()
+  }
+})
+
+test('a job failing while still pending is marked as failed', async () => {
+  const job = new ErrorLoggingTestJob(createContext())
+  const client = {
+    tx: async () => {
+      throw new Error('connection error')
+    },
+  }
+
+  await job.start(client)
+
+  expect(job.isFailed()).toBe(true)
+  expect(JSON.stringify(job.toJSON().errors)).toContain('connection error')
 })
