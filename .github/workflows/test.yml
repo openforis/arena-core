@@ -6,8 +6,6 @@ jobs:
   # NOTE: job id "build" is referenced by Mergify
   build:
     runs-on: ubuntu-latest
-    env:
-      NPM_TOKEN: ${{secrets.ACCESS_TOKEN}}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -30,7 +28,6 @@ jobs:
       matrix:
         timezone: ['Asia/Tokyo', 'America/New_York']
     env:
-      NPM_TOKEN: ${{secrets.ACCESS_TOKEN}}
       TZ: ${{ matrix.timezone }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

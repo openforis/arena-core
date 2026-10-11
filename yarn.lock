@@ -994,6 +994,7 @@ __metadata:
     lodash.isequal: "npm:^4.5.0"
     lodash.topairs: "npm:^4.3.0"
     n2words: "npm:^6.3.0"
+    pinst: "npm:^3.0.0"
     prettier: "npm:^3.9.9"
     proj4: "npm:^2.22.0"
     ts-jest: "npm:^29.4.14"
@@ -4796,6 +4797,15 @@ __metadata:
   version: 4.0.7
   resolution: "picomatch@npm:4.0.7"
   checksum: 10c0/beb6ae02c43ae44e84883b90830196d9046b1726ead292adcf7f57945e0bb0d992d68563d87e03b484b6f3c9a5c6defda7523477f047d7f0e663f126cc01787f
+  languageName: node
+  linkType: hard
+
+"pinst@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "pinst@npm:3.0.0"
+  bin:
+    pinst: bin.js
+  checksum: 10c0/abb1ed62ea2acb2207a7a860715bdb26ecbde74ede8fad5f6200194f3e22db25e2b7a49af05e5cc7fc05384709c651e0000323f0077d7239060c4b68c8acd428
   languageName: node
   linkType: hard
 
