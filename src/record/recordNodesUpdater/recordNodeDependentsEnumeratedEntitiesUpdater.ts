@@ -1,4 +1,4 @@
-import { Node, Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
 import { NodeDefCode, NodeDefEntity, NodeDefType } from '../../nodeDef'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { Survey, Surveys } from '../../survey'
@@ -17,8 +17,8 @@ const uuidsCompare = (uuidA: string, uuidB: string): number => uuidA.localeCompa
 const shouldExistingEntitiesBeDeleted = async (params: {
   survey: Survey
   entityDef: NodeDefEntity
-  existingEntities: Node[]
-  parentNode: Node
+  existingEntities: ArenaRecordNode[]
+  parentNode: ArenaRecordNode
   updateResult: RecordUpdateResult
   categoryItemProvider?: CategoryItemProvider
   user: RecordExpressionEvaluationContext['user']
@@ -54,7 +54,7 @@ const shouldExistingEntitiesBeDeleted = async (params: {
 
 export const createOrDeleteEnumeratedEntities = async (
   params: RecordExpressionEvaluationContext & {
-    parentNode: Node
+    parentNode: ArenaRecordNode
     entityDef: NodeDefEntity
     updateResult: RecordUpdateResult
   }

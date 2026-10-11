@@ -8,7 +8,7 @@ import { TestUtils } from '../tests/testUtils'
 import { User } from '../auth'
 import { JavascriptExpressionEvaluator } from '../expression'
 import { Survey, Surveys } from '../survey'
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { RecordUpdater } from './recordUpdater'
 import { RecordUpdateResult } from './recordNodesUpdater'
 
@@ -62,7 +62,7 @@ const createSurvey = (): Promise<Survey> =>
     )
   ).build()
 
-const createRecord = (treesPerPlot: number): Record =>
+const createRecord = (treesPerPlot: number): ArenaRecord =>
   new RecordBuilder(
     user,
     survey,
@@ -115,7 +115,7 @@ const withoutSiblingsExpression = (evaluations: EvaluationsByExpression): Evalua
 }
 
 const expectScalableUpdate = async (params: {
-  update: (record: Record) => Promise<RecordUpdateResult>
+  update: (record: ArenaRecord) => Promise<RecordUpdateResult>
   expectedExpressions: string[]
 }) => {
   const { update, expectedExpressions } = params
@@ -132,7 +132,7 @@ const expectScalableUpdate = async (params: {
 
 const updateAttribute =
   (path: string, value: any) =>
-  (record: Record): Promise<RecordUpdateResult> => {
+  (record: ArenaRecord): Promise<RecordUpdateResult> => {
     const node = TestUtils.getNodeByPath({ survey, record, path })
     return RecordUpdater.updateAttributeValue({ user, survey, record, attributeUuid: node.uuid, value })
   }

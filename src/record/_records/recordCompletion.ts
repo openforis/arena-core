@@ -1,8 +1,8 @@
-import { Node, Nodes } from '../../node'
+import { ArenaRecordNode, Nodes } from '../../node'
 import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Numbers } from '../../utils'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { getChildren, getRoot } from './recordGetters'
 
 export interface EntityCompletionStats {
@@ -18,8 +18,8 @@ const addStats = (statsAcc: EntityCompletionStats, statsToAdd: EntityCompletionS
 }
 
 const getAttributeCompletionStats = (params: {
-  record: Record
-  entity: Node
+  record: ArenaRecord
+  entity: ArenaRecordNode
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
 }): EntityCompletionStats => {
   const { record, entity, nodeDef } = params
@@ -41,8 +41,8 @@ const getAttributeCompletionStats = (params: {
 
 const getChildEntityCompletionStats = (params: {
   survey: Survey
-  record: Record
-  parentEntity: Node
+  record: ArenaRecord
+  parentEntity: ArenaRecordNode
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
 }): EntityCompletionStats => {
   const { survey, record, parentEntity, nodeDef } = params
@@ -73,8 +73,8 @@ const getChildEntityCompletionStats = (params: {
 
 export const getEntityCompletionStats = (params: {
   survey: Survey
-  record: Record
-  entity: Node
+  record: ArenaRecord
+  entity: ArenaRecordNode
   includeNestedEntities?: boolean
 }): EntityCompletionStats => {
   const { survey, record, entity, includeNestedEntities = true } = params
@@ -106,20 +106,26 @@ const toCompletionPercent = (stats: EntityCompletionStats): number => {
  * A required or key attribute is considered filled when it has a non empty value; multiple attributes and
  * entities are considered filled based on their min count (see Nodes.getChildrenMinCount).
  */
-export const getEntityCompletionPercent = (params: { survey: Survey; record: Record; entity: Node }): number =>
-  toCompletionPercent(getEntityCompletionStats(params))
+export const getEntityCompletionPercent = (params: {
+  survey: Survey
+  record: ArenaRecord
+  entity: ArenaRecordNode
+}): number => toCompletionPercent(getEntityCompletionStats(params))
 
 /**
  * Returns the percentage of completion of the given entity (0-100), considering only its own attributes
  * (nested entities are ignored).
  */
-export const getEntityOwnCompletionPercent = (params: { survey: Survey; record: Record; entity: Node }): number =>
-  toCompletionPercent(getEntityCompletionStats({ ...params, includeNestedEntities: false }))
+export const getEntityOwnCompletionPercent = (params: {
+  survey: Survey
+  record: ArenaRecord
+  entity: ArenaRecordNode
+}): number => toCompletionPercent(getEntityCompletionStats({ ...params, includeNestedEntities: false }))
 
 /**
  * Returns the percentage of completion of the given record (0-100), i.e. the completion of its root entity.
  */
-export const getRecordCompletionPercent = (params: { survey: Survey; record: Record }): number => {
+export const getRecordCompletionPercent = (params: { survey: Survey; record: ArenaRecord }): number => {
   const { survey, record } = params
   const rootEntity = getRoot(record)
   return rootEntity ? getEntityCompletionPercent({ survey, record, entity: rootEntity }) : 0

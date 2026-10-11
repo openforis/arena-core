@@ -10,7 +10,7 @@ import { NodeValueFormatter, NodeValues } from '../node'
 import { Survey, Surveys } from '../survey'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { RecordUpdater } from './recordUpdater'
 import { Category, CategoryItem } from '../category'
 import { Validations } from '../validation'
@@ -19,7 +19,7 @@ const user = createTestAdminUser()
 let survey: Survey
 let enumeratingCategory: Category
 let item1: CategoryItem, item2: CategoryItem
-let record: Record
+let record: ArenaRecord
 
 const initTestSurvey = async () => {
   survey = await new SurveyBuilder(
@@ -64,7 +64,7 @@ const initTestSurvey = async () => {
   record = createRecord()
 }
 
-const createRecord = (): Record =>
+const createRecord = (): ArenaRecord =>
   new RecordBuilder(
     user,
     survey,
@@ -73,12 +73,12 @@ const createRecord = (): Record =>
 
 const updateAttributeAndExpectDependentEnumeratedKeys = async (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   nodePath: string
   value: any
   enumeratedKeysPath: string
   expectedKeys: string[] | undefined
-}): Promise<Record> => {
+}): Promise<ArenaRecord> => {
   const { survey, record, nodePath, value, enumeratedKeysPath, expectedKeys } = params
   const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: nodePath })
 

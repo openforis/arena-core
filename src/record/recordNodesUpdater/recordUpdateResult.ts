@@ -1,18 +1,18 @@
-import { Node, NodesMap } from '../../node'
+import { ArenaRecordNode, NodesMap } from '../../node'
 import { Validation } from '../../validation'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { addNode } from '../_records/recordUpdater'
 import { RecordUpdateOptions } from '../records'
 
 export class RecordUpdateResult {
-  record: Record
+  record: ArenaRecord
   nodes: NodesMap
   nodesDeleted: NodesMap
   clearedDefUuids: Set<string>
   validation?: Validation
 
   constructor(params: {
-    record: Record
+    record: ArenaRecord
     nodes?: NodesMap
     nodesDeleted?: NodesMap
     clearedDefUuids?: Set<string>
@@ -29,7 +29,7 @@ export class RecordUpdateResult {
     return this.nodes[uuid]
   }
 
-  addNode(node: Node, options?: RecordUpdateOptions) {
+  addNode(node: ArenaRecordNode, options?: RecordUpdateOptions) {
     this.nodes[node.uuid] = node
     this.record = addNode(node, options)(this.record)
   }

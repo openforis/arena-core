@@ -1,17 +1,17 @@
 import { Factory } from '../common'
 import { Dates, UUIDs } from '../utils'
-import { Node } from './node'
+import { ArenaRecordNode } from './node'
 
 export type NodeFactoryParams = {
   nodeDefUuid: string
   recordUuid: string
-  parentNode?: Node
+  parentNode?: ArenaRecordNode
   surveyUuid?: string
   value?: any
 }
 
-export const NodeFactory: Factory<Node, NodeFactoryParams> = {
-  createInstance: (params: NodeFactoryParams): Node => {
+export const NodeFactory: Factory<ArenaRecordNode, NodeFactoryParams> = {
+  createInstance: (params: NodeFactoryParams): ArenaRecordNode => {
     const { nodeDefUuid, recordUuid, parentNode, surveyUuid, value } = params
     const now = Dates.nowFormattedForStorage()
 
@@ -32,8 +32,8 @@ export const NodeFactory: Factory<Node, NodeFactoryParams> = {
   },
 }
 
-export const NodePlaceholderFactory: Factory<Node, NodeFactoryParams> = {
-  createInstance: (params: NodeFactoryParams): Node => {
+export const NodePlaceholderFactory: Factory<ArenaRecordNode, NodeFactoryParams> = {
+  createInstance: (params: NodeFactoryParams): ArenaRecordNode => {
     return {
       ...NodeFactory.createInstance(params),
       placeholder: true,

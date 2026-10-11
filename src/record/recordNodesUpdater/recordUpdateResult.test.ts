@@ -1,8 +1,8 @@
 import { describe, expect, test } from '@jest/globals'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-const createRecordStub = (uuid: string): Record => ({
+const createRecordStub = (uuid: string): ArenaRecord => ({
   uuid,
   ownerName: 'owner',
   ownerUuid: 'owner-uuid',

@@ -11,10 +11,10 @@ import { Survey, Surveys } from '../survey'
 import { RecordFactory } from './factory'
 import { Records } from './records'
 import { RecordUpdater } from './recordUpdater'
-import { Record } from './record'
+import { ArenaRecord } from './record'
 
 let user: User
-let record: Record
+let record: ArenaRecord
 let survey: Survey
 
 const createNodes = async (params: { nodeDefName: string; totalNodes: number }) => {

@@ -4,10 +4,14 @@ import { NodeDef, NodeDefCode, NodeDefDecimal, NodeDefs, NodeDefType } from '../
 import { Survey, Surveys } from '../survey'
 import { Taxa } from '../taxonomy'
 import { DateFormats, Dates, Numbers, Objects, Strings } from '../utils'
-import { Node } from './node'
+import { ArenaRecordNode } from './node'
 import { NodeValues } from './nodeValues'
 
-const extractCategoryItem = (params: { survey: Survey; node?: Node; value: any }): CategoryItem | undefined => {
+const extractCategoryItem = (params: {
+  survey: Survey
+  node?: ArenaRecordNode
+  value: any
+}): CategoryItem | undefined => {
   const { survey, node, value } = params
 
   const itemUuid = NodeValues.getValueItemUuid(value)
@@ -22,7 +26,7 @@ type FormatParams = {
   survey: Survey
   cycle: string
   nodeDef: NodeDef<NodeDefType>
-  node?: Node
+  node?: ArenaRecordNode
   value: any
   showLabel?: boolean
   quoteLabels?: boolean

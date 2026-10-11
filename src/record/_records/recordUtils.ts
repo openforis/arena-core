@@ -1,9 +1,9 @@
 import { CategoryItem } from '../../category'
-import { Node, NodeValues } from '../../node'
+import { ArenaRecordNode, NodeValues } from '../../node'
 import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefs, NodeDefType } from '../../nodeDef'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { Survey, Surveys } from '../../survey'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import {
   getChildren,
   getDescendantsOrSelf,
@@ -27,8 +27,8 @@ const findDependentEnumeratedEntityDefs = (params: { survey: Survey; nodeDef: No
 }
 
 const hasNodeNonEmptyDescendants = (params: {
-  record: Record
-  parentNode: Node | undefined
+  record: ArenaRecord
+  parentNode: ArenaRecordNode | undefined
   nodeDefDescendant: NodeDefEntity
 }): boolean => {
   const { record, parentNode, nodeDefDescendant } = params
@@ -44,7 +44,7 @@ const hasNodeNonEmptyDescendants = (params: {
 }
 
 export const findDependentEnumeratedEntityDefsNotEmpty =
-  (params: { survey: Survey; node: Node; nodeDef: NodeDef<any> }) => (record: Record) => {
+  (params: { survey: Survey; node: ArenaRecordNode; nodeDef: NodeDef<any> }) => (record: ArenaRecord) => {
     const { survey, node, nodeDef } = params
     const dependentEnumeratedEntityDefs = findDependentEnumeratedEntityDefs({ survey, nodeDef })
     if (dependentEnumeratedEntityDefs.length === 0) return []
@@ -60,11 +60,11 @@ export const getEnumeratingCategoryItems =
   (params: {
     survey: Survey
     enumeratorDef: NodeDefCode
-    parentNode: Node
+    parentNode: ArenaRecordNode
     categoryItemProvider?: CategoryItemProvider
     allowedCodes?: Set<string>
   }) =>
-  async (record: Record): Promise<CategoryItem[]> => {
+  async (record: ArenaRecord): Promise<CategoryItem[]> => {
     const { survey, enumeratorDef, parentNode, categoryItemProvider, allowedCodes } = params
     const categoryUuid = NodeDefs.getCategoryUuid(enumeratorDef)
     if (!categoryUuid) return []

@@ -10,11 +10,11 @@ import { createTestAdminUser } from '../tests/data'
 const { booleanDef, category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { RecordCloner } from './recordCloner'
 
 let survey: Survey
-let record: Record
+let record: ArenaRecord
 
 describe('Record cloner', () => {
   beforeAll(async () => {

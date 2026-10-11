@@ -1,17 +1,20 @@
-import { NodeService, Node, NodeFactory } from '../../node'
+import { NodeService, ArenaRecordNode, NodeFactory } from '../../node'
 
-export const nodeMock: Node = NodeFactory.createInstance({ nodeDefUuid: 'nodedef_uuid', recordUuid: 'record_uuid' })
+export const nodeMock: ArenaRecordNode = NodeFactory.createInstance({
+  nodeDefUuid: 'nodedef_uuid',
+  recordUuid: 'record_uuid',
+})
 
 export class NodeServiceMock implements NodeService {
-  create(): Promise<Node> {
+  create(): Promise<ArenaRecordNode> {
     throw new Error('Not implemented')
   }
 
-  get(): Promise<Node> {
+  get(): Promise<ArenaRecordNode> {
     return Promise.resolve(nodeMock)
   }
 
-  update(): Promise<Node> {
+  update(): Promise<ArenaRecordNode> {
     throw new Error('Not implemented')
   }
 

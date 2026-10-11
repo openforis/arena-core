@@ -1,7 +1,7 @@
-import { Node } from './node'
+import { ArenaRecordNode } from './node'
 import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
 
 export interface NodePointer {
-  nodeCtx: Node
+  nodeCtx: ArenaRecordNode
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
 }

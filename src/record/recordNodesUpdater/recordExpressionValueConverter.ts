@@ -1,7 +1,7 @@
 import { Point, Points } from '../../geo'
-import { Node, NodeValueCode, NodeValueTaxon } from '../../node'
+import { ArenaRecordNode, NodeValueCode, NodeValueTaxon } from '../../node'
 import { Survey, Surveys } from '../../survey'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { Records } from '../records'
 import { NodeDef, NodeDefType, NodeDefs, NodeDefCodeProps, NodeDefTaxon, NodeDefCode } from '../../nodeDef'
 import { Dates, DateFormats, Objects } from '../../utils'
@@ -10,8 +10,8 @@ import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 
 interface ToNodeValueParams {
   survey: Survey
-  record: Record
-  nodeParent: Node
+  record: ArenaRecord
+  nodeParent: ArenaRecordNode
   nodeDef: NodeDef<any>
   valueExpr: string
   timezoneOffset?: number
@@ -32,9 +32,9 @@ const _toBoolean = (params: ToNodeValueParams) => {
 
 const _findCategoryItemUuidByCode = async (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   nodeDef: NodeDefCode
-  nodeParent: Node
+  nodeParent: ArenaRecordNode
   code: string
   categoryItemProvider?: CategoryItemProvider
 }): Promise<string | undefined> => {

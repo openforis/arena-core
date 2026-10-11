@@ -6,7 +6,7 @@ import { createTestAdminUser } from '../tests/data'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { TestUtils } from '../tests/testUtils'
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { RecordFactory } from './factory'
 import { RecordUpdater } from './recordUpdater'
 import { Records } from './records'
@@ -57,7 +57,7 @@ const initTestSurvey = async () => {
     .build()
 }
 
-const getTableSumKeys = (params: { survey: Survey; record: Record }): string[] => {
+const getTableSumKeys = (params: { survey: Survey; record: ArenaRecord }): string[] => {
   const { survey: surveyParam, record } = params
   const root = TestUtils.getNodeByPath({ survey: surveyParam, record, path: 'root_entity' })
   const tableSumDef = Surveys.getNodeDefByName({ survey: surveyParam, name: 'table_sum' })
@@ -79,7 +79,7 @@ const getTableSumKeys = (params: { survey: Survey; record: Record }): string[] =
   })
 }
 
-const getTableSumEntityUuidsByKey = (params: { survey: Survey; record: Record }): { [key: string]: string } => {
+const getTableSumEntityUuidsByKey = (params: { survey: Survey; record: ArenaRecord }): { [key: string]: string } => {
   const { survey: surveyParam, record } = params
   const root = TestUtils.getNodeByPath({ survey: surveyParam, record, path: 'root_entity' })
   const tableSumDef = Surveys.getNodeDefByName({ survey: surveyParam, name: 'table_sum' })
@@ -106,10 +106,10 @@ const getTableSumEntityUuidsByKey = (params: { survey: Survey; record: Record })
 
 const addTableSourceRow = async (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   type: string
   value: number
-}): Promise<Record> => {
+}): Promise<ArenaRecord> => {
   const { survey: surveyParam, type, value } = params
   let { record } = params
   const getRoot = () => TestUtils.getNodeByPath({ survey: surveyParam, record, path: 'root_entity' })
@@ -152,7 +152,11 @@ const addTableSourceRow = async (params: {
   return updateResult.record
 }
 
-const deleteTableSourceEntity = async (params: { survey: Survey; record: Record; index: number }): Promise<Record> => {
+const deleteTableSourceEntity = async (params: {
+  survey: Survey
+  record: ArenaRecord
+  index: number
+}): Promise<ArenaRecord> => {
   const { survey: surveyParam, index } = params
   const { record } = params
   const tableSourceEntities = TestUtils.findNodesByPath({ survey: surveyParam, record, path: 'table_source' })!

@@ -3,7 +3,7 @@ import { User } from '../../auth'
 import { CategoryItem } from '../../category'
 import { ExpressionNodeType, JavascriptExpressionEvaluator } from '../../expression'
 import { LanguageCode } from '../../language'
-import { Node } from '../../node'
+import { ArenaRecordNode } from '../../node'
 import { NodeDefExpression, NodeDefs } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Taxon } from '../../taxonomy'
@@ -33,7 +33,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
 
   async evalExpression(
     params: ExpressionEvaluateParams & {
-      node: Node
+      node: ArenaRecordNode
       query: string
       item?: CategoryItem | Taxon
     }
@@ -48,7 +48,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
 
   private async _getApplicableExpressions(
     params: ExpressionEvaluateParams & {
-      nodeCtx: Node
+      nodeCtx: ArenaRecordNode
       expressions: NodeDefExpression[]
       stopAtFirstFound?: boolean
     }
@@ -75,7 +75,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
 
   async evalApplicableExpressions(
     params: ExpressionEvaluateParams & {
-      nodeCtx: Node
+      nodeCtx: ArenaRecordNode
       expressions: NodeDefExpression[]
       stopAtFirstFound?: boolean
     }
@@ -93,7 +93,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
 
   async evalApplicableExpression(
     params: ExpressionEvaluateParams & {
-      nodeCtx: Node
+      nodeCtx: ArenaRecordNode
       expressions: NodeDefExpression[]
     }
   ): Promise<{ expression: NodeDefExpression; value: any } | null> {

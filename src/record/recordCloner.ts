@@ -1,10 +1,10 @@
-import { Node, NodeValues, Nodes } from '../node'
+import { ArenaRecordNode, NodeValues, Nodes } from '../node'
 import { NodeKeys, NodeMetaKeys } from '../node/node'
 import { NodeDefCode, NodeDefType, NodeDefs } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Dates, Objects, UUIDs } from '../utils'
 import { Validation } from '../validation'
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { RecordFixer } from './recordFixer'
 import { RecordUpdateResult } from './recordNodesUpdater'
 import { RecordValidations } from './recordValidations'
@@ -15,9 +15,9 @@ type OldUuidToNewUuidMap = {
 }
 
 const assignNewUuidsToNodes = (params: {
-  record: Record
+  record: ArenaRecord
   sideEffect: boolean
-}): { newNodeUuidsByOldUuid: OldUuidToNewUuidMap; newFileUuidsByOldUuid: OldUuidToNewUuidMap; record: Record } => {
+}): { newNodeUuidsByOldUuid: OldUuidToNewUuidMap; newFileUuidsByOldUuid: OldUuidToNewUuidMap; record: ArenaRecord } => {
   const { record, sideEffect } = params
 
   // generate a new uuid for each node
@@ -26,7 +26,8 @@ const assignNewUuidsToNodes = (params: {
 
   // sort nodes before removing the id, to preserve their hierarchy (faster than comparing each meta.h property)
   const nodesArray = Records.getNodesArray(record).sort(
-    (nodeA: Node, nodeB: Node): number => Nodes.getHierarchy(nodeA).length - Nodes.getHierarchy(nodeB).length
+    (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): number =>
+      Nodes.getHierarchy(nodeA).length - Nodes.getHierarchy(nodeB).length
   )
 
   const recordUpdated = sideEffect ? record : { ...record }
@@ -123,9 +124,9 @@ const assignNewUuidsToValidation = (params: {
 }
 
 const assignNewUuids = (params: {
-  record: Record
+  record: ArenaRecord
   sideEffect: boolean
-}): { newNodeUuidsByOldUuid: OldUuidToNewUuidMap; newFileUuidsByOldUuid: OldUuidToNewUuidMap; record: Record } => {
+}): { newNodeUuidsByOldUuid: OldUuidToNewUuidMap; newFileUuidsByOldUuid: OldUuidToNewUuidMap; record: ArenaRecord } => {
   const { record, sideEffect } = params
   let recordUpdated = sideEffect ? record : { ...record }
   recordUpdated.uuid = UUIDs.v4()
@@ -156,7 +157,11 @@ const assignNewUuids = (params: {
   return { newNodeUuidsByOldUuid, newFileUuidsByOldUuid, record: recordUpdated }
 }
 
-const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffect: boolean }): RecordUpdateResult => {
+const removeExcludedNodes = (params: {
+  survey: Survey
+  record: ArenaRecord
+  sideEffect: boolean
+}): RecordUpdateResult => {
   const { survey, record, sideEffect } = params
   const cycle = record.cycle!
   const result = new RecordUpdateResult({ record })
@@ -188,7 +193,7 @@ const removeExcludedNodes = (params: { survey: Survey; record: Record; sideEffec
   return result
 }
 
-const cloneRecord = (params: { survey: Survey; record: Record; cycleTo: string; sideEffect?: boolean }) => {
+const cloneRecord = (params: { survey: Survey; record: ArenaRecord; cycleTo: string; sideEffect?: boolean }) => {
   const { survey, record, cycleTo, sideEffect = false } = params
 
   const recordUpdated = sideEffect ? record : { ...record }

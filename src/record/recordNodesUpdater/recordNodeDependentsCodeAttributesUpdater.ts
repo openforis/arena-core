@@ -1,4 +1,4 @@
-import { Node, NodeValues, Nodes } from '../../node'
+import { ArenaRecordNode, NodeValues, Nodes } from '../../node'
 import { NodeDefCode, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { Dates } from '../../utils'
@@ -19,7 +19,7 @@ import { RecordUpdateResult } from './recordUpdateResult'
 const isDependentCodeAttributeValueStillValid = async (
   params: Pick<RecordNodeDependentsUpdateParams, 'survey' | 'categoryItemProvider'> & {
     parentItemUuid?: string
-    dependentCodeAttribute: Node
+    dependentCodeAttribute: ArenaRecordNode
     dependentCodeAttributeDef: NodeDefCode
     record: ArenaRecord
   }
@@ -80,7 +80,7 @@ export const updateDependentCodeAttributes = async (params: RecordNodeDependents
     const stillValid = await isDependentCodeAttributeValueStillValid(validityCheckParams) // NOSONAR
     if (stillValid) continue
 
-    const nodeUpdated: Node = {
+    const nodeUpdated: ArenaRecordNode = {
       ...dependentCodeAttribute,
       value: null,
       updated: true,

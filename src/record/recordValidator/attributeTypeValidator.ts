@@ -1,5 +1,5 @@
 import { NodeDef, NodeDefCode, NodeDefProps, NodeDefs, NodeDefTaxon, NodeDefType } from '../../nodeDef'
-import { Node, Nodes } from '../../node'
+import { ArenaRecordNode, Nodes } from '../../node'
 import { ValidationResult, ValidationResultFactory } from '../../validation'
 import { Survey, Surveys } from '../../survey'
 import { NodeValues } from '../../node/nodeValues'
@@ -8,18 +8,18 @@ import { Numbers, Dates } from '../../utils'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Taxa } from '../../taxonomy'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 
 interface AttributeTypeValidatorParams {
   survey: Survey
   categoryItemProvider?: CategoryItemProvider
   taxonProvider?: TaxonProvider
-  record: Record
+  record: ArenaRecord
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
 }
 
 interface AttributeTypeValidatorInternalParams extends AttributeTypeValidatorParams {
-  node: Node
+  node: ArenaRecordNode
   value: any
 }
 
@@ -125,7 +125,7 @@ const typeValidatorFns: {
 
 const validateValueType =
   (params: AttributeTypeValidatorParams) =>
-  async (_propName: string, node: Node): Promise<ValidationResult> => {
+  async (_propName: string, node: ArenaRecordNode): Promise<ValidationResult> => {
     const { survey, nodeDef, record, categoryItemProvider, taxonProvider } = params
 
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()

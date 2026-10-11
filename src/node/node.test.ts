@@ -1,10 +1,10 @@
 import { describe, test, expect } from '@jest/globals'
 
 import { NodeFactory, NodeFactoryParams, NodePlaceholderFactory } from './factory'
-import { Node } from './node'
+import { ArenaRecordNode } from './node'
 import { Nodes } from './nodes'
 
-const checkNode = (node: Node, nodeParams: NodeFactoryParams) => {
+const checkNode = (node: ArenaRecordNode, nodeParams: NodeFactoryParams) => {
   expect(node).toHaveProperty('uuid')
   expect(node).toHaveProperty('nodeDefUuid')
   expect(node.nodeDefUuid).toBe(nodeParams.nodeDefUuid)
@@ -86,7 +86,10 @@ describe('NodeFactory', () => {
 
 describe('Nodes.removeStatusFlags', () => {
   test('sideEffect - clears the flags in place', () => {
-    const node: Node = { ...NodeFactory.createInstance({ nodeDefUuid: 'def', recordUuid: 'rec' }), updated: true }
+    const node: ArenaRecordNode = {
+      ...NodeFactory.createInstance({ nodeDefUuid: 'def', recordUuid: 'rec' }),
+      updated: true,
+    }
     const nodeUpdated = Nodes.removeStatusFlags({ node, sideEffect: true })
     expect(nodeUpdated).toBe(node)
     expect(nodeUpdated.created).toBeUndefined()
@@ -95,7 +98,10 @@ describe('Nodes.removeStatusFlags', () => {
   })
 
   test('no sideEffect - returns a new node without the flags', () => {
-    const node: Node = { ...NodeFactory.createInstance({ nodeDefUuid: 'def', recordUuid: 'rec' }), updated: true }
+    const node: ArenaRecordNode = {
+      ...NodeFactory.createInstance({ nodeDefUuid: 'def', recordUuid: 'rec' }),
+      updated: true,
+    }
     const nodeUpdated = Nodes.removeStatusFlags({ node })
     expect(nodeUpdated).not.toBe(node)
     expect(nodeUpdated).not.toHaveProperty('created')

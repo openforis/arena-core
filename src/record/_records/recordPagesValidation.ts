@@ -1,8 +1,8 @@
-import { Node, Nodes } from '../../node'
+import { ArenaRecordNode, Nodes } from '../../node'
 import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Validations } from '../../validation'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { RecordValidations } from '../recordValidations'
 import { getEntityCompletionStats } from './recordCompletion'
 import { getCycle, getNodeByUuid, getNodesByDefUuid, getRoot } from './recordGetters'
@@ -27,7 +27,11 @@ export type PagesValidationProgress = {
 /**
  * Whether a node belongs under a page entity (itself or any descendant of that page).
  */
-export const nodeBelongsToPage = (params: { node: Node; pageNodeDefUuid: string; record: Record }): boolean => {
+export const nodeBelongsToPage = (params: {
+  node: ArenaRecordNode
+  pageNodeDefUuid: string
+  record: ArenaRecord
+}): boolean => {
   const { node, pageNodeDefUuid, record } = params
   if (node.nodeDefUuid === pageNodeDefUuid) return true
   return Nodes.getHierarchy(node).some((ancestorUuid) => {
@@ -41,10 +45,10 @@ export const nodeBelongsToPage = (params: { node: Node; pageNodeDefUuid: string;
  * When descendantPageUuids is empty, all nodes under the page hierarchy are included.
  */
 export const nodeBelongsToOwnPage = (params: {
-  node: Node
+  node: ArenaRecordNode
   pageNodeDefUuid: string
   descendantPageUuids: string[]
-  record: Record
+  record: ArenaRecord
 }): boolean => {
   const { node, pageNodeDefUuid, descendantPageUuids, record } = params
   if (!nodeBelongsToPage({ node, pageNodeDefUuid, record })) return false
@@ -111,7 +115,7 @@ export const getDescendantPageNodeDefUuids = (params: {
   return uuids
 }
 
-const nodeIsUnderEntity = (params: { node: Node; entityUuid: string }): boolean => {
+const nodeIsUnderEntity = (params: { node: ArenaRecordNode; entityUuid: string }): boolean => {
   const { node, entityUuid } = params
   if (node.uuid === entityUuid) return true
   return Nodes.getHierarchy(node).includes(entityUuid)
@@ -122,7 +126,7 @@ const getOwnPageFieldValidationFlags = (params: {
   pageNodeDefUuid: string
   descendantPageUuids: string[]
   scopeEntityUuid?: string
-  record: Record
+  record: ArenaRecord
   recordValidation: ReturnType<typeof Validations.getValidation>
 }): PageValidationStatus | null => {
   const { nodeUuid, pageNodeDefUuid, descendantPageUuids, scopeEntityUuid, record, recordValidation } = params
@@ -162,7 +166,7 @@ const getOwnPageChildrenCountValidationFlags = (params: {
   pageNodeDefUuid: string
   descendantPageUuids: string[]
   scopeEntityUuid?: string
-  record: Record
+  record: ArenaRecord
   recordValidation: ReturnType<typeof Validations.getValidation>
 }): PageValidationStatus | null => {
   const { childrenCountKey, pageNodeDefUuid, descendantPageUuids, scopeEntityUuid, record, recordValidation } = params
@@ -196,7 +200,7 @@ const getOwnPageChildrenCountValidationFlags = (params: {
 export const getPageValidationStatus = (params: {
   pageNodeDefUuid: string
   descendantPageUuids?: string[]
-  record: Record
+  record: ArenaRecord
   scopeEntityUuid?: string
 }): PageValidationStatus => {
   const { pageNodeDefUuid, descendantPageUuids = [], record, scopeEntityUuid } = params
@@ -234,7 +238,7 @@ const aggregatePageValidationStatuses = (statuses: PageValidationStatus[]): Page
  */
 export const getEntitySubtreeStatus = (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   entityUuid: string
   cycle?: string
 }): EntitySubtreeStatus | null => {
@@ -276,7 +280,7 @@ export const getEntitySubtreeStatus = (params: {
  */
 export const getMultiplePageEntitiesStatus = (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   pageNodeDefUuid: string
   cycle?: string
   /** When set, only instances under this ancestor entity are aggregated. */
@@ -308,7 +312,7 @@ export const getMultiplePageEntitiesStatus = (params: {
 export const pageHasOwnErrors = (params: {
   pageNodeDefUuid: string
   descendantPageUuids: string[]
-  record: Record
+  record: ArenaRecord
 }): boolean => getPageValidationStatus(params).hasErrors
 
 /**
@@ -317,7 +321,7 @@ export const pageHasOwnErrors = (params: {
  */
 export const getRecordPagesValidationProgress = (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   cycle?: string
 }): PagesValidationProgress | null => {
   const { survey, record } = params

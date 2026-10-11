@@ -12,7 +12,7 @@ import { TestUtils } from '../tests/testUtils'
 import { User } from '../auth'
 import { Survey } from '../survey'
 import { Validations } from '../validation'
-import { Record } from './record'
+import { ArenaRecord } from './record'
 
 let user: User
 
@@ -48,7 +48,7 @@ const createSurveyAndRecord = async (coverageValidationExpression: string) => {
   return { survey, record, nodeToUpdate, siblingNode }
 }
 
-const updateValue = (params: { survey: Survey; record: Record; attributeUuid: string; value: number }) =>
+const updateValue = (params: { survey: Survey; record: ArenaRecord; attributeUuid: string; value: number }) =>
   RecordUpdater.updateAttributeValue({ user, ...params })
 
 describe('RecordUpdater - attribute update => update dependent validations', () => {

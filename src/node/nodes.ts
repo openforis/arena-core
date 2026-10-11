@@ -1,29 +1,29 @@
 import { Dictionary } from '../common'
 import { NodeDef, NodeDefCountType, NodeDefs } from '../nodeDef'
 import { Dates, Objects } from '../utils'
-import { Node } from './node'
+import { ArenaRecordNode } from './node'
 
-const isRoot = (node: Node): boolean => !node.parentUuid
+const isRoot = (node: ArenaRecordNode): boolean => !node.parentUuid
 
-const areEqual = (nodeA: Node, nodeB: Node): boolean => nodeA.uuid === nodeB.uuid
+const areEqual = (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): boolean => nodeA.uuid === nodeB.uuid
 
-const isChildApplicable = (node: Node, nodeDefUuid: string): boolean => {
+const isChildApplicable = (node: ArenaRecordNode, nodeDefUuid: string): boolean => {
   // if child applicability is not defined for a node definition, consider it applicable
   return node.meta?.childApplicability?.[nodeDefUuid] !== false
 }
 
-const isChildEditable = (node: Node, nodeDefUuid: string): boolean => {
+const isChildEditable = (node: ArenaRecordNode, nodeDefUuid: string): boolean => {
   // if child editability is not defined for a node definition, consider it editable
   return node.meta?.cEdit?.[nodeDefUuid] !== false
 }
 
-const isChildVisible = (node: Node, nodeDefUuid: string): boolean => {
+const isChildVisible = (node: ArenaRecordNode, nodeDefUuid: string): boolean => {
   // if child visibility is not defined for a node definition, consider it visible
   return node.meta?.cVis?.[nodeDefUuid] !== false
 }
 
 const getChildrenMinOrMaxCount = (params: {
-  parentNode: Node
+  parentNode: ArenaRecordNode
   nodeDef: NodeDef<any>
   countType: NodeDefCountType
 }): number => {
@@ -40,31 +40,31 @@ const getChildrenMinOrMaxCount = (params: {
   return nodeDefCount ? Number(nodeDefCount) : Number.NaN
 }
 
-const getChildrenMaxCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
+const getChildrenMaxCount = (params: { parentNode: ArenaRecordNode; nodeDef: NodeDef<any> }): number =>
   getChildrenMinOrMaxCount({ ...params, countType: NodeDefCountType.max })
 
-const getChildrenMinCount = (params: { parentNode: Node; nodeDef: NodeDef<any> }): number =>
+const getChildrenMinCount = (params: { parentNode: ArenaRecordNode; nodeDef: NodeDef<any> }): number =>
   getChildrenMinOrMaxCount({ ...params, countType: NodeDefCountType.min })
 
-const getHierarchy = (node: Node): string[] => [...(node.meta?.h ?? [])]
+const getHierarchy = (node: ArenaRecordNode): string[] => [...(node.meta?.h ?? [])]
 
-const getHierarchyCode = (node: Node): string[] => [...(node.meta?.hCode ?? [])]
+const getHierarchyCode = (node: ArenaRecordNode): string[] => [...(node.meta?.hCode ?? [])]
 
-const mergeNodes = (target: Node, ...sources: Node[] | object[]): Node =>
-  Objects.deepMerge(target, ...sources) as unknown as Node
+const mergeNodes = (target: ArenaRecordNode, ...sources: ArenaRecordNode[] | object[]): ArenaRecordNode =>
+  Objects.deepMerge(target, ...sources) as unknown as ArenaRecordNode
 
-const isDefaultValueApplied = (node: Node): boolean => node?.meta?.defaultValueApplied ?? false
+const isDefaultValueApplied = (node: ArenaRecordNode): boolean => node?.meta?.defaultValueApplied ?? false
 
-const isQualifierValueApplied = (node: Node): boolean => node?.meta?.qualifierValueApplied ?? false
+const isQualifierValueApplied = (node: ArenaRecordNode): boolean => node?.meta?.qualifierValueApplied ?? false
 
-const isValueBlank = (node: Node): boolean => Objects.isEmpty(node.value)
+const isValueBlank = (node: ArenaRecordNode): boolean => Objects.isEmpty(node.value)
 
-const isValueNotBlank = (node: Node): boolean => Objects.isNotEmpty(node.value)
+const isValueNotBlank = (node: ArenaRecordNode): boolean => Objects.isNotEmpty(node.value)
 
-const hasUserInputValue = (node: Node): boolean =>
+const hasUserInputValue = (node: ArenaRecordNode): boolean =>
   node && !isValueBlank(node) && !isDefaultValueApplied(node) && !isQualifierValueApplied(node)
 
-const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: boolean): Node => {
+const assocChildApplicability = (node: ArenaRecordNode, nodeDefUuid: string, applicable: boolean): ArenaRecordNode => {
   const childApplicability = { ...node.meta?.childApplicability }
   if (!applicable) {
     childApplicability[nodeDefUuid] = applicable
@@ -79,7 +79,7 @@ const assocChildApplicability = (node: Node, nodeDefUuid: string, applicable: bo
   }
 }
 
-const dissocChildApplicability = (node: Node, nodeDefUuid: string) => {
+const dissocChildApplicability = (node: ArenaRecordNode, nodeDefUuid: string) => {
   const childApplicability = { ...node.meta?.childApplicability }
   delete childApplicability[nodeDefUuid]
   return {
@@ -97,12 +97,12 @@ const updateMetaDictionary = ({
   propValue,
   sideEffect,
 }: {
-  node: Node
+  node: ArenaRecordNode
   nodeDefUuid: string
   propName: MetaBooleanDictionaryProp
   propValue: any
   sideEffect: boolean
-}): Node => {
+}): ArenaRecordNode => {
   const nodeUpdated = sideEffect ? node : { ...node }
   const metaOriginal = nodeUpdated.meta ?? {}
   const meta = sideEffect ? metaOriginal : { ...metaOriginal }
@@ -120,18 +120,26 @@ const updateMetaDictionary = ({
   return nodeUpdated
 }
 
-const assocChildEditable = (node: Node, nodeDefUuid: string, editable: boolean, sideEffect = false): Node =>
-  updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
+const assocChildEditable = (
+  node: ArenaRecordNode,
+  nodeDefUuid: string,
+  editable: boolean,
+  sideEffect = false
+): ArenaRecordNode => updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
 
-const assocChildVisible = (node: Node, nodeDefUuid: string, visible: boolean, sideEffect = false): Node =>
-  updateMetaDictionary({ node, nodeDefUuid, propName: 'cVis', propValue: visible, sideEffect })
+const assocChildVisible = (
+  node: ArenaRecordNode,
+  nodeDefUuid: string,
+  visible: boolean,
+  sideEffect = false
+): ArenaRecordNode => updateMetaDictionary({ node, nodeDefUuid, propName: 'cVis', propValue: visible, sideEffect })
 
 const assocChildrenCount = (params: {
-  node: Node
+  node: ArenaRecordNode
   nodeDefUuid: string
   count: number
   countType: NodeDefCountType
-}): Node => {
+}): ArenaRecordNode => {
   const { node, nodeDefUuid, count, countType } = params
   const countIndex = {
     ...(countType === NodeDefCountType.max ? node.meta?.childrenMaxCount : node.meta?.childrenMinCount),
@@ -155,13 +163,19 @@ const assocChildrenCount = (params: {
   }
 }
 
-const assocChildrenMaxCount = (params: { node: Node; nodeDefUuid: string; count: number }): Node =>
-  assocChildrenCount({ ...params, countType: NodeDefCountType.max })
+const assocChildrenMaxCount = (params: {
+  node: ArenaRecordNode
+  nodeDefUuid: string
+  count: number
+}): ArenaRecordNode => assocChildrenCount({ ...params, countType: NodeDefCountType.max })
 
-const assocChildrenMinCount = (params: { node: Node; nodeDefUuid: string; count: number }): Node =>
-  assocChildrenCount({ ...params, countType: NodeDefCountType.min })
+const assocChildrenMinCount = (params: {
+  node: ArenaRecordNode
+  nodeDefUuid: string
+  count: number
+}): ArenaRecordNode => assocChildrenCount({ ...params, countType: NodeDefCountType.min })
 
-const clearStatusFlagsInPlace = (node: Node): Node => {
+const clearStatusFlagsInPlace = (node: ArenaRecordNode): ArenaRecordNode => {
   // do not use "delete": it would switch the node object to the (much bigger) V8 dictionary mode
   if (node.created !== undefined) node.created = undefined
   if (node.deleted !== undefined) node.deleted = undefined
@@ -169,15 +183,20 @@ const clearStatusFlagsInPlace = (node: Node): Node => {
   return node
 }
 
-const omitStatusFlags = (node: Node): Node => {
+const omitStatusFlags = (node: ArenaRecordNode): ArenaRecordNode => {
   const { created: _created, deleted: _deleted, updated: _updated, ...nodeCleaned } = node
   return nodeCleaned
 }
 
-const removeStatusFlags = ({ node, sideEffect = false }: { node: Node; sideEffect?: boolean }): Node =>
-  sideEffect ? clearStatusFlagsInPlace(node) : omitStatusFlags(node)
+const removeStatusFlags = ({
+  node,
+  sideEffect = false,
+}: {
+  node: ArenaRecordNode
+  sideEffect?: boolean
+}): ArenaRecordNode => (sideEffect ? clearStatusFlagsInPlace(node) : omitStatusFlags(node))
 
-const assocValue = (node: Node, value: any, sideEffect = false): Node => {
+const assocValue = (node: ArenaRecordNode, value: any, sideEffect = false): ArenaRecordNode => {
   const nodeUpdated = sideEffect ? node : { ...node }
   nodeUpdated.value = value
   nodeUpdated.updated = true

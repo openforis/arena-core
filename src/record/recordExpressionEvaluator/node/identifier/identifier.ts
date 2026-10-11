@@ -1,6 +1,6 @@
 import { ExpressionVariable, IdentifierExpression } from '../../../../expression'
 import { IdentifierEvaluator } from '../../../../expression/javascript/node/identifier'
-import { Node } from '../../../../node'
+import { ArenaRecordNode } from '../../../../node'
 import { NodeDef, NodeDefs, NodeDefType } from '../../../../nodeDef'
 import { Records } from '../../../records'
 import { NodeValues } from '../../../../node/nodeValues'
@@ -9,11 +9,11 @@ import { RecordExpressionContext } from '../../context'
 import { NodesFinder } from './nodesFinder'
 import { SystemError } from '../../../../error'
 import { NodeValueExtractor } from '../../nodeValueExtractor'
-import { Record } from '../../../record'
+import { ArenaRecord } from '../../../record'
 
 const getNodesOrValues = (params: {
   survey: Survey
-  referencedNodes: Node[]
+  referencedNodes: ArenaRecordNode[]
   nodeDefReferenced: NodeDef<any>
   propName: string
   evaluateToNode?: boolean
@@ -41,8 +41,8 @@ const getNodesOrValues = (params: {
 
 const evaluateIdentifierOnNode = (params: {
   survey: Survey
-  record: Record
-  nodeObject: Node
+  record: ArenaRecord
+  nodeObject: ArenaRecordNode
   evaluateToNode?: boolean
   propName: string
 }) => {
