@@ -1,4 +1,5 @@
 import { Objects } from '../utils'
+import { MutationOptions } from '../utils/mutationOptions'
 import { ValidationFactory } from './factory'
 import { Validation, ValidationCounts, ValidationFields, ValidationResult } from './validation'
 
@@ -201,16 +202,62 @@ const mergeValidations =
     return doCleanup ? cleanup(validationResult) : recalculateValidity(validationResult)
   }
 
-const dissocFieldValidation =
-  (fieldKey: string, sideEffect = false, doCleanup = true) =>
-  (validation: Validation): Validation => {
+/**
+ * Options of the functions removing field validations.
+ */
+export interface DissocFieldValidationOptions extends MutationOptions {
+  /**
+   * When true (default), the validation is cleaned up after removing the field validations (empty field validations
+   * removed and validity recalculated).
+   */
+  doCleanup?: boolean
+}
+
+const toDissocFieldValidationOptions = (
+  options?: DissocFieldValidationOptions | boolean,
+  doCleanup?: boolean
+): DissocFieldValidationOptions =>
+  typeof options === 'boolean' || options === undefined ? { sideEffect: options, doCleanup } : options
+
+function dissocFieldValidation(
+  fieldKey: string,
+  options?: DissocFieldValidationOptions
+): (validation: Validation) => Validation
+/** @deprecated Pass the options object instead of the positional booleans: `{ sideEffect, doCleanup }` */
+function dissocFieldValidation(
+  fieldKey: string,
+  sideEffect?: boolean,
+  doCleanup?: boolean
+): (validation: Validation) => Validation
+function dissocFieldValidation(
+  fieldKey: string,
+  options?: DissocFieldValidationOptions | boolean,
+  doCleanupParam?: boolean
+): (validation: Validation) => Validation {
+  const { sideEffect = false, doCleanup = true } = toDissocFieldValidationOptions(options, doCleanupParam)
+  return (validation: Validation): Validation => {
     const validationUpdated = Objects.dissocPath({ obj: validation, path: ['fields', fieldKey], sideEffect })
     return doCleanup ? cleanup(validationUpdated) : validationUpdated
   }
+}
 
-const dissocFieldValidationsStartingWith =
-  (fieldStartsWith: string, sideEffect = false, doCleanup = true) =>
-  (validation: Validation): Validation => {
+function dissocFieldValidationsStartingWith(
+  fieldStartsWith: string,
+  options?: DissocFieldValidationOptions
+): (validation: Validation) => Validation
+/** @deprecated Pass the options object instead of the positional booleans: `{ sideEffect, doCleanup }` */
+function dissocFieldValidationsStartingWith(
+  fieldStartsWith: string,
+  sideEffect?: boolean,
+  doCleanup?: boolean
+): (validation: Validation) => Validation
+function dissocFieldValidationsStartingWith(
+  fieldStartsWith: string,
+  options?: DissocFieldValidationOptions | boolean,
+  doCleanupParam?: boolean
+): (validation: Validation) => Validation {
+  const { sideEffect = false, doCleanup = true } = toDissocFieldValidationOptions(options, doCleanupParam)
+  return (validation: Validation): Validation => {
     if (!validation?.fields) return validation
 
     const fieldsUpdated = sideEffect ? validation.fields : { ...validation.fields }
@@ -226,6 +273,7 @@ const dissocFieldValidationsStartingWith =
     const validationUpdated = { ...validation, fields: fieldsUpdated }
     return doCleanup ? cleanup(validationUpdated) : validationUpdated
   }
+}
 
 const mergeValidation =
   (validationNext: Validation, doCleanup = true) =>
