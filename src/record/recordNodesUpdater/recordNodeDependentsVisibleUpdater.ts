@@ -13,7 +13,6 @@ export const updateSelfAndDependentsVisible = async (
     dependencyType: SurveyDependencyType.visible,
     getExpressions: ({ nodeDef }) => NodeDefs.getVisibleIf(nodeDef),
     getValuePrev: (nodeCtx, nodeDefUuid) => Nodes.isChildVisible(nodeCtx, nodeDefUuid),
-    assocValue: (nodeCtx, nodeDefUuid, value, sideEffect) =>
-      Nodes.assocChildVisible(nodeCtx, nodeDefUuid, value, sideEffect),
+    assocValue: (nodeCtx, nodeDefUuid, value, options) => Nodes.assocChildVisible(nodeCtx, nodeDefUuid, value, options),
   })
 }

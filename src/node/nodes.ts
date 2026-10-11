@@ -1,6 +1,7 @@
 import { Dictionary } from '../common'
 import { NodeDef, NodeDefCountType, NodeDefs } from '../nodeDef'
 import { Dates, Objects } from '../utils'
+import { MutationOptions, toMutationOptions } from '../utils/mutationOptions'
 import { ArenaRecordNode } from './node'
 
 const isRoot = (node: ArenaRecordNode): boolean => !node.parentUuid
@@ -120,19 +121,51 @@ const updateMetaDictionary = ({
   return nodeUpdated
 }
 
-const assocChildEditable = (
+function assocChildEditable(
   node: ArenaRecordNode,
   nodeDefUuid: string,
   editable: boolean,
-  sideEffect = false
-): ArenaRecordNode => updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
+  options?: MutationOptions
+): ArenaRecordNode
+/** @deprecated Pass the options object instead of the positional boolean: `{ sideEffect }` */
+function assocChildEditable(
+  node: ArenaRecordNode,
+  nodeDefUuid: string,
+  editable: boolean,
+  sideEffect: boolean
+): ArenaRecordNode
+function assocChildEditable(
+  node: ArenaRecordNode,
+  nodeDefUuid: string,
+  editable: boolean,
+  options?: MutationOptions | boolean
+): ArenaRecordNode {
+  const { sideEffect = false } = toMutationOptions(options)
+  return updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
+}
 
-const assocChildVisible = (
+function assocChildVisible(
   node: ArenaRecordNode,
   nodeDefUuid: string,
   visible: boolean,
-  sideEffect = false
-): ArenaRecordNode => updateMetaDictionary({ node, nodeDefUuid, propName: 'cVis', propValue: visible, sideEffect })
+  options?: MutationOptions
+): ArenaRecordNode
+/** @deprecated Pass the options object instead of the positional boolean: `{ sideEffect }` */
+function assocChildVisible(
+  node: ArenaRecordNode,
+  nodeDefUuid: string,
+  visible: boolean,
+  sideEffect: boolean
+): ArenaRecordNode
+function assocChildVisible(
+  node: ArenaRecordNode,
+  nodeDefUuid: string,
+  visible: boolean,
+  options?: MutationOptions | boolean
+): ArenaRecordNode {
+  const { sideEffect = false } = toMutationOptions(options)
+  return updateMetaDictionary({ node, nodeDefUuid, propName: 'cVis', propValue: visible, sideEffect })
+}
 
 const assocChildrenCount = (params: {
   node: ArenaRecordNode
@@ -196,7 +229,11 @@ const removeStatusFlags = ({
   sideEffect?: boolean
 }): ArenaRecordNode => (sideEffect ? clearStatusFlagsInPlace(node) : omitStatusFlags(node))
 
-const assocValue = (node: ArenaRecordNode, value: any, sideEffect = false): ArenaRecordNode => {
+function assocValue(node: ArenaRecordNode, value: any, options?: MutationOptions): ArenaRecordNode
+/** @deprecated Pass the options object instead of the positional boolean: `{ sideEffect }` */
+function assocValue(node: ArenaRecordNode, value: any, sideEffect: boolean): ArenaRecordNode
+function assocValue(node: ArenaRecordNode, value: any, options?: MutationOptions | boolean): ArenaRecordNode {
+  const { sideEffect = false } = toMutationOptions(options)
   const nodeUpdated = sideEffect ? node : { ...node }
   nodeUpdated.value = value
   nodeUpdated.updated = true

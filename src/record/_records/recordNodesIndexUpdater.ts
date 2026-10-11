@@ -1,5 +1,6 @@
 import { ArenaRecordNode, Nodes } from '../../node'
 import { Objects } from '../../utils'
+import { MutationOptions } from '../../utils/mutationOptions'
 import { ArenaRecord, RecordNodesIndex } from '../record'
 
 const keys = {
@@ -116,8 +117,9 @@ class NodesIndexDraft {
 }
 
 const addNodes =
-  (nodes: { [key: string]: ArenaRecordNode }, sideEffect = false, sortNodes = false) =>
+  (nodes: { [key: string]: ArenaRecordNode }, options: MutationOptions & { sortNodes?: boolean } = {}) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
+    const { sideEffect = false, sortNodes = false } = options
     const draft = new NodesIndexDraft(index, sideEffect)
     const nodesArray = Object.values(nodes)
     if (sortNodes) {
@@ -134,11 +136,13 @@ const addNode =
   (index: RecordNodesIndex): RecordNodesIndex =>
     addNodes({ [node.uuid]: node })(index)
 
-const initializeIndex = (record: ArenaRecord): RecordNodesIndex => addNodes(record.nodes ?? {}, true, true)({})
+const initializeIndex = (record: ArenaRecord): RecordNodesIndex =>
+  addNodes(record.nodes ?? {}, { sideEffect: true, sortNodes: true })({})
 
 const removeNodes =
-  (nodes: ArenaRecordNode[], sideEffect = false) =>
+  (nodes: ArenaRecordNode[], options: MutationOptions = {}) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
+    const { sideEffect = false } = options
     const draft = new NodesIndexDraft(index, sideEffect)
     for (const node of nodes) {
       draft.removeNode(node)
@@ -147,9 +151,9 @@ const removeNodes =
   }
 
 const removeNode =
-  (node: ArenaRecordNode, sideEffect = false) =>
+  (node: ArenaRecordNode, options: MutationOptions = {}) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
-    removeNodes([node], sideEffect)(index)
+    removeNodes([node], options)(index)
 
 const _isSameHierarchyCode = (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): boolean => {
   const hCodeA = nodeA.meta?.hCode ?? []

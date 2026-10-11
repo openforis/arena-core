@@ -139,6 +139,11 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 - Most domain types extend or follow this pattern
 - Props contain the actual data, uuid is the identifier
 
+**Immutable updates and `MutationOptions`**
+
+- Update functions return updated copies of the objects passed to them; `MutationOptions` (`{ sideEffect?: boolean }`, `src/utils/mutationOptions.ts`) lets the caller modify them in place instead (only for objects not shared, e.g. just created)
+- Pass it as an options object (or as a field of a parameters object), never as a positional boolean: the remaining positional `sideEffect` forms are deprecated overloads
+
 **Utility Modules** (`src/utils/`)
 
 - Arrays, Dates, Numbers, Objects, Strings, UUIDs, Promises, Queue

@@ -97,7 +97,7 @@ const updateDescendantsApplicability = ({
         nodeDescendantCleared && !NodeDefs.isReadOnly(nodeDescendantDef) && Nodes.hasUserInputValue(nodeDescendant)
       // Clear value if becoming non-applicable and parameter is enabled
       const nodeDescendantUpdated = nodeDescendantCleared
-        ? Nodes.assocValue(nodeDescendant, null, sideEffect)
+        ? Nodes.assocValue(nodeDescendant, null, { sideEffect })
         : nodeDescendant
       updateResult.addNode(nodeDescendantUpdated, recordUpdateOptions)
       if (userValueCleared) {

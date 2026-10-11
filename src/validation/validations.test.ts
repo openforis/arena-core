@@ -356,6 +356,37 @@ describe('Validations', () => {
       const result = Validations.dissocFieldValidation('a')(v)
       expect(result.fields?.a).toBeUndefined()
     })
+
+    test('copies the validation and cleans it up by default', () => {
+      const v = makeValidation({
+        fields: { a: makeValidation({ errors: [errorResult], valid: false }) },
+        valid: false,
+      })
+      const result = Validations.dissocFieldValidation('a')(v)
+      expect(result).not.toBe(v)
+      expect(v.fields?.a).toBeDefined()
+      expect(result.valid).toBe(true)
+    })
+
+    test('modifies the validation in place with { sideEffect: true }', () => {
+      const v = makeValidation({
+        fields: { a: makeValidation({ errors: [errorResult], valid: false }) },
+        valid: false,
+      })
+      Validations.dissocFieldValidation('a', { sideEffect: true })(v)
+      expect(v.fields?.a).toBeUndefined()
+    })
+
+    test('does not clean up the validation with { doCleanup: false }', () => {
+      const v = makeValidation({
+        fields: { a: makeValidation({ errors: [errorResult], valid: false }) },
+        valid: false,
+      })
+      expect(Validations.dissocFieldValidation('a', { doCleanup: false })(v).valid).toBe(false)
+      // deprecated positional form
+      expect(Validations.dissocFieldValidation('a', false, false)(v).valid).toBe(false)
+      expect(Validations.dissocFieldValidation('a', false, true)(v).valid).toBe(true)
+    })
   })
 
   // ── dissocFieldValidationsStartingWith ────────────────────────────────────
@@ -373,6 +404,20 @@ describe('Validations', () => {
       expect(result.fields).not.toHaveProperty('node_1')
       expect(result.fields).not.toHaveProperty('node_2')
       expect(result.fields).toHaveProperty('other')
+    })
+
+    test('accepts options and the deprecated positional sideEffect', () => {
+      const createValidation = () =>
+        makeValidation({ fields: { node_1: makeValidation({ errors: [errorResult], valid: false }) }, valid: false })
+      const v1 = createValidation()
+      expect(Validations.dissocFieldValidationsStartingWith('node_', { sideEffect: true })(v1)).toBe(v1)
+      expect(v1.fields).not.toHaveProperty('node_1')
+      const v2 = createValidation()
+      expect(Validations.dissocFieldValidationsStartingWith('node_', true)(v2)).toBe(v2)
+      const v3 = createValidation()
+      const result = Validations.dissocFieldValidationsStartingWith('node_', { doCleanup: false })(v3)
+      expect(result).not.toBe(v3)
+      expect(result.valid).toBe(false)
     })
   })
 
