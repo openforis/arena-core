@@ -6,6 +6,10 @@
   },
   "version": "2.3.36",
   "description": "Arena core module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openforis/arena-core.git"
+  },
   "main": "dist/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/index.d.ts",
@@ -32,6 +36,7 @@
     "husky": "^9.1.7",
     "jest": "^30.5.2",
     "lint-staged": "^17.6.0",
+    "pinst": "^3.0.0",
     "prettier": "^3.9.9",
     "ts-jest": "^29.4.14",
     "ts-node": "^10.9.2",
@@ -62,7 +67,9 @@
     "format:check": "prettier --check .",
     "lint:fix": "npm run lint -- --fix",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "prepare": "yarn build && husky",
+    "postinstall": "husky",
+    "postpack": "pinst --enable",
+    "prepack": "pinst --disable && yarn build",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "typecheck": "tsc -p tsconfig.test.json"

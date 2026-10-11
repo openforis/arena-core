@@ -34,7 +34,7 @@ yarn typecheck      # Type-check sources and test files (tsconfig.test.json)
 
 PR CI (`.github/workflows/test.yml`) runs `install --immutable`, `lint`, `format:check`, `typecheck`, `build` and `test:coverage`; the Node.js version comes from `.nvmrc`. The tests also run in non-UTC time zones (`test-timezones` job); locally they run in UTC unless `TZ` is set (`jest.config.ts`).
 
-**Note:** Pre-commit hooks automatically run `lint-staged`, which runs ESLint with `--fix` and Prettier on staged files.
+**Note:** Pre-commit hooks automatically run `lint-staged`, which runs ESLint with `--fix` and Prettier on staged files. The hook is installed by the `postinstall` script (husky) on `yarn install`; `prepack` disables it in the packed `package.json` (pinst) and builds `dist/`.
 
 ## Code Architecture
 
@@ -175,5 +175,5 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 - Published to GitHub Packages as `@openforis/arena-core`
 - Requires GitHub authentication (see README.md)
-- Version bumps are automated via CI: `release.yml` bumps the version and pushes a `v*` tag on every merge to master; `publish.yml`, triggered by the tag, builds, tests and publishes to GitHub Packages and npmjs (it can be re-run without bumping the version again)
+- Version bumps are automated via CI: `release.yml` bumps the version and pushes a `v*` tag on every merge to master; `publish.yml`, triggered by the tag, tests and publishes (the build runs in `prepack`) to GitHub Packages and npmjs, the latter with provenance (it can be re-run without bumping the version again)
 - Only `dist/**/*` files are included in the published package
