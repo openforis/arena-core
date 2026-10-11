@@ -1,7 +1,7 @@
 import { User } from '../../auth'
 import { SystemError } from '../../error'
 import { CategoryItem } from '../../category'
-import { Node, NodeFactory, Nodes } from '../../node'
+import { ArenaRecordNode, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
@@ -18,12 +18,12 @@ export type NodesUpdateParams = RecordExpressionEvaluationContext & {
 }
 
 export type NodeCreateParams = NodesUpdateParams & {
-  parentNode?: Node
+  parentNode?: ArenaRecordNode
   nodeDef: NodeDef<any>
   createMultipleEntities?: boolean
 }
 
-const getNodesToInsertCount = (params: { parentNode: Node | undefined; nodeDef: NodeDef<any> }): number => {
+const getNodesToInsertCount = (params: { parentNode: ArenaRecordNode | undefined; nodeDef: NodeDef<any> }): number => {
   const { nodeDef, parentNode } = params
   if (!parentNode || NodeDefs.isSingle(nodeDef)) return 1
   if (nodeDef.type === NodeDefType.code) return 0 // never create nodes for multiple code attributes
@@ -38,7 +38,7 @@ const getNodesToInsertCount = (params: { parentNode: Node | undefined; nodeDef: 
 export const createEnumeratedEntityNode = async (params: {
   user: User
   survey: Survey
-  parentNode: Node
+  parentNode: ArenaRecordNode
   nodeDef: NodeDefEntity
   enumeratorDef: NodeDefCode
   categoryItem: CategoryItem
@@ -75,7 +75,7 @@ export const createEnumeratedEntityNode = async (params: {
 export const createEnumeratedEntityNodes = async (params: {
   user: User
   survey: Survey
-  parentNode: Node
+  parentNode: ArenaRecordNode
   nodeDef: NodeDefEntity
   updateResult: RecordUpdateResult
   categoryItemProvider?: CategoryItemProvider

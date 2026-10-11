@@ -5,7 +5,7 @@ import { ExpressionFunctions } from '../expression'
 import { ExtraProps } from '../extraProp/extraProps'
 import { Point, Points } from '../geo'
 import { LanguagesISO639part2 } from '../language'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 import { getCategoryItemByCodePaths, getTaxonByCode } from '../survey/surveys/refsData'
 import { getCategoryByName, getSRSIndex, getTaxonomyByName } from '../survey/surveys/surveysGetters'
@@ -35,7 +35,7 @@ const emptyExecutor = (_context: NodeDefExpressionContext) => () => null
 
 const isUsingDraftProps = (context: NodeDefExpressionContext) => {
   // use draft props when validating expression or previewing record
-  const record: Record = (context as any).record
+  const record: ArenaRecord = (context as any).record
   return !record || !!record.preview
 }
 
@@ -71,7 +71,7 @@ const getOrFetchTaxon = async (params: {
   const { survey, taxonProvider } = context
   const taxon = getTaxonByCode({ survey, taxonomyUuid, taxonCode })
   // fetch draft props when validating expression or previewing record
-  const record: Record = (context as any).record
+  const record: ArenaRecord = (context as any).record
   const draft = !record || !!record.preview
   return taxon ?? taxonProvider?.getTaxonByCode({ survey, taxonomyUuid, taxonCode, draft })
 }

@@ -1,9 +1,9 @@
-import { Node, NodePointer, Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, NodePointer, Nodes, NodeValues } from '../../node'
 import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { getChild, getChildren, getRoot } from '../_records/recordGetters'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { Records } from '../records'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
 import { getEnumeratingItemsAllowedCodes } from './recordEnumeratingItemsExpressionEvaluator'
@@ -12,7 +12,11 @@ import { createEnumeratedEntityNode } from './recordNodesCreator'
 import { deleteNodes } from './recordNodesDeleter'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-const getEnumeratingItemsNodePointers = (params: { survey: Survey; record: Record; node: Node }): NodePointer[] => {
+const getEnumeratingItemsNodePointers = (params: {
+  survey: Survey
+  record: ArenaRecord
+  node: ArenaRecordNode
+}): NodePointer[] => {
   const { survey, record, node } = params
   const nodePointers = Records.getDependentNodePointers({
     survey,
@@ -57,7 +61,7 @@ const getEnumeratingItemsNodePointers = (params: { survey: Survey; record: Recor
 
 export const syncEnumeratingItemsEntities = async (
   params: RecordNodeDependentsUpdateParams & {
-    parentNode: Node
+    parentNode: ArenaRecordNode
     entityDef: NodeDefEntity
     updateResult: RecordUpdateResult
   }

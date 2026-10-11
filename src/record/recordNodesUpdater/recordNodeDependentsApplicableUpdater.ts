@@ -1,8 +1,8 @@
-import { Node, NodePointer, Nodes } from '../../node'
+import { ArenaRecordNode, NodePointer, Nodes } from '../../node'
 import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { Survey, SurveyDependencyType } from '../../survey/survey'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records, RecordUpdateOptions } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
@@ -15,7 +15,7 @@ import { RecordUpdateResult } from './recordUpdateResult'
 
 const expressionEvaluator = new RecordExpressionEvaluator()
 
-const extractNodePointersToUpdate = (params: { survey: Survey; record: Record; node: Node }) => {
+const extractNodePointersToUpdate = (params: { survey: Survey; record: ArenaRecord; node: ArenaRecordNode }) => {
   const { survey, record, node } = params
 
   const nodePointersToUpdate = getDependentNodePointersByType({
@@ -38,7 +38,7 @@ const calculateApplicableNext = async ({
   params: RecordNodeDependentsUpdateParams
   updateResult: RecordUpdateResult
   nodePointer: NodePointer
-  nodeCtx: Node
+  nodeCtx: ArenaRecordNode
 }): Promise<boolean | undefined> => {
   const { nodeDef: nodeDefNodePointer } = nodePointer
 
@@ -75,7 +75,7 @@ const updateDescendantsApplicability = ({
   recordUpdateOptions,
 }: {
   updateResult: RecordUpdateResult
-  nodeCtxChild: Node
+  nodeCtxChild: ArenaRecordNode
   applicable: boolean
   params: RecordNodeDependentsUpdateParams
   recordUpdateOptions: RecordUpdateOptions
@@ -130,7 +130,7 @@ const createMissingApplicableMultipleEntities = async ({
 }: {
   params: RecordNodeDependentsUpdateParams
   updateResult: RecordUpdateResult
-  parentNode: Node
+  parentNode: ArenaRecordNode
   nodeDef: NodeDefEntity
 }): Promise<void> => {
   if (!NodeDefs.isAutoCreateMinCountItems(nodeDef)) return

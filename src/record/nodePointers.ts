@@ -1,8 +1,8 @@
-import { Node, NodePointer } from '../node'
-import { Record } from './record'
+import { ArenaRecordNode, NodePointer } from '../node'
+import { ArenaRecord } from './record'
 import { Records } from './records'
 
-const getNodesFromNodePointers = (params: { record: Record; nodePointers: NodePointer[] }): Node[] => {
+const getNodesFromNodePointers = (params: { record: ArenaRecord; nodePointers: NodePointer[] }): ArenaRecordNode[] => {
   const { record, nodePointers } = params
 
   return nodePointers.flatMap((nodePointer) =>
@@ -11,11 +11,11 @@ const getNodesFromNodePointers = (params: { record: Record; nodePointers: NodePo
 }
 
 const getNodesMapFromNodePointers = (params: {
-  record: Record
+  record: ArenaRecord
   nodePointers: NodePointer[]
-}): { [key: string]: Node } => {
+}): { [key: string]: ArenaRecordNode } => {
   const nodes = getNodesFromNodePointers(params)
-  const nodesMap: { [key: string]: Node } = {}
+  const nodesMap: { [key: string]: ArenaRecordNode } = {}
   for (const node of nodes) {
     nodesMap[node.uuid] = node
   }

@@ -2,8 +2,8 @@ import { describe, test, expect } from '@jest/globals'
 
 import { NodeDefCode } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
-import { Node } from '../../node'
-import { Record } from '../record'
+import { ArenaRecordNode } from '../../node'
+import { ArenaRecord } from '../record'
 import { RecordExpressionContext } from './context'
 import { Records } from '../records'
 import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../tests/data'
@@ -20,9 +20,9 @@ type Query = {
 
 const user = createTestAdminUser()
 let survey: Survey
-let record: Record
+let record: ArenaRecord
 
-const getNode = (path: string): Node => TestUtils.getNodeByPath({ survey, record, path })
+const getNode = (path: string): ArenaRecordNode => TestUtils.getNodeByPath({ survey, record, path })
 
 describe('RecordItemFilterExpressionEvaluator', () => {
   beforeAll(async () => {

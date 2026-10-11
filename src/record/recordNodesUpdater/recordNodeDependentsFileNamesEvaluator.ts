@@ -1,12 +1,12 @@
 import { User } from '../../auth'
-import { Node, NodePointer, Nodes, NodeValueFile, NodeValues } from '../../node'
+import { ArenaRecordNode, NodePointer, Nodes, NodeValueFile, NodeValues } from '../../node'
 import { NodeDefFile, NodeDefs } from '../../nodeDef'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { Dates, FileNames, Objects } from '../../utils'
 import { NodePointers } from '../nodePointers'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
@@ -25,8 +25,8 @@ const addPositionSuffix = (params: { fileName: string; position: number }) => {
 const calculateFileName = async (params: {
   user: User
   survey: Survey
-  record: Record
-  node: Node
+  record: ArenaRecord
+  node: ArenaRecordNode
 }): Promise<string | undefined> => {
   const { user, survey, record, node } = params
 
@@ -119,7 +119,7 @@ const updateFileNameInNode = async (params: {
   updateResult: RecordUpdateResult
   sideEffect: boolean
   nodeDef: NodeDefFile
-  node: Node
+  node: ArenaRecordNode
 }): Promise<void> => {
   const { user, survey, updateResult, sideEffect, node, nodeDef } = params
   const expressionToEvaluate = NodeDefs.getFileNameExpression(nodeDef)

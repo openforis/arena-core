@@ -1,6 +1,6 @@
 import { Survey, Surveys } from '../../survey'
 import { NodeDef, NodeDefType } from '../../nodeDef'
-import { Node } from '../../node'
+import { ArenaRecordNode } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { Dates, Objects } from '../../utils'
 import { CategoryItem } from '../../category'
@@ -8,7 +8,7 @@ import { Taxon } from '../../taxonomy'
 
 interface ExtractorParams {
   survey: Survey
-  node: Node
+  node: ArenaRecordNode
 }
 
 type Extractor = (params: ExtractorParams) => any
@@ -80,7 +80,7 @@ const extractorsByNodeDefType: { [key in NodeDefType]?: Extractor } = {
   },
 }
 
-const getNodeValue = (params: { survey: Survey; node: Node; nodeDef: NodeDef<any> }) => {
+const getNodeValue = (params: { survey: Survey; node: ArenaRecordNode; nodeDef: NodeDef<any> }) => {
   const { node, nodeDef, survey } = params
 
   if (Objects.isEmpty(node.value)) {

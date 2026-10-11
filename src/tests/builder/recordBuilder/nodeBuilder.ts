@@ -1,6 +1,6 @@
-import { Node } from '../../../node'
+import { ArenaRecordNode } from '../../../node'
 import { NodeDef, NodeDefProps, NodeDefType } from '../../../nodeDef'
-import { Record } from '../../../record'
+import { ArenaRecord } from '../../../record'
 import { Survey } from '../../../survey'
 
 export abstract class NodeBuilder {
@@ -20,5 +20,5 @@ export abstract class NodeBuilder {
     return nodeDef
   }
 
-  abstract build(params: { survey: Survey; record: Record; parentNode?: Node }): Record
+  abstract build(params: { survey: Survey; record: ArenaRecord; parentNode?: ArenaRecordNode }): ArenaRecord
 }

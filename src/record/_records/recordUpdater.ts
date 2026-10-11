@@ -1,12 +1,12 @@
-import { Node } from '../../node'
-import { Record } from '../record'
+import { ArenaRecordNode } from '../../node'
+import { ArenaRecord } from '../record'
 import * as RecordGetters from './recordGetters'
 import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
 import { RecordUpdateOptions, RecordUpdateOptionsDefaults } from './recordUpdateOptions'
 
 export const addNodes =
-  (nodes: { [key: string]: Node }, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
-  (record: Record): Record => {
+  (nodes: { [key: string]: ArenaRecordNode }, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+  (record: ArenaRecord): ArenaRecord => {
     const { sideEffect, updateNodesIndex, sortNodes } = { ...RecordUpdateOptionsDefaults, ...options }
 
     const recordUpdated = sideEffect ? record : { ...record }
@@ -15,7 +15,7 @@ export const addNodes =
 
     // index only the nodes not already indexed with the same parent, node def and hierarchy code
     // (e.g. nodes with only an updated value don't need any index change)
-    const nodesToIndex: { [key: string]: Node } = {}
+    const nodesToIndex: { [key: string]: ArenaRecordNode } = {}
     if (updateNodesIndex) {
       for (const [nodeUuid, node] of Object.entries(nodes)) {
         const nodePrev = recordNodes[nodeUuid]
@@ -37,6 +37,6 @@ export const addNodes =
   }
 
 export const addNode =
-  (node: Node, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
-  (record: Record) =>
+  (node: ArenaRecordNode, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+  (record: ArenaRecord) =>
     addNodes({ [node.uuid]: node }, options)(record)

@@ -1,6 +1,6 @@
 import { Factory } from '../common'
 import { AuthGroupName, User, Users } from '../auth'
-import { Record, RECORD_STEP_DEFAULT } from './record'
+import { ArenaRecord, RECORD_STEP_DEFAULT } from './record'
 import { UUIDs } from '../utils'
 import { AppInfo } from '../app'
 
@@ -14,8 +14,8 @@ export type RecordFactoryParams = {
   appInfo?: AppInfo
 }
 
-export const RecordFactory: Factory<Record, RecordFactoryParams> = {
-  createInstance: (params: RecordFactoryParams): Record => {
+export const RecordFactory: Factory<ArenaRecord, RecordFactoryParams> = {
+  createInstance: (params: RecordFactoryParams): ArenaRecord => {
     const defaultProps = {
       preview: false,
       step: RECORD_STEP_DEFAULT,
