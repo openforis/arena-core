@@ -586,11 +586,14 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   private notifyEvent(event: JobEvent): void {
     const listener = this.eventListener
     if (!listener) return
-    const onListenerError = (error: any): void => this.logError(`error in job event listener: ${error?.stack ?? error}`)
     try {
-      Promise.resolve(listener(event)).catch(onListenerError)
+      Promise.resolve(listener(event)).catch((error) => this.logListenerError(error))
     } catch (error) {
-      onListenerError(error)
+      this.logListenerError(error)
     }
+  }
+
+  private logListenerError(error: any): void {
+    this.logError(`error in job event listener: ${error?.stack ?? error}`)
   }
 }
