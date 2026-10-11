@@ -1,18 +1,18 @@
 import { User } from '../../auth'
 import { ExpressionContext } from '../../expression'
-import { Node } from '../../node'
+import { ArenaRecordNode } from '../../node'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Survey } from '../../survey'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 
 export interface RecordExpressionContext extends ExpressionContext {
   user: User
   survey: Survey
-  record: Record
-  prevCycleRecord?: Record
-  nodeContext: Node
-  nodeCurrent?: Node
+  record: ArenaRecord
+  prevCycleRecord?: ArenaRecord
+  nodeContext: ArenaRecordNode
+  nodeCurrent?: ArenaRecordNode
   item?: any
   categoryItemProvider?: CategoryItemProvider
   taxonProvider?: TaxonProvider

@@ -10,22 +10,22 @@ import { RecordUpdater } from './recordUpdater'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 import { User } from '../auth'
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { Survey, Surveys } from '../survey'
 import { Records } from './records'
 import { NodeDef } from '../nodeDef'
-import { Node } from '../node'
+import { ArenaRecordNode } from '../node'
 
 let user: User
 
 const updateAttributeAndExpectDependentApplicability = async (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   nodePath: string
   value: any
   dependentNodePath: string
   expectedDependentApplicability: boolean
-}): Promise<Record> => {
+}): Promise<ArenaRecord> => {
   const {
     survey,
     record,
@@ -58,12 +58,12 @@ const updateAttributeAndExpectDependentApplicability = async (params: {
 
 const addNodeAndExpectDependentApplicability = async (params: {
   survey: Survey
-  record: Record
-  parentNode: Node
+  record: ArenaRecord
+  parentNode: ArenaRecordNode
   nodeDef: NodeDef<any>
   dependentNodePath: string
   expectedDependentApplicability: boolean
-}): Promise<Record> => {
+}): Promise<ArenaRecord> => {
   const { survey, record, parentNode, nodeDef, dependentNodePath, expectedDependentApplicability } = params
   const updateResult = await RecordUpdater.createNodeAndDescendants({
     user,

@@ -1,7 +1,7 @@
 import { Queue } from '../../utils'
 
 import { Dictionary } from '../../common'
-import { Node } from '../../node'
+import { ArenaRecordNode } from '../../node'
 import { NodeDefCountType } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { getNodesByDefUuid } from '../_records/recordGetters'
@@ -44,7 +44,7 @@ const dependentsUpdaters: RecordNodeDependentsUpdater[] = [
 ]
 
 export const updateNodesDependents = async (
-  params: NodesUpdateParams & { nodes: Dictionary<Node> }
+  params: NodesUpdateParams & { nodes: Dictionary<ArenaRecordNode> }
 ): Promise<RecordUpdateResult> => {
   const { survey, record, nodes, sideEffect = false } = params
   const initialNodesToVisit = sideEffect ? nodes : { ...nodes }
@@ -62,7 +62,7 @@ export const updateNodesDependents = async (
 
   const updateResult = new RecordUpdateResult({ record, nodes: initialNodesToVisit })
 
-  const createNodeUpdateParams = (node: Node): RecordNodeDependentsUpdateParams => ({
+  const createNodeUpdateParams = (node: ArenaRecordNode): RecordNodeDependentsUpdateParams => ({
     ...params,
     record: updateResult.record, // updateResult.record changes at every step (when sideEffect=false)
     node,
@@ -79,7 +79,7 @@ export const updateNodesDependents = async (
     const visitedCount = visitedCountByUuid[nodeUuid] ?? 0
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
-      const nodesUpdatedCurrent: Dictionary<Node> = {}
+      const nodesUpdatedCurrent: Dictionary<ArenaRecordNode> = {}
       for (const dependentsUpdater of dependentsUpdaters) {
         // updaters must run sequentially: each one works on the record (and node) updated by the previous ones
         const node = updateResult.getNodeByUuid(nodeUuid)

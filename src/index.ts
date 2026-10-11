@@ -118,8 +118,8 @@ export { MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetU
 
 export { NodeFactory, NodeKeys, NodeMetaKeys, Nodes, NodeValueFormatter, NodeValues } from './node'
 export type {
+  ArenaRecordNode,
   Node,
-  Node as ArenaRecordNode,
   NodeMeta,
   NodePointer,
   NodeRefData,
@@ -206,8 +206,8 @@ export type {
   AttributesValidatorParams,
   NodeCreateParams,
   NodesUpdateParams,
+  ArenaRecord,
   Record,
-  Record as ArenaRecord,
   RecordExpressionContext,
   RecordExpressionEvaluationContext,
   RecordService,

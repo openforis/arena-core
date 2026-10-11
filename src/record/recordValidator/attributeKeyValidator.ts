@@ -1,7 +1,7 @@
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { Records } from '../records'
 import { NodeDef, NodeDefs, NodeDefProps, NodeDefType } from '../../nodeDef'
-import { Node, Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
 import { ValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { Survey, Surveys } from '../../survey'
 
@@ -38,8 +38,8 @@ const _getKeyDefs = (params: {
 
 const _getKeyValuesByDefUuid = (params: {
   survey: Survey
-  record: Record
-  entity: Node
+  record: ArenaRecord
+  entity: ArenaRecordNode
   keyDefs: NodeDef<NodeDefType, NodeDefProps>[]
   cache?: EntityKeysCache
 }): Dictionary<any> => {
@@ -54,8 +54,8 @@ const _getKeyValuesByDefUuid = (params: {
 
 const _isEntityDuplicate = (params: {
   survey: Survey
-  record: Record
-  entity: Node
+  record: ArenaRecord
+  entity: ArenaRecordNode
   entityKeysCache?: EntityKeysCache
 }): boolean => {
   const { survey, entity, record, entityKeysCache: cache } = params
@@ -112,11 +112,11 @@ const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeD
 const validateAttributeKey =
   (params: {
     survey: Survey
-    record: Record
+    record: ArenaRecord
     nodeDef: NodeDef<NodeDefType, NodeDefProps>
     entityKeysCache?: EntityKeysCache
   }) =>
-  (_propName: string, node: Node): Promise<ValidationResult> => {
+  (_propName: string, node: ArenaRecordNode): Promise<ValidationResult> => {
     const { survey, nodeDef, record, entityKeysCache } = params
 
     if (isNodeDefToBeValidated({ survey, nodeDef })) {

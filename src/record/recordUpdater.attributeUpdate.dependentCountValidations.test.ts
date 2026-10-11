@@ -13,7 +13,7 @@ import { Survey, Surveys } from '../survey'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 import { Validations } from '../validation'
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { RecordUpdater } from './recordUpdater'
 import { RecordValidations } from './recordValidations'
 import { Records } from './records'
@@ -30,13 +30,13 @@ const updateSourceAndExpectMinCountValidation = async ({
   expectedValid,
 }: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   attributeUuid: string
   dependentNodeDef: NodeDef<any>
   value: number
   expectedMinCount: number
   expectedValid: boolean
-}): Promise<Record> => {
+}): Promise<ArenaRecord> => {
   const updateResult = await RecordUpdater.updateAttributeValue({
     user,
     survey,
@@ -164,7 +164,7 @@ describe('RecordUpdater - attribute update => update dependent count validations
     }: {
       value: boolean
       expectedValid: boolean
-    }): Promise<Record> => {
+    }): Promise<ArenaRecord> => {
       const triggerNode = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.relevancy_trigger' })
       const triggerAttributeUuid = triggerNode.uuid
       const updateResult = await RecordUpdater.updateAttributeValue({

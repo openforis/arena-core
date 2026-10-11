@@ -1,16 +1,16 @@
-import { Node, Nodes } from '../../../../node'
+import { ArenaRecordNode, Nodes } from '../../../../node'
 import { NodeDef, NodeDefType } from '../../../../nodeDef'
-import { Record } from '../../../record'
+import { ArenaRecord } from '../../../record'
 import { Records } from '../../../records'
 import { Survey, Surveys } from '../../../../survey'
 import { Arrays } from '../../../../utils'
 
 const getCommonAncestor = (params: {
-  record: Record
+  record: ArenaRecord
   nodeCtxHierarchy: string[]
   nodeDefCtx: NodeDef<any>
   nodeDefReferenced: NodeDef<any>
-}): Node | undefined => {
+}): ArenaRecordNode | undefined => {
   const { record, nodeCtxHierarchy, nodeDefCtx, nodeDefReferenced } = params
   if (!nodeDefCtx.parentUuid) {
     return Records.getRoot(record)
@@ -32,10 +32,10 @@ const getCommonAncestor = (params: {
 
 const getReferencedNodesParent = (params: {
   survey: Survey
-  record: Record
-  nodeContext: Node
+  record: ArenaRecord
+  nodeContext: ArenaRecordNode
   nodeDefReferenced: NodeDef<any>
-}): Node | undefined => {
+}): ArenaRecordNode | undefined => {
   const { survey, record, nodeContext, nodeDefReferenced } = params
 
   // Referenced node is a child of the context node
@@ -79,10 +79,10 @@ const getReferencedNodesParent = (params: {
 // NOTE: The root node is excluded, but it _should_ be an entity, so that is fine.
 const findDescendants = (params: {
   survey: Survey
-  record: Record
-  nodeContext: Node
+  record: ArenaRecord
+  nodeContext: ArenaRecordNode
   nodeDefReferenced: NodeDef<any>
-}): Node[] => {
+}): ArenaRecordNode[] => {
   const { survey, record, nodeContext, nodeDefReferenced } = params
   const nodeReferencedParent = getReferencedNodesParent({ survey, record, nodeContext, nodeDefReferenced })
 

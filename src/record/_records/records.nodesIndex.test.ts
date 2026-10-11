@@ -8,7 +8,7 @@ import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBui
 const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
 import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
 import { createTestAdminUser } from '../../tests/data'
@@ -18,7 +18,7 @@ import { Records } from '../records'
 
 const user = createTestAdminUser()
 let survey: Survey
-let record: Record
+let record: ArenaRecord
 
 describe('Record nodes index', () => {
   beforeAll(async () => {

@@ -56,7 +56,7 @@ export interface NodeRefData {
   taxon?: Taxon
 }
 
-export interface Node {
+export interface ArenaRecordNode {
   dateCreated?: string
   dateModified?: string
   id?: number
@@ -85,6 +85,12 @@ export interface Node {
   updated?: boolean
 }
 
+/**
+ * @deprecated Use ArenaRecordNode: this name shadows the DOM Node type.
+ * It will be removed in the next major version.
+ */
+export type Node = ArenaRecordNode
+
 export interface NodesMap {
-  [key: string]: Node
+  [key: string]: ArenaRecordNode
 }

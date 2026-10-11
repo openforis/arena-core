@@ -9,7 +9,7 @@ import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBui
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { Records } from '../records'
 import * as RecordNodesUpdater from './recordNodesUpdater'
 
@@ -56,7 +56,7 @@ describe('Record nodes updater - dependents count updater', () => {
       sourceValue: any
       countType: NodeDefCountType
       expectedCount: number
-    }): Promise<Record> => {
+    }): Promise<ArenaRecord> => {
       const { sourceValue, expectedCount, countType } = params
       const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
       const nodeUpdated = { ...nodeToUpdate, value: sourceValue }

@@ -10,7 +10,7 @@ import { RecordUpdater } from './recordUpdater'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 import { User } from '../auth'
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { Validations } from '../validation/validations'
 import { Survey } from '../survey'
 import { NodeDefExpressionFactory } from '../nodeDef/nodeDef'
@@ -19,13 +19,13 @@ let user: User
 
 const updateAttributeAndExpectValidation = async (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   nodePath: string
   value: any
   validationNodePath?: string
   expectedFieldValidation: boolean
   expectedValidationFieldsSize: number
-}): Promise<Record> => {
+}): Promise<ArenaRecord> => {
   const {
     survey,
     record,

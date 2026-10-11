@@ -7,7 +7,7 @@ import { TestUtils } from '../../tests/testUtils'
 import { User } from '../../auth'
 import { Survey } from '../../survey'
 import { Validations } from '../../validation'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { RecordUpdater } from '../recordUpdater'
 import { RecordValidator } from './index'
 
@@ -17,14 +17,14 @@ const { entity, attribute } = RecordNodeBuilders
 let user: User
 let survey: Survey
 
-const isKeyValid = (params: { record: Record; path: string }): boolean => {
+const isKeyValid = (params: { record: ArenaRecord; path: string }): boolean => {
   const { record, path } = params
   const keyNode = TestUtils.getNodeByPath({ survey, record, path })
   const validation = Validations.getValidation(record)
   return Validations.getFieldValidation(keyNode.uuid)(validation).valid
 }
 
-const buildRecord = (tableIds: number[]): Record =>
+const buildRecord = (tableIds: number[]): ArenaRecord =>
   new RecordBuilder(
     user,
     survey,

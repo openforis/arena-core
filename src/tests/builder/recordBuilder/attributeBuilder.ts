@@ -1,7 +1,7 @@
-import { Node, NodeFactory, NodeValueCode, NodeValueTaxon } from '../../../node'
+import { ArenaRecordNode, NodeFactory, NodeValueCode, NodeValueTaxon } from '../../../node'
 import { NodeMeta } from '../../../node/node'
 import { NodeDef, NodeDefCode, NodeDefTaxon, NodeDefType } from '../../../nodeDef'
-import { Record, Records } from '../../../record'
+import { ArenaRecord, Records } from '../../../record'
 import { Survey, Surveys } from '../../../survey'
 import { NodeBuilder } from './nodeBuilder'
 
@@ -74,7 +74,7 @@ export class AttributeBuilder extends NodeBuilder {
     return this.value
   }
 
-  private buildMeta(params: { nodeDef: NodeDef<any>; record: Record; parentNode?: Node }): NodeMeta {
+  private buildMeta(params: { nodeDef: NodeDef<any>; record: ArenaRecord; parentNode?: ArenaRecordNode }): NodeMeta {
     const { nodeDef, record, parentNode } = params
 
     const meta: NodeMeta = {}
@@ -91,7 +91,7 @@ export class AttributeBuilder extends NodeBuilder {
     return meta
   }
 
-  build(params: { survey: Survey; record: Record; parentNode?: Node }): Record {
+  build(params: { survey: Survey; record: ArenaRecord; parentNode?: ArenaRecordNode }): ArenaRecord {
     const { survey, record, parentNode } = params
 
     const nodeDef = this.getNodeDef({ survey })

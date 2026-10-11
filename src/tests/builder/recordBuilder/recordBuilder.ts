@@ -1,4 +1,4 @@
-import { Record, RecordFactory } from '../../../record'
+import { ArenaRecord, RecordFactory } from '../../../record'
 import { User } from '../../../auth'
 import { Survey } from '../../../survey'
 import { EntityBuilder } from './entityBuilder'
@@ -14,7 +14,7 @@ export class RecordBuilder {
     this.rootEntityBuilder = rootEntityBuilder
   }
 
-  build(): Record {
+  build(): ArenaRecord {
     const { survey, user } = this
     const record = RecordFactory.createInstance({ surveyUuid: survey.uuid, user })
     return this.rootEntityBuilder.build({ survey, record })

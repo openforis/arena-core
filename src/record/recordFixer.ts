@@ -1,8 +1,8 @@
-import { NodeFactory, Nodes } from '../node'
+import { ArenaRecordNode, NodeFactory, Nodes } from '../node'
 import { NodeDef, NodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
 import { Survey, Surveys } from '../survey'
 import { Objects } from '../utils'
-import type { ArenaRecord, ArenaRecordNode } from './record'
+import type { ArenaRecord } from './record'
 import { RecordUpdateResult } from './recordNodesUpdater'
 import { Records } from './records'
 

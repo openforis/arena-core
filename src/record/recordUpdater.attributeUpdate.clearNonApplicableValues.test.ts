@@ -7,7 +7,7 @@ import { TestUtils } from '../tests/testUtils'
 
 import { Nodes } from '../node'
 import { Survey, Surveys } from '../survey'
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { RecordUpdater } from './recordUpdater'
 
 const { entityDef, integerDef } = SurveyObjectBuilders
@@ -32,7 +32,7 @@ const createSurvey = (): Promise<Survey> =>
 
 const updateValue = async (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   path: string
   value: any
   clearNonApplicableValues?: boolean
@@ -54,11 +54,14 @@ const updateValue = async (params: {
 const getClearedDefNames = (survey: Survey, clearedDefUuids: Set<string>): string[] =>
   [...clearedDefUuids].map((uuid) => Surveys.getNodeDefByUuid({ survey, uuid }).props.name ?? '').sort()
 
-const getValue = (survey: Survey, record: Record, path: string) =>
+const getValue = (survey: Survey, record: ArenaRecord, path: string) =>
   TestUtils.getNodeByPath({ survey, record, path }).value
 
 // creates a record where all the dependent attributes are applicable and the default values are applied
-const createRecord = async (survey: Survey, { userEnteredValue = null as number | null } = {}): Promise<Record> => {
+const createRecord = async (
+  survey: Survey,
+  { userEnteredValue = null as number | null } = {}
+): Promise<ArenaRecord> => {
   let record = new RecordBuilder(
     user,
     survey,
