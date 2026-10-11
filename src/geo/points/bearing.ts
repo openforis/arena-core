@@ -1,4 +1,4 @@
-import { bearing as bearingTurf } from '@turf/bearing'
+import bearingTurf from '@turf/bearing'
 
 import { Point } from '../point'
 import { DEFAULT_SRS_INDEX, SRSIndex } from '../../srs'
