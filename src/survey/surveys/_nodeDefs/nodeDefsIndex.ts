@@ -1,5 +1,6 @@
 import { NodeDef, NodeDefs } from '../../../nodeDef'
 import { Objects } from '../../../utils'
+import { MutationOptions } from '../../../utils/mutationOptions'
 import { Survey, SurveyNodeDefsIndex } from '../../survey'
 import { getNodeDefsArray } from './nodeDefsReader'
 
@@ -26,9 +27,9 @@ export const getNodeDefsIndex = (survey: Survey) => {
 // ==== UPDATE
 
 export const addNodeDefToIndex =
-  (nodeDef: NodeDef<any>, options: { sideEffect: boolean }) =>
+  (nodeDef: NodeDef<any>, options: MutationOptions = {}) =>
   (survey: Survey): Survey => {
-    const { sideEffect = false } = options || {}
+    const { sideEffect = false } = options
 
     const { analysis, parentUuid, temporary, uuid } = nodeDef
     const name = NodeDefs.getName(nodeDef)
@@ -69,7 +70,7 @@ export const addNodeDefToIndex =
   }
 
 export const updateNodeDefUuidByNameIndex =
-  (nodeDef: NodeDef<any>, nodeDefPrevious?: NodeDef<any>, options?: { sideEffect?: boolean }) =>
+  (nodeDef: NodeDef<any>, nodeDefPrevious?: NodeDef<any>, options?: MutationOptions) =>
   (survey: Survey): Survey => {
     const { sideEffect } = options ?? {}
     let surveyUpdated = survey

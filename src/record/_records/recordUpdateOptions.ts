@@ -1,6 +1,7 @@
-export interface RecordUpdateOptions {
+import { MutationOptions } from '../../utils/mutationOptions'
+
+export interface RecordUpdateOptions extends MutationOptions {
   updateNodesIndex?: boolean
-  sideEffect?: boolean
   sortNodes?: boolean
 }
 
