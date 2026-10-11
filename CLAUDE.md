@@ -175,5 +175,5 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 - Published to GitHub Packages as `@openforis/arena-core`
 - Requires GitHub authentication (see README.md)
-- Version bumps are automated via CI: `release.yml` bumps the version and pushes a `v*` tag on every merge to master; `publish.yml`, triggered by the tag, tests and publishes (the build runs in `prepack`) to GitHub Packages and npmjs, the latter with provenance (it can be re-run without bumping the version again)
+- Version bumps are automated via CI: `release.yml` bumps the version and pushes a `v*` tag on every merge to master; `publish.yml`, triggered by the tag, tests, then publishes (the build runs in `prepack`) to GitHub Packages and to npmjs (trusted publishing with provenance) in two independent jobs, each skipped when the version is already in its registry (failed jobs can be re-run without bumping the version again)
 - Only `dist/**/*` files are included in the published package
