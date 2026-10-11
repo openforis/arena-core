@@ -2,10 +2,10 @@ import { SystemError } from '../error'
 import { NodeDef, NodeDefEntity, NodeDefMap, NodeDefs } from '../nodeDef'
 import { NodeDefEntityLayoutChildItem } from '../nodeDef/types/entity'
 import { Objects } from '../utils'
+import { MutationOptions } from '../utils/mutationOptions'
 
-type NodeDefsFixParams = {
+type NodeDefsFixParams = MutationOptions & {
   nodeDefs: NodeDefMap
-  sideEffect?: boolean
   cycles: string[]
 }
 

@@ -31,7 +31,7 @@ export const addNodes =
       recordUpdated.nodes = { ...recordNodes, ...nodes }
     }
     if (updateNodesIndex && Object.keys(nodesToIndex).length > 0) {
-      recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(nodesToIndex, sideEffect, sortNodes)(index)
+      recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(nodesToIndex, { sideEffect, sortNodes })(index)
     }
     return recordUpdated
   }

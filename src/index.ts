@@ -289,7 +289,7 @@ export {
   Versions,
 } from './utils'
 
-export type { FileProcessorConstructorArgs, ParsedVersion } from './utils'
+export type { FileProcessorConstructorArgs, MutationOptions, ParsedVersion } from './utils'
 
 export {
   FieldValidators,
@@ -301,4 +301,11 @@ export {
   Validator,
   ValidatorErrorKeys,
 } from './validation'
-export type { FieldValidator, Validation, ValidationFields, ValidationResult, ValidationCounts } from './validation'
+export type {
+  DissocFieldValidationOptions,
+  FieldValidator,
+  Validation,
+  ValidationFields,
+  ValidationResult,
+  ValidationCounts,
+} from './validation'

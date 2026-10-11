@@ -13,7 +13,7 @@ export const updateSelfAndDependentsEditable = async (
     dependencyType: SurveyDependencyType.editable,
     getExpressions: ({ nodeDef }) => NodeDefs.getEditableIf(nodeDef),
     getValuePrev: (nodeCtx, nodeDefUuid) => Nodes.isChildEditable(nodeCtx, nodeDefUuid),
-    assocValue: (nodeCtx, nodeDefUuid, value, sideEffect) =>
-      Nodes.assocChildEditable(nodeCtx, nodeDefUuid, value, sideEffect),
+    assocValue: (nodeCtx, nodeDefUuid, value, options) =>
+      Nodes.assocChildEditable(nodeCtx, nodeDefUuid, value, options),
   })
 }

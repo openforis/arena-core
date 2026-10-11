@@ -109,3 +109,40 @@ describe('Nodes.removeStatusFlags', () => {
     expect(node.updated).toBe(true)
   })
 })
+
+describe('Nodes mutation options', () => {
+  const createNode = (): ArenaRecordNode => NodeFactory.createInstance({ nodeDefUuid: 'def', recordUuid: 'rec' })
+
+  test('assocValue copies the node by default', () => {
+    const node = createNode()
+    const nodeUpdated = Nodes.assocValue(node, 'a')
+    expect(nodeUpdated).not.toBe(node)
+    expect(nodeUpdated.value).toBe('a')
+    expect(node.value).toBeUndefined()
+  })
+
+  test('assocValue modifies the node in place with { sideEffect: true }', () => {
+    const node = createNode()
+    const nodeUpdated = Nodes.assocValue(node, 'a', { sideEffect: true })
+    expect(nodeUpdated).toBe(node)
+    expect(node.value).toBe('a')
+  })
+
+  test('assocValue still accepts the deprecated positional sideEffect', () => {
+    const node = createNode()
+    expect(Nodes.assocValue(node, 'a', true)).toBe(node)
+    expect(Nodes.assocValue(node, 'b', false)).not.toBe(node)
+  })
+
+  test('assocChildEditable and assocChildVisible accept options and the deprecated positional sideEffect', () => {
+    const node = createNode()
+    const nodeNotEditable = Nodes.assocChildEditable(node, 'child', false)
+    expect(nodeNotEditable).not.toBe(node)
+    expect(Nodes.isChildEditable(nodeNotEditable, 'child')).toBe(false)
+    expect(Nodes.assocChildEditable(node, 'child', false, { sideEffect: true })).toBe(node)
+    expect(Nodes.assocChildVisible(node, 'child', false, { sideEffect: true })).toBe(node)
+    expect(Nodes.isChildVisible(node, 'child')).toBe(false)
+    expect(Nodes.assocChildVisible(node, 'child', true, true)).toBe(node)
+    expect(Nodes.isChildVisible(node, 'child')).toBe(true)
+  })
+})

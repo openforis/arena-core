@@ -1,5 +1,6 @@
 import { ArenaRecordNode, NodePointer } from '../../node'
 import { NodeDefExpression } from '../../nodeDef'
+import { MutationOptions } from '../../utils/mutationOptions'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
@@ -13,7 +14,12 @@ type UpdateSelfAndDependentsBooleanParams = {
   dependencyType: SurveyDependencyType
   getExpressions: (nodePointer: NodePointer) => NodeDefExpression[]
   getValuePrev: (nodeCtx: ArenaRecordNode, nodeDefUuid: string) => boolean
-  assocValue: (nodeCtx: ArenaRecordNode, nodeDefUuid: string, value: boolean, sideEffect: boolean) => ArenaRecordNode
+  assocValue: (
+    nodeCtx: ArenaRecordNode,
+    nodeDefUuid: string,
+    value: boolean,
+    options: MutationOptions
+  ) => ArenaRecordNode
   includeNewEntitySelf?: boolean
 }
 
@@ -91,7 +97,7 @@ export const updateSelfAndDependentsBoolean = async ({
       continue
     }
 
-    const nodeCtxUpdated = assocValue(nodeCtx, nodeDefUuid, value, sideEffect)
+    const nodeCtxUpdated = assocValue(nodeCtx, nodeDefUuid, value, { sideEffect })
     updateResult.addNode(nodeCtxUpdated, { sideEffect })
   }
 
