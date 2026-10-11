@@ -60,7 +60,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   protected currentInnerJobIndex = -1
 
   private _processed = 0
-  private eventListener: ((event: JobEvent) => void) | undefined = undefined
+  private eventListener: ((event: JobEvent) => unknown) | undefined = undefined
   private progressThrottleTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined
   private progressThrottleLastRunTime = 0
   private _stopOnInnerJobFailure = true
@@ -134,8 +134,9 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   /**
    * Registers the listener notified of job events (status changes and progress).
    * Only one listener can be registered at a time; registering a new one replaces the previous one.
+   * Errors thrown (or rejections returned) by the listener are logged and do not affect the job execution.
    */
-  onEvent(listener: (event: JobEvent) => void): this {
+  onEvent(listener: (event: JobEvent) => unknown): this {
     this.eventListener = listener
     return this
   }
@@ -232,7 +233,8 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
         await this.setStatus(JobStatus.succeeded)
       }
     } catch (error: any) {
-      if (!this.cancelRequested && !this.isFailed() && (this.isRunning() || this.isSucceeded())) {
+      // a job can fail while still pending (e.g. the transaction cannot be opened, or onStart fails)
+      if (!this.cancelRequested && !this.isFailed() && !this.isCanceled()) {
         this.logError(error.stack ?? error)
         const { key, params } = this.getErrorInfo(error)
         this.addError({ error: { valid: false, errors: [{ key, params }] } })
@@ -576,7 +578,19 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     this.progressThrottleLastRunTime = 0
   }
 
+  /**
+   * Notifies the event to the registered listener.
+   * Listener errors are only logged: they would otherwise fail the job or, when thrown inside the progress
+   * throttle timeout, crash the process.
+   */
   private notifyEvent(event: JobEvent): void {
-    this.eventListener?.(event)
+    const listener = this.eventListener
+    if (!listener) return
+    const onListenerError = (error: any): void => this.logError(`error in job event listener: ${error?.stack ?? error}`)
+    try {
+      Promise.resolve(listener(event)).catch(onListenerError)
+    } catch (error) {
+      onListenerError(error)
+    }
   }
 }
