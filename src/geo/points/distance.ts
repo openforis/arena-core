@@ -1,4 +1,4 @@
-import { distance as turfDistance } from '@turf/distance'
+import turfDistance from '@turf/distance'
 import { DEFAULT_SRS_INDEX, SRSIndex } from '../../srs'
 import { Point } from '../point'
 import { toLatLong } from './toLatLong'
