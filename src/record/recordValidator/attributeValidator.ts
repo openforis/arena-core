@@ -1,7 +1,7 @@
 import { User } from '../../auth'
 import { Dictionary } from '../../common'
 import { Labels } from '../../language'
-import { Node, NodeKeys, Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, NodeKeys, Nodes, NodeValues } from '../../node'
 import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
@@ -17,7 +17,7 @@ import {
 } from '../../validation'
 import { ValidationFields } from '../../validation/validation'
 import { NodePointers } from '../nodePointers'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
 import { RecordValidations } from '../recordValidations'
@@ -32,22 +32,22 @@ export interface RecordValidatorParams {
   survey: Survey
   categoryItemProvider?: CategoryItemProvider
   taxonProvider?: TaxonProvider
-  record: Record
+  record: ArenaRecord
 }
 
 export interface AttributeValidatorParams extends RecordValidatorParams {
-  attribute: Node
+  attribute: ArenaRecordNode
 }
 
 export interface AttributesValidatorParams extends RecordValidatorParams {
-  nodes: Dictionary<Node>
+  nodes: Dictionary<ArenaRecordNode>
 }
 
 export interface SortedAttributesValidatorParams extends RecordValidatorParams {
-  nodesArray: Node[]
+  nodesArray: ArenaRecordNode[]
 }
 
-type SiblingKeyNodeItem = { entityUuid: string; keyNode: Node; hasErrors: boolean }
+type SiblingKeyNodeItem = { entityUuid: string; keyNode: ArenaRecordNode; hasErrors: boolean }
 
 // sibling key nodes are cached by ancestor multiple entity parent and def uuid during the same validation call:
 // when many entities are added to the same parent entity (e.g. data import), computing them for every updated
@@ -135,8 +135,8 @@ const _validateRequired =
  * Evaluates the validation expressions.
  */
 const _validateNodeValidations =
-  (params: { user: User; survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  async (_propName: string, node: Node): Promise<ValidationResult> => {
+  (params: { user: User; survey: Survey; record: ArenaRecord; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
+  async (_propName: string, node: ArenaRecordNode): Promise<ValidationResult> => {
     const { user, survey, record, nodeDef } = params
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
@@ -196,7 +196,7 @@ const validateAttribute = async (params: AttributeValidatorParams & { entityKeys
 const findSiblingKeyNodesToValidate = (
   params: AttributeValidatorParams & {
     nodeDef: NodeDef<NodeDefType, NodeDefProps>
-    nodeParent?: Node
+    nodeParent?: ArenaRecordNode
     siblingKeyNodesCache?: SiblingKeyNodesCache
   }
 ) => {
@@ -213,8 +213,8 @@ const findSiblingKeyNodesToValidate = (
   // when a key attribute is updated, a sibling key attribute with the same value
   // or a sibling attribute with a validation error (duplicate key) should be re-validated
   const siblingNodeKeys = _getSiblingNodeKeys(params)
-  const siblingNodeKeysWithSameValue: Node[] = []
-  const siblingNodeKeysWithErrors: Node[] = []
+  const siblingNodeKeysWithSameValue: ArenaRecordNode[] = []
+  const siblingNodeKeysWithErrors: ArenaRecordNode[] = []
   siblingNodeKeys.forEach(({ keyNode, hasErrors }) => {
     if (NodeValues.isValueEqual({ survey, nodeDef, parentNode, value: keyNode.value, valueSearch: attribute.value })) {
       siblingNodeKeysWithSameValue.push(keyNode)
@@ -226,7 +226,7 @@ const findSiblingKeyNodesToValidate = (
   return [...siblingNodeKeysWithSameValue, ...siblingNodeKeysWithErrors]
 }
 
-const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Node[] => {
+const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): ArenaRecordNode[] => {
   const { survey, record, nodesArray } = params
 
   const result = []
@@ -263,7 +263,7 @@ const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Nod
 const validateSelfAndDependentSortedAttributes = async (
   params: SortedAttributesValidatorParams
 ): Promise<ValidationFields> => {
-  const nodesToValidate: Node[] = findSortedNodesToValidate(params)
+  const nodesToValidate: ArenaRecordNode[] = findSortedNodesToValidate(params)
   const validationsByNodeUuid: ValidationFields = {}
   // the record doesn't change during the validation: entity keys can be cached
   const entityKeysCache = createEntityKeysCache()

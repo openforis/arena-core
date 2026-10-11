@@ -1,6 +1,6 @@
-import { Node, Nodes } from '../../node'
+import { ArenaRecordNode, Nodes } from '../../node'
 import { Objects } from '../../utils'
-import { Record, RecordNodesIndex } from '../record'
+import { ArenaRecord, RecordNodesIndex } from '../record'
 
 const keys = {
   nodeRootUuid: 'nodeRootUuid',
@@ -9,7 +9,7 @@ const keys = {
   nodeCodeDependents: 'nodeCodeDependents',
 }
 
-const sortNodesByIdOrCreationDate = (nodeA: Node, nodeB: Node): number => {
+const sortNodesByIdOrCreationDate = (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): number => {
   if (!nodeA.parentUuid) return -1
   if (!nodeB.parentUuid) return 1
   // read the hierarchy length directly: Nodes.getHierarchy copies the array on every comparison
@@ -82,7 +82,7 @@ class NodesIndexDraft {
     }
   }
 
-  addNode(node: Node): void {
+  addNode(node: ArenaRecordNode): void {
     const { uuid: nodeUuid, nodeDefUuid, parentUuid } = node
     if (parentUuid) {
       // nodes by parent and child def uuid
@@ -99,7 +99,7 @@ class NodesIndexDraft {
     }
   }
 
-  removeNode(node: Node): void {
+  removeNode(node: ArenaRecordNode): void {
     const { uuid: nodeUuid, parentUuid, nodeDefUuid } = node
     if (parentUuid) {
       this.delete([keys.nodesByParentAndChildDef, parentUuid, nodeDefUuid, nodeUuid])
@@ -116,7 +116,7 @@ class NodesIndexDraft {
 }
 
 const addNodes =
-  (nodes: { [key: string]: Node }, sideEffect = false, sortNodes = false) =>
+  (nodes: { [key: string]: ArenaRecordNode }, sideEffect = false, sortNodes = false) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
     const draft = new NodesIndexDraft(index, sideEffect)
     const nodesArray = Object.values(nodes)
@@ -130,14 +130,14 @@ const addNodes =
   }
 
 const addNode =
-  (node: Node) =>
+  (node: ArenaRecordNode) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
     addNodes({ [node.uuid]: node })(index)
 
-const initializeIndex = (record: Record): RecordNodesIndex => addNodes(record.nodes ?? {}, true, true)({})
+const initializeIndex = (record: ArenaRecord): RecordNodesIndex => addNodes(record.nodes ?? {}, true, true)({})
 
 const removeNodes =
-  (nodes: Node[], sideEffect = false) =>
+  (nodes: ArenaRecordNode[], sideEffect = false) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
     const draft = new NodesIndexDraft(index, sideEffect)
     for (const node of nodes) {
@@ -147,11 +147,11 @@ const removeNodes =
   }
 
 const removeNode =
-  (node: Node, sideEffect = false) =>
+  (node: ArenaRecordNode, sideEffect = false) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
     removeNodes([node], sideEffect)(index)
 
-const _isSameHierarchyCode = (nodeA: Node, nodeB: Node): boolean => {
+const _isSameHierarchyCode = (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): boolean => {
   const hCodeA = nodeA.meta?.hCode ?? []
   const hCodeB = nodeB.meta?.hCode ?? []
   return hCodeA.length === hCodeB.length && hCodeA.every((uuid, index) => uuid === hCodeB[index])
@@ -160,7 +160,11 @@ const _isSameHierarchyCode = (nodeA: Node, nodeB: Node): boolean => {
 /**
  * Returns true if the index entries of the specified node would not change when the node replaces the previous version of it.
  */
-const isNodeIndexUnchanged = (params: { index: RecordNodesIndex; node: Node; nodePrev?: Node }): boolean => {
+const isNodeIndexUnchanged = (params: {
+  index: RecordNodesIndex
+  node: ArenaRecordNode
+  nodePrev?: ArenaRecordNode
+}): boolean => {
   const { index, node, nodePrev } = params
   if (!nodePrev) return false
   const { uuid, parentUuid, nodeDefUuid } = node

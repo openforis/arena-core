@@ -1,6 +1,6 @@
-import { Node } from '../node'
+import { ArenaRecordNode } from '../node'
 import { NodeDef, NodeDefs } from '../nodeDef'
-import { Record, Records } from '../record'
+import { ArenaRecord, Records } from '../record'
 import { Survey, Surveys } from '../survey'
 import { Arrays } from '../utils'
 
@@ -31,11 +31,11 @@ const parsePathPart = (
 
 const processFindNodesByPathPart = (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   pathPart: string
-  currentNodes: Node[]
+  currentNodes: ArenaRecordNode[]
   partIndex: number
-}): Node[] | undefined => {
+}): ArenaRecordNode[] | undefined => {
   const { survey, record, pathPart, currentNodes, partIndex } = params
   const parsedPart = parsePathPart(survey, pathPart)
   if (!parsedPart) return undefined
@@ -57,12 +57,16 @@ const processFindNodesByPathPart = (params: {
   }
 }
 
-const findNodesByPath = (params: { survey: Survey; record: Record; path: string }): Node[] | undefined => {
+const findNodesByPath = (params: {
+  survey: Survey
+  record: ArenaRecord
+  path: string
+}): ArenaRecordNode[] | undefined => {
   const { survey, record, path } = params
   const root = Records.getRoot(record)
   if (!root) throw new Error('Cannot find root node')
 
-  let currentNodes: Node[] | undefined = [root]
+  let currentNodes: ArenaRecordNode[] | undefined = [root]
 
   const pathParts = path.split('.')
   for (let partIndex = 0; partIndex < pathParts.length; partIndex++) {
@@ -73,23 +77,23 @@ const findNodesByPath = (params: { survey: Survey; record: Record; path: string 
   return currentNodes
 }
 
-const findNodeByPath = (params: { survey: Survey; record: Record; path: string }): Node | undefined => {
+const findNodeByPath = (params: { survey: Survey; record: ArenaRecord; path: string }): ArenaRecordNode | undefined => {
   const nodes = findNodesByPath(params)
   return nodes?.[0]
 }
 
-const getNodeByPath = (params: { survey: Survey; record: Record; path: string }): Node => {
+const getNodeByPath = (params: { survey: Survey; record: ArenaRecord; path: string }): ArenaRecordNode => {
   const node = findNodeByPath(params)
   if (!node) throw new Error(`Cannot find node at path ${params.path}`)
   return node
 }
 
-const getNodeUuidByPath = (params: { survey: Survey; record: Record; path: string }): string =>
+const getNodeUuidByPath = (params: { survey: Survey; record: ArenaRecord; path: string }): string =>
   getNodeByPath(params).uuid
 
 const getNodeName =
   (params: { survey: Survey }) =>
-  (node: Node): string => {
+  (node: ArenaRecordNode): string => {
     const { survey } = params
     return NodeDefs.getName(Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }))
   }

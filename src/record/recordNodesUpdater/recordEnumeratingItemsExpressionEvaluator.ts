@@ -1,8 +1,8 @@
 import { User } from '../../auth'
-import { Node } from '../../node'
+import { ArenaRecordNode } from '../../node'
 import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Survey } from '../../survey'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 
 const expressionEvaluator = new RecordExpressionEvaluator()
@@ -16,9 +16,9 @@ const expressionEvaluator = new RecordExpressionEvaluator()
 export const getEnumeratingItemsAllowedCodes = async (params: {
   survey: Survey
   user: User
-  record: Record
+  record: ArenaRecord
   entityDef: NodeDefEntity
-  parentNode: Node
+  parentNode: ArenaRecordNode
 }): Promise<Set<string> | undefined> => {
   const { survey, user, record, entityDef, parentNode } = params
   const expression = NodeDefs.getEnumeratingItemsExpression(entityDef)

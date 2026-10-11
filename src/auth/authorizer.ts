@@ -1,4 +1,4 @@
-import { Record, Records } from '../record'
+import { ArenaRecord, Records } from '../record'
 import { Survey, Surveys } from '../survey'
 import { AuthGroup, AuthGroupName } from './authGroup'
 import { AuthGroups } from './authGroups'
@@ -91,7 +91,7 @@ export const canViewNotOwnedRecords = (user: User, surveyInfo: Survey): boolean 
 export const canExportRecordsList = _hasSurveyPermission(Permission.surveyEdit)
 
 // UPDATE
-export const canEditRecord = (user: User, record: Record, allowAnalysisStepEdit = false): boolean => {
+export const canEditRecord = (user: User, record: ArenaRecord, allowAnalysisStepEdit = false): boolean => {
   if (
     !user ||
     !record ||
@@ -120,7 +120,7 @@ export const canEditRecord = (user: User, record: Record, allowAnalysisStepEdit 
   return level === RecordStepPermission.all || (level === RecordStepPermission.own && ownerUuid === user.uuid)
 }
 
-const canChangeRecordProps = (user: User, record: Record) => canEditRecord(user, record, true)
+const canChangeRecordProps = (user: User, record: ArenaRecord) => canEditRecord(user, record, true)
 
 const canDeleteRecord = canEditRecord
 

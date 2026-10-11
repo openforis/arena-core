@@ -10,7 +10,7 @@ import { TestUtils } from '../tests/testUtils'
 const { category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { RecordFixer } from './recordFixer'
 import { Records } from './records'
 import { RecordUpdater } from './recordUpdater'
@@ -18,7 +18,7 @@ import { Nodes } from '../node'
 
 const user = createTestAdminUser()
 let survey: Survey
-let record: Record
+let record: ArenaRecord
 
 const deleteNodeDef = (params: { survey: Survey; parentUuid: string; uuid: string }) => {
   const { survey, parentUuid, uuid } = params

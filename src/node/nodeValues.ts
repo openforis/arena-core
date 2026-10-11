@@ -1,10 +1,10 @@
 import { CategoryItems } from '../category'
 import { Point, PointFactory } from '../geo'
 import { NodeDef, NodeDefCode, NodeDefProps, NodeDefType } from '../nodeDef'
-import { Record, Records } from '../record'
+import { ArenaRecord, Records } from '../record'
 import { Survey, Surveys } from '../survey'
 import { DateFormats, Dates, Objects } from '../utils'
-import { Node } from './node'
+import { ArenaRecordNode } from './node'
 import { NodeValueCoordinate } from './nodeValue/coordinate'
 import {
   ValuePropsCode,
@@ -42,7 +42,7 @@ const getValuePropRaw = (params: { value: any; prop: string; defaultValue?: any 
   return valueProp === undefined ? defaultValue : valueProp
 }
 
-const getNodeValuePropRaw = (params: { node: Node; prop: string; defaultValue?: any }): any => {
+const getNodeValuePropRaw = (params: { node: ArenaRecordNode; prop: string; defaultValue?: any }): any => {
   const { node, prop, defaultValue } = params
   return getValuePropRaw({ value: node.value, prop, defaultValue })
 }
@@ -53,7 +53,7 @@ const newCodeValue = (params: { itemUuid: string }) => {
   return { [ValuePropsCode[ValuePropsCode.itemUuid]]: itemUuid }
 }
 
-const getItemUuid = (node: Node): string | undefined =>
+const getItemUuid = (node: ArenaRecordNode): string | undefined =>
   getNodeValuePropRaw({ node, prop: ValuePropsCode[ValuePropsCode.itemUuid] })
 
 const getValueCode = (value: any): string | undefined =>
@@ -62,7 +62,7 @@ const getValueCode = (value: any): string | undefined =>
 const getValueItemUuid = (value: any): string | undefined =>
   getValuePropRaw({ value, prop: ValuePropsCode[ValuePropsCode.itemUuid] })
 
-const getDateTimePart = (params: { node: Node; index: number; separator: string }): number => {
+const getDateTimePart = (params: { node: ArenaRecordNode; index: number; separator: string }): number => {
   const { node, index, separator } = params
   return Number((node.value ?? '').split(separator)[index]?.trim())
 }
@@ -70,39 +70,42 @@ const getDateTimePart = (params: { node: Node; index: number; separator: string 
 // Date
 const getDatePart =
   (index: number) =>
-  (node: Node): number =>
+  (node: ArenaRecordNode): number =>
     getDateTimePart({ node, index, separator: '-' })
 const getDateYear = getDatePart(0)
 const getDateMonth = getDatePart(1)
 const getDateDay = getDatePart(2)
 
-const _datePropGetters: { [key in ValuePropsDate]: (node: Node) => number } = {
+const _datePropGetters: { [key in ValuePropsDate]: (node: ArenaRecordNode) => number } = {
   [ValuePropsDate.day]: getDateDay,
   [ValuePropsDate.month]: getDateMonth,
   [ValuePropsDate.year]: getDateYear,
 }
 
 // File
-const getFileName = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: ValuePropsFile.fileName })
-const getFileNameCalculated = (node: Node): string | undefined =>
+const getFileName = (node: ArenaRecordNode): string | undefined =>
+  getNodeValuePropRaw({ node, prop: ValuePropsFile.fileName })
+const getFileNameCalculated = (node: ArenaRecordNode): string | undefined =>
   getNodeValuePropRaw({ node, prop: ValuePropsFile.fileNameCalculated })
-const getFileSize = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: ValuePropsFile.fileSize })
-const getFileUuid = (node: Node): string | undefined => getNodeValuePropRaw({ node, prop: ValuePropsFile.fileUuid })
+const getFileSize = (node: ArenaRecordNode): string | undefined =>
+  getNodeValuePropRaw({ node, prop: ValuePropsFile.fileSize })
+const getFileUuid = (node: ArenaRecordNode): string | undefined =>
+  getNodeValuePropRaw({ node, prop: ValuePropsFile.fileUuid })
 
 // Taxon
-const getTaxonUuid = (node: Node): string | undefined =>
+const getTaxonUuid = (node: ArenaRecordNode): string | undefined =>
   getNodeValuePropRaw({ node, prop: ValuePropsTaxon[ValuePropsTaxon.taxonUuid] })
 const getValueTaxonUuid = (value: any): string | undefined =>
   getValuePropRaw({ value, prop: ValuePropsTaxon[ValuePropsTaxon.taxonUuid] })
-const getScientificName = (node: Node): string | undefined =>
+const getScientificName = (node: ArenaRecordNode): string | undefined =>
   getNodeValuePropRaw({ node, prop: ValuePropsTaxon[ValuePropsTaxon.scientificName] })
 const getValueScientificName = (value: any): string | undefined =>
   getValuePropRaw({ value, prop: ValuePropsTaxon[ValuePropsTaxon.scientificName] })
-const getVernacularName = (node: Node): string | undefined =>
+const getVernacularName = (node: ArenaRecordNode): string | undefined =>
   getNodeValuePropRaw({ node, prop: ValuePropsTaxon[ValuePropsTaxon.vernacularName] })
 const getValueVernacularName = (value: any): string | undefined =>
   getValuePropRaw({ value, prop: ValuePropsTaxon[ValuePropsTaxon.vernacularName] })
-const getVernacularNameUuid = (node: Node): string | undefined =>
+const getVernacularNameUuid = (node: ArenaRecordNode): string | undefined =>
   getNodeValuePropRaw({ node, prop: ValuePropsTaxon[ValuePropsTaxon.vernacularNameUuid] })
 const getValueVernacularNameUuid = (value: any): string | undefined =>
   getValuePropRaw({ value, prop: ValuePropsTaxon[ValuePropsTaxon.vernacularNameUuid] })
@@ -110,11 +113,11 @@ const getValueVernacularNameUuid = (value: any): string | undefined =>
 // Time
 const _getTimePart =
   (index: number) =>
-  (node: Node): number =>
+  (node: ArenaRecordNode): number =>
     getDateTimePart({ node, index, separator: ':' })
 const getTimeHour = _getTimePart(0)
 const getTimeMinute = _getTimePart(1)
-const getTimeSeconds = (node: Node): number => {
+const getTimeSeconds = (node: ArenaRecordNode): number => {
   const parts = (node.value ?? '').split(':')
   return parts.length > 2 ? _getTimePart(2)(node) : 0
 }
@@ -125,7 +128,7 @@ const _timePropGetters: { [key in ValuePropsTime]: any } = {
   [ValuePropsTime.seconds]: getTimeSeconds,
 }
 
-const _valuePropGetters: { [key in NodeDefType]?: (prop: string) => (node: Node) => number } = {
+const _valuePropGetters: { [key in NodeDefType]?: (prop: string) => (node: ArenaRecordNode) => number } = {
   [NodeDefType.date]: (prop: string) => _datePropGetters[ValuePropsDate[prop as keyof typeof ValuePropsDate]],
   [NodeDefType.time]: (prop: string) => _timePropGetters[ValuePropsTime[prop as keyof typeof ValuePropsTime]],
 }
@@ -135,7 +138,11 @@ const isValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; prop
   return Object.values(ValuePropsByType[nodeDef.type] ?? {}).includes(prop)
 }
 
-const getNodeValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; node: Node; prop: string }): any => {
+const getNodeValueProp = (params: {
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  node: ArenaRecordNode
+  prop: string
+}): any => {
   const { nodeDef, node, prop } = params
   const propGetter: any = _valuePropGetters[nodeDef.type]
   return propGetter ? propGetter(prop)(node) : getNodeValuePropRaw({ node, prop })
@@ -253,8 +260,8 @@ interface NodeValuesCompareParams {
   nodeDef: NodeDef<NodeDefType, any>
   value: any
   valueSearch: any
-  record?: Record
-  parentNode?: Node
+  record?: ArenaRecord
+  parentNode?: ArenaRecordNode
   strict?: boolean
 }
 
@@ -270,7 +277,7 @@ const isValueEqual = (params: NodeValuesCompareParams): boolean => {
   return valueComparator({ survey, nodeDef, record, parentNode, value, valueSearch, strict })
 }
 
-const getValueAsPoint = (params: { survey: Survey; node: Node }): Point | null => {
+const getValueAsPoint = (params: { survey: Survey; node: ArenaRecordNode }): Point | null => {
   const { survey, node } = params
   const nodeValue = node?.value
 

@@ -1,14 +1,14 @@
-import { Node, Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
 import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { ValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { Records } from '../records'
 
 const _isAttributeDuplicate = (params: {
   survey: Survey
-  record: Record
-  attribute: Node
+  record: ArenaRecord
+  attribute: ArenaRecordNode
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
 }): boolean => {
   const { survey, attribute, record, nodeDef } = params
@@ -34,8 +34,8 @@ const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeD
 }
 
 export const validateAttributeUnique =
-  (params: { survey: Survey; record: Record; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  (_propName: string, node: Node): Promise<ValidationResult> => {
+  (params: { survey: Survey; record: ArenaRecord; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
+  (_propName: string, node: ArenaRecordNode): Promise<ValidationResult> => {
     const { survey, record, nodeDef } = params
 
     if (

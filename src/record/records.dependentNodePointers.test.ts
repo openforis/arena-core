@@ -9,13 +9,13 @@ import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilde
 const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { TestUtils } from '../tests/testUtils'
 import { Records } from './records'
 import { createTestAdminUser } from '../tests/data'
 
 let survey: Survey
-let record: Record
+let record: ArenaRecord
 
 const expectDependents = (params: {
   sourcePath: string

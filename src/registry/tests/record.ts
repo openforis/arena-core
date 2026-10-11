@@ -1,13 +1,13 @@
-import { RecordService, RecordFactory, Record } from '../../record'
+import { RecordService, RecordFactory, ArenaRecord } from '../../record'
 import { userMock } from './user'
 
-export const recordMock: Record = RecordFactory.createInstance({
+export const recordMock: ArenaRecord = RecordFactory.createInstance({
   user: userMock,
   surveyUuid: 'surveyUuid',
 })
 
 export class RecordServiceMock implements RecordService {
-  create(): Promise<Record> {
+  create(): Promise<ArenaRecord> {
     throw new Error('Not implemented')
   }
 
@@ -15,23 +15,23 @@ export class RecordServiceMock implements RecordService {
     throw new Error('Not implemented')
   }
 
-  get(): Promise<Record> {
+  get(): Promise<ArenaRecord> {
     return Promise.resolve(recordMock)
   }
 
-  getMany(): Promise<Array<Record>> {
+  getMany(): Promise<Array<ArenaRecord>> {
     throw new Error('Not implemented')
   }
 
-  getManyByUuids(): Promise<Array<Record>> {
+  getManyByUuids(): Promise<Array<ArenaRecord>> {
     throw new Error('Not implemented')
   }
 
-  update(): Promise<Record> {
+  update(): Promise<ArenaRecord> {
     throw new Error('Not implemented')
   }
 
-  checkIn(): Promise<Record> {
+  checkIn(): Promise<ArenaRecord> {
     throw new Error('Not implemented')
   }
   checkOut(): void {

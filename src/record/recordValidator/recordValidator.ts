@@ -1,4 +1,4 @@
-import { Node, NodesMap } from '../../node'
+import { ArenaRecordNode, NodesMap } from '../../node'
 import { Validation, ValidationFactory } from '../../validation'
 import { Validations } from '../../validation/validations'
 import { Records } from '../records'
@@ -39,7 +39,7 @@ export const validateNodes = async (params: AttributesValidatorParams): Promise<
 
 export const validateRecord = async (params: RecordValidatorParams): Promise<Validation> => {
   const { record } = params
-  const nodesArray: Node[] = []
+  const nodesArray: ArenaRecordNode[] = []
   const nodes: NodesMap = {}
   Records.visitDescendantsAndSelf({
     record,

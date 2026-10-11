@@ -1,8 +1,8 @@
 import { SystemError } from '../../error'
-import { Node, NodePointer } from '../../node'
+import { ArenaRecordNode, NodePointer } from '../../node'
 import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefType, NodeDefs } from '../../nodeDef'
 import { Survey, SurveyDependencyType, Surveys } from '../../survey'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { Records } from '../records'
 
 export const throwError = (params: {
@@ -41,8 +41,8 @@ const addPointerIfAccepted = (params: {
 const addNewEntitySelfPointer = (params: {
   nodePointers: NodePointer[]
   survey: Survey
-  record: Record
-  node: Node
+  record: ArenaRecord
+  node: ArenaRecordNode
   sourceNodeDef: NodeDef<NodeDefType, NodeDefProps>
   filterFn?: (nodePointer: NodePointer) => boolean
 }) => {
@@ -64,7 +64,7 @@ const addNewEntitySelfPointer = (params: {
 const addNewEntityChildMultiplePointers = (params: {
   nodePointers: NodePointer[]
   survey: Survey
-  node: Node
+  node: ArenaRecordNode
   sourceNodeDef: NodeDef<NodeDefType, NodeDefProps>
   filterFn?: (nodePointer: NodePointer) => boolean
 }) => {
@@ -82,8 +82,8 @@ const addNewEntityChildMultiplePointers = (params: {
 
 export const getDependentNodePointersByType = (params: {
   survey: Survey
-  record: Record
-  node: Node
+  record: ArenaRecord
+  node: ArenaRecordNode
   dependencyType: SurveyDependencyType
   includeSelfWhenSourceIsAttribute?: boolean
   includeNewEntitySelf?: boolean

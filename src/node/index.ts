@@ -1,5 +1,4 @@
-export type { Node, NodeMeta, NodeRefData, NodesMap } from './node'
-export type { Node as ArenaRecordNode } from './node'
+export type { ArenaRecordNode, Node, NodeMeta, NodeRefData, NodesMap } from './node'
 
 export { NodeKeys, NodeMetaKeys } from './node'
 

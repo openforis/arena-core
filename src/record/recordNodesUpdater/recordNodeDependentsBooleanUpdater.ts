@@ -1,4 +1,4 @@
-import { Node, NodePointer } from '../../node'
+import { ArenaRecordNode, NodePointer } from '../../node'
 import { NodeDefExpression } from '../../nodeDef'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
@@ -12,8 +12,8 @@ type UpdateSelfAndDependentsBooleanParams = {
   params: RecordNodeDependentsUpdateParams
   dependencyType: SurveyDependencyType
   getExpressions: (nodePointer: NodePointer) => NodeDefExpression[]
-  getValuePrev: (nodeCtx: Node, nodeDefUuid: string) => boolean
-  assocValue: (nodeCtx: Node, nodeDefUuid: string, value: boolean, sideEffect: boolean) => Node
+  getValuePrev: (nodeCtx: ArenaRecordNode, nodeDefUuid: string) => boolean
+  assocValue: (nodeCtx: ArenaRecordNode, nodeDefUuid: string, value: boolean, sideEffect: boolean) => ArenaRecordNode
   includeNewEntitySelf?: boolean
 }
 
@@ -28,9 +28,9 @@ const calculateBooleanValueNext = async ({
   params: RecordNodeDependentsUpdateParams
   updateResult: RecordUpdateResult
   nodePointer: NodePointer
-  nodeCtx: Node
+  nodeCtx: ArenaRecordNode
   getExpressions: (nodePointer: NodePointer) => NodeDefExpression[]
-  getValuePrev: (nodeCtx: Node, nodeDefUuid: string) => boolean
+  getValuePrev: (nodeCtx: ArenaRecordNode, nodeDefUuid: string) => boolean
 }): Promise<boolean | undefined> => {
   const { nodeDef: nodeDefNodePointer } = nodePointer
   const { uuid: nodeDefUuid } = nodeDefNodePointer

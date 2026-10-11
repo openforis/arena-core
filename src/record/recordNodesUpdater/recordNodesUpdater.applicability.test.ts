@@ -12,7 +12,7 @@ import { TestUtils } from '../../tests/testUtils'
 import { User } from '../../auth'
 import { Records } from '../records'
 import { Surveys } from '../../survey'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { Nodes } from '../../node'
 
 let user: User
@@ -51,7 +51,7 @@ describe('Record nodes updater - applicability', () => {
       sourceValue: any
       expectDependentUpdate: boolean
       expectedApplicability: boolean
-    }): Promise<Record> => {
+    }): Promise<ArenaRecord> => {
       const { sourceValue, expectedApplicability, expectDependentUpdate } = params
       const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
 
@@ -241,7 +241,7 @@ describe('Record nodes updater - applicability', () => {
       ).build()
     })
 
-    const makeSourceNonApplicable = async (record: Record, clearNonApplicableValues = false) => {
+    const makeSourceNonApplicable = async (record: ArenaRecord, clearNonApplicableValues = false) => {
       const sourceNode = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
       const sourceNodeUpdated = { ...sourceNode, value: 5 }
       return RecordNodesUpdater.updateNodesDependents({
@@ -253,7 +253,7 @@ describe('Record nodes updater - applicability', () => {
       })
     }
 
-    const getDependentEntityNodes = (record: Record) =>
+    const getDependentEntityNodes = (record: ArenaRecord) =>
       Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'dependent_entity' }).uuid)(record)
 
     test('Empty multiple entity is deleted when becoming non-applicable', async () => {

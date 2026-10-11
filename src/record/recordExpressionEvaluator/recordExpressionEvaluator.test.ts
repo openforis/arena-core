@@ -2,8 +2,8 @@ import { beforeAll, describe, test, expect } from '@jest/globals'
 
 import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
-import { Node } from '../../node'
-import { Record } from '../record'
+import { ArenaRecordNode } from '../../node'
+import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from './recordExpressionEvaluator'
 import { RecordExpressionContext } from './context'
 import { Records } from '../records'
@@ -24,15 +24,15 @@ type Query = {
 
 const user = createTestAdminUser()
 let survey: Survey
-let record: Record
+let record: ArenaRecord
 
-const getNode = (path: string): Node => TestUtils.getNodeByPath({ survey, record, path })
+const getNode = (path: string): ArenaRecordNode => TestUtils.getNodeByPath({ survey, record, path })
 
 const determineContextNode = (params: {
   nodeCurrentDef: NodeDef<NodeDefType, NodeDefProps>
-  nodeCurrent: Node
+  nodeCurrent: ArenaRecordNode
   node: string | undefined
-}): Node => {
+}): ArenaRecordNode => {
   const { nodeCurrentDef, nodeCurrent, node } = params
   const nodeContext = nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent(nodeCurrent)(record)
   if (!nodeContext) {

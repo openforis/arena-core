@@ -1,11 +1,11 @@
 import { Dictionary } from '../common'
 import { SystemError } from '../error'
-import { Node, NodePointer, NodesMap } from '../node'
+import { ArenaRecordNode, NodePointer, NodesMap } from '../node'
 import { Survey, SurveyDependencyType, Surveys } from '../survey'
 import { Dates, Objects } from '../utils'
 import { Validations } from '../validation/validations'
 import { NodePointers } from './nodePointers'
-import { Record } from './record'
+import { ArenaRecord } from './record'
 import { RecordNodesUpdater, RecordUpdateResult } from './recordNodesUpdater'
 import { NodeCreateParams, NodesUpdateParams } from './recordNodesUpdater/recordNodesCreator'
 import { Records } from './records'
@@ -19,7 +19,7 @@ const validationDependencyTypes = [
 
 const getDependentValidationNodePointers = (params: {
   survey: Survey
-  record: Record
+  record: ArenaRecord
   nodes: NodesMap
 }): NodePointer[] => {
   const { survey, record, nodes } = params
@@ -41,7 +41,7 @@ const getDependentValidationNodePointers = (params: {
 }
 
 const _onRecordNodesCreateOrUpdate = async (
-  params: NodesUpdateParams & { nodes: Dictionary<Node> }
+  params: NodesUpdateParams & { nodes: Dictionary<ArenaRecordNode> }
 ): Promise<RecordUpdateResult> => {
   const { user, survey, dateModified = Dates.nowFormattedForStorage() } = params
 

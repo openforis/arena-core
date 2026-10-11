@@ -1,9 +1,9 @@
-import { Node, NodesMap } from '../../node'
+import { ArenaRecordNode, NodesMap } from '../../node'
 import { Validation, Validations } from '../../validation'
 import * as RecordGetters from '../_records/recordGetters'
 import { RecordNodesIndexUpdater } from '../_records/recordNodesIndexUpdater'
 import { RecordUpdateOptions, RecordUpdateOptionsDefaults } from '../_records/recordUpdateOptions'
-import { Record } from '../record'
+import { ArenaRecord } from '../record'
 import { RecordValidations } from '../recordValidations'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -41,7 +41,7 @@ const _dissocValidationFieldsOfDeletedNodes = (params: {
 
 export const deleteNodes =
   (nodeUuids: string[], options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
-  (record: Record): RecordUpdateResult => {
+  (record: ArenaRecord): RecordUpdateResult => {
     const { sideEffect, updateNodesIndex } = { ...RecordUpdateOptionsDefaults, ...options }
 
     const recordUpdated = sideEffect ? record : { ...record }
@@ -51,7 +51,7 @@ export const deleteNodes =
     const nodesDeleted: NodesMap = {}
     const recordNodesUpdated = sideEffect ? recordNodes : { ...recordNodes }
 
-    const deleteDescendantNode = (visitedNode: Node) => {
+    const deleteDescendantNode = (visitedNode: ArenaRecordNode) => {
       const visitedNodeUuid = visitedNode.uuid
       if (nodesDeleted[visitedNodeUuid]) return
 
@@ -96,5 +96,5 @@ export const deleteNodes =
 
 export const deleteNode =
   (nodeUuid: string, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
-  (record: Record): RecordUpdateResult =>
+  (record: ArenaRecord): RecordUpdateResult =>
     deleteNodes([nodeUuid], options)(record)

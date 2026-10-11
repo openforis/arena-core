@@ -1,5 +1,5 @@
 import { AppInfo } from '../app'
-import { Node } from '../node'
+import { ArenaRecordNode } from '../node'
 import { Validation } from '../validation'
 
 export const RECORD_STEP_DEFAULT = '1'
@@ -34,12 +34,12 @@ export interface RecordInfo {
   updatedWith?: AppInfo
 }
 
-export interface Record {
+export interface ArenaRecord {
   cycle?: string
   dateCreated?: string
   dateModified?: string
   id?: number
-  nodes?: { [uuid: string]: Node }
+  nodes?: { [uuid: string]: ArenaRecordNode }
   ownerEmail?: string
   ownerName: string
   ownerRole?: string
@@ -56,5 +56,8 @@ export interface Record {
   info?: RecordInfo
 }
 
-export type ArenaRecord = Record
-export type ArenaRecordNode = Node
+/**
+ * @deprecated Use ArenaRecord: this name shadows the TypeScript built-in Record utility type.
+ * It will be removed in the next major version.
+ */
+export type Record = ArenaRecord

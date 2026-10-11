@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals'
 
-import { Record, RecordFactory } from '../../../record'
+import { ArenaRecord, RecordFactory } from '../../../record'
 import { Survey, SurveyFactory, SurveySecurityProp } from '../../../survey'
 import { AuthGroup, AuthGroupName, SYSTEM_ADMIN_GROUP } from '../../authGroup'
 import { AuthGroups } from '../../authGroups'
@@ -34,7 +34,7 @@ const createUser = (groupName: AuthGroupName): User => {
   return { ...user, authGroups }
 }
 
-const createRecord = (params: { user: User; step: string }): Record =>
+const createRecord = (params: { user: User; step: string }): ArenaRecord =>
   RecordFactory.createInstance({ user: params.user, surveyUuid: survey.uuid, step: params.step })
 
 /**
@@ -174,7 +174,7 @@ const recordCases = (expectations: typeof editRecordExpectations) =>
   )
 
 const runRecordCheck = (
-  check: (user: User, record: Record) => boolean,
+  check: (user: User, record: ArenaRecord) => boolean,
   params: { groupName: AuthGroupName; step: string; owned: boolean }
 ): boolean => {
   const { groupName, step, owned } = params
