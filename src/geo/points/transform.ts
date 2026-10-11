@@ -1,4 +1,4 @@
-import proj4 from 'proj4'
+import proj4, { type Converter } from 'proj4'
 
 import { DEFAULT_SRS_INDEX, SRSIndex } from '../../srs'
 import { Point } from '../point'
@@ -7,9 +7,9 @@ import { isFilled } from './isFilled'
 import { getSrs } from './getSrs'
 
 // proj4 parses both WKT strings every time it is called with them: cache the converters by WKT pair
-const convertersCache = new Map<string, proj4.Converter>()
+const convertersCache = new Map<string, Converter>()
 
-const getConverter = (wktFrom: string, wktTo: string): proj4.Converter => {
+const getConverter = (wktFrom: string, wktTo: string): Converter => {
   const key = `${wktFrom}\n${wktTo}`
   let converter = convertersCache.get(key)
   if (!converter) {

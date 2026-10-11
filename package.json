@@ -31,6 +31,7 @@
     "@types/proj4": "^2.19.0",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
+    "@typescript/native": "npm:typescript@7.0.2",
     "eslint": "^10.11.0",
     "eslint-plugin-no-explicit-type-exports": "^0.12.1",
     "husky": "^9.1.7",
@@ -39,8 +40,7 @@
     "pinst": "^3.0.0",
     "prettier": "^3.9.9",
     "ts-jest": "^29.4.14",
-    "ts-node": "^10.9.2",
-    "typescript": "6.0.3",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "^8"
   },
   "dependencies": {

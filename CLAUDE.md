@@ -149,6 +149,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 ## TypeScript Configuration
 
 - **Strict mode enabled** - all strict checks are on (noImplicitAny, strictNullChecks, etc.)
+- **Compiler:** TypeScript 7 (native) for `tsc` (build, typecheck), installed as the `@typescript/native` alias; the `typescript` package is an alias of `@typescript/typescript6` (TypeScript 6 API, `tsc6` binary) because ts-jest and typescript-eslint still need the TypeScript 6 JavaScript API (TypeScript 7.0 has none)
 - **Target:** ES6, **Module:** CommonJS
 - **Output:** `dist/` with declaration files (.d.ts), plus an ES modules build in `dist/esm/` (`tsconfig.esm.json`, `module` field in package.json) used by bundlers for tree shaking
 - `package.json` `sideEffects` lists the only modules with import-time side effects (jsep plugins registration, BigNumber config): keep it updated when adding module-level side effects
@@ -156,7 +157,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 ## Testing
 
-- Uses Jest with ts-jest
+- Uses Jest with ts-jest (`jest.config.ts` is loaded with Node's native type stripping, no ts-node)
 - Test files: `*.test.ts` or `*.spec.ts` in `src/`
 - Test builders available: `SurveyBuilder`, `RecordBuilder` in `src/tests/builder/`
 - Use builders to create test fixtures rather than manual object construction
