@@ -31,12 +31,3 @@ export const NodeFactory: Factory<ArenaRecordNode, NodeFactoryParams> = {
     }
   },
 }
-
-export const NodePlaceholderFactory: Factory<ArenaRecordNode, NodeFactoryParams> = {
-  createInstance: (params: NodeFactoryParams): ArenaRecordNode => {
-    return {
-      ...NodeFactory.createInstance(params),
-      placeholder: true,
-    }
-  },
-}

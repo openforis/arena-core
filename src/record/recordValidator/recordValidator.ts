@@ -1,4 +1,4 @@
-import { ArenaRecordNode, NodesMap } from '../../node'
+import { ArenaRecordNode } from '../../node'
 import { Validation, ValidationFactory } from '../../validation'
 import { Validations } from '../../validation/validations'
 import { Records } from '../records'
@@ -40,12 +40,10 @@ export const validateNodes = async (params: AttributesValidatorParams): Promise<
 export const validateRecord = async (params: RecordValidatorParams): Promise<Validation> => {
   const { record } = params
   const nodesArray: ArenaRecordNode[] = []
-  const nodes: NodesMap = {}
   Records.visitDescendantsAndSelf({
     node: Records.getRoot(record)!,
     visitor: (node) => {
       nodesArray.push(node)
-      nodes[node.uuid] = node
     },
   })(record)
 
