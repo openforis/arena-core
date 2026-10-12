@@ -25,7 +25,7 @@ type LayoutPropFixerFnParams = LayoutPropFixParams & { propOld: any }
 
 const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: NodeDefMap }): string[] => {
   const { nodeDef, nodeDefs } = params
-  const hiearchy = []
+  const hierarchy = []
   const visitedNodeDefUuids = new Set<string>()
   let currentParentUuid = nodeDef.parentUuid
   while (currentParentUuid) {
@@ -37,7 +37,7 @@ const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: No
       })
     }
     visitedNodeDefUuids.add(currentParentUuid)
-    hiearchy.unshift(currentParentUuid)
+    hierarchy.unshift(currentParentUuid)
     const currentParentNode = nodeDefs[currentParentUuid]
     if (!currentParentNode) {
       throw new SystemError('nodeDef.parentNotFound', {
@@ -48,14 +48,14 @@ const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: No
     }
     currentParentUuid = currentParentNode.parentUuid
   }
-  return hiearchy
+  return hierarchy
 }
 
-const fixHiearchy = (params: NodeDefFixParams): NodeDef<any> | null => {
+const fixHierarchy = (params: NodeDefFixParams): NodeDef<any> | null => {
   const { nodeDefs, nodeDef, sideEffect } = params
   const calculatedHierarchy = calculateNodeDefHierarchy({ nodeDefs, nodeDef })
   // compare the whole hierarchy: a node def moved to another parent at the same depth has a hierarchy with the same length
-  return Objects.isEqual(calculatedHierarchy, NodeDefs.getMetaHieararchy(nodeDef))
+  return Objects.isEqual(calculatedHierarchy, NodeDefs.getMetaHierarchy(nodeDef))
     ? null
     : Objects.assocPath({ obj: nodeDef, path: ['meta', 'h'], value: calculatedHierarchy, sideEffect })
 }
@@ -115,7 +115,7 @@ const fixLayoutChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
 
 const fix = (params: NodeDefFixParams): NodeDef<any> | null => {
   const { nodeDef } = params
-  let nodeDefFixed: NodeDef<any> | null = fixHiearchy(params)
+  let nodeDefFixed: NodeDef<any> | null = fixHierarchy(params)
   if (NodeDefs.isEntity(nodeDef)) {
     nodeDefFixed = fixIndexChildren({ ...params, nodeDef: nodeDefFixed ?? nodeDef }) ?? nodeDefFixed
     nodeDefFixed = fixLayoutChildren({ ...params, nodeDef: nodeDefFixed ?? nodeDef }) ?? nodeDefFixed
