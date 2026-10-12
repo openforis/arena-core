@@ -1,6 +1,6 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { NodeFactory, NodeFactoryParams, NodePlaceholderFactory } from './factory'
+import { NodeFactory, NodeFactoryParams } from './factory'
 import { ArenaRecordNode } from './node'
 import { Nodes } from './nodes'
 
@@ -60,27 +60,6 @@ describe('NodeFactory', () => {
 
     const node = NodeFactory.createInstance(nodeParams)
     checkNode(node, nodeParams)
-  })
-
-  test('createInstence - placeholder', () => {
-    const nodeParams: NodeFactoryParams = {
-      nodeDefUuid: 'nodedef-uuid-0001-test',
-      recordUuid: 'record-uuid-0001-test',
-      parentNode: {
-        uuid: 'parent-node-uuid',
-        nodeDefUuid: 'nodeDefUuid',
-        recordUuid: 'nodeDefUuid',
-        meta: {
-          h: ['uuid-prev'],
-        },
-      },
-      value: 'VALUE',
-    }
-
-    const node = NodePlaceholderFactory.createInstance(nodeParams)
-    checkNode(node, nodeParams)
-    expect(node).toHaveProperty('placeholder')
-    expect(node.placeholder).toBeTruthy()
   })
 })
 

@@ -30,15 +30,6 @@ export const sortedGroupNames = [
   AuthGroupName.surveyGuest,
 ]
 
-export const surveyGroupNames = [
-  AuthGroupName.surveyAdmin,
-  AuthGroupName.surveyEditor,
-  AuthGroupName.dataEditor,
-  AuthGroupName.dataCleanser,
-  AuthGroupName.dataAnalyst,
-  AuthGroupName.surveyGuest,
-]
-
 export const SYSTEM_ADMIN_GROUP: AuthGroup = { name: AuthGroupName.systemAdmin }
 
 export const permissionsByGroupName: { [key in AuthGroupName]: Permission[] } = {

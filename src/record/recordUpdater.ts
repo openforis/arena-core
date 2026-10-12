@@ -83,14 +83,11 @@ const createDescendants = async (params: NodeCreateParams): Promise<RecordUpdate
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
 }
 
-const _createNodeAndDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
+const createNodeAndDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
   const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.createNodeAndDescendants(params)
 
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
 }
-
-const createNodeAndDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> =>
-  _createNodeAndDescendants(params)
 
 const createRootEntity = async (
   params: NodesUpdateParams & {
@@ -99,7 +96,7 @@ const createRootEntity = async (
 ): Promise<RecordUpdateResult> => {
   const { survey, createMultipleEntities = true } = params
 
-  return _createNodeAndDescendants({ ...params, nodeDef: Surveys.getNodeDefRoot({ survey }), createMultipleEntities })
+  return createNodeAndDescendants({ ...params, nodeDef: Surveys.getNodeDefRoot({ survey }), createMultipleEntities })
 }
 
 const updateAttributeValue = async (
