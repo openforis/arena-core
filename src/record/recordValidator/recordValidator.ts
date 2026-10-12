@@ -8,7 +8,7 @@ import {
   RecordValidatorParams,
   SortedAttributesValidatorParams,
 } from './attributeValidator'
-import { CountValidator } from './countVaildator'
+import { CountValidator } from './countValidator'
 
 export const validateSortedNodes = async (params: SortedAttributesValidatorParams): Promise<Validation> => {
   const { survey, record, nodesArray } = params
