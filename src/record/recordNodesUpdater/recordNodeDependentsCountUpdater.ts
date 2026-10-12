@@ -24,12 +24,7 @@ export const updateDependentsCount = async (
   const dependencyType =
     countType === NodeDefCountType.max ? SurveyDependencyType.maxCount : SurveyDependencyType.minCount
 
-  const nodePointersToUpdate = Records.getDependentNodePointers({
-    survey,
-    record,
-    node,
-    dependencyType,
-  })
+  const nodePointersToUpdate = Records.getDependentNodePointers({ survey, node, dependencyType })(record)
 
   // 2. update expr to node and dependent nodes
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten

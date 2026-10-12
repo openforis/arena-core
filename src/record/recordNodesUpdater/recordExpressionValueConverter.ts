@@ -41,19 +41,15 @@ const _findCategoryItemUuidByCode = async (params: {
   const { survey, record, nodeDef, nodeParent, code, categoryItemProvider } = params
   const codeNodeDef = nodeDef as NodeDef<NodeDefType.code, NodeDefCodeProps>
 
-  const categoryItemUuid = Records.getCategoryItemUuid({
-    survey,
-    record,
-    nodeDef: codeNodeDef,
-    parentNode: nodeParent,
-    code,
-  })
+  const categoryItemUuid = Records.getCategoryItemUuid({ survey, nodeDef: codeNodeDef, parentNode: nodeParent, code })(
+    record
+  )
   if (categoryItemUuid) return categoryItemUuid
   if (!categoryItemProvider) return undefined
 
   const categoryUuid = NodeDefs.getCategoryUuid(nodeDef)
   if (!categoryUuid) return undefined
-  const codePaths = [...Records.getAncestorCodePath({ survey, record, parentNode: nodeParent, nodeDef }), code]
+  const codePaths = [...Records.getAncestorCodePath({ survey, parentNode: nodeParent, nodeDef })(record), code]
   const draft = !!record.preview
   const item = await categoryItemProvider.getItemByCodePaths({ survey, categoryUuid, codePaths, draft })
   return item?.uuid

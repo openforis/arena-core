@@ -86,7 +86,6 @@ const updateDescendantsApplicability = ({
   let userValuesCleared = false
 
   Records.visitDescendantsAndSelf({
-    record: updateResult.record,
     node: nodeCtxChild,
     visitor: (nodeDescendant): boolean => {
       const nodeDescendantCleared = clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
@@ -106,13 +105,16 @@ const updateDescendantsApplicability = ({
       }
       return false
     },
-  })
+  })(updateResult.record)
 
   // if a multiple entity became not applicable and it's empty, delete it instead of just marking descendants as not applicable
   if (!applicable && clearNonApplicableValues) {
     const { uuid: nodeCtxChildUuid, nodeDefUuid: nodeCtxChildDefUuid } = nodeCtxChild
     const nodeCtxChildDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtxChildDefUuid })
-    if (NodeDefs.isMultipleEntity(nodeCtxChildDef) && Records.isNodeEmpty(nodeCtxChild)(updateResult.record)) {
+    if (
+      NodeDefs.isMultipleEntity(nodeCtxChildDef) &&
+      Records.isNodeEmpty({ node: nodeCtxChild })(updateResult.record)
+    ) {
       const deleteResult = deleteNodes([nodeCtxChildUuid], recordUpdateOptions)(updateResult.record)
       updateResult.merge(deleteResult)
       if (userValuesCleared) {
@@ -138,7 +140,7 @@ const createMissingApplicableMultipleEntities = async ({
   const minCount = Nodes.getChildrenMinCount({ parentNode, nodeDef })
   if (Number.isNaN(minCount) || minCount <= 0) return
 
-  const existingChildren = Records.getChildren(parentNode, nodeDef.uuid)(updateResult.record)
+  const existingChildren = Records.getChildren({ parentNode, childDefUuid: nodeDef.uuid })(updateResult.record)
   const missingCount = Math.max(0, minCount - existingChildren.length)
 
   for (let index = 0; index < missingCount; index++) {
@@ -198,7 +200,7 @@ const updateNodePointerApplicability = async ({
   const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
   updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
 
-  let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
+  let nodeCtxChildren = Records.getChildren({ parentNode: nodeCtx, childDefUuid: nodeDefUuid })(updateResult.record)
 
   if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
     const entityDef = nodeDefNodePointer as NodeDefEntity
@@ -217,7 +219,7 @@ const updateNodePointerApplicability = async ({
         updateResult,
       })
     }
-    nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
+    nodeCtxChildren = Records.getChildren({ parentNode: nodeCtx, childDefUuid: nodeDefUuid })(updateResult.record)
   }
   for (const nodeCtxChild of nodeCtxChildren) {
     // add nodeCtxChild and its descendants to nodesUpdated
