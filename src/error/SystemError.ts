@@ -4,8 +4,13 @@ export class SystemError extends Error {
   private readonly _key: string
   private readonly _params: Dictionary<any>
 
-  constructor(key: string, params?: Dictionary<any>) {
-    super(key)
+  /**
+   * @param key - Error key (translatable).
+   * @param params - Parameters of the error message.
+   * @param options - Error options: `cause` is the original error (kept with its stack trace).
+   */
+  constructor(key: string, params?: Dictionary<any>, options?: { cause?: unknown }) {
+    super(key, options)
 
     this.name = 'SystemError'
 
