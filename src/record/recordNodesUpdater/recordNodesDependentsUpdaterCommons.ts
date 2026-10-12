@@ -17,14 +17,18 @@ export const throwError = (params: {
   const nodeDefName = nodeDef.props.name
   const expressionsString = JSON.stringify(expressionsToEvaluate)
 
-  throw new SystemError(errorKey, {
-    surveyName: survey.props.name,
-    nodeDefName,
-    expressionType,
-    expressionsString,
-    error: error.toString(),
-    errorJson: error instanceof SystemError ? error.toJSON() : null,
-  })
+  throw new SystemError(
+    errorKey,
+    {
+      surveyName: survey.props.name,
+      nodeDefName,
+      expressionType,
+      expressionsString,
+      error: error.toString(),
+      errorJson: error instanceof SystemError ? error.toJSON() : null,
+    },
+    { cause: error }
+  )
 }
 
 const addPointerIfAccepted = (params: {
