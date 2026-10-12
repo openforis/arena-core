@@ -135,7 +135,7 @@ describe('Record fixer', () => {
 
     // Delete the province node properly (including index) so insertMissingSingleNodes will recreate it
     const provinceDef = Surveys.getNodeDefByName({ survey: surveyWithCode, name: 'province' })
-    const [provinceNode] = Records.getNodesByDefUuid(provinceDef.uuid)(builtRecord)
+    const [provinceNode] = Records.getNodesByDefUuid({ nodeDefUuid: provinceDef.uuid })(builtRecord)
     const { record: recordWithoutProvince } = Records.deleteNodes([provinceNode.uuid])(builtRecord)
 
     const fixResult = RecordFixer.insertMissingSingleNodes({
@@ -144,7 +144,7 @@ describe('Record fixer', () => {
       sideEffect: false,
     })
 
-    const [reinsertedProvince] = Records.getNodesByDefUuid(provinceDef.uuid)(fixResult.record)
+    const [reinsertedProvince] = Records.getNodesByDefUuid({ nodeDefUuid: provinceDef.uuid })(fixResult.record)
     expect(reinsertedProvince).toBeDefined()
     expect(reinsertedProvince.meta?.hCode).toEqual([regionNode.uuid])
   })
@@ -175,8 +175,8 @@ describe('Record fixer', () => {
     const fixResult = RecordFixer.fixRecord({ survey: surveyToFix, record: recordToFix })
 
     expect(Object.values(fixResult.nodesDeleted)).toHaveLength(4)
-    expect(Records.getNodesByDefUuid(plotDef.uuid)(fixResult.record)).toHaveLength(0)
-    expect(Records.getNodesByDefUuid(plotIdDef.uuid)(fixResult.record)).toHaveLength(0)
+    expect(Records.getNodesByDefUuid({ nodeDefUuid: plotDef.uuid })(fixResult.record)).toHaveLength(0)
+    expect(Records.getNodesByDefUuid({ nodeDefUuid: plotIdDef.uuid })(fixResult.record)).toHaveLength(0)
     const plotIdNodes = Object.values(fixResult.record.nodes ?? {}).filter(
       (node) => node.nodeDefUuid === plotIdDef.uuid
     )

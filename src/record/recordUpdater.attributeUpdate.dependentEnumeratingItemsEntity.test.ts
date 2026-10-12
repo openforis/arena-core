@@ -64,10 +64,10 @@ const getTableSumKeys = (params: { survey: Survey; record: ArenaRecord }): strin
   const sumTypeDef = Surveys.getNodeDefChildren({ survey: surveyParam, nodeDef: tableSumDef }).find(
     (childDef) => childDef.props.name === 'sum_type'
   )!
-  const sumEntities = Records.getChildren(root, tableSumDef.uuid)(record)
+  const sumEntities = Records.getChildren({ parentNode: root, childDefUuid: tableSumDef.uuid })(record)
 
   return sumEntities.map((entity) => {
-    const keyNode = Records.getChild(entity, sumTypeDef.uuid)(record)!
+    const keyNode = Records.getChild({ parentNode: entity, childDefUuid: sumTypeDef.uuid })(record)!
     const nodeDef = Surveys.getNodeDefByUuid({ survey: surveyParam, uuid: keyNode.nodeDefUuid })
     return NodeValueFormatter.format({
       survey: surveyParam,
@@ -86,11 +86,11 @@ const getTableSumEntityUuidsByKey = (params: { survey: Survey; record: ArenaReco
   const sumTypeDef = Surveys.getNodeDefChildren({ survey: surveyParam, nodeDef: tableSumDef }).find(
     (childDef) => childDef.props.name === 'sum_type'
   )!
-  const sumEntities = Records.getChildren(root, tableSumDef.uuid)(record)
+  const sumEntities = Records.getChildren({ parentNode: root, childDefUuid: tableSumDef.uuid })(record)
 
   return Object.fromEntries(
     sumEntities.map((entity) => {
-      const keyNode = Records.getChild(entity, sumTypeDef.uuid)(record)!
+      const keyNode = Records.getChild({ parentNode: entity, childDefUuid: sumTypeDef.uuid })(record)!
       const nodeDef = Surveys.getNodeDefByUuid({ survey: surveyParam, uuid: keyNode.nodeDefUuid })
       const key = NodeValueFormatter.format({
         survey: surveyParam,
@@ -124,11 +124,13 @@ const addTableSourceRow = async (params: {
   })
   record = createResult.record
 
-  const tableSourceEntities = Records.getChildren(getRoot(), tableSourceDef.uuid)(record)
+  const tableSourceEntities = Records.getChildren({ parentNode: getRoot(), childDefUuid: tableSourceDef.uuid })(record)
   const entityIndex = tableSourceEntities.length - 1
   const typeDef = Surveys.getNodeDefByName({ survey: surveyParam, name: 'source_type' })
   const valueDef = Surveys.getNodeDefByName({ survey: surveyParam, name: 'value' })
-  const typeNode = Records.getChild(tableSourceEntities[entityIndex], typeDef.uuid)(record)!
+  const typeNode = Records.getChild({ parentNode: tableSourceEntities[entityIndex], childDefUuid: typeDef.uuid })(
+    record
+  )!
 
   let updateResult = await RecordUpdater.updateAttributeValue({
     user,
@@ -139,8 +141,10 @@ const addTableSourceRow = async (params: {
   })
   record = updateResult.record
 
-  const updatedEntity = Records.getChildren(getRoot(), tableSourceDef.uuid)(record)[entityIndex]
-  const valueNode = Records.getChild(updatedEntity, valueDef.uuid)(record)!
+  const updatedEntity = Records.getChildren({ parentNode: getRoot(), childDefUuid: tableSourceDef.uuid })(record)[
+    entityIndex
+  ]
+  const valueNode = Records.getChild({ parentNode: updatedEntity, childDefUuid: valueDef.uuid })(record)!
 
   updateResult = await RecordUpdater.updateAttributeValue({
     user,
@@ -245,11 +249,8 @@ describe('RecordUpdater - attribute update => update dependent enumerating items
     }).find((childDef) => childDef.props.name === 'value_sum')!
     const root = TestUtils.getNodeByPath({ survey, record, path: 'root_entity' })
     const tableSumDef = Surveys.getNodeDefByName({ survey, name: 'table_sum' })
-    const values = Records.getChildren(
-      root,
-      tableSumDef.uuid
-    )(record)
-      .map((entity) => Records.getChild(entity, valueSumDef.uuid)(record)?.value)
+    const values = Records.getChildren({ parentNode: root, childDefUuid: tableSumDef.uuid })(record)
+      .map((entity) => Records.getChild({ parentNode: entity, childDefUuid: valueSumDef.uuid })(record)?.value)
       .sort((a, b) => Number(a) - Number(b))
     expect(values).toEqual([30, 30])
   })

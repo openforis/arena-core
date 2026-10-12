@@ -32,7 +32,7 @@ describe('ReferencedNodes', () => {
       nodeContext: cluster,
       nodeDefReferenced: plotDef,
     })
-    const plotsExpected = Records.getChildren(cluster, plotDef.uuid)(record)
+    const plotsExpected = Records.getChildren({ parentNode: cluster, childDefUuid: plotDef.uuid })(record)
     expect(plotsReferenced).toHaveLength(3)
     expect(plotsReferenced).toStrictEqual(plotsExpected)
   })
@@ -40,7 +40,7 @@ describe('ReferencedNodes', () => {
   test('Context node: nested entity', () => {
     const cluster = getRoot()
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
-    const plots = Records.getChildren(cluster, plotDef.uuid)(record)
+    const plots = Records.getChildren({ parentNode: cluster, childDefUuid: plotDef.uuid })(record)
     const plot2 = plots[1]
     const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
     const nodesReferenced = NodesFinder.findDescendants({
@@ -51,7 +51,7 @@ describe('ReferencedNodes', () => {
     })
     expect(nodesReferenced).toHaveLength(1)
     const plotIdReferenced = nodesReferenced[0]
-    const plotIdExpected = Records.getChild(plot2, plotIdDef.uuid)(record)
+    const plotIdExpected = Records.getChild({ parentNode: plot2, childDefUuid: plotIdDef.uuid })(record)
     expect(plotIdReferenced).toStrictEqual(plotIdExpected)
   })
 })

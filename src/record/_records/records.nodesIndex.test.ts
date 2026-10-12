@@ -158,7 +158,7 @@ describe('Record nodes index', () => {
 
     // same index object: nothing to update
     expect(recordUpdated._nodesIndex).toBe(record._nodesIndex)
-    expect(Records.getNodeByUuid(plotIdNode.uuid)(recordUpdated)?.value).toBe(100)
+    expect(Records.getNodeByUuid({ uuid: plotIdNode.uuid })(recordUpdated)?.value).toBe(100)
   })
 
   test('Record nodes index is updated when the parent of a node changes', () => {

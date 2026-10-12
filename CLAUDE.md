@@ -144,6 +144,11 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 - Update functions return updated copies of the objects passed to them; `MutationOptions` (`{ sideEffect?: boolean }`, `src/utils/mutationOptions.ts`) lets the caller modify them in place instead (only for objects not shared, e.g. just created)
 - Pass it as an options object (or as a field of a parameters object), never as a positional boolean: the remaining positional `sideEffect` forms are deprecated overloads
 
+**Record getters** (`src/record/_records/recordGetters.ts`)
+
+- Getters take their parameters as an object and the record as separate, curried parameter: `Records.getChildren({ parentNode, childDefUuid })(record)`, `Records.getAncestor({ node, ancestorDefUuid })(record)`; getters needing only the record take it directly (`Records.getRoot(record)`)
+- Define new getters with the `recordGetter` helper; the old forms (positional parameters, record inside the parameters object) are deprecated overloads, kept until the next release removing them
+
 **Utility Modules** (`src/utils/`)
 
 - Arrays, Dates, Numbers, Objects, Strings, UUIDs, Promises, Queue
@@ -182,4 +187,5 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 - Published to GitHub Packages as `@openforis/arena-core`
 - Requires GitHub authentication (see README.md)
 - Version bumps are automated via CI: `release.yml` bumps the version and pushes a `v*` tag on every merge to master; `publish.yml`, triggered by the tag, tests, then publishes (the build runs in `prepack`) to GitHub Packages and to npmjs (trusted publishing with provenance) in two independent jobs, each skipped when the version is already in its registry (failed jobs can be re-run without bumping the version again)
+- The version increment is chosen by `release.yml` (`phips28/gh-action-bump-version`) from the words contained **anywhere** in the merged commit message (Mergify squash-merges with the PR title as subject): `BREAKING CHANGE` or `major` → major, `feat` or `minor` → minor, otherwise patch. Use a `feat:` PR title for API additions or changes (new functions, parameters or types, deprecations), and keep the major words out of PR titles and commit messages unless a major release is intended
 - Only `dist/**/*` files are included in the published package

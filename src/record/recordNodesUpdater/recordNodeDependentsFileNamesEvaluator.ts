@@ -47,7 +47,7 @@ const calculateFileName = async (params: {
 
   fileNameCalculated = String(fileNameCalculated)
   if (NodeDefs.isMultiple(nodeDef) && !fileNameWithPositionSuffixRegExp.test(fileNameCalculated)) {
-    const index = Records.getNodeIndex({ record, node })
+    const index = Records.getNodeIndex({ node })(record)
     fileNameCalculated = addPositionSuffix({ fileName: fileNameCalculated, position: index + 1 })
   }
 
@@ -99,11 +99,10 @@ export const updateSelfAndDependentsFileNames = async (
 
   const nodePointersToUpdate = Records.getDependentNodePointers({
     survey,
-    record,
     node,
     dependencyType: SurveyDependencyType.fileName,
     includeSelf: true,
-  })
+  })(record)
 
   // 2. update expr to node and dependent nodes
   for (const nodePointer of nodePointersToUpdate) {

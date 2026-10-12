@@ -34,7 +34,8 @@ const determineContextNode = (params: {
   node: string | undefined
 }): ArenaRecordNode => {
   const { nodeCurrentDef, nodeCurrent, node } = params
-  const nodeContext = nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent(nodeCurrent)(record)
+  const nodeContext =
+    nodeCurrentDef.type === NodeDefType.entity ? nodeCurrent : Records.getParent({ node: nodeCurrent })(record)
   if (!nodeContext) {
     throw new Error(`Cannot find context node: ${node}`)
   }
@@ -63,7 +64,7 @@ describe('RecordExpressionEvaluator', () => {
     prevCycleRemarks.value = 'Previous cycle remarks'
 
     const nodeCurrent = TestUtils.getNodeByPath({ survey, record: currentRecord, path: 'cluster.remarks' })
-    const nodeContext = Records.getParent(nodeCurrent)(currentRecord)
+    const nodeContext = Records.getParent({ node: nodeCurrent })(currentRecord)
     if (!nodeContext) throw new Error('Cannot find context node: cluster.remarks')
     const context: RecordExpressionContext = {
       user,
@@ -86,7 +87,7 @@ describe('RecordExpressionEvaluator', () => {
 
   test('numberToWords(value) uses the language passed in the expression context', async () => {
     const nodeCurrent = TestUtils.getNodeByPath({ survey, record, path: 'cluster.remarks' })
-    const nodeContext = Records.getParent(nodeCurrent)(record)
+    const nodeContext = Records.getParent({ node: nodeCurrent })(record)
     if (!nodeContext) throw new Error('Cannot find context node: cluster.remarks')
 
     const evaluator = new RecordExpressionEvaluator()
