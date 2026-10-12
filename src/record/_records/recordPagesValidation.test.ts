@@ -1,9 +1,10 @@
 import { describe, test, expect } from '@jest/globals'
 
 import { NodeDefEntity } from '../../nodeDef'
+import { ArenaRecord } from '../record'
 import { Records } from '../records'
 import { RecordValidations } from '../recordValidations'
-import { Surveys } from '../../survey'
+import { Survey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 import { createTestAdminUser } from '../../tests/data'
@@ -25,6 +26,92 @@ const setOwnPage = (pageNodeDef: NodeDefEntity, parentNodeDef: NodeDefEntity): v
     path: ['props', 'layout', cycle, 'indexChildren'],
     value: [...indexChildren, pageNodeDef.uuid],
   })
+}
+
+const createErrorValidation = (nodeUuid: string, key: string) =>
+  ValidationFactory.createInstance({
+    valid: false,
+    fields: {
+      [nodeUuid]: ValidationFactory.createInstance({
+        valid: false,
+        errors: [ValidationResultFactory.createInstance({ key, severity: ValidationSeverity.error })],
+      }),
+    },
+  })
+
+const getFirstNodeByDefName = (params: { survey: Survey; record: ArenaRecord; name: string }) => {
+  const { survey, record, name } = params
+  return Records.getNodesByDefUuid({ nodeDefUuid: Surveys.getNodeDefByName({ survey, name }).uuid })(record)[0]
+}
+
+// cluster > plot (multiple, own page) > plot_id
+const createClusterPlotFixture = async () => {
+  const user = createTestAdminUser()
+  const survey = await new SurveyBuilder(
+    user,
+    entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
+  ).build()
+
+  const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
+  const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+  setOwnPage(plotDef, rootDef)
+
+  const record = new RecordBuilder(
+    user,
+    survey,
+    entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('plot_id', 1)))
+  ).build()
+  return { survey, rootDef, plotDef, record }
+}
+
+// cluster > plot (multiple, own page) > land_use (own page) > land_use_code (required);
+// plot 3 has an empty land_use_code (with a "required" error), plot 4 has it filled
+const createLandUseFixture = async () => {
+  const user = createTestAdminUser()
+  const survey = await new SurveyBuilder(
+    user,
+    entityDef(
+      'cluster',
+      integerDef('cluster_id').key(),
+      entityDef(
+        'plot',
+        integerDef('plot_id').key(),
+        entityDef('land_use', textDef('land_use_code').required())
+      ).multiple()
+    )
+  ).build()
+
+  const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
+  const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+  const landUseDef = Surveys.getNodeDefByName({ survey, name: 'land_use' }) as NodeDefEntity
+  setOwnPage(plotDef, rootDef)
+  setOwnPage(landUseDef, plotDef)
+
+  const record = new RecordBuilder(
+    user,
+    survey,
+    entity(
+      'cluster',
+      attribute('cluster_id', 10),
+      entity('plot', attribute('plot_id', 3), entity('land_use', attribute('land_use_code', null))),
+      entity('plot', attribute('plot_id', 4), entity('land_use', attribute('land_use_code', 'crop')))
+    )
+  ).build()
+
+  const plotIdDefUuid = Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid
+  const landUseCodeDefUuid = Surveys.getNodeDefByName({ survey, name: 'land_use_code' }).uuid
+  const findPlotEntityByPlotId = (plotId: number) => {
+    const plotIdNode = Records.getNodesByDefUuid({ nodeDefUuid: plotIdDefUuid })(record).find((n) => n.value === plotId)
+    return Records.getParent({ node: plotIdNode! })(record)!
+  }
+  const plot3 = findPlotEntityByPlotId(3)
+  const plot4 = findPlotEntityByPlotId(4)
+
+  const plot3LandUse = Records.getChildren({ parentNode: plot3, childDefUuid: landUseDef.uuid })(record)[0]
+  const plot3Code = Records.getChildren({ parentNode: plot3LandUse, childDefUuid: landUseCodeDefUuid })(record)[0]
+  record.validation = createErrorValidation(plot3Code.uuid, 'required')
+
+  return { user, survey, plotDef, landUseDef, record, plot3, plot4, plot3Code }
 }
 
 describe('RecordPagesValidationProgress', () => {
@@ -72,10 +159,10 @@ describe('RecordPagesValidationProgress', () => {
       )
     ).build()
 
-    const clusterIdNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'cluster_id' }).uuid)(
-      record
-    )[0]
-    const plotIdNodes = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid)(record)
+    const clusterIdNode = getFirstNodeByDefName({ survey, record, name: 'cluster_id' })
+    const plotIdNodes = Records.getNodesByDefUuid({
+      nodeDefUuid: Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid,
+    })(record)
 
     // Error only on nested plot field → parent cluster stays valid; 1 of 2 pages invalid.
     record.validation = ValidationFactory.createInstance({
@@ -129,7 +216,7 @@ describe('RecordPagesValidationProgress', () => {
       entity('cluster', attribute('cluster_id', 10), attribute('remarks', 'note'))
     ).build()
 
-    const remarksNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'remarks' }).uuid)(record)[0]
+    const remarksNode = getFirstNodeByDefName({ survey, record, name: 'remarks' })
     record.validation = ValidationFactory.createInstance({
       valid: true,
       fields: {
@@ -155,32 +242,10 @@ describe('RecordPagesValidationProgress', () => {
   })
 
   test('getPageValidationStatus scopes to own page when descendant pages are provided', async () => {
-    const user = createTestAdminUser()
-    const survey = await new SurveyBuilder(
-      user,
-      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
-    ).build()
+    const { survey, rootDef, plotDef, record } = await createClusterPlotFixture()
 
-    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
-    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
-    setOwnPage(plotDef, rootDef)
-
-    const record = new RecordBuilder(
-      user,
-      survey,
-      entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('plot_id', 1)))
-    ).build()
-
-    const plotIdNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid)(record)[0]
-    record.validation = ValidationFactory.createInstance({
-      valid: false,
-      fields: {
-        [plotIdNode.uuid]: ValidationFactory.createInstance({
-          valid: false,
-          errors: [ValidationResultFactory.createInstance({ key: 'invalid', severity: ValidationSeverity.error })],
-        }),
-      },
-    })
+    const plotIdNode = getFirstNodeByDefName({ survey, record, name: 'plot_id' })
+    record.validation = createErrorValidation(plotIdNode.uuid, 'invalid')
 
     const descendantPageUuids = Records.getDescendantPageNodeDefUuids({ survey, cycle, pageNodeDef: rootDef })
     expect(descendantPageUuids).toEqual([plotDef.uuid])
@@ -203,21 +268,7 @@ describe('RecordPagesValidationProgress', () => {
   })
 
   test('childrenCount for descendant page entities does not affect parent page validation', async () => {
-    const user = createTestAdminUser()
-    const survey = await new SurveyBuilder(
-      user,
-      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
-    ).build()
-
-    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
-    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
-    setOwnPage(plotDef, rootDef)
-
-    const record = new RecordBuilder(
-      user,
-      survey,
-      entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('plot_id', 1)))
-    ).build()
+    const { survey, plotDef, record } = await createClusterPlotFixture()
 
     const clusterNode = Records.getRoot(record)!
     const childrenCountKey = `childrenCount_${clusterNode.uuid}_${plotDef.uuid}`
@@ -325,16 +376,8 @@ describe('RecordPagesValidationProgress', () => {
       )
     ).build()
 
-    const treeIdNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'tree_id' }).uuid)(record)[0]
-    record.validation = ValidationFactory.createInstance({
-      valid: false,
-      fields: {
-        [treeIdNode.uuid]: ValidationFactory.createInstance({
-          valid: false,
-          errors: [ValidationResultFactory.createInstance({ key: 'invalid', severity: ValidationSeverity.error })],
-        }),
-      },
-    })
+    const treeIdNode = getFirstNodeByDefName({ survey, record, name: 'tree_id' })
+    record.validation = createErrorValidation(treeIdNode.uuid, 'invalid')
 
     // cluster + plot valid, tree invalid => 2/3
     expect(Records.getRecordPagesValidationProgress({ survey, record, cycle })).toEqual({
@@ -345,57 +388,7 @@ describe('RecordPagesValidationProgress', () => {
   })
 
   test('getPageValidationStatus with scopeEntityUuid ignores sibling entity instances', async () => {
-    const user = createTestAdminUser()
-    const survey = await new SurveyBuilder(
-      user,
-      entityDef(
-        'cluster',
-        integerDef('cluster_id').key(),
-        entityDef(
-          'plot',
-          integerDef('plot_id').key(),
-          entityDef('land_use', textDef('land_use_code').required())
-        ).multiple()
-      )
-    ).build()
-
-    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
-    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
-    const landUseDef = Surveys.getNodeDefByName({ survey, name: 'land_use' }) as NodeDefEntity
-    setOwnPage(plotDef, rootDef)
-    setOwnPage(landUseDef, plotDef)
-
-    const record = new RecordBuilder(
-      user,
-      survey,
-      entity(
-        'cluster',
-        attribute('cluster_id', 10),
-        entity('plot', attribute('plot_id', 3), entity('land_use', attribute('land_use_code', null))),
-        entity('plot', attribute('plot_id', 4), entity('land_use', attribute('land_use_code', 'crop')))
-      )
-    ).build()
-
-    const landUseCodeDefUuid = Surveys.getNodeDefByName({ survey, name: 'land_use_code' }).uuid
-    const plotIdDefUuid = Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid
-    const findPlotEntityByPlotId = (plotId: number) => {
-      const plotIdNode = Records.getNodesByDefUuid(plotIdDefUuid)(record).find((n) => n.value === plotId)
-      return Records.getParent(plotIdNode!)(record)!
-    }
-    const plot3 = findPlotEntityByPlotId(3)
-    const plot4 = findPlotEntityByPlotId(4)
-
-    const plot3LandUse = Records.getChildren(plot3, landUseDef.uuid)(record)[0]
-    const plot3Code = Records.getChildren(plot3LandUse, landUseCodeDefUuid)(record)[0]
-    record.validation = ValidationFactory.createInstance({
-      valid: false,
-      fields: {
-        [plot3Code.uuid]: ValidationFactory.createInstance({
-          valid: false,
-          errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
-        }),
-      },
-    })
+    const { landUseDef, record, plot3, plot4 } = await createLandUseFixture()
 
     const landUseDescendants: string[] = []
 
@@ -427,57 +420,7 @@ describe('RecordPagesValidationProgress', () => {
   })
 
   test('getEntitySubtreeStatus reflects only that instance subtree', async () => {
-    const user = createTestAdminUser()
-    const survey = await new SurveyBuilder(
-      user,
-      entityDef(
-        'cluster',
-        integerDef('cluster_id').key(),
-        entityDef(
-          'plot',
-          integerDef('plot_id').key(),
-          entityDef('land_use', textDef('land_use_code').required())
-        ).multiple()
-      )
-    ).build()
-
-    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
-    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
-    const landUseDef = Surveys.getNodeDefByName({ survey, name: 'land_use' }) as NodeDefEntity
-    setOwnPage(plotDef, rootDef)
-    setOwnPage(landUseDef, plotDef)
-
-    const record = new RecordBuilder(
-      user,
-      survey,
-      entity(
-        'cluster',
-        attribute('cluster_id', 10),
-        entity('plot', attribute('plot_id', 3), entity('land_use', attribute('land_use_code', null))),
-        entity('plot', attribute('plot_id', 4), entity('land_use', attribute('land_use_code', 'crop')))
-      )
-    ).build()
-
-    const plotIdDefUuid = Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid
-    const landUseCodeDefUuid = Surveys.getNodeDefByName({ survey, name: 'land_use_code' }).uuid
-    const findPlotEntityByPlotId = (plotId: number) => {
-      const plotIdNode = Records.getNodesByDefUuid(plotIdDefUuid)(record).find((n) => n.value === plotId)
-      return Records.getParent(plotIdNode!)(record)!
-    }
-    const plot3 = findPlotEntityByPlotId(3)
-    const plot4 = findPlotEntityByPlotId(4)
-
-    const plot3LandUse = Records.getChildren(plot3, landUseDef.uuid)(record)[0]
-    const plot3Code = Records.getChildren(plot3LandUse, landUseCodeDefUuid)(record)[0]
-    record.validation = ValidationFactory.createInstance({
-      valid: false,
-      fields: {
-        [plot3Code.uuid]: ValidationFactory.createInstance({
-          valid: false,
-          errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
-        }),
-      },
-    })
+    const { survey, record, plot3, plot4 } = await createLandUseFixture()
 
     expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: plot3.uuid, cycle })).toEqual({
       hasErrors: true,
@@ -511,7 +454,9 @@ describe('RecordPagesValidationProgress', () => {
       entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('remarks', null)))
     ).build()
 
-    const plotEntity = Records.getChildren(Records.getRoot(record)!, plotDef.uuid)(record)[0]
+    const plotEntity = Records.getChildren({ parentNode: Records.getRoot(record)!, childDefUuid: plotDef.uuid })(
+      record
+    )[0]
 
     expect(Records.getEntityCompletionPercent({ survey, record, entity: plotEntity })).toBe(100)
     expect(Records.getEntityCompletionStats({ survey, record, entity: plotEntity })).toEqual({
@@ -539,64 +484,13 @@ describe('RecordPagesValidationProgress', () => {
       entity('cluster', attribute('cluster_id', 10), attribute('remarks', null))
     ).build()
 
-    const clusterIdNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'cluster_id' }).uuid)(
-      record
-    )[0]
+    const clusterIdNode = getFirstNodeByDefName({ survey, record, name: 'cluster_id' })
 
     expect(Records.getEntitySubtreeStatus({ survey, record, entityUuid: clusterIdNode.uuid, cycle })).toBeNull()
   })
 
   test('getMultiplePageEntitiesStatus ORs errors across instances; complete only if all complete', async () => {
-    const user = createTestAdminUser()
-    const survey = await new SurveyBuilder(
-      user,
-      entityDef(
-        'cluster',
-        integerDef('cluster_id').key(),
-        entityDef(
-          'plot',
-          integerDef('plot_id').key(),
-          entityDef('land_use', textDef('land_use_code').required())
-        ).multiple()
-      )
-    ).build()
-
-    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
-    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
-    const landUseDef = Surveys.getNodeDefByName({ survey, name: 'land_use' }) as NodeDefEntity
-    setOwnPage(plotDef, rootDef)
-    setOwnPage(landUseDef, plotDef)
-
-    const record = new RecordBuilder(
-      user,
-      survey,
-      entity(
-        'cluster',
-        attribute('cluster_id', 10),
-        entity('plot', attribute('plot_id', 3), entity('land_use', attribute('land_use_code', null))),
-        entity('plot', attribute('plot_id', 4), entity('land_use', attribute('land_use_code', 'crop')))
-      )
-    ).build()
-
-    const plotIdDefUuid = Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid
-    const landUseCodeDefUuid = Surveys.getNodeDefByName({ survey, name: 'land_use_code' }).uuid
-    const findPlotEntityByPlotId = (plotId: number) => {
-      const plotIdNode = Records.getNodesByDefUuid(plotIdDefUuid)(record).find((n) => n.value === plotId)
-      return Records.getParent(plotIdNode!)(record)!
-    }
-    const plot3 = findPlotEntityByPlotId(3)
-
-    const plot3LandUse = Records.getChildren(plot3, landUseDef.uuid)(record)[0]
-    const plot3Code = Records.getChildren(plot3LandUse, landUseCodeDefUuid)(record)[0]
-    record.validation = ValidationFactory.createInstance({
-      valid: false,
-      fields: {
-        [plot3Code.uuid]: ValidationFactory.createInstance({
-          valid: false,
-          errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
-        }),
-      },
-    })
+    const { user, survey, plotDef, record, plot3Code } = await createLandUseFixture()
 
     expect(Records.getMultiplePageEntitiesStatus({ survey, record, pageNodeDefUuid: plotDef.uuid, cycle })).toEqual({
       hasErrors: true,
@@ -659,23 +553,17 @@ describe('RecordPagesValidationProgress', () => {
     const plotIdDefUuid = Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid
     const healthDefUuid = Surveys.getNodeDefByName({ survey, name: 'health' }).uuid
     const findPlotEntityByPlotId = (plotId: number) => {
-      const plotIdNode = Records.getNodesByDefUuid(plotIdDefUuid)(record).find((n) => n.value === plotId)
-      return Records.getParent(plotIdNode!)(record)!
+      const plotIdNode = Records.getNodesByDefUuid({ nodeDefUuid: plotIdDefUuid })(record).find(
+        (n) => n.value === plotId
+      )
+      return Records.getParent({ node: plotIdNode! })(record)!
     }
     const plot3 = findPlotEntityByPlotId(3)
     const plot4 = findPlotEntityByPlotId(4)
 
-    const plot3Tree = Records.getChildren(plot3, treeDef.uuid)(record)[0]
-    const plot3Health = Records.getChildren(plot3Tree, healthDefUuid)(record)[0]
-    record.validation = ValidationFactory.createInstance({
-      valid: false,
-      fields: {
-        [plot3Health.uuid]: ValidationFactory.createInstance({
-          valid: false,
-          errors: [ValidationResultFactory.createInstance({ key: 'required', severity: ValidationSeverity.error })],
-        }),
-      },
-    })
+    const plot3Tree = Records.getChildren({ parentNode: plot3, childDefUuid: treeDef.uuid })(record)[0]
+    const plot3Health = Records.getChildren({ parentNode: plot3Tree, childDefUuid: healthDefUuid })(record)[0]
+    record.validation = createErrorValidation(plot3Health.uuid, 'required')
 
     // Unscoped: any tree in the record keeps Tree red.
     expect(Records.getMultiplePageEntitiesStatus({ survey, record, pageNodeDefUuid: treeDef.uuid, cycle })).toEqual({
@@ -735,16 +623,8 @@ describe('RecordPagesValidationProgress', () => {
       entity('cluster', attribute('cluster_id', 10), entity('plot_inline', attribute('plot_id', 1)))
     ).build()
 
-    const plotIdNode = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid)(record)[0]
-    record.validation = ValidationFactory.createInstance({
-      valid: false,
-      fields: {
-        [plotIdNode.uuid]: ValidationFactory.createInstance({
-          valid: false,
-          errors: [ValidationResultFactory.createInstance({ key: 'invalid', severity: ValidationSeverity.error })],
-        }),
-      },
-    })
+    const plotIdNode = getFirstNodeByDefName({ survey, record, name: 'plot_id' })
+    record.validation = createErrorValidation(plotIdNode.uuid, 'invalid')
 
     expect(Records.getRecordPagesValidationProgress({ survey, record, cycle })).toEqual({
       percent: 0,

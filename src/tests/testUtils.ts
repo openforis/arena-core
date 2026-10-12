@@ -49,7 +49,7 @@ const processFindNodesByPathPart = (params: {
     const currentNode = currentNodes[0]
     if (!currentNode) return undefined
     const singleDef = NodeDefs.isSingle(childDef)
-    const children = Records.getChildren(currentNode, childDef.uuid)(record)
+    const children = Records.getChildren({ parentNode: currentNode, childDefUuid: childDef.uuid })(record)
     const childIndex = partChildIndex ?? (singleDef ? 0 : Number.NaN)
     const child = childIndex >= 0 ? children[childIndex] : null
     if (singleDef && !child) return undefined

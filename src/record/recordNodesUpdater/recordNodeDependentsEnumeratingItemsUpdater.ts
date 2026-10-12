@@ -20,10 +20,9 @@ const getEnumeratingItemsNodePointers = (params: {
   const { survey, record, node } = params
   const nodePointers = Records.getDependentNodePointers({
     survey,
-    record,
     node,
     dependencyType: SurveyDependencyType.enumeratingItems,
-  })
+  })(record)
 
   if (nodePointers.length > 0 || !node.deleted) {
     return nodePointers
@@ -46,11 +45,7 @@ const getEnumeratingItemsNodePointers = (params: {
     const parentDef = Surveys.getNodeDefParent({ survey, nodeDef: dependentDef })
     if (!parentDef) continue
 
-    const contextNodes = Records.getDescendantsOrSelf({
-      record,
-      node: root,
-      nodeDefDescendant: parentDef,
-    })
+    const contextNodes = Records.getDescendantsOrSelf({ node: root, nodeDefDescendant: parentDef })(record)
     for (const contextNode of contextNodes) {
       nodePointers.push({ nodeCtx: contextNode, nodeDef: dependentDef })
     }
@@ -68,7 +63,7 @@ export const syncEnumeratingItemsEntities = async (
 ): Promise<void> => {
   const { survey, user, parentNode, entityDef, categoryItemProvider, updateResult, sideEffect } = params
   const recordUpdateOptions = { sideEffect }
-  const existingEntities = getChildren(parentNode, entityDef.uuid)(updateResult.record)
+  const existingEntities = getChildren({ parentNode, childDefUuid: entityDef.uuid })(updateResult.record)
   const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
 
   const deleteExistingEntities = () => {
@@ -107,7 +102,9 @@ export const syncEnumeratingItemsEntities = async (
   const existingItemUuids = new Set<string>()
 
   for (const existingEntity of existingEntities) {
-    const existingEnumerator = getChild(existingEntity, enumeratorDef.uuid)(updateResult.record)
+    const existingEnumerator = getChild({ parentNode: existingEntity, childDefUuid: enumeratorDef.uuid })(
+      updateResult.record
+    )
     const itemUuid = NodeValues.getItemUuid(existingEnumerator)
     if (!itemUuid || !targetItemUuids.has(itemUuid)) {
       const nodesDeleteUpdatedResult = deleteNodes([existingEntity.uuid], recordUpdateOptions)(updateResult.record)

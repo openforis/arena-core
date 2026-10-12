@@ -27,7 +27,9 @@ const shouldExistingEntitiesBeDeleted = async (params: {
   const enumeratorDef = Surveys.getNodeDefEnumerator({ survey, entityDef })!
   const existingEnumeratingItemUuids = existingEntities
     .map((existingEntity) => {
-      const existingEnumerator = getChild(existingEntity, enumeratorDef.uuid)(updateResult.record)
+      const existingEnumerator = getChild({ parentNode: existingEntity, childDefUuid: enumeratorDef.uuid })(
+        updateResult.record
+      )
       return NodeValues.getItemUuid(existingEnumerator)!
     })
     .sort(uuidsCompare)
@@ -61,7 +63,7 @@ export const createOrDeleteEnumeratedEntities = async (
 ) => {
   const { survey, parentNode, entityDef, categoryItemProvider, updateResult, sideEffect } = params
   const recordUpdateOptions = { sideEffect }
-  const existingEntities = getChildren(parentNode, entityDef.uuid)(updateResult.record)
+  const existingEntities = getChildren({ parentNode, childDefUuid: entityDef.uuid })(updateResult.record)
   const existingEntitiesCount = existingEntities.length
   const hasExistingEntities = existingEntitiesCount > 0
   const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
@@ -112,7 +114,7 @@ export const updateDependentEnumeratedEntities = async (
   if (dependentEnumeratedEntityDefs.length === 0) return updateResult
 
   const ancestorMultipleEntityDef = Surveys.getNodeDefAncestorMultipleEntity({ survey, nodeDef })!
-  const ancestorMultipleEntity = getAncestor({ record, node, ancestorDefUuid: ancestorMultipleEntityDef.uuid })!
+  const ancestorMultipleEntity = getAncestor({ node, ancestorDefUuid: ancestorMultipleEntityDef.uuid })(record)!
 
   // 2. update enumerated entities
   for (const entityDef of dependentEnumeratedEntityDefs) {

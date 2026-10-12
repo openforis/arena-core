@@ -71,7 +71,7 @@ const print = (params: { survey: Survey; record: ArenaRecord; options?: PrintOpt
 
       const childDefs = Surveys.getNodeDefChildrenSorted({ survey, nodeDef, cycle })
       childDefs.forEach((childDef) => {
-        const children = RecordGetters.getChildren(node, childDef.uuid)(record)
+        const children = RecordGetters.getChildren({ parentNode: node, childDefUuid: childDef.uuid })(record)
         if (children.length === 0) {
           const childInfoParts = getInfoParts({ parentNode: node, childDefUuid: childDef.uuid })
           parts.push(
@@ -93,34 +93,36 @@ const print = (params: { survey: Survey; record: ArenaRecord; options?: PrintOpt
   }
 
   RecordGetters.visitDescendantsAndSelf({
-    record,
     node: rootNode,
     visitor: (node) => {
       const { nodeDefUuid } = node
       const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
       const value = NodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
       const depth = Nodes.getHierarchy(node).length
-      const parentNode = NodeDefs.isRoot(nodeDef) ? null : RecordGetters.getParent(node)(record)
+      const parentNode = NodeDefs.isRoot(nodeDef) ? null : RecordGetters.getParent({ node })(record)
       const infoParts = getInfoParts({ parentNode, childDefUuid: nodeDefUuid })
       parts.push(toPart({ depth, name: NodeDefs.getName(nodeDef), value, infoParts }))
       return false
     },
     traverseMethod: TraverseMethod.dfs,
-  })
+  })(record)
   return parts.join('\n')
 }
 
 const printNodePath = (params: { survey: Survey; record: ArenaRecord; node: ArenaRecordNode }): string => {
   const { survey, record, node } = params
   const parts: string[] = []
-  RecordGetters.visitAncestorsAndSelf(node, (visitedNode) => {
-    const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: visitedNode.nodeDefUuid })
-    let part = NodeDefs.getName(nodeDef)
-    if (NodeDefs.isMultiple(nodeDef)) {
-      const index = RecordGetters.getNodeIndex({ record, node: visitedNode })
-      part = `${part}[${index}]`
-    }
-    parts.unshift(part)
+  RecordGetters.visitAncestorsAndSelf({
+    node,
+    visitor: (visitedNode) => {
+      const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: visitedNode.nodeDefUuid })
+      let part = NodeDefs.getName(nodeDef)
+      if (NodeDefs.isMultiple(nodeDef)) {
+        const index = RecordGetters.getNodeIndex({ node: visitedNode })(record)
+        part = `${part}[${index}]`
+      }
+      parts.unshift(part)
+    },
   })(record)
   return parts.join('.')
 }

@@ -41,17 +41,17 @@ describe('RecordBuilder', () => {
     if (!cluster) throw new Error('Root node not found')
 
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
-    const plots = Records.getChildren(cluster, plotDef.uuid)(record)
+    const plots = Records.getChildren({ parentNode: cluster, childDefUuid: plotDef.uuid })(record)
     expect(plots).toHaveLength(3)
 
     const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
     const plot1 = plots[0]
-    const plotId1 = Records.getChild(plot1, plotIdDef.uuid)(record)
+    const plotId1 = Records.getChild({ parentNode: plot1, childDefUuid: plotIdDef.uuid })(record)
     expect(plotId1).toBeDefined()
     expect(plotId1.value).toBe(1)
 
     const plot2 = plots[1]
-    const plotId2 = Records.getChild(plot2, plotIdDef.uuid)(record)
+    const plotId2 = Records.getChild({ parentNode: plot2, childDefUuid: plotIdDef.uuid })(record)
     expect(plotId2).toBeDefined()
     expect(plotId2.value).toBe(2)
   })

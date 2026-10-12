@@ -67,11 +67,7 @@ export const deleteNodes =
       const node = recordNodesUpdated[nodeUuid]
       if (!node) return
 
-      RecordGetters.visitDescendantsAndSelf({
-        record,
-        node,
-        visitor: deleteDescendantNode,
-      })
+      RecordGetters.visitDescendantsAndSelf({ node, visitor: deleteDescendantNode })(record)
     })
 
     // delete nodes from validation (in a single pass over the validation fields)

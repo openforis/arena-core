@@ -82,7 +82,7 @@ const evaluateIdentifierOnNode = (params: {
     return nodeObject
   }
   if (Surveys.isNodeDefAncestor({ nodeDefAncestor: nodeDefReferenced, nodeDefDescendant: nodeDefObject })) {
-    return Records.getAncestor({ record, node: nodeObject, ancestorDefUuid: nodeDefReferenced.uuid })
+    return Records.getAncestor({ node: nodeObject, ancestorDefUuid: nodeDefReferenced.uuid })(record)
   }
   // the referenced nodes can be siblings of the current node
   const referencedNodes = NodesFinder.findDescendants({ survey, record, nodeContext: nodeObject, nodeDefReferenced })

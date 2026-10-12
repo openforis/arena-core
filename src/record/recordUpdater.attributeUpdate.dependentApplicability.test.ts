@@ -50,7 +50,7 @@ const updateAttributeAndExpectDependentApplicability = async (params: {
   const dependentNode = TestUtils.getNodeByPath({ survey, record: recordUpdated, path: dependentNodePath })
   expect(dependentNode).not.toBeNull()
 
-  const dependentApplicability = Records.isNodeApplicable({ record: recordUpdated, node: dependentNode })
+  const dependentApplicability = Records.isNodeApplicable({ node: dependentNode })(recordUpdated)
   expect(dependentApplicability).toBe(expectedDependentApplicability)
 
   return recordUpdated
@@ -79,7 +79,7 @@ const addNodeAndExpectDependentApplicability = async (params: {
   const dependentNode = TestUtils.getNodeByPath({ survey, record: recordUpdated, path: dependentNodePath })
   expect(dependentNode).not.toBeNull()
 
-  const dependentApplicability = Records.isNodeApplicable({ record: recordUpdated, node: dependentNode })
+  const dependentApplicability = Records.isNodeApplicable({ node: dependentNode })(recordUpdated)
   expect(dependentApplicability).toBe(expectedDependentApplicability)
 
   return recordUpdated

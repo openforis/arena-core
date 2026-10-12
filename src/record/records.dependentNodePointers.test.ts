@@ -24,7 +24,7 @@ const expectDependents = (params: {
 }) => {
   const { sourcePath, dependencyType, expectedDependentNames } = params
   const source = TestUtils.getNodeByPath({ survey, record, path: sourcePath })
-  const dependentNodePointers = Records.getDependentNodePointers({ survey, record, node: source, dependencyType })
+  const dependentNodePointers = Records.getDependentNodePointers({ survey, node: source, dependencyType })(record)
   const dependentNames = dependentNodePointers.map((pointer) => pointer.nodeDef.props.name)
   expect(dependentNames).toEqual(expectedDependentNames)
 }
@@ -36,7 +36,7 @@ const expectDependentContextNodes = (params: {
 }) => {
   const { sourcePath, dependencyType, expectedContextNodePaths } = params
   const source = TestUtils.getNodeByPath({ survey, record, path: sourcePath })
-  const dependentNodePointers = Records.getDependentNodePointers({ survey, record, node: source, dependencyType })
+  const dependentNodePointers = Records.getDependentNodePointers({ survey, node: source, dependencyType })(record)
   const contextNodeUuids = dependentNodePointers.map((pointer) => pointer.nodeCtx.uuid)
   const expectedContextNodeUuids = expectedContextNodePaths.map(
     (path) => TestUtils.getNodeByPath({ survey, record, path }).uuid
