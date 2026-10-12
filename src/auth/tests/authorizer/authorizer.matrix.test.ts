@@ -97,6 +97,31 @@ const surveyChecks: { name: string; check: (user: User, survey: Survey) => boole
     authorized: [G.systemAdmin, G.surveyAdmin, G.surveyEditor, G.dataAnalyst, G.dataCleanser, G.dataEditor],
   },
   { name: 'canInviteUsers', check: Authorizer.canInviteUsers, authorized: [G.systemAdmin, G.surveyAdmin] },
+  {
+    name: 'canExportRecordsList',
+    check: Authorizer.canExportRecordsList,
+    authorized: [G.systemAdmin, G.surveyAdmin, G.surveyEditor, G.dataAnalyst],
+  },
+  { name: 'canManageUserGroups', check: Authorizer.canManageUserGroups, authorized: [G.systemAdmin, G.surveyAdmin] },
+  {
+    name: 'canEditQualifierAttributeValue',
+    check: Authorizer.canEditQualifierAttributeValue,
+    authorized: [G.systemAdmin, G.surveyAdmin],
+  },
+  {
+    // the survey is not a template
+    name: 'canViewSurveyOrPublishedTemplate',
+    check: Authorizer.canViewSurveyOrPublishedTemplate,
+    authorized: [
+      G.systemAdmin,
+      G.surveyAdmin,
+      G.surveyEditor,
+      G.dataAnalyst,
+      G.dataCleanser,
+      G.dataEditor,
+      G.surveyGuest,
+    ],
+  },
 ]
 
 describe('Authorizer matrix - survey level checks', () => {
@@ -124,6 +149,45 @@ describe('Authorizer matrix - canViewNotOwnedRecords with survey security restri
       expect(Authorizer.canViewNotOwnedRecords(createUser(groupName), surveyRestricted)).toBe(expected)
     }
   )
+})
+
+describe('Authorizer matrix - canViewSurveyOrPublishedTemplate with a published template', () => {
+  const template: Survey = { ...survey, template: true, published: true }
+  // any logged in user, also without groups in the template
+  test.each(casesWithAuthorizedGroups(allGroupNames))('%s => %s', (groupName, expected) => {
+    expect(Authorizer.canViewSurveyOrPublishedTemplate(createUser(groupName), template)).toBe(expected)
+  })
+  test('not published template => only users with a group in it', () => {
+    const templateNotPublished: Survey = { ...template, published: false }
+    expect(Authorizer.canViewSurveyOrPublishedTemplate(createUser(G.surveyManager), templateNotPublished)).toBe(false)
+    expect(Authorizer.canViewSurveyOrPublishedTemplate(createUser(G.dataEditor), templateNotPublished)).toBe(true)
+  })
+})
+
+describe('Authorizer matrix - canEditUserAuthGroupExtraProps (of a data editor of the survey)', () => {
+  const userToUpdate = createUser(G.dataEditor)
+  test.each(casesWithAuthorizedGroups([G.systemAdmin, G.surveyAdmin]))('%s => %s', (groupName, expected) => {
+    expect(Authorizer.canEditUserAuthGroupExtraProps(createUser(groupName), survey, userToUpdate)).toBe(expected)
+  })
+  test('user to update not in the survey => only system admins', () => {
+    expect(Authorizer.canEditUserAuthGroupExtraProps(createUser(G.surveyAdmin), survey, otherUser)).toBe(false)
+    expect(Authorizer.canEditUserAuthGroupExtraProps(createUser(G.systemAdmin), survey, otherUser)).toBe(true)
+  })
+})
+
+describe('Authorizer matrix - canEditSomeSurvey', () => {
+  test.each(casesWithAuthorizedGroups([G.systemAdmin, G.surveyManager, G.surveyAdmin, G.surveyEditor]))(
+    '%s => %s',
+    (groupName, expected) => {
+      expect(Authorizer.canEditSomeSurvey(createUser(groupName))).toBe(expected)
+    }
+  )
+})
+
+describe('Authorizer matrix - canManageUser2FADevices', () => {
+  test.each(casesWithAuthorizedGroups([G.systemAdmin]))('%s => %s', (groupName, expected) => {
+    expect(Authorizer.canManageUser2FADevices(createUser(groupName))).toBe(expected)
+  })
 })
 
 describe('Authorizer matrix - canCreateSurvey', () => {
