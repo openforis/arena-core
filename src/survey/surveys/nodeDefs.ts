@@ -187,7 +187,7 @@ const getNodeDefChildrenUuidsSortedByLayout = (params: {
 
   const entityDef = nodeDef as NodeDefEntity
 
-  const childrenEntitiesInOwnPageSortedUuids = NodeDefs.getChildrenEntitiesInOwnPageUudis(cycle)(entityDef) ?? []
+  const childrenEntitiesInOwnPageSortedUuids = NodeDefs.getChildrenEntitiesInOwnPageUuids(cycle)(entityDef) ?? []
   const layoutChildren = NodeDefs.getLayoutChildren(cycle)(entityDef) ?? []
   const childrenByUuids = children.reduce((acc: NodeDefMap, child) => {
     acc[child.uuid] = child

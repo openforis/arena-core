@@ -244,7 +244,7 @@ const isLayoutRenderTypeMarkdown =
   (nodeDef: NodeDefText): boolean =>
     getLayoutRenderType(cycle)(nodeDef) === NodeDefTextRenderType.markdown
 
-const getChildrenEntitiesInOwnPageUudis =
+const getChildrenEntitiesInOwnPageUuids =
   (cycle = defaultCycle) =>
   (nodeDef: NodeDefEntity): string[] =>
     (getLayoutProps(cycle)(nodeDef) as NodeDefEntityLayout).indexChildren ?? []
@@ -296,7 +296,7 @@ const getAreaBasedEstimatedOf = (nodeDef: NodeDef<any>): string | undefined =>
 const getIndexInChain = (nodeDef: NodeDef<any>): number | undefined => nodeDef.propsAdvanced?.index
 
 // Metadata
-const getMetaHieararchy = (nodeDef: NodeDef<any>): string[] => nodeDef.meta?.h ?? []
+const getMetaHierarchy = (nodeDef: NodeDef<any>): string[] => nodeDef.meta?.h ?? []
 
 export const NodeDefs = {
   isEntity,
@@ -367,7 +367,7 @@ export const NodeDefs = {
   getLayoutRenderType,
   isLayoutRenderTypeForm,
   isLayoutRenderTypeTable,
-  getChildrenEntitiesInOwnPageUudis,
+  getChildrenEntitiesInOwnPageUuids,
   getLayoutChildren,
   getPageUuid,
   isDisplayInOwnPage,
@@ -391,5 +391,5 @@ export const NodeDefs = {
   getAreaBasedEstimatedOf,
   getIndexInChain,
   // Metadata
-  getMetaHieararchy,
+  getMetaHierarchy,
 }

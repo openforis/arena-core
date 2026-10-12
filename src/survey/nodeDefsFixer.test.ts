@@ -70,7 +70,7 @@ describe('Survey NodeDefsFixer', () => {
     const { updatedNodeDefs } = NodeDefsFixer.fixNodeDefs({ nodeDefs: survey.nodeDefs!, cycles: ['0'] })
 
     expect(Object.keys(updatedNodeDefs)).toEqual([plotDef.uuid])
-    expect(NodeDefs.getMetaHieararchy(updatedNodeDefs[plotDef.uuid])).toEqual([rootDef.uuid])
+    expect(NodeDefs.getMetaHierarchy(updatedNodeDefs[plotDef.uuid])).toEqual([rootDef.uuid])
   })
 
   test('Hierarchy fix with missing parent node def: explicit error', () => {
@@ -83,7 +83,7 @@ describe('Survey NodeDefsFixer', () => {
   test('Layout index children fixed', () => {
     const cycle = '0'
     const rootDef = Surveys.getNodeDefRoot({ survey })
-    const layoutIndexChildren = NodeDefs.getChildrenEntitiesInOwnPageUudis(cycle)(rootDef)
+    const layoutIndexChildren = NodeDefs.getChildrenEntitiesInOwnPageUuids(cycle)(rootDef)
     layoutIndexChildren.push(UUIDs.v4()) // add a non existing uuid to indexChildren
 
     const { nodeDefs, updatedNodeDefs } = NodeDefsFixer.fixNodeDefs({ nodeDefs: survey.nodeDefs!, cycles: [cycle] })
@@ -94,7 +94,7 @@ describe('Survey NodeDefsFixer', () => {
     expect(NodeDefs.getName(updatedNodeDef)).toBe('cluster')
 
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
-    expect(NodeDefs.getChildrenEntitiesInOwnPageUudis(cycle)(updatedNodeDef)).toEqual([plotDef.uuid])
+    expect(NodeDefs.getChildrenEntitiesInOwnPageUuids(cycle)(updatedNodeDef)).toEqual([plotDef.uuid])
   })
 
   test('Layout children fixed', () => {
