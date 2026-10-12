@@ -15,17 +15,23 @@ export type FileProcessorConstructorArgs = {
   onComplete?: (result: any) => void
   chunkSize?: number
   maxTryings?: number
+  /**
+   * Delay (in milliseconds) before retrying a failed chunk, doubled at every further retry.
+   */
+  retryDelay?: number
 }
 
 export class FileProcessor {
   static readonly defaultChunkSize = 1024 * 1024 * 10 // 10MB
   static readonly defaultMaxTryings = 5
+  static readonly defaultRetryDelay = 1000 // 1s, then 2s, 4s...
 
   private readonly file?: File
   private readonly filePath?: string
   private readonly chunkProcessor: ChunkProcessor
   private readonly chunkSize: number
   private readonly maxTryings: number
+  private readonly retryDelay: number
   private readonly onError?: (error: Error) => void
   private readonly onComplete?: (result?: any) => void
 
@@ -46,12 +52,14 @@ export class FileProcessor {
     onComplete,
     chunkSize = FileProcessor.defaultChunkSize,
     maxTryings = FileProcessor.defaultMaxTryings,
+    retryDelay = FileProcessor.defaultRetryDelay,
   }: FileProcessorConstructorArgs) {
     this.file = file
     this.filePath = filePath
     this.chunkProcessor = chunkProcessor
     this.chunkSize = chunkSize
     this.maxTryings = maxTryings
+    this.retryDelay = retryDelay
     this.onError = onError
     this.onComplete = onComplete
 
@@ -93,19 +101,14 @@ export class FileProcessor {
   }
 
   protected processNextChunk(): void {
-    const { chunkProcessor, currentChunkNumber, totalFileSize, totalChunks, maxTryings } = this
+    const { chunkProcessor, currentChunkNumber, totalFileSize, totalChunks, maxTryings, retryDelay } = this
 
     this.processingChunk = true
     this.extractCurrentFileChunk()
       .then((content) => {
-        const retryProcessor = new RetryProcessor<void>({
-          processor: async () => {
-            const chunkResult = await chunkProcessor({ chunk: currentChunkNumber, totalFileSize, totalChunks, content })
-            if (this.currentChunkNumber === totalChunks && this.onComplete) {
-              this.onComplete(chunkResult)
-            }
-          },
-          onSuccess: () => {
+        const retryProcessor = new RetryProcessor<any>({
+          processor: () => chunkProcessor({ chunk: currentChunkNumber, totalFileSize, totalChunks, content }),
+          onSuccess: (chunkResult) => {
             this.processingChunk = false
             if (this.currentChunkNumber < totalChunks) {
               // move to the next chunk also when paused: resume will continue from it
@@ -116,6 +119,8 @@ export class FileProcessor {
             } else {
               this.running = false
               this.completed = true
+              // called outside the retried processor: if it throws, the last chunk is not processed again
+              this.onComplete?.(chunkResult)
             }
           },
           onFail: (error: Error) => {
@@ -124,6 +129,7 @@ export class FileProcessor {
             this.running = false
           },
           maxTryings,
+          retryDelay,
         })
         retryProcessor.start()
       })
