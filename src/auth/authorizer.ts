@@ -51,11 +51,15 @@ const getMaxSurveysUserCanCreate = (user: User): number => {
 // READ
 const canViewSurvey = (user: User, surveyInfo: Survey): boolean =>
   Users.isSystemAdmin(user) || _hasAuthGroupForSurvey({ user, surveyInfo })
+// any logged in user can view a published template (e.g. to clone it), without widening canViewSurvey
+const canViewSurveyOrPublishedTemplate = (user: User, surveyInfo: Survey): boolean =>
+  canViewSurvey(user, surveyInfo) || Boolean(user && surveyInfo?.template && surveyInfo.published)
 const canExportSurvey = _hasSurveyPermission(Permission.recordAnalyse)
 const canExportSurveysList = (user: User): boolean => Users.isSystemAdmin(user)
 const canViewTemplates = (user: User): boolean => Users.isSystemAdmin(user)
 // UPDATE
 const canEditSurvey = _hasSurveyPermission(Permission.surveyEdit)
+const canEditSomeSurvey = _hasPermissionInSomeGroup(Permission.surveyEdit)
 const canEditSurveyConfig = (user: User): boolean => Users.isSystemAdmin(user)
 const canEditSurveyOwner = (user: User): boolean => Users.isSystemAdmin(user)
 const canEditTemplates = (user: User): boolean => Users.isSystemAdmin(user)
@@ -88,7 +92,7 @@ export const canViewNotOwnedRecords = (user: User, surveyInfo: Survey): boolean 
 
   return false
 }
-export const canExportRecordsList = _hasSurveyPermission(Permission.surveyEdit)
+export const canExportRecordsList = _hasSurveyPermission(Permission.recordAnalyse)
 
 // UPDATE
 export const canEditRecord = (user: User, record: ArenaRecord, allowAnalysisStepEdit = false): boolean => {
@@ -208,12 +212,30 @@ const canRemoveUser = (user: User, surveyInfo: Survey, userToRemove: User): bool
   !Users.isSystemAdmin(userToRemove) &&
   _hasUserEditAccess(user, surveyInfo, userToRemove)
 
+// only survey admins (and system admins) can manage the user groups of a survey
+const canManageUserGroups = (user: User, surveyInfo: Survey): boolean => {
+  if (!user) return false
+  if (Users.isSystemAdmin(user)) return true
+  if (!surveyInfo) return false
+  return _getSurveyUserGroup(user, surveyInfo)?.name === AuthGroupName.surveyAdmin
+}
+
+// qualifier attribute values are tied to user groups
+const canEditQualifierAttributeValue = canManageUserGroups
+
+const canEditUserAuthGroupExtraProps = (user: User, surveyInfo: Survey, userToUpdate: User): boolean =>
+  Users.isSystemAdmin(user) ||
+  (canInviteUsers(user, surveyInfo) && _hasAuthGroupForSurvey({ user: userToUpdate, surveyInfo }))
+
 const canEditUserSurveyManager = (user: User) => Users.isSystemAdmin(user)
 const canEditUserMaxSurveys = (user: User) => Users.isSystemAdmin(user)
 
 // USER ACCESS REQUESTS
 const canViewUsersAccessRequests = (user: User): boolean => Users.isSystemAdmin(user)
 const canEditUsersAccessRequests = (user: User): boolean => Users.isSystemAdmin(user)
+
+// TWO-FACTOR AUTHENTICATION
+const canManageUser2FADevices = (user: User): boolean => Users.isSystemAdmin(user)
 
 // INVITE
 const getUserGroupsCanAssign = ({
@@ -261,10 +283,12 @@ export const Authorizer = {
   canCreateTemplate,
   getMaxSurveysUserCanCreate,
   canViewSurvey,
+  canViewSurveyOrPublishedTemplate,
   canExportSurvey,
   canExportSurveysList,
   canViewTemplates,
   canEditSurvey,
+  canEditSomeSurvey,
   canEditSurveyConfig,
   canEditSurveyOwner,
   canEditTemplates,
@@ -301,11 +325,16 @@ export const Authorizer = {
   canEditUserEmail,
   canEditUserGroup,
   canRemoveUser,
+  canManageUserGroups,
+  canEditQualifierAttributeValue,
+  canEditUserAuthGroupExtraProps,
   canEditUserSurveyManager,
   canEditUserMaxSurveys,
   // User Access Requests
   canViewUsersAccessRequests,
   canEditUsersAccessRequests,
+  // Two-factor authentication
+  canManageUser2FADevices,
   // Invite
   getUserGroupsCanAssign,
 }
