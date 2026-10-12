@@ -187,4 +187,5 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 - Published to GitHub Packages as `@openforis/arena-core`
 - Requires GitHub authentication (see README.md)
 - Version bumps are automated via CI: `release.yml` bumps the version and pushes a `v*` tag on every merge to master; `publish.yml`, triggered by the tag, tests, then publishes (the build runs in `prepack`) to GitHub Packages and to npmjs (trusted publishing with provenance) in two independent jobs, each skipped when the version is already in its registry (failed jobs can be re-run without bumping the version again)
+- The version increment is chosen by `release.yml` (`phips28/gh-action-bump-version`) from the words contained **anywhere** in the merged commit message (Mergify squash-merges with the PR title as subject): `BREAKING CHANGE` or `major` → major, `feat` or `minor` → minor, otherwise patch. Use a `feat:` PR title for API additions or changes (new functions, parameters or types, deprecations), and keep the major words out of PR titles and commit messages unless a major release is intended
 - Only `dist/**/*` files are included in the published package
