@@ -283,14 +283,59 @@ describe('FileProcessor', () => {
         chunkSize: 1024 * 1024,
         onError,
         maxTryings: 2,
+        retryDelay: 10,
       })
 
       processor.start()
 
       setTimeout(() => {
+        expect(chunkProcessor).toHaveBeenCalledTimes(2)
         expect(onError).toHaveBeenCalledWith(expect.any(Error))
         done()
       }, 200)
+    })
+
+    test('completes when a failed chunk succeeds on retry', (done) => {
+      const file = new File(['a'.repeat(100)], 'test.txt', { type: 'text/plain' })
+      const chunkProcessor = createChunkProcessorMock()
+        .mockRejectedValueOnce(new Error('Chunk processing failed'))
+        .mockResolvedValue('ok')
+      const onComplete = jest.fn()
+      const onError = jest.fn()
+
+      const processor = new FileProcessor({ file, chunkProcessor, onComplete, onError, maxTryings: 2, retryDelay: 10 })
+
+      processor.start()
+
+      setTimeout(() => {
+        expect(chunkProcessor).toHaveBeenCalledTimes(2)
+        expect(onComplete).toHaveBeenCalledTimes(1)
+        expect(onComplete).toHaveBeenCalledWith('ok')
+        expect(onError).not.toHaveBeenCalled()
+        done()
+      }, 200)
+    })
+
+    test('does not process the last chunk again when onComplete throws', (done) => {
+      const file = new File(['a'.repeat(100)], 'test.txt', { type: 'text/plain' })
+      const chunkProcessor = createChunkProcessorMock().mockResolvedValue(null)
+      const onCompleteError = new Error('onComplete failed')
+      const onComplete = jest.fn(() => {
+        throw onCompleteError
+      })
+      const onError = jest.fn()
+
+      const processor = new FileProcessor({ file, chunkProcessor, onComplete, onError, maxTryings: 3, retryDelay: 0 })
+
+      processor.start()
+
+      setTimeout(() => {
+        expect(chunkProcessor).toHaveBeenCalledTimes(1)
+        expect(onComplete).toHaveBeenCalledTimes(1)
+        expect(onError).toHaveBeenCalledTimes(1)
+        expect(onError).toHaveBeenCalledWith(onCompleteError)
+        done()
+      }, 100)
     })
   })
 
@@ -419,6 +464,10 @@ describe('FileProcessor', () => {
 
     test('should use default max tryings', () => {
       expect(FileProcessor.defaultMaxTryings).toBe(5)
+    })
+
+    test('should use default retry delay', () => {
+      expect(FileProcessor.defaultRetryDelay).toBe(1000)
     })
   })
 })
