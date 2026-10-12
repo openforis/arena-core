@@ -148,6 +148,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 - Getters take their parameters as an object and the record as separate, curried parameter: `Records.getChildren({ parentNode, childDefUuid })(record)`, `Records.getAncestor({ node, ancestorDefUuid })(record)`; getters needing only the record take it directly (`Records.getRoot(record)`)
 - Define new getters with the `recordGetter` helper; the old forms (positional parameters, record inside the parameters object) are deprecated overloads, kept until the next release removing them
+- Export every type used in the type of an exported value (e.g. `RecordGetter`): otherwise the emitted `.d.ts` inlines it and drops its JSDoc, so the `@deprecated` signatures are not flagged for the consumers (`src/declarations.test.ts` checks it)
 
 **Utility Modules** (`src/utils/`)
 

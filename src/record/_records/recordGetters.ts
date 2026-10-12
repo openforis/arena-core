@@ -11,13 +11,13 @@ import { RecordStepAnalysisCode } from '../recordStep'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
 import { NodeDefSelfReferences } from './nodeDefSelfReferences'
 
-type RecordParams = { record: ArenaRecord }
+export type RecordParams = { record: ArenaRecord }
 
 /**
  * Record getter: takes the parameters first and the record as separate (curried) parameter: `getter(params)(record)`.
  * The deprecated form, with the record inside the parameters (`getter({ record, ...params })`), is still supported.
  */
-type RecordGetter<P extends RecordParams, R> = {
+export type RecordGetter<P extends RecordParams, R> = {
   /** @deprecated Pass the record as separate parameter: `getter(params)(record)` */
   (params: P): R
   (params: Omit<P, 'record'>): (record: ArenaRecord) => R
@@ -35,7 +35,7 @@ const recordGetter = <P extends RecordParams, R>(getter: (params: P) => R): Reco
  * Record getter (with parameters object) that also supports the deprecated form with positional parameters:
  * `getter(arg1, arg2)(record)`.
  */
-type PositionalRecordGetter<P, A extends unknown[], R> = {
+export type PositionalRecordGetter<P, A extends unknown[], R> = {
   (params: P): (record: ArenaRecord) => R
   /** @deprecated Pass the parameters as an object: `getter({ ...params })(record)` */
   (...args: A): (record: ArenaRecord) => R
