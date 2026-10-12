@@ -48,7 +48,7 @@ const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.visible]: false,
 }
 
-const newDependecyGraph = () => ({
+const newDependencyGraph = () => ({
   [SurveyDependencyType.applicable]: {},
   [SurveyDependencyType.defaultValues]: {},
   [SurveyDependencyType.editable]: {},
@@ -63,7 +63,7 @@ const newDependecyGraph = () => ({
   [SurveyDependencyType.visible]: {},
 })
 
-const getDependencyGraph = (survey: Survey): SurveyDependencyGraph => survey.dependencyGraph ?? newDependecyGraph()
+const getDependencyGraph = (survey: Survey): SurveyDependencyGraph => survey.dependencyGraph ?? newDependencyGraph()
 
 const getDependencies = (params: {
   graphs: SurveyDependencyGraph
@@ -303,7 +303,7 @@ export const removeNodeDefDependencies = (params: {
 }
 
 export const buildAndAssocDependencyGraph = async (survey: Survey): Promise<Survey> => {
-  survey.dependencyGraph = newDependecyGraph()
+  survey.dependencyGraph = newDependencyGraph()
 
   const sideEffect = true // when the dependency graph is built from scratch, do side effect to avoid re-creating objects
 
