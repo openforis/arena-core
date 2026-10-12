@@ -133,3 +133,12 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
     },
   },
 ]
+
+// copies of the default groups: their permissions and record steps must not be shared between surveys
+// (the permissions arrays are the ones in permissionsByGroupName)
+export const createDefaultAuthGroups = (): AuthGroup[] =>
+  DEFAULT_AUTH_GROUPS.map((group) => ({
+    ...group,
+    ...(group.permissions ? { permissions: [...group.permissions] } : {}),
+    ...(group.recordSteps ? { recordSteps: { ...group.recordSteps } } : {}),
+  }))
