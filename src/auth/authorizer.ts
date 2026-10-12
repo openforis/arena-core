@@ -219,21 +219,16 @@ const canEditUsersAccessRequests = (user: User): boolean => Users.isSystemAdmin(
 const getUserGroupsCanAssign = ({
   user,
   surveyInfo = null,
-  editingLoggedUser = false,
   showOnlySurveyGroups = false,
 }: {
   user: User
   surveyInfo?: Survey | null
-  editingLoggedUser?: boolean
   showOnlySurveyGroups?: boolean
 }) => {
   const groups = []
 
   let surveyGroups: AuthGroup[] = []
-  if (editingLoggedUser && !surveyInfo) {
-    // This can happen for system administrators when they don't have an active survey
-    surveyGroups = []
-  } else if (surveyInfo) {
+  if (surveyInfo) {
     if (surveyInfo.published) {
       surveyGroups = Surveys.getAuthGroups(surveyInfo)
     } else {

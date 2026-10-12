@@ -17,13 +17,6 @@ const indexKeys: { [K in keyof SurveyNodeDefsIndex]-?: K } = {
   rootDefUuid: 'rootDefUuid',
 }
 
-// ==== READ
-
-export const getNodeDefsIndex = (survey: Survey) => {
-  const { nodeDefsIndex } = survey
-  return nodeDefsIndex || {}
-}
-
 // ==== UPDATE
 
 export const addNodeDefToIndex =
