@@ -17,7 +17,6 @@ const getAuthGroupBySurveyUuid =
   (surveyUuid?: string, includeSystemAdmin = true) =>
   (user: User): UserAuthGroup | undefined => {
     const authGroups = getAuthGroups(user)
-    if (!authGroups) return undefined
     return includeSystemAdmin && isSystemAdmin(user)
       ? authGroups.find(AuthGroups.isSystemAdmin)
       : authGroups.find((authGroup) => authGroup.surveyUuid === surveyUuid)
