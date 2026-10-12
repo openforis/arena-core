@@ -4,7 +4,7 @@ import { Factory } from '../common'
 import { Survey } from './survey'
 import { Labels, LanguageCode } from '../language'
 import { UUIDs } from '../utils'
-import { AuthGroup, DEFAULT_AUTH_GROUPS } from '../auth/authGroup'
+import { AuthGroup, createDefaultAuthGroups } from '../auth/authGroup'
 
 export type SurveyFactoryParams = {
   ownerUuid: string
@@ -25,7 +25,7 @@ const createDefaultParams = () => ({
   published: false,
   draft: true,
   template: false,
-  authGroups: DEFAULT_AUTH_GROUPS.map((authGroup) => ({ ...authGroup })),
+  authGroups: createDefaultAuthGroups(),
 })
 
 export const SurveyFactory: Factory<Survey, SurveyFactoryParams> = {
