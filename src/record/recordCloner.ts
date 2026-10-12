@@ -179,7 +179,7 @@ const removeExcludedNodes = (params: {
         NodeDefs.isExcludedInClone(nodeDef) ||
         hasAncestorCodeDefExcludedInClone
       ) {
-        const nodesToDelete = Records.getNodesByDefUuid(nodeDef.uuid)(result.record)
+        const nodesToDelete = Records.getNodesByDefUuid({ nodeDefUuid: nodeDef.uuid })(result.record)
         if (nodesToDelete.length > 0) {
           const partialUpdateResult = Records.deleteNodes(
             nodesToDelete.map((node) => node.uuid),

@@ -42,13 +42,12 @@ export const validateRecord = async (params: RecordValidatorParams): Promise<Val
   const nodesArray: ArenaRecordNode[] = []
   const nodes: NodesMap = {}
   Records.visitDescendantsAndSelf({
-    record,
     node: Records.getRoot(record)!,
     visitor: (node) => {
       nodesArray.push(node)
       nodes[node.uuid] = node
     },
-  })
+  })(record)
 
   return validateSortedNodes({ ...params, nodesArray })
 }

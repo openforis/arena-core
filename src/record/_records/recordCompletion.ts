@@ -28,14 +28,16 @@ const getAttributeCompletionStats = (params: {
     const minCount = Nodes.getChildrenMinCount({ parentNode: entity, nodeDef })
     if (Number.isNaN(minCount) || minCount <= 0) return emptyStats()
 
-    const filledNodesCount = getChildren(entity, nodeDef.uuid)(record).filter(Nodes.isValueNotBlank).length
+    const filledNodesCount = getChildren({ parentNode: entity, childDefUuid: nodeDef.uuid })(record).filter(
+      Nodes.isValueNotBlank
+    ).length
 
     return { total: minCount, filled: Math.min(filledNodesCount, minCount) }
   }
 
   if (!NodeDefs.isRequired(nodeDef) && !NodeDefs.isKey(nodeDef)) return emptyStats()
 
-  const node = getChildren(entity, nodeDef.uuid)(record)[0]
+  const node = getChildren({ parentNode: entity, childDefUuid: nodeDef.uuid })(record)[0]
   return { total: 1, filled: node && Nodes.isValueNotBlank(node) ? 1 : 0 }
 }
 
@@ -46,7 +48,7 @@ const getChildEntityCompletionStats = (params: {
   nodeDef: NodeDef<NodeDefType, NodeDefProps>
 }): EntityCompletionStats => {
   const { survey, record, parentEntity, nodeDef } = params
-  const childEntities = getChildren(parentEntity, nodeDef.uuid)(record)
+  const childEntities = getChildren({ parentNode: parentEntity, childDefUuid: nodeDef.uuid })(record)
 
   if (NodeDefs.isSingle(nodeDef)) {
     const childEntity = childEntities[0]

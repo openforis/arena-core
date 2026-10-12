@@ -80,7 +80,7 @@ describe('Record nodes updater - applicability', () => {
             .sort()
         ).toEqual(['dependent_attribute', 'root_entity', 'source_attribute'])
       }
-      expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(expectedApplicability)
+      expect(Records.isNodeApplicable({ node: dependentNode })(updateResult.record)).toBe(expectedApplicability)
 
       return updateResult.record
     }
@@ -142,7 +142,7 @@ describe('Record nodes updater - applicability', () => {
       record,
       path: 'root_entity.dependent_attribute_read_only',
     })
-    expect(Records.isNodeApplicable({ record, node: dependentNode })).toBe(true)
+    expect(Records.isNodeApplicable({ node: dependentNode })(record)).toBe(true)
     expect(dependentNode.value).toBe(100)
     expect(dependentReadOnlyNode.value).toBeNull()
 
@@ -169,7 +169,7 @@ describe('Record nodes updater - applicability', () => {
       record: updateResult.record,
       path: 'root_entity.dependent_attribute_read_only',
     })
-    expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(false)
+    expect(Records.isNodeApplicable({ node: dependentNode })(updateResult.record)).toBe(false)
     expect(dependentNode.value).toBe(100) // Value should still be there
     expect(dependentReadOnlyNode.value).toBe(101)
     expect(updateResult.clearedDefUuids.size).toBe(0)
@@ -194,7 +194,7 @@ describe('Record nodes updater - applicability', () => {
       record: updateResult.record,
       path: 'root_entity.dependent_attribute_read_only',
     })
-    expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(true)
+    expect(Records.isNodeApplicable({ node: dependentNode })(updateResult.record)).toBe(true)
     expect(dependentNode.value).toBe(100) // Value restored
     expect(dependentReadOnlyNode.value).toBe(101)
     expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(true)
@@ -219,7 +219,7 @@ describe('Record nodes updater - applicability', () => {
       record: updateResult.record,
       path: 'root_entity.dependent_attribute_read_only',
     })
-    expect(Records.isNodeApplicable({ record: updateResult.record, node: dependentNode })).toBe(false)
+    expect(Records.isNodeApplicable({ node: dependentNode })(updateResult.record)).toBe(false)
     expect(dependentNode.value).toBeNull() // Value should be cleared
     expect(dependentReadOnlyNode.value).toBeNull()
     expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(false) // defaultValueApplied should be reset
@@ -254,7 +254,9 @@ describe('Record nodes updater - applicability', () => {
     }
 
     const getDependentEntityNodes = (record: ArenaRecord) =>
-      Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'dependent_entity' }).uuid)(record)
+      Records.getNodesByDefUuid({ nodeDefUuid: Surveys.getNodeDefByName({ survey, name: 'dependent_entity' }).uuid })(
+        record
+      )
 
     test('Empty multiple entity is deleted when becoming non-applicable', async () => {
       const record = new RecordBuilder(
@@ -350,7 +352,7 @@ describe('Record nodes updater - applicability', () => {
         survey: surveyWithAutoGeneration,
         name: 'dependent_entity',
       })
-      const dependentEntities = Records.getNodesByDefUuid(dependentEntityDef.uuid)(record)
+      const dependentEntities = Records.getNodesByDefUuid({ nodeDefUuid: dependentEntityDef.uuid })(record)
       expect(dependentEntities).toHaveLength(2)
     })
   })

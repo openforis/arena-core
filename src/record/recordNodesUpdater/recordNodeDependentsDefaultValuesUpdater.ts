@@ -21,7 +21,7 @@ const shouldResetDefaultValue = (params: { survey: Survey; record: ArenaRecord; 
   const { survey, record, node } = params
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
   return (
-    !Records.isNodeApplicable({ record, node }) &&
+    !Records.isNodeApplicable({ node })(record) &&
     !Nodes.isValueBlank(node) &&
     (Nodes.isDefaultValueApplied(node) || NodeDefs.isReadOnly(nodeDef))
   )
@@ -34,7 +34,7 @@ const canApplyDefaultValue = (params: {
 }): boolean => {
   const { record, node, nodeDef } = params
   return (
-    Records.isNodeApplicable({ record, node }) &&
+    Records.isNodeApplicable({ node })(record) &&
     (Nodes.isValueBlank(node) ||
       (!NodeDefs.isDefaultValueEvaluatedOneTime(nodeDef) &&
         (Nodes.isDefaultValueApplied(node) || NodeDefs.isReadOnly(nodeDef))))
@@ -179,12 +179,11 @@ export const updateSelfAndDependentsDefaultValues = async (
 
   const nodePointersToUpdate = Records.getDependentNodePointers({
     survey,
-    record,
     node,
     dependencyType: SurveyDependencyType.defaultValues,
     includeSelf: true,
     filterFn: nodePointersFilterFn,
-  })
+  })(record)
 
   // 2. update expr to node and dependent nodes
   for (const nodePointer of nodePointersToUpdate) {

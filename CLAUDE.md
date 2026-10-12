@@ -144,6 +144,11 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 - Update functions return updated copies of the objects passed to them; `MutationOptions` (`{ sideEffect?: boolean }`, `src/utils/mutationOptions.ts`) lets the caller modify them in place instead (only for objects not shared, e.g. just created)
 - Pass it as an options object (or as a field of a parameters object), never as a positional boolean: the remaining positional `sideEffect` forms are deprecated overloads
 
+**Record getters** (`src/record/_records/recordGetters.ts`)
+
+- Getters take their parameters as an object and the record as separate, curried parameter: `Records.getChildren({ parentNode, childDefUuid })(record)`, `Records.getAncestor({ node, ancestorDefUuid })(record)`; getters needing only the record take it directly (`Records.getRoot(record)`)
+- Define new getters with the `recordGetter` helper; the old forms (positional parameters, record inside the parameters object) are deprecated overloads, kept until the next release removing them
+
 **Utility Modules** (`src/utils/`)
 
 - Arrays, Dates, Numbers, Objects, Strings, UUIDs, Promises, Queue
