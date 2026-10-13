@@ -28,7 +28,10 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
     })
   }
 
-  async _eval(params: ExpressionEvaluatorParams): Promise<{ result: any; referencedNodeDefUuids: Set<string> }> {
+  async _eval(
+    params: ExpressionEvaluatorParams,
+    referencedNodeDefUuids: Set<string> = new Set()
+  ): Promise<{ result: any; referencedNodeDefUuids: Set<string> }> {
     const {
       expression,
       user,
@@ -40,8 +43,6 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
     } = params
 
     const nodeDefContext = isContextParent ? getNodeDefParent({ survey, nodeDef }) : nodeDef
-
-    const referencedNodeDefUuids: Set<string> = new Set()
 
     const context: NodeDefExpressionContext = {
       user,
@@ -57,13 +58,19 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
     return { result, referencedNodeDefUuids }
   }
 
+  /**
+   * Finds the node defs referenced by the expression.
+   * If the evaluation fails, the node defs referenced before the error are returned: an empty set would drop
+   * all the dependencies of the expression.
+   */
   async findReferencedNodeDefUuids(params: ExpressionEvaluatorParams): Promise<Set<string>> {
+    const referencedNodeDefUuids: Set<string> = new Set()
     try {
-      const { referencedNodeDefUuids } = await this._eval(params)
-      return referencedNodeDefUuids
+      await this._eval(params, referencedNodeDefUuids)
     } catch {
-      return new Set()
+      // invalid expression (reported by the expression validator): keep the references found so far
     }
+    return referencedNodeDefUuids
   }
 
   async evalExpression(params: ExpressionEvaluatorParams): Promise<any> {

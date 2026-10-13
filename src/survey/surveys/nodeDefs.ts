@@ -432,14 +432,9 @@ export const isNodeDefParentCode = (params: {
 }): boolean => {
   const { survey, nodeDef } = params
   const nodeDefsArray = getNodeDefsArray(survey)
-  return nodeDefsArray.some((def) => {
-    try {
-      return nodeDef.uuid === (def as NodeDef<NodeDefType.code, NodeDefCodeProps>).props.parentCodeDefUuid
-    } catch {
-      // ignore it: def is not a code attribute definition
-      return
-    }
-  })
+  return nodeDefsArray.some(
+    (def) => nodeDef.uuid === (def as NodeDef<NodeDefType.code, NodeDefCodeProps>).props?.parentCodeDefUuid
+  )
 }
 
 export const getNodeDefCategoryLevelIndex = (params: { survey: Survey; nodeDef: NodeDefCode }): number => {
