@@ -302,13 +302,18 @@ export const removeNodeDefDependencies = (params: {
   return { ...survey, dependencyGraph: graphsUpdated }
 }
 
+/**
+ * Builds the dependency graph of the survey.
+ *
+ * @param survey - The survey.
+ * @returns A copy of the survey with the dependency graph (the survey passed in is not modified).
+ */
 export const buildAndAssocDependencyGraph = async (survey: Survey): Promise<Survey> => {
-  survey.dependencyGraph = newDependencyGraph()
-
-  const sideEffect = true // when the dependency graph is built from scratch, do side effect to avoid re-creating objects
+  // the new graph is built from scratch with side effect (to avoid re-creating objects): it belongs only to the copy of the survey
+  const sideEffect = true
 
   // add dependencies for every node def
-  let surveyUpdated = survey
+  let surveyUpdated: Survey = { ...survey, dependencyGraph: newDependencyGraph() }
   for (const nodeDef of SurveyNodeDefs.getNodeDefsArray(survey)) {
     // sequential: each iteration updates the survey
     surveyUpdated = await addNodeDefDependencies({ nodeDef, survey: surveyUpdated, sideEffect }) // NOSONAR
