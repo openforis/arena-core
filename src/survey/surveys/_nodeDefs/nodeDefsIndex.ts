@@ -127,14 +127,24 @@ export const deleteNodeDefIndex =
 
 // ==== CREATE
 
+/**
+ * Builds the node defs index of the survey.
+ *
+ * @param survey - The survey.
+ * @returns A copy of the survey with the node defs index (the survey passed in is not modified).
+ */
 export const buildAndAssocNodeDefsIndex = (survey: Survey): Survey => {
-  survey.nodeDefsIndex = {
-    childDefUuidPresenceByParentUuid: {},
-    qualifierPresenceByUuid: {},
+  // the new index is built in place: it belongs only to the copy of the survey
+  const surveyUpdated: Survey = {
+    ...survey,
+    nodeDefsIndex: {
+      childDefUuidPresenceByParentUuid: {},
+      qualifierPresenceByUuid: {},
+    },
   }
   getNodeDefsArray(survey)
     .sort((nodeDef1: NodeDef<any>, nodeDef2: NodeDef<any>) => (nodeDef1.id ?? 0) - (nodeDef2.id ?? 0))
-    .forEach((nodeDef) => addNodeDefToIndex(nodeDef, { sideEffect: true })(survey))
+    .forEach((nodeDef) => addNodeDefToIndex(nodeDef, { sideEffect: true })(surveyUpdated))
 
-  return survey
+  return surveyUpdated
 }
