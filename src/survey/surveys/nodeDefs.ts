@@ -244,6 +244,9 @@ export const getNodeDefChildrenSorted = (params: {
   )
 
   const childrenUuidsSortedByLayout = getNodeDefChildrenUuidsSortedByLayout({ nodeDef, cycle, children })
+  // position lookup in the comparator without scanning the array (-1 for children not in the layout, as indexOf)
+  const layoutIndexByUuid = new Map(childrenUuidsSortedByLayout.map((uuid, index) => [uuid, index]))
+  const getLayoutIndex = (child: NodeDef<any>): number => layoutIndexByUuid.get(child.uuid) ?? -1
 
   return children.sort((child1, child2) => {
     if (includeAnalysis && (child1.analysis || child2.analysis)) {
@@ -266,7 +269,7 @@ export const getNodeDefChildrenSorted = (params: {
       return (child1.id ?? 0) - (child2.id ?? 0)
     }
     // keep sorting as defined in layout props
-    return childrenUuidsSortedByLayout.indexOf(child1.uuid) - childrenUuidsSortedByLayout.indexOf(child2.uuid)
+    return getLayoutIndex(child1) - getLayoutIndex(child2)
   })
 }
 
