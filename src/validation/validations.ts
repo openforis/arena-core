@@ -172,36 +172,6 @@ const cleanup = (validation: Validation): Validation => {
   return _createValidation({ valid, fields: fieldsCleaned, hasFields, errors, warnings })
 }
 
-const mergeValidations =
-  (validationNext: Validation, doCleanup = true) =>
-  (validationPrev: Validation): Validation => {
-    const validationFieldsResult = { ...getFieldValidations(validationPrev) }
-    const validationFieldsNext = getFieldValidations(validationNext)
-
-    // iterate over new field validations: remove valid ones, merge invalid ones with previous ones
-    for (const [fieldKey, validationFieldNext] of Object.entries(validationFieldsNext)) {
-      if (isValid(validationFieldNext)) {
-        if (doCleanup) {
-          // field validation valid: remove it from resulting validation
-          delete validationFieldsResult[fieldKey]
-        } else {
-          validationFieldsResult[fieldKey] = ValidationFactory.createInstance()
-        }
-      } else {
-        // field validation not valid: deep merge it with the previous one
-        const validationFieldPrev = validationFieldsResult[fieldKey]
-        const validationFieldMerged = validationFieldPrev
-          ? mergeValidation(validationFieldNext, false)(validationFieldPrev)
-          : validationFieldNext
-        validationFieldsResult[fieldKey] = validationFieldMerged
-      }
-    }
-    const validationResult: Validation = { ...validationPrev, [keys.fields]: validationFieldsResult }
-    validationResult.errors = getErrors(validationNext)
-    validationResult.warnings = getWarnings(validationNext)
-    return doCleanup ? cleanup(validationResult) : recalculateValidity(validationResult)
-  }
-
 /**
  * Options of the functions removing field validations.
  */
@@ -308,6 +278,9 @@ const mergeValidation =
 
     return doCleanup ? cleanup(validationResult) : recalculateValidity(validationResult)
   }
+
+// same function as mergeValidation (kept for backwards compatibility)
+const mergeValidations = mergeValidation
 
 const mergeFieldValidations = (
   fieldValidationsNext: ValidationFields,
