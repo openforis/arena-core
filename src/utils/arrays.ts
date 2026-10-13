@@ -18,7 +18,10 @@ const addItem =
 
 const fromNumberOfElements = (numOfElements: number): number[] => Array.from(new Array(numOfElements).keys())
 
-const intersection = <T>(array1: T[], array2: T[]): T[] => array1.filter((item) => array2.includes(item))
+const intersection = <T>(array1: T[], array2: T[]): T[] => {
+  const items2 = new Set(array2)
+  return array1.filter((item) => items2.has(item))
+}
 
 const last = <T>(array: T[] = []): T | undefined => (array.length > 0 ? array.at(-1) : undefined)
 
