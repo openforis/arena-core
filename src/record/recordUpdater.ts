@@ -78,13 +78,13 @@ const _onRecordNodesCreateOrUpdate = async (
 }
 
 const createDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
-  const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.createDescendants(params)
+  const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.addDescendants(params)
 
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
 }
 
 const createNodeAndDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
-  const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.createNodeAndDescendants(params)
+  const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.addNodeAndDescendants(params)
 
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
 }
@@ -129,7 +129,7 @@ const deleteNodes = async (
 ): Promise<RecordUpdateResult> => {
   const { nodeUuids, record: _record, sideEffect = false } = params
 
-  const updateResult = Records.deleteNodes(nodeUuids, { sideEffect })(_record)
+  const updateResult = Records.removeNodes(nodeUuids, { sideEffect })(_record)
   const { record, nodesDeleted } = updateResult
 
   const result = await _onRecordNodesCreateOrUpdate({ ...params, record, nodes: nodesDeleted })

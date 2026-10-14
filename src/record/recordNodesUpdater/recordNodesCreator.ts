@@ -49,7 +49,7 @@ export const createEnumeratedEntityNode = async (params: {
 
   const { record } = updateResult
 
-  const childUpdateResult = await createNodeAndDescendants({
+  const childUpdateResult = await addNodeAndDescendants({
     user,
     survey,
     record: updateResult.record,
@@ -131,12 +131,12 @@ const createChildNodesBasedOnMinCount = async (
   }
   for (let index = 0; index < nodesToInsertCount; index++) {
     // sequential: each iteration updates the record
-    const childUpdateResult = await createNodeAndDescendants({ ...params, record: updateResult.record }) // NOSONAR
+    const childUpdateResult = await addNodeAndDescendants({ ...params, record: updateResult.record }) // NOSONAR
     updateResult.merge(childUpdateResult)
   }
 }
 
-export const createDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
+export const addDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
   const { survey, record, nodeDef } = params
 
   const updateResult = new RecordUpdateResult({ record })
@@ -153,7 +153,7 @@ export const createDescendants = async (params: NodeCreateParams): Promise<Recor
   return updateResult
 }
 
-export const createNodeAndDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
+export const addNodeAndDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
   const { survey, record, parentNode, nodeDef, sideEffect = false } = params
 
   const node = NodeFactory.createInstance({
@@ -168,7 +168,7 @@ export const createNodeAndDescendants = async (params: NodeCreateParams): Promis
 
   // Add children if entity
   if (NodeDefs.isEntity(nodeDef)) {
-    const descendantsUpdateResult = await createDescendants({
+    const descendantsUpdateResult = await addDescendants({
       ...params,
       record: updateResult.record,
       parentNode: node,

@@ -59,7 +59,7 @@ import {
   nodeBelongsToPage,
   pageHasOwnErrors,
 } from './_records/recordPagesValidation'
-import { deleteNode, deleteNodes } from './recordNodesUpdater/recordNodesDeleter'
+import { removeNode, removeNodes } from './recordNodesUpdater/recordNodesDeleter'
 
 export const Records = {
   // READ
@@ -119,10 +119,14 @@ export const Records = {
   // UPDATE
   addNode,
   addNodes,
-  /** Low-level: deletes the node and its descendants without updating dependents and validation (see RecordUpdater.deleteNode) */
-  deleteNode,
-  /** Low-level: deletes the nodes and their descendants without updating dependents and validation (see RecordUpdater.deleteNodes) */
-  deleteNodes,
+  /** Low-level: removes the node and its descendants without updating dependents and validation (see RecordUpdater.deleteNode) */
+  removeNode,
+  /** Low-level: removes the nodes and their descendants without updating dependents and validation (see RecordUpdater.deleteNodes) */
+  removeNodes,
+  /** @deprecated Use removeNode (or RecordUpdater.deleteNode to update dependents and validation too) */
+  deleteNode: removeNode,
+  /** @deprecated Use removeNodes (or RecordUpdater.deleteNodes to update dependents and validation too) */
+  deleteNodes: removeNodes,
   // Utils
   getEnumeratingCategoryItems,
   findDependentEnumeratedEntityDefsNotEmpty,

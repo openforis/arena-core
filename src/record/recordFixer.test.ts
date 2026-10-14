@@ -136,7 +136,7 @@ describe('Record fixer', () => {
     // Delete the province node properly (including index) so insertMissingSingleNodes will recreate it
     const provinceDef = Surveys.getNodeDefByName({ survey: surveyWithCode, name: 'province' })
     const [provinceNode] = Records.getNodesByDefUuid({ nodeDefUuid: provinceDef.uuid })(builtRecord)
-    const { record: recordWithoutProvince } = Records.deleteNodes([provinceNode.uuid])(builtRecord)
+    const { record: recordWithoutProvince } = Records.removeNodes([provinceNode.uuid])(builtRecord)
 
     const fixResult = RecordFixer.insertMissingSingleNodes({
       survey: surveyWithCode,
