@@ -7,8 +7,8 @@ import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records, RecordUpdateOptions } from '../records'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
 import { syncEnumeratingItemsEntities } from './recordNodeDependentsEnumeratingItemsUpdater'
-import { createNodeAndDescendants } from './recordNodesCreator'
-import { deleteNodes } from './recordNodesDeleter'
+import { addNodeAndDescendants } from './recordNodesCreator'
+import { removeNodes } from './recordNodesDeleter'
 import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
@@ -115,7 +115,7 @@ const updateDescendantsApplicability = ({
       NodeDefs.isMultipleEntity(nodeCtxChildDef) &&
       Records.isNodeEmpty({ node: nodeCtxChild })(updateResult.record)
     ) {
-      const deleteResult = deleteNodes([nodeCtxChildUuid], recordUpdateOptions)(updateResult.record)
+      const deleteResult = removeNodes([nodeCtxChildUuid], recordUpdateOptions)(updateResult.record)
       updateResult.merge(deleteResult)
       if (userValuesCleared) {
         updateResult.addClearedDefUuid(nodeCtxChildDefUuid)
@@ -146,7 +146,7 @@ const createMissingApplicableMultipleEntities = async ({
   for (let index = 0; index < missingCount; index++) {
     const createParams = { ...params, record: updateResult.record, parentNode, nodeDef }
     // create nodes sequentially: every iteration works on the record updated by the previous one
-    const childUpdateResult = await createNodeAndDescendants(createParams) // NOSONAR
+    const childUpdateResult = await addNodeAndDescendants(createParams) // NOSONAR
     updateResult.merge(childUpdateResult)
   }
 }

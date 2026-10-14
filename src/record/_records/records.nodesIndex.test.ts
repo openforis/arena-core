@@ -80,7 +80,7 @@ describe('Record nodes index', () => {
     const plotNode2 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[1]' })
     const plotNode3 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[2]' })
 
-    const updateResult = await RecordNodesUpdater.createNodeAndDescendants({
+    const updateResult = await RecordNodesUpdater.addNodeAndDescendants({
       user,
       survey,
       record,
