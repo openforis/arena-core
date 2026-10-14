@@ -105,7 +105,7 @@ export const syncEnumeratingItemsEntities = async (
     const existingEnumerator = getChild({ parentNode: existingEntity, childDefUuid: enumeratorDef.uuid })(
       updateResult.record
     )
-    const itemUuid = NodeValues.getItemUuid(existingEnumerator)
+    const itemUuid = existingEnumerator ? NodeValues.getItemUuid(existingEnumerator) : undefined
     if (!itemUuid || !targetItemUuids.has(itemUuid)) {
       const nodesDeleteUpdatedResult = deleteNodes([existingEntity.uuid], recordUpdateOptions)(updateResult.record)
       updateResult.merge(nodesDeleteUpdatedResult)
