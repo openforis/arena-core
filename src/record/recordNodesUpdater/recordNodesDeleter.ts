@@ -39,7 +39,7 @@ const _dissocValidationFieldsOfDeletedNodes = (params: {
   return { ...validation, fields: fieldsUpdated }
 }
 
-export const deleteNodes =
+export const removeNodes =
   (nodeUuids: string[], options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: ArenaRecord): RecordUpdateResult => {
     const { sideEffect, updateNodesIndex } = { ...RecordUpdateOptionsDefaults, ...options }
@@ -89,7 +89,7 @@ export const deleteNodes =
     return new RecordUpdateResult({ record: recordUpdated, nodes: nodesDeleted, nodesDeleted })
   }
 
-export const deleteNode =
+export const removeNode =
   (nodeUuid: string, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: ArenaRecord): RecordUpdateResult =>
-    deleteNodes([nodeUuid], options)(record)
+    removeNodes([nodeUuid], options)(record)

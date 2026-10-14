@@ -115,7 +115,7 @@ const deleteNodesByDefUuid = (params: { record: ArenaRecord; nodeDefUuid: string
     }
   }
   const nodeUuidsToDelete = nodesToDelete.map((node) => node.uuid)
-  const nodesDeleteUpdateResult = Records.deleteNodes(nodeUuidsToDelete, recordUpdateOptions)(updateResult.record)
+  const nodesDeleteUpdateResult = Records.removeNodes(nodeUuidsToDelete, recordUpdateOptions)(updateResult.record)
   updateResult.merge(nodesDeleteUpdateResult)
 
   return updateResult

@@ -9,7 +9,7 @@ import { getEnumeratingCategoryItems } from '../_records/recordUtils'
 import { getEnumeratingItemsAllowedCodes } from './recordEnumeratingItemsExpressionEvaluator'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { createEnumeratedEntityNode } from './recordNodesCreator'
-import { deleteNodes } from './recordNodesDeleter'
+import { removeNodes } from './recordNodesDeleter'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 const getEnumeratingItemsNodePointers = (params: {
@@ -68,7 +68,7 @@ export const syncEnumeratingItemsEntities = async (
 
   const deleteExistingEntities = () => {
     const existingEntityUuids = existingEntities.map((node) => node.uuid)
-    const nodesDeleteUpdatedResult = deleteNodes(existingEntityUuids, recordUpdateOptions)(updateResult.record)
+    const nodesDeleteUpdatedResult = removeNodes(existingEntityUuids, recordUpdateOptions)(updateResult.record)
     updateResult.merge(nodesDeleteUpdatedResult)
   }
 
@@ -107,7 +107,7 @@ export const syncEnumeratingItemsEntities = async (
     )
     const itemUuid = existingEnumerator ? NodeValues.getItemUuid(existingEnumerator) : undefined
     if (!itemUuid || !targetItemUuids.has(itemUuid)) {
-      const nodesDeleteUpdatedResult = deleteNodes([existingEntity.uuid], recordUpdateOptions)(updateResult.record)
+      const nodesDeleteUpdatedResult = removeNodes([existingEntity.uuid], recordUpdateOptions)(updateResult.record)
       updateResult.merge(nodesDeleteUpdatedResult)
     } else {
       existingItemUuids.add(itemUuid)

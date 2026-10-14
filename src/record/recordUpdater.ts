@@ -78,13 +78,13 @@ const _onRecordNodesCreateOrUpdate = async (
 }
 
 const createDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
-  const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.createDescendants(params)
+  const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.addDescendants(params)
 
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
 }
 
 const createNodeAndDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
-  const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.createNodeAndDescendants(params)
+  const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.addNodeAndDescendants(params)
 
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
 }
@@ -129,7 +129,7 @@ const deleteNodes = async (
 ): Promise<RecordUpdateResult> => {
   const { nodeUuids, record: _record, sideEffect = false } = params
 
-  const updateResult = Records.deleteNodes(nodeUuids, { sideEffect })(_record)
+  const updateResult = Records.removeNodes(nodeUuids, { sideEffect })(_record)
   const { record, nodesDeleted } = updateResult
 
   const result = await _onRecordNodesCreateOrUpdate({ ...params, record, nodes: nodesDeleted })
@@ -143,10 +143,14 @@ const deleteNode = async (params: NodesUpdateParams & { nodeUuid: string }): Pro
 }
 
 export const RecordUpdater = {
+  /** Creates the descendants of a node and updates dependents (applicability, default values, calculations...) and validation */
   createDescendants,
+  /** Creates a node and its descendants and updates dependents (applicability, default values, calculations...) and validation */
   createNodeAndDescendants,
   createRootEntity,
   updateAttributeValue,
+  /** Deletes the node and its descendants and updates dependents (applicability, default values, calculations...) and validation */
   deleteNode,
+  /** Deletes the nodes and their descendants and updates dependents (applicability, default values, calculations...) and validation */
   deleteNodes,
 }

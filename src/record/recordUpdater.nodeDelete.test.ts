@@ -268,7 +268,7 @@ describe('RecordUpdater - node delete', () => {
     expect(JSON.stringify(record._nodesIndex)).toEqual(initialRecordIndexStr)
   })
 
-  test('Records.deleteNodes removes the validations of deleted nodes (including children count) only', async () => {
+  test('Records.removeNodes removes the validations of deleted nodes (including children count) only', async () => {
     const { survey, record } = await createSurveyAndRecordWithMultipleEntities()
     const entityToDelete = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.mult_entity[1]' })
     const attrToDelete = TestUtils.getNodeByPath({
@@ -297,7 +297,7 @@ describe('RecordUpdater - node delete', () => {
     }
     const validationBefore = JSON.parse(JSON.stringify(recordWithValidation.validation))
 
-    const { record: recordUpdated } = Records.deleteNodes([entityToDelete.uuid])(recordWithValidation)
+    const { record: recordUpdated } = Records.removeNodes([entityToDelete.uuid])(recordWithValidation)
 
     expect(Object.keys(Validations.getFieldValidations(Validations.getValidation(recordUpdated)))).toEqual([
       attrToKeep.uuid,
