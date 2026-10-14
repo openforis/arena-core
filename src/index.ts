@@ -217,6 +217,7 @@ export type {
 } from './record'
 
 export { ServiceRegistry, ServiceType } from './registry'
+export type { ServiceTypeMap } from './registry'
 
 export { DEFAULT_SRS, DEFAULT_SRS_INDEX, SRSFactory } from './srs'
 export type { SRS, SRSIndex } from './srs'
