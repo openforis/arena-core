@@ -868,3 +868,38 @@ test('a job failing while still pending is marked as failed', async () => {
   expect(job.isFailed()).toBe(true)
   expect(JSON.stringify(job.toJSON().errors)).toContain('connection error')
 })
+
+type ContextPropsTestContext = JobContext & { filePath?: string; count?: number }
+
+// exposes the protected context getters, to check their values and types
+class ContextPropsTestJob extends JobBase<ContextPropsTestContext> {
+  protected override createLogger(): Logger {
+    return silentLogger
+  }
+
+  protected override async execute(): Promise<void> {
+    // nothing to do
+  }
+
+  readContext() {
+    const filePath: string | undefined | null = this.getContextProp('filePath')
+    const count: number | undefined | null = this.getContextProp('count', 0)
+    // @ts-expect-error the default value must have the type of the context prop
+    this.getContextProp('count', 'not a number')
+    // props not declared in the context type are typed by the caller
+    const notDeclared = this.getContextProp<string>('notDeclared', 'default')
+    return { filePath, count, notDeclared, user: this.user, survey: this.contextSurvey }
+  }
+}
+
+test('context getters return the context props, or the default value when not set', () => {
+  const job = new ContextPropsTestJob({ ...createContext(), filePath: 'file.zip' })
+
+  const { filePath, count, notDeclared, user: jobUser, survey } = job.readContext()
+
+  expect(filePath).toBe('file.zip')
+  expect(count).toBe(0)
+  expect(notDeclared).toBe('default')
+  expect(jobUser).toBe(user)
+  expect(survey).toBeUndefined()
+})
