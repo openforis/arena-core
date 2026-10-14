@@ -30,7 +30,8 @@ const shouldExistingEntitiesBeDeleted = async (params: {
       const existingEnumerator = getChild({ parentNode: existingEntity, childDefUuid: enumeratorDef.uuid })(
         updateResult.record
       )
-      return NodeValues.getItemUuid(existingEnumerator)!
+      // an entity without enumerator item makes the lists differ, so the entities are recreated
+      return (existingEnumerator ? NodeValues.getItemUuid(existingEnumerator) : undefined) ?? ''
     })
     .sort(uuidsCompare)
 

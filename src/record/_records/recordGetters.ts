@@ -63,6 +63,10 @@ export const getNodes = (record: ArenaRecord): Dictionary<ArenaRecordNode> => re
 
 export const getNodesArray = (record: ArenaRecord): ArenaRecordNode[] => Object.values(getNodes(record))
 
+/**
+ * Returns the node with the specified uuid, or undefined if not found.
+ * Like the other node getters, it does not throw an error when the node is not found.
+ */
 export const getNodeByUuid = positionalRecordGetter({
   getter: ({ record, uuid }: RecordParams & { uuid: string }): ArenaRecordNode | undefined => record.nodes?.[uuid],
   isPositional: isString,
@@ -76,6 +80,9 @@ export const getNodesByUuids = positionalRecordGetter({
   toParams: (uuids: string[]) => ({ uuids }),
 })
 
+/**
+ * Returns the root node, or undefined if the record has no nodes.
+ */
 export const getRoot = (record: ArenaRecord): ArenaRecordNode | undefined => {
   const rootUuid = record._nodesIndex ? RecordNodesIndexReader.getNodeRootUuid(record._nodesIndex) : null
   if (rootUuid) {
@@ -107,21 +114,22 @@ export const getChildren = positionalRecordGetter({
   toParams: (parentNode: ArenaRecordNode, childDefUuid?: string) => ({ parentNode, childDefUuid }),
 })
 
+/**
+ * Returns the only child of the parent node with the specified node def, or undefined if not found.
+ * Throws an error if more than one child is found.
+ */
 export const getChild = positionalRecordGetter({
   getter: ({
     record,
     parentNode,
     childDefUuid,
-  }: RecordParams & { parentNode: ArenaRecordNode; childDefUuid: string }): ArenaRecordNode => {
+  }: RecordParams & { parentNode: ArenaRecordNode; childDefUuid: string }): ArenaRecordNode | undefined => {
     const children = getChildren({ parentNode, childDefUuid })(record)
-    const errorParams = { childDefUuid, parentNodeUuid: parentNode.uuid, recordUuid: record.uuid }
-    if (children.length === 1) {
-      return children[0]
-    }
     if (children.length > 1) {
+      const errorParams = { childDefUuid, parentNodeUuid: parentNode.uuid, recordUuid: record.uuid }
       throw new SystemError('systemError.record.multipleNodesFound', errorParams)
     }
-    throw new SystemError('systemError.record.childNotFound', errorParams)
+    return children[0]
   },
   isPositional: isRecordNode,
   toParams: (parentNode: ArenaRecordNode, childDefUuid: string) => ({ parentNode, childDefUuid }),
@@ -241,6 +249,9 @@ export const findAncestor =
     return result
   }
 
+/**
+ * Returns the specified node, if it has the specified node def, or its ancestor with that node def; undefined if not found.
+ */
 export const getAncestor = recordGetter(
   (params: { record: ArenaRecord; node: ArenaRecordNode; ancestorDefUuid: string }): ArenaRecordNode | undefined => {
     const { record, node, ancestorDefUuid } = params
@@ -301,8 +312,15 @@ export const getDescendantsOrSelf = recordGetter(
   }
 )
 
+/**
+ * Returns the first descendant (or the node itself) with the specified node def, or undefined if not found.
+ */
 export const getDescendant = recordGetter(
-  (params: { record: ArenaRecord; node: ArenaRecordNode; nodeDefDescendant: NodeDef<any> }): ArenaRecordNode => {
+  (params: {
+    record: ArenaRecord
+    node: ArenaRecordNode
+    nodeDefDescendant: NodeDef<any>
+  }): ArenaRecordNode | undefined => {
     const { record, node, nodeDefDescendant } = params
 
     return getDescendantsOrSelf({ node, nodeDefDescendant })(record)[0]
@@ -425,7 +443,8 @@ export const getEntityKeyNodesByDefUuid = recordGetter((params: EntityKeyNodesGe
   const nodeDefKeys = keyDefs ?? Surveys.getNodeDefKeys({ survey, cycle, nodeDef })
   return nodeDefKeys.reduce((acc: NodesMap, nodeDefKey) => {
     const nodeKey = getDescendant({ node: entity, nodeDefDescendant: nodeDefKey })(record)
-    acc[nodeDefKey.uuid] = nodeKey
+    // missing key nodes are kept as undefined entries
+    acc[nodeDefKey.uuid] = nodeKey as ArenaRecordNode
     return acc
   }, {})
 })

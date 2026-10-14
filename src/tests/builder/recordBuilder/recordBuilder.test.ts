@@ -48,11 +48,11 @@ describe('RecordBuilder', () => {
     const plot1 = plots[0]
     const plotId1 = Records.getChild({ parentNode: plot1, childDefUuid: plotIdDef.uuid })(record)
     expect(plotId1).toBeDefined()
-    expect(plotId1.value).toBe(1)
+    expect(plotId1?.value).toBe(1)
 
     const plot2 = plots[1]
     const plotId2 = Records.getChild({ parentNode: plot2, childDefUuid: plotIdDef.uuid })(record)
     expect(plotId2).toBeDefined()
-    expect(plotId2.value).toBe(2)
+    expect(plotId2?.value).toBe(2)
   })
 })
