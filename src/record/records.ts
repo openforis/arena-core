@@ -119,7 +119,9 @@ export const Records = {
   // UPDATE
   addNode,
   addNodes,
+  /** Low-level: deletes the node and its descendants without updating dependents and validation (see RecordUpdater.deleteNode) */
   deleteNode,
+  /** Low-level: deletes the nodes and their descendants without updating dependents and validation (see RecordUpdater.deleteNodes) */
   deleteNodes,
   // Utils
   getEnumeratingCategoryItems,

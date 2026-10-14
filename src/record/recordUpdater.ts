@@ -143,10 +143,14 @@ const deleteNode = async (params: NodesUpdateParams & { nodeUuid: string }): Pro
 }
 
 export const RecordUpdater = {
+  /** Creates the descendants of a node and updates dependents (applicability, default values, calculations...) and validation */
   createDescendants,
+  /** Creates a node and its descendants and updates dependents (applicability, default values, calculations...) and validation */
   createNodeAndDescendants,
   createRootEntity,
   updateAttributeValue,
+  /** Deletes the node and its descendants and updates dependents (applicability, default values, calculations...) and validation */
   deleteNode,
+  /** Deletes the nodes and their descendants and updates dependents (applicability, default values, calculations...) and validation */
   deleteNodes,
 }
