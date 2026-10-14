@@ -2,17 +2,11 @@ import { beforeAll, describe, test, expect } from '@jest/globals'
 
 import { ArenaRecordNode, Nodes } from '../../node'
 import { Survey, Surveys } from '../../survey'
-import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
-import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
-import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
+import { createClusterPlotSurveyAndRecord } from './tests/clusterPlotRecord'
 
-const { entityDef, integerDef } = SurveyObjectBuilders
-const { entity, attribute } = RecordNodeBuilders
-
-const user = createTestAdminUser()
 let survey: Survey
 let record: ArenaRecord
 
@@ -20,21 +14,7 @@ let record: ArenaRecord
 // the deprecated forms (positional parameters, record inside the parameters) must return the same results
 describe('Record getters call forms', () => {
   beforeAll(async () => {
-    survey = await new SurveyBuilder(
-      user,
-      entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
-    ).build()
-
-    record = new RecordBuilder(
-      user,
-      survey,
-      entity(
-        'cluster',
-        attribute('cluster_id', 10),
-        entity('plot', attribute('plot_id', 1)),
-        entity('plot', attribute('plot_id', 2))
-      )
-    ).build()
+    ;({ survey, record } = await createClusterPlotSurveyAndRecord())
   }, 10000)
 
   const getNode = (path: string): ArenaRecordNode => TestUtils.getNodeByPath({ survey, record, path })
