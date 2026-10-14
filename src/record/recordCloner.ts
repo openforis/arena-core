@@ -181,7 +181,7 @@ const removeExcludedNodes = (params: {
       ) {
         const nodesToDelete = Records.getNodesByDefUuid({ nodeDefUuid: nodeDef.uuid })(result.record)
         if (nodesToDelete.length > 0) {
-          const partialUpdateResult = Records.deleteNodes(
+          const partialUpdateResult = Records.removeNodes(
             nodesToDelete.map((node) => node.uuid),
             { sideEffect }
           )(result.record)

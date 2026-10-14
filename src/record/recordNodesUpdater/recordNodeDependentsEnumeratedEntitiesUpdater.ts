@@ -9,7 +9,7 @@ import { getEnumeratingItemsAllowedCodes } from './recordEnumeratingItemsExpress
 import { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { createEnumeratedEntityNodes } from './recordNodesCreator'
-import { deleteNodes } from './recordNodesDeleter'
+import { removeNodes } from './recordNodesDeleter'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 const uuidsCompare = (uuidA: string, uuidB: string): number => uuidA.localeCompare(uuidB)
@@ -71,7 +71,7 @@ export const createOrDeleteEnumeratedEntities = async (
 
   const deleteExistingEntities = () => {
     const existingEntityUuids = existingEntities.map((node) => node.uuid)
-    const nodesDeleteUpdatedResult = deleteNodes(existingEntityUuids, recordUpdateOptions)(updateResult.record)
+    const nodesDeleteUpdatedResult = removeNodes(existingEntityUuids, recordUpdateOptions)(updateResult.record)
     updateResult.merge(nodesDeleteUpdatedResult)
   }
 
