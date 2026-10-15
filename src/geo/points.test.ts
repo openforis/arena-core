@@ -121,4 +121,29 @@ describe('Points.transform', () => {
     const point = PointFactory.createInstance({ x: 12.5, y: 41.9 })
     expect(Points.transform(point, '99999', srsIndex)).toBeNull()
   })
+
+  test('transformOrThrow throws an error with the reason', () => {
+    const point = PointFactory.createInstance({ x: 12.5, y: 41.9 })
+    expect(() => Points.transformOrThrow(point, '99999', srsIndex)).toThrow(
+      expect.objectContaining({ key: 'geo.srsNotFound', params: { code: '99999' } })
+    )
+    expect(() => Points.transformOrThrow({ ...point, srs: '88888' }, '4326', srsIndex)).toThrow(
+      expect.objectContaining({ key: 'geo.srsNotFound', params: { code: '88888' } })
+    )
+    expect(() => Points.transformOrThrow({ ...point, x: null as any }, utm33N.code, srsIndex)).toThrow(
+      expect.objectContaining({ key: 'geo.pointNotFilled' })
+    )
+    const invalidSrs = { code: 'invalid', name: 'invalid', wkt: 'not a wkt' }
+    expect(() =>
+      Points.transformOrThrow(point, invalidSrs.code, { ...srsIndex, [invalidSrs.code]: invalidSrs })
+    ).toThrow(expect.objectContaining({ key: 'geo.transformFailed' }))
+  })
+
+  test('transformOrThrow returns the transformed point', () => {
+    const point = PointFactory.createInstance({ x: 12.5, y: 41.9 })
+    expect(Points.transformOrThrow(point, utm33N.code, srsIndex)).toEqual(
+      Points.transform(point, utm33N.code, srsIndex)
+    )
+    expect(Points.transformOrThrow(point, point.srs, srsIndex)).toBe(point)
+  })
 })

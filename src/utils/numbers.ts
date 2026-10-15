@@ -97,6 +97,8 @@ const toCardinalByLang: Partial<Record<LanguageCode, (value: number | string | b
 /**
  * Converts the given number to words (cardinal form) in the specified language.
  * Falls back to English if the specified language is not supported.
+ *
+ * @returns The number in words, or null if the value is not a finite number or cannot be converted (e.g. too large).
  */
 const toWords = (value: any, lang: LanguageCode = LanguageCode.en): string | null => {
   const number = toNumber(value)
