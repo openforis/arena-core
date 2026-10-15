@@ -50,16 +50,16 @@ describe('RecordItemFilterExpressionEvaluator', () => {
         if (!nodeCurrent) throw new Error(`Cannot find current node: ${node}`)
 
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid }) as NodeDefCode
-        const nodeCurrentParent = Records.getParent({ node: nodeCurrent })(record)
+        const nodeCurrentParent = Records.getParent(nodeCurrent)(record)
         if (!nodeCurrentParent) {
           throw new Error(`Cannot find context node: ${node}`)
         }
         const nodeContext = nodeCurrentParent
 
-        const parentCodeAttribute = Records.getParentCodeAttribute({
-          parentNode: nodeCurrentParent,
-          nodeDef: nodeCurrentDef as NodeDefCode,
-        })(record)
+        const parentCodeAttribute = Records.getParentCodeAttribute(
+          nodeCurrentParent,
+          nodeCurrentDef as NodeDefCode
+        )(record)
 
         const items: CategoryItem[] = Surveys.getCategoryItems({
           survey,

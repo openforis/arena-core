@@ -85,36 +85,30 @@ const updateDescendantsApplicability = ({
   // only values entered by the user are reported as cleared (they need a confirmation)
   let userValuesCleared = false
 
-  Records.visitDescendantsAndSelf({
-    node: nodeCtxChild,
-    visitor: (nodeDescendant): boolean => {
-      const nodeDescendantCleared = clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
-      // values set by expressions (default values, read only attributes) are applied again when applicable: not reported
-      // (evaluated before clearing the value: with sideEffect the node is modified in place)
-      const nodeDescendantDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDescendant.nodeDefUuid })
-      const userValueCleared =
-        nodeDescendantCleared && !NodeDefs.isReadOnly(nodeDescendantDef) && Nodes.hasUserInputValue(nodeDescendant)
-      // Clear value if becoming non-applicable and parameter is enabled
-      const nodeDescendantUpdated = nodeDescendantCleared
-        ? Nodes.assocValue(nodeDescendant, null, { sideEffect })
-        : nodeDescendant
-      updateResult.addNode(nodeDescendantUpdated, recordUpdateOptions)
-      if (userValueCleared) {
-        updateResult.addClearedDefUuid(nodeDescendant.nodeDefUuid)
-        userValuesCleared = true
-      }
-      return false
-    },
+  Records.visitDescendantsAndSelf(nodeCtxChild, (nodeDescendant): boolean => {
+    const nodeDescendantCleared = clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
+    // values set by expressions (default values, read only attributes) are applied again when applicable: not reported
+    // (evaluated before clearing the value: with sideEffect the node is modified in place)
+    const nodeDescendantDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDescendant.nodeDefUuid })
+    const userValueCleared =
+      nodeDescendantCleared && !NodeDefs.isReadOnly(nodeDescendantDef) && Nodes.hasUserInputValue(nodeDescendant)
+    // Clear value if becoming non-applicable and parameter is enabled
+    const nodeDescendantUpdated = nodeDescendantCleared
+      ? Nodes.assocValue(nodeDescendant, null, { sideEffect })
+      : nodeDescendant
+    updateResult.addNode(nodeDescendantUpdated, recordUpdateOptions)
+    if (userValueCleared) {
+      updateResult.addClearedDefUuid(nodeDescendant.nodeDefUuid)
+      userValuesCleared = true
+    }
+    return false
   })(updateResult.record)
 
   // if a multiple entity became not applicable and it's empty, delete it instead of just marking descendants as not applicable
   if (!applicable && clearNonApplicableValues) {
     const { uuid: nodeCtxChildUuid, nodeDefUuid: nodeCtxChildDefUuid } = nodeCtxChild
     const nodeCtxChildDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCtxChildDefUuid })
-    if (
-      NodeDefs.isMultipleEntity(nodeCtxChildDef) &&
-      Records.isNodeEmpty({ node: nodeCtxChild })(updateResult.record)
-    ) {
+    if (NodeDefs.isMultipleEntity(nodeCtxChildDef) && Records.isNodeEmpty(nodeCtxChild)(updateResult.record)) {
       const deleteResult = removeNodes([nodeCtxChildUuid], recordUpdateOptions)(updateResult.record)
       updateResult.merge(deleteResult)
       if (userValuesCleared) {
@@ -140,7 +134,7 @@ const createMissingApplicableMultipleEntities = async ({
   const minCount = Nodes.getChildrenMinCount({ parentNode, nodeDef })
   if (Number.isNaN(minCount) || minCount <= 0) return
 
-  const existingChildren = Records.getChildren({ parentNode, childDefUuid: nodeDef.uuid })(updateResult.record)
+  const existingChildren = Records.getChildren(parentNode, nodeDef.uuid)(updateResult.record)
   const missingCount = Math.max(0, minCount - existingChildren.length)
 
   for (let index = 0; index < missingCount; index++) {
@@ -200,7 +194,7 @@ const updateNodePointerApplicability = async ({
   const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
   updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
 
-  let nodeCtxChildren = Records.getChildren({ parentNode: nodeCtx, childDefUuid: nodeDefUuid })(updateResult.record)
+  let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
 
   if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
     const entityDef = nodeDefNodePointer as NodeDefEntity
@@ -219,7 +213,7 @@ const updateNodePointerApplicability = async ({
         updateResult,
       })
     }
-    nodeCtxChildren = Records.getChildren({ parentNode: nodeCtx, childDefUuid: nodeDefUuid })(updateResult.record)
+    nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
   }
   for (const nodeCtxChild of nodeCtxChildren) {
     // add nodeCtxChild and its descendants to nodesUpdated

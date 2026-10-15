@@ -174,7 +174,7 @@ const extractCategoryItemUuidFromValue = (params: NodeValuesCompareParams): stri
   }
   if (!record || !parentNode) return undefined
 
-  const parentCodeAttribute = Records.getParentCodeAttribute({ parentNode, nodeDef: nodeDef as NodeDefCode })(record)
+  const parentCodeAttribute = Records.getParentCodeAttribute(parentNode, nodeDef as NodeDefCode)(record)
   if (!parentCodeAttribute) return undefined
 
   const parentItemUuid = getItemUuid(parentCodeAttribute)

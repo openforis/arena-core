@@ -26,7 +26,7 @@ const getDependentValidationNodePointers = (params: {
   const uniquePointersByKey = new Map<string, NodePointer>()
   for (const node of Object.values(nodes)) {
     for (const dependencyType of validationDependencyTypes) {
-      const nodePointers = Records.getDependentNodePointers({ survey, node, dependencyType })(record)
+      const nodePointers = Records.getDependentNodePointers(survey, node, dependencyType)(record)
       for (const pointer of nodePointers) {
         const nodeCtxUuid = pointer.nodeCtx.uuid
         const nodeDefUuid = pointer.nodeDef.uuid
@@ -106,7 +106,7 @@ const updateAttributeValue = async (
   }
 ): Promise<RecordUpdateResult> => {
   const { attributeUuid, record, value, dateModified = Dates.nowFormattedForStorage(), sideEffect = false } = params
-  const attribute = Records.getNodeByUuid({ uuid: attributeUuid })(record)
+  const attribute = Records.getNodeByUuid(attributeUuid)(record)
   if (!attribute) throw new SystemError(SystemErrorKeys.record.nodeNotFound, { uuid: attributeUuid })
 
   let attributeUpdated = sideEffect ? attribute : { ...attribute }

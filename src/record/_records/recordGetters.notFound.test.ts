@@ -19,7 +19,7 @@ describe('Record getters: node not found', () => {
   const getNode = (path: string): ArenaRecordNode => TestUtils.getNodeByPath({ survey, record, path })
 
   test('getNodeByUuid', () => {
-    expect(Records.getNodeByUuid({ uuid: 'not_existing' })(record)).toBeUndefined()
+    expect(Records.getNodeByUuid('not_existing')(record)).toBeUndefined()
   })
 
   test('getRoot', () => {
@@ -32,21 +32,17 @@ describe('Record getters: node not found', () => {
     const clusterIdDef = Surveys.getNodeDefByName({ survey, name: 'cluster_id' })
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
 
-    expect(Records.getChild({ parentNode: cluster, childDefUuid: clusterIdDef.uuid })(record)).toBe(
-      getNode('cluster.cluster_id')
-    )
-    expect(Records.getChild({ parentNode: plot1, childDefUuid: clusterIdDef.uuid })(record)).toBeUndefined()
+    expect(Records.getChild(cluster, clusterIdDef.uuid)(record)).toBe(getNode('cluster.cluster_id'))
+    expect(Records.getChild(plot1, clusterIdDef.uuid)(record)).toBeUndefined()
     // more than one child found: the record is not consistent
-    expect(() => Records.getChild({ parentNode: cluster, childDefUuid: plotDef.uuid })(record)).toThrow(
-      'systemError.record.multipleNodesFound'
-    )
+    expect(() => Records.getChild(cluster, plotDef.uuid)(record)).toThrow('systemError.record.multipleNodesFound')
   })
 
   test('getAncestor', () => {
     const cluster = getNode('cluster')
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
 
-    expect(Records.getAncestor({ node: cluster, ancestorDefUuid: plotDef.uuid })(record)).toBeUndefined()
+    expect(Records.getAncestor(cluster, plotDef.uuid)(record)).toBeUndefined()
   })
 
   test('getDescendant', () => {
@@ -54,9 +50,7 @@ describe('Record getters: node not found', () => {
     const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
     const clusterIdDef = Surveys.getNodeDefByName({ survey, name: 'cluster_id' })
 
-    expect(Records.getDescendant({ node: plot1, nodeDefDescendant: plotIdDef })(record)).toBe(
-      getNode('cluster.plot[0].plot_id')
-    )
-    expect(Records.getDescendant({ node: plot1, nodeDefDescendant: clusterIdDef })(record)).toBeUndefined()
+    expect(Records.getDescendant(plot1, plotIdDef)(record)).toBe(getNode('cluster.plot[0].plot_id'))
+    expect(Records.getDescendant(plot1, clusterIdDef)(record)).toBeUndefined()
   })
 })

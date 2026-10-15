@@ -101,7 +101,7 @@ describe('RecordCompletion', () => {
     const cluster = Records.getRoot(record)!
     expect(Records.getEntityCompletionPercent({ survey, record, entity: cluster })).toBeCloseTo((2 / 3) * 100, 2)
 
-    const plot0 = Records.getChildren({ parentNode: cluster, childDefUuid: plotDef.uuid })(record)[0]
+    const plot0 = Records.getChildren(cluster, plotDef.uuid)(record)[0]
     expect(Records.getEntityCompletionPercent({ survey, record, entity: plot0 })).toBe(100)
   })
 
