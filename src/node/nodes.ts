@@ -23,6 +23,13 @@ const isChildVisible = (node: ArenaRecordNode, nodeDefUuid: string): boolean => 
   return node.meta?.cVis?.[nodeDefUuid] !== false
 }
 
+/**
+ * Returns the evaluated "required if" condition of the node children with the specified definition UUID,
+ * or undefined if it has not been evaluated (or the child definition has no "required if" condition).
+ */
+const getChildRequired = (node: ArenaRecordNode, nodeDefUuid: string): boolean | undefined =>
+  node.meta?.cReq?.[nodeDefUuid]
+
 const getChildrenMinOrMaxCount = (params: {
   parentNode: ArenaRecordNode
   nodeDef: NodeDef<any>
@@ -144,6 +151,54 @@ function assocChildEditable(
   return updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
 }
 
+const updateChildRequired = (params: {
+  node: ArenaRecordNode
+  nodeDefUuid: string
+  required: boolean | undefined
+  sideEffect: boolean
+}): ArenaRecordNode => {
+  const { node, nodeDefUuid, required, sideEffect } = params
+  const nodeUpdated = sideEffect ? node : { ...node }
+  const metaOriginal = nodeUpdated.meta ?? {}
+  const meta = sideEffect ? metaOriginal : { ...metaOriginal }
+  const existingDictionary: Dictionary<boolean> = meta.cReq ?? {}
+  const dictionary = sideEffect ? existingDictionary : { ...existingDictionary }
+  if (required === undefined) {
+    delete dictionary[nodeDefUuid]
+  } else {
+    // unlike the other child flags, both values are stored: a missing value means "not evaluated"
+    dictionary[nodeDefUuid] = required
+  }
+  if (Object.keys(dictionary).length > 0) {
+    meta.cReq = dictionary
+  } else {
+    delete meta.cReq
+  }
+  nodeUpdated.meta = meta
+  nodeUpdated.updated = true
+  nodeUpdated.dateModified = Dates.nowFormattedForStorage()
+  return nodeUpdated
+}
+
+const assocChildRequired = (
+  node: ArenaRecordNode,
+  nodeDefUuid: string,
+  required: boolean,
+  options?: MutationOptions
+): ArenaRecordNode => {
+  const { sideEffect = false } = options ?? {}
+  return updateChildRequired({ node, nodeDefUuid, required, sideEffect })
+}
+
+const dissocChildRequired = (
+  node: ArenaRecordNode,
+  nodeDefUuid: string,
+  options?: MutationOptions
+): ArenaRecordNode => {
+  const { sideEffect = false } = options ?? {}
+  return updateChildRequired({ node, nodeDefUuid, required: undefined, sideEffect })
+}
+
 function assocChildVisible(
   node: ArenaRecordNode,
   nodeDefUuid: string,
@@ -253,6 +308,7 @@ export const Nodes = {
   isChildApplicable,
   isChildEditable,
   isChildVisible,
+  getChildRequired,
   getChildrenMinOrMaxCount,
   getChildrenMaxCount,
   getChildrenMinCount,
@@ -268,6 +324,8 @@ export const Nodes = {
   dissocChildApplicability,
   assocChildEditable,
   assocChildVisible,
+  assocChildRequired,
+  dissocChildRequired,
   assocChildrenCount,
   assocChildrenMaxCount,
   assocChildrenMinCount,

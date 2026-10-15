@@ -19,6 +19,7 @@ import { ValidationFields } from '../../validation/validation'
 import { NodePointers } from '../nodePointers'
 import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
+import { evaluateRequiredIf } from '../recordNodesUpdater/recordNodeDependentsRequiredUpdater'
 import { Records } from '../records'
 import { RecordValidations } from '../recordValidations'
 import { AttributeKeyValidator, createEntityKeysCache, EntityKeysCache } from './attributeKeyValidator'
@@ -111,20 +112,31 @@ const _getValidationMessagesWithDefault = (params: {
   return messages
 }
 
+const _isValueRequired = async (
+  params: AttributeValidatorParams & { nodeDef: NodeDef<NodeDefType, NodeDefProps> }
+): Promise<boolean> => {
+  const { record, attribute, nodeDef } = params
+  if (NodeDefs.isKey(nodeDef) || NodeDefs.isRequired(nodeDef)) return true
+  if (!NodeDefs.isRequiredIfDefined(nodeDef)) return false
+  const parentNode = Records.getParent(attribute)(record)
+  if (!parentNode) return false
+  const requiredFlag = Nodes.getChildRequired(parentNode, nodeDef.uuid)
+  if (requiredFlag !== undefined) return requiredFlag
+  // flag not evaluated yet (e.g. record created before the "required if" condition was defined)
+  return evaluateRequiredIf({ ...params, nodeCtx: parentNode, nodeDef })
+}
+
 const _validateRequired =
-  (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  (_field: string, node: any): Promise<ValidationResult> => {
-    const { nodeDef } = params
-    const valid = (!NodeDefs.isKey(nodeDef) && !NodeDefs.isRequired(nodeDef)) || !Nodes.isValueBlank(node)
-    return Promise.resolve(
-      valid
-        ? ValidationResultFactory.createInstance()
-        : ValidationResultFactory.createInstance({
-            key: 'record.attribute.valueRequired',
-            severity: ValidationSeverity.error,
-            valid,
-          })
-    )
+  (params: AttributeValidatorParams & { nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
+  async (_field: string, node: any): Promise<ValidationResult> => {
+    const valid = !Nodes.isValueBlank(node) || !(await _isValueRequired(params))
+    return valid
+      ? ValidationResultFactory.createInstance()
+      : ValidationResultFactory.createInstance({
+          key: 'record.attribute.valueRequired',
+          severity: ValidationSeverity.error,
+          valid,
+        })
   }
 
 /**
@@ -178,7 +190,7 @@ const validateAttribute = async (params: AttributeValidatorParams & { entityKeys
     const validatorParams = { ...params, nodeDef }
     return new Validator().validate(attribute, {
       [NodeKeys.value]: [
-        _validateRequired({ nodeDef }),
+        _validateRequired(validatorParams),
         AttributeTypeValidator.validateValueType(validatorParams),
         _validateNodeValidations(validatorParams),
         AttributeKeyValidator.validateAttributeKey(validatorParams),
@@ -233,12 +245,10 @@ const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Are
       continue
     }
     // Get dependents and attribute itself
-    const nodePointersAttributeAndDependents = Records.getDependentNodePointers(
-      survey,
-      node,
-      SurveyDependencyType.validations,
-      true
-    )(record)
+    const nodePointersAttributeAndDependents = [
+      ...Records.getDependentNodePointers(survey, node, SurveyDependencyType.validations, true)(record),
+      ...Records.getDependentNodePointers(survey, node, SurveyDependencyType.required)(record),
+    ]
 
     const nodeParent = Records.getParent(node)(record)
 

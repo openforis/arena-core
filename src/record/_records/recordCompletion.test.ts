@@ -41,6 +41,30 @@ describe('RecordCompletion', () => {
     expect(Records.getRecordCompletionPercent({ survey, record: emptyRecord })).toBe(0)
   })
 
+  test('required if attribute counted only when its condition is met', async () => {
+    const user = createTestAdminUser()
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef('cluster', integerDef('cluster_id'), textDef('remarks').requiredIf('cluster_id == 1'))
+    ).build()
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', null), attribute('remarks', null))
+    ).build()
+    const remarksDefUuid = Surveys.getNodeDefByName({ survey, name: 'remarks' }).uuid
+    const root = Records.getRoot(record)!
+
+    // condition not evaluated or not met: not counted
+    expect(Records.getRecordCompletionPercent({ survey, record })).toBe(100)
+    Nodes.assocChildRequired(root, remarksDefUuid, false, { sideEffect: true })
+    expect(Records.getRecordCompletionPercent({ survey, record })).toBe(100)
+
+    // condition met: counted
+    Nodes.assocChildRequired(root, remarksDefUuid, true, { sideEffect: true })
+    expect(Records.getRecordCompletionPercent({ survey, record })).toBe(0)
+  })
+
   test('key attribute is considered required even without the required validation', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
