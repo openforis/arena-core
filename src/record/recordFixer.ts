@@ -18,7 +18,7 @@ const fixCodeAttribute = (params: {
     // nodeDef is not a code attribute or meta.hCode already populated: do nothing
     return node
   }
-  const parentNode = Records.getParent({ node })(record)
+  const parentNode = Records.getParent(node)(record)
   if (!parentNode) {
     // missing parent node; node parentUuid could be invalid
     return node
@@ -50,7 +50,7 @@ const insertMissingSingleNode = (params: {
     return null
   }
   const nodeDefUuid = nodeDef.uuid
-  const children = Records.getChildren({ parentNode, childDefUuid: nodeDef.uuid })(record)
+  const children = Records.getChildren(parentNode, nodeDef.uuid)(record)
   if (!Objects.isEmpty(children)) {
     // single node already inserted
     return null
@@ -79,7 +79,7 @@ const insertMissingSingleNodes = (params: {
     visitor: (nodeDef) => {
       const parentDefUuid = nodeDef.parentUuid
       if (parentDefUuid) {
-        const parentNodes = Records.getNodesByDefUuid({ nodeDefUuid: parentDefUuid })(updateResult.record)
+        const parentNodes = Records.getNodesByDefUuid(parentDefUuid)(updateResult.record)
         for (const parentNode of parentNodes) {
           const partialUpdateResult = insertMissingSingleNode({
             survey,
@@ -104,10 +104,10 @@ const deleteNodesByDefUuid = (params: { record: ArenaRecord; nodeDefUuid: string
 
   const recordUpdateOptions = { sideEffect }
 
-  const nodesToDelete = Records.getNodesByDefUuid({ nodeDefUuid })(updateResult.record)
+  const nodesToDelete = Records.getNodesByDefUuid(nodeDefUuid)(updateResult.record)
   for (const nodeToDelete of nodesToDelete) {
     // cleanup child applicability
-    const parentNode = Records.getParent({ node: nodeToDelete })(updateResult.record)
+    const parentNode = Records.getParent(nodeToDelete)(updateResult.record)
     if (parentNode && !Nodes.isChildApplicable(parentNode, nodeDefUuid)) {
       const parentNodeUpdated = Nodes.dissocChildApplicability(parentNode, nodeDefUuid)
       const recordWithParentNodeUpdated = Records.addNode(parentNodeUpdated, recordUpdateOptions)(updateResult.record)

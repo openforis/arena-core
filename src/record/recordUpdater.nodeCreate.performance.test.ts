@@ -69,15 +69,15 @@ describe('RecordUpdater - node create - performance test', () => {
     const totalNodes = 500
     const multEntityDef = Surveys.getNodeDefByName({ survey, name: nodeDefName })
     const keyDef = Surveys.getNodeDefByName({ survey, name: 'mult_entity_id' })
-    const entitiesCountBefore = Records.getNodesByDefUuid({ nodeDefUuid: multEntityDef.uuid })(record).length
+    const entitiesCountBefore = Records.getNodesByDefUuid(multEntityDef.uuid)(record).length
 
     await createNodes({ nodeDefName, totalNodes })
 
     // NOTE: no assertion on the creation time here: it used to assert that creating the last entity is slower
     // than creating the first one (wall-clock ratio), which fails randomly once node creation is fast enough
     const expectedCount = entitiesCountBefore + totalNodes
-    expect(Records.getNodesByDefUuid({ nodeDefUuid: multEntityDef.uuid })(record)).toHaveLength(expectedCount)
-    expect(Records.getNodesByDefUuid({ nodeDefUuid: keyDef.uuid })(record)).toHaveLength(expectedCount)
+    expect(Records.getNodesByDefUuid(multEntityDef.uuid)(record)).toHaveLength(expectedCount)
+    expect(Records.getNodesByDefUuid(keyDef.uuid)(record)).toHaveLength(expectedCount)
   })
 
   test('Multiple entity with autoincrement', async () => {

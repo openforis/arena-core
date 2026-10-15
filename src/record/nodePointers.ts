@@ -6,7 +6,7 @@ const getNodesFromNodePointers = (params: { record: ArenaRecord; nodePointers: N
   const { record, nodePointers } = params
 
   return nodePointers.flatMap((nodePointer) =>
-    Records.getChildren({ parentNode: nodePointer.nodeCtx, childDefUuid: nodePointer.nodeDef.uuid })(record)
+    Records.getChildren(nodePointer.nodeCtx, nodePointer.nodeDef.uuid)(record)
   )
 }
 

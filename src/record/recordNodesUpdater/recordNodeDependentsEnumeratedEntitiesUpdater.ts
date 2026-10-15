@@ -27,9 +27,7 @@ const shouldExistingEntitiesBeDeleted = async (params: {
   const enumeratorDef = Surveys.getNodeDefEnumerator({ survey, entityDef })!
   const existingEnumeratingItemUuids = existingEntities
     .map((existingEntity) => {
-      const existingEnumerator = getChild({ parentNode: existingEntity, childDefUuid: enumeratorDef.uuid })(
-        updateResult.record
-      )
+      const existingEnumerator = getChild(existingEntity, enumeratorDef.uuid)(updateResult.record)
       // an entity without enumerator item makes the lists differ, so the entities are recreated
       return (existingEnumerator ? NodeValues.getItemUuid(existingEnumerator) : undefined) ?? ''
     })
@@ -64,7 +62,7 @@ export const createOrDeleteEnumeratedEntities = async (
 ) => {
   const { survey, parentNode, entityDef, categoryItemProvider, updateResult, sideEffect } = params
   const recordUpdateOptions = { sideEffect }
-  const existingEntities = getChildren({ parentNode, childDefUuid: entityDef.uuid })(updateResult.record)
+  const existingEntities = getChildren(parentNode, entityDef.uuid)(updateResult.record)
   const existingEntitiesCount = existingEntities.length
   const hasExistingEntities = existingEntitiesCount > 0
   const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)

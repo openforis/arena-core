@@ -70,7 +70,7 @@ const _getSiblingNodeKeys = (
   })(record)
   if (!ancestorMultipleEntity) return []
 
-  const ancestorMultipleEntityParent = Records.getParent({ node: ancestorMultipleEntity })(record)
+  const ancestorMultipleEntityParent = Records.getParent(ancestorMultipleEntity)(record)
   if (!ancestorMultipleEntityParent) return []
 
   const cacheKey = `${ancestorMultipleEntityParent.uuid}_${ancestorMultipleEntityDef.uuid}`
@@ -243,7 +243,7 @@ const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Are
       includeSelf: true,
     })(record)
 
-    const nodeParent = Records.getParent({ node })(record)
+    const nodeParent = Records.getParent(node)(record)
 
     result.push(
       ...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }),

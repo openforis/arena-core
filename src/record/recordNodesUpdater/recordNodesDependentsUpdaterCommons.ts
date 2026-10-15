@@ -54,7 +54,7 @@ const addNewEntitySelfPointer = (params: {
   if (!node.parentUuid) {
     return
   }
-  const parentNode = Records.getNodeByUuid({ uuid: node.parentUuid })(record)
+  const parentNode = Records.getNodeByUuid(node.parentUuid)(record)
   if (!parentNode) {
     return
   }

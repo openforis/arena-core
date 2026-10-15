@@ -106,7 +106,7 @@ const updateAttributeValue = async (
   }
 ): Promise<RecordUpdateResult> => {
   const { attributeUuid, record, value, dateModified = Dates.nowFormattedForStorage(), sideEffect = false } = params
-  const attribute = Records.getNodeByUuid({ uuid: attributeUuid })(record)
+  const attribute = Records.getNodeByUuid(attributeUuid)(record)
   if (!attribute) throw new SystemError(SystemErrorKeys.record.nodeNotFound, { uuid: attributeUuid })
 
   let attributeUpdated = sideEffect ? attribute : { ...attribute }

@@ -254,9 +254,7 @@ describe('Record nodes updater - applicability', () => {
     }
 
     const getDependentEntityNodes = (record: ArenaRecord) =>
-      Records.getNodesByDefUuid({ nodeDefUuid: Surveys.getNodeDefByName({ survey, name: 'dependent_entity' }).uuid })(
-        record
-      )
+      Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'dependent_entity' }).uuid)(record)
 
     test('Empty multiple entity is deleted when becoming non-applicable', async () => {
       const record = new RecordBuilder(
@@ -352,7 +350,7 @@ describe('Record nodes updater - applicability', () => {
         survey: surveyWithAutoGeneration,
         name: 'dependent_entity',
       })
-      const dependentEntities = Records.getNodesByDefUuid({ nodeDefUuid: dependentEntityDef.uuid })(record)
+      const dependentEntities = Records.getNodesByDefUuid(dependentEntityDef.uuid)(record)
       expect(dependentEntities).toHaveLength(2)
     })
   })

@@ -19,7 +19,7 @@ describe('Record getters: node not found', () => {
   const getNode = (path: string): ArenaRecordNode => TestUtils.getNodeByPath({ survey, record, path })
 
   test('getNodeByUuid', () => {
-    expect(Records.getNodeByUuid({ uuid: 'not_existing' })(record)).toBeUndefined()
+    expect(Records.getNodeByUuid('not_existing')(record)).toBeUndefined()
   })
 
   test('getRoot', () => {
@@ -32,14 +32,10 @@ describe('Record getters: node not found', () => {
     const clusterIdDef = Surveys.getNodeDefByName({ survey, name: 'cluster_id' })
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
 
-    expect(Records.getChild({ parentNode: cluster, childDefUuid: clusterIdDef.uuid })(record)).toBe(
-      getNode('cluster.cluster_id')
-    )
-    expect(Records.getChild({ parentNode: plot1, childDefUuid: clusterIdDef.uuid })(record)).toBeUndefined()
+    expect(Records.getChild(cluster, clusterIdDef.uuid)(record)).toBe(getNode('cluster.cluster_id'))
+    expect(Records.getChild(plot1, clusterIdDef.uuid)(record)).toBeUndefined()
     // more than one child found: the record is not consistent
-    expect(() => Records.getChild({ parentNode: cluster, childDefUuid: plotDef.uuid })(record)).toThrow(
-      'systemError.record.multipleNodesFound'
-    )
+    expect(() => Records.getChild(cluster, plotDef.uuid)(record)).toThrow('systemError.record.multipleNodesFound')
   })
 
   test('getAncestor', () => {

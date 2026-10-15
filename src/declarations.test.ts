@@ -15,15 +15,11 @@ import { ArenaRecord, ArenaRecordNode, Nodes, Records, Validations } from './dec
 declare const record: ArenaRecord
 declare const node: ArenaRecordNode
 
-export const deprecated_getChildren = Records.getChildren(node, 'def')(record)
-export const deprecated_getParent = Records.getParent(node)(record)
-export const deprecated_getAncestor = Records.getAncestor({ record, node, ancestorDefUuid: 'def' })
-export const deprecated_getNodeIndex = Records.getNodeIndex({ record, node })
 export const deprecated_assocValue = Nodes.assocValue(node, 1, true)
 export const deprecated_dissocFieldValidation = Validations.dissocFieldValidation('field', true)
 
-export const current_getChildren = Records.getChildren({ parentNode: node, childDefUuid: 'def' })(record)
-export const current_getParent = Records.getParent({ node })(record)
+export const current_getChildren = Records.getChildren(node, 'def')(record)
+export const current_getParent = Records.getParent(node)(record)
 export const current_getAncestor = Records.getAncestor({ node, ancestorDefUuid: 'def' })(record)
 export const current_getNodeIndex = Records.getNodeIndex({ node })(record)
 export const current_assocValue = Nodes.assocValue(node, 1, { sideEffect: true })
