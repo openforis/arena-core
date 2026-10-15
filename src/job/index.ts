@@ -1,5 +1,6 @@
 export type { Job } from './job'
 export { JobBase } from './JobBase'
+export type { JobTxClient } from './JobBase'
 export type { JobContext } from './jobContext'
 export { JobEventType } from './jobEvent'
 export type { JobEvent } from './jobEvent'
