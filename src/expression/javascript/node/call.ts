@@ -1,4 +1,4 @@
-import { SystemError } from '../../../error'
+import { SystemError, SystemErrorKeys } from '../../../error'
 import { ExpressionContext } from '../../context'
 import { ExpressionFunction } from '../../function'
 import {
@@ -22,7 +22,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
 
     // No complex expressions may be put in place of a function body.
     // Only a plain identifier is allowed.
-    throw new SystemError('expression.invalidCalleeType', { type: callee.type })
+    throw new SystemError(SystemErrorKeys.expression.invalidCalleeType, { type: callee.type })
   }
 
   private async evaluateMember(expressionNode: CallExpression, callee: MemberExpression): Promise<any> {
@@ -61,7 +61,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
       return globalFn(...args)
     }
 
-    throw new SystemError('expression.undefinedFunction', { name: fnName })
+    throw new SystemError(SystemErrorKeys.expression.undefinedFunction, { name: fnName })
   }
 
   private async evaluateCustomIdentifier(expressionNode: CallExpression, fnName: string): Promise<any> {
@@ -74,9 +74,9 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     const { minArity, maxArity, evaluateArgsToNodes, executor } = expressionFunction
 
     if (numArgs < minArity)
-      throw new SystemError('expression.functionHasTooFewArguments', { fnName, minArity, numArgs })
+      throw new SystemError(SystemErrorKeys.expression.functionHasTooFewArguments, { fnName, minArity, numArgs })
     if (maxArity !== undefined && maxArity >= 0 && numArgs > maxArity)
-      throw new SystemError('expression.functionHasTooManyArguments', { fnName, maxArity, numArgs })
+      throw new SystemError(SystemErrorKeys.expression.functionHasTooManyArguments, { fnName, maxArity, numArgs })
 
     // evaluate arguments
     const argsContext = { ...this.context, evaluateToNode: evaluateArgsToNodes }

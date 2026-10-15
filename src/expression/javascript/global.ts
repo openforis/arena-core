@@ -1,5 +1,5 @@
 import { Dictionary } from '../../common'
-import { SystemError } from '../../error'
+import { SystemError, SystemErrorKeys } from '../../error'
 
 const globalObjectsDictionary: Dictionary<any> = {
   Array,
@@ -20,7 +20,7 @@ export const getGlobalObjectProperty = (name: string, object: any): any => {
     const property = object[name]
 
     if (!property) {
-      throw new SystemError('expression.undefinedFunction', { name })
+      throw new SystemError(SystemErrorKeys.expression.undefinedFunction, { name })
     }
     return property
   }
