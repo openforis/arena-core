@@ -324,7 +324,7 @@ type NodeDefTraverseParams = {
 }
 
 const traverseBreadthFirst = ({ nodeDef, visitor, shouldTraverse, getChildren }: NodeDefTraverseParams) => {
-  const queue = new Queue<NodeDef<any>>()
+  const queue = new Queue<NodeDef<NodeDefType>>()
 
   queue.enqueue(nodeDef)
 

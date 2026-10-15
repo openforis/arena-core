@@ -176,7 +176,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     const reachableNodeDefUuids = new Set<string>()
     const visitedUuids = new Set<string>()
 
-    const queue = new Queue<NodeDef<any>>()
+    const queue = new Queue<NodeDef<NodeDefType>>()
 
     const actualContextNode = findActualContextNode({ context })
     if (actualContextNode) {
