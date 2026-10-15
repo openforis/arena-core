@@ -88,7 +88,7 @@ describe('RecordUpdater - required if', () => {
 
     // condition not met (land_use empty)
     const remarksDefUuid = Surveys.getNodeDefByName({ survey, name: 'remarks' }).uuid
-    expect(Nodes.getChildRequired(Records.getRoot(record)!, remarksDefUuid)).toBe(false)
+    expect(Nodes.isChildRequired(Records.getRoot(record)!, remarksDefUuid)).toBe(false)
     expect(isRequired(survey, record, 'remarks')).toBeFalsy()
     expect(hasValueRequiredError(record, getNode(survey, record, 'remarks'))).toBeFalsy()
 
@@ -131,14 +131,22 @@ describe('RecordUpdater - required if', () => {
     expect(hasValueRequiredError(record, getNode(survey, record, 'tree[1].damage'))).toBeFalsy()
   })
 
-  test('flags not stored for node defs without required if', async () => {
+  test('only flags of conditions met are stored', async () => {
     const survey = await createSurvey()
-    const record = await createRecord(survey)
-    const root = Records.getRoot(record)!
-    expect(Object.keys(root.meta?.cReq ?? {})).toEqual([Surveys.getNodeDefByName({ survey, name: 'remarks' }).uuid])
+    let record = await createRecord(survey)
+    // no condition met: nothing stored
+    expect(Records.getRoot(record)?.meta?.cReq).toBeUndefined()
+
+    record = await updateValue(survey, record, 'land_use', 1)
+    const remarksDefUuid = Surveys.getNodeDefByName({ survey, name: 'remarks' }).uuid
+    expect(Records.getRoot(record)?.meta?.cReq).toEqual({ [remarksDefUuid]: true })
+
+    // condition not met anymore: flag removed, empty dictionary kept (removed by the persistence layer)
+    record = await updateValue(survey, record, 'land_use', 2)
+    expect(Records.getRoot(record)?.meta?.cReq).toEqual({})
   })
 
-  test('validation falls back to the condition evaluation when the flag is missing (old records)', async () => {
+  test('validation evaluates the condition even when the flag is missing (old records)', async () => {
     const survey = await createSurvey()
     // record built without running the record updater: no cReq flags
     const record = new RecordBuilder(
@@ -168,7 +176,7 @@ describe('RecordUpdater - required if', () => {
       record,
       nodeDefUuids: [remarksDefUuid],
     })
-    expect(Nodes.getChildRequired(Records.getRoot(result.record)!, remarksDefUuid)).toBe(true)
+    expect(Nodes.isChildRequired(Records.getRoot(result.record)!, remarksDefUuid)).toBe(true)
     expect(Object.keys(result.nodes)).toEqual([Records.getRoot(result.record)!.uuid])
 
     // condition removed from the survey => flag removed
@@ -181,7 +189,7 @@ describe('RecordUpdater - required if', () => {
       record: result.record,
       nodeDefUuids: [remarksDefUuid],
     })
-    expect(Nodes.getChildRequired(Records.getRoot(result2.record)!, remarksDefUuid)).toBeUndefined()
+    expect(Nodes.isChildRequired(Records.getRoot(result2.record)!, remarksDefUuid)).toBe(false)
     expect(Records.getRoot(result2.record)?.meta?.cReq).toEqual({})
   })
 })

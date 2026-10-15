@@ -120,9 +120,8 @@ const _isValueRequired = async (
   if (!NodeDefs.isRequiredIfDefined(nodeDef)) return false
   const parentNode = Records.getParent(attribute)(record)
   if (!parentNode) return false
-  const requiredFlag = Nodes.getChildRequired(parentNode, nodeDef.uuid)
-  if (requiredFlag !== undefined) return requiredFlag
-  // flag not evaluated yet (e.g. record created before the "required if" condition was defined)
+  // evaluated here (not read from the parent node meta flag) so validation doesn't depend on up to date node meta
+  // (e.g. records created before the "required if" condition was defined)
   return evaluateRequiredIf({ ...params, nodeCtx: parentNode, nodeDef })
 }
 

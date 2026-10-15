@@ -114,7 +114,6 @@ export const isNodeVisible = isNodeFlagTrue((parent, nodeDefUuid) => Nodes.isChi
 /**
  * Whether a value is required for the node: key or always required attribute, or attribute with a "required if"
  * condition met in its parent entity (evaluated condition stored in the parent node meta).
- * Returns false when the condition has not been evaluated yet.
  */
 export const isNodeRequired =
   (nodeDef: NodeDef<NodeDefType>, node: ArenaRecordNode) =>
@@ -122,7 +121,7 @@ export const isNodeRequired =
     if (NodeDefs.isKey(nodeDef) || NodeDefs.isRequired(nodeDef)) return true
     if (!NodeDefs.isRequiredIfDefined(nodeDef)) return false
     const parent = getParentNode(record, node)
-    return !!parent && Nodes.getChildRequired(parent, nodeDef.uuid) === true
+    return !!parent && Nodes.isChildRequired(parent, nodeDef.uuid)
   }
 
 export const getDependentCodeAttributes =

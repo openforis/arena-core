@@ -55,7 +55,7 @@ describe('RecordCompletion', () => {
     const remarksDefUuid = Surveys.getNodeDefByName({ survey, name: 'remarks' }).uuid
     const root = Records.getRoot(record)!
 
-    // condition not evaluated or not met: not counted
+    // condition not met: not counted
     expect(Records.getRecordCompletionPercent({ survey, record })).toBe(100)
     Nodes.assocChildRequired(root, remarksDefUuid, false, { sideEffect: true })
     expect(Records.getRecordCompletionPercent({ survey, record })).toBe(100)

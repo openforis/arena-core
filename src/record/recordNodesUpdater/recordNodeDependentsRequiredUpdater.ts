@@ -31,7 +31,6 @@ export const evaluateRequiredIf = async (
 
 /**
  * Updates the "required if" flags (parent node meta `cReq`) of the node itself (if attribute) and of its dependents.
- * Flags are stored only for child defs with a "required if" condition.
  */
 export const updateSelfAndDependentsRequired = async (
   params: RecordNodeDependentsUpdateParams
@@ -51,7 +50,7 @@ export const updateSelfAndDependentsRequired = async (
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
   for (const { nodeCtx: nodeCtxNodePointer, nodeDef } of nodePointersToUpdate) {
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxNodePointer.uuid) ?? nodeCtxNodePointer
-    const valuePrev = Nodes.getChildRequired(nodeCtx, nodeDef.uuid)
+    const valuePrev = Nodes.isChildRequired(nodeCtx, nodeDef.uuid)
     // NOSONAR: sequential evaluation needed (see note above)
     const value = await evaluateRequiredIf({ ...params, record: updateResult.record, nodeCtx, nodeDef }) // NOSONAR
     if (valuePrev === value) continue
@@ -64,8 +63,7 @@ export const updateSelfAndDependentsRequired = async (
 
 /**
  * Recomputes the "required if" flags (parent node meta `cReq`) of the specified node defs in the whole record,
- * e.g. after their "required if" condition has been added, changed or removed (flags are removed when the node def
- * has no condition anymore). Validation is not updated.
+ * e.g. after their "required if" condition has been added, changed or removed. Validation is not updated.
  */
 export const updateRequiredFlags = async (
   params: RecordExpressionEvaluationContext & { nodeDefUuids: string[] }
@@ -81,18 +79,12 @@ export const updateRequiredFlags = async (
 
     for (const parentNode of parentNodes) {
       const nodeCtx = updateResult.getNodeByUuid(parentNode.uuid) ?? parentNode
-      const valuePrev = Nodes.getChildRequired(nodeCtx, nodeDefUuid)
-      let nodeCtxUpdated: ArenaRecordNode | undefined = undefined
-      if (requiredIfDefined) {
-        // sequential evaluation: the same parent node can be updated for different child defs
-        const value = await evaluateRequiredIf({ ...params, record: updateResult.record, nodeCtx, nodeDef }) // NOSONAR
-        if (value !== valuePrev) {
-          nodeCtxUpdated = Nodes.assocChildRequired(nodeCtx, nodeDefUuid, value, { sideEffect })
-        }
-      } else if (valuePrev !== undefined) {
-        nodeCtxUpdated = Nodes.dissocChildRequired(nodeCtx, nodeDefUuid, { sideEffect })
-      }
-      if (nodeCtxUpdated) {
+      const valuePrev = Nodes.isChildRequired(nodeCtx, nodeDefUuid)
+      // sequential evaluation: the same parent node can be updated for different child defs
+      const value =
+        requiredIfDefined && (await evaluateRequiredIf({ ...params, record: updateResult.record, nodeCtx, nodeDef })) // NOSONAR
+      if (value !== valuePrev) {
+        const nodeCtxUpdated = Nodes.assocChildRequired(nodeCtx, nodeDefUuid, value, { sideEffect })
         updateResult.addNode(nodeCtxUpdated, { sideEffect })
       }
     }

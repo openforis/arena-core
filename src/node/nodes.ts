@@ -23,12 +23,10 @@ const isChildVisible = (node: ArenaRecordNode, nodeDefUuid: string): boolean => 
   return node.meta?.cVis?.[nodeDefUuid] !== false
 }
 
-/**
- * Returns the evaluated "required if" condition of the node children with the specified definition UUID,
- * or undefined if it has not been evaluated (or the child definition has no "required if" condition).
- */
-const getChildRequired = (node: ArenaRecordNode, nodeDefUuid: string): boolean | undefined =>
-  node.meta?.cReq?.[nodeDefUuid]
+const isChildRequired = (node: ArenaRecordNode, nodeDefUuid: string): boolean => {
+  // if child "required if" condition is not defined or not met for a node definition, consider it not required
+  return node.meta?.cReq?.[nodeDefUuid] === true
+}
 
 const getChildrenMinOrMaxCount = (params: {
   parentNode: ArenaRecordNode
@@ -96,19 +94,21 @@ const dissocChildApplicability = (node: ArenaRecordNode, nodeDefUuid: string) =>
   }
 }
 
-type MetaBooleanDictionaryProp = 'childApplicability' | 'cEdit' | 'cVis'
+type MetaBooleanDictionaryProp = 'childApplicability' | 'cEdit' | 'cVis' | 'cReq'
 
 const updateMetaDictionary = ({
   node,
   nodeDefUuid,
   propName,
   propValue,
+  defaultValue = true,
   sideEffect,
 }: {
   node: ArenaRecordNode
   nodeDefUuid: string
   propName: MetaBooleanDictionaryProp
-  propValue: any
+  propValue: boolean
+  defaultValue?: boolean
   sideEffect: boolean
 }): ArenaRecordNode => {
   const nodeUpdated = sideEffect ? node : { ...node }
@@ -116,7 +116,8 @@ const updateMetaDictionary = ({
   const meta = sideEffect ? metaOriginal : { ...metaOriginal }
   const existingDictionary: Dictionary<boolean> = meta[propName] ?? {}
   const dictionary = sideEffect ? existingDictionary : { ...existingDictionary }
-  if (propValue) {
+  if (propValue === defaultValue) {
+    // default value: not stored
     delete dictionary[nodeDefUuid]
   } else {
     dictionary[nodeDefUuid] = propValue
@@ -151,33 +152,6 @@ function assocChildEditable(
   return updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
 }
 
-const updateChildRequired = (params: {
-  node: ArenaRecordNode
-  nodeDefUuid: string
-  required: boolean | undefined
-  sideEffect: boolean
-}): ArenaRecordNode => {
-  const { node, nodeDefUuid, required, sideEffect } = params
-  const nodeUpdated = sideEffect ? node : { ...node }
-  const metaOriginal = nodeUpdated.meta ?? {}
-  const meta = sideEffect ? metaOriginal : { ...metaOriginal }
-  const existingDictionary: Dictionary<boolean> = meta.cReq ?? {}
-  const dictionary = sideEffect ? existingDictionary : { ...existingDictionary }
-  if (required === undefined) {
-    delete dictionary[nodeDefUuid]
-  } else {
-    // unlike the other child flags, both values are stored: a missing value means "not evaluated"
-    dictionary[nodeDefUuid] = required
-  }
-  // kept even when empty (like the other child flags dictionaries): an empty one is not stored by the persistence layer
-  // and it removes the stored one
-  meta.cReq = dictionary
-  nodeUpdated.meta = meta
-  nodeUpdated.updated = true
-  nodeUpdated.dateModified = Dates.nowFormattedForStorage()
-  return nodeUpdated
-}
-
 const assocChildRequired = (
   node: ArenaRecordNode,
   nodeDefUuid: string,
@@ -185,16 +159,14 @@ const assocChildRequired = (
   options?: MutationOptions
 ): ArenaRecordNode => {
   const { sideEffect = false } = options ?? {}
-  return updateChildRequired({ node, nodeDefUuid, required, sideEffect })
-}
-
-const dissocChildRequired = (
-  node: ArenaRecordNode,
-  nodeDefUuid: string,
-  options?: MutationOptions
-): ArenaRecordNode => {
-  const { sideEffect = false } = options ?? {}
-  return updateChildRequired({ node, nodeDefUuid, required: undefined, sideEffect })
+  return updateMetaDictionary({
+    node,
+    nodeDefUuid,
+    propName: 'cReq',
+    propValue: required,
+    defaultValue: false,
+    sideEffect,
+  })
 }
 
 function assocChildVisible(
@@ -306,7 +278,7 @@ export const Nodes = {
   isChildApplicable,
   isChildEditable,
   isChildVisible,
-  getChildRequired,
+  isChildRequired,
   getChildrenMinOrMaxCount,
   getChildrenMaxCount,
   getChildrenMinCount,
@@ -323,7 +295,6 @@ export const Nodes = {
   assocChildEditable,
   assocChildVisible,
   assocChildRequired,
-  dissocChildRequired,
   assocChildrenCount,
   assocChildrenMaxCount,
   assocChildrenMinCount,
