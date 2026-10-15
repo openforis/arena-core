@@ -146,9 +146,8 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 **Record getters** (`src/record/_records/recordGetters.ts`)
 
-- Getters take their parameters as an object and the record as separate, curried parameter: `Records.getChildren({ parentNode, childDefUuid })(record)`, `Records.getAncestor({ node, ancestorDefUuid })(record)`; getters needing only the record take it directly (`Records.getRoot(record)`)
-- Define new getters with the `recordGetter` helper; the old forms (positional parameters, record inside the parameters object) are deprecated overloads, kept until the next release removing them
-- Export every type used in the type of an exported value (e.g. `RecordGetter`): otherwise the emitted `.d.ts` inlines it and drops its JSDoc, so the `@deprecated` signatures are not flagged for the consumers (`src/declarations.test.ts` checks it)
+- Getters are plain curried functions taking the record last: `Records.getParent(node)(record)`, `Records.getChildren(parentNode, childDefUuid)(record)`; getters with many or optional parameters take a params object: `Records.getAncestor({ node, ancestorDefUuid })(record)`; getters needing only the record take it directly (`Records.getRoot(record)`)
+- No wrapper helpers (params copies, overloads): getters run for every ancestor in the record update loops, so keep them allocation-free where possible
 
 **Utility Modules** (`src/utils/`)
 
