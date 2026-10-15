@@ -106,7 +106,7 @@ export { PointFactory, Points } from './geo'
 export type { Point } from './geo'
 
 export { JobBase, JobEventType, JobStatus } from './job'
-export type { Job, JobContext, JobEvent, JobSerialized } from './job'
+export type { Job, JobContext, JobEvent, JobSerialized, JobTxClient } from './job'
 
 export { LanguageCode, Languages, LanguagesISO639part2 } from './language'
 export type { Labels } from './language'
