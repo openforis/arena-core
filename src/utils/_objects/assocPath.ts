@@ -9,7 +9,16 @@ const _assocPath = (obj: any, path: string[], pathIndex: number, value: any, sid
   return objUpdated
 }
 
-export const assocPath = (params: { obj: any; path: string[]; value: any; sideEffect?: boolean }): any => {
+/**
+ * Sets the value at the specified path, creating the missing intermediate objects.
+ * Returns a copy of the object (with one copy per path level), or the object itself when sideEffect is true.
+ */
+export const assocPath = <T extends object>(params: {
+  obj: T
+  path: string[]
+  value: unknown
+  sideEffect?: boolean
+}): T => {
   const { obj, path, value, sideEffect = false } = params
   return _assocPath(obj, path, 0, value, sideEffect)
 }

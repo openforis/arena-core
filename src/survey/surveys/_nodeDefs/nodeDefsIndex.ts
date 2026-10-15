@@ -40,7 +40,7 @@ export const addNodeDefToIndex =
         path: [keys.nodeDefsIndex, indexKeys.childDefUuidPresenceByParentUuid, parentUuid, uuid],
         value: true,
         sideEffect,
-      }) as Survey
+      })
     } else if (!temporary && !analysis) {
       // nodeDef is root
       surveyUpdated = Objects.assocPath({
@@ -48,7 +48,7 @@ export const addNodeDefToIndex =
         path: [keys.nodeDefsIndex, indexKeys.rootDefUuid],
         value: uuid,
         sideEffect,
-      }) as Survey
+      })
     }
 
     if (NodeDefs.isQualifier(nodeDef)) {
@@ -57,7 +57,7 @@ export const addNodeDefToIndex =
         path: [keys.nodeDefsIndex, indexKeys.qualifierPresenceByUuid, uuid],
         value: true,
         sideEffect,
-      }) as Survey
+      })
     }
     return surveyUpdated
   }
