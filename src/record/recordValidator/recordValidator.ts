@@ -40,11 +40,8 @@ export const validateNodes = async (params: AttributesValidatorParams): Promise<
 export const validateRecord = async (params: RecordValidatorParams): Promise<Validation> => {
   const { record } = params
   const nodesArray: ArenaRecordNode[] = []
-  Records.visitDescendantsAndSelf({
-    node: Records.getRoot(record)!,
-    visitor: (node) => {
-      nodesArray.push(node)
-    },
+  Records.visitDescendantsAndSelf(Records.getRoot(record)!, (node) => {
+    nodesArray.push(node)
   })(record)
 
   return validateSortedNodes({ ...params, nodesArray })

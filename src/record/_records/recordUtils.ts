@@ -32,11 +32,9 @@ const hasNodeNonEmptyDescendants = (params: {
   nodeDefDescendant: NodeDefEntity
 }): boolean => {
   const { record, parentNode, nodeDefDescendant } = params
-  const descendants = getDescendantsOrSelf({ node: parentNode ?? getRoot(record)!, nodeDefDescendant })(record)
+  const descendants = getDescendantsOrSelf(parentNode ?? getRoot(record)!, nodeDefDescendant)(record)
   const nonEmptyDescendants = descendants.filter((dependentEntity) =>
-    getChildren({ parentNode: dependentEntity })(record).some((childNode) =>
-      isNodeFilledByUser({ node: childNode })(record)
-    )
+    getChildren(dependentEntity)(record).some((childNode) => isNodeFilledByUser(childNode)(record))
   )
   return nonEmptyDescendants.length > 0
 }
@@ -47,7 +45,7 @@ export const findDependentEnumeratedEntityDefsNotEmpty =
     const dependentEnumeratedEntityDefs = findDependentEnumeratedEntityDefs({ survey, nodeDef })
     if (dependentEnumeratedEntityDefs.length === 0) return []
 
-    const parentNode = getParent({ node })(record)
+    const parentNode = getParent(node)(record)
 
     return dependentEnumeratedEntityDefs.filter((dependentEnumeratedEntityDef) =>
       hasNodeNonEmptyDescendants({ record, parentNode, nodeDefDescendant: dependentEnumeratedEntityDef })
@@ -72,7 +70,7 @@ export const getEnumeratingCategoryItems =
     let parentItemUuid
     const parentCodeDefUuid = NodeDefs.getParentCodeDefUuid(enumeratorDef)
     if (parentCodeDefUuid) {
-      const parentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: enumeratorDef })(record)
+      const parentCodeAttribute = getParentCodeAttribute(parentNode, enumeratorDef)(record)
       parentItemUuid = parentCodeAttribute ? NodeValues.getItemUuid(parentCodeAttribute) : null
       if (!parentItemUuid) return []
     }

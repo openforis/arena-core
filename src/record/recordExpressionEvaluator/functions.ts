@@ -18,23 +18,21 @@ const extractPreviousCycleValues = ({
   if (!node || !prevCycleRecord) {
     return null
   }
-  const currentRecordEntity = Records.getParent({ node })(record)
+  const currentRecordEntity = Records.getParent(node)(record)
   if (!currentRecordEntity) {
     return null
   }
   const { uuid: entityUuid } = currentRecordEntity
-  const prevCycleEntity = Records.findEntityWithSameKeysInAnotherRecord({
+  const prevCycleEntity = Records.findEntityWithSameKeysInAnotherRecord(
     survey,
-    cycle: Records.getCycle(record),
+    Records.getCycle(record),
     entityUuid,
-    recordOther: prevCycleRecord,
-  })(record)
+    prevCycleRecord
+  )(record)
   if (!prevCycleEntity) {
     return null
   }
-  return Records.getChildren({ parentNode: prevCycleEntity, childDefUuid: node.nodeDefUuid })(prevCycleRecord).map(
-    (prevNode) => prevNode.value
-  )
+  return Records.getChildren(prevCycleEntity, node.nodeDefUuid)(prevCycleRecord).map((prevNode) => prevNode.value)
 }
 
 export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionContext> = {
@@ -118,7 +116,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       if (!parentNode) {
         return -1
       }
-      const children = Records.getChildren({ parentNode, childDefUuid: node.nodeDefUuid })(record)
+      const children = Records.getChildren(parentNode, node.nodeDefUuid)(record)
       return children.findIndex((n) => Nodes.areEqual(n, node))
     },
   },

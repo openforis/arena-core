@@ -41,7 +41,7 @@ const createErrorValidation = (nodeUuid: string, key: string) =>
 
 const getFirstNodeByDefName = (params: { survey: Survey; record: ArenaRecord; name: string }) => {
   const { survey, record, name } = params
-  return Records.getNodesByDefUuid({ nodeDefUuid: Surveys.getNodeDefByName({ survey, name }).uuid })(record)[0]
+  return Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name }).uuid)(record)[0]
 }
 
 // cluster > plot (multiple, own page) > plot_id
@@ -101,14 +101,14 @@ const createLandUseFixture = async () => {
   const plotIdDefUuid = Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid
   const landUseCodeDefUuid = Surveys.getNodeDefByName({ survey, name: 'land_use_code' }).uuid
   const findPlotEntityByPlotId = (plotId: number) => {
-    const plotIdNode = Records.getNodesByDefUuid({ nodeDefUuid: plotIdDefUuid })(record).find((n) => n.value === plotId)
-    return Records.getParent({ node: plotIdNode! })(record)!
+    const plotIdNode = Records.getNodesByDefUuid(plotIdDefUuid)(record).find((n) => n.value === plotId)
+    return Records.getParent(plotIdNode!)(record)!
   }
   const plot3 = findPlotEntityByPlotId(3)
   const plot4 = findPlotEntityByPlotId(4)
 
-  const plot3LandUse = Records.getChildren({ parentNode: plot3, childDefUuid: landUseDef.uuid })(record)[0]
-  const plot3Code = Records.getChildren({ parentNode: plot3LandUse, childDefUuid: landUseCodeDefUuid })(record)[0]
+  const plot3LandUse = Records.getChildren(plot3, landUseDef.uuid)(record)[0]
+  const plot3Code = Records.getChildren(plot3LandUse, landUseCodeDefUuid)(record)[0]
   record.validation = createErrorValidation(plot3Code.uuid, 'required')
 
   return { user, survey, plotDef, landUseDef, record, plot3, plot4, plot3Code }
@@ -160,9 +160,7 @@ describe('RecordPagesValidationProgress', () => {
     ).build()
 
     const clusterIdNode = getFirstNodeByDefName({ survey, record, name: 'cluster_id' })
-    const plotIdNodes = Records.getNodesByDefUuid({
-      nodeDefUuid: Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid,
-    })(record)
+    const plotIdNodes = Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid)(record)
 
     // Error only on nested plot field → parent cluster stays valid; 1 of 2 pages invalid.
     record.validation = ValidationFactory.createInstance({
@@ -454,9 +452,7 @@ describe('RecordPagesValidationProgress', () => {
       entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('remarks', null)))
     ).build()
 
-    const plotEntity = Records.getChildren({ parentNode: Records.getRoot(record)!, childDefUuid: plotDef.uuid })(
-      record
-    )[0]
+    const plotEntity = Records.getChildren(Records.getRoot(record)!, plotDef.uuid)(record)[0]
 
     expect(Records.getEntityCompletionPercent({ survey, record, entity: plotEntity })).toBe(100)
     expect(Records.getEntityCompletionStats({ survey, record, entity: plotEntity })).toEqual({
@@ -553,16 +549,14 @@ describe('RecordPagesValidationProgress', () => {
     const plotIdDefUuid = Surveys.getNodeDefByName({ survey, name: 'plot_id' }).uuid
     const healthDefUuid = Surveys.getNodeDefByName({ survey, name: 'health' }).uuid
     const findPlotEntityByPlotId = (plotId: number) => {
-      const plotIdNode = Records.getNodesByDefUuid({ nodeDefUuid: plotIdDefUuid })(record).find(
-        (n) => n.value === plotId
-      )
-      return Records.getParent({ node: plotIdNode! })(record)!
+      const plotIdNode = Records.getNodesByDefUuid(plotIdDefUuid)(record).find((n) => n.value === plotId)
+      return Records.getParent(plotIdNode!)(record)!
     }
     const plot3 = findPlotEntityByPlotId(3)
     const plot4 = findPlotEntityByPlotId(4)
 
-    const plot3Tree = Records.getChildren({ parentNode: plot3, childDefUuid: treeDef.uuid })(record)[0]
-    const plot3Health = Records.getChildren({ parentNode: plot3Tree, childDefUuid: healthDefUuid })(record)[0]
+    const plot3Tree = Records.getChildren(plot3, treeDef.uuid)(record)[0]
+    const plot3Health = Records.getChildren(plot3Tree, healthDefUuid)(record)[0]
     record.validation = createErrorValidation(plot3Health.uuid, 'required')
 
     // Unscoped: any tree in the record keeps Tree red.

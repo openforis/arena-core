@@ -53,7 +53,7 @@ export const updateNodesDependents = async (
   const onUpdateDependentDefs = Surveys.getOnUpdateDependents({ survey })
   if (onUpdateDependentDefs.length > 0) {
     for (const dependentDef of onUpdateDependentDefs) {
-      const dependentNodes = getNodesByDefUuid({ nodeDefUuid: dependentDef.uuid })(record)
+      const dependentNodes = getNodesByDefUuid(dependentDef.uuid)(record)
       for (const node of dependentNodes) {
         initialNodesToVisit[node.uuid] = node
       }

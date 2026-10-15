@@ -64,23 +64,20 @@ const _getSiblingNodeKeys = (
   if (!ancestorMultipleEntityDef) {
     return []
   }
-  const ancestorMultipleEntity = Records.getAncestor({
-    node: attribute,
-    ancestorDefUuid: ancestorMultipleEntityDef.uuid,
-  })(record)
+  const ancestorMultipleEntity = Records.getAncestor(attribute, ancestorMultipleEntityDef.uuid)(record)
   if (!ancestorMultipleEntity) return []
 
-  const ancestorMultipleEntityParent = Records.getParent({ node: ancestorMultipleEntity })(record)
+  const ancestorMultipleEntityParent = Records.getParent(ancestorMultipleEntity)(record)
   if (!ancestorMultipleEntityParent) return []
 
   const cacheKey = `${ancestorMultipleEntityParent.uuid}_${ancestorMultipleEntityDef.uuid}`
   let items = siblingKeyNodesCache?.get(cacheKey)
   if (!items) {
     const keyDefs = Surveys.getNodeDefKeys({ survey, nodeDef: ancestorMultipleEntityDef })
-    const entities = Records.getEntitySiblings({ entity: ancestorMultipleEntity, includeSelf: true })(record)
+    const entities = Records.getEntitySiblings(ancestorMultipleEntity, true)(record)
     items = []
     for (const entity of entities) {
-      const keyNodes = Records.getEntityKeyNodes({ survey, entity, keyDefs })(record)
+      const keyNodes = Records.getEntityKeyNodes(survey, entity, undefined, keyDefs)(record)
       for (const keyNode of keyNodes) {
         if (!keyNode) continue
         const nodeValidation =
@@ -176,7 +173,7 @@ const _validateNodeValidations =
 
 const validateAttribute = async (params: AttributeValidatorParams & { entityKeysCache?: EntityKeysCache }) => {
   const { survey, record, attribute } = params
-  if (Records.isNodeApplicable({ node: attribute })(record)) {
+  if (Records.isNodeApplicable(attribute)(record)) {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: attribute.nodeDefUuid })
     const validatorParams = { ...params, nodeDef }
     return new Validator().validate(attribute, {
@@ -236,14 +233,14 @@ const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Are
       continue
     }
     // Get dependents and attribute itself
-    const nodePointersAttributeAndDependents = Records.getDependentNodePointers({
+    const nodePointersAttributeAndDependents = Records.getDependentNodePointers(
       survey,
       node,
-      dependencyType: SurveyDependencyType.validations,
-      includeSelf: true,
-    })(record)
+      SurveyDependencyType.validations,
+      true
+    )(record)
 
-    const nodeParent = Records.getParent({ node })(record)
+    const nodeParent = Records.getParent(node)(record)
 
     result.push(
       ...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }),
@@ -251,7 +248,7 @@ const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Are
     )
 
     if (NodeDefs.getValidations(nodeDef)?.unique) {
-      result.push(...Records.getAttributeSiblings({ node, nodeDef })(record))
+      result.push(...Records.getAttributeSiblings(node, nodeDef)(record))
     }
   }
 

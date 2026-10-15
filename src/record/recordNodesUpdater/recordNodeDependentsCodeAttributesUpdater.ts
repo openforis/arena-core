@@ -55,7 +55,7 @@ export const updateDependentCodeAttributes = async (params: RecordNodeDependents
   const recordUpdateOptions = { sideEffect }
 
   // 1. get dependent code attributes
-  const dependentCodeAttributes = Records.getDependentCodeAttributes({ node })(record)
+  const dependentCodeAttributes = Records.getDependentCodeAttributes(node)(record)
   if (dependentCodeAttributes.length === 0) return updateResult
 
   const parentItemUuid = NodeValues.getItemUuid(node)

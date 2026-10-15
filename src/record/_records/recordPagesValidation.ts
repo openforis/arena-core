@@ -35,7 +35,7 @@ export const nodeBelongsToPage = (params: {
   const { node, pageNodeDefUuid, record } = params
   if (node.nodeDefUuid === pageNodeDefUuid) return true
   return Nodes.getHierarchy(node).some((ancestorUuid) => {
-    const ancestor = getNodeByUuid({ uuid: ancestorUuid })(record)
+    const ancestor = getNodeByUuid(ancestorUuid)(record)
     return ancestor?.nodeDefUuid === pageNodeDefUuid
   })
 }
@@ -142,7 +142,7 @@ const getOwnPageFieldValidationFlags = (params: {
     })
   }
 
-  const node = getNodeByUuid({ uuid: nodeUuid })(record)
+  const node = getNodeByUuid(nodeUuid)(record)
   if (!node || !nodeBelongsToOwnPage({ node, pageNodeDefUuid, descendantPageUuids, record })) return null
   if (scopeEntityUuid && !nodeIsUnderEntity({ node, entityUuid: scopeEntityUuid })) return null
 
@@ -177,7 +177,7 @@ const getOwnPageChildrenCountValidationFlags = (params: {
   // Sub-page entity min/max counts belong to navigation of nested pages, not this page's fields.
   if (descendantPageUuids.includes(childDefUuid)) return null
 
-  const parentNode = getNodeByUuid({ uuid: parentUuid })(record)
+  const parentNode = getNodeByUuid(parentUuid)(record)
   if (!parentNode || !nodeBelongsToOwnPage({ node: parentNode, pageNodeDefUuid, descendantPageUuids, record })) {
     return null
   }
@@ -243,7 +243,7 @@ export const getEntitySubtreeStatus = (params: {
   cycle?: string
 }): EntitySubtreeStatus | null => {
   const { survey, record, entityUuid } = params
-  const entity = getNodeByUuid({ uuid: entityUuid })(record)
+  const entity = getNodeByUuid(entityUuid)(record)
   if (!entity) return null
 
   const entityDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
@@ -287,7 +287,7 @@ export const getMultiplePageEntitiesStatus = (params: {
   scopeEntityUuid?: string
 }): EntitySubtreeStatus => {
   const { survey, record, pageNodeDefUuid, scopeEntityUuid } = params
-  const instances = getNodesByDefUuid({ nodeDefUuid: pageNodeDefUuid })(record).filter((instance) =>
+  const instances = getNodesByDefUuid(pageNodeDefUuid)(record).filter((instance) =>
     scopeEntityUuid ? nodeIsUnderEntity({ node: instance, entityUuid: scopeEntityUuid }) : true
   )
 
