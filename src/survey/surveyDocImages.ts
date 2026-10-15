@@ -15,17 +15,17 @@ const assocDocumentPlace =
       obj: image,
       path: ['props', surveyDocImagePropKeys.documentPlace],
       value: place,
-    }) as SurveyDocImage
+    })
 
 const assocApplyIf =
   (expr: string) =>
   (image: SurveyDocImage): SurveyDocImage =>
-    Objects.assocPath({ obj: image, path: ['props', surveyDocImagePropKeys.applyIf], value: expr }) as SurveyDocImage
+    Objects.assocPath({ obj: image, path: ['props', surveyDocImagePropKeys.applyIf], value: expr })
 
 const assocLabels =
   (labels: Labels) =>
   (image: SurveyDocImage): SurveyDocImage =>
-    Objects.assocPath({ obj: image, path: ['props', 'labels'], value: labels }) as SurveyDocImage
+    Objects.assocPath({ obj: image, path: ['props', 'labels'], value: labels })
 
 export const SurveyDocImages = {
   getDocumentPlace,
