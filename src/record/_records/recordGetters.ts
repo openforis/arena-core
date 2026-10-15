@@ -354,7 +354,7 @@ export const visitDescendantsAndSelf = recordGetter(
           return
         }
 
-        const children = getChildren(visitedNode)(record)
+        const children = getChildren({ parentNode: visitedNode })(record)
         queue.enqueueItems(children)
       }
     } else {
