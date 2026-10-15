@@ -1,6 +1,6 @@
 import { Users } from '../auth'
 import { CategoryItem } from '../category'
-import { SystemError } from '../error'
+import { SystemError, SystemErrorKeys } from '../error'
 import { ExpressionFunctions } from '../expression'
 import { ExtraProps } from '../extraProp/extraProps'
 import { Point, Points } from '../geo'
@@ -97,13 +97,14 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         const { survey } = context
 
         if (Objects.isEmpty(categoryName) || Objects.isEmpty(itemPropName) || Objects.isEmpty(codePaths))
-          throw new SystemError('expression.missingFunctionParameters')
+          throw new SystemError(SystemErrorKeys.expression.missingFunctionParameters)
 
         const category = getCategoryByName({ survey, categoryName })
-        if (!category) throw new SystemError('expression.invalidCategoryName', { name: categoryName })
+        if (!category) throw new SystemError(SystemErrorKeys.expression.invalidCategoryName, { name: categoryName })
 
         const extraPropDef = category.props.itemExtraDef?.[itemPropName]
-        if (!extraPropDef) throw new SystemError('expression.invalidCategoryExtraProp', { propName: itemPropName })
+        if (!extraPropDef)
+          throw new SystemError(SystemErrorKeys.expression.invalidCategoryExtraProp, { propName: itemPropName })
 
         const { uuid: categoryUuid } = category
         const categoryItem = await getOrFetchCategoryItem({ context, categoryUuid, codePaths })
@@ -279,15 +280,15 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     executor:
       (context: NodeDefExpressionContext) => async (taxonomyName: string, propName: string, taxonCode: string) => {
         if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(propName))
-          throw new SystemError('expression.missingFunctionParameters')
+          throw new SystemError(SystemErrorKeys.expression.missingFunctionParameters)
         if (Objects.isEmpty(taxonCode)) return null
 
         const { survey } = context
         const taxonomy = getTaxonomyByName({ survey, taxonomyName })
-        if (!taxonomy) throw new SystemError('expression.invalidTaxonomyName', { name: taxonomyName })
+        if (!taxonomy) throw new SystemError(SystemErrorKeys.expression.invalidTaxonomyName, { name: taxonomyName })
 
         const extraPropDef = taxonomy.props.extraPropsDefs?.[propName]
-        if (!extraPropDef) throw new SystemError('expression.invalidTaxonomyExtraProp', { propName })
+        if (!extraPropDef) throw new SystemError(SystemErrorKeys.expression.invalidTaxonomyExtraProp, { propName })
 
         const taxon = await getOrFetchTaxon({ context, taxonomyUuid: taxonomy.uuid, taxonCode })
         if (!taxon) return null
@@ -303,15 +304,17 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       (context: NodeDefExpressionContext) =>
       async (taxonomyName: string, vernacularLangCode: string, taxonCode: string) => {
         if (Objects.isEmpty(taxonomyName) || Objects.isEmpty(vernacularLangCode))
-          throw new SystemError('expression.missingFunctionParameters')
+          throw new SystemError(SystemErrorKeys.expression.missingFunctionParameters)
         if (Objects.isEmpty(taxonCode)) return null
 
         const { survey } = context
         const taxonomy = getTaxonomyByName({ survey, taxonomyName })
-        if (!taxonomy) throw new SystemError('expression.invalidTaxonomyName', { name: taxonomyName })
+        if (!taxonomy) throw new SystemError(SystemErrorKeys.expression.invalidTaxonomyName, { name: taxonomyName })
 
         if (!LanguagesISO639part2[vernacularLangCode]) {
-          throw new SystemError('expression.invalidTaxonVernacularNameLanguageCode', { vernacularLangCode })
+          throw new SystemError(SystemErrorKeys.expression.invalidTaxonVernacularNameLanguageCode, {
+            vernacularLangCode,
+          })
         }
 
         const taxon = await getOrFetchTaxon({ context, taxonomyUuid: taxonomy.uuid, taxonCode })

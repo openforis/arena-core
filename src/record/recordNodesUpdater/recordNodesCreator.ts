@@ -1,5 +1,5 @@
 import { User } from '../../auth'
-import { SystemError } from '../../error'
+import { SystemError, SystemErrorKeys } from '../../error'
 import { CategoryItem } from '../../category'
 import { ArenaRecordNode, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
@@ -59,7 +59,7 @@ export const createEnumeratedEntityNode = async (params: {
   })
   const enumeratorNode = Object.values(childUpdateResult.nodes).find((node) => node.nodeDefUuid === enumeratorDef.uuid)
   if (!enumeratorNode) {
-    throw new SystemError('record.enumeratorNodeNotFound', {
+    throw new SystemError(SystemErrorKeys.record.enumeratorNodeNotFound, {
       recordUuid: record.uuid,
       entityDef: NodeDefs.getName(nodeDef),
       enumerator: NodeDefs.getName(enumeratorDef),

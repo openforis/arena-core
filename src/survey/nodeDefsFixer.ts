@@ -1,4 +1,4 @@
-import { SystemError } from '../error'
+import { SystemError, SystemErrorKeys } from '../error'
 import { NodeDef, NodeDefEntity, NodeDefMap, NodeDefs } from '../nodeDef'
 import { NodeDefEntityLayoutChildItem } from '../nodeDef/types/entity'
 import { Objects } from '../utils'
@@ -30,7 +30,7 @@ const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: No
   let currentParentUuid = nodeDef.parentUuid
   while (currentParentUuid) {
     if (visitedNodeDefUuids.has(currentParentUuid)) {
-      throw new SystemError('nodeDef.hierarchyCircularDependency', {
+      throw new SystemError(SystemErrorKeys.nodeDef.hierarchyCircularDependency, {
         nodeDefName: nodeDef.props?.name,
         nodeDefUuid: nodeDef.uuid,
         parentUuid: currentParentUuid,
@@ -40,7 +40,7 @@ const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: No
     hierarchy.unshift(currentParentUuid)
     const currentParentNode = nodeDefs[currentParentUuid]
     if (!currentParentNode) {
-      throw new SystemError('nodeDef.parentNotFound', {
+      throw new SystemError(SystemErrorKeys.nodeDef.parentNotFound, {
         nodeDefName: nodeDef.props?.name,
         nodeDefUuid: nodeDef.uuid,
         parentUuid: currentParentUuid,
