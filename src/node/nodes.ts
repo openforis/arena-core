@@ -169,11 +169,9 @@ const updateChildRequired = (params: {
     // unlike the other child flags, both values are stored: a missing value means "not evaluated"
     dictionary[nodeDefUuid] = required
   }
-  if (Object.keys(dictionary).length > 0) {
-    meta.cReq = dictionary
-  } else {
-    delete meta.cReq
-  }
+  // kept even when empty (like the other child flags dictionaries): an empty one is not stored by the persistence layer
+  // and it removes the stored one
+  meta.cReq = dictionary
   nodeUpdated.meta = meta
   nodeUpdated.updated = true
   nodeUpdated.dateModified = Dates.nowFormattedForStorage()

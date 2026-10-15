@@ -182,6 +182,6 @@ describe('RecordUpdater - required if', () => {
       nodeDefUuids: [remarksDefUuid],
     })
     expect(Nodes.getChildRequired(Records.getRoot(result2.record)!, remarksDefUuid)).toBeUndefined()
-    expect(Records.getRoot(result2.record)?.meta?.cReq).toBeUndefined()
+    expect(Records.getRoot(result2.record)?.meta?.cReq).toEqual({})
   })
 })
