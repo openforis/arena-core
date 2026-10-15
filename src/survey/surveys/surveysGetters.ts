@@ -1,6 +1,7 @@
 import { AuthGroupName, UserAuthGroup } from '../../auth'
 import { Category } from '../../category'
 import { LanguageCode } from '../../language'
+import { getLabelOrDefault } from '../../language/labels'
 import { SRS, SRSIndex } from '../../srs'
 import { Taxonomy } from '../../taxonomy'
 import { Arrays, Objects } from '../../utils'
@@ -23,12 +24,14 @@ export const getLabel = getMultilangPropValue('labels')
 export const getDescription = getMultilangPropValue('descriptions')
 export const getFieldManualLink = getMultilangPropValue('fieldManualLinks')
 
+/**
+ * Returns the survey label in the specified language (the default language if not specified), or the survey name
+ * when the label is missing or empty.
+ */
 export const getLabelOrName =
   (langCode?: LanguageCode) =>
-  (survey: Survey): string => {
-    const label = getLabel(langCode)(survey)
-    return label ?? getName(survey)
-  }
+  (survey: Survey): string =>
+    getLabelOrDefault(survey.props.labels, langCode ?? getDefaultLanguage(survey), getName(survey))
 
 export const getCategoryByName = (params: { survey: Survey; categoryName: string }): Category | undefined => {
   const { survey, categoryName } = params
