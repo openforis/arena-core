@@ -1,7 +1,8 @@
 import { LanguageCode } from '../language'
+import { getLabelOrDefault } from '../language/labels'
 import { ValuePropsCoordinate } from '../node/nodeValueProps'
 import { defaultCycle } from '../survey'
-import { Objects, Strings } from '../utils'
+import { Objects } from '../utils'
 import {
   NodeDef,
   NodeDefCountExpression,
@@ -88,10 +89,10 @@ const isLayoutElement = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefFormH
 const getName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>): string => nodeDef.props.name ?? ''
 
 const getLabelOrName = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
-  Strings.defaultIfEmpty(getName(nodeDef))(nodeDef.props.labels?.[lang])
+  getLabelOrDefault(nodeDef.props.labels, lang, getName(nodeDef))
 
 const getDescription = (nodeDef: NodeDef<NodeDefType, NodeDefProps>, lang: LanguageCode): string =>
-  nodeDef.props.descriptions?.[lang] ?? ''
+  getLabelOrDefault(nodeDef.props.descriptions, lang)
 
 const isQualifier = (nodeDef: NodeDef<NodeDefType>): boolean => nodeDef.props.qualifier ?? false
 
