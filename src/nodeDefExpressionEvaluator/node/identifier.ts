@@ -176,7 +176,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     const reachableNodeDefUuids = new Set<string>()
     const visitedUuids = new Set<string>()
 
-    const queue = new Queue()
+    const queue = new Queue<NodeDef<NodeDefType>>()
 
     const actualContextNode = findActualContextNode({ context })
     if (actualContextNode) {
@@ -186,7 +186,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     }
 
     while (!queue.isEmpty()) {
-      const entityDefCurrent = queue.dequeue()
+      const entityDefCurrent = queue.dequeue()!
       const entityDefCurrentChildren = getNodeDefChildren({ survey, nodeDef: entityDefCurrent, includeAnalysis })
       for (const childDef of entityDefCurrentChildren) {
         if (!reachableNodeDefUuids.has(childDef.uuid)) {

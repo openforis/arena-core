@@ -74,7 +74,7 @@ export const updateNodesDependents = async (
   const visitedCountByUuid: Dictionary<number> = {}
 
   while (!nodeUuidsToVisit.isEmpty()) {
-    const nodeUuid = nodeUuidsToVisit.dequeue()
+    const nodeUuid = nodeUuidsToVisit.dequeue()!
 
     const visitedCount = visitedCountByUuid[nodeUuid] ?? 0
 
