@@ -1,6 +1,8 @@
+import { User } from '../auth'
 import { Dictionary } from '../common'
 import { SystemError } from '../error'
 import { Logger } from '../logger'
+import { Survey } from '../survey'
 import { UUIDs } from '../utils'
 
 import { Job } from './job'
@@ -12,6 +14,13 @@ import { JobStatus } from './status'
 export interface JobConstructor {
   new <C extends JobContext, R>(context: C, innerJobs?: JobBase<any>[]): JobBase<C, R>
   readonly prototype: JobBase<any, any>
+}
+
+/**
+ * Client able to open a transaction (e.g. a pg-promise database): the job runs inside `client.tx(callback)`.
+ */
+export interface JobTxClient {
+  tx(callback: (tx: any) => Promise<void>): Promise<unknown>
 }
 
 const PROGRESS_NOTIFICATION_THROTTLE_MILLIS = 1000
@@ -101,23 +110,32 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   }
 
   protected get surveyId(): number | null {
-    return this.getContextProp(JobBase.keysContext.surveyId)
+    return this.context.surveyId ?? null
   }
 
-  protected get user(): any {
-    return this.getContextProp(JobBase.keysContext.user)
+  protected get user(): User {
+    return this.context.user
   }
 
   protected get userUuid(): string | undefined {
     return this.user?.uuid
   }
 
-  protected get contextSurvey(): any {
-    return this.getContextProp(JobBase.keysContext.survey)
+  protected get contextSurvey(): Survey | undefined {
+    return this.context.survey
   }
 
-  protected getContextProp<T = any>(prop: string, defaultValue: T | null = null): T | null {
-    const value = (this.context as any)[prop]
+  /**
+   * Returns the value of the specified context prop, or the default value (null if not specified) when not set.
+   */
+  protected getContextProp<K extends keyof C & string>(prop: K, defaultValue?: C[K] | null): C[K] | null
+  /** Context prop not declared in the context type: the value is typed by the caller. */
+  protected getContextProp<T = any, P extends string = string>(
+    prop: P extends keyof C ? never : P,
+    defaultValue?: T | null
+  ): T | null
+  protected getContextProp(prop: string, defaultValue: unknown = null): unknown {
+    const value = (this.context as Record<string, unknown>)[prop]
     return value ?? defaultValue
   }
 
@@ -217,7 +235,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     await this.beforeEnd()
   }
 
-  async start(client: any = null): Promise<void> {
+  async start(client: JobTxClient | null = null): Promise<void> {
     this.logDebug('start')
 
     try {
