@@ -1,4 +1,4 @@
-import { ExpressionNode, ExpressionNodeType, IdentifierExpression, MemberExpression } from '../../expression'
+import { AnyExpressionNode, ExpressionNodeType } from '../../expression'
 import { parseExpression } from '../../expression/javascript/evaluator'
 import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { SurveyDependencyType } from '../../survey/survey'
@@ -17,12 +17,13 @@ const isReferencedThroughMember = (params: {
   if (Array.isArray(expressionNode)) {
     return expressionNode.some((item) => isReferencedThroughMember({ expressionNode: item, name, inMemberProperty }))
   }
-  const { type } = expressionNode as ExpressionNode<ExpressionNodeType>
-  if (type === ExpressionNodeType.Identifier) {
-    return inMemberProperty && (expressionNode as IdentifierExpression).name === name
+  // parsed expression nodes (or their array or object properties)
+  const node = expressionNode as AnyExpressionNode
+  if (node.type === ExpressionNodeType.Identifier) {
+    return inMemberProperty && node.name === name
   }
-  if (type === ExpressionNodeType.Member) {
-    const { object, property } = expressionNode as MemberExpression
+  if (node.type === ExpressionNodeType.Member) {
+    const { object, property } = node
     return (
       isReferencedThroughMember({ expressionNode: object, name, inMemberProperty }) ||
       isReferencedThroughMember({ expressionNode: property, name, inMemberProperty: true })
