@@ -40,4 +40,13 @@ describe('Queue', () => {
     }
     expect(dequeued).toEqual(Array.from({ length: next }, (_, index) => index))
   })
+
+  test('items are typed by the queue type', () => {
+    const queue = new Queue<string>(['a'])
+    // @ts-expect-error only strings can be enqueued
+    queue.enqueue(1)
+    const item: string | undefined = queue.dequeue()
+    expect(item).toBe('a')
+    expect(queue.dequeue()).toBe(1)
+  })
 })
