@@ -141,4 +141,22 @@ describe('Objects', () => {
       skip_me: { inner_key: 3 },
     })
   })
+
+  test('assocPath and setInPath return the type of the object', () => {
+    type Item = { uuid: string; props: { name?: string } }
+    const item: Item = { uuid: 'item', props: {} }
+
+    const itemUpdated: Item = Objects.assocPath({ obj: item, path: ['props', 'name'], value: 'name_1' })
+    // @ts-expect-error the result has the type of the object passed
+    const notAnItem: { other: string } = Objects.assocPath({ obj: item, path: ['props', 'name'], value: 'name_2' })
+    const itemSet: Item = Objects.setInPath({
+      obj: { uuid: 'item_2', props: {} } as Item,
+      path: ['props', 'name'],
+      value: 'name_3',
+    })
+
+    expect(itemUpdated.props.name).toBe('name_1')
+    expect(notAnItem).toEqual({ uuid: 'item', props: { name: 'name_2' } })
+    expect(itemSet.props.name).toBe('name_3')
+  })
 })
