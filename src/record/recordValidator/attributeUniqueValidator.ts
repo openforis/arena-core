@@ -14,7 +14,7 @@ const _isAttributeDuplicate = (params: {
   const { survey, attribute, record, nodeDef } = params
   // blank values are never considered duplicates
   if (Nodes.isValueBlank(attribute)) return false
-  const nodeSiblings = Records.getAttributeSiblings({ node: attribute, nodeDef })(record)
+  const nodeSiblings = Records.getAttributeSiblings(attribute, nodeDef)(record)
   return nodeSiblings.some((sibling) =>
     NodeValues.isValueEqual({ survey, nodeDef, value: sibling.value, valueSearch: attribute.value })
   )

@@ -82,7 +82,7 @@ export class AttributeBuilder extends NodeBuilder {
     if (nodeDef.type === NodeDefType.code) {
       const nodeDefCode = nodeDef as NodeDefCode
       if (nodeDefCode.props.parentCodeDefUuid && parentNode) {
-        const parentCodeAttribute = Records.getParentCodeAttribute({ parentNode, nodeDef: nodeDefCode })(record)
+        const parentCodeAttribute = Records.getParentCodeAttribute(parentNode, nodeDefCode)(record)
         if (!parentCodeAttribute) throw new Error('Could not find the parent code attibute')
         return { ...meta, hCode: [parentCodeAttribute.uuid] }
       }
