@@ -11,7 +11,7 @@ import {
   NodeDefs,
 } from '../../nodeDef'
 import { Arrays, Objects, Queue } from '../../utils'
-import { SystemError } from '../../error'
+import { SystemError, SystemErrorKeys } from '../../error'
 import * as NodeDefsReader from './_nodeDefs/nodeDefsReader'
 import * as NodeDefsIndex from './_nodeDefs/nodeDefsIndex'
 import { TraverseMethod } from '../../common'
@@ -30,7 +30,7 @@ export const findNodeDefByUuid = (params: {
 export const getNodeDefByUuid = (params: { survey: Survey; uuid: string }): NodeDef<NodeDefType, NodeDefProps> => {
   const { survey, uuid } = params
   const nodeDef = findNodeDefByUuid({ survey, uuid })
-  if (!nodeDef) throw new SystemError('survey.nodeDefUuidNotFound', { uuid })
+  if (!nodeDef) throw new SystemError(SystemErrorKeys.survey.nodeDefUuidNotFound, { uuid })
   return nodeDef
 }
 
@@ -51,7 +51,7 @@ export const getNodeDefByName = (params: { survey: Survey; name: string }): Node
   const { survey, name } = params
   const nodeDef = findNodeDefByName({ survey, name })
   if (!nodeDef) {
-    throw new SystemError('survey.nodeDefNameNotFound', { name })
+    throw new SystemError(SystemErrorKeys.survey.nodeDefNameNotFound, { name })
   }
   return nodeDef
 }
@@ -107,7 +107,7 @@ export const isNodeDefAncestor = (params: {
 
 export const getNodeDefRoot = (params: { survey: Survey }): NodeDefEntity => {
   const { survey } = params
-  if (!survey.nodeDefs) throw new SystemError('survey.emptyNodeDefs')
+  if (!survey.nodeDefs) throw new SystemError(SystemErrorKeys.survey.emptyNodeDefs)
 
   const rootDefUuidInIndex = survey.nodeDefsIndex?.rootDefUuid
 
@@ -115,7 +115,7 @@ export const getNodeDefRoot = (params: { survey: Survey }): NodeDefEntity => {
     ? getNodeDefByUuid({ survey, uuid: rootDefUuidInIndex })
     : getNodeDefsArray(survey).find((nodeDef) => !nodeDef.parentUuid)
 
-  if (!rootDef) throw new SystemError('survey.rootDefNotFound')
+  if (!rootDef) throw new SystemError(SystemErrorKeys.survey.rootDefNotFound)
 
   return rootDef as NodeDefEntity
 }

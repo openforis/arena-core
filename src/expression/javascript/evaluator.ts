@@ -2,7 +2,7 @@ import { ExpressionContext } from '../context'
 import { ExpressionEvaluator } from '../evaluator'
 import { ExpressionFunctions } from '../function'
 import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
-import { SystemError } from '../../error'
+import { SystemError, SystemErrorKeys } from '../../error'
 
 import { functionsDefault } from './functionsDefault'
 import { ArrayEvaluator } from './node/array'
@@ -74,7 +74,7 @@ export class JavascriptExpressionEvaluator<C extends ExpressionContext> implemen
 
     const NodeEvaluator = this.evaluators[type]
     if (!NodeEvaluator) {
-      throw new SystemError('expression.unsupportedFunctionType', { type })
+      throw new SystemError(SystemErrorKeys.expression.unsupportedFunctionType, { type })
     }
     return new NodeEvaluator(this, context).evaluate(expressionNode)
   }

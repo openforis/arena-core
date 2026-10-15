@@ -1,5 +1,5 @@
 import { Dictionary } from '../common'
-import { SystemError } from '../error'
+import { SystemError, SystemErrorKeys } from '../error'
 import { ArenaRecordNode, NodePointer, NodesMap } from '../node'
 import { Survey, SurveyDependencyType, Surveys } from '../survey'
 import { Dates, Objects } from '../utils'
@@ -107,7 +107,7 @@ const updateAttributeValue = async (
 ): Promise<RecordUpdateResult> => {
   const { attributeUuid, record, value, dateModified = Dates.nowFormattedForStorage(), sideEffect = false } = params
   const attribute = Records.getNodeByUuid({ uuid: attributeUuid })(record)
-  if (!attribute) throw new SystemError('record.nodeNotFound', { uuid: attributeUuid })
+  if (!attribute) throw new SystemError(SystemErrorKeys.record.nodeNotFound, { uuid: attributeUuid })
 
   let attributeUpdated = sideEffect ? attribute : { ...attribute }
   attributeUpdated.value = value

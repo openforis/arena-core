@@ -1,4 +1,4 @@
-import { SystemError } from '../../../error'
+import { SystemError, SystemErrorKeys } from '../../../error'
 import { ExpressionContext } from '../../context'
 import { ExpressionNodeEvaluator, IdentifierExpression } from '../../node'
 import { getGlobalObjectProperty } from '../global'
@@ -39,6 +39,6 @@ export class IdentifierEvaluator<C extends ExpressionContext> extends Expression
     if (property) {
       return Promise.resolve(property.value)
     }
-    return Promise.reject(new SystemError('expression.identifierNotFound', { name: expressionNode.name }))
+    return Promise.reject(new SystemError(SystemErrorKeys.expression.identifierNotFound, { name: expressionNode.name }))
   }
 }

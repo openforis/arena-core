@@ -1,3 +1,4 @@
+import { SystemErrorKeys } from '../../error'
 import { ArenaRecordNode, NodePointer, Nodes } from '../../node'
 import { NodeDef, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
@@ -138,7 +139,7 @@ const updateDefaultValuesInNodes = async (
     } catch (error) {
       throwError({
         error,
-        errorKey: 'record.updateSelfAndDependentsDefaultValues',
+        errorKey: SystemErrorKeys.record.updateSelfAndDependentsDefaultValues,
         expressionType: SurveyDependencyType.defaultValues,
         survey,
         nodeDef,

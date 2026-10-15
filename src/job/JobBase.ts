@@ -1,6 +1,6 @@
 import { User } from '../auth'
 import { Dictionary } from '../common'
-import { SystemError } from '../error'
+import { SystemError, SystemErrorKeys } from '../error'
 import { Logger } from '../logger'
 import { Survey } from '../survey'
 import { UUIDs } from '../utils'
@@ -285,7 +285,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     }
 
     if (this.isCancelRequestedOrNotRunning()) {
-      this.throwError('jobCanceledOrErrorsFound')
+      this.throwError(SystemErrorKeys.job.canceledOrErrorsFound)
     }
   }
 

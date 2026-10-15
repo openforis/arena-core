@@ -7,7 +7,7 @@ import { NodeValues } from '../../../../node/nodeValues'
 import { Survey, Surveys } from '../../../../survey'
 import { RecordExpressionContext } from '../../context'
 import { NodesFinder } from './nodesFinder'
-import { SystemError } from '../../../../error'
+import { SystemError, SystemErrorKeys } from '../../../../error'
 import { NodeValueExtractor } from '../../nodeValueExtractor'
 import { ArenaRecord } from '../../../record'
 
@@ -23,11 +23,11 @@ const getNodesOrValues = (params: {
   if (single) {
     if (referencedNodes.length === 0) {
       // do not throw error if node is missing, consider its value as null
-      // throw new SystemError('expression.nodeNotFoundForNodeDef', { nodeDefName: propName })
+      // throw new SystemError(SystemErrorKeys.expression.nodeNotFoundForNodeDef, { nodeDefName: propName })
       return []
     }
     if (referencedNodes.length > 1)
-      throw new SystemError('expression.multipleNodesFoundForNodeDef', { nodeDefName: propName })
+      throw new SystemError(SystemErrorKeys.expression.multipleNodesFoundForNodeDef, { nodeDefName: propName })
   }
   if (nodeDefReferenced.type === NodeDefType.entity || evaluateToNode) {
     // return nodes
@@ -49,7 +49,7 @@ const evaluateIdentifierOnNode = (params: {
   const { survey, record, nodeObject, evaluateToNode = false, propName } = params
   const { nodeDefUuid: nodeDefObjectUuid, value } = nodeObject
   if (!nodeDefObjectUuid) {
-    throw new SystemError('expression.identifierNotFound', { name: propName })
+    throw new SystemError(SystemErrorKeys.expression.identifierNotFound, { name: propName })
   }
 
   const nodeDefObject = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefObjectUuid })
@@ -64,7 +64,7 @@ const evaluateIdentifierOnNode = (params: {
     if (NodeValues.isValueProp({ nodeDef: nodeDefObject, prop: propName })) {
       return NodeValues.getNodeValueProp({ nodeDef: nodeDefObject, node: nodeObject, prop: propName })
     } else {
-      throw new SystemError('expression.invalidAttributeValuePropertyName', {
+      throw new SystemError(SystemErrorKeys.expression.invalidAttributeValuePropertyName, {
         attributeName: NodeDefs.getName(nodeDefObject),
         propName,
       })
@@ -74,7 +74,7 @@ const evaluateIdentifierOnNode = (params: {
   const nodeDefReferenced = Surveys.findNodeDefByName({ survey, name: propName })
 
   if (!nodeDefReferenced) {
-    throw new SystemError('expression.identifierNotFound', { name: propName })
+    throw new SystemError(SystemErrorKeys.expression.identifierNotFound, { name: propName })
   }
 
   if (nodeObject.nodeDefUuid === nodeDefReferenced.uuid) {
