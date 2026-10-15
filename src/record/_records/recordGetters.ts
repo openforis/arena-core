@@ -1,5 +1,5 @@
 import { Dictionary, TraverseMethod } from '../../common'
-import { SystemError } from '../../error'
+import { SystemError, SystemErrorKeys } from '../../error'
 import { ArenaRecordNode, NodePointer, Nodes, NodesMap } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
 import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
@@ -127,7 +127,7 @@ export const getChild = positionalRecordGetter({
     const children = getChildren({ parentNode, childDefUuid })(record)
     if (children.length > 1) {
       const errorParams = { childDefUuid, parentNodeUuid: parentNode.uuid, recordUuid: record.uuid }
-      throw new SystemError('systemError.record.multipleNodesFound', errorParams)
+      throw new SystemError(SystemErrorKeys.record.multipleNodesFound, errorParams)
     }
     return children[0]
   },
@@ -176,7 +176,7 @@ export const getDependentCodeAttributes = positionalRecordGetter({
       const nodeUuids = RecordNodesIndexReader.getNodeCodeDependentUuids(node.uuid)(record._nodesIndex)
       return getNodesByUuids({ uuids: nodeUuids })(record)
     }
-    throw new SystemError('record.nodesIndexNotInitialized')
+    throw new SystemError(SystemErrorKeys.record.nodesIndexNotInitialized)
   },
   isPositional: isRecordNode,
   toParams: (node: ArenaRecordNode) => ({ node }),
@@ -597,7 +597,7 @@ export const getDependentNodePointers = recordGetter(
       if (!commonAncestorNode) continue
 
       const nodeDefDependentParent = Surveys.getNodeDefParent({ survey, nodeDef: dependentDef })
-      if (!nodeDefDependentParent) throw new SystemError('record.nodes.dependents.dependencyOnRootFound')
+      if (!nodeDefDependentParent) throw new SystemError(SystemErrorKeys.record.dependencyOnRootFound)
 
       // 2 find descendant nodes of common parent node with nodeDefUuid = dependentDef uuid
       const dependentContextNodes = getDescendantsOrSelf({

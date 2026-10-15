@@ -70,7 +70,7 @@ export {
 export { DataQueryMode, DataQuerySummaries } from './dataQuery'
 export type { DataQuery, DataQuerySummary, DataQuerySummaryProps } from './dataQuery'
 
-export { SystemError } from './error'
+export { SystemError, SystemErrorKeys } from './error'
 
 export {
   ExpressionNodeType,

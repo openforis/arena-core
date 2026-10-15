@@ -1,3 +1,4 @@
+import { SystemErrorKeys } from '../../error'
 import { User } from '../../auth'
 import { ArenaRecordNode, NodePointer, Nodes, NodeValueFile, NodeValues } from '../../node'
 import { NodeDefFile, NodeDefs } from '../../nodeDef'
@@ -137,7 +138,7 @@ const updateFileNameInNode = async (params: {
     const expressionsToEvaluate = [NodeDefExpressionFactory.createInstance({ expression: expressionToEvaluate! })]
     throwError({
       error,
-      errorKey: 'record.updateSelfAndDependentsFileNames',
+      errorKey: SystemErrorKeys.record.updateSelfAndDependentsFileNames,
       expressionType: SurveyDependencyType.fileName,
       survey,
       nodeDef,

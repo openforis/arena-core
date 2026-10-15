@@ -6,7 +6,7 @@ import { IdentifierEvaluator } from '../../expression/javascript/node/identifier
 import { getGlobalObjectProperty } from '../../expression/javascript/global'
 import { NodeDefExpressionContext } from '../context'
 import { ExpressionVariable, IdentifierExpression } from '../../expression'
-import { SystemError } from '../../error'
+import { SystemError, SystemErrorKeys } from '../../error'
 import { ValidatorErrorKeys } from '../../validation'
 import { NodeNativeProperties } from './nodeDefExpressionNativeProperties'
 import { NodeValues } from '../../node/nodeValues'
@@ -127,7 +127,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
   }
 
   private throwIdentifierNotFound(expressionNode: IdentifierExpression): never {
-    throw new SystemError('expression.identifierNotFound', {
+    throw new SystemError(SystemErrorKeys.expression.identifierNotFound, {
       name: expressionNode.name,
       contextObject: this.context.object?.props?.name,
     })
