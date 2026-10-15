@@ -6,7 +6,7 @@ import { pointAtDistance } from './pointAtDistance'
 import { parse } from './parse'
 import { toLatLong } from './toLatLong'
 import { toString } from './toString'
-import { transform } from './transform'
+import { transform, transformOrThrow } from './transform'
 
 export const Points = {
   bearing,
@@ -18,4 +18,5 @@ export const Points = {
   toLatLong,
   toString,
   transform,
+  transformOrThrow,
 }
