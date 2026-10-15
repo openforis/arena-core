@@ -108,7 +108,7 @@ export const getDependentNodePointersByType = (params: {
   const sourceNodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
   const includeSelf = includeSelfWhenSourceIsAttribute && !NodeDefs.isEntity(sourceNodeDef)
 
-  const nodePointers = Records.getDependentNodePointers({ survey, node, dependencyType, includeSelf, filterFn })(record)
+  const nodePointers = Records.getDependentNodePointers(survey, node, dependencyType, includeSelf, filterFn)(record)
 
   if (!NodeDefs.isEntity(sourceNodeDef) || !node.created) {
     return nodePointers

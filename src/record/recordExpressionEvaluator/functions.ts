@@ -23,12 +23,12 @@ const extractPreviousCycleValues = ({
     return null
   }
   const { uuid: entityUuid } = currentRecordEntity
-  const prevCycleEntity = Records.findEntityWithSameKeysInAnotherRecord({
+  const prevCycleEntity = Records.findEntityWithSameKeysInAnotherRecord(
     survey,
-    cycle: Records.getCycle(record),
+    Records.getCycle(record),
     entityUuid,
-    recordOther: prevCycleRecord,
-  })(record)
+    prevCycleRecord
+  )(record)
   if (!prevCycleEntity) {
     return null
   }

@@ -42,7 +42,7 @@ describe('Record getters: node not found', () => {
     const cluster = getNode('cluster')
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
 
-    expect(Records.getAncestor({ node: cluster, ancestorDefUuid: plotDef.uuid })(record)).toBeUndefined()
+    expect(Records.getAncestor(cluster, plotDef.uuid)(record)).toBeUndefined()
   })
 
   test('getDescendant', () => {
@@ -50,9 +50,7 @@ describe('Record getters: node not found', () => {
     const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
     const clusterIdDef = Surveys.getNodeDefByName({ survey, name: 'cluster_id' })
 
-    expect(Records.getDescendant({ node: plot1, nodeDefDescendant: plotIdDef })(record)).toBe(
-      getNode('cluster.plot[0].plot_id')
-    )
-    expect(Records.getDescendant({ node: plot1, nodeDefDescendant: clusterIdDef })(record)).toBeUndefined()
+    expect(Records.getDescendant(plot1, plotIdDef)(record)).toBe(getNode('cluster.plot[0].plot_id'))
+    expect(Records.getDescendant(plot1, clusterIdDef)(record)).toBeUndefined()
   })
 })

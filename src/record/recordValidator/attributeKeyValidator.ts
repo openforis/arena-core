@@ -46,7 +46,7 @@ const _getKeyValuesByDefUuid = (params: {
   const { survey, record, entity, keyDefs, cache } = params
   let keyValues = cache?.keyValuesByEntityUuid.get(entity.uuid)
   if (!keyValues) {
-    keyValues = Records.getEntityKeyValuesByDefUuid({ survey, entity, keyDefs })(record)
+    keyValues = Records.getEntityKeyValuesByDefUuid(survey, entity, undefined, keyDefs)(record)
     cache?.keyValuesByEntityUuid.set(entity.uuid, keyValues)
   }
   return keyValues

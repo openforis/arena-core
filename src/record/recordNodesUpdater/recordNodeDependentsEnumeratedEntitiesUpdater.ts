@@ -113,7 +113,7 @@ export const updateDependentEnumeratedEntities = async (
   if (dependentEnumeratedEntityDefs.length === 0) return updateResult
 
   const ancestorMultipleEntityDef = Surveys.getNodeDefAncestorMultipleEntity({ survey, nodeDef })!
-  const ancestorMultipleEntity = getAncestor({ node, ancestorDefUuid: ancestorMultipleEntityDef.uuid })(record)!
+  const ancestorMultipleEntity = getAncestor(node, ancestorMultipleEntityDef.uuid)(record)!
 
   // 2. update enumerated entities
   for (const entityDef of dependentEnumeratedEntityDefs) {

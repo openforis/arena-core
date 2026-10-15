@@ -146,8 +146,8 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 **Record getters** (`src/record/_records/recordGetters.ts`)
 
-- Getters are plain curried functions taking the record last: `Records.getParent(node)(record)`, `Records.getChildren(parentNode, childDefUuid)(record)`; getters with many or optional parameters take a params object: `Records.getAncestor({ node, ancestorDefUuid })(record)`; getters needing only the record take it directly (`Records.getRoot(record)`)
-- No wrapper helpers (params copies, overloads): getters run for every ancestor in the record update loops, so keep them allocation-free where possible
+- Getters are plain curried functions with positional parameters, taking the record last: `Records.getParent(node)(record)`, `Records.getChildren(parentNode, childDefUuid)(record)`, `Records.getAncestor(node, ancestorDefUuid)(record)`; getters needing only the record take it directly (`Records.getRoot(record)`)
+- No params objects or wrapper helpers (params copies, overloads): getters run for every ancestor in the record update loops, so keep them allocation-free where possible
 
 **Utility Modules** (`src/utils/`)
 

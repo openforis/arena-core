@@ -18,11 +18,7 @@ const getEnumeratingItemsNodePointers = (params: {
   node: ArenaRecordNode
 }): NodePointer[] => {
   const { survey, record, node } = params
-  const nodePointers = Records.getDependentNodePointers({
-    survey,
-    node,
-    dependencyType: SurveyDependencyType.enumeratingItems,
-  })(record)
+  const nodePointers = Records.getDependentNodePointers(survey, node, SurveyDependencyType.enumeratingItems)(record)
 
   if (nodePointers.length > 0 || !node.deleted) {
     return nodePointers
@@ -45,7 +41,7 @@ const getEnumeratingItemsNodePointers = (params: {
     const parentDef = Surveys.getNodeDefParent({ survey, nodeDef: dependentDef })
     if (!parentDef) continue
 
-    const contextNodes = Records.getDescendantsOrSelf({ node: root, nodeDefDescendant: parentDef })(record)
+    const contextNodes = Records.getDescendantsOrSelf(root, parentDef)(record)
     for (const contextNode of contextNodes) {
       nodePointers.push({ nodeCtx: contextNode, nodeDef: dependentDef })
     }

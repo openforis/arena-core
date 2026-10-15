@@ -32,7 +32,7 @@ const hasNodeNonEmptyDescendants = (params: {
   nodeDefDescendant: NodeDefEntity
 }): boolean => {
   const { record, parentNode, nodeDefDescendant } = params
-  const descendants = getDescendantsOrSelf({ node: parentNode ?? getRoot(record)!, nodeDefDescendant })(record)
+  const descendants = getDescendantsOrSelf(parentNode ?? getRoot(record)!, nodeDefDescendant)(record)
   const nonEmptyDescendants = descendants.filter((dependentEntity) =>
     getChildren(dependentEntity)(record).some((childNode) => isNodeFilledByUser(childNode)(record))
   )
@@ -70,7 +70,7 @@ export const getEnumeratingCategoryItems =
     let parentItemUuid
     const parentCodeDefUuid = NodeDefs.getParentCodeDefUuid(enumeratorDef)
     if (parentCodeDefUuid) {
-      const parentCodeAttribute = getParentCodeAttribute({ parentNode, nodeDef: enumeratorDef })(record)
+      const parentCodeAttribute = getParentCodeAttribute(parentNode, enumeratorDef)(record)
       parentItemUuid = parentCodeAttribute ? NodeValues.getItemUuid(parentCodeAttribute) : null
       if (!parentItemUuid) return []
     }

@@ -26,7 +26,7 @@ const getDependentValidationNodePointers = (params: {
   const uniquePointersByKey = new Map<string, NodePointer>()
   for (const node of Object.values(nodes)) {
     for (const dependencyType of validationDependencyTypes) {
-      const nodePointers = Records.getDependentNodePointers({ survey, node, dependencyType })(record)
+      const nodePointers = Records.getDependentNodePointers(survey, node, dependencyType)(record)
       for (const pointer of nodePointers) {
         const nodeCtxUuid = pointer.nodeCtx.uuid
         const nodeDefUuid = pointer.nodeDef.uuid

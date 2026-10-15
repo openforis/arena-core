@@ -92,9 +92,9 @@ const print = (params: { survey: Survey; record: ArenaRecord; options?: PrintOpt
     return parts.join('\n')
   }
 
-  RecordGetters.visitDescendantsAndSelf({
-    node: rootNode,
-    visitor: (node) => {
+  RecordGetters.visitDescendantsAndSelf(
+    rootNode,
+    (node) => {
       const { nodeDefUuid } = node
       const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
       const value = NodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
@@ -104,8 +104,8 @@ const print = (params: { survey: Survey; record: ArenaRecord; options?: PrintOpt
       parts.push(toPart({ depth, name: NodeDefs.getName(nodeDef), value, infoParts }))
       return false
     },
-    traverseMethod: TraverseMethod.dfs,
-  })(record)
+    TraverseMethod.dfs
+  )(record)
   return parts.join('\n')
 }
 
@@ -116,7 +116,7 @@ const printNodePath = (params: { survey: Survey; record: ArenaRecord; node: Aren
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: visitedNode.nodeDefUuid })
     let part = NodeDefs.getName(nodeDef)
     if (NodeDefs.isMultiple(nodeDef)) {
-      const index = RecordGetters.getNodeIndex({ node: visitedNode })(record)
+      const index = RecordGetters.getNodeIndex(visitedNode)(record)
       part = `${part}[${index}]`
     }
     parts.unshift(part)

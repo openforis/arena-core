@@ -80,7 +80,7 @@ describe('Record nodes updater - applicability', () => {
             .sort()
         ).toEqual(['dependent_attribute', 'root_entity', 'source_attribute'])
       }
-      expect(Records.isNodeApplicable({ node: dependentNode })(updateResult.record)).toBe(expectedApplicability)
+      expect(Records.isNodeApplicable(dependentNode)(updateResult.record)).toBe(expectedApplicability)
 
       return updateResult.record
     }
@@ -142,7 +142,7 @@ describe('Record nodes updater - applicability', () => {
       record,
       path: 'root_entity.dependent_attribute_read_only',
     })
-    expect(Records.isNodeApplicable({ node: dependentNode })(record)).toBe(true)
+    expect(Records.isNodeApplicable(dependentNode)(record)).toBe(true)
     expect(dependentNode.value).toBe(100)
     expect(dependentReadOnlyNode.value).toBeNull()
 
@@ -169,7 +169,7 @@ describe('Record nodes updater - applicability', () => {
       record: updateResult.record,
       path: 'root_entity.dependent_attribute_read_only',
     })
-    expect(Records.isNodeApplicable({ node: dependentNode })(updateResult.record)).toBe(false)
+    expect(Records.isNodeApplicable(dependentNode)(updateResult.record)).toBe(false)
     expect(dependentNode.value).toBe(100) // Value should still be there
     expect(dependentReadOnlyNode.value).toBe(101)
     expect(updateResult.clearedDefUuids.size).toBe(0)
@@ -194,7 +194,7 @@ describe('Record nodes updater - applicability', () => {
       record: updateResult.record,
       path: 'root_entity.dependent_attribute_read_only',
     })
-    expect(Records.isNodeApplicable({ node: dependentNode })(updateResult.record)).toBe(true)
+    expect(Records.isNodeApplicable(dependentNode)(updateResult.record)).toBe(true)
     expect(dependentNode.value).toBe(100) // Value restored
     expect(dependentReadOnlyNode.value).toBe(101)
     expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(true)
@@ -219,7 +219,7 @@ describe('Record nodes updater - applicability', () => {
       record: updateResult.record,
       path: 'root_entity.dependent_attribute_read_only',
     })
-    expect(Records.isNodeApplicable({ node: dependentNode })(updateResult.record)).toBe(false)
+    expect(Records.isNodeApplicable(dependentNode)(updateResult.record)).toBe(false)
     expect(dependentNode.value).toBeNull() // Value should be cleared
     expect(dependentReadOnlyNode.value).toBeNull()
     expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(false) // defaultValueApplied should be reset

@@ -56,10 +56,10 @@ describe('RecordItemFilterExpressionEvaluator', () => {
         }
         const nodeContext = nodeCurrentParent
 
-        const parentCodeAttribute = Records.getParentCodeAttribute({
-          parentNode: nodeCurrentParent,
-          nodeDef: nodeCurrentDef as NodeDefCode,
-        })(record)
+        const parentCodeAttribute = Records.getParentCodeAttribute(
+          nodeCurrentParent,
+          nodeCurrentDef as NodeDefCode
+        )(record)
 
         const items: CategoryItem[] = Surveys.getCategoryItems({
           survey,

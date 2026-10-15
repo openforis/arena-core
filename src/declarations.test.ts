@@ -20,8 +20,8 @@ export const deprecated_dissocFieldValidation = Validations.dissocFieldValidatio
 
 export const current_getChildren = Records.getChildren(node, 'def')(record)
 export const current_getParent = Records.getParent(node)(record)
-export const current_getAncestor = Records.getAncestor({ node, ancestorDefUuid: 'def' })(record)
-export const current_getNodeIndex = Records.getNodeIndex({ node })(record)
+export const current_getAncestor = Records.getAncestor(node, 'def')(record)
+export const current_getNodeIndex = Records.getNodeIndex(node)(record)
 export const current_assocValue = Nodes.assocValue(node, 1, { sideEffect: true })
 export const current_dissocFieldValidation = Validations.dissocFieldValidation('field', { sideEffect: true })
 `
