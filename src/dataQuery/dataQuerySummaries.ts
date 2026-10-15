@@ -1,4 +1,5 @@
 import { Labels, LanguageCode } from '../language'
+import { getLabelOrDefault } from '../language/labels'
 import { Objects, UUIDs } from '../utils'
 import { DataQuery, DataQuerySummary, DataQuerySummaryProps } from './dataQuery'
 
@@ -28,14 +29,14 @@ const getLabels = (querySummary: DataQuerySummary): Labels => querySummary?.prop
 const getLabel =
   (lang: LanguageCode) =>
   (querySummary: DataQuerySummary): string =>
-    getLabels(querySummary)[lang] ?? ''
+    getLabelOrDefault(getLabels(querySummary), lang)
 
 const getDescriptions = (querySummary: DataQuerySummary): Labels => querySummary?.props?.descriptions ?? {}
 
 const getDescription =
   (lang: LanguageCode) =>
   (querySummary: DataQuerySummary): string =>
-    getDescriptions(querySummary)[lang] ?? ''
+    getLabelOrDefault(getDescriptions(querySummary), lang)
 
 const assocProp =
   (prop: string, value: any) =>
