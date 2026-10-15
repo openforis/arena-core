@@ -5,6 +5,7 @@ export type { ExpressionEvaluator } from './evaluator'
 export type { ExpressionFunction, ExpressionFunctions } from './function'
 
 export type {
+  AnyExpressionNode,
   ExpressionNode,
   ExpressionNodeEvaluatorConstructor,
   ArrayExpression,

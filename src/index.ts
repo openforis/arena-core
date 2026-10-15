@@ -89,6 +89,7 @@ export type {
   ExpressionEvaluator,
   ExpressionFunction,
   ExpressionFunctions,
+  AnyExpressionNode,
   ExpressionNode,
   ExpressionNodeEvaluatorConstructor,
   MemberExpression,
