@@ -197,6 +197,16 @@ const getValidationsExpressions = (nodeDef: NodeDef<NodeDefType>): NodeDefExpres
 
 const isRequired = (nodeDef: NodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required ?? false
 
+const getRequiredIf = (nodeDef: NodeDef<NodeDefType>): NodeDefExpression[] => getValidations(nodeDef)?.requiredIf ?? []
+
+const isRequiredIfDefined = (nodeDef: NodeDef<NodeDefType>): boolean => getRequiredIf(nodeDef).length > 0
+
+/**
+ * True if the node def is always required or required when a condition is met (node def level, not record level).
+ */
+const isRequiredOrConditionallyRequired = (nodeDef: NodeDef<NodeDefType>): boolean =>
+  isRequired(nodeDef) || isRequiredIfDefined(nodeDef)
+
 // // Min/max count
 
 const getCount = (nodeDef: NodeDef<NodeDefType>, countType: NodeDefCountType): NodeDefCountExpression | undefined => {
@@ -383,6 +393,9 @@ export const NodeDefs = {
   getValidations,
   getValidationsExpressions,
   isRequired,
+  getRequiredIf,
+  isRequiredIfDefined,
+  isRequiredOrConditionallyRequired,
   // // Min Max
   hasMinOrMaxCount,
   getCount,

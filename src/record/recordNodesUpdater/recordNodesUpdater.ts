@@ -14,6 +14,7 @@ import { updateDependentEnumeratedEntities } from './recordNodeDependentsEnumera
 import { updateDependentEnumeratingItemsEntities } from './recordNodeDependentsEnumeratingItemsUpdater'
 import { updateSelfAndDependentsFileNames } from './recordNodeDependentsFileNamesEvaluator'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
+import { updateSelfAndDependentsRequired } from './recordNodeDependentsRequiredUpdater'
 import { updateSelfAndDependentsVisible } from './recordNodeDependentsVisibleUpdater'
 import { NodesUpdateParams } from './recordNodesCreator'
 import { RecordUpdateResult } from './recordUpdateResult'
@@ -36,6 +37,7 @@ const dependentsUpdaters: RecordNodeDependentsUpdater[] = [
   updateSelfAndDependentsApplicable,
   updateSelfAndDependentsDefaultValues,
   updateSelfAndDependentsEditable,
+  updateSelfAndDependentsRequired,
   updateSelfAndDependentsVisible,
   updateDependentCodeAttributes,
   updateDependentEnumeratedEntities,

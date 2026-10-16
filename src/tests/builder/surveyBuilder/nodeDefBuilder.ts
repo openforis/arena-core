@@ -78,6 +78,17 @@ export abstract class NodeDefBuilder {
     })
   }
 
+  requiredIf(...expressions: (string | NodeDefExpression)[]): this {
+    return Objects.assocPath({
+      obj: this,
+      path: ['propsAdvanced', 'validations', 'requiredIf'],
+      value: expressions.map((expression) =>
+        typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression
+      ),
+      sideEffect: true,
+    })
+  }
+
   required(): this {
     return Objects.assocPath({
       obj: this,
