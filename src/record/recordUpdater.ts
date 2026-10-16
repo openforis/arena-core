@@ -13,6 +13,7 @@ import { RecordValidator } from './recordValidator'
 
 const validationDependencyTypes = [
   SurveyDependencyType.validations,
+  SurveyDependencyType.required,
   SurveyDependencyType.minCount,
   SurveyDependencyType.maxCount,
 ]

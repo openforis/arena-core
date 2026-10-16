@@ -94,6 +94,10 @@ export interface NodeDefValidations {
   count?: NodeDefCountValidations
   expressions?: NodeDefExpression[]
   required?: boolean
+  /**
+   * Conditions making a single attribute required (alternative to `required`, which makes it always required).
+   */
+  requiredIf?: NodeDefExpression[]
   unique?: boolean
 }
 

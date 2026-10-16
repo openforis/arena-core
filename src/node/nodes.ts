@@ -23,6 +23,11 @@ const isChildVisible = (node: ArenaRecordNode, nodeDefUuid: string): boolean => 
   return node.meta?.cVis?.[nodeDefUuid] !== false
 }
 
+const isChildRequired = (node: ArenaRecordNode, nodeDefUuid: string): boolean => {
+  // if child "required if" condition is not defined or not met for a node definition, consider it not required
+  return node.meta?.cReq?.[nodeDefUuid] === true
+}
+
 const getChildrenMinOrMaxCount = (params: {
   parentNode: ArenaRecordNode
   nodeDef: NodeDef<any>
@@ -89,19 +94,21 @@ const dissocChildApplicability = (node: ArenaRecordNode, nodeDefUuid: string) =>
   }
 }
 
-type MetaBooleanDictionaryProp = 'childApplicability' | 'cEdit' | 'cVis'
+type MetaBooleanDictionaryProp = 'childApplicability' | 'cEdit' | 'cVis' | 'cReq'
 
 const updateMetaDictionary = ({
   node,
   nodeDefUuid,
   propName,
   propValue,
+  defaultValue = true,
   sideEffect,
 }: {
   node: ArenaRecordNode
   nodeDefUuid: string
   propName: MetaBooleanDictionaryProp
-  propValue: any
+  propValue: boolean
+  defaultValue?: boolean
   sideEffect: boolean
 }): ArenaRecordNode => {
   const nodeUpdated = sideEffect ? node : { ...node }
@@ -109,7 +116,8 @@ const updateMetaDictionary = ({
   const meta = sideEffect ? metaOriginal : { ...metaOriginal }
   const existingDictionary: Dictionary<boolean> = meta[propName] ?? {}
   const dictionary = sideEffect ? existingDictionary : { ...existingDictionary }
-  if (propValue) {
+  if (propValue === defaultValue) {
+    // default value: not stored
     delete dictionary[nodeDefUuid]
   } else {
     dictionary[nodeDefUuid] = propValue
@@ -142,6 +150,23 @@ function assocChildEditable(
 ): ArenaRecordNode {
   const { sideEffect = false } = toMutationOptions(options)
   return updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
+}
+
+const assocChildRequired = (
+  node: ArenaRecordNode,
+  nodeDefUuid: string,
+  required: boolean,
+  options?: MutationOptions
+): ArenaRecordNode => {
+  const { sideEffect = false } = options ?? {}
+  return updateMetaDictionary({
+    node,
+    nodeDefUuid,
+    propName: 'cReq',
+    propValue: required,
+    defaultValue: false,
+    sideEffect,
+  })
 }
 
 function assocChildVisible(
@@ -253,6 +278,7 @@ export const Nodes = {
   isChildApplicable,
   isChildEditable,
   isChildVisible,
+  isChildRequired,
   getChildrenMinOrMaxCount,
   getChildrenMaxCount,
   getChildrenMinCount,
@@ -268,6 +294,7 @@ export const Nodes = {
   dissocChildApplicability,
   assocChildEditable,
   assocChildVisible,
+  assocChildRequired,
   assocChildrenCount,
   assocChildrenMaxCount,
   assocChildrenMinCount,
