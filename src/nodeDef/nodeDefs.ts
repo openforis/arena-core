@@ -28,6 +28,7 @@ import {
 } from './types/entity'
 import { NodeDefFile, NodeDefFileType } from './types/file'
 import { NodeDefFormHeader } from './types/formHeader'
+import { NodeDefGeo } from './types/geo'
 import { NodeDefInteger } from './types/integer'
 import { NodeDefTaxon } from './types/taxon'
 import { NodeDefText, NodeDefTextRenderType, NodeDefTextInputType } from './types/text'
@@ -51,6 +52,8 @@ const isDate = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefDate => nodeDe
 const isDecimal = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefDecimal => nodeDef.type === NodeDefType.decimal
 
 const isFile = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefFile => nodeDef.type === NodeDefType.file
+
+const isGeo = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefGeo => nodeDef.type === NodeDefType.geo
 
 const isInteger = (nodeDef: NodeDef<NodeDefType>): nodeDef is NodeDefInteger => nodeDef.type === NodeDefType.integer
 
@@ -169,6 +172,9 @@ const getFileType = (nodeDef: NodeDefFile): NodeDefFileType | undefined => nodeD
 const getFileNameExpression = (nodeDef: NodeDefFile): string | undefined => nodeDef.propsAdvanced?.fileNameExpression
 const getFileMaxSize = (nodeDef: NodeDefFile): number | undefined => nodeDef.props.maxFileSize
 const isGeotagInformationShown = (nodeDef: NodeDefFile): boolean => !!nodeDef.props.geotagInformationShown
+
+// geo
+const isPositionTracking = (nodeDef: NodeDefGeo): boolean => !!nodeDef.props.positionTracking
 
 // time
 const isSecondsIncluded = (nodeDef: NodeDefTime): boolean => !!nodeDef.props.includeSeconds
@@ -317,6 +323,7 @@ export const NodeDefs = {
   isDate,
   isDecimal,
   isFile,
+  isGeo,
   isInteger,
   isTaxon,
   isText,
@@ -365,6 +372,7 @@ export const NodeDefs = {
   getFileType,
   getFileMaxSize,
   isGeotagInformationShown,
+  isPositionTracking,
   isSecondsIncluded,
   getTaxonomyUuid,
   isVernacularNameSelectionKept,
