@@ -21,6 +21,11 @@ export interface NodeMeta {
    */
   cEdit?: { [uuid: string]: boolean }
   /**
+   * Whether the node children (by definition UUID) are required because their "required if" condition is met (true).
+   * If not defined, the children are not required by a condition (only true values are stored).
+   */
+  cReq?: { [uuid: string]: boolean }
+  /**
    * Maximum number of children (by definition UUID) for the node.
    */
   childrenMaxCount?: { [uuid: string]: number }

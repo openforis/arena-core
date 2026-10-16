@@ -37,6 +37,7 @@ describe('Survey Dependencies', () => {
         booleanDef('accessible'),
         integerDef('cluster_editable').editableIf('cluster_id > 0'),
         integerDef('cluster_visible').visibleIf('cluster_id > 0'),
+        textDef('cluster_remarks').requiredIf('accessible'),
         entityDef(
           'plot',
           integerDef('plot_id').key(),
@@ -106,6 +107,14 @@ describe('Survey Dependencies', () => {
       sourceName: 'cluster_id',
       dependencyType: SurveyDependencyType.editable,
       expectedDependentNames: ['cluster_editable'],
+    })
+  })
+
+  test('Required if dependency', () => {
+    expectDependents({
+      sourceName: 'accessible',
+      dependencyType: SurveyDependencyType.required,
+      expectedDependentNames: ['cluster_remarks'],
     })
   })
 
