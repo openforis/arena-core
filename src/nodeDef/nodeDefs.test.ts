@@ -3,6 +3,7 @@ import { describe, test, expect } from '@jest/globals'
 import { NodeDefFactory } from './factory'
 import { NodeDefType } from './nodeDef'
 import { NodeDefs } from './nodeDefs'
+import { NodeDefGeo, NodeDefGeoProps } from './types/geo'
 import { NodeDefTime, NodeDefTimeProps } from './types/time'
 
 describe('NodeDefs.isSecondsIncluded', () => {
@@ -28,6 +29,21 @@ describe('NodeDefs.isSecondsIncluded', () => {
   })
 })
 
+describe('NodeDefs.isPositionTracking', () => {
+  test('is false when positionTracking prop is not set', () => {
+    const nodeDef = NodeDefFactory.createInstance({ type: NodeDefType.geo }) as NodeDefGeo
+    expect(NodeDefs.isPositionTracking(nodeDef)).toBe(false)
+  })
+
+  test('is true when positionTracking prop is true', () => {
+    const nodeDef = NodeDefFactory.createInstance({
+      type: NodeDefType.geo,
+      props: { positionTracking: true } as NodeDefGeoProps,
+    }) as NodeDefGeo
+    expect(NodeDefs.isPositionTracking(nodeDef)).toBe(true)
+  })
+})
+
 describe('NodeDefs type guards', () => {
   test.each([
     [NodeDefType.boolean, NodeDefs.isBoolean],
@@ -37,6 +53,7 @@ describe('NodeDefs type guards', () => {
     [NodeDefType.decimal, NodeDefs.isDecimal],
     [NodeDefType.entity, NodeDefs.isEntity],
     [NodeDefType.file, NodeDefs.isFile],
+    [NodeDefType.geo, NodeDefs.isGeo],
     [NodeDefType.integer, NodeDefs.isInteger],
     [NodeDefType.taxon, NodeDefs.isTaxon],
     [NodeDefType.text, NodeDefs.isText],

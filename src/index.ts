@@ -170,6 +170,8 @@ export type {
   NodeDefPrintOrientation,
   NodeDefFile,
   NodeDefFileProps,
+  NodeDefGeo,
+  NodeDefGeoProps,
   NodeDefFormHeader,
   NodeDefFormHeaderProps,
   NodeDefInteger,
