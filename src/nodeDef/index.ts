@@ -40,6 +40,8 @@ export { NodeDefEntityRenderType } from './types/entity'
 export { NodeDefFileType } from './types/file'
 export type { NodeDefFile, NodeDefFileProps } from './types/file'
 
+export type { NodeDefGeo, NodeDefGeoProps } from './types/geo'
+
 export { FormHeaderColor } from './types/formHeader'
 export type { NodeDefFormHeader, NodeDefFormHeaderProps } from './types/formHeader'
 
