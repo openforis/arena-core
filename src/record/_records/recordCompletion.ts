@@ -17,6 +17,11 @@ const addStats = (statsAcc: EntityCompletionStats, statsToAdd: EntityCompletionS
   statsAcc.filled += statsToAdd.filled
 }
 
+const isAttributeRequired = (entity: ArenaRecordNode, nodeDef: NodeDef<NodeDefType, NodeDefProps>): boolean =>
+  NodeDefs.isKey(nodeDef) ||
+  NodeDefs.isRequired(nodeDef) ||
+  (NodeDefs.isRequiredIfDefined(nodeDef) && Nodes.isChildRequired(entity, nodeDef.uuid))
+
 const getAttributeCompletionStats = (params: {
   record: ArenaRecord
   entity: ArenaRecordNode
@@ -33,7 +38,7 @@ const getAttributeCompletionStats = (params: {
     return { total: minCount, filled: Math.min(filledNodesCount, minCount) }
   }
 
-  if (!NodeDefs.isRequired(nodeDef) && !NodeDefs.isKey(nodeDef)) return emptyStats()
+  if (!isAttributeRequired(entity, nodeDef)) return emptyStats()
 
   const node = getChildren(entity, nodeDef.uuid)(record)[0]
   return { total: 1, filled: node && Nodes.isValueNotBlank(node) ? 1 : 0 }

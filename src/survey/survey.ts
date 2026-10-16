@@ -24,6 +24,7 @@ export enum SurveyDependencyType {
   maxCount = 'maxCount',
   minCount = 'minCount',
   parentCode = 'parentCode',
+  required = 'required',
   validations = 'validations',
   visible = 'visible',
   onUpdate = 'onUpdate', // dependencies updated on every record update, stored as dictionary of booleans

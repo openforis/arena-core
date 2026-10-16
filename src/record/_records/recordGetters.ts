@@ -111,6 +111,19 @@ export const isNodeApplicable = isNodeFlagTrue((parent, nodeDefUuid) => Nodes.is
 export const isNodeEditable = isNodeFlagTrue((parent, nodeDefUuid) => Nodes.isChildEditable(parent, nodeDefUuid))
 export const isNodeVisible = isNodeFlagTrue((parent, nodeDefUuid) => Nodes.isChildVisible(parent, nodeDefUuid))
 
+/**
+ * Whether a value is required for the node: key or always required attribute, or attribute with a "required if"
+ * condition met in its parent entity (evaluated condition stored in the parent node meta).
+ */
+export const isNodeRequired =
+  (nodeDef: NodeDef<NodeDefType>, node: ArenaRecordNode) =>
+  (record: ArenaRecord): boolean => {
+    if (NodeDefs.isKey(nodeDef) || NodeDefs.isRequired(nodeDef)) return true
+    if (!NodeDefs.isRequiredIfDefined(nodeDef)) return false
+    const parent = getParentNode(record, node)
+    return !!parent && Nodes.isChildRequired(parent, nodeDef.uuid)
+  }
+
 export const getDependentCodeAttributes =
   (node: ArenaRecordNode) =>
   (record: ArenaRecord): ArenaRecordNode[] => {
