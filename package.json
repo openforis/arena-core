@@ -4,7 +4,7 @@
     "name": "OpenForis",
     "email": "openforis.arena@gmail.com"
   },
-  "version": "2.8.0",
+  "version": "2.10.0",
   "description": "Arena core module",
   "repository": {
     "type": "git",
@@ -27,38 +27,38 @@
     "@types/lodash.frompairs": "^4.0.9",
     "@types/lodash.isequal": "^4.5.8",
     "@types/lodash.topairs": "^4.3.9",
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.5",
     "@types/proj4": "^2.19.0",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "@typescript/native": "npm:typescript@7.0.2",
-    "eslint": "^10.11.0",
+    "eslint": "^10.13.0",
     "eslint-plugin-no-explicit-type-exports": "^0.12.1",
     "husky": "^9.1.7",
     "jest": "^30.5.2",
     "lint-staged": "^17.6.0",
     "pinst": "^3.0.0",
-    "prettier": "^3.9.9",
-    "ts-jest": "^29.4.14",
+    "prettier": "^3.9.10",
+    "ts-jest": "^29.4.15",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "^8"
   },
   "dependencies": {
-    "@jsep-plugin/regex": "^1.0.4",
+    "@jsep-plugin/regex": "^1.1.0",
     "@turf/bearing": "^7.4.0",
     "@turf/destination": "^7.4.0",
     "@turf/distance": "^7.4.0",
     "bignumber.js": "^11.1.5",
     "change-case": "^5.4.4",
-    "dayjs": "^1.11.13",
-    "jsep": "^1.4.0",
+    "dayjs": "^1.11.23",
+    "jsep": "^1.6.0",
     "lodash.differencewith": "^4.5.0",
     "lodash.frompairs": "^4.0.1",
     "lodash.isequal": "^4.5.0",
     "lodash.topairs": "^4.3.0",
     "n2words": "^6.3.0",
     "proj4": "^2.22.0",
-    "uuid": "^14.0.2"
+    "uuid": "^14.0.3"
   },
   "scripts": {
     "build:watch": "tsc --watch",
@@ -81,7 +81,7 @@
     "src/**/*.{ts,tsx}": "eslint --cache --fix",
     "*.{js,mjs,ts,tsx,json,md,yml,yaml}": "prettier --write"
   },
-  "packageManager": "yarn@4.18.0",
+  "packageManager": "yarn@4.18.1",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }

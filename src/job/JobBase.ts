@@ -222,7 +222,11 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     await this.setStatus(JobStatus.canceled)
   }
 
-  private isCancelRequestedOrNotRunning(): boolean {
+  /**
+   * Returns true when the job has been canceled (or is no longer running).
+   * Long-running subclasses can check it to stop processing items (e.g. in a loop) as soon as the job is canceled.
+   */
+  protected isCancelRequestedOrNotRunning(): boolean {
     return this.cancelRequested || !this.isRunning()
   }
 
