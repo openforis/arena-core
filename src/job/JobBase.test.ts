@@ -135,6 +135,10 @@ class TestJob extends JobBase<JobContext, any> {
   combineInnerJobsErrorsForTest(): Record<string, any> {
     return this.combineInnerJobsErrors()
   }
+
+  isCancelRequestedOrNotRunningForTest(): boolean {
+    return this.isCancelRequestedOrNotRunning()
+  }
 }
 
 /**
@@ -268,6 +272,30 @@ test('beforeEnd runs exactly once when a running job is canceled', async () => {
   // once from cancel(), and NOT again from executeInTransaction()'s finally block
   expect(job.beforeEndCallCount).toBe(1)
   expect(job.statusAtBeforeEnd).toBe(JobStatus.running)
+})
+
+test('a running job can check isCancelRequestedOrNotRunning to stop processing items when canceled', async () => {
+  const itemsCount = 10
+  let processedItems = 0
+  const job = new TestJob(createContext(), [], {
+    execute: async (runningJob) => {
+      expect(runningJob.isCancelRequestedOrNotRunningForTest()).toBe(false)
+      for (let i = 0; i < itemsCount; i++) {
+        if (runningJob.isCancelRequestedOrNotRunningForTest()) return
+        processedItems += 1
+        if (processedItems === 3) {
+          await runningJob.cancel()
+        }
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      }
+    },
+  })
+
+  await job.start()
+
+  expect(processedItems).toBe(3)
+  expect(job.isCanceled()).toBe(true)
+  expect(job.isCancelRequestedOrNotRunningForTest()).toBe(true)
 })
 
 test('cancel propagates canceledByAdmin from the currently running inner job to the parent', async () => {
