@@ -64,6 +64,7 @@ export {
   FlatDataExportModel,
   FlatDataExportColumnDataType,
   ArenaExportInfoFactory,
+  ArenaExportType,
   UniqueFileNamesGenerator,
 } from './dataExport'
 
