@@ -6,6 +6,10 @@ export type UserGroupQualifier = {
 export type UserGroupProps = {
   name?: string
   qualifiers?: UserGroupQualifier[]
+  /**
+   * uuids of other groups of the same survey whose records the members can read but not edit
+   */
+  readableGroupUuids?: string[]
 }
 
 export type UserGroup = {
