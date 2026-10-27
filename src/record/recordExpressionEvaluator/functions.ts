@@ -1,9 +1,10 @@
 import { ExpressionFunctions } from '../../expression'
 import { Point, Points } from '../../geo'
 import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
+import { NodeDefs } from '../../nodeDef'
 import { nodeDefExpressionFunctions } from '../../nodeDefExpressionEvaluator/functions'
 import { Surveys } from '../../survey'
-import { Arrays } from '../../utils'
+import { Arrays, Dates } from '../../utils'
 import { Records } from '../records'
 import { RecordExpressionContext } from './context'
 
@@ -33,6 +34,34 @@ const extractPreviousCycleValues = ({
     return null
   }
   return Records.getChildren(prevCycleEntity, node.nodeDefUuid)(prevCycleRecord).map((prevNode) => prevNode.value)
+}
+
+// read-only attributes with default values are derived from other nodes (e.g. date stamps): their changes are not considered
+const isDerivedNode = ({ context, node }: { context: RecordExpressionContext; node: ArenaRecordNode }): boolean => {
+  const nodeDef = Surveys.findNodeDefByUuid({ survey: context.survey, uuid: node.nodeDefUuid })
+  return !!nodeDef && NodeDefs.isReadOnly(nodeDef) && NodeDefs.getDefaultValues(nodeDef).length > 0
+}
+
+const getNodesDateLastModified = ({
+  context,
+  nodes,
+}: {
+  context: RecordExpressionContext
+  nodes: ArenaRecordNode[]
+}): string | null => {
+  const { record, nodeCurrent } = context
+  let maxTime: number | null = null
+  const visitor = (node: ArenaRecordNode) => {
+    if (!node.dateModified || node.uuid === nodeCurrent?.uuid || isDerivedNode({ context, node })) return
+    const time = new Date(node.dateModified).getTime()
+    if (!Number.isNaN(time) && (maxTime === null || time > maxTime)) {
+      maxTime = time
+    }
+  }
+  for (const node of nodes) {
+    Records.visitDescendantsAndSelf(node, visitor)(record)
+  }
+  return maxTime === null ? null : Dates.formatForStorage(maxTime)
 }
 
 export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionContext> = {
@@ -130,6 +159,13 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
       }
       return null
     },
+  },
+  nodeDateLastModified: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (context: RecordExpressionContext) => (nodeOrNodeSet) =>
+      nodeOrNodeSet ? getNodesDateLastModified({ context, nodes: Arrays.toArray(nodeOrNodeSet) }) : null,
   },
   parent: {
     minArity: 1,

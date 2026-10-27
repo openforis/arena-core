@@ -16,7 +16,7 @@ import { Arrays, Objects } from '../../utils'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
 import { Dictionary } from '../../common'
 
-const functionsRequiringOnUpdateDependency = ['recordDateLastModified']
+const functionsRequiringOnUpdateDependency = ['nodeDateLastModified', 'recordDateLastModified']
 
 const isContextParentByDependencyType = {
   [SurveyDependencyType.applicable]: true,
