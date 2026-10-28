@@ -8,7 +8,7 @@ import { LanguagesISO639part2 } from '../language'
 import { ArenaRecord } from '../record'
 import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 import { getCategoryItemByCodePaths, getTaxonByCode } from '../survey/surveys/refsData'
-import { getCategoryByName, getSRSIndex, getTaxonomyByName } from '../survey/surveys/surveysGetters'
+import { getAreaOfInterest, getCategoryByName, getSRSIndex, getTaxonomyByName } from '../survey/surveys/surveysGetters'
 import { Taxon } from '../taxonomy'
 import { Dates, Numbers, Objects } from '../utils'
 import { NodeDefExpressionContext } from './context'
@@ -175,6 +175,19 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       },
   },
   geoDistance: { minArity: 2, maxArity: 2, executor: geoDistanceExecutor },
+  geoDistanceToAOIBoundary: {
+    minArity: 1,
+    maxArity: 1,
+    executor:
+      (context: NodeDefExpressionContext) =>
+      (coordinate: Point | string): number | null => {
+        const { survey } = context
+        const areaOfInterest = getAreaOfInterest(survey)
+        const point = Points.parse(coordinate)
+        if (!areaOfInterest || !point) return null
+        return Points.distanceToPolygonBoundary(point, areaOfInterest, getSRSIndex(survey))
+      },
+  },
   geoPolygon: {
     minArity: 1,
     evaluateArgsToNodes: true,
