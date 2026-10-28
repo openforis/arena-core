@@ -92,7 +92,11 @@ export const getSRSByCode =
   (survey: Survey): SRS | undefined =>
     getSRSIndex(survey)[code]
 
-export const getAreaOfInterest = (survey: Survey): AreaOfInterest | undefined => survey?.props?.areaOfInterest
+export const getAreaOfInterest = (survey: Survey): AreaOfInterest | undefined =>
+  survey?.props?.areaOfInterest ??
+  // backwards compatibility with Arena: survey info props stored in info
+  (survey as any)?.info?.props?.areaOfInterest ??
+  undefined
 
 export const getAuthGroups = (survey: Survey): UserAuthGroup[] => survey?.authGroups ?? []
 
