@@ -17,6 +17,8 @@ export enum ArenaExportType {
   survey = 'survey',
   /** Records only (e.g. records selected in the records list or exported from Arena Mobile) */
   records = 'records',
+  /** Survey package downloaded by Arena Mobile (survey with reference data and survey files) */
+  mobileSurvey = 'mobileSurvey',
 }
 
 export type ArenaExportInfo = {

@@ -15,3 +15,15 @@ describe('ArenaExportInfoFactory', () => {
     expect(Number.isNaN(Date.parse(info.dateExported))).toBe(false)
   })
 })
+
+describe('ArenaExportType', () => {
+  test('mobile survey package', () => {
+    const info = ArenaExportInfoFactory.createInstance({
+      appInfo: { appId: 'arena', version: '2.10.8' },
+      exportedByUserUuid: 'user-uuid',
+      exportType: ArenaExportType.mobileSurvey,
+      survey: { uuid: 'survey-uuid', name: 'survey_name' },
+    })
+    expect(info.exportType).toBe('mobileSurvey')
+  })
+})
