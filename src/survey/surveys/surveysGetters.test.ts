@@ -5,6 +5,7 @@ import { createTestAdminUser } from '../../tests/data'
 import { Survey } from '../survey'
 import { Surveys } from '.'
 
+import { AreaOfInterest } from '../../geo'
 import { LanguageCode } from '../../language'
 
 const { entityDef, integerDef } = SurveyObjectBuilders
@@ -38,5 +39,33 @@ describe('Surveys getters', () => {
     const survey = await buildSurvey({ name: 'survey_name', languages: [LanguageCode.en], labels: { en: '' } })
     expect(Surveys.getLabelOrName(LanguageCode.en)(survey)).toBe('survey_name')
     expect(Surveys.getLabelOrName(LanguageCode.fr)(survey)).toBe('survey_name')
+  })
+})
+
+describe('Surveys.getAreaOfInterest', () => {
+  const areaOfInterest: AreaOfInterest = {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [12.4, 41.8],
+        [12.6, 41.8],
+        [12.6, 42.0],
+        [12.4, 41.8],
+      ],
+    ],
+  }
+
+  test('area of interest in survey props', () => {
+    const survey = { props: { areaOfInterest } } as unknown as Survey
+    expect(Surveys.getAreaOfInterest(survey)).toEqual(areaOfInterest)
+  })
+
+  test('area of interest in survey info props (Arena)', () => {
+    const survey = { info: { props: { areaOfInterest } } } as unknown as Survey
+    expect(Surveys.getAreaOfInterest(survey)).toEqual(areaOfInterest)
+  })
+
+  test('area of interest not defined', () => {
+    expect(Surveys.getAreaOfInterest({ props: {} } as unknown as Survey)).toBeUndefined()
   })
 })
