@@ -48,6 +48,8 @@
     "@turf/bearing": "^7.4.0",
     "@turf/destination": "^7.4.0",
     "@turf/distance": "^7.4.0",
+    "@turf/point-to-polygon-distance": "^7.4.0",
+    "@types/geojson": "^7946.0.16",
     "bignumber.js": "^11.1.5",
     "change-case": "^5.4.4",
     "dayjs": "^1.11.23",

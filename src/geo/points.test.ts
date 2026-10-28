@@ -4,6 +4,14 @@ import { PointFactory } from './pointFactory'
 import { Points } from './points'
 import { DEFAULT_SRS_INDEX } from '../srs'
 import { Point } from './point'
+import { AreaOfInterest } from './areaOfInterest'
+
+const utm33N = {
+  code: '32633',
+  name: 'WGS 84 / UTM zone 33N',
+  wkt: 'PROJCS["WGS 84 / UTM zone 33N",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",15],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1]]',
+}
+const srsIndex = { ...DEFAULT_SRS_INDEX, [utm33N.code]: utm33N }
 
 // Helper function to test bearing between points
 const testBearing = (origin: Point, distanceMeters: number, expectedBearing: number) => {
@@ -96,13 +104,6 @@ describe('Points test', () => {
 })
 
 describe('Points.transform', () => {
-  const utm33N = {
-    code: '32633',
-    name: 'WGS 84 / UTM zone 33N',
-    wkt: 'PROJCS["WGS 84 / UTM zone 33N",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",15],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1]]',
-  }
-  const srsIndex = { ...DEFAULT_SRS_INDEX, [utm33N.code]: utm33N }
-
   test('transforms a point into another SRS and back (repeated calls give the same result)', () => {
     const point = PointFactory.createInstance({ x: 12.5, y: 41.9 })
     for (let i = 0; i < 3; i++) {
@@ -145,5 +146,59 @@ describe('Points.transform', () => {
       Points.transform(point, utm33N.code, srsIndex)
     )
     expect(Points.transformOrThrow(point, point.srs, srsIndex)).toBe(point)
+  })
+})
+
+describe('Points.distanceToPolygonBoundary', () => {
+  // square around Rome (lon 12.4..12.6, lat 41.8..42.0)
+  const polygonRing = [
+    [12.4, 41.8],
+    [12.6, 41.8],
+    [12.6, 42.0],
+    [12.4, 42.0],
+    [12.4, 41.8],
+  ]
+  const polygon: AreaOfInterest = { type: 'Polygon', coordinates: [polygonRing] }
+
+  test('negative distance for a point inside', () => {
+    const point = PointFactory.createInstance({ x: 12.401, y: 41.9 })
+    const distance = Points.distanceToPolygonBoundary(point, polygon)
+    // 0.001 degrees of longitude at lat 41.9 ≈ 83 m
+    expect(distance).toBeLessThan(-80)
+    expect(distance).toBeGreaterThan(-86)
+  })
+
+  test('positive distance for a point outside', () => {
+    const point = PointFactory.createInstance({ x: 12.5, y: 42.001 })
+    const distance = Points.distanceToPolygonBoundary(point, polygon)
+    // 0.001 degrees of latitude ≈ 111 m
+    expect(distance).toBeGreaterThan(108)
+    expect(distance).toBeLessThan(114)
+  })
+
+  test('multi polygon: distance to the nearest polygon', () => {
+    const otherPolygonRing = [
+      [13, 41.8],
+      [13.2, 41.8],
+      [13.2, 42],
+      [13, 42],
+      [13, 41.8],
+    ]
+    const multiPolygon: AreaOfInterest = { type: 'MultiPolygon', coordinates: [[polygonRing], [otherPolygonRing]] }
+    const point = PointFactory.createInstance({ x: 13.001, y: 41.9 })
+    expect(Points.distanceToPolygonBoundary(point, multiPolygon)).toBeLessThan(0)
+  })
+
+  test('point in a different SRS is converted to lat/long', () => {
+    const point = Points.transform(PointFactory.createInstance({ x: 12.401, y: 41.9 }), utm33N.code, srsIndex)!
+    const distance = Points.distanceToPolygonBoundary(point, polygon, srsIndex)
+    expect(distance).toBeLessThan(-80)
+    expect(distance).toBeGreaterThan(-86)
+  })
+
+  test('invalid polygon or point => null', () => {
+    const point = PointFactory.createInstance({ x: 12.5, y: 41.9 })
+    expect(Points.distanceToPolygonBoundary(point, { type: 'Polygon', coordinates: [] })).toBeNull()
+    expect(Points.distanceToPolygonBoundary({ ...point, srs: '99999' }, polygon)).toBeNull()
   })
 })
