@@ -1,5 +1,6 @@
 import { AuthGroupName, UserAuthGroup } from '../../auth'
 import { Category } from '../../category'
+import type { AreaOfInterest } from '../../geo'
 import { LanguageCode } from '../../language'
 import { getLabelOrDefault } from '../../language/labels'
 import { SRS, SRSIndex } from '../../srs'
@@ -90,6 +91,8 @@ export const getSRSByCode =
   (code: string) =>
   (survey: Survey): SRS | undefined =>
     getSRSIndex(survey)[code]
+
+export const getAreaOfInterest = (survey: Survey): AreaOfInterest | undefined => survey?.props?.areaOfInterest
 
 export const getAuthGroups = (survey: Survey): UserAuthGroup[] => survey?.authGroups ?? []
 
