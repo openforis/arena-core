@@ -77,6 +77,11 @@ const queries: Query[] = [
   },
   // regular expressions applied to strings up to the max length
   { expression: `/^a+$/.test('${'a'.repeat(1000)}')`, result: true },
+  { expression: `'abc'.search('b')`, result: 1 },
+  { expression: `'abc'.match('(b)+').length`, result: 2 },
+  // replace and split treat string patterns literally
+  { expression: `'${'a'.repeat(1001)}'.replace('(a+)+$', 'b').length`, result: 1001 },
+  { expression: `'a(a+)+$b'.split('(a+)+$').length`, result: 2 },
   // properties leading to Object, Function or prototypes are not accessible
   { expression: 'Math.constructor', error: true },
   { expression: `'a'.constructor`, error: true },
@@ -112,8 +117,31 @@ describe('JavascriptExpressionEvaluator regular expressions safety', () => {
     ['/^(a+)+$/.test("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!")', 'expression.unsafeRegularExpression'],
     [`/^a+$/.test('${'a'.repeat(1001)}')`, 'expression.regularExpressionInputTooLong'],
     [`'${'a'.repeat(1001)}'.match(/b/)`, 'expression.regularExpressionInputTooLong'],
+    // string patterns are converted into regular expressions by match, matchAll and search
+    [`'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!'.match('(a+)+$')`, 'expression.unsafeRegularExpression'],
+    [`'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!'.matchAll('(a+)+$')`, 'expression.unsafeRegularExpression'],
+    [`'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!'.search('(a+)+$')`, 'expression.unsafeRegularExpression'],
+    [`'${'a'.repeat(1001)}'.match('b')`, 'expression.regularExpressionInputTooLong'],
+    [`'${'a'.repeat(1001)}'.search('b')`, 'expression.regularExpressionInputTooLong'],
   ])('unsafe regular expression or input %# rejected', async (expression, errorKey) => {
     await expect(new JavascriptExpressionEvaluator().evaluate(expression)).rejects.toMatchObject({ key: errorKey })
+  })
+})
+
+describe('JavascriptExpressionEvaluator Object and Function access', () => {
+  const evaluator = new JavascriptExpressionEvaluator({
+    getObject: { minArity: 0, executor: () => () => Object },
+    getFunction: { minArity: 0, executor: () => () => Function },
+    getDescriptor: { minArity: 0, executor: () => () => ({ value: Function }) },
+  })
+  test.each([
+    `getObject().getOwnPropertyDescriptor(getObject().getPrototypeOf(Math.max), 'constructor').value('return 1').call(null)`,
+    `getObject().keys(Math)`,
+    `getFunction()('return 1')`,
+    `getFunction().call(null, 'return 1')`,
+    `getDescriptor().value('return 1')`,
+  ])('%s rejected', async (expression) => {
+    await expect(evaluator.evaluate(expression)).rejects.toThrow()
   })
 })
 

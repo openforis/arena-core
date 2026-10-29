@@ -244,6 +244,10 @@ describe('RecordExpressionEvaluator', () => {
       expression: `categoryItemProp('hierarchical_category', 'prop1', '999')`,
       result: null,
     },
+    {
+      expression: `categoryItemProp('hierarchical_category', 'constructor', '1')`,
+      error: new SystemError('expression.invalidCategoryExtraProp'),
+    },
     // taxonProp
     { expression: `taxonProp('trees', 'max_height', 'AFZ/QUA')`, result: 200 },
     { expression: `taxonProp('trees', 'max_dbh', 'OLE/CAP')`, result: 40 },
@@ -257,6 +261,10 @@ describe('RecordExpressionEvaluator', () => {
       error: new SystemError('expression.invalidTaxonomyExtraProp'),
     },
     { expression: `taxonProp('trees', 'max_dbh', 'AFZ/QUA/OTHER')`, result: null },
+    {
+      expression: `taxonProp('trees', 'constructor', 'AFZ/QUA')`,
+      error: new SystemError('expression.invalidTaxonomyExtraProp'),
+    },
     // taxonVernacularName
     { expression: `taxonVernacularName('trees', 'swa', 'AFZ/QUA')`, result: 'Mbambakofi' },
     {
@@ -265,6 +273,10 @@ describe('RecordExpressionEvaluator', () => {
       error: new SystemError('expression.invalidTaxonVernacularNameLanguageCode'),
     },
     { expression: `taxonVernacularName('trees', 'swa', 'AFZ/QUA/OTHER')`, result: null },
+    {
+      expression: `taxonVernacularName('trees', 'constructor', 'AFZ/QUA')`,
+      error: new SystemError('expression.invalidTaxonVernacularNameLanguageCode'),
+    },
     // dateTimeDiff
     { expression: 'dateTimeDiff(end_date, end_time, visit_date, visit_time)', result: 1675 },
     { expression: 'dateTimeDiff(end_date, end_time, "2021-01-01", "10:10")', result: 1695 },
@@ -434,6 +446,19 @@ describe('RecordExpressionEvaluator', () => {
     // regular expressions
     { expression: '/^\\w+$/.test(remarks)', result: false },
     { expression: '/^[a-z\\s]{3,50}$/i.test(remarks)', result: true },
+    { expression: "remarks.match('(a+)+$')", error: new SystemError('expression.unsafeRegularExpression') },
+    {
+      expression: "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!'.search('(a+)+$')",
+      error: new SystemError('expression.unsafeRegularExpression'),
+    },
+    // Object and Function are not accessible through function results
+    // (userProp returns undefined and the member expression on it evaluates to null)
+    { expression: "userProp('constructor')", result: undefined },
+    {
+      expression:
+        "userProp('constructor').getOwnPropertyDescriptor(userProp('constructor').getPrototypeOf(Math.max), 'constructor').value('return typeof process').call(null)",
+      result: null,
+    },
     // prototype properties are not accessible
     { expression: 'remarks.__proto__', error: new SystemError('expression.identifierNotFound') },
     { expression: 'this.__proto__', node: 'remarks', error: new SystemError('expression.identifierNotFound') },
