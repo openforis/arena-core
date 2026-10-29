@@ -1,14 +1,14 @@
 import { SystemError, SystemErrorKeys } from '../../../error'
 import { ExpressionContext } from '../../context'
 import { ExpressionNodeEvaluator, IdentifierExpression } from '../../node'
-import { getGlobalObjectProperty, isForbiddenPropertyName } from '../global'
+import { getGlobalObjectProperty, isForbiddenPropertyName, isForbiddenValue } from '../global'
 
 const getNativeProperty = (name: string, object: any) => {
-  if (isForbiddenPropertyName(name)) {
+  if (isForbiddenPropertyName(name) || isForbiddenValue(object)) {
     return undefined
   }
   const prop = object?.[name]
-  if (prop === undefined) {
+  if (prop === undefined || isForbiddenValue(prop)) {
     return undefined
   }
   return typeof prop === 'function' ? prop.bind(object) : prop
