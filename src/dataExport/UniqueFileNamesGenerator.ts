@@ -8,11 +8,15 @@ export class UniqueFileNamesGenerator {
   private _keysByFileName: Dictionary<string>
   // file names are compared ignoring case: names differing only in case overwrite each other on Windows/macOS
   private readonly _fileNamesLowerCase: Set<string>
+  // last file name generated starting from a given first candidate file name (e.g. "image (1).jpg" => "image (25).jpg"):
+  // the names before it in the sequence are all used already, so the search can start from it
+  private readonly _lastGeneratedFileNameByFirstCandidate: Map<string, string>
 
   constructor() {
     this._fileNamesByKey = {}
     this._keysByFileName = {}
     this._fileNamesLowerCase = new Set()
+    this._lastGeneratedFileNameByFirstCandidate = new Map()
   }
 
   private isFileNameUsed(fileName: string): boolean {
@@ -51,11 +55,13 @@ export class UniqueFileNamesGenerator {
       // file name not used yet
       return this.assignFileName(inputFileName, key)
     }
-    let generatedFileName = this.generateNextFileName(inputFileName)
+    const firstCandidate = this.generateNextFileName(inputFileName)
+    let generatedFileName = this._lastGeneratedFileNameByFirstCandidate.get(firstCandidate) ?? firstCandidate
     while (this.isFileNameUsed(generatedFileName)) {
       // file name already exists, generate the next one
       generatedFileName = this.generateNextFileName(generatedFileName)
     }
+    this._lastGeneratedFileNameByFirstCandidate.set(firstCandidate, generatedFileName)
     return this.assignFileName(generatedFileName, key)
   }
 
