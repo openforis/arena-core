@@ -1,5 +1,6 @@
 import { describe, test, expect } from '@jest/globals'
 
+import { NodeDefFactory, NodeDefType, NodeDefValidations } from '../nodeDef'
 import { NodeFactory, NodeFactoryParams } from './factory'
 import { ArenaRecordNode } from './node'
 import { Nodes } from './nodes'
@@ -123,5 +124,29 @@ describe('Nodes mutation options', () => {
     expect(Nodes.isChildVisible(node, 'child')).toBe(false)
     expect(Nodes.assocChildVisible(node, 'child', true, true)).toBe(node)
     expect(Nodes.isChildVisible(node, 'child')).toBe(true)
+  })
+})
+
+describe('Nodes.getChildrenMinCount / getChildrenMaxCount', () => {
+  const parentNode = NodeFactory.createInstance({ nodeDefUuid: 'parentDef', recordUuid: 'rec' })
+  const createNodeDef = (count: NodeDefValidations['count']) =>
+    NodeDefFactory.createInstance({ type: NodeDefType.entity, propsAdvanced: { validations: { count } } })
+
+  test('constant counts are converted to numbers', () => {
+    const nodeDef = createNodeDef({ min: '1', max: '3' })
+    expect(Nodes.getChildrenMinCount({ parentNode, nodeDef })).toBe(1)
+    expect(Nodes.getChildrenMaxCount({ parentNode, nodeDef })).toBe(3)
+  })
+
+  test('empty or not evaluated count expressions are NaN', () => {
+    const nodeDef = createNodeDef({ min: '1', max: [] })
+    expect(Nodes.getChildrenMinCount({ parentNode, nodeDef })).toBe(1)
+    expect(Nodes.getChildrenMaxCount({ parentNode, nodeDef })).toBeNaN()
+    const nodeDefWithExpression = createNodeDef({
+      min: [{ uuid: 'expr1', expression: '2' }],
+      max: [{ uuid: 'expr1', expression: '2' }],
+    })
+    expect(Nodes.getChildrenMinCount({ parentNode, nodeDef: nodeDefWithExpression })).toBeNaN()
+    expect(Nodes.getChildrenMaxCount({ parentNode, nodeDef: nodeDefWithExpression })).toBeNaN()
   })
 })

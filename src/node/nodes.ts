@@ -43,7 +43,8 @@ const getChildrenMinOrMaxCount = (params: {
   // count can be a constant value, specified in the node def min/max count prop
   const nodeDefCount =
     countType === NodeDefCountType.max ? NodeDefs.getMaxCount(nodeDef) : NodeDefs.getMinCount(nodeDef)
-  return nodeDefCount ? Number(nodeDefCount) : Number.NaN
+  // count expressions (array) are evaluated into the parent node meta (childrenMinCount/childrenMaxCount)
+  return nodeDefCount && !Array.isArray(nodeDefCount) ? Number(nodeDefCount) : Number.NaN
 }
 
 const getChildrenMaxCount = (params: { parentNode: ArenaRecordNode; nodeDef: NodeDef<any> }): number =>
