@@ -255,19 +255,23 @@ const findSiblingKeyNodesToValidate = (
       result.push(keyNode)
     }
   }
-  // key nodes with errors (in entities other than the attribute's one) are added only once per group
+  return result.concat(_findSiblingKeyNodesWithErrorsNotAdded({ group, entityUuid }))
+}
+
+// key nodes with errors (in entities other than the attribute's one) are added only once per group
+const _findSiblingKeyNodesWithErrorsNotAdded = (params: {
+  group: SiblingKeyNodesGroup
+  entityUuid: string
+}): ArenaRecordNode[] => {
+  const { group, entityUuid } = params
   if (group.firstEntityUuid === undefined) {
     group.firstEntityUuid = entityUuid
-    for (const item of group.items) {
-      if (item.hasErrors && item.entityUuid !== entityUuid) result.push(item.keyNode)
-    }
-  } else if (!group.allItemsWithErrorsAdded && group.firstEntityUuid !== entityUuid) {
-    group.allItemsWithErrorsAdded = true
-    for (const item of group.items) {
-      if (item.hasErrors && item.entityUuid === group.firstEntityUuid) result.push(item.keyNode)
-    }
+    return group.items.filter((item) => item.hasErrors && item.entityUuid !== entityUuid).map((item) => item.keyNode)
   }
-  return result
+  if (group.allItemsWithErrorsAdded || group.firstEntityUuid === entityUuid) return []
+  group.allItemsWithErrorsAdded = true
+  const { firstEntityUuid } = group
+  return group.items.filter((item) => item.hasErrors && item.entityUuid === firstEntityUuid).map((item) => item.keyNode)
 }
 
 // attribute siblings (same attribute def in the sibling entities) added to the nodes to validate,
