@@ -92,6 +92,15 @@ const fetchAreaOfInterest = async (params: {
   return areaOfInterestProvider.getAreaOfInterest({ survey, name })
 }
 
+// expression validation (no record): a literal area name must be defined in the survey
+const validateAreaOfInterestName = (params: { context: NodeDefExpressionContext; name: unknown }): void => {
+  const { context, name } = params
+  const record: ArenaRecord = (context as any).record
+  if (!record && typeof name === 'string' && !getAreaOfInterestByName({ survey: context.survey, name })) {
+    throw new SystemError(SystemErrorKeys.expression.areaOfInterestNotFound, { name })
+  }
+}
+
 const distanceToAreaOfInterestBoundary = async (params: {
   context: NodeDefExpressionContext
   point: Point
@@ -224,6 +233,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     executor:
       (context: NodeDefExpressionContext) =>
       async (coordinate: Point | string, name: string): Promise<number | null> => {
+        validateAreaOfInterestName({ context, name })
         const point = Points.parse(coordinate)
         if (!point || typeof name !== 'string') return null
         return distanceToAreaOfInterestBoundary({ context, point, name })
