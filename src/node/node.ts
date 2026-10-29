@@ -8,6 +8,7 @@ export enum NodeKeys {
 
 export enum NodeMetaKeys {
   h = 'h',
+  hCode = 'hCode',
 }
 
 export interface NodeMeta {
