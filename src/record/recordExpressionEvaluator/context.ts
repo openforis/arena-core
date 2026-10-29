@@ -1,6 +1,7 @@
 import { User } from '../../auth'
 import { ExpressionContext } from '../../expression'
 import { ArenaRecordNode } from '../../node'
+import { AreaOfInterestProvider } from '../../nodeDefExpressionEvaluator/areaOfInterestProvider'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Survey } from '../../survey'
@@ -16,4 +17,5 @@ export interface RecordExpressionContext extends ExpressionContext {
   item?: any
   categoryItemProvider?: CategoryItemProvider
   taxonProvider?: TaxonProvider
+  areaOfInterestProvider?: AreaOfInterestProvider
 }

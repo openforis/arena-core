@@ -147,7 +147,7 @@ export {
 } from './nodeDef'
 
 export { NodeDefExpressionEvaluator, NodeDefExpressionValidator } from './nodeDefExpressionEvaluator'
-export type { CategoryItemProvider, TaxonProvider } from './nodeDefExpressionEvaluator'
+export type { AreaOfInterestProvider, CategoryItemProvider, TaxonProvider } from './nodeDefExpressionEvaluator'
 
 export type {
   NodeDef,

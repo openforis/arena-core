@@ -3,6 +3,7 @@ import { Dictionary } from '../../common'
 import { Labels } from '../../language'
 import { ArenaRecordNode, NodeKeys, Nodes, NodeValues } from '../../node'
 import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { AreaOfInterestProvider } from '../../nodeDefExpressionEvaluator/areaOfInterestProvider'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Survey, Surveys } from '../../survey'
@@ -33,6 +34,7 @@ export interface RecordValidatorParams {
   survey: Survey
   categoryItemProvider?: CategoryItemProvider
   taxonProvider?: TaxonProvider
+  areaOfInterestProvider?: AreaOfInterestProvider
   record: ArenaRecord
 }
 
@@ -142,9 +144,15 @@ const _validateRequired =
  * Evaluates the validation expressions.
  */
 const _validateNodeValidations =
-  (params: { user: User; survey: Survey; record: ArenaRecord; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
+  (params: {
+    user: User
+    survey: Survey
+    record: ArenaRecord
+    nodeDef: NodeDef<NodeDefType, NodeDefProps>
+    areaOfInterestProvider?: AreaOfInterestProvider
+  }) =>
   async (_propName: string, node: ArenaRecordNode): Promise<ValidationResult> => {
-    const { user, survey, record, nodeDef } = params
+    const { user, survey, record, nodeDef, areaOfInterestProvider } = params
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const validations = NodeDefs.getValidations(nodeDef)
@@ -154,6 +162,7 @@ const _validateNodeValidations =
       user,
       survey,
       record,
+      areaOfInterestProvider,
       nodeCtx: node,
       expressions: validations.expressions,
       stopAtFirstFound: false,
