@@ -1,5 +1,5 @@
 import { ExpressionVariable, IdentifierExpression } from '../../../../expression'
-import { isForbiddenPropertyName } from '../../../../expression/javascript/global'
+import { getGlobalObjectProperty, isForbiddenPropertyName } from '../../../../expression/javascript/global'
 import { IdentifierEvaluator } from '../../../../expression/javascript/node/identifier'
 import { ArenaRecordNode } from '../../../../node'
 import { NodeDef, NodeDefs, NodeDefType } from '../../../../nodeDef'
@@ -106,6 +106,18 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
       throw new SystemError(SystemErrorKeys.expression.identifierNotFound, { name: propName })
     }
 
+    const { survey, record, evaluateToNode, object: contextObject, item } = this.context
+
+    if (contextObject?.nodeDefUuid) {
+      // context object is a record node: its own properties (id, uuid, value...) are not accessible,
+      // so that node defs named like them are always found (as in NodeDefIdentifierEvaluator)
+      const globalProp = getGlobalObjectProperty(propName, contextObject)
+      if (globalProp !== null) {
+        return globalProp
+      }
+      return evaluateIdentifierOnNode({ survey, record, nodeObject: contextObject, evaluateToNode, propName })
+    }
+
     // try to find identifier among global or native properties
     // (not-found is signaled without throwing; the try/catch only handles the rare case of an unknown member of a global object)
     try {
@@ -119,7 +131,6 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
 
     // identifier not found among global or native properties
     // identifier should be a node or a node value property
-    const { survey, record, evaluateToNode, object: contextObject, item } = this.context
 
     if (item && item === contextObject) {
       // evaluating category or taxon item prop or extra prop

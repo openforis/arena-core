@@ -58,6 +58,9 @@ const queries: Query[] = [
   { expression: 'Invalid.func(1)', error: true },
   // native properties/functions
   { expression: `Array.of(1,2,3).length`, result: 3 },
+  // native functions of falsy values
+  { expression: 'Math.round(0.1).toFixed(1)', result: '0.0' },
+  { expression: `''.concat('a')`, result: 'a' },
   { expression: `Array.of(1,2,3).includes(2)`, result: true },
   { expression: `Array.of('a','b','c').includes('a')`, result: true },
   { expression: `Array.of('a','b','c').includes('d')`, result: false },
@@ -153,5 +156,23 @@ describe('JavascriptExpressionEvaluator parsed expressions cache', () => {
     }
     expect(await evaluator.evaluate('0 + 1')).toBe(1)
     expect(await evaluator.evaluate('1099 + 1')).toBe(1100)
+  })
+})
+
+describe('JavascriptExpressionEvaluator method call chains', () => {
+  test('evaluates the object of a method call chain only once', async () => {
+    let calls = 0
+    const evaluator = new JavascriptExpressionEvaluator({
+      cnt: {
+        minArity: 0,
+        maxArity: 0,
+        executor: () => () => {
+          calls++
+          return ' Abc '
+        },
+      },
+    })
+    expect(await evaluator.evaluate('cnt().trim().toUpperCase().toLowerCase()')).toBe('abc')
+    expect(calls).toBe(1)
   })
 })
