@@ -26,6 +26,28 @@ const skipCharacterClass = (source: string, index: number): number => {
   return i + 1
 }
 
+// marks the innermost open group (if any) as containing a quantifier
+const markInnermostGroupQuantified = (groupsStack: boolean[]): void => {
+  if (groupsStack.length > 0) {
+    groupsStack[groupsStack.length - 1] = true
+  }
+}
+
+/**
+ * Closes the group ending at the specified index (position of the ")").
+ * Returns true if the group contains a quantifier and it's repeated by an unbounded quantifier.
+ */
+const closeGroup = (source: string, index: number, groupsStack: boolean[]): boolean => {
+  const groupContainsQuantifier = groupsStack.pop() ?? false
+  if (groupContainsQuantifier && unboundedQuantifierRegExp.test(source.substring(index + 1))) {
+    return true
+  }
+  if (groupContainsQuantifier || isQuantifierAt(source, index + 1)) {
+    markInnermostGroupQuantified(groupsStack)
+  }
+  return false
+}
+
 /**
  * Returns true if the specified regular expression source contains a group repeated by an unbounded quantifier
  * that contains a quantifier itself (star height > 1), e.g. (a+)+, (\w*)* or (x{1,3})+:
@@ -37,37 +59,28 @@ export const hasNestedQuantifiers = (source: string): boolean => {
   const groupsStack: boolean[] = []
   let i = 0
   while (i < source.length) {
-    const char = source[i]
-    if (char === '\\') {
-      i = skipEscape(i)
-      continue
+    switch (source[i]) {
+      case '\\':
+        i = skipEscape(i)
+        break
+      case '[':
+        i = skipCharacterClass(source, i)
+        break
+      case '(':
+        groupsStack.push(false)
+        // a "?" right after "(" introduces a group modifier (e.g. "(?:"), it's not a quantifier
+        i += source[i + 1] === '?' ? 2 : 1
+        break
+      case ')':
+        if (closeGroup(source, i, groupsStack)) return true
+        i += 1
+        break
+      default:
+        if (isQuantifierAt(source, i)) {
+          markInnermostGroupQuantified(groupsStack)
+        }
+        i += 1
     }
-    if (char === '[') {
-      i = skipCharacterClass(source, i)
-      continue
-    }
-    if (char === '(') {
-      groupsStack.push(false)
-      // a "?" right after "(" introduces a group modifier (e.g. "(?:"), it's not a quantifier
-      i += source[i + 1] === '?' ? 2 : 1
-      continue
-    }
-    if (char === ')') {
-      const groupContainsQuantifier = groupsStack.pop() ?? false
-      const groupQuantified = isQuantifierAt(source, i + 1)
-      if (groupContainsQuantifier && unboundedQuantifierRegExp.test(source.substring(i + 1))) {
-        return true
-      }
-      if (groupsStack.length > 0 && (groupContainsQuantifier || groupQuantified)) {
-        groupsStack[groupsStack.length - 1] = true
-      }
-      i += 1
-      continue
-    }
-    if (groupsStack.length > 0 && isQuantifierAt(source, i)) {
-      groupsStack[groupsStack.length - 1] = true
-    }
-    i += 1
   }
   return false
 }
