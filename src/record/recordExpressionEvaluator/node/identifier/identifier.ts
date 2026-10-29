@@ -1,4 +1,5 @@
 import { ExpressionVariable, IdentifierExpression } from '../../../../expression'
+import { isForbiddenPropertyName } from '../../../../expression/javascript/global'
 import { IdentifierEvaluator } from '../../../../expression/javascript/node/identifier'
 import { ArenaRecordNode } from '../../../../node'
 import { NodeDef, NodeDefs, NodeDefType } from '../../../../nodeDef'
@@ -100,6 +101,9 @@ export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpress
 
     if (propName === ExpressionVariable.CONTEXT) {
       return this.context.nodeContext
+    }
+    if (isForbiddenPropertyName(propName)) {
+      throw new SystemError(SystemErrorKeys.expression.identifierNotFound, { name: propName })
     }
 
     // try to find identifier among global or native properties

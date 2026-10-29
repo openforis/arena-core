@@ -433,6 +433,9 @@ describe('RecordExpressionEvaluator', () => {
     // regular expressions
     { expression: '/^\\w+$/.test(remarks)', result: false },
     { expression: '/^[a-z\\s]{3,50}$/i.test(remarks)', result: true },
+    // prototype properties are not accessible
+    { expression: 'remarks.__proto__', error: new SystemError('expression.identifierNotFound') },
+    { expression: 'this.__proto__', node: 'remarks', error: new SystemError('expression.identifierNotFound') },
     // record owner functions
     { expression: 'recordOwnerEmail()', result: 'test@openforis-arena.org' },
     { expression: 'recordOwnerName()', result: 'test' },
