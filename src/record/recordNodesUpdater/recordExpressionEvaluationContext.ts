@@ -1,5 +1,6 @@
 import { User } from '../../auth'
 import { LanguageCode } from '../../language'
+import { AreaOfInterestProvider } from '../../nodeDefExpressionEvaluator/areaOfInterestProvider'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Survey } from '../../survey'
@@ -14,5 +15,6 @@ export interface RecordExpressionEvaluationContext {
   lang?: LanguageCode
   categoryItemProvider?: CategoryItemProvider
   taxonProvider?: TaxonProvider
+  areaOfInterestProvider?: AreaOfInterestProvider
   sideEffect?: boolean
 }

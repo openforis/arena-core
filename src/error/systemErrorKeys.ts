@@ -3,6 +3,7 @@
  */
 export const SystemErrorKeys = {
   expression: {
+    areaOfInterestNotFound: 'expression.areaOfInterestNotFound',
     booleanOperatorNotSupported: 'expression.booleanOperatorNotSupported',
     functionHasTooFewArguments: 'expression.functionHasTooFewArguments',
     functionHasTooManyArguments: 'expression.functionHasTooManyArguments',

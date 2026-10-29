@@ -3,12 +3,18 @@ import { CategoryItem } from '../category'
 import { SystemError, SystemErrorKeys } from '../error'
 import { ExpressionFunctions } from '../expression'
 import { ExtraProps } from '../extraProp/extraProps'
-import { Point, Points } from '../geo'
+import { AreaOfInterest, Point, Points } from '../geo'
 import { LanguagesISO639part2 } from '../language'
 import { ArenaRecord } from '../record'
 import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 import { getCategoryItemByCodePaths, getTaxonByCode } from '../survey/surveys/refsData'
-import { getAreaOfInterest, getCategoryByName, getSRSIndex, getTaxonomyByName } from '../survey/surveys/surveysGetters'
+import {
+  getAreaOfInterestByName,
+  getAreasOfInterest,
+  getCategoryByName,
+  getSRSIndex,
+  getTaxonomyByName,
+} from '../survey/surveys/surveysGetters'
 import { Taxon } from '../taxonomy'
 import { Dates, Numbers, Objects } from '../utils'
 import { NodeDefExpressionContext } from './context'
@@ -74,6 +80,36 @@ const getOrFetchTaxon = async (params: {
   const record: ArenaRecord = (context as any).record
   const draft = !record || !!record.preview
   return taxon ?? taxonProvider?.getTaxonByCode({ survey, taxonomyUuid, taxonCode, draft })
+}
+
+const fetchAreaOfInterest = async (params: {
+  context: NodeDefExpressionContext
+  name: string
+}): Promise<AreaOfInterest | undefined> => {
+  const { context, name } = params
+  const { survey, areaOfInterestProvider } = context
+  if (!areaOfInterestProvider || !getAreaOfInterestByName({ survey, name })) return undefined
+  return areaOfInterestProvider.getAreaOfInterest({ survey, name })
+}
+
+// expression validation (no record): a literal area name must be defined in the survey
+const validateAreaOfInterestName = (params: { context: NodeDefExpressionContext; name: unknown }): void => {
+  const { context, name } = params
+  const record: ArenaRecord = (context as any).record
+  if (!record && typeof name === 'string' && !getAreaOfInterestByName({ survey: context.survey, name })) {
+    throw new SystemError(SystemErrorKeys.expression.areaOfInterestNotFound, { name })
+  }
+}
+
+const distanceToAreaOfInterestBoundary = async (params: {
+  context: NodeDefExpressionContext
+  point: Point
+  name: string
+}): Promise<number | null> => {
+  const { context, point, name } = params
+  const areaOfInterest = await fetchAreaOfInterest({ context, name })
+  if (!areaOfInterest) return null
+  return Points.distanceToPolygonBoundary(point, areaOfInterest, getSRSIndex(context.survey))
 }
 
 const geoDistanceExecutor =
@@ -175,17 +211,32 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       },
   },
   geoDistance: { minArity: 2, maxArity: 2, executor: geoDistanceExecutor },
-  geoDistanceToAOIBoundary: {
+  geoAOIContaining: {
     minArity: 1,
     maxArity: 1,
     executor:
       (context: NodeDefExpressionContext) =>
-      (coordinate: Point | string): number | null => {
-        const { survey } = context
-        const areaOfInterest = getAreaOfInterest(survey)
+      async (coordinate: Point | string): Promise<string | null> => {
         const point = Points.parse(coordinate)
-        if (!areaOfInterest || !point) return null
-        return Points.distanceToPolygonBoundary(point, areaOfInterest, getSRSIndex(survey))
+        if (!point || !context.areaOfInterestProvider) return null
+        // the survey order is the priority of overlapping areas
+        for (const { name } of getAreasOfInterest(context.survey)) {
+          const distance = await distanceToAreaOfInterestBoundary({ context, point, name }) // NOSONAR
+          if (distance !== null && distance <= 0) return name
+        }
+        return null
+      },
+  },
+  geoDistanceToAOIBoundary: {
+    minArity: 2,
+    maxArity: 2,
+    executor:
+      (context: NodeDefExpressionContext) =>
+      async (coordinate: Point | string, name: string): Promise<number | null> => {
+        validateAreaOfInterestName({ context, name })
+        const point = Points.parse(coordinate)
+        if (!point || typeof name !== 'string') return null
+        return distanceToAreaOfInterestBoundary({ context, point, name })
       },
   },
   geoPolygon: {
