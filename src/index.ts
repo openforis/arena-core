@@ -106,7 +106,7 @@ export { ExtraPropDataType, ExtraPropsDataGenerator } from './extraProp'
 export type { ExtraPropDef, ExtraPropDefs } from './extraProp'
 
 export { PointFactory, Points } from './geo'
-export type { AreaOfInterest, Point } from './geo'
+export type { AreaOfInterest, AreaOfInterestDescriptor, Point } from './geo'
 
 export { JobBase, JobEventType, JobStatus } from './job'
 export type { Job, JobContext, JobEvent, JobSerialized, JobTxClient } from './job'

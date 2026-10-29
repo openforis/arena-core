@@ -1,7 +1,7 @@
 import { ArenaObject, Dictionary } from '../common'
 import { AuthGroup } from '../auth'
 import { Labels, LanguageCode } from '../language'
-import type { AreaOfInterest } from '../geo'
+import type { AreaOfInterestDescriptor } from '../geo'
 import { SRS } from '../srs'
 
 import { NodeDef, NodeDefType } from '../nodeDef'
@@ -106,7 +106,7 @@ export type SurveyDocOptions = {
 }
 
 export interface SurveyProps {
-  areaOfInterest?: AreaOfInterest
+  areasOfInterest?: AreaOfInterestDescriptor[]
   collectUri?: string
   cycles: {
     [key: string]: SurveyCycle

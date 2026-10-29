@@ -5,7 +5,7 @@ import { createTestAdminUser } from '../../tests/data'
 import { Survey } from '../survey'
 import { Surveys } from '.'
 
-import { AreaOfInterest } from '../../geo'
+import { AreaOfInterestDescriptor } from '../../geo'
 import { LanguageCode } from '../../language'
 
 const { entityDef, integerDef } = SurveyObjectBuilders
@@ -42,30 +42,29 @@ describe('Surveys getters', () => {
   })
 })
 
-describe('Surveys.getAreaOfInterest', () => {
-  const areaOfInterest: AreaOfInterest = {
-    type: 'Polygon',
-    coordinates: [
-      [
-        [12.4, 41.8],
-        [12.6, 41.8],
-        [12.6, 42.0],
-        [12.4, 41.8],
-      ],
-    ],
-  }
+describe('Surveys.getAreasOfInterest', () => {
+  const areasOfInterest: AreaOfInterestDescriptor[] = [
+    { name: 'area_a', fileUuid: 'uuid-a', fileName: 'a.geojson', size: 100, polygons: 1, vertices: 5 },
+    { name: 'area_b', fileUuid: 'uuid-b', fileName: 'b.geojson', size: 200, polygons: 2, vertices: 10 },
+  ]
 
-  test('area of interest in survey props', () => {
-    const survey = { props: { areaOfInterest } } as unknown as Survey
-    expect(Surveys.getAreaOfInterest(survey)).toEqual(areaOfInterest)
+  test('areas of interest in survey props (Arena Mobile)', () => {
+    const survey = { props: { areasOfInterest } } as unknown as Survey
+    expect(Surveys.getAreasOfInterest(survey)).toEqual(areasOfInterest)
   })
 
-  test('area of interest in survey info props (Arena)', () => {
-    const survey = { info: { props: { areaOfInterest } } } as unknown as Survey
-    expect(Surveys.getAreaOfInterest(survey)).toEqual(areaOfInterest)
+  test('areas of interest in survey info props (Arena)', () => {
+    const survey = { props: {}, info: { props: { areasOfInterest } } } as unknown as Survey
+    expect(Surveys.getAreasOfInterest(survey)).toEqual(areasOfInterest)
   })
 
-  test('area of interest not defined', () => {
-    expect(Surveys.getAreaOfInterest({ props: {} } as unknown as Survey)).toBeUndefined()
+  test('areas of interest not defined => empty array', () => {
+    expect(Surveys.getAreasOfInterest({ props: {} } as unknown as Survey)).toEqual([])
+  })
+
+  test('area of interest by name', () => {
+    const survey = { props: { areasOfInterest } } as unknown as Survey
+    expect(Surveys.getAreaOfInterestByName({ survey, name: 'area_b' })?.fileUuid).toBe('uuid-b')
+    expect(Surveys.getAreaOfInterestByName({ survey, name: 'area_c' })).toBeUndefined()
   })
 })
