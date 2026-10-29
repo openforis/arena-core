@@ -547,7 +547,9 @@ export const getAncestorCodePath =
     )(record).map((codeAttribute) => {
       const codeItemUuid = NodeValues.getItemUuid(codeAttribute)
       if (!codeItemUuid) return ''
-      const item = Surveys.getCategoryItemByUuid({ survey, itemUuid: codeItemUuid })
+      // items of big categories are not in the survey ref data: they can be in the node ref data
+      const item =
+        codeAttribute.refData?.categoryItem ?? Surveys.getCategoryItemByUuid({ survey, itemUuid: codeItemUuid })
       return item?.props.code ?? ''
     })
 

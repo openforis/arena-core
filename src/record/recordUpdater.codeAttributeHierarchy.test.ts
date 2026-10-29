@@ -3,12 +3,15 @@ import { describe, test, expect } from '@jest/globals'
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
+import { CategoryItemFactory } from '../category'
 import { NodeValues, Nodes } from '../node'
-import { Survey } from '../survey'
+import { NodeDefCode } from '../nodeDef'
+import { Survey, Surveys } from '../survey'
 import { ArenaRecord } from './record'
 import { RecordCloner } from './recordCloner'
 import { RecordFactory } from './factory'
 import { RecordUpdater } from './recordUpdater'
+import { Records } from './records'
 
 const { category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectBuilders
 
@@ -65,5 +68,24 @@ describe('RecordUpdater - code attributes hierarchy (meta.hCode)', () => {
     const regionCloned = getNode(recordCloned, 'region')
     const provinceCloned = getNode(recordCloned, 'province')
     expect(Nodes.getHierarchyCode(getNode(recordCloned, 'city'))).toEqual([regionCloned.uuid, provinceCloned.uuid])
+  })
+
+  test('ancestor code path uses the category items in the node ref data (items not in the survey ref data)', async () => {
+    const survey = await createSurvey()
+    let record: ArenaRecord = RecordFactory.createInstance({ surveyUuid: survey.uuid, user })
+    record = (await RecordUpdater.createRootEntity({ user, survey, record })).record
+
+    const root = Records.getRoot(record)!
+    const region = TestUtils.getNodeByPath({ survey, record, path: 'region' })
+    // item of a big category: not in the survey ref data
+    const bigCategoryItem = CategoryItemFactory.createInstance({ levelUuid: 'level_uuid', props: { code: '9' } })
+    record = Records.addNode({
+      ...region,
+      value: NodeValues.newCodeValue({ itemUuid: bigCategoryItem.uuid }),
+      refData: { categoryItem: bigCategoryItem },
+    })(record)
+
+    const cityDef = Surveys.getNodeDefByName({ survey, name: 'city' }) as NodeDefCode
+    expect(Records.getAncestorCodePath(survey, root, cityDef)(record)).toEqual(['9', ''])
   })
 })
