@@ -10,6 +10,7 @@ import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 import { getCategoryItemByCodePaths, getTaxonByCode } from '../survey/surveys/refsData'
 import {
   getAreaOfInterestByName,
+  getAreasOfInterest,
   getCategoryByName,
   getSRSIndex,
   getTaxonomyByName,
@@ -201,6 +202,22 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       },
   },
   geoDistance: { minArity: 2, maxArity: 2, executor: geoDistanceExecutor },
+  geoAOIContaining: {
+    minArity: 1,
+    maxArity: 1,
+    executor:
+      (context: NodeDefExpressionContext) =>
+      async (coordinate: Point | string): Promise<string | null> => {
+        const point = Points.parse(coordinate)
+        if (!point || !context.areaOfInterestProvider) return null
+        // the survey order is the priority of overlapping areas
+        for (const { name } of getAreasOfInterest(context.survey)) {
+          const distance = await distanceToAreaOfInterestBoundary({ context, point, name }) // NOSONAR
+          if (distance !== null && distance <= 0) return name
+        }
+        return null
+      },
+  },
   geoDistanceToAOIBoundary: {
     minArity: 2,
     maxArity: 2,
