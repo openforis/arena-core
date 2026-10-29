@@ -10,12 +10,32 @@ import {
   MemberExpression,
 } from '../../node'
 import { getGlobalObjectProperty } from '../global'
-import { REG_EXP_INPUT_MAX_LENGTH } from '../regExpSafety'
+import { hasNestedQuantifiers, REG_EXP_INPUT_MAX_LENGTH } from '../regExpSafety'
+
+// String functions converting a string argument into a regular expression (replace, replaceAll and split don't)
+const stringFunctionsWithRegExpArgument = new Set(['match', 'matchAll', 'search'])
+
+// e.g. text.match('(a+)+$'): the string pattern is checked like a regular expression literal
+const isRegExpStringPatternCall = (callee: MemberExpression, args: any[]): boolean => {
+  const { computed, property } = callee
+  return (
+    !computed &&
+    property.type === ExpressionNodeType.Identifier &&
+    stringFunctionsWithRegExpArgument.has((property as IdentifierExpression).name) &&
+    typeof args[0] === 'string'
+  )
+}
+
+const checkRegExpStringPattern = (pattern: string): void => {
+  if (hasNestedQuantifiers(pattern)) {
+    throw new SystemError(SystemErrorKeys.expression.unsafeRegularExpression, { pattern })
+  }
+}
 
 // e.g. /.../.test(text) or text.match(/.../): the time taken by a regular expression grows with the input length
-const checkRegExpInputLength = (fnObject: any, args: any[]): void => {
+const checkRegExpInputLength = (fnObject: any, args: any[], regExpStringPattern: boolean): void => {
   const values = [fnObject, ...args]
-  if (!values.some((value) => value instanceof RegExp)) return
+  if (!regExpStringPattern && !values.some((value) => value instanceof RegExp)) return
   const inputTooLong = values.find((value) => typeof value === 'string' && value.length > REG_EXP_INPUT_MAX_LENGTH)
   if (inputTooLong !== undefined) {
     throw new SystemError(SystemErrorKeys.expression.regularExpressionInputTooLong, {
@@ -55,7 +75,11 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     if (fn) {
       const argsEvaluated = await Promise.all(exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context)))
       const args = argsEvaluated.flat()
-      checkRegExpInputLength(fnObject, args)
+      const regExpStringPattern = isRegExpStringPatternCall(callee, args)
+      if (regExpStringPattern) {
+        checkRegExpStringPattern(args[0])
+      }
+      checkRegExpInputLength(fnObject, args, regExpStringPattern)
       return fn.call(fnObject, ...args)
     }
     return null
