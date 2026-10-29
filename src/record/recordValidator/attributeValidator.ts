@@ -52,33 +52,42 @@ export interface SortedAttributesValidatorParams extends RecordValidatorParams {
 
 type SiblingKeyNodeItem = { entityUuid: string; keyNode: ArenaRecordNode; hasErrors: boolean }
 
+type SiblingKeyNodesGroup = {
+  items: SiblingKeyNodeItem[]
+  // items whose key node is not validated anyway (not in the nodes to validate): only these are compared by value
+  itemsToCompare?: SiblingKeyNodeItem[]
+  // entity of the first key attribute validated in this group: its key nodes with errors are not added
+  // until a key attribute of another entity is validated
+  firstEntityUuid?: string
+  allItemsWithErrorsAdded?: boolean
+}
+
 // sibling key nodes are cached by ancestor multiple entity parent and def uuid during the same validation call:
 // when many entities are added to the same parent entity (e.g. data import), computing them for every updated
 // key attribute would take a time that grows quadratically with the number of entities
-type SiblingKeyNodesCache = Map<string, SiblingKeyNodeItem[]>
+type SiblingKeyNodesCache = Map<string, SiblingKeyNodesGroup>
 
-const _getSiblingNodeKeys = (
-  params: AttributeValidatorParams & { siblingKeyNodesCache?: SiblingKeyNodesCache }
-): SiblingKeyNodeItem[] => {
+const _getSiblingNodeKeysGroup = (
+  params: AttributeValidatorParams & { siblingKeyNodesCache: SiblingKeyNodesCache }
+): { entityUuid: string; group: SiblingKeyNodesGroup } | undefined => {
   const { survey, record, attribute, siblingKeyNodesCache } = params
 
   const attributeDef = Surveys.getNodeDefByUuid({ survey, uuid: attribute.nodeDefUuid })
   const ancestorMultipleEntityDef = Surveys.getNodeDefAncestorMultipleEntity({ survey, nodeDef: attributeDef })
-  if (!ancestorMultipleEntityDef) {
-    return []
-  }
+  if (!ancestorMultipleEntityDef) return undefined
+
   const ancestorMultipleEntity = Records.getAncestor(attribute, ancestorMultipleEntityDef.uuid)(record)
-  if (!ancestorMultipleEntity) return []
+  if (!ancestorMultipleEntity) return undefined
 
   const ancestorMultipleEntityParent = Records.getParent(ancestorMultipleEntity)(record)
-  if (!ancestorMultipleEntityParent) return []
+  if (!ancestorMultipleEntityParent) return undefined
 
   const cacheKey = `${ancestorMultipleEntityParent.uuid}_${ancestorMultipleEntityDef.uuid}`
-  let items = siblingKeyNodesCache?.get(cacheKey)
-  if (!items) {
+  let group = siblingKeyNodesCache.get(cacheKey)
+  if (!group) {
     const keyDefs = Surveys.getNodeDefKeys({ survey, nodeDef: ancestorMultipleEntityDef })
     const entities = Records.getEntitySiblings(ancestorMultipleEntity, true)(record)
-    items = []
+    const items: SiblingKeyNodeItem[] = []
     for (const entity of entities) {
       const keyNodes = Records.getEntityKeyNodes(survey, entity, undefined, keyDefs)(record)
       for (const keyNode of keyNodes) {
@@ -88,9 +97,10 @@ const _getSiblingNodeKeys = (
         items.push({ entityUuid: entity.uuid, keyNode, hasErrors: !!nodeValidation && !nodeValidation.valid })
       }
     }
-    siblingKeyNodesCache?.set(cacheKey, items)
+    group = { items }
+    siblingKeyNodesCache.set(cacheKey, group)
   }
-  return items.filter((item) => item.entityUuid !== ancestorMultipleEntity.uuid)
+  return { entityUuid: ancestorMultipleEntity.uuid, group }
 }
 
 const _getValidationMessagesWithDefault = (params: {
@@ -213,10 +223,11 @@ const findSiblingKeyNodesToValidate = (
   params: AttributeValidatorParams & {
     nodeDef: NodeDef<NodeDefType, NodeDefProps>
     nodeParent?: ArenaRecordNode
-    siblingKeyNodesCache?: SiblingKeyNodesCache
+    siblingKeyNodesCache: SiblingKeyNodesCache
+    nodeUuidsToValidate: Set<string>
   }
-) => {
-  const { survey, nodeDef, nodeParent: parentNode, attribute } = params
+): ArenaRecordNode[] => {
+  const { survey, nodeDef, nodeParent: parentNode, attribute, nodeUuidsToValidate } = params
   if (
     !NodeDefs.isKey(nodeDef) ||
     !parentNode ||
@@ -228,25 +239,86 @@ const findSiblingKeyNodesToValidate = (
   }
   // when a key attribute is updated, a sibling key attribute with the same value
   // or a sibling attribute with a validation error (duplicate key) should be re-validated
-  const siblingNodeKeys = _getSiblingNodeKeys(params)
-  const siblingNodeKeysWithSameValue: ArenaRecordNode[] = []
-  const siblingNodeKeysWithErrors: ArenaRecordNode[] = []
-  siblingNodeKeys.forEach(({ keyNode, hasErrors }) => {
-    if (NodeValues.isValueEqual({ survey, nodeDef, parentNode, value: keyNode.value, valueSearch: attribute.value })) {
-      siblingNodeKeysWithSameValue.push(keyNode)
+  const siblingNodeKeysGroup = _getSiblingNodeKeysGroup(params)
+  if (!siblingNodeKeysGroup) return []
+
+  const { entityUuid, group } = siblingNodeKeysGroup
+  // key nodes in the nodes to validate are validated anyway: no need to compare their value
+  group.itemsToCompare ??= group.items.filter((item) => !nodeUuidsToValidate.has(item.keyNode.uuid))
+
+  const result: ArenaRecordNode[] = []
+  for (const { entityUuid: itemEntityUuid, keyNode } of group.itemsToCompare) {
+    if (
+      itemEntityUuid !== entityUuid &&
+      NodeValues.isValueEqual({ survey, nodeDef, parentNode, value: keyNode.value, valueSearch: attribute.value })
+    ) {
+      result.push(keyNode)
     }
-    if (hasErrors) {
-      siblingNodeKeysWithErrors.push(keyNode)
-    }
-  })
-  return [...siblingNodeKeysWithSameValue, ...siblingNodeKeysWithErrors]
+  }
+  return result.concat(_findSiblingKeyNodesWithErrorsNotAdded({ group, entityUuid }))
+}
+
+// key nodes with errors (in entities other than the attribute's one) are added only once per group
+const _findSiblingKeyNodesWithErrorsNotAdded = (params: {
+  group: SiblingKeyNodesGroup
+  entityUuid: string
+}): ArenaRecordNode[] => {
+  const { group, entityUuid } = params
+  if (group.firstEntityUuid === undefined) {
+    group.firstEntityUuid = entityUuid
+    return group.items.filter((item) => item.hasErrors && item.entityUuid !== entityUuid).map((item) => item.keyNode)
+  }
+  if (group.allItemsWithErrorsAdded || group.firstEntityUuid === entityUuid) return []
+  group.allItemsWithErrorsAdded = true
+  const { firstEntityUuid } = group
+  return group.items.filter((item) => item.hasErrors && item.entityUuid === firstEntityUuid).map((item) => item.keyNode)
+}
+
+// attribute siblings (same attribute def in the sibling entities) added to the nodes to validate,
+// by parent entity def and parent of the parent entity
+type AttributeSiblingsAddedCache = Map<string, { firstParentEntity: ArenaRecordNode; allSiblingsAdded?: boolean }>
+
+const findUniqueAttributeSiblingsToValidate = (params: {
+  record: ArenaRecord
+  node: ArenaRecordNode
+  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  nodeParent?: ArenaRecordNode
+  attributeSiblingsAddedCache: AttributeSiblingsAddedCache
+}): ArenaRecordNode[] => {
+  const { record, node, nodeDef, nodeParent, attributeSiblingsAddedCache } = params
+  if (!nodeParent) return []
+  const nodeParentParent = Records.getParent(nodeParent)(record)
+  if (!nodeParentParent) return []
+  // the siblings of the attribute are the attributes in the other parent entities:
+  // after visiting attributes in 2 different parent entities, all the attributes of the group have been added
+  const cacheKey = `${nodeParentParent.uuid}_${nodeParent.nodeDefUuid}_${nodeDef.uuid}`
+  const cached = attributeSiblingsAddedCache.get(cacheKey)
+  if (!cached) {
+    attributeSiblingsAddedCache.set(cacheKey, { firstParentEntity: nodeParent })
+    return Records.getAttributeSiblings(node, nodeDef)(record)
+  }
+  if (cached.allSiblingsAdded || cached.firstParentEntity.uuid === nodeParent.uuid) return []
+  cached.allSiblingsAdded = true
+  return Records.getChildren(cached.firstParentEntity, nodeDef.uuid)(record)
 }
 
 const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): ArenaRecordNode[] => {
   const { survey, record, nodesArray } = params
 
-  const result = []
+  const result: ArenaRecordNode[] = []
+  const resultUuids = new Set<string>()
+  const addToResult = (nodes: ArenaRecordNode[]) => {
+    for (const node of nodes) {
+      if (!resultUuids.has(node.uuid)) {
+        resultUuids.add(node.uuid)
+        result.push(node)
+      }
+    }
+  }
+  // every attribute in nodesArray is validated (it's included in its own dependents)
+  const nodeUuidsToValidate = new Set(nodesArray.map((node) => node.uuid))
   const siblingKeyNodesCache: SiblingKeyNodesCache = new Map()
+  const attributeSiblingsAddedCache: AttributeSiblingsAddedCache = new Map()
   for (const node of nodesArray) {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     if (!NodeDefs.isAttribute(nodeDef)) {
@@ -260,15 +332,22 @@ const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Are
 
     const nodeParent = Records.getParent(node)(record)
 
-    result.push(
-      ...NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }),
-      ...findSiblingKeyNodesToValidate({ ...params, nodeDef, nodeParent, attribute: node, siblingKeyNodesCache })
+    addToResult(NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }))
+    addToResult(
+      findSiblingKeyNodesToValidate({
+        ...params,
+        nodeDef,
+        nodeParent,
+        attribute: node,
+        siblingKeyNodesCache,
+        nodeUuidsToValidate,
+      })
     )
 
     if (NodeDefs.getValidations(nodeDef)?.unique) {
-      for (const sibling of Records.getAttributeSiblings(node, nodeDef)(record)) {
-        result.push(sibling)
-      }
+      addToResult(
+        findUniqueAttributeSiblingsToValidate({ record, node, nodeDef, nodeParent, attributeSiblingsAddedCache })
+      )
     }
   }
 

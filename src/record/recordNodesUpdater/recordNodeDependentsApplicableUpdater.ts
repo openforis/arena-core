@@ -1,4 +1,4 @@
-import { ArenaRecordNode, NodePointer, Nodes } from '../../node'
+import { ArenaRecordNode, NodePointer, Nodes, NodesMap } from '../../node'
 import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { Survey, SurveyDependencyType } from '../../survey/survey'
@@ -57,6 +57,10 @@ const updateDescendantsApplicability = ({
   // only values entered by the user are reported as cleared (they need a confirmation)
   let userValuesCleared = false
 
+  // nodes added to the record all together: adding them one by one would copy the record nodes at every node
+  // (when sideEffect is false)
+  const nodesUpdated: NodesMap = {}
+
   Records.visitDescendantsAndSelf(nodeCtxChild, (nodeDescendant): boolean => {
     const nodeDescendantCleared = clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
     // values set by expressions (default values, read only attributes) are applied again when applicable: not reported
@@ -68,13 +72,15 @@ const updateDescendantsApplicability = ({
     const nodeDescendantUpdated = nodeDescendantCleared
       ? Nodes.assocValue(nodeDescendant, null, { sideEffect })
       : nodeDescendant
-    updateResult.addNode(nodeDescendantUpdated, recordUpdateOptions)
+    nodesUpdated[nodeDescendantUpdated.uuid] = nodeDescendantUpdated
     if (userValueCleared) {
       updateResult.addClearedDefUuid(nodeDescendant.nodeDefUuid)
       userValuesCleared = true
     }
     return false
   })(updateResult.record)
+
+  updateResult.addNodes(nodesUpdated, recordUpdateOptions)
 
   // if a multiple entity became not applicable and it's empty, delete it instead of just marking descendants as not applicable
   if (!applicable && clearNonApplicableValues) {
