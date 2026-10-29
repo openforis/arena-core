@@ -159,4 +159,22 @@ describe('Objects', () => {
     expect(notAnItem).toEqual({ uuid: 'item', props: { name: 'name_2' } })
     expect(itemSet.props.name).toBe('name_3')
   })
+
+  test('difference: props of the other object missing or with a different (deep) value', () => {
+    const object = { a: 1, b: { c: [1, 2] }, d: 'x' }
+    const otherObject = { a: 1, b: { c: [1, 3] }, d: 'x', e: undefined }
+    expect(Objects.difference(object, otherObject)).toEqual({ b: { c: [1, 3] }, e: undefined })
+    expect(Objects.difference(object, object)).toEqual({})
+    expect(Objects.difference(null, { a: 1 })).toEqual({ a: 1 })
+  })
+
+  test('toPairs / fromPairs', () => {
+    expect(Objects.toPairs({ a: 1, b: 2 })).toEqual([
+      ['a', 1],
+      ['b', 2],
+    ])
+    expect(Objects.toPairs(null)).toEqual([])
+    expect(Objects.fromPairs([['a', 1]])).toEqual({ a: 1 })
+    expect(Objects.fromPairs(null)).toEqual({})
+  })
 })
