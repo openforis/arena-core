@@ -125,7 +125,9 @@ const traverse = (visitor: (visitedItem: Validation) => void) => (validation: Va
     visitor(validationCurrent)
     // Add field validations to stack
     const validationFields = getFieldValidations(validationCurrent)
-    stack.push(...Object.values(validationFields))
+    for (const fieldValidation of Object.values(validationFields)) {
+      stack.push(fieldValidation)
+    }
   }
 }
 
@@ -237,7 +239,16 @@ function dissocFieldValidationsStartingWith(
       }
     }
     if (sideEffect) {
-      validation.fields = fieldsUpdated
+      if (doCleanup) {
+        // keep the same validation object: only fields and validity are changed by the cleanup
+        const { valid, fields } = cleanup(validation)
+        validation.valid = valid
+        if (fields) {
+          validation.fields = fields
+        } else {
+          delete validation.fields
+        }
+      }
       return validation
     }
     const validationUpdated = { ...validation, fields: fieldsUpdated }
