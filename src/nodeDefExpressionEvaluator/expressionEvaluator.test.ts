@@ -115,6 +115,16 @@ describe('NodeDefExpressionEvaluator', () => {
     { expression: 'userName()', result: 'test', resultIsNotNodeDef: true },
     { expression: 'userEmail()', result: 'test@openforis-arena.org', resultIsNotNodeDef: true },
     { expression: 'userProp("property_1")', result: 'prop_1', resultIsNotNodeDef: true },
+    // Object and Function are not accessible through function results
+    { expression: 'userProp("constructor")', result: undefined, resultIsNotNodeDef: true },
+    {
+      expression:
+        "userProp('constructor').getOwnPropertyDescriptor(userProp('constructor').getPrototypeOf(Math.max), 'constructor').value('return typeof process').call(null)",
+      result: null,
+    },
+    // string patterns are checked like regular expressions
+    { expression: "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!'.match('(a+)+$')", error: true },
+    { expression: "remarks.match('(a+)+$')", error: true },
   ]
 
   queries.forEach((query: Query) => {
