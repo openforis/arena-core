@@ -17,9 +17,10 @@ const getAuthGroupBySurveyUuid =
   (surveyUuid?: string, includeSystemAdmin = true) =>
   (user: User): UserAuthGroup | undefined => {
     const authGroups = getAuthGroups(user)
-    return includeSystemAdmin && isSystemAdmin(user)
-      ? authGroups.find(AuthGroups.isSystemAdmin)
-      : authGroups.find((authGroup) => authGroup.surveyUuid === surveyUuid)
+    if (includeSystemAdmin && isSystemAdmin(user)) return authGroups.find(AuthGroups.isSystemAdmin)
+    // without a survey uuid no survey group can match (groups not associated to a survey, e.g. survey manager, have no survey uuid)
+    if (!surveyUuid) return undefined
+    return authGroups.find((authGroup) => authGroup.surveyUuid === surveyUuid)
   }
 
 const getAuthGroupByName = (groupName: AuthGroupName) => (user: User) => {
