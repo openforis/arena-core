@@ -27,7 +27,7 @@ describe('Arrays.addItems', () => {
     const items = Array.from({ length: 300000 }, (_, index) => index + 1)
     const result = Arrays.addItems(items, { sideEffect: true })(array)
     expect(result).toBe(array)
-    expect(result.length).toBe(300001)
+    expect(result).toHaveLength(300001)
     expect(result.at(-1)).toBe(300000)
   })
 })
