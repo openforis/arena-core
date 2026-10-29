@@ -35,6 +35,11 @@ const assignNewUuidsToNodes = (params: {
   const nodes = recordUpdated.nodes ?? {}
   const nodesUpdated = sideEffect ? nodes : { ...nodes }
 
+  // new uuids generated in advance: meta.hCode can reference nodes cloned later (e.g. sibling code attributes)
+  for (const node of nodesArray) {
+    newNodeUuidsByOldUuid[node.uuid] = UUIDs.v4()
+  }
+
   // update nodes recordUuid and properties (it does side effect on nodes)
   nodesArray.forEach((node) => {
     let nodeUpdated = sideEffect ? node : { ...node }
@@ -42,9 +47,7 @@ const assignNewUuidsToNodes = (params: {
     nodeUpdated.dateCreated = nodeUpdated.dateModified = Dates.nowFormattedForStorage()
 
     const oldUuid = node.uuid
-    const newUuid = UUIDs.v4()
-    newNodeUuidsByOldUuid[oldUuid] = newUuid
-
+    const newUuid = newNodeUuidsByOldUuid[oldUuid]
     nodeUpdated.uuid = newUuid
     // consider every node as just created node
     delete nodeUpdated.id
@@ -62,6 +65,15 @@ const assignNewUuidsToNodes = (params: {
         obj: nodeUpdated,
         path: [NodeKeys.meta, NodeMetaKeys.h],
         value: hierarchyUpdated,
+        sideEffect,
+      })
+    }
+    const hierarchyCode = Nodes.getHierarchyCode(node)
+    if (hierarchyCode.length > 0) {
+      nodeUpdated = Objects.assocPath({
+        obj: nodeUpdated,
+        path: [NodeKeys.meta, NodeMetaKeys.hCode],
+        value: hierarchyCode.map((ancestorCodeUuid) => newNodeUuidsByOldUuid[ancestorCodeUuid]),
         sideEffect,
       })
     }
