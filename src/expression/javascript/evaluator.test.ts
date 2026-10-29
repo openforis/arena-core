@@ -75,6 +75,16 @@ const queries: Query[] = [
     expression: '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid())',
     result: true,
   },
+  // properties leading to Object, Function or prototypes are not accessible
+  { expression: 'Math.constructor', error: true },
+  { expression: `'a'.constructor`, error: true },
+  { expression: 'Math.abs.__proto__', error: true },
+  { expression: 'Array.prototype', error: true },
+  {
+    expression:
+      'Array.from("a", Math.constructor.getOwnPropertyDescriptor(Math.constructor.getPrototypeOf(Math.abs), "constructor").value("return 1"))',
+    error: true,
+  },
 ]
 
 describe('JavascriptExpressionEvaluator test', () => {

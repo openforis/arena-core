@@ -105,6 +105,9 @@ describe('NodeDefExpressionValidator', () => {
       validationResult: true,
       referencedNodeDefNames: ['remarks'],
     },
+    // properties leading to Object, Function or prototypes are not accessible
+    { expression: 'Math.constructor', validationResult: false },
+    { expression: 'remarks.__proto__', validationResult: false },
     {
       expression: `taxonProp('trees', 'max_height', species)`,
       nodeDef: 'tree_height',
