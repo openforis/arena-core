@@ -9,6 +9,7 @@ import { Survey } from '../../survey'
 import { Validations } from '../../validation'
 import { ArenaRecord } from '../record'
 import { RecordUpdater } from '../recordUpdater'
+import { Records } from '../records'
 import { RecordValidator } from './index'
 
 const { entityDef, integerDef } = SurveyObjectBuilders
@@ -76,6 +77,28 @@ describe('AttributeKeyValidator - duplicate entity keys', () => {
     record = updateResult.record
     expect(isKeyValid({ record, path: 'table[0].table_id' })).toBeTruthy()
     expect(isKeyValid({ record, path: 'table[1].table_id' })).toBeTruthy()
+  })
+
+  test('entities with empty keys are not duplicates', async () => {
+    const record = buildRecord([1, 2])
+    const keyNodes = ['table[0].table_id', 'table[1].table_id'].map((path) =>
+      TestUtils.getNodeByPath({ survey, record, path })
+    )
+    const recordWithEmptyKeys = Records.addNodes({
+      [keyNodes[0].uuid]: { ...keyNodes[0], value: null },
+      [keyNodes[1].uuid]: { ...keyNodes[1], value: null },
+    })(record)
+
+    const validation = await RecordValidator.validateRecord({ user, survey, record: recordWithEmptyKeys })
+
+    for (const keyNode of keyNodes) {
+      const valueValidation = Validations.getFieldValidation('value')(
+        Validations.getFieldValidation(keyNode.uuid)(validation)
+      )
+      const errorKeys = Validations.getErrors(valueValidation).map((error) => error.key)
+      expect(errorKeys).toContain('record.attribute.valueRequired')
+      expect(errorKeys).not.toContain('record.entity.keyDuplicate')
+    }
   })
 
   test('validating many key attributes at once detects duplicates', async () => {
