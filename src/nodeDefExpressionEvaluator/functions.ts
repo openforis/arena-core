@@ -138,7 +138,9 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         const category = getCategoryByName({ survey, categoryName })
         if (!category) throw new SystemError(SystemErrorKeys.expression.invalidCategoryName, { name: categoryName })
 
-        const extraPropDef = category.props.itemExtraDef?.[itemPropName]
+        const { itemExtraDef } = category.props
+        const extraPropDef =
+          itemExtraDef && Object.hasOwn(itemExtraDef, itemPropName) ? itemExtraDef[itemPropName] : undefined
         if (!extraPropDef)
           throw new SystemError(SystemErrorKeys.expression.invalidCategoryExtraProp, { propName: itemPropName })
 
@@ -352,7 +354,9 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         const taxonomy = getTaxonomyByName({ survey, taxonomyName })
         if (!taxonomy) throw new SystemError(SystemErrorKeys.expression.invalidTaxonomyName, { name: taxonomyName })
 
-        const extraPropDef = taxonomy.props.extraPropsDefs?.[propName]
+        const { extraPropsDefs } = taxonomy.props
+        const extraPropDef =
+          extraPropsDefs && Object.hasOwn(extraPropsDefs, propName) ? extraPropsDefs[propName] : undefined
         if (!extraPropDef) throw new SystemError(SystemErrorKeys.expression.invalidTaxonomyExtraProp, { propName })
 
         const taxon = await getOrFetchTaxon({ context, taxonomyUuid: taxonomy.uuid, taxonCode })
@@ -376,7 +380,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
         const taxonomy = getTaxonomyByName({ survey, taxonomyName })
         if (!taxonomy) throw new SystemError(SystemErrorKeys.expression.invalidTaxonomyName, { name: taxonomyName })
 
-        if (!LanguagesISO639part2[vernacularLangCode]) {
+        if (!Object.hasOwn(LanguagesISO639part2, vernacularLangCode)) {
           throw new SystemError(SystemErrorKeys.expression.invalidTaxonVernacularNameLanguageCode, {
             vernacularLangCode,
           })
@@ -420,7 +424,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       if (!survey || !user) return undefined
       const { uuid: surveyUuid } = survey
       const combinedExtraProps = Users.getCombinedExtraProps(surveyUuid)(user)
-      return combinedExtraProps[propName]
+      return Object.hasOwn(combinedExtraProps, propName) ? combinedExtraProps[propName] : undefined
     },
   },
 }
