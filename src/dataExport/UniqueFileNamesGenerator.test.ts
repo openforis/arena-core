@@ -32,9 +32,15 @@ describe('UniqueFileNamesGenerator', () => {
       ['document', ['document', 'document (1)']],
       ['my report 2024.pdf', ['my report 2024.pdf', 'my report 2024 (1).pdf']],
       ['my.file.name.tar.gz', ['my.file.name.tar.gz', 'my.file.name.tar (1).gz']],
+      ['.htaccess', ['.htaccess', '.htaccess (1)']],
     ])('generates unique file names for "%s"', (baseFileName, expected) => {
       const results = generateSequentialFileNames(baseFileName, expected.length)
       expect(results).toEqual(expected)
+    })
+
+    test('file names differing only in case are considered the same', () => {
+      expect(generator.generateUniqueFileName('Photo.JPG', 'key1')).toBe('Photo.JPG')
+      expect(generator.generateUniqueFileName('photo.jpg', 'key2')).toBe('photo (1).jpg')
     })
 
     test('generates incremental file names for multiple conflicts', () => {
