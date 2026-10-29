@@ -15,6 +15,9 @@ const globalObjectsArray = Object.values(globalObjectsDictionary)
 export const isForbiddenPropertyName = (name: string): boolean =>
   name === 'constructor' || name === 'prototype' || name.startsWith('__')
 
+// Object and Function (e.g. returned by a function or found as a property value) give access to the same capabilities
+export const isForbiddenValue = (value: any): boolean => value === Object || value === Function
+
 export const getGlobalObjectProperty = (name: string, object: any): any => {
   const globalObject = globalObjectsDictionary[name]
   if (globalObject) {
