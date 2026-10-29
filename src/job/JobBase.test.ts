@@ -495,30 +495,7 @@ test('setResult merges successive object results instead of overwriting', async 
   expect(job.result).toEqual({ a: 1, b: 2 })
 })
 
-test('continues running inner jobs after a failure when stopOnInnerJobFailure is false', async () => {
-  const calls: string[] = []
-  const innerJob1 = new TestJob(createContext(), [], {
-    execute: async () => {
-      calls.push('job1')
-      throw new Error('inner job failure')
-    },
-  })
-  const innerJob2 = new TestJob(createContext(), [], {
-    execute: async () => {
-      calls.push('job2')
-    },
-  })
-  const parentJob = new TestJob(createContext(), [innerJob1, innerJob2])
-  parentJob.stopOnInnerJobFailure = false
-
-  await parentJob.start()
-
-  expect(calls).toEqual(['job1', 'job2'])
-  expect(parentJob.isFailed()).toBe(true)
-  expect(innerJob2.isSucceeded()).toBe(true)
-})
-
-test('with stopOnInnerJobFailure false, the parent job fails only once, after all inner jobs have run', async () => {
+test('continues running inner jobs after a failure when stopOnInnerJobFailure is false, then fails once', async () => {
   const calls: string[] = []
   const innerJob1 = new TestJob(createContext(), [], {
     execute: async () => {
@@ -539,8 +516,10 @@ test('with stopOnInnerJobFailure false, the parent job fails only once, after al
 
   await parentJob.start()
 
+  // the parent job fails only once, after all inner jobs have run
   expect(calls).toEqual(['job1', 'job2', 'parent failed'])
   expect(parentJob.isFailed()).toBe(true)
+  expect(innerJob2.isSucceeded()).toBe(true)
 })
 
 test('a job canceled before being started is not executed', async () => {
