@@ -177,9 +177,9 @@ const removeExcludedNodes = (params: {
   const { survey, record, sideEffect } = params
   const cycle = record.cycle!
   const result = new RecordUpdateResult({ record })
+  // all the node defs are visited (not only the ones in the cycle): nodes of the ones not in the cycle must be removed
   Surveys.visitDescendantsAndSelfNodeDef({
     survey,
-    cycle,
     nodeDef: Surveys.getNodeDefRoot({ survey }),
     visitor: (nodeDef) => {
       const hasAncestorCodeDefExcludedInClone =

@@ -7,7 +7,7 @@ import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../.
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { Survey } from '../../survey'
 import { getNodeDefChildren, getNodeDefEnumerator } from '../../survey/surveys/nodeDefs'
-import { getAncestorCodeAttributes } from '../_records/recordGetters'
+import { getAncestorCodeAttributes, getCycle } from '../_records/recordGetters'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
 import { getEnumeratingItemsAllowedCodes } from './recordEnumeratingItemsExpressionEvaluator'
 import { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
@@ -143,7 +143,8 @@ export const addDescendants = async (params: NodeCreateParams): Promise<RecordUp
   const updateResult = new RecordUpdateResult({ record })
 
   if (NodeDefs.isEntity(nodeDef)) {
-    const childDefs = getNodeDefChildren({ survey, nodeDef })
+    // node defs not in the record cycle have no nodes
+    const childDefs = getNodeDefChildren({ survey, nodeDef }).filter(NodeDefs.isInCycle(getCycle(record)))
 
     // Add only child single nodes (it allows to apply default values)
     for (const childDef of childDefs) {
