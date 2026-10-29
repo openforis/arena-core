@@ -97,4 +97,34 @@ describe('Record nodes updater - dependents count updater', () => {
       expectedCount: 32,
     })
   })
+
+  test('Count not defined (expression not applicable) -> parent node not updated', async () => {
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        integerDef('source_attribute'),
+        integerDef('dependent_attribute')
+          .multiple()
+          .minCount([NodeDefExpressionFactory.createInstance({ expression: '2', applyIf: 'source_attribute > 100' })])
+      )
+    ).build()
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity('root_entity', attribute('identifier', 10), attribute('source_attribute', 1))
+    ).build()
+    const sourceNode = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.source_attribute' })
+    const sourceNodeUpdated = { ...sourceNode, value: 2 }
+
+    const updateResult = await RecordNodesUpdater.updateNodesDependents({
+      user,
+      survey,
+      record: Records.addNode(sourceNodeUpdated)(record),
+      nodes: { [sourceNode.uuid]: sourceNodeUpdated },
+    })
+
+    expect(updateResult.nodes[Records.getRoot(record)!.uuid]).toBeUndefined()
+  })
 })

@@ -297,6 +297,7 @@ describe('RecordExpressionEvaluator', () => {
     // count
     { expression: 'count(plot)', result: 3 },
     { expression: 'count(plot[plot_id == 1])', result: 1 },
+    { expression: 'count(plot, plot)', error: new SystemError('expression.functionHasTooManyArguments') },
     // sum
     {
       expression: 'sum(plot.tree.tree_height)',

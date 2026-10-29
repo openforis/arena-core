@@ -398,7 +398,8 @@ export const getNodeIndex = (node: ArenaRecordNode) => (record: ArenaRecord) => 
   const parentEntity = getParent(node)(record)
   if (!parentEntity) return 0 // root entity
   const siblings = getChildren(parentEntity, node.nodeDefUuid)(record)
-  return siblings.indexOf(node)
+  // compared by uuid: the specified node can be a copy of the one in the record (e.g. an updated version of it)
+  return siblings.findIndex((sibling) => sibling.uuid === node.uuid)
 }
 
 export const findEntityByKeyValues =
