@@ -2,9 +2,11 @@ import { beforeAll, describe, expect, test } from '@jest/globals'
 
 import { SystemError } from '../../error'
 import { AreaOfInterest } from '../../geo'
+import { AreaOfInterestProvider } from '../../nodeDefExpressionEvaluator'
 import { DEFAULT_SRS } from '../../srs'
 import { Survey } from '../../survey'
 import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../tests/data'
+import { createTestAreaOfInterestProvider, withAreasOfInterest } from '../../tests/areaOfInterestTestUtils'
 import { TestUtils } from '../../tests/testUtils'
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
@@ -30,8 +32,14 @@ let surveyWithAOI: Survey
 let surveyWithoutAOI: Survey
 let record: ArenaRecord
 
-const evaluate = (expression: string, params: { survey?: Survey; record?: ArenaRecord } = {}) => {
-  const { survey = surveyWithAOI, record: recordToEvaluate = record } = params
+const pilotArea = 'pilot_area'
+const areaOfInterestProvider = createTestAreaOfInterestProvider({ [pilotArea]: areaOfInterest })
+
+const evaluate = (
+  expression: string,
+  params: { survey?: Survey; record?: ArenaRecord; provider?: AreaOfInterestProvider | null } = {}
+) => {
+  const { survey = surveyWithAOI, record: recordToEvaluate = record, provider = areaOfInterestProvider } = params
   const nodeContext = Records.getRoot(recordToEvaluate)!
   const context: RecordExpressionContext = {
     user,
@@ -40,6 +48,7 @@ const evaluate = (expression: string, params: { survey?: Survey; record?: ArenaR
     nodeContext,
     nodeCurrent: nodeContext,
     object: nodeContext,
+    areaOfInterestProvider: provider ?? undefined,
   }
   return new RecordExpressionEvaluator().evaluate(expression, context)
 }
@@ -54,31 +63,31 @@ const createRecordNearBoundary = (accuracy: number): ArenaRecord => {
 describe('geoDistanceToAOIBoundary', () => {
   beforeAll(async () => {
     surveyWithoutAOI = await createTestSurvey({ user })
-    surveyWithAOI = { ...surveyWithoutAOI, props: { ...surveyWithoutAOI.props, areaOfInterest } }
+    surveyWithAOI = withAreasOfInterest(surveyWithoutAOI, [pilotArea])
     record = createTestRecord({ user, survey: surveyWithAOI })
   }, 10000)
 
   test('coordinate inside => negative distance to the nearest boundary', async () => {
     // nearest boundary: lon 41.8 (0.083 degrees of longitude at lat 12.49 ≈ 9 km)
-    const distance = await evaluate('geoDistanceToAOIBoundary(cluster_location)')
+    const distance = await evaluate(`geoDistanceToAOIBoundary(cluster_location, 'pilot_area')`)
     expect(distance).toBeLessThan(-8900)
     expect(distance).toBeGreaterThan(-9100)
   })
 
   test('coordinate outside => positive distance', async () => {
     // ≈ 0.3 degrees of latitude north of lat 12.6 ≈ 33 km
-    const distance = await evaluate('geoDistanceToAOIBoundary(plot[2].plot_location)')
+    const distance = await evaluate(`geoDistanceToAOIBoundary(plot[2].plot_location, 'pilot_area')`)
     expect(distance).toBeGreaterThan(32_900)
     expect(distance).toBeLessThan(33_400)
   })
 
   test('point specified as string', async () => {
-    expect(await evaluate(`geoDistanceToAOIBoundary('SRID=EPSG:4326;POINT(41.9 12.5)')`)).toBeLessThan(0)
+    expect(await evaluate(`geoDistanceToAOIBoundary('SRID=EPSG:4326;POINT(41.9 12.5)', 'pilot_area')`)).toBeLessThan(0)
   })
 
   test('comparison with the location accuracy', async () => {
-    const inside = 'geoDistanceToAOIBoundary(cluster_location) < -cluster_location.accuracy'
-    const uncertain = 'Math.abs(geoDistanceToAOIBoundary(cluster_location)) <= cluster_location.accuracy'
+    const inside = `geoDistanceToAOIBoundary(cluster_location, 'pilot_area') < -cluster_location.accuracy`
+    const uncertain = `Math.abs(geoDistanceToAOIBoundary(cluster_location, 'pilot_area')) <= cluster_location.accuracy`
 
     const recordAccurate = createRecordNearBoundary(5)
     expect(await evaluate(inside, { record: recordAccurate })).toBe(true)
@@ -90,15 +99,30 @@ describe('geoDistanceToAOIBoundary', () => {
   })
 
   test('survey without area of interest => null', async () => {
-    expect(await evaluate('geoDistanceToAOIBoundary(cluster_location)', { survey: surveyWithoutAOI })).toBeNull()
+    expect(
+      await evaluate(`geoDistanceToAOIBoundary(cluster_location, 'pilot_area')`, { survey: surveyWithoutAOI })
+    ).toBeNull()
   })
 
   test('not a coordinate => null', async () => {
-    expect(await evaluate('geoDistanceToAOIBoundary(remarks)')).toBeNull()
+    expect(await evaluate(`geoDistanceToAOIBoundary(remarks, 'pilot_area')`)).toBeNull()
   })
 
-  test('missing argument => error', async () => {
-    await expect(evaluate('geoDistanceToAOIBoundary()')).rejects.toEqual(
+  test('unknown area => null', async () => {
+    expect(await evaluate(`geoDistanceToAOIBoundary(cluster_location, 'other_area')`)).toBeNull()
+  })
+
+  test('provider missing => null', async () => {
+    expect(await evaluate(`geoDistanceToAOIBoundary(cluster_location, 'pilot_area')`, { provider: null })).toBeNull()
+  })
+
+  test('area defined but geometry not available => null', async () => {
+    const provider = createTestAreaOfInterestProvider({})
+    expect(await evaluate(`geoDistanceToAOIBoundary(cluster_location, 'pilot_area')`, { provider })).toBeNull()
+  })
+
+  test('area name missing => error', async () => {
+    await expect(evaluate('geoDistanceToAOIBoundary(cluster_location)')).rejects.toEqual(
       new SystemError('expression.functionHasTooFewArguments')
     )
   })

@@ -3,12 +3,17 @@ import { CategoryItem } from '../category'
 import { SystemError, SystemErrorKeys } from '../error'
 import { ExpressionFunctions } from '../expression'
 import { ExtraProps } from '../extraProp/extraProps'
-import { Point, Points } from '../geo'
+import { AreaOfInterest, Point, Points } from '../geo'
 import { LanguagesISO639part2 } from '../language'
 import { ArenaRecord } from '../record'
 import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 import { getCategoryItemByCodePaths, getTaxonByCode } from '../survey/surveys/refsData'
-import { getAreaOfInterest, getCategoryByName, getSRSIndex, getTaxonomyByName } from '../survey/surveys/surveysGetters'
+import {
+  getAreaOfInterestByName,
+  getCategoryByName,
+  getSRSIndex,
+  getTaxonomyByName,
+} from '../survey/surveys/surveysGetters'
 import { Taxon } from '../taxonomy'
 import { Dates, Numbers, Objects } from '../utils'
 import { NodeDefExpressionContext } from './context'
@@ -74,6 +79,27 @@ const getOrFetchTaxon = async (params: {
   const record: ArenaRecord = (context as any).record
   const draft = !record || !!record.preview
   return taxon ?? taxonProvider?.getTaxonByCode({ survey, taxonomyUuid, taxonCode, draft })
+}
+
+const fetchAreaOfInterest = async (params: {
+  context: NodeDefExpressionContext
+  name: string
+}): Promise<AreaOfInterest | undefined> => {
+  const { context, name } = params
+  const { survey, areaOfInterestProvider } = context
+  if (!areaOfInterestProvider || !getAreaOfInterestByName({ survey, name })) return undefined
+  return areaOfInterestProvider.getAreaOfInterest({ survey, name })
+}
+
+const distanceToAreaOfInterestBoundary = async (params: {
+  context: NodeDefExpressionContext
+  point: Point
+  name: string
+}): Promise<number | null> => {
+  const { context, point, name } = params
+  const areaOfInterest = await fetchAreaOfInterest({ context, name })
+  if (!areaOfInterest) return null
+  return Points.distanceToPolygonBoundary(point, areaOfInterest, getSRSIndex(context.survey))
 }
 
 const geoDistanceExecutor =
@@ -176,16 +202,14 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
   },
   geoDistance: { minArity: 2, maxArity: 2, executor: geoDistanceExecutor },
   geoDistanceToAOIBoundary: {
-    minArity: 1,
-    maxArity: 1,
+    minArity: 2,
+    maxArity: 2,
     executor:
       (context: NodeDefExpressionContext) =>
-      (coordinate: Point | string): number | null => {
-        const { survey } = context
-        const areaOfInterest = getAreaOfInterest(survey)
+      async (coordinate: Point | string, name: string): Promise<number | null> => {
         const point = Points.parse(coordinate)
-        if (!areaOfInterest || !point) return null
-        return Points.distanceToPolygonBoundary(point, areaOfInterest, getSRSIndex(survey))
+        if (!point || typeof name !== 'string') return null
+        return distanceToAreaOfInterestBoundary({ context, point, name })
       },
   },
   geoPolygon: {
