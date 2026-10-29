@@ -3,7 +3,7 @@ import { getNodeDefChildren, getNodeDefParent, getNodeDefSource } from '../../su
 import { NodeDefs } from '../../nodeDef/nodeDefs'
 import { Objects, Queue } from '../../utils'
 import { IdentifierEvaluator } from '../../expression/javascript/node/identifier'
-import { getGlobalObjectProperty } from '../../expression/javascript/global'
+import { getGlobalObjectProperty, isForbiddenPropertyName } from '../../expression/javascript/global'
 import { NodeDefExpressionContext } from '../context'
 import { ExpressionVariable, IdentifierExpression } from '../../expression'
 import { SystemError, SystemErrorKeys } from '../../error'
@@ -47,6 +47,10 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     const { context } = this
     const { nodeDefContext, object: objectContext, itemsFilter, memberProperty } = context
     const { name: exprName } = expressionNode
+
+    if (isForbiddenPropertyName(exprName)) {
+      this.throwIdentifierNotFound(expressionNode)
+    }
 
     if (exprName === ExpressionVariable.CONTEXT) {
       if (nodeDefContext) {
