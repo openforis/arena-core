@@ -6,7 +6,10 @@ const addItems =
     const { sideEffect = false, excludeNulls = false } = options ?? {}
     const itemsToAdd = excludeNulls ? items.filter((item) => !Objects.isNil(item)) : items
     if (sideEffect) {
-      array.push(...itemsToAdd)
+      // push(...items) would exceed the maximum call stack size with large arrays
+      for (const item of itemsToAdd) {
+        array.push(item)
+      }
       return array
     }
     return array.concat(itemsToAdd)
