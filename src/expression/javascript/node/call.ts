@@ -6,6 +6,7 @@ import {
   ExpressionNodeEvaluator,
   ExpressionNodeType,
   IdentifierExpression,
+  LiteralExpression,
   MemberExpression,
 } from '../../node'
 import { getGlobalObjectProperty } from '../global'
@@ -42,11 +43,16 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
   private async evaluateMember(expressionNode: CallExpression, callee: MemberExpression): Promise<any> {
     const { arguments: exprArgs } = expressionNode
 
-    // global function (e.g. Math.round(...))
-    const fn = await this.evaluator.evaluateNode(callee, this.context)
+    // evaluate the callee object only once: evaluating it again to find the function would take exponential time
+    // with chained calls (e.g. text.trim().toUpperCase().toLowerCase())
+    const fnObject = await this.evaluator.evaluateNode(callee.object, this.context)
+    if (fnObject === null || fnObject === undefined) return null
+
+    // find the function (e.g. Math.round or text.toUpperCase) among the properties of the already evaluated object
+    const fnObjectLiteral: LiteralExpression = { type: ExpressionNodeType.Literal, value: fnObject, raw: '' }
+    const calleeWithObjectEvaluated: MemberExpression = { ...callee, object: fnObjectLiteral }
+    const fn = await this.evaluator.evaluateNode(calleeWithObjectEvaluated, this.context)
     if (fn) {
-      const { object: calleeObj } = callee
-      const fnObject = await this.evaluator.evaluateNode(calleeObj, this.context)
       const argsEvaluated = await Promise.all(exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context)))
       const args = argsEvaluated.flat()
       checkRegExpInputLength(fnObject, args)

@@ -12,6 +12,8 @@ import { SystemError } from '../../error'
 import { TestUtils } from '../../tests/testUtils'
 import { AuthGroupName } from '../../auth'
 import { LanguageCode } from '../../language'
+import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
+import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 
 const testsLoadTime = Date.now()
 
@@ -96,6 +98,53 @@ describe('RecordExpressionEvaluator', () => {
 
     const contextFr: RecordExpressionContext = { ...contextEn, lang: LanguageCode.fr }
     expect(await evaluator.evaluate('numberToWords(cluster_id)', contextFr)).toBe('douze')
+  })
+
+  test('attributes named like node object properties (id, uuid, value...) are evaluated as attributes', async () => {
+    const { entityDef, integerDef, textDef } = SurveyObjectBuilders
+    const { attribute, entity } = RecordNodeBuilders
+    const attrNames = ['uuid', 'meta', 'value', 'created', 'deleted', 'updated', 'placeholder']
+    const testSurvey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'cluster',
+        integerDef('cluster_id').key(),
+        entityDef('plot', integerDef('id').key(), ...attrNames.map((name) => textDef(name))).multiple()
+      )
+    ).build()
+    const testRecord = new RecordBuilder(
+      user,
+      testSurvey,
+      entity(
+        'cluster',
+        attribute('cluster_id', 1),
+        entity('plot', attribute('id', 7), ...attrNames.map((name) => attribute(name, `${name}_value`)))
+      )
+    ).build()
+    const plotNode = TestUtils.getNodeByPath({ survey: testSurvey, record: testRecord, path: 'cluster.plot[0]' })
+    plotNode.id = 99999
+    const clusterNode = Records.getRoot(testRecord)!
+    const evaluator = new RecordExpressionEvaluator()
+    const evaluate = (expression: string, nodeContext: ArenaRecordNode) =>
+      evaluator.evaluate(expression, {
+        user,
+        survey: testSurvey,
+        record: testRecord,
+        nodeContext,
+        nodeCurrent: nodeContext,
+        object: nodeContext,
+      })
+
+    expect(await evaluate('id', plotNode)).toBe(7)
+    expect(await evaluate('plot[0].id', clusterNode)).toBe(7)
+    expect(await evaluate('id + 1', plotNode)).toBe(8)
+    for (const name of attrNames) {
+      expect(await evaluate(name, plotNode)).toBe(`${name}_value`)
+      expect(await evaluate(`plot[0].${name}`, clusterNode)).toBe(`${name}_value`)
+      expect(await evaluate(`${name}.toUpperCase()`, plotNode)).toBe(`${name.toUpperCase()}_VALUE`)
+    }
+    // global objects are still accessible
+    expect(await evaluate('Math.max(id, 3)', plotNode)).toBe(7)
   })
 
   const queries: Query[] = [
@@ -402,6 +451,9 @@ describe('RecordExpressionEvaluator', () => {
     { expression: 'gps_model.toLowerCase()', result: 'abc-123-xyz' },
     { expression: 'gps_model.substring(4,7)', result: '123' },
     { expression: 'gps_model.length', result: 11 },
+    // native properties (array of attribute values)
+    { expression: 'plot[0].plot_multiple_number.includes(10)', result: true },
+    { expression: 'plot[0].plot_multiple_number.includes(30)', result: false },
     // global objects (constructors)
     { expression: 'Boolean(cluster_id)', result: true },
     { expression: 'Boolean(remarks)', result: true },
