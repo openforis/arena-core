@@ -1,7 +1,7 @@
 import { ArenaRecordNode, NodeValues, Nodes } from '../../node'
 import { NodeDefCode, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
-import { Dates } from '../../utils'
+import { Arrays, Dates } from '../../utils'
 import { Records } from '../records'
 import type { ArenaRecord } from '../record'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
@@ -54,8 +54,11 @@ export const updateDependentCodeAttributes = async (params: RecordNodeDependents
 
   const recordUpdateOptions = { sideEffect }
 
-  // 1. get dependent code attributes
-  const dependentCodeAttributes = Records.getDependentCodeAttributes(node)(record)
+  // 1. get dependent code attributes: only the direct ones (the index registers every ancestor code attribute);
+  // deeper levels are checked when the cleared direct dependents are visited
+  const dependentCodeAttributes = Records.getDependentCodeAttributes(node)(record).filter(
+    (dependentCodeAttribute) => Arrays.last(Nodes.getHierarchyCode(dependentCodeAttribute)) === node.uuid
+  )
   if (dependentCodeAttributes.length === 0) return updateResult
 
   const parentItemUuid = NodeValues.getItemUuid(node)
