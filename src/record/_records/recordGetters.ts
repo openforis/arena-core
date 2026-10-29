@@ -228,7 +228,9 @@ export const getDescendantsOrSelf =
     let currentDescendants: ArenaRecordNode[] = []
     for (const currentDescendantDefUuid of descendantNodeDefUuids) {
       for (const currentAncestor of currentAncestors) {
-        currentDescendants.push(...getChildren(currentAncestor, currentDescendantDefUuid)(record))
+        for (const child of getChildren(currentAncestor, currentDescendantDefUuid)(record)) {
+          currentDescendants.push(child)
+        }
       }
       currentAncestors = currentDescendants
       currentDescendants = []
@@ -389,7 +391,9 @@ export const getAttributeSiblings =
     if (!parentEntity) return []
     const siblingParentEntities = getEntitySiblings(parentEntity)(record)
     return siblingParentEntities.reduce((siblingsAcc: ArenaRecordNode[], siblingEntity) => {
-      siblingsAcc.push(...getChildren(siblingEntity, nodeDef.uuid)(record))
+      for (const sibling of getChildren(siblingEntity, nodeDef.uuid)(record)) {
+        siblingsAcc.push(sibling)
+      }
       return siblingsAcc
     }, [])
   }
