@@ -142,9 +142,54 @@ describe('FileProcessor', () => {
       processor.stop()
 
       setTimeout(() => {
-        expect(chunkProcessor).toHaveBeenCalled()
+        // stopped before the first chunk was extracted: nothing processed
+        expect(chunkProcessor).not.toHaveBeenCalled()
         done()
       }, 100)
+    })
+
+    test('stop during the retry delay: chunk not retried, onError not called', (done) => {
+      const file = new File(['a'.repeat(100)], 'test.txt', { type: 'text/plain' })
+      const chunkProcessor = createChunkProcessorMock().mockRejectedValue(new Error('Chunk processing failed'))
+      const onError = jest.fn()
+
+      const processor = new FileProcessor({ file, chunkProcessor, onError, maxTryings: 5, retryDelay: 50 })
+      processor.start()
+
+      setTimeout(() => processor.stop(), 20)
+
+      setTimeout(() => {
+        expect(chunkProcessor).toHaveBeenCalledTimes(1)
+        expect(onError).not.toHaveBeenCalled()
+        done()
+      }, 200)
+    })
+
+    test('stop and start again while a chunk is being processed: every chunk processed once by the new run', (done) => {
+      const file = new File(['a'.repeat(2100)], 'test.txt', { type: 'text/plain' })
+      const chunkProcessor = createChunkProcessorMock().mockImplementation(
+        async () =>
+          await new Promise((resolve) => {
+            setTimeout(() => resolve(null), 30)
+          })
+      )
+      const onComplete = jest.fn()
+
+      const processor = new FileProcessor({ file, chunkProcessor, chunkSize: 1000, onComplete })
+      processor.start()
+
+      setTimeout(() => {
+        processor.stop()
+        processor.start()
+      }, 10)
+
+      setTimeout(() => {
+        const processedChunks = chunkProcessor.mock.calls.map((call: any[]) => call[0].chunk)
+        // chunk 1 of the first (stopped) run, then the chunks of the new run
+        expect(processedChunks).toEqual([1, 1, 2, 3])
+        expect(onComplete).toHaveBeenCalledTimes(1)
+        done()
+      }, 300)
     })
   })
 
