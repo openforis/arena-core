@@ -1,6 +1,7 @@
 import turfDestination from '@turf/destination'
 
 import { DEFAULT_SRS_INDEX, SRSIndex } from '../../srs'
+import { Numbers } from '../../utils'
 import { Point } from '../point'
 import { PointFactory } from '../pointFactory'
 import { toLatLong } from './toLatLong'
@@ -41,7 +42,8 @@ export const pointAtDistance = ({
   }
   const target = turfDestination([originLatLong.x, originLatLong.y], distanceMeters, bearingDeg, { units: 'meters' })
   const targetPointLatLong = PointFactory.createInstance({
-    x: target.geometry.coordinates[0],
+    // turf does not wrap the longitude: normalize it into [-180, 180) (e.g. 180.008 => -179.992)
+    x: Numbers.absMod(360)(target.geometry.coordinates[0] + 180) - 180,
     y: target.geometry.coordinates[1],
   })
   return transform(targetPointLatLong, origin.srs, srsIndex)
