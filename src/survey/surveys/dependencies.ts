@@ -118,6 +118,8 @@ const addDependency = (params: {
 }): SurveyDependencyGraph => {
   const { graphs, type, nodeDefUuid, nodeDefDepUuid, sideEffect = false } = params
   const deps = getDependencies({ graphs, type, nodeDefUuid })
+  // dependencies of a node def can be added again (e.g. when it is updated): keep each dependent only once
+  if (deps.includes(nodeDefDepUuid)) return graphs
   const depsUpdated = Arrays.addItem(nodeDefDepUuid, { sideEffect })(deps)
   return Objects.assocPath({ obj: graphs, path: [type, nodeDefUuid], value: depsUpdated, sideEffect })
 }
