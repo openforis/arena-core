@@ -966,3 +966,135 @@ test('context getters return the context props, or the default value when not se
   expect(jobUser).toBe(user)
   expect(survey).toBeUndefined()
 })
+
+/**
+ * TestJob variant that records the end hooks calls (prefixed by its name) in the specified calls list.
+ */
+class EndHooksOrderTrackingJob extends TestJob {
+  constructor(
+    private readonly name: string,
+    private readonly calls: string[],
+    jobs: JobBase<JobContext, any>[] = [],
+    options: TestJobOptions = {}
+  ) {
+    super(createContext(), jobs, options)
+  }
+
+  protected async beforeEnd(): Promise<void> {
+    this.calls.push(`${this.name}.beforeEnd`)
+    await super.beforeEnd()
+  }
+
+  protected async onEnd(): Promise<void> {
+    this.calls.push(`${this.name}.onEnd`)
+    await super.onEnd()
+  }
+}
+
+const trackEndedEvent = (job: JobBase<any, any>, name: string, calls: string[]): void => {
+  job.onEvent((event) => {
+    if (event.type === JobEventType.statusChange && event.status && event.status !== JobStatus.running) {
+      calls.push(`${name}.${event.status}`)
+    }
+  })
+}
+
+test('parent beforeEnd runs before onEnd and the ended event when an inner job fails', async () => {
+  const calls: string[] = []
+  const innerJob = new EndHooksOrderTrackingJob('i', calls, [], {
+    execute: async () => {
+      throw new Error('inner job failure')
+    },
+  })
+  const parentJob = new EndHooksOrderTrackingJob('p', calls, [innerJob])
+  trackEndedEvent(parentJob, 'p', calls)
+
+  await parentJob.start()
+
+  expect(parentJob.isFailed()).toBe(true)
+  expect(calls).toEqual(['i.beforeEnd', 'i.onEnd', 'p.beforeEnd', 'p.onEnd', 'p.failed'])
+})
+
+test('parent beforeEnd runs before onEnd when an inner job fails and stopOnInnerJobFailure is false', async () => {
+  const calls: string[] = []
+  const innerJob1 = new EndHooksOrderTrackingJob('i1', calls, [], {
+    execute: async () => {
+      throw new Error('inner job failure')
+    },
+  })
+  const innerJob2 = new EndHooksOrderTrackingJob('i2', calls)
+  const parentJob = new EndHooksOrderTrackingJob('p', calls, [innerJob1, innerJob2])
+  parentJob.stopOnInnerJobFailure = false
+  trackEndedEvent(parentJob, 'p', calls)
+
+  await parentJob.start()
+
+  expect(parentJob.isFailed()).toBe(true)
+  expect(calls).toEqual(['i1.beforeEnd', 'i1.onEnd', 'i2.beforeEnd', 'i2.onEnd', 'p.beforeEnd', 'p.onEnd', 'p.failed'])
+})
+
+test('parent beforeEnd runs before onEnd when an inner job is canceled (stopOnInnerJobFailure false)', async () => {
+  const calls: string[] = []
+  const gate = createGate()
+  const innerJob = new EndHooksOrderTrackingJob('i', calls, [], { execute: async () => gate.promise })
+  const parentJob = new EndHooksOrderTrackingJob('p', calls, [innerJob])
+  parentJob.stopOnInnerJobFailure = false
+  trackEndedEvent(parentJob, 'p', calls)
+
+  const startPromise = parentJob.start()
+  await nextTick()
+  await innerJob.cancel()
+  gate.release()
+  await startPromise
+
+  expect(parentJob.isCanceled()).toBe(true)
+  expect(calls).toEqual(['i.beforeEnd', 'i.onEnd', 'p.beforeEnd', 'p.onEnd', 'p.canceled'])
+})
+
+test('errors of inner jobs failing with the same error key are all kept in the parent job', async () => {
+  const createFailingJob = (message: string) =>
+    new TestJob(createContext(), [], {
+      execute: async () => {
+        throw new Error(message)
+      },
+    })
+  const innerJob1 = createFailingJob('e1')
+  const innerJob2 = createFailingJob('e2')
+  const parentJob = new TestJob(createContext(), [innerJob1, innerJob2])
+  parentJob.stopOnInnerJobFailure = false
+  const events: JobEvent[] = []
+  parentJob.onEvent((event) => events.push(event))
+
+  await parentJob.start()
+
+  // both inner jobs report their error with key "1"
+  expect(Object.keys(innerJob1.errors)).toEqual(['1'])
+  expect(Object.keys(innerJob2.errors)).toEqual(['1'])
+  // the first key is kept as it is, the clashing one is prefixed with the inner job type
+  expect(Object.keys(parentJob.errors)).toEqual(['1', 'TestJob 1'])
+  const errorsJson = JSON.stringify(parentJob.errors)
+  expect(errorsJson).toContain('e1')
+  expect(errorsJson).toContain('e2')
+  const failedEvent = events.find((event) => event.status === JobStatus.failed)
+  expect(Object.keys(failedEvent?.errors ?? {})).toHaveLength(2)
+  expect(Object.keys(parentJob.combineInnerJobsErrorsForTest())).toEqual(['1', 'TestJob 1'])
+})
+
+test('no progress events are notified after the job has ended', async () => {
+  const events: string[] = []
+  const job = new TestJob(createContext(), [], {
+    execute: async (runningJob) => {
+      runningJob.processed += 1
+      await runningJob.cancel()
+      // e.g. an item processed by a job not checking isCancelRequestedOrNotRunning
+      runningJob.processed += 1
+    },
+  })
+  job.onEvent((event) => events.push(`${event.type}:${event.status}:${event.processed}`))
+
+  await job.start()
+  await new Promise((resolve) => setTimeout(resolve, 1100))
+
+  expect(job.isCanceled()).toBe(true)
+  expect(events[events.length - 1]).toBe('statusChange:canceled:1')
+})
