@@ -6,10 +6,24 @@ const nameWithIndexRegEx = /^(.*) \((\d+)\)$/ // file name like "example (1).txt
 export class UniqueFileNamesGenerator {
   private _fileNamesByKey: Dictionary<string>
   private _keysByFileName: Dictionary<string>
+  // file names are compared ignoring case: names differing only in case overwrite each other on Windows/macOS
+  private readonly _fileNamesLowerCase: Set<string>
 
   constructor() {
     this._fileNamesByKey = {}
     this._keysByFileName = {}
+    this._fileNamesLowerCase = new Set()
+  }
+
+  private isFileNameUsed(fileName: string): boolean {
+    return this._fileNamesLowerCase.has(fileName.toLowerCase())
+  }
+
+  private assignFileName(fileName: string, key: string): string {
+    this._keysByFileName[fileName] = key
+    this._fileNamesByKey[key] = fileName
+    this._fileNamesLowerCase.add(fileName.toLowerCase())
+    return fileName
   }
 
   /**
@@ -33,20 +47,16 @@ export class UniqueFileNamesGenerator {
     if (existingFileName) {
       return existingFileName
     }
-    if (!this._keysByFileName[inputFileName]) {
+    if (!this.isFileNameUsed(inputFileName)) {
       // file name not used yet
-      this._keysByFileName[inputFileName] = key
-      this._fileNamesByKey[key] = inputFileName
-      return inputFileName
+      return this.assignFileName(inputFileName, key)
     }
     let generatedFileName = this.generateNextFileName(inputFileName)
-    while (this._keysByFileName[generatedFileName]) {
+    while (this.isFileNameUsed(generatedFileName)) {
       // file name already exists, generate the next one
       generatedFileName = this.generateNextFileName(generatedFileName)
     }
-    this._keysByFileName[generatedFileName] = key
-    this._fileNamesByKey[key] = generatedFileName
-    return generatedFileName
+    return this.assignFileName(generatedFileName, key)
   }
 
   /**

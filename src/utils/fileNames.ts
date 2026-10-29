@@ -9,8 +9,10 @@ const getName = (fileName: string | null | undefined): string => {
 
 const getExtension = (fileName: string | null | undefined): string => {
   if (Objects.isEmpty(fileName)) return ''
-  const parts = String(fileName).split('.')
-  return parts.length <= 1 ? '' : (parts.at(-1) ?? '')
+  const fileNameStr = String(fileName)
+  const lastIndexOfDot = fileNameStr.lastIndexOf('.')
+  // consistent with getName: a leading dot (e.g. ".htaccess") is part of the name, not an extension
+  return lastIndexOfDot > 0 ? fileNameStr.substring(lastIndexOfDot + 1) : ''
 }
 
 const addExtensionIfMissing = (fileName: string, defaultExtension: string): string => {

@@ -8,6 +8,8 @@ describe('FileNames', () => {
     { fileName: null, expectedExtension: '' },
     { fileName: 'test', expectedExtension: '' },
     { fileName: 'test.', expectedExtension: '' },
+    { fileName: '.htaccess', expectedExtension: '' },
+    { fileName: 'archive.tar.gz', expectedExtension: 'gz' },
   ]
   testCases.forEach(({ fileName, expectedExtension }) => {
     test(`getExtension(${fileName})`, () => {
