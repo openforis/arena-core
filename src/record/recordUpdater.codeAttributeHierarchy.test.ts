@@ -70,6 +70,44 @@ describe('RecordUpdater - code attributes hierarchy (meta.hCode)', () => {
     expect(Nodes.getHierarchyCode(getNode(recordCloned, 'city'))).toEqual([regionCloned.uuid, provinceCloned.uuid])
   })
 
+  const createRecordWithFullHierarchy = async (survey: Survey) => {
+    let record: ArenaRecord = RecordFactory.createInstance({ surveyUuid: survey.uuid, user })
+    record = (await RecordUpdater.createRootEntity({ user, survey, record })).record
+    const getNode = (name: string) => TestUtils.getNodeByPath({ survey, record, path: name })
+    const setCode = async (name: string, codePaths: string[]) => {
+      const item = TestUtils.getCategoryItem({ survey, categoryName, codePaths })
+      const value = NodeValues.newCodeValue({ itemUuid: item.uuid })
+      const attributeUuid = getNode(name).uuid
+      record = (await RecordUpdater.updateAttributeValue({ user, survey, record, attributeUuid, value })).record
+    }
+    await setCode('region', ['1'])
+    await setCode('province', ['1', '1a'])
+    await setCode('city', ['1', '1a', '1a1'])
+    return { getNode, setCode }
+  }
+
+  test('setting the same item on an ancestor code attribute keeps all the dependent levels', async () => {
+    const survey = await createSurvey()
+    const { getNode, setCode } = await createRecordWithFullHierarchy(survey)
+    const provinceItemUuid = NodeValues.getItemUuid(getNode('province'))
+    const cityItemUuid = NodeValues.getItemUuid(getNode('city'))
+
+    await setCode('region', ['1'])
+
+    expect(NodeValues.getItemUuid(getNode('province'))).toBe(provinceItemUuid)
+    expect(NodeValues.getItemUuid(getNode('city'))).toBe(cityItemUuid)
+  })
+
+  test('changing an ancestor code attribute clears all the dependent levels (cascade)', async () => {
+    const survey = await createSurvey()
+    const { getNode, setCode } = await createRecordWithFullHierarchy(survey)
+
+    await setCode('region', ['2'])
+
+    expect(getNode('province').value).toBeNull()
+    expect(getNode('city').value).toBeNull()
+  })
+
   test('ancestor code path uses the category items in the node ref data (items not in the survey ref data)', async () => {
     const survey = await createSurvey()
     let record: ArenaRecord = RecordFactory.createInstance({ surveyUuid: survey.uuid, user })
