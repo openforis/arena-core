@@ -76,8 +76,9 @@ const _isEntityDuplicate = (params: {
     return false
   }
   const keyValuesByDefUuid = _getKeyValuesByDefUuid({ survey, record, entity, keyDefs, cache })
+  // entities with all key values empty are never duplicates (they are reported as missing values)
   return (
-    !Objects.isEmpty(keyValuesByDefUuid) &&
+    !Object.values(keyValuesByDefUuid).every(Objects.isEmpty) &&
     siblingEntities.some((sibilingEntity) => {
       const siblingKeyValuesByDefUuid = _getKeyValuesByDefUuid({
         survey,
