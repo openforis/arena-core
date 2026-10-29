@@ -127,4 +127,11 @@ describe('Survey NodeDefsFixer', () => {
 
     expect(NodeDefs.getLayoutChildren(cycle)(updatedNodeDef)).toHaveLength(2)
   })
+
+  test('No cycles: node defs returned unchanged', () => {
+    const { nodeDefs, updatedNodeDefs } = NodeDefsFixer.fixNodeDefs({ nodeDefs: survey.nodeDefs!, cycles: [] })
+    expect(nodeDefs).toEqual(survey.nodeDefs)
+    expect(Object.values(nodeDefs)).toHaveLength(7)
+    expect(updatedNodeDefs).toEqual({})
+  })
 })

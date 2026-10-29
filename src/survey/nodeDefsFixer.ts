@@ -125,7 +125,7 @@ const fix = (params: NodeDefFixParams): NodeDef<any> | null => {
 
 const fixNodeDefs = (params: NodeDefsFixParams): { nodeDefs: NodeDefMap; updatedNodeDefs: NodeDefMap } => {
   const { nodeDefs, cycles } = params
-  const nodeDefsResult: NodeDefMap = {}
+  const nodeDefsResult: NodeDefMap = { ...nodeDefs }
   const updatedNodeDefs: NodeDefMap = {}
 
   for (const cycle of cycles) {
