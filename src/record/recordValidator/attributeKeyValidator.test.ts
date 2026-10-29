@@ -1,10 +1,11 @@
-import { describe, test, expect, beforeAll } from '@jest/globals'
+import { describe, test, expect, beforeAll, jest } from '@jest/globals'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
 import { User } from '../../auth'
+import { NodeValues } from '../../node'
 import { Survey } from '../../survey'
 import { Validations } from '../../validation'
 import { ArenaRecord } from '../record'
@@ -111,5 +112,23 @@ describe('AttributeKeyValidator - duplicate entity keys', () => {
     expect(isKeyValid({ record: recordValidated, path: 'table[2].table_id' })).toBeTruthy()
     expect(isKeyValid({ record: recordValidated, path: 'table[3].table_id' })).toBeFalsy()
     expect(isKeyValid({ record: recordValidated, path: 'table[4].table_id' })).toBeTruthy()
+  })
+
+  test('validating many key attributes at once does not compare every key with all the sibling keys', async () => {
+    const tablesCount = 200
+    const record = buildRecord(Array.from({ length: tablesCount }, (_t, index) => (index % 100) + 1))
+    const isValueEqualSpy = jest.spyOn(NodeValues, 'isValueEqual')
+    try {
+      const validation = await RecordValidator.validateRecord({ user, survey, record })
+      const recordValidated = { ...record, validation }
+      expect(isKeyValid({ record: recordValidated, path: 'table[0].table_id' })).toBeFalsy()
+      expect(isKeyValid({ record: recordValidated, path: 'table[100].table_id' })).toBeFalsy()
+      // sibling key nodes to re-validate (comparisons with parentNode, the duplicate check itself doesn't pass it):
+      // keys already being validated are not compared with every sibling key (quadratic)
+      const siblingKeysComparisons = isValueEqualSpy.mock.calls.filter(([params]) => !!params.parentNode)
+      expect(siblingKeysComparisons.length).toBeLessThanOrEqual(tablesCount)
+    } finally {
+      isValueEqualSpy.mockRestore()
+    }
   })
 })

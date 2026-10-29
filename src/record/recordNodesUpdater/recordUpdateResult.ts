@@ -1,7 +1,7 @@
 import { ArenaRecordNode, NodesMap } from '../../node'
 import { Validation } from '../../validation'
 import { ArenaRecord } from '../record'
-import { addNode } from '../_records/recordUpdater'
+import { addNode, addNodes } from '../_records/recordUpdater'
 import { RecordUpdateOptions } from '../records'
 
 export class RecordUpdateResult {
@@ -32,6 +32,11 @@ export class RecordUpdateResult {
   addNode(node: ArenaRecordNode, options?: RecordUpdateOptions) {
     this.nodes[node.uuid] = node
     this.record = addNode(node, options)(this.record)
+  }
+
+  addNodes(nodes: NodesMap, options?: RecordUpdateOptions) {
+    Object.assign(this.nodes, nodes)
+    this.record = addNodes(nodes, options)(this.record)
   }
 
   addClearedDefUuid(nodeDefUuid: string) {
