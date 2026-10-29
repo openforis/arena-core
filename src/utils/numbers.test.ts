@@ -30,6 +30,26 @@ describe('Numbers.toWords', () => {
   })
 })
 
+describe('Numbers.formatDecimal', () => {
+  test('no decimal digits: plain notation, no rounding', () => {
+    expect(Numbers.formatDecimal(0.0000001)).toBe('0.0000001')
+    expect(Numbers.formatDecimal(-0.0000001)).toBe('-0.0000001')
+    expect(Numbers.formatDecimal(1e21)).toBe('1000000000000000000000')
+    expect(Numbers.formatDecimal(123.456)).toBe('123.456')
+    expect(Numbers.formatDecimal(1234567.5)).toBe('1234567.5')
+  })
+
+  test('decimal digits', () => {
+    expect(Numbers.formatDecimal(1234.5678, 2)).toBe('1,234.57')
+    expect(Numbers.formatDecimal(1234.5678, 0)).toBe('1235')
+  })
+
+  test('null or NaN: null', () => {
+    expect(Numbers.formatDecimal(null as unknown as number)).toBeNull()
+    expect(Numbers.formatDecimal(Number.NaN)).toBeNull()
+  })
+})
+
 describe('Numbers.limit', () => {
   test('0 is a valid bound', () => {
     expect(Numbers.limit({ minValue: 0 })(-5)).toBe(0)
