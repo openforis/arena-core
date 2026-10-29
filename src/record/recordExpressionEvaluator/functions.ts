@@ -68,6 +68,7 @@ export const recordExpressionFunctions: ExpressionFunctions<RecordExpressionCont
   ...nodeDefExpressionFunctions,
   count: {
     minArity: 1,
+    maxArity: 1,
     evaluateArgsToNodes: true,
     executor: (_context: RecordExpressionContext) => (nodeSet) => {
       if (!nodeSet) return 0

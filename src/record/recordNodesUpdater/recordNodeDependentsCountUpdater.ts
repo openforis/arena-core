@@ -47,7 +47,9 @@ export const updateDependentsCount = async (
     // 4. persist updated count if changed, and return updated nodes
     const nodeDefUuid = nodeDefNodePointer.uuid
 
-    if (Nodes.getChildrenMinOrMaxCount({ parentNode: nodeCtx, nodeDef: nodeDefNodePointer, countType }) !== count) {
+    const countPrev = Nodes.getChildrenMinOrMaxCount({ parentNode: nodeCtx, nodeDef: nodeDefNodePointer, countType })
+    // count not defined (NaN) before and after: NaN !== NaN would mark the node as updated every time
+    if (countPrev !== count && !(Number.isNaN(countPrev) && Number.isNaN(count))) {
       // count changed
 
       // 5. update node and add it to nodes updated
