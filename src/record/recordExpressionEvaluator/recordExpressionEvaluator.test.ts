@@ -268,6 +268,10 @@ describe('RecordExpressionEvaluator', () => {
     // dateTimeDiff
     { expression: 'dateTimeDiff(end_date, end_time, visit_date, visit_time)', result: 1675 },
     { expression: 'dateTimeDiff(end_date, end_time, "2021-01-01", "10:10")', result: 1695 },
+    // nights with a DST change (US, Europe): same result in every time zone
+    { expression: 'dateTimeDiff("2026-03-09", "00:00", "2026-03-08", "00:00")', result: 1440 },
+    { expression: 'dateTimeDiff("2026-03-30", "00:00", "2026-03-29", "00:00")', result: 1440 },
+    { expression: 'dateTimeDiff("2026-10-26", "00:00", "2026-10-25", "00:00")', result: 1440 },
     // distance
     { expression: 'distance(plot[0].plot_location, plot[1].plot_location).toFixed(2)', result: '2171.95' },
     {
