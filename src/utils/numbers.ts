@@ -56,7 +56,8 @@ const formatDecimal = (value: number, decimalDigits = Number.NaN) => {
     // format as integer
     return num.toFormat(0, { groupSeparator: '' })
   }
-  return num.toString()
+  // plain notation (toString would use the exponential one for very small or big numbers, e.g. 1e-7)
+  return num.toFixed()
 }
 
 /**
