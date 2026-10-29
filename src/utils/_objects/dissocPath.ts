@@ -2,7 +2,8 @@ import { isEmpty } from './isEmpty'
 
 export const dissocPath = <T extends object>(params: { obj: T; path: string[]; sideEffect?: boolean }): T => {
   const { obj, path, sideEffect = false } = params
-  const objUpdated = sideEffect ? obj : { ...obj }
+  // arrays are copied as arrays
+  const objUpdated = sideEffect ? obj : ((Array.isArray(obj) ? [...obj] : { ...obj }) as T)
 
   if (path.length === 0) {
     return objUpdated
