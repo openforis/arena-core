@@ -955,10 +955,7 @@ __metadata:
     "@turf/point-to-polygon-distance": "npm:^7.4.0"
     "@types/geojson": "npm:^7946.0.16"
     "@types/jest": "npm:^30.0.0"
-    "@types/lodash.differencewith": "npm:^4.5.9"
-    "@types/lodash.frompairs": "npm:^4.0.9"
     "@types/lodash.isequal": "npm:^4.5.8"
-    "@types/lodash.topairs": "npm:^4.3.9"
     "@types/node": "npm:^26.6.5"
     "@types/proj4": "npm:^2.19.0"
     "@typescript-eslint/eslint-plugin": "npm:^8"
@@ -973,10 +970,7 @@ __metadata:
     jest: "npm:^30.5.2"
     jsep: "npm:^1.6.0"
     lint-staged: "npm:^17.6.0"
-    lodash.differencewith: "npm:^4.5.0"
-    lodash.frompairs: "npm:^4.0.1"
     lodash.isequal: "npm:^4.5.0"
-    lodash.topairs: "npm:^4.3.0"
     n2words: "npm:^6.3.0"
     pinst: "npm:^3.0.0"
     prettier: "npm:^3.9.10"
@@ -1464,39 +1458,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash.differencewith@npm:^4.5.9":
-  version: 4.5.9
-  resolution: "@types/lodash.differencewith@npm:4.5.9"
-  dependencies:
-    "@types/lodash": "npm:*"
-  checksum: 10c0/e2433f6daf390c9c09e32532dbd434f133c6ba9e10248d4655ad6c20208d29e620d467fd8a69efe1c66ae15854fca94a4ae36f5ebe0caeb5355272f71b28639f
-  languageName: node
-  linkType: hard
-
-"@types/lodash.frompairs@npm:^4.0.9":
-  version: 4.0.9
-  resolution: "@types/lodash.frompairs@npm:4.0.9"
-  dependencies:
-    "@types/lodash": "npm:*"
-  checksum: 10c0/00b1d139c886d021bbe90b8326557348b0dc4fa8db5eb07cc4b4c9b02ed0a23d5115623c1fe95f0ddad3284f0293278264c89d98b013fef57025fb8a08646a75
-  languageName: node
-  linkType: hard
-
 "@types/lodash.isequal@npm:^4.5.8":
   version: 4.5.8
   resolution: "@types/lodash.isequal@npm:4.5.8"
   dependencies:
     "@types/lodash": "npm:*"
   checksum: 10c0/6db28cacf165d55421fbf2970ccfb1682a7b82b743bb7aba4398fa8ab98f1711fca2fe4afa1aa2b7b4afb3eff76c8aca13b22206f5efeb038d99e41300589bca
-  languageName: node
-  linkType: hard
-
-"@types/lodash.topairs@npm:^4.3.9":
-  version: 4.3.9
-  resolution: "@types/lodash.topairs@npm:4.3.9"
-  dependencies:
-    "@types/lodash": "npm:*"
-  checksum: 10c0/89f304cc1e751fd4fbba33675e767e4535696bf4c3afba4423bfcb40984a569dc0925f993a9fca3b8e7d8fdad19ddbc0c8fb5e3302ffe2bd3927b6a697621beb
   languageName: node
   linkType: hard
 
@@ -4584,20 +4551,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.differencewith@npm:^4.5.0":
-  version: 4.5.0
-  resolution: "lodash.differencewith@npm:4.5.0"
-  checksum: 10c0/685a51f5e78aa4bb8ff1a22f144b9729e9189ee44d498bd94ab6061885a33efb906436f7e828b50ec91f3b86bd9f35e240da526ec062eac8f7edb42b989c15ed
-  languageName: node
-  linkType: hard
-
-"lodash.frompairs@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "lodash.frompairs@npm:4.0.1"
-  checksum: 10c0/67cd95a9b04fc776de17c2699822d0a9f748a68d373f2fcfae059b10d5546e4474476f78c7b5d6c2b881a6e058d4dc8c0175147842b875f8626c3ab5cf90981d
-  languageName: node
-  linkType: hard
-
 "lodash.isequal@npm:^4.5.0":
   version: 4.5.0
   resolution: "lodash.isequal@npm:4.5.0"
@@ -4609,13 +4562,6 @@ __metadata:
   version: 4.1.2
   resolution: "lodash.memoize@npm:4.1.2"
   checksum: 10c0/c8713e51eccc650422716a14cece1809cfe34bc5ab5e242b7f8b4e2241c2483697b971a604252807689b9dd69bfe3a98852e19a5b89d506b000b4187a1285df8
-  languageName: node
-  linkType: hard
-
-"lodash.topairs@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "lodash.topairs@npm:4.3.0"
-  checksum: 10c0/3b517179b60c695c9fac23d932531c2eced5d8c5c3b83ad19bd897fdca1a307f216d29d2c171fd615ad8b393b15161acdc592c1ac612d2d72fa42f0b0c30b183
   languageName: node
   linkType: hard
 
