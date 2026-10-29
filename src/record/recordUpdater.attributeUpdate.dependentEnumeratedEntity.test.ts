@@ -242,4 +242,50 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
     await updateParentCode(item2.uuid)
     expect(getEnumeratedEntities()).toHaveLength(3)
   })
+
+  test('Entity containing the parent code attribute deleted -> no error', async () => {
+    const surveyWithPlots = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('root_key').key(),
+        entityDef(
+          'plot',
+          integerDef('plot_id').key(),
+          codeDef('parent_code', 'hierarchical_category'),
+          entityDef(
+            'enumerated_entity',
+            codeDef('enumerated_entity_key', 'hierarchical_category').parentCodeAttribute('parent_code').key()
+          )
+            .multiple()
+            .enumerate()
+        ).multiple()
+      )
+    )
+      .categories(
+        category('hierarchical_category')
+          .levels('level_1', 'level_2')
+          .items(categoryItem('1').items(categoryItem('1a')))
+      )
+      .build()
+    const recordWithPlot = new RecordBuilder(
+      user,
+      surveyWithPlots,
+      entity(
+        'root_entity',
+        attribute('root_key', 10),
+        entity('plot', attribute('plot_id', 1), attribute('parent_code', '1'))
+      )
+    ).build()
+    const plot = TestUtils.getNodeByPath({ survey: surveyWithPlots, record: recordWithPlot, path: 'plot[0]' })
+
+    const updateResult = await RecordUpdater.deleteNode({
+      user,
+      survey: surveyWithPlots,
+      record: recordWithPlot,
+      nodeUuid: plot.uuid,
+    })
+
+    expect(updateResult.nodes[plot.uuid]?.deleted).toBe(true)
+  })
 })

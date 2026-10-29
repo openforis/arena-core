@@ -1,4 +1,4 @@
-import { AuthGroupName } from '../../../authGroup'
+import { AuthGroupName, SYSTEM_ADMIN_GROUP } from '../../../authGroup'
 import { Authorizer } from '../../../authorizer'
 import { UserStatus } from '../../../user'
 import { Query, ALL_GROUPS, createThirdUser } from '../common'
@@ -84,6 +84,19 @@ export const canEditUserQueries: Query[] = [
         thirdUser = { ...thirdUser, authGroups }
         return [user, survey, thirdUser]
       },
+    })
+  ),
+  ...[Authorizer.canEditUser, Authorizer.canEditUserGroup, Authorizer.canEditUserAuthGroupExtraProps].map(
+    (authorizer) => ({
+      title: `${authorizer.name}: surveyAdmin cannot edit a system admin`,
+      groups: [AuthGroupName.surveyAdmin],
+      authorizer,
+      result: false,
+      getParams: ({ user, survey }: any): any[] => [
+        user,
+        survey,
+        { ...createThirdUser(), authGroups: [SYSTEM_ADMIN_GROUP] },
+      ],
     })
   ),
 ]
