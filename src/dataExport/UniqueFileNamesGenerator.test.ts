@@ -78,6 +78,31 @@ describe('UniqueFileNamesGenerator', () => {
       const fileName = generator.generateUniqueFileName('', 'key1')
       expect(fileName).toBe('')
     })
+
+    test('skips the indexed file names already used, also when differing only in case', () => {
+      const results = [
+        generator.generateUniqueFileName('a.txt', 'key1'),
+        generator.generateUniqueFileName('a (2).txt', 'key2'),
+        generator.generateUniqueFileName('a.txt', 'key3'),
+        generator.generateUniqueFileName('a.txt', 'key4'),
+        generator.generateUniqueFileName('A.TXT', 'key5'),
+        generator.generateUniqueFileName('a (1).txt', 'key6'),
+        generator.generateUniqueFileName('a.txt', 'key7'),
+      ]
+      expect(results).toEqual(['a.txt', 'a (2).txt', 'a (1).txt', 'a (3).txt', 'A (4).TXT', 'a (5).txt', 'a (6).txt'])
+    })
+
+    test('generates many duplicate file names quickly', () => {
+      const count = 20000
+      const start = Date.now()
+      const results = generateSequentialFileNames('image.jpg', count)
+      const elapsed = Date.now() - start
+
+      expect(elapsed).toBeLessThan(2000)
+      expect(new Set(results).size).toBe(count)
+      expect(results[0]).toBe('image.jpg')
+      expect(results[count - 1]).toBe(`image (${count - 1}).jpg`)
+    })
   })
 
   describe('fileNamesByKey and keysByFileName getters', () => {
