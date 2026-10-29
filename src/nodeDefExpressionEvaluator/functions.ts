@@ -166,13 +166,14 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
       (date1: string, time1: string, date2: string, time2: string): number | null => {
         if (isNotValidString(date1) || isNotValidString(time1) || isNotValidString(date2) || isNotValidString(time2))
           return null
-        const [hours1, minutes1] = time1.split(':')
-        const [hours2, minutes2] = time2.split(':')
-        let dt1 = Dates.addHours(date1, Number(hours1))
-        dt1 = Dates.addMinutes(dt1, Number(minutes1))
-        let dt2 = Dates.addHours(date2, Number(hours2))
-        dt2 = Dates.addMinutes(dt2, Number(minutes2))
-        return Dates.diffInMinutes(dt1, dt2)
+        // computed in UTC: in the local time zone of the machine a DST change between the 2 dates would alter the result
+        const toUtcMinutes = (date: string, time: string): number => {
+          const [year, month, day] = date.split('-').map(Number)
+          const [hours, minutes] = time.split(':').map(Number)
+          return Date.UTC(year, month - 1, day, hours, minutes) / 60000
+        }
+        const diff = toUtcMinutes(date1, time1) - toUtcMinutes(date2, time2)
+        return Number.isNaN(diff) ? null : diff
       },
   },
   // deprecated, use geoDistance instead
