@@ -210,7 +210,8 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     this.cancelRequested = true
 
     const currentInnerJob = this.getCurrentInnerJob()
-    if (currentInnerJob?.isRunning()) {
+    if (currentInnerJob && !currentInnerJob.isEnded()) {
+      // inner job running or about to start (pending):
       // the parent job status will be set to canceled when handling the canceled event of the inner job
       await currentInnerJob.cancel({ canceledByAdmin })
       return
@@ -240,6 +241,9 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   }
 
   async start(client: JobTxClient | null = null): Promise<void> {
+    // canceled before being started: nothing to execute
+    if (this.cancelRequested || this.isEnded()) return
+
     this.logDebug('start')
 
     try {
@@ -269,6 +273,9 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
 
   private async executeInTransaction(): Promise<void> {
     try {
+      // canceled while the transaction was being opened: it must not be set as running again
+      if (this.cancelRequested) return
+
       await this.onStart()
 
       const shouldExecute = await this.shouldExecute()
@@ -329,6 +336,9 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     this.logDebug(`- ${this.total} inner jobs found`)
 
     for (let i = 0; i < this.innerJobs.length; i++) {
+      // canceled between two inner jobs: the next ones must not be started
+      if (this.cancelRequested) break
+
       this.logDebug(`- executing inner job ${i + 1}`)
       this.currentInnerJobIndex = i
       const currentInnerJob = this.innerJobs[i]
@@ -362,6 +372,14 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       } else if (this.stopOnInnerJobFailure) {
         break
       }
+    }
+    if (
+      !this.stopOnInnerJobFailure &&
+      !this.cancelRequested &&
+      this.innerJobs.some((innerJob) => innerJob.isFailed())
+    ) {
+      // set only after all inner jobs have run: setting it at the first failure would end this job (onEnd) too early
+      await this.setStatus(JobStatus.failed)
     }
 
     this.logDebug(`- ${this.processed} inner jobs processed successfully`)
@@ -422,7 +440,8 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     if (status === JobStatus.failed) {
       // report the errors of the failed inner job in the failed event (and in the errors) of this job
       Object.assign(this.errors, this.getCurrentInnerJob()?.errors ?? {})
-      return this.setStatus(status)
+      // when not stopping on inner job failures, this job is set as failed after all the inner jobs have run
+      return this.stopOnInnerJobFailure ? this.setStatus(status) : undefined
     }
     if (status === JobStatus.running) {
       this.notifyEvent({
