@@ -22,4 +22,11 @@ describe('Users.getAuthGroupBySurveyUuid', () => {
     ]
     expect(Users.getAuthGroupBySurveyUuid('survey-uuid', false)(user)?.name).toBe(AuthGroupName.dataEditor)
   })
+
+  test('returns undefined when the survey uuid is not specified (no match with groups without survey uuid)', () => {
+    const user = UserFactory.createInstance({ email: 'manager@openforis-arena.org', name: 'manager' })
+    user.authGroups = [{ name: AuthGroupName.surveyManager }, { name: AuthGroupName.dataEditor, surveyUuid: 's1' }]
+    expect(Users.getAuthGroupBySurveyUuid(undefined)(user)).toBeUndefined()
+    expect(Users.getAuthGroupBySurveyUuid('s1')(user)?.name).toBe(AuthGroupName.dataEditor)
+  })
 })
