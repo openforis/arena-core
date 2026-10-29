@@ -19,6 +19,10 @@ const getSurveyUuid = (authGroup: AuthGroup): string | undefined => authGroup?.s
 const getRecordSteps = (authGroup?: AuthGroup): { [key: string]: RecordStepPermission } | undefined =>
   authGroup?.recordSteps
 
+/**
+ * @deprecated Not used by Arena; it throws when the group has no record steps.
+ * Use `getRecordSteps(authGroup)?.[step]` or the `Authorizer` record checks instead.
+ */
 const getRecordEditLevel =
   (step: string) =>
   (authGroup?: AuthGroup): RecordStepPermission => {
