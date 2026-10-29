@@ -1,7 +1,7 @@
 import { Dictionary } from '../common'
 import { SystemError, SystemErrorKeys } from '../error'
 import { ArenaRecordNode, NodePointer, NodesMap } from '../node'
-import { NodeDefs } from '../nodeDef'
+import { NodeDef, NodeDefs } from '../nodeDef'
 import { Survey, SurveyDependencyType, Surveys } from '../survey'
 import { Dates, Objects } from '../utils'
 import { Validations } from '../validation/validations'
@@ -139,6 +139,19 @@ const updateAttributeValue = async (
  * Returns the key and unique attributes of the siblings of the specified entities:
  * they could have been duplicates of the ones being deleted, so they must be validated again.
  */
+const getEntityKeyOrUniqueAttributes = (params: {
+  survey: Survey
+  record: ArenaRecord
+  entity: ArenaRecordNode
+  uniqueAttributeDefs: NodeDef<any>[]
+}): ArenaRecordNode[] => {
+  const { survey, record, entity, uniqueAttributeDefs } = params
+  return [
+    ...Records.getEntityKeyNodes(survey, entity)(record),
+    ...uniqueAttributeDefs.flatMap((uniqueDef) => Records.getChildren(entity, uniqueDef.uuid)(record)),
+  ].filter(Boolean)
+}
+
 const getSiblingKeyOrUniqueAttributes = (params: {
   survey: Survey
   record: ArenaRecord
@@ -150,20 +163,21 @@ const getSiblingKeyOrUniqueAttributes = (params: {
   for (const nodeUuid of nodeUuids) {
     const node = Records.getNodeByUuid(nodeUuid)(record)
     const parentNode = node ? Records.getParent(node)(record) : undefined
-    if (!node || !parentNode) continue
-    const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
-    if (!NodeDefs.isEntity(nodeDef)) continue
+    const nodeDef = node ? Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) : undefined
+    if (!parentNode || !nodeDef || !NodeDefs.isEntity(nodeDef)) continue
+
     const uniqueAttributeDefs = Surveys.getNodeDefChildren({ survey, nodeDef }).filter(
       (childDef) => NodeDefs.getValidations(childDef)?.unique
     )
     const siblings = Records.getChildren(parentNode, nodeDef.uuid)(record).filter((s) => !nodeUuidsSet.has(s.uuid))
     for (const sibling of siblings) {
-      const attributes = [
-        ...Records.getEntityKeyNodes(survey, sibling)(record),
-        ...uniqueAttributeDefs.flatMap((uniqueDef) => Records.getChildren(sibling, uniqueDef.uuid)(record)),
-      ]
-      for (const attribute of attributes) {
-        if (attribute) result[attribute.uuid] = attribute
+      for (const attribute of getEntityKeyOrUniqueAttributes({
+        survey,
+        record,
+        entity: sibling,
+        uniqueAttributeDefs,
+      })) {
+        result[attribute.uuid] = attribute
       }
     }
   }
