@@ -3,7 +3,7 @@ import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Survey, Surveys } from '../../survey'
 import { Numbers } from '../../utils'
 import { ArenaRecord } from '../record'
-import { getChildren, getRoot } from './recordGetters'
+import { getChildren, getCycle, getRoot } from './recordGetters'
 
 export interface EntityCompletionStats {
   total: number
@@ -84,7 +84,9 @@ export const getEntityCompletionStats = (params: {
 }): EntityCompletionStats => {
   const { survey, record, entity, includeNestedEntities = true } = params
   const entityDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
-  const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef: entityDef })
+  const childDefs = Surveys.getNodeDefChildren({ survey, nodeDef: entityDef }).filter(
+    NodeDefs.isInCycle(getCycle(record))
+  )
 
   const stats = emptyStats()
   for (const childDef of childDefs) {
