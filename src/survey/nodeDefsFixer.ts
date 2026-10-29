@@ -135,7 +135,7 @@ const fixNodeDefs = (params: NodeDefsFixParams): { nodeDefs: NodeDefMap; updated
       if (fixedNodeDef) {
         updatedNodeDefs[nodeDef.uuid] = fixedNodeDef
       }
-      nodeDefsResult[nodeDef.uuid] = fixedNodeDef ?? nodeDef
+      nodeDefsResult[nodeDef.uuid] = fixedNodeDef ?? nodeDefToFix
     }
   }
   return {
