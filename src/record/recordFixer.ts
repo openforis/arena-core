@@ -71,11 +71,13 @@ const insertMissingSingleNodes = (params: {
 }): RecordUpdateResult => {
   const { survey, record, sideEffect } = params
   const updateResult = new RecordUpdateResult({ record })
+  const cycle = Records.getCycle(record)
   Surveys.visitNodeDefs({
     survey,
     visitor: (nodeDef) => {
       const parentDefUuid = nodeDef.parentUuid
-      if (parentDefUuid) {
+      // node defs not in the record cycle have no nodes
+      if (parentDefUuid && NodeDefs.isInCycle(cycle)(nodeDef)) {
         const parentNodes = Records.getNodesByDefUuid(parentDefUuid)(updateResult.record)
         for (const parentNode of parentNodes) {
           const partialUpdateResult = insertMissingSingleNode({
