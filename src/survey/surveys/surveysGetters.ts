@@ -1,6 +1,6 @@
 import { AuthGroupName, UserAuthGroup } from '../../auth'
 import { Category } from '../../category'
-import type { AreaOfInterest } from '../../geo'
+import type { AreaOfInterestDescriptor } from '../../geo'
 import { LanguageCode } from '../../language'
 import { getLabelOrDefault } from '../../language/labels'
 import { SRS, SRSIndex } from '../../srs'
@@ -92,11 +92,17 @@ export const getSRSByCode =
   (survey: Survey): SRS | undefined =>
     getSRSIndex(survey)[code]
 
-export const getAreaOfInterest = (survey: Survey): AreaOfInterest | undefined =>
-  survey?.props?.areaOfInterest ??
+export const getAreasOfInterest = (survey: Survey): AreaOfInterestDescriptor[] =>
+  survey?.props?.areasOfInterest ??
   // backwards compatibility with Arena: survey info props stored in info
-  (survey as any)?.info?.props?.areaOfInterest ??
-  undefined
+  (survey as any)?.info?.props?.areasOfInterest ??
+  []
+
+export const getAreaOfInterestByName = (params: {
+  survey: Survey
+  name: string
+}): AreaOfInterestDescriptor | undefined =>
+  getAreasOfInterest(params.survey).find((areaOfInterest) => areaOfInterest.name === params.name)
 
 export const getAuthGroups = (survey: Survey): UserAuthGroup[] => survey?.authGroups ?? []
 

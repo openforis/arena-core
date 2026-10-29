@@ -3,6 +3,7 @@ import { ExpressionContext } from '../expression'
 import { NodeDef } from '../nodeDef'
 import { NodeDefProps, NodeDefType } from '../nodeDef/nodeDef'
 import { Survey } from '../survey'
+import { AreaOfInterestProvider } from './areaOfInterestProvider'
 import { CategoryItemProvider } from './categoryItemProvider'
 import { TaxonProvider } from './taxonProvider'
 
@@ -23,4 +24,5 @@ export interface NodeDefExpressionContext extends ExpressionContext {
 
   categoryItemProvider?: CategoryItemProvider
   taxonProvider?: TaxonProvider
+  areaOfInterestProvider?: AreaOfInterestProvider
 }

@@ -9,6 +9,7 @@ import { Survey, Surveys } from '../../survey'
 import { Taxon } from '../../taxonomy'
 import { Objects } from '../../utils'
 import { Records } from '../records'
+import { AreaOfInterestProvider } from '../../nodeDefExpressionEvaluator/areaOfInterestProvider'
 import { RecordExpressionContext } from './context'
 import { recordExpressionFunctions } from './functions'
 import { RecordIdentifierEvaluator } from './node/identifier'
@@ -21,6 +22,7 @@ type ExpressionEvaluateParams = {
   prevCycleRecord?: ArenaRecord
   timezoneOffset?: number
   lang?: LanguageCode
+  areaOfInterestProvider?: AreaOfInterestProvider
 }
 
 export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<RecordExpressionContext> {
