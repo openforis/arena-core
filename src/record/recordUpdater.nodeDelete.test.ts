@@ -305,4 +305,42 @@ describe('RecordUpdater - node delete', () => {
     // original record validation not modified
     expect(recordWithValidation.validation).toEqual(validationBefore)
   })
+
+  test('Delete entity with duplicate key or unique attribute -> sibling duplicate errors removed', async () => {
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        entityDef('mult_entity', integerDef('mult_entity_id').key(), integerDef('mult_entity_code')).multiple()
+      )
+    ).build()
+    const uniqueDef = Surveys.getNodeDefByName({ survey, name: 'mult_entity_code' })
+    uniqueDef.propsAdvanced = { ...uniqueDef.propsAdvanced, validations: { unique: true } }
+
+    let record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        entity('mult_entity', attribute('mult_entity_id', 1), attribute('mult_entity_code', 5)),
+        entity('mult_entity', attribute('mult_entity_id', 2), attribute('mult_entity_code', 6))
+      )
+    ).build()
+    const updateValue = async (path: string, value: number) => {
+      const attribute = TestUtils.getNodeByPath({ survey, record, path })
+      record = (
+        await RecordUpdater.updateAttributeValue({ user, survey, record, attributeUuid: attribute.uuid, value })
+      ).record
+    }
+    await updateValue('mult_entity[1].mult_entity_id', 1)
+    await updateValue('mult_entity[1].mult_entity_code', 5)
+    expect(Validations.isValid(Validations.getValidation(record))).toBe(false)
+
+    const entityToDelete = TestUtils.getNodeByPath({ survey, record, path: 'mult_entity[1]' })
+    record = (await RecordUpdater.deleteNode({ user, survey, record, nodeUuid: entityToDelete.uuid })).record
+
+    expect(Validations.isValid(Validations.getValidation(record))).toBe(true)
+  })
 })
