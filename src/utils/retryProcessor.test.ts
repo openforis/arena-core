@@ -117,4 +117,21 @@ describe('RetryProcessor', () => {
     expect(onFail).toHaveBeenCalledTimes(1)
     expect(onSuccess).not.toHaveBeenCalled()
   })
+
+  test('started again after a success: all the tryings available again', async () => {
+    const processor = jest.fn<Processor>().mockResolvedValueOnce('ok')
+    const { onSuccess, onFail } = createCallbacks()
+
+    const retryProcessor = new RetryProcessor({ processor, onSuccess, onFail, maxTryings: 2 })
+    retryProcessor.start()
+    await jest.runAllTimersAsync()
+
+    processor.mockRejectedValueOnce(new Error('failure')).mockResolvedValueOnce('ok again')
+    retryProcessor.start()
+    await jest.runAllTimersAsync()
+
+    expect(processor).toHaveBeenCalledTimes(3)
+    expect(onSuccess).toHaveBeenCalledTimes(2)
+    expect(onFail).not.toHaveBeenCalled()
+  })
 })

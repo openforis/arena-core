@@ -43,6 +43,9 @@ export class FileProcessor {
   // true while a chunk is being processed (resume must not start a second processing chain)
   protected processingChunk: boolean = false
   protected completed: boolean = false
+  // incremented when a processing run is stopped: callbacks of the chunks of previous runs are ignored
+  private runId: number = 0
+  private retryProcessor?: RetryProcessor<any>
 
   constructor({
     file,
@@ -70,7 +73,14 @@ export class FileProcessor {
     this.reset()
   }
 
+  private cancelCurrentRun(): void {
+    this.runId += 1
+    this.retryProcessor?.stop()
+    this.retryProcessor = undefined
+  }
+
   protected reset(): void {
+    this.cancelCurrentRun()
     this.running = false
     this.totalChunks = 0
     this.currentChunkNumber = 0
@@ -101,14 +111,17 @@ export class FileProcessor {
   }
 
   protected processNextChunk(): void {
-    const { chunkProcessor, currentChunkNumber, totalFileSize, totalChunks, maxTryings, retryDelay } = this
+    const { chunkProcessor, currentChunkNumber, totalFileSize, totalChunks, maxTryings, retryDelay, runId } = this
+    const isStale = () => runId !== this.runId
 
     this.processingChunk = true
     this.extractCurrentFileChunk()
       .then((content) => {
+        if (isStale()) return
         const retryProcessor = new RetryProcessor<any>({
           processor: () => chunkProcessor({ chunk: currentChunkNumber, totalFileSize, totalChunks, content }),
           onSuccess: (chunkResult) => {
+            if (isStale()) return
             this.processingChunk = false
             if (this.currentChunkNumber < totalChunks) {
               // move to the next chunk also when paused: resume will continue from it
@@ -124,6 +137,7 @@ export class FileProcessor {
             }
           },
           onFail: (error: Error) => {
+            if (isStale()) return
             this.processingChunk = false
             this.onFail(error)
             this.running = false
@@ -131,9 +145,11 @@ export class FileProcessor {
           maxTryings,
           retryDelay,
         })
+        this.retryProcessor = retryProcessor
         retryProcessor.start()
       })
       .catch((error) => {
+        if (isStale()) return
         this.processingChunk = false
         this.onFail(error)
         this.running = false
@@ -141,11 +157,16 @@ export class FileProcessor {
   }
 
   start(startFromChunk: number = 1): void {
+    // a previous run still in progress must not continue in parallel
+    this.cancelCurrentRun()
+    const { runId } = this
+    this.processingChunk = false
     this.running = true
     this.completed = false
     this.currentChunkNumber = startFromChunk
     this.calculateFileSize()
       .then((fileSize) => {
+        if (runId !== this.runId) return
         this.totalFileSize = fileSize
         this.totalChunks = Math.ceil(fileSize / this.chunkSize)
         if (this.totalChunks > 0) {
@@ -153,6 +174,7 @@ export class FileProcessor {
         }
       })
       .catch((error) => {
+        if (runId !== this.runId) return
         this.onFail(error)
         this.running = false
       })
