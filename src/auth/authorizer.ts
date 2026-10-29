@@ -13,8 +13,9 @@ import { Users } from './users'
 const _getSurveyUserGroup = (user: User, surveyInfo: Survey, includeSystemAdmin = true): AuthGroup | undefined =>
   surveyInfo ? Users.getAuthGroupBySurveyUuid(surveyInfo.uuid, includeSystemAdmin)(user) : undefined
 
+// system admins are not considered as members of the survey, so survey admins cannot edit them
 const _hasAuthGroupForSurvey = ({ user, surveyInfo }: { user: User; surveyInfo: Survey }): boolean =>
-  Boolean(_getSurveyUserGroup(user, surveyInfo))
+  Boolean(_getSurveyUserGroup(user, surveyInfo, false))
 
 const _hasSurveyPermission =
   (permission: Permission) =>
