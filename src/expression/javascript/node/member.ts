@@ -37,7 +37,8 @@ export class MemberEvaluator<C extends ExpressionContext> extends ExpressionNode
     const { object, property, computed } = expressionNode
 
     const objectEval = await this.evaluator.evaluateNode(object, { ...this.context, evaluateToNode: true })
-    if (!objectEval) return null
+    // null or undefined object (falsy values like 0 or '' have properties too)
+    if (objectEval === null || objectEval === undefined) return null
 
     if (computed) {
       return this.evaluateComputedProperty(property, objectEval)
