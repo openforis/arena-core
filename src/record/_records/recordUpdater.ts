@@ -11,9 +11,8 @@ export const addNodes =
 
     const recordUpdated = sideEffect ? record : { ...record }
     const recordNodes = RecordGetters.getNodes(recordUpdated)
-    // build the missing index from the record nodes (before adding the new ones): a partial index would be trusted by the getters
-    const index =
-      recordUpdated._nodesIndex ?? (updateNodesIndex ? RecordNodesIndexUpdater.initializeIndex(recordUpdated) : {})
+    // index got before adding the new nodes (a missing index is built from the current record nodes)
+    const index = updateNodesIndex ? RecordGetters.getNodesIndexOrBuild(recordUpdated) : {}
 
     // index only the nodes not already indexed with the same parent, node def and hierarchy code
     // (e.g. nodes with only an updated value don't need any index change)
