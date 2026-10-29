@@ -3,8 +3,8 @@ import { NodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { Survey, SurveyDependencyType } from '../../survey/survey'
 import { ArenaRecord } from '../record'
-import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records, RecordUpdateOptions } from '../records'
+import { calculateBooleanValueNext } from './recordNodeDependentsBooleanUpdater'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
 import { syncEnumeratingItemsEntities } from './recordNodeDependentsEnumeratingItemsUpdater'
 import { addNodeAndDescendants } from './recordNodesCreator'
@@ -12,8 +12,6 @@ import { removeNodes } from './recordNodesDeleter'
 import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
-
-const expressionEvaluator = new RecordExpressionEvaluator()
 
 const extractNodePointersToUpdate = (params: { survey: Survey; record: ArenaRecord; node: ArenaRecordNode }) => {
   const { survey, record, node } = params
@@ -29,43 +27,17 @@ const extractNodePointersToUpdate = (params: { survey: Survey; record: ArenaReco
   return nodePointersToUpdate
 }
 
-const calculateApplicableNext = async ({
-  params,
-  updateResult,
-  nodePointer,
-  nodeCtx,
-}: {
+const calculateApplicableNext = (params: {
   params: RecordNodeDependentsUpdateParams
   updateResult: RecordUpdateResult
   nodePointer: NodePointer
   nodeCtx: ArenaRecordNode
-}): Promise<boolean | undefined> => {
-  const { nodeDef: nodeDefNodePointer } = nodePointer
-
-  const { uuid: nodeDefUuid } = nodeDefNodePointer
-
-  const applicablePrev = Nodes.isChildApplicable(nodeCtx, nodeDefUuid)
-  const expressionsToEvaluate = NodeDefs.getApplicable(nodeDefNodePointer)
-  if (expressionsToEvaluate.length === 0) {
-    if (applicablePrev) {
-      // skip nodes that were already applicable and have no applicable expression, as they will remain applicable
-      return undefined
-    } else {
-      // used during survey publishing: node def could have had applicable expression(s) that were removed,
-      // and node could have been not applicable, but now it should be applicable, as there are no more applicable expressions
-      return true
-    }
-  } else {
-    // 3. evaluate applicable expression
-    const exprEval = await expressionEvaluator.evalApplicableExpression({
-      ...params,
-      record: updateResult.record,
-      nodeCtx,
-      expressions: expressionsToEvaluate,
-    })
-    return exprEval?.value || false
-  }
-}
+}): Promise<boolean | undefined> =>
+  calculateBooleanValueNext({
+    ...params,
+    getExpressions: (nodePointer) => NodeDefs.getApplicable(nodePointer.nodeDef),
+    getValuePrev: Nodes.isChildApplicable,
+  })
 
 const updateDescendantsApplicability = ({
   updateResult,
