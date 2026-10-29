@@ -23,6 +23,8 @@ export const distanceToPolygonBoundary = (
   try {
     // turf expects [longitude, latitude]; planar: polygon edges are straight lines (as in GeoJSON and on the map),
     // consistent with the inside/outside check (geodesic would measure to great-circle edges)
+    // shortcut: polygons crossing the antimeridian (longitudes jumping from 180 to -180) are measured wrong,
+    // split them in 2 polygons (one for each side) if such areas of interest are needed
     return pointToPolygonDistance([pointLatLong.x, pointLatLong.y], polygon, { units: 'meters', method: 'planar' })
   } catch {
     // invalid polygon geometry
