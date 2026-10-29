@@ -198,20 +198,33 @@ const extractCategoryItemCodeFromValue = (params: { survey: Survey; value: any }
   return getValueCode(value)
 }
 
+type DateTimeFormats = { formatsSource: DateFormats[]; formatTo: DateFormats }
+
+const dateFormats: DateTimeFormats = {
+  formatsSource: [DateFormats.dateDisplay, DateFormats.dateStorage],
+  formatTo: DateFormats.dateStorage,
+}
+
+const timeFormats: DateTimeFormats = {
+  formatsSource: [DateFormats.timeStorage, DateFormats.timeWithSeconds],
+  formatTo: DateFormats.timeWithSeconds,
+}
+
+const toDateTime = (params: DateTimeFormats & { value: any }) => {
+  const { formatsSource, formatTo, value } = params
+  if (value instanceof Date) {
+    return Dates.format(value, formatTo)
+  }
+  const formatFrom = formatsSource.find((format) => Dates.isValidDateInFormat(value, format))
+  return formatFrom ? Dates.convertDate({ dateStr: value, formatFrom, formatTo }) : null
+}
+
 const dateTimeComparator =
-  (params: { formatsSource: DateFormats[]; formatTo: DateFormats }) =>
+  (formats: DateTimeFormats) =>
   (paramsComparator: NodeValuesCompareParams): boolean => {
-    const { formatsSource, formatTo } = params
     const { value, valueSearch } = paramsComparator
-    const toDateTime = (val: any) => {
-      if (val instanceof Date) {
-        return Dates.format(val, formatTo)
-      }
-      const formatFrom = formatsSource.find((format) => Dates.isValidDateInFormat(val, format))
-      return formatFrom ? Dates.convertDate({ dateStr: val, formatFrom, formatTo }) : null
-    }
-    const dateTime = toDateTime(value)
-    const dateTimeSearch = toDateTime(valueSearch)
+    const dateTime = toDateTime({ ...formats, value })
+    const dateTimeSearch = toDateTime({ ...formats, value: valueSearch })
     return !!dateTime && !!dateTimeSearch && dateTime === dateTimeSearch
   }
 
@@ -236,10 +249,7 @@ const valueComparatorByNodeDefType: { [key in NodeDefType]?: (params: NodeValues
     const { value, valueSearch } = params
     return Objects.isEqual(value, valueSearch)
   },
-  [NodeDefType.date]: dateTimeComparator({
-    formatsSource: [DateFormats.dateDisplay, DateFormats.dateStorage],
-    formatTo: DateFormats.dateStorage,
-  }),
+  [NodeDefType.date]: dateTimeComparator(dateFormats),
   [NodeDefType.decimal]: singlePropValueEqualComparator,
   [NodeDefType.integer]: singlePropValueEqualComparator,
   [NodeDefType.taxon]: ({ value, valueSearch }) => {
@@ -249,10 +259,7 @@ const valueComparatorByNodeDefType: { [key in NodeDefType]?: (params: NodeValues
     return value[ValuePropsTaxon.taxonUuid] === valueSearch[ValuePropsTaxon.taxonUuid]
   },
   [NodeDefType.text]: singlePropValueEqualComparator,
-  [NodeDefType.time]: dateTimeComparator({
-    formatsSource: [DateFormats.timeStorage, DateFormats.timeWithSeconds],
-    formatTo: DateFormats.timeWithSeconds,
-  }),
+  [NodeDefType.time]: dateTimeComparator(timeFormats),
 }
 
 interface NodeValuesCompareParams {
@@ -275,6 +282,58 @@ const isValueEqual = (params: NodeValuesCompareParams): boolean => {
     return Objects.isEqual(value, valueSearch)
   }
   return valueComparator({ survey, nodeDef, record, parentNode, value, valueSearch, strict })
+}
+
+const primitiveTypes = new Set(['string', 'number', 'boolean', 'undefined', 'bigint'])
+
+// token of a primitive value, equal for strictly equal (===) values only (distinguishes "1" from 1);
+// undefined for non primitive values and NaN (not equal to itself)
+const toPrimitiveToken = (value: any): string | undefined =>
+  (value === null || primitiveTypes.has(typeof value)) && !Number.isNaN(value)
+    ? `${typeof value}:${String(value)}`
+    : undefined
+
+const dateTimeKeyExtractor =
+  (formats: DateTimeFormats) =>
+  ({ value }: { value: any }): string | undefined =>
+    toDateTime({ ...formats, value }) || undefined
+
+const valueEqualityKeyByNodeDefType: {
+  [key in NodeDefType]?: (params: { survey: Survey; value: any }) => string | undefined
+} = {
+  [NodeDefType.boolean]: ({ value }) => String(value),
+  [NodeDefType.code]: ({ survey, value }) => {
+    const code = extractCategoryItemCodeFromValue({ survey, value })
+    return code ? toPrimitiveToken(code) : undefined
+  },
+  [NodeDefType.date]: dateTimeKeyExtractor(dateFormats),
+  [NodeDefType.decimal]: ({ value }) => String(value),
+  [NodeDefType.integer]: ({ value }) => String(value),
+  [NodeDefType.taxon]: ({ value }) => toPrimitiveToken(value[ValuePropsTaxon.taxonUuid]),
+  [NodeDefType.text]: ({ value }) => String(value),
+  [NodeDefType.time]: dateTimeKeyExtractor(timeFormats),
+}
+
+/**
+ * Returns a key such that two values have the same key if and only if they are equal according to isValueEqual
+ * (not strict, without record), or undefined if such a key cannot be built for the value (e.g. NaN, empty objects, code values
+ * without code, invalid dates, coordinates): such values must be compared with isValueEqual.
+ * Not exported in NodeValues: internal, used to look up duplicate values without comparing every pair of values.
+ */
+export const getValueEqualityKey = (params: {
+  survey: Survey
+  nodeDef: NodeDef<NodeDefType, any>
+  value: any
+}): string | undefined => {
+  const { survey, nodeDef, value } = params
+  if (Objects.isEmpty(value)) {
+    // empty values are equal only if identical (===)
+    const token = toPrimitiveToken(value)
+    return token === undefined ? undefined : `empty:${token}`
+  }
+  const keyExtractor = valueEqualityKeyByNodeDefType[nodeDef.type]
+  const key = keyExtractor?.({ survey, value })
+  return key === undefined ? undefined : `value:${key}`
 }
 
 const getValueAsPoint = (params: { survey: Survey; node: ArenaRecordNode }): Point | null => {

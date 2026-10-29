@@ -3,7 +3,7 @@ import { describe, test, expect } from '@jest/globals'
 import { NodeDefFactory, NodeDefType } from '../nodeDef'
 import { DateFormats, Dates } from '../utils'
 import { NodeFactory } from './factory'
-import { NodeValues } from './nodeValues'
+import { getValueEqualityKey, NodeValues } from './nodeValues'
 
 const buildTimeNode = (value: string | undefined) =>
   NodeFactory.createInstance({ nodeDefUuid: 'time-def-uuid', recordUuid: 'record-uuid', value })
@@ -79,6 +79,61 @@ describe('NodeValues.isValueEqual - time', () => {
     expect(NodeValues.isValueEqual({ survey: {} as any, nodeDef, value: '14:30:00', valueSearch: '14:30:45' })).toBe(
       false
     )
+  })
+})
+
+describe('getValueEqualityKey', () => {
+  const survey = {} as any
+  const emptyValues = [null, undefined, '', Number.NaN, {}, []]
+  const valuesByType: { [type: string]: any[] } = {
+    [NodeDefType.boolean]: [...emptyValues, true, false, 'true', 'false'],
+    [NodeDefType.code]: [
+      ...emptyValues,
+      { code: '1' },
+      { code: '01' },
+      { code: '2' },
+      { code: 1 },
+      { code: '' },
+      { label: 'a' },
+    ],
+    [NodeDefType.date]: [...emptyValues, '2024-03-01', '01/03/2024', '2024-03-02', 'not a date'],
+    [NodeDefType.decimal]: [...emptyValues, 1, '1', 1.5, '1.5', '1.50', 0, '0', -1],
+    [NodeDefType.integer]: [...emptyValues, 1, '1', 2, '01', 0, '0', 10],
+    [NodeDefType.taxon]: [
+      ...emptyValues,
+      { taxonUuid: 'a' },
+      { taxonUuid: 'b' },
+      { taxonUuid: 'a', vernacularNameUuid: 'v' },
+      { x: 1 },
+    ],
+    [NodeDefType.text]: [...emptyValues, 'a', 'A', 'a ', '1', 1],
+    [NodeDefType.time]: [...emptyValues, '14:30', '14:30:00', '14:31', '25:99'],
+  }
+
+  test.each(Object.entries(valuesByType))('%s: same key if and only if the values are equal', (type, values) => {
+    const nodeDef = { type } as any
+    // compare every value with itself, with a copy of itself and with every other value
+    const valuesWithCopies = values.flatMap((value) => [value, structuredClone(value)])
+    for (const value of valuesWithCopies) {
+      for (const valueSearch of valuesWithCopies) {
+        const key = getValueEqualityKey({ survey, nodeDef, value })
+        const keySearch = getValueEqualityKey({ survey, nodeDef, value: valueSearch })
+        if (key !== undefined && keySearch !== undefined) {
+          const equal = NodeValues.isValueEqual({ survey, nodeDef, value, valueSearch })
+          expect({ value, valueSearch, sameKey: key === keySearch }).toEqual({ value, valueSearch, sameKey: equal })
+        }
+      }
+    }
+  })
+
+  test('keys cannot be built for values that are not equal to their copies', () => {
+    const nodeDef = { type: NodeDefType.integer } as any
+    for (const value of [Number.NaN, {}, []]) {
+      expect(getValueEqualityKey({ survey, nodeDef, value })).toBeUndefined()
+    }
+    expect(
+      getValueEqualityKey({ survey, nodeDef: { type: NodeDefType.coordinate } as any, value: { x: 1 } })
+    ).toBeUndefined()
   })
 })
 
