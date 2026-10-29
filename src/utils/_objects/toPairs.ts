@@ -1,1 +1,1 @@
-export { default as toPairs } from 'lodash.topairs'
+export const toPairs = (object: any): [string, any][] => Object.entries(object ?? {})
