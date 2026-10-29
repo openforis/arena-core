@@ -7,6 +7,7 @@ import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../.
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { Survey } from '../../survey'
 import { getNodeDefChildren, getNodeDefEnumerator } from '../../survey/surveys/nodeDefs'
+import { getAncestorCodeAttributes } from '../_records/recordGetters'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
 import { getEnumeratingItemsAllowedCodes } from './recordEnumeratingItemsExpressionEvaluator'
 import { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
@@ -162,6 +163,11 @@ export const addNodeAndDescendants = async (params: NodeCreateParams): Promise<R
     parentNode,
     surveyUuid: survey.uuid,
   })
+  if (parentNode && nodeDef.type === NodeDefType.code && NodeDefs.getParentCodeDefUuid(nodeDef as NodeDefCode)) {
+    // meta.hCode indexes the node as dependent of its ancestor code attributes (cleared when they change)
+    const ancestorCodeAttributes = getAncestorCodeAttributes(survey, parentNode, nodeDef as NodeDefCode)(record)
+    node.meta = { ...node.meta, hCode: ancestorCodeAttributes.map((codeAttribute) => codeAttribute.uuid) }
+  }
 
   const updateResult = new RecordUpdateResult({ record })
   updateResult.addNode(node, { sideEffect })
