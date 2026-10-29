@@ -81,8 +81,8 @@ const roundToPrecision = (value: any, precision = Number.NaN) => {
   const num = toNumber(value)
   if (Number.isNaN(num)) return Number.NaN
   if (Number.isNaN(precision)) return num
-  const exp = Math.pow(10, precision)
-  return Math.round(num * exp) / exp
+  // decimal arithmetic (1.005 * 100 is 100.49999... in floating point); halves rounded away from zero, as formatDecimal
+  return new BigNumber(num).shiftedBy(precision).integerValue(BigNumber.ROUND_HALF_UP).shiftedBy(-precision).toNumber()
 }
 
 const toCardinalByLang: Partial<Record<LanguageCode, (value: number | string | bigint) => string>> = {

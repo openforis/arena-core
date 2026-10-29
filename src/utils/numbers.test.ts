@@ -41,3 +41,20 @@ describe('Numbers.limit', () => {
     expect(Numbers.limit({})(-5)).toBe(-5)
   })
 })
+
+describe('Numbers.roundToPrecision', () => {
+  test.each([
+    [1.005, 2, 1.01],
+    [2.345, 2, 2.35],
+    [-2.5, 0, -3],
+    [33.333333, 2, 33.33],
+    [1250, -2, 1300],
+    [1.5, Number.NaN, 1.5],
+  ])('roundToPrecision(%s, %s) = %s', (value, precision, expected) => {
+    expect(Numbers.roundToPrecision(value, precision)).toBe(expected)
+  })
+
+  test('empty value: NaN', () => {
+    expect(Numbers.roundToPrecision(null, 2)).toBeNaN()
+  })
+})
