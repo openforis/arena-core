@@ -20,3 +20,14 @@ describe('Arrays.intersection', () => {
     expect(Arrays.intersection([Number.NaN, 1], [Number.NaN])).toEqual([Number.NaN])
   })
 })
+
+describe('Arrays.addItems', () => {
+  test('adds a large number of items with sideEffect', () => {
+    const array = [0]
+    const items = Array.from({ length: 300000 }, (_, index) => index + 1)
+    const result = Arrays.addItems(items, { sideEffect: true })(array)
+    expect(result).toBe(array)
+    expect(result).toHaveLength(300001)
+    expect(result.at(-1)).toBe(300000)
+  })
+})
