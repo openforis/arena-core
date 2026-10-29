@@ -101,6 +101,20 @@ describe('Points test', () => {
     const origin = PointFactory.createInstance({ x: 12, y: 41 })
     testBearing(origin, 1000, bearingDeg)
   })
+
+  test.each([
+    { direction: 'east', originX: 179.999, bearingDeg: 90, expectedX: -179.992 },
+    { direction: 'west', originX: -179.999, bearingDeg: 270, expectedX: 179.992 },
+  ])('point at distance across the antimeridian - $direction', ({ originX, bearingDeg, expectedX }) => {
+    const origin = PointFactory.createInstance({ x: originX, y: 0 })
+    const location = Points.pointAtDistance({ origin, distanceMeters: 1000, bearingDeg, srsIndex: DEFAULT_SRS_INDEX })
+
+    expect(location).not.toBeNull()
+    expect(Points.isValid(location!, DEFAULT_SRS_INDEX)).toBe(true)
+    expect(location!.x).toBeCloseTo(expectedX, 3)
+    expect(location!.y).toBeCloseTo(0, 6)
+    expect(Points.distance(origin, location!, DEFAULT_SRS_INDEX)).toBeCloseTo(1000, 0)
+  })
 })
 
 describe('Points.transform', () => {
