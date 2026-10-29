@@ -163,6 +163,29 @@ describe('Survey Dependencies', () => {
     survey = surveyOld
   })
 
+  test('Dependencies added again (node def updated) -> no duplicate dependents; remove -> no dependents left', async () => {
+    const surveyOld = survey
+
+    const nodeDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
+    survey = await Surveys.addNodeDefDependencies({ survey, nodeDef })
+
+    expectDependents({
+      sourceName: 'accessible',
+      dependencyType: SurveyDependencyType.applicable,
+      expectedDependentNames: ['plot'],
+    })
+
+    survey = Surveys.removeNodeDefDependencies({ survey, nodeDefUuid: nodeDef.uuid })
+
+    expectDependents({
+      sourceName: 'accessible',
+      dependencyType: SurveyDependencyType.applicable,
+      expectedDependentNames: [],
+    })
+
+    survey = surveyOld
+  })
+
   test('Dependencies remove (default value dependency)', () => {
     const surveyOld = survey
 
