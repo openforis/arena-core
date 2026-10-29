@@ -6,9 +6,10 @@ import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefs, NodeDef
 import { defaultCycle, Surveys } from '../../survey'
 import { Survey, SurveyDependencyType } from '../../survey/survey'
 import { Arrays, Queue } from '../../utils'
-import { ArenaRecord, RECORD_STEP_DEFAULT } from '../record'
+import { ArenaRecord, RECORD_STEP_DEFAULT, RecordNodesIndex } from '../record'
 import { RecordStepAnalysisCode } from '../recordStep'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
+import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
 import { NodeDefSelfReferences } from './nodeDefSelfReferences'
 
 export const getCycle = (record: ArenaRecord): string => record.cycle ?? defaultCycle
@@ -16,6 +17,13 @@ export const getCycle = (record: ArenaRecord): string => record.cycle ?? default
 export const getNodes = (record: ArenaRecord): Dictionary<ArenaRecordNode> => record.nodes ?? {}
 
 export const getNodesArray = (record: ArenaRecord): ArenaRecordNode[] => Object.values(getNodes(record))
+
+/**
+ * Returns the nodes index of the record or, if missing, a new index built from all the record nodes (not stored in the record).
+ * To be used before updating the index: a partial index would be trusted by the getters.
+ */
+export const getNodesIndexOrBuild = (record: ArenaRecord): RecordNodesIndex =>
+  record._nodesIndex ?? RecordNodesIndexUpdater.initializeIndex(record)
 
 /**
  * Returns the node with the specified uuid, or undefined if not found.
