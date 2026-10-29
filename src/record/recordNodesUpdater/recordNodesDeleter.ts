@@ -83,7 +83,8 @@ export const removeNodes =
     // update nodes index (copying every index part only once)
     if (updateNodesIndex) {
       recordUpdated._nodesIndex = RecordNodesIndexUpdater.removeNodes(Object.values(nodesDeleted), { sideEffect })(
-        record._nodesIndex ?? {}
+        // build the missing index from the record nodes: a partial index would be trusted by the getters
+        record._nodesIndex ?? RecordNodesIndexUpdater.initializeIndex(record)
       )
     }
     return new RecordUpdateResult({ record: recordUpdated, nodes: nodesDeleted, nodesDeleted })

@@ -48,8 +48,9 @@ const dependentsUpdaters: RecordNodeDependentsUpdater[] = [
 export const updateNodesDependents = async (
   params: NodesUpdateParams & { nodes: Dictionary<ArenaRecordNode> }
 ): Promise<RecordUpdateResult> => {
-  const { survey, record, nodes, sideEffect = false } = params
-  const initialNodesToVisit = sideEffect ? nodes : { ...nodes }
+  const { survey, record, nodes } = params
+  // always copy: the nodes passed (e.g. the deleted nodes) must not collect the dependent nodes visited
+  const initialNodesToVisit = { ...nodes }
 
   // include onUpdate dependents (always included in every record update)
   const onUpdateDependentDefs = Surveys.getOnUpdateDependents({ survey })
