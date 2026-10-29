@@ -271,6 +271,16 @@ describe('Validations', () => {
       expect(updated.counts?.errors).toBe(1)
       expect(updated.counts?.warnings).toBe(0)
     })
+
+    test('calculateCounts handles a validation with a large number of fields', () => {
+      const fields: Record<string, Validation> = {}
+      for (let i = 0; i < 300000; i++) {
+        fields[`f${i}`] = { valid: false, errors: [errorResult] }
+      }
+      const counts = Validations.calculateCounts({ valid: false, fields })
+      expect(counts.errors).toBe(300000)
+      expect(counts.warnings).toBe(0)
+    })
   })
 
   // ── recalculateValidity ────────────────────────────────────────────────────
@@ -411,13 +421,45 @@ describe('Validations', () => {
         makeValidation({ fields: { node_1: makeValidation({ errors: [errorResult], valid: false }) }, valid: false })
       const v1 = createValidation()
       expect(Validations.dissocFieldValidationsStartingWith('node_', { sideEffect: true })(v1)).toBe(v1)
-      expect(v1.fields).not.toHaveProperty('node_1')
+      expect(v1.fields?.node_1).toBeUndefined()
       const v2 = createValidation()
       expect(Validations.dissocFieldValidationsStartingWith('node_', true)(v2)).toBe(v2)
       const v3 = createValidation()
       const result = Validations.dissocFieldValidationsStartingWith('node_', { doCleanup: false })(v3)
       expect(result).not.toBe(v3)
       expect(result.valid).toBe(false)
+    })
+
+    test('cleans up the validation with sideEffect too', () => {
+      const v1 = makeValidation({
+        fields: { node_1: makeValidation({ errors: [errorResult], valid: false }) },
+        valid: false,
+      })
+      const result1 = Validations.dissocFieldValidationsStartingWith('node_', { sideEffect: true })(v1)
+      expect(result1).toBe(v1)
+      expect(result1).toEqual({ valid: true })
+
+      const v2 = makeValidation({
+        fields: {
+          node_1: makeValidation({ errors: [errorResult], valid: false }),
+          other: makeValidation({ errors: [errorResult], valid: false }),
+        },
+        valid: false,
+      })
+      const result2 = Validations.dissocFieldValidationsStartingWith('node_', { sideEffect: true })(v2)
+      expect(result2).toBe(v2)
+      expect(result2.valid).toBe(false)
+      expect(Object.keys(result2.fields ?? {})).toEqual(['other'])
+
+      const v3 = makeValidation({
+        fields: { node_1: makeValidation({ errors: [errorResult], valid: false }) },
+        valid: false,
+      })
+      const result3 = Validations.dissocFieldValidationsStartingWith('node_', { sideEffect: true, doCleanup: false })(
+        v3
+      )
+      expect(result3).toBe(v3)
+      expect(result3.valid).toBe(false)
     })
   })
 

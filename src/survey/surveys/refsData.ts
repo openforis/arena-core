@@ -78,7 +78,9 @@ export const getCategoryItemsInLevel = (params: { survey: Survey; categoryUuid: 
     const itemsInLevel = []
     for (const item of itemsPrevLevel) {
       const { uuid: parentItemUuid } = item
-      itemsInLevel.push(...getCategoryItems({ survey, categoryUuid, parentItemUuid }))
+      for (const childItem of getCategoryItems({ survey, categoryUuid, parentItemUuid })) {
+        itemsInLevel.push(childItem)
+      }
     }
     currentLevelIndex += 1
     itemsPrevLevel = itemsInLevel
