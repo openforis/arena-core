@@ -76,6 +76,7 @@ export class RetryProcessor<ProcessorResult> {
 
   // Public methods
   start(): void {
+    this.currentTrying = 0
     this.running = true
     this.processNext()
   }
