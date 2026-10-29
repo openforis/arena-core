@@ -62,6 +62,20 @@ describe('Survey NodeDefsFixer', () => {
     expect(updatedNodeDefs[plotDef.uuid]).toBe(nodeDefs[plotDef.uuid])
   })
 
+  test('Hierarchy fixed with multiple cycles (fix of the first cycle kept)', () => {
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
+    const hierarchyExpected = [...plotDef.meta.h]
+    plotDef.meta.h.unshift('NOT_EXISTING_NODE_DEF_UUID')
+
+    const { nodeDefs, updatedNodeDefs } = NodeDefsFixer.fixNodeDefs({
+      nodeDefs: survey.nodeDefs!,
+      cycles: ['0', '1'],
+    })
+
+    expect(nodeDefs[plotDef.uuid].meta.h).toEqual(hierarchyExpected)
+    expect(nodeDefs[plotDef.uuid]).toBe(updatedNodeDefs[plotDef.uuid])
+  })
+
   test('Hierarchy fixed when it has the right length but wrong content (node def moved at the same depth)', () => {
     const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' })
     const rootDef = Surveys.getNodeDefRoot({ survey })
