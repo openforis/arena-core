@@ -518,30 +518,38 @@ export const getDependentNodePointers =
     return nodePointers
   }
 
-export const getAncestorCodePath =
-  (survey: Survey, parentNode: ArenaRecordNode, nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>) =>
-  (record: ArenaRecord): string[] => {
-    const getCodeAttributeItemCode = (codeAttribute: ArenaRecordNode | undefined): string => {
-      const codeItemUuid = codeAttribute ? NodeValues.getItemUuid(codeAttribute) : undefined
-      if (!codeItemUuid) return ''
-      const item = Surveys.getCategoryItemByUuid({ survey, itemUuid: codeItemUuid })
-      return item?.props.code ?? ''
-    }
-
-    const codePaths = []
+/**
+ * Returns the code attributes the specified code attribute depends on, from the top level one to the parent one.
+ */
+export const getAncestorCodeAttributes =
+  (survey: Survey, parentNode: ArenaRecordNode, nodeDef: NodeDefCode) =>
+  (record: ArenaRecord): ArenaRecordNode[] => {
+    const ancestorCodeAttributes = []
     let currentParentCodeAttribute = getParentCodeAttribute(parentNode, nodeDef)(record)
-
     while (currentParentCodeAttribute) {
-      const ancestorItemCode = getCodeAttributeItemCode(currentParentCodeAttribute)
-      codePaths.unshift(ancestorItemCode)
+      ancestorCodeAttributes.unshift(currentParentCodeAttribute)
       const ancestorCodeDef = Surveys.getNodeDefByUuid({
         survey,
         uuid: currentParentCodeAttribute.nodeDefUuid,
       }) as NodeDefCode
       currentParentCodeAttribute = getParentCodeAttribute(parentNode, ancestorCodeDef)(record)
     }
-    return codePaths
+    return ancestorCodeAttributes
   }
+
+export const getAncestorCodePath =
+  (survey: Survey, parentNode: ArenaRecordNode, nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>) =>
+  (record: ArenaRecord): string[] =>
+    getAncestorCodeAttributes(
+      survey,
+      parentNode,
+      nodeDef
+    )(record).map((codeAttribute) => {
+      const codeItemUuid = NodeValues.getItemUuid(codeAttribute)
+      if (!codeItemUuid) return ''
+      const item = Surveys.getCategoryItemByUuid({ survey, itemUuid: codeItemUuid })
+      return item?.props.code ?? ''
+    })
 
 export const getCategoryItemUuid =
   (survey: Survey, nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>, parentNode: ArenaRecordNode, code: string) =>

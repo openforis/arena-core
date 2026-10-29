@@ -24,14 +24,11 @@ const fixCodeAttribute = (params: {
     return node
   }
   // populate meta.hCode with ancestor code attribute node uuids
-  const hCode: string[] = []
-  let currentCodeDef: NodeDefCode = nodeDef
-  let currentParentCodeAttribute = Records.getParentCodeAttribute(parentNode, currentCodeDef)(record)
-  while (currentParentCodeAttribute) {
-    hCode.unshift(currentParentCodeAttribute.uuid)
-    currentCodeDef = Surveys.getNodeDefByUuid({ survey, uuid: currentParentCodeAttribute.nodeDefUuid }) as NodeDefCode
-    currentParentCodeAttribute = Records.getParentCodeAttribute(parentNode, currentCodeDef)(record)
-  }
+  const hCode = Records.getAncestorCodeAttributes(
+    survey,
+    parentNode,
+    nodeDef
+  )(record).map((codeAttribute) => codeAttribute.uuid)
   const nodeUpdated = sideEffect ? node : { ...node }
   nodeUpdated.meta = { ...nodeUpdated.meta, hCode }
   return nodeUpdated
