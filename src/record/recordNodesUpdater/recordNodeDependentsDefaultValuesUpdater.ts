@@ -73,12 +73,15 @@ const updateDefaultValueInNode = (params: {
   // 3. update node value and meta
   const defaultValueApplied = !Objects.isEmpty(exprValue)
 
-  const nodeUpdated = Nodes.mergeNodes(nodeToUpdate, {
+  // the value is replaced, not merged: props of the previous value (e.g. vernacularNameUuid) must not be kept
+  const nodeUpdated: ArenaRecordNode = {
+    ...Nodes.mergeNodes(nodeToUpdate, {
+      meta: { defaultValueApplied },
+      updated: true,
+      dateModified: Dates.nowFormattedForStorage(),
+    }),
     value: exprValue,
-    meta: { defaultValueApplied },
-    updated: true,
-    dateModified: Dates.nowFormattedForStorage(),
-  })
+  }
   updateResult.addNode(nodeUpdated, { sideEffect })
 }
 
