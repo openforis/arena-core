@@ -495,7 +495,7 @@ test('setResult merges successive object results instead of overwriting', async 
   expect(job.result).toEqual({ a: 1, b: 2 })
 })
 
-test('continues running inner jobs after a failure when stopOnInnerJobFailure is false', async () => {
+test('continues running inner jobs after a failure when stopOnInnerJobFailure is false, then fails once', async () => {
   const calls: string[] = []
   const innerJob1 = new TestJob(createContext(), [], {
     execute: async () => {
@@ -510,12 +510,47 @@ test('continues running inner jobs after a failure when stopOnInnerJobFailure is
   })
   const parentJob = new TestJob(createContext(), [innerJob1, innerJob2])
   parentJob.stopOnInnerJobFailure = false
+  parentJob.onEvent((event) => {
+    if (event.type === JobEventType.statusChange && event.status === JobStatus.failed) calls.push('parent failed')
+  })
 
   await parentJob.start()
 
-  expect(calls).toEqual(['job1', 'job2'])
+  // the parent job fails only once, after all inner jobs have run
+  expect(calls).toEqual(['job1', 'job2', 'parent failed'])
   expect(parentJob.isFailed()).toBe(true)
   expect(innerJob2.isSucceeded()).toBe(true)
+})
+
+test('a job canceled before being started is not executed', async () => {
+  const calls: string[] = []
+  const job = new TestJob(createContext(), [], { execute: async () => void calls.push('execute') })
+
+  await job.cancel()
+  await job.start()
+
+  expect(calls).toEqual([])
+  expect(job.isCanceled()).toBe(true)
+})
+
+test('canceling a job while its inner job is about to start (pending) cancels the inner job too', async () => {
+  const calls: string[] = []
+  const innerJob = new TestJob(createContext(), [], { execute: async () => void calls.push('inner execute') })
+  const parentJob = new TestJob(createContext(), [innerJob])
+  // the parent job is canceled while the inner job is opening its (nested) transaction
+  const parentTx = {
+    tx: async (fn: (tx: any) => Promise<void>) => {
+      await parentJob.cancel()
+      await fn({})
+    },
+  }
+  const client = { tx: async (fn: (tx: any) => Promise<void>) => fn(parentTx) }
+
+  await parentJob.start(client)
+
+  expect(calls).toEqual([])
+  expect(innerJob.isCanceled()).toBe(true)
+  expect(parentJob.isCanceled()).toBe(true)
 })
 
 test('constructor copies the context instead of holding the caller-owned reference', () => {
