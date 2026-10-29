@@ -51,6 +51,8 @@ describe('Record getters call forms', () => {
     expect(Records.getAncestorsAndSelf(plotId1)(record)).toEqual([plotId1, plot1, cluster])
     expect(Records.isNodeApplicable(plotId1)(record)).toBe(true)
     expect(Records.getNodeIndex(plot1)(record)).toBe(0)
+    // a copy of the node is found too
+    expect(Records.getNodeIndex({ ...getNode('cluster.plot[1]') })(record)).toBe(1)
     expect(Records.getEntityKeyValues(survey, plot1)(record)).toEqual([1])
   })
 
