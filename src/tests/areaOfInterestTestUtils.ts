@@ -8,7 +8,7 @@ import { Survey } from '../survey'
 export const createTestAreaOfInterestProvider = (
   geometriesByName: Record<string, AreaOfInterest>
 ): AreaOfInterestProvider => ({
-  getAreaOfInterest: async ({ name }) => geometriesByName[name],
+  getAreaOfInterest: ({ name }) => Promise.resolve(geometriesByName[name]),
 })
 
 /**
