@@ -54,6 +54,15 @@ describe('Objects', () => {
     expect(objectUpdated).toEqual(obj)
   })
 
+  test('assocPath copies arrays along the path as arrays', () => {
+    const obj = { a: [1, 2] }
+    const objectUpdated = Objects.assocPath({ obj, path: ['a', '0'], value: 5 })
+    expect(objectUpdated).toEqual({ a: [5, 2] })
+    expect(Array.isArray(objectUpdated.a)).toBeTruthy()
+    // check that the original object hasn't been updated
+    expect(obj).toEqual({ a: [1, 2] })
+  })
+
   test('camelize (no side effect)', () => {
     const objectA = { p_1: 'A', p_2: 'B', p_3: 5 }
     const objectAString = JSON.stringify(objectA)
@@ -99,6 +108,31 @@ describe('Objects', () => {
     expect(objectUpdated).toEqual({ a: 1, b: { b1: 2, b2: { b2a: 10, b2b: 20 } } })
     // check that the original object hasn't been updated
     expect(obj).toEqual({ a: 1, b: { b1: 2, b2: { b2a: 10, b2b: 20 } } })
+  })
+
+  test('dissocPath copies arrays along the path as arrays', () => {
+    const obj = { a: [{ b: 1, c: 2 }, { b: 3 }] }
+    const objectUpdated = Objects.dissocPath({ obj, path: ['a', '0', 'b'] })
+    expect(objectUpdated).toEqual({ a: [{ c: 2 }, { b: 3 }] })
+    expect(Array.isArray(objectUpdated.a)).toBeTruthy()
+    // check that the original object hasn't been updated
+    expect(obj).toEqual({ a: [{ b: 1, c: 2 }, { b: 3 }] })
+  })
+
+  test('setInPath replaces null or primitive intermediate values with objects', () => {
+    expect(Objects.setInPath({ obj: { a: null }, path: ['a', 'b'], value: 1 })).toEqual({ a: { b: 1 } })
+    expect(Objects.setInPath({ obj: { a: 5 }, path: ['a', 'b'], value: 1 })).toEqual({ a: { b: 1 } })
+    expect(Objects.setInPath({ obj: { a: 'x' }, path: ['a', 'b', 'c'], value: 1 })).toEqual({ a: { b: { c: 1 } } })
+  })
+
+  test('setInPath keeps existing intermediate objects and arrays', () => {
+    const inner = { c: 1 }
+    const obj = { a: inner, l: [{ x: 1 }] }
+    Objects.setInPath({ obj, path: ['a', 'b'], value: 2 })
+    Objects.setInPath({ obj, path: ['l', '0', 'y'], value: 3 })
+    expect(obj).toEqual({ a: { c: 1, b: 2 }, l: [{ x: 1, y: 3 }] })
+    expect(obj.a).toBe(inner)
+    expect(Array.isArray(obj.l)).toBeTruthy()
   })
 
   test('isEqual', () => {

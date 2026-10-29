@@ -1,6 +1,7 @@
 const _assocPath = (obj: any, path: string[], pathIndex: number, value: any, sideEffect: boolean): any => {
   // only one copy per path level (when sideEffect is false)
-  const objUpdated = sideEffect ? obj : { ...obj }
+  // arrays are copied as arrays
+  const objUpdated = sideEffect ? obj : Array.isArray(obj) ? [...obj] : { ...obj }
   if (pathIndex >= path.length) return objUpdated
 
   const pathPart = path[pathIndex]
