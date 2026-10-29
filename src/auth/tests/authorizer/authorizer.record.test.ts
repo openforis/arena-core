@@ -4,6 +4,7 @@ import { RecordFactory } from '../../../record'
 import { Survey } from '../../../survey'
 import { AuthGroup, AuthGroupName } from '../../authGroup'
 import { Authorizer } from '../../authorizer'
+import { RecordStepPermission } from '../../permission'
 import { UserFactory } from '../../factory'
 import { User } from '../../user'
 import { createQueryTestCases } from './common'
@@ -44,6 +45,12 @@ describe('Authorizer - permission checks never throw', () => {
     const record = RecordFactory.createInstance({ surveyUuid, user })
     expect(Authorizer.canEditRecord(user, record)).toBe(false)
     expect(Authorizer.canDeleteRecord(user, record)).toBe(false)
+  })
+
+  test('canEditRecord is false for a record without survey uuid (survey manager group not matched)', () => {
+    const user = createUser([{ name: AuthGroupName.surveyManager, recordSteps: { 1: RecordStepPermission.all } }])
+    const record = { ...RecordFactory.createInstance({ surveyUuid, user }), surveyUuid: undefined }
+    expect(Authorizer.canEditRecord(user, record)).toBe(false)
   })
 
   test('survey checks without survey info', () => {
