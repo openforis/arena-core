@@ -23,7 +23,7 @@ type UpdateSelfAndDependentsBooleanParams = {
   includeNewEntitySelf?: boolean
 }
 
-const calculateBooleanValueNext = async ({
+export const calculateBooleanValueNext = async ({
   params,
   updateResult,
   nodePointer,
@@ -45,8 +45,11 @@ const calculateBooleanValueNext = async ({
   const expressionsToEvaluate = getExpressions(nodePointer)
   if (expressionsToEvaluate.length === 0) {
     if (valuePrev) {
+      // skip nodes already having the value true and no expressions, as they will keep it
       return undefined
     }
+    // used during survey publishing: node def could have had expression(s) that were removed,
+    // and the value could have been false, but now it should be true, as there are no more expressions
     return true
   }
 
