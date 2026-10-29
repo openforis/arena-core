@@ -266,7 +266,9 @@ const findSortedNodesToValidate = (params: SortedAttributesValidatorParams): Are
     )
 
     if (NodeDefs.getValidations(nodeDef)?.unique) {
-      result.push(...Records.getAttributeSiblings(node, nodeDef)(record))
+      for (const sibling of Records.getAttributeSiblings(node, nodeDef)(record)) {
+        result.push(sibling)
+      }
     }
   }
 
