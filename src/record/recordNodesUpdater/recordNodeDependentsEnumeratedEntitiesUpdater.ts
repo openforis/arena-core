@@ -103,6 +103,9 @@ export const updateDependentEnumeratedEntities = async (
 
   const updateResult = new RecordUpdateResult({ record })
 
+  // the ancestor of a deleted node is no longer in the record: its enumerated entities are deleted with it
+  if (node.deleted) return updateResult
+
   // 1. get dependent enumerated entities
   const { nodeDefUuid } = node
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
