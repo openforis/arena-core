@@ -15,6 +15,7 @@ import { RecordValidations } from './recordValidations'
 import { Records } from './records'
 import { Surveys } from '../survey'
 import { Validations } from '../validation'
+import { NodeFactory } from '../node'
 
 let user: User
 
@@ -342,5 +343,74 @@ describe('RecordUpdater - node delete', () => {
     record = (await RecordUpdater.deleteNode({ user, survey, record, nodeUuid: entityToDelete.uuid })).record
 
     expect(Validations.isValid(Validations.getValidation(record))).toBe(true)
+  })
+
+  test('Entity deletion with side effect: nodes deleted include only the deleted nodes', async () => {
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        entityDef('mult_entity', integerDef('mult_entity_id').key()).multiple(),
+        integerDef('mult_entity_count').readOnly().defaultValue('count(mult_entity)')
+      )
+    ).build()
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        entity('mult_entity', attribute('mult_entity_id', 1)),
+        entity('mult_entity', attribute('mult_entity_id', 2)),
+        attribute('mult_entity_count', 2)
+      )
+    ).build()
+
+    const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.mult_entity[1]' })
+
+    const {
+      nodes,
+      nodesDeleted,
+      record: recordUpdated,
+    } = await RecordUpdater.deleteNode({
+      user,
+      survey,
+      record,
+      nodeUuid: nodeToDelete.uuid,
+      sideEffect: true,
+    })
+
+    const getNames = (nodesMap: object) => Object.values(nodesMap).map(TestUtils.getNodeName({ survey })).sort()
+    expect(getNames(nodesDeleted)).toEqual(['mult_entity', 'mult_entity_id'])
+    expect(getNames(nodes)).toEqual(['mult_entity', 'mult_entity_count', 'mult_entity_id'])
+    expect(
+      TestUtils.getNodeByPath({ survey, record: recordUpdated, path: 'root_entity.mult_entity_count' }).value
+    ).toBe(1)
+  })
+
+  test('Records.removeNode / addNode with missing nodes index: index built from all the record nodes', async () => {
+    const { survey, record } = await createSurveyAndRecordWithMultipleEntities()
+    const multEntityDef = Surveys.getNodeDefByName({ survey, name: 'mult_entity' })
+    const root = Records.getRoot(record)!
+
+    // remove
+    const recordWithoutIndex1 = { ...record, _nodesIndex: undefined }
+    const entityToDelete = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.mult_entity[1]' })
+    const { record: recordAfterRemove } = Records.removeNode(entityToDelete.uuid)(recordWithoutIndex1)
+    expect(Records.getChildren(root, multEntityDef.uuid)(recordAfterRemove)).toHaveLength(1)
+    const identifierDef = Surveys.getNodeDefByName({ survey, name: 'identifier' })
+    expect(Records.getChildren(root, identifierDef.uuid)(recordAfterRemove)).toHaveLength(1)
+
+    // add
+    const recordWithoutIndex2 = { ...record, _nodesIndex: undefined }
+    const newEntity = NodeFactory.createInstance({
+      nodeDefUuid: multEntityDef.uuid,
+      recordUuid: record.uuid,
+      parentNode: root,
+    })
+    const recordAfterAdd = Records.addNode(newEntity)(recordWithoutIndex2)
+    expect(Records.getChildren(root, multEntityDef.uuid)(recordAfterAdd)).toHaveLength(3)
   })
 })
