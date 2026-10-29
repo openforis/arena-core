@@ -9,6 +9,20 @@ import {
   MemberExpression,
 } from '../../node'
 import { getGlobalObjectProperty } from '../global'
+import { REG_EXP_INPUT_MAX_LENGTH } from '../regExpSafety'
+
+// e.g. /.../.test(text) or text.match(/.../): the time taken by a regular expression grows with the input length
+const checkRegExpInputLength = (fnObject: any, args: any[]): void => {
+  const values = [fnObject, ...args]
+  if (!values.some((value) => value instanceof RegExp)) return
+  const inputTooLong = values.find((value) => typeof value === 'string' && value.length > REG_EXP_INPUT_MAX_LENGTH)
+  if (inputTooLong !== undefined) {
+    throw new SystemError(SystemErrorKeys.expression.regularExpressionInputTooLong, {
+      maxLength: REG_EXP_INPUT_MAX_LENGTH,
+      length: inputTooLong.length,
+    })
+  }
+}
 
 export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, CallExpression> {
   async evaluate(expressionNode: CallExpression): Promise<any> {
@@ -35,6 +49,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
       const fnObject = await this.evaluator.evaluateNode(calleeObj, this.context)
       const argsEvaluated = await Promise.all(exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context)))
       const args = argsEvaluated.flat()
+      checkRegExpInputLength(fnObject, args)
       return fn.call(fnObject, ...args)
     }
     return null
