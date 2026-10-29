@@ -105,6 +105,8 @@ describe('NodeDefExpressionValidator', () => {
       validationResult: true,
       referencedNodeDefNames: ['remarks'],
     },
+    // regular expressions that could take exponential time
+    { expression: '/^(a+)+$/.test(remarks)', validationResult: false },
     // properties leading to Object, Function or prototypes are not accessible
     { expression: 'Math.constructor', validationResult: false },
     { expression: 'remarks.__proto__', validationResult: false },

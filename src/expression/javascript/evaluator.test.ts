@@ -75,6 +75,8 @@ const queries: Query[] = [
     expression: '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid())',
     result: true,
   },
+  // regular expressions applied to strings up to the max length
+  { expression: `/^a+$/.test('${'a'.repeat(1000)}')`, result: true },
   // properties leading to Object, Function or prototypes are not accessible
   { expression: 'Math.constructor', error: true },
   { expression: `'a'.constructor`, error: true },
@@ -102,6 +104,16 @@ describe('JavascriptExpressionEvaluator test', () => {
         await run()
       }
     })
+  })
+})
+
+describe('JavascriptExpressionEvaluator regular expressions safety', () => {
+  test.each([
+    ['/^(a+)+$/.test("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!")', 'expression.unsafeRegularExpression'],
+    [`/^a+$/.test('${'a'.repeat(1001)}')`, 'expression.regularExpressionInputTooLong'],
+    [`'${'a'.repeat(1001)}'.match(/b/)`, 'expression.regularExpressionInputTooLong'],
+  ])('unsafe regular expression or input %# rejected', async (expression, errorKey) => {
+    await expect(new JavascriptExpressionEvaluator().evaluate(expression)).rejects.toMatchObject({ key: errorKey })
   })
 })
 
