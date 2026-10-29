@@ -199,8 +199,29 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
 
   protected combineInnerJobsErrors(): Record<string, any> {
     const errors: Record<string, any> = {}
-    this.innerJobs.forEach((innerJob) => Object.assign(errors, innerJob.errors ?? {}))
+    this.innerJobs.forEach((innerJob) => JobBase.mergeInnerJobErrors(errors, innerJob))
     return errors
+  }
+
+  /**
+   * Adds the errors of the inner job to the specified errors.
+   * Error keys already in use (e.g. the same item number used by two inner jobs) are prefixed with the inner job type
+   * (and suffixed with a counter if still in use), so that no error gets overwritten.
+   */
+  private static mergeInnerJobErrors(errors: Record<string, any>, innerJob: JobBase<any, any>): void {
+    Object.entries(innerJob.errors ?? {}).forEach(([key, error]) => {
+      let uniqueKey = key
+      if (uniqueKey in errors) {
+        const prefixedKey = `${innerJob.type} ${key}`
+        uniqueKey = prefixedKey
+        let count = 2
+        while (uniqueKey in errors) {
+          uniqueKey = `${prefixedKey} (${count})`
+          count += 1
+        }
+      }
+      errors[uniqueKey] = error
+    })
   }
 
   async cancel(options: { canceledByAdmin?: boolean } = {}): Promise<void> {
@@ -379,6 +400,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       this.innerJobs.some((innerJob) => innerJob.isFailed())
     ) {
       // set only after all inner jobs have run: setting it at the first failure would end this job (onEnd) too early
+      await this.runBeforeEnd()
       await this.setStatus(JobStatus.failed)
     }
 
@@ -435,13 +457,22 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     const { status } = event
     if (status === JobStatus.canceled) {
       this.canceledByAdmin = this.getCurrentInnerJob()?.canceledByAdmin ?? false
+      // beforeEnd must run before onEnd (it runs only once: it won't run again when the execution ends)
+      await this.runBeforeEnd()
       return this.setStatus(status)
     }
     if (status === JobStatus.failed) {
       // report the errors of the failed inner job in the failed event (and in the errors) of this job
-      Object.assign(this.errors, this.getCurrentInnerJob()?.errors ?? {})
+      const currentInnerJob = this.getCurrentInnerJob()
+      if (currentInnerJob) {
+        JobBase.mergeInnerJobErrors(this.errors, currentInnerJob)
+      }
       // when not stopping on inner job failures, this job is set as failed after all the inner jobs have run
-      return this.stopOnInnerJobFailure ? this.setStatus(status) : undefined
+      if (this.stopOnInnerJobFailure) {
+        await this.runBeforeEnd()
+        await this.setStatus(status)
+      }
+      return
     }
     if (status === JobStatus.running) {
       this.notifyEvent({
@@ -587,6 +618,9 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
    * progress does not flood consumers (e.g. web socket clients).
    */
   private notifyProgress(): void {
+    // onEnd has already cleared the throttle: no progress events after the job has ended
+    if (this.isEnded()) return
+
     const run = (): void => {
       this.progressThrottleTimeoutId = undefined
       this.progressThrottleLastRunTime = Date.now()
