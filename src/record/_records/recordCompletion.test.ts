@@ -156,6 +156,32 @@ describe('RecordCompletion', () => {
     expect(Records.getRecordCompletionPercent({ survey, record: recordWithEmptyPlot })).toBeCloseTo((1 / 2) * 100, 2)
   })
 
+  test('multiple entity completion does not iterate over the missing instances of a big min count', async () => {
+    const user = createTestAdminUser()
+    // min count can come from an expression on an attribute value (e.g. a big integer key)
+    const minCount = 1_000_000_000
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'cluster',
+        integerDef('cluster_id').key().required(),
+        entityDef('plot', integerDef('plot_id').required()).multiple().minCount(String(minCount))
+      )
+    ).build()
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity('cluster', attribute('cluster_id', 10), entity('plot', attribute('plot_id', 1)))
+    ).build()
+
+    const startTime = Date.now()
+    const stats = Records.getEntityCompletionStats({ survey, record, entity: Records.getRoot(record)! })
+
+    // total units: cluster_id (1) + plot[0] (1) + missing plots (minCount - 1)
+    expect(stats).toEqual({ total: minCount + 1, filled: 2 })
+    expect(Date.now() - startTime).toBeLessThan(200)
+  })
+
   test('own entity completion ignores nested entities', async () => {
     const user = createTestAdminUser()
     const survey = await new SurveyBuilder(
