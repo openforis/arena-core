@@ -60,19 +60,14 @@ const getChildEntityCompletionStats = (params: {
 
   const minCountRaw = Nodes.getChildrenMinCount({ parentNode: parentEntity, nodeDef })
   const minCount = Number.isNaN(minCountRaw) ? 0 : Math.max(minCountRaw, 0)
-  // entities added beyond the min count are still expected to be complete
-  const expectedCount = Math.max(minCount, childEntities.length)
-  if (expectedCount === 0) return emptyStats()
 
   const stats = emptyStats()
-  for (let index = 0; index < expectedCount; index++) {
-    const childEntity = childEntities[index]
-    // a missing repetition (below the min count) counts as a single incomplete unit
-    addStats(
-      stats,
-      childEntity ? getEntityCompletionStats({ survey, record, entity: childEntity }) : { total: 1, filled: 0 }
-    )
+  // entities added beyond the min count are still expected to be complete
+  for (const childEntity of childEntities) {
+    addStats(stats, getEntityCompletionStats({ survey, record, entity: childEntity }))
   }
+  // a missing repetition (below the min count) counts as a single incomplete unit
+  stats.total += Math.max(minCount - childEntities.length, 0)
   return stats
 }
 
