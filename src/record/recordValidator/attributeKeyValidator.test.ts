@@ -13,7 +13,7 @@ import { RecordUpdater } from '../recordUpdater'
 import { Records } from '../records'
 import { RecordValidator } from './index'
 
-const { entityDef, integerDef } = SurveyObjectBuilders
+const { entityDef, integerDef, textDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
 let user: User
@@ -130,5 +130,76 @@ describe('AttributeKeyValidator - duplicate entity keys', () => {
     } finally {
       isValueEqualSpy.mockRestore()
     }
+  })
+
+  test('checking duplicate entities does not compare the keys of every entity with the ones of all the siblings', async () => {
+    const tablesCount = 200
+    // unique keys except table[0] and table[199]
+    const record = buildRecord(
+      Array.from({ length: tablesCount }, (_t, index) => (index === tablesCount - 1 ? 1 : index + 1))
+    )
+    const isValueEqualSpy = jest.spyOn(NodeValues, 'isValueEqual')
+    try {
+      const validation = await RecordValidator.validateRecord({ user, survey, record })
+      const recordValidated = { ...record, validation }
+      expect(isKeyValid({ record: recordValidated, path: 'table[0].table_id' })).toBeFalsy()
+      expect(isKeyValid({ record: recordValidated, path: `table[${tablesCount - 1}].table_id` })).toBeFalsy()
+      expect(isKeyValid({ record: recordValidated, path: 'table[1].table_id' })).toBeTruthy()
+      // duplicate check comparisons (without parentNode): 39800 when comparing every entity with all its siblings
+      const duplicateCheckComparisons = isValueEqualSpy.mock.calls.filter(([params]) => !params.parentNode)
+      expect(duplicateCheckComparisons.length).toBeLessThanOrEqual(tablesCount)
+    } finally {
+      isValueEqualSpy.mockRestore()
+    }
+  })
+})
+
+describe('AttributeKeyValidator - duplicate entity composite keys', () => {
+  let compositeKeySurvey: Survey
+
+  beforeAll(async () => {
+    user = createTestAdminUser()
+    compositeKeySurvey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'root_entity',
+        integerDef('identifier').key(),
+        entityDef('tree', integerDef('tree_id').key(), textDef('stem').key()).multiple()
+      )
+    ).build()
+  }, 10000)
+
+  test('entities are duplicate only if all the key values are equal', async () => {
+    // tree_id and stem of every tree; duplicates: tree[1] and tree[48] (1, 'b'), tree[2] and tree[49] ('1' vs 1, 'c')
+    const treeKeys: [any, any][] = Array.from({ length: 50 }, (_t, index) => [index + 10, 'a'])
+    treeKeys[0] = [1, 'a']
+    treeKeys[1] = [1, 'b']
+    treeKeys[2] = [1, 'c']
+    treeKeys[3] = [2, 'b']
+    treeKeys[47] = [1, null]
+    treeKeys[48] = [1, 'b']
+    treeKeys[49] = ['1', 'c']
+    const record = new RecordBuilder(
+      user,
+      compositeKeySurvey,
+      entity(
+        'root_entity',
+        attribute('identifier', 10),
+        ...treeKeys.map(([treeId, stem]) => entity('tree', attribute('tree_id', treeId), attribute('stem', stem)))
+      )
+    ).build()
+    const validation = await RecordValidator.validateRecord({ user, survey: compositeKeySurvey, record })
+    const recordValidated = { ...record, validation }
+
+    const duplicateTreeIndexes = treeKeys
+      .map((_keys, index) => index)
+      .filter((index) => {
+        const keyNode = TestUtils.getNodeByPath({ survey: compositeKeySurvey, record, path: `tree[${index}].tree_id` })
+        const valueValidation = Validations.getFieldValidation('value')(
+          Validations.getFieldValidation(keyNode.uuid)(Validations.getValidation(recordValidated))
+        )
+        return Validations.getErrors(valueValidation).some((error) => error.key === 'record.entity.keyDuplicate')
+      })
+    expect(duplicateTreeIndexes).toEqual([1, 2, 48, 49])
   })
 })
