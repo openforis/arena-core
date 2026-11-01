@@ -153,7 +153,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
 
     if (!contextObject) return undefined
 
-    // stop at the first match (same order as getReachableNodeDefs), without visiting all the reachable node defs
+    // stop at the first match, without visiting all the reachable node defs
     for (const reachableNodeDef of this.iterateReachableNodeDefs()) {
       if (reachableNodeDef.props.name === expressionNode.name) {
         return reachableNodeDef
@@ -163,15 +163,8 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
   }
 
   /**
-   * Get reachable node defs, i.e. the children of the node definition's ancestors.
-   * NOTE: The root node def is excluded, but it _should_ be an entity, so that is fine.
-   */
-  protected getReachableNodeDefs(): NodeDef<NodeDefType, NodeDefProps>[] {
-    return Array.from(this.iterateReachableNodeDefs())
-  }
-
-  /**
-   * Iterates over the reachable node defs (see getReachableNodeDefs), yielding every node def only once.
+   * Iterates over the reachable node defs, i.e. the actual context node def, the children of its ancestors
+   * (including the ones inside single entities) and the ancestors themselves, yielding every node def only once.
    */
   private *iterateReachableNodeDefs(): Generator<NodeDef<NodeDefType, NodeDefProps>> {
     const { context } = this
