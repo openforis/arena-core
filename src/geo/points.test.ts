@@ -58,6 +58,19 @@ describe('Points test', () => {
       expect(parsedToString).toBe(pointString)
     }
   })
+  test('parse coordinates in exponent notation', () => {
+    expect(Points.parse('SRID=4326;POINT(1e-7 -2.5E+21)')).toStrictEqual(
+      PointFactory.createInstance({ srs: '4326', x: 1e-7, y: -2.5e21 })
+    )
+  })
+  test('toString and parse roundtrip with very small or big coordinates', () => {
+    const point = PointFactory.createInstance({ srs: '4326', x: 1e-7, y: 5 })
+    const pointString = Points.toString(point)
+    expect(pointString).toBe('SRID=4326;POINT(1e-7 5)')
+    expect(Points.parse(pointString)).toStrictEqual(point)
+    const pointBig = PointFactory.createInstance({ srs: '4326', x: 1e21, y: -1e-10 })
+    expect(Points.parse(Points.toString(pointBig))).toStrictEqual(pointBig)
+  })
   test('validate valid coordinate', () => {
     const point = PointFactory.createInstance({ x: 144.50234, y: -6.321367 })
     const valid = Points.isValid(point)
