@@ -171,6 +171,11 @@ export class FileProcessor {
         this.totalChunks = Math.ceil(fileSize / this.chunkSize)
         if (this.totalChunks > 0) {
           this.processNextChunk()
+        } else {
+          // empty file: nothing to process, complete immediately (callers wait for onComplete)
+          this.running = false
+          this.completed = true
+          this.onComplete?.()
         }
       })
       .catch((error) => {
