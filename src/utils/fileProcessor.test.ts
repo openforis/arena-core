@@ -431,7 +431,7 @@ describe('FileProcessor', () => {
       }, 200)
     })
 
-    test('should handle empty file', (done) => {
+    test('should complete immediately on empty file', (done) => {
       const file = new File([], 'test.txt', { type: 'text/plain' })
       const chunkProcessor = createChunkProcessorMock()
       const onComplete = jest.fn()
@@ -447,7 +447,10 @@ describe('FileProcessor', () => {
 
       setTimeout(() => {
         expect(chunkProcessor).not.toHaveBeenCalled()
-        expect(onComplete).not.toHaveBeenCalled()
+        // callers wait for onComplete: it must be called also when there are no chunks to process
+        expect(onComplete).toHaveBeenCalledTimes(1)
+        expect(onComplete).toHaveBeenCalledWith()
+        expect((processor as any).running).toBe(false)
         done()
       }, 100)
     })
