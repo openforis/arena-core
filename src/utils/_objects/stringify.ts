@@ -21,12 +21,9 @@ export const stringify = (
 ): string | null => {
   if (isNil(object)) return null
 
-  const replacer = (key: string, value: any): any => {
+  const replacer = (_key: string, value: any): any => {
     if (isNil(value)) return null
 
-    if (isNil(key)) {
-      return stringify(value)
-    }
     if (value.constructor === Map)
       return {
         [StringifyKeys.type]: 'Map',
