@@ -1,8 +1,9 @@
 import { isEmpty } from './isEmpty'
+import { shallowCopy } from './shallowCopy'
 
 export const dissocPath = <T extends object>(params: { obj: T; path: string[]; sideEffect?: boolean }): T => {
   const { obj, path, sideEffect = false } = params
-  const objUpdated = sideEffect ? obj : { ...obj }
+  const objUpdated = sideEffect ? obj : shallowCopy(obj)
 
   if (path.length === 0) {
     return objUpdated

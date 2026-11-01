@@ -1,6 +1,8 @@
+import { shallowCopy } from './shallowCopy'
+
 const _assocPath = (obj: any, path: string[], pathIndex: number, value: any, sideEffect: boolean): any => {
   // only one copy per path level (when sideEffect is false)
-  const objUpdated = sideEffect ? obj : { ...obj }
+  const objUpdated = sideEffect ? obj : shallowCopy(obj)
   if (pathIndex >= path.length) return objUpdated
 
   const pathPart = path[pathIndex]
