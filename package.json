@@ -24,10 +24,10 @@
     "@jest/globals": "^30.5.2",
     "@types/jest": "^30.0.0",
     "@types/lodash.isequal": "^4.5.8",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/proj4": "^2.19.0",
-    "@typescript-eslint/eslint-plugin": "^8",
-    "@typescript-eslint/parser": "^8",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
     "@typescript/native": "npm:typescript@7.0.2",
     "eslint": "^10.13.0",
     "eslint-plugin-no-explicit-type-exports": "^0.12.1",
@@ -38,7 +38,7 @@
     "prettier": "^3.9.10",
     "ts-jest": "^29.4.15",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "typescript-eslint": "^8"
+    "typescript-eslint": "^8.72.1"
   },
   "dependencies": {
     "@jsep-plugin/regex": "^1.1.0",
