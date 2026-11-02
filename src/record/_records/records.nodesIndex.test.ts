@@ -161,6 +161,12 @@ describe('Record nodes index', () => {
     expect(Records.getNodeByUuid(plotIdNode.uuid)(recordUpdated)?.value).toBe(100)
   })
 
+  test('Record nodes index just built is stored even when there are no nodes to add', () => {
+    const { _nodesIndex: index, ...recordWithoutIndex } = record
+    const recordUpdated = Records.addNodes(record.nodes ?? {})(recordWithoutIndex)
+    expect(recordUpdated._nodesIndex).toEqual(index)
+  })
+
   test('Record nodes index is updated when the parent of a node changes', () => {
     const plotIdDef = Surveys.getNodeDefByName({ survey, name: 'plot_id' })
     const plotNode2 = TestUtils.getNodeByPath({ survey, record, path: 'cluster.plot[1]' })

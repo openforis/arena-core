@@ -31,8 +31,12 @@ export const addNodes =
     } else {
       recordUpdated.nodes = { ...recordNodes, ...nodes }
     }
-    if (updateNodesIndex && Object.keys(nodesToIndex).length > 0) {
-      recordUpdated._nodesIndex = RecordNodesIndexUpdater.addNodes(nodesToIndex, { sideEffect, sortNodes })(index)
+    if (updateNodesIndex) {
+      // store the index even with no nodes to add: it could have just been built, avoid building it again
+      recordUpdated._nodesIndex =
+        Object.keys(nodesToIndex).length > 0
+          ? RecordNodesIndexUpdater.addNodes(nodesToIndex, { sideEffect, sortNodes })(index)
+          : index
     }
     return recordUpdated
   }
