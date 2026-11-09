@@ -89,6 +89,8 @@ export const canViewNotOwnedRecords = (user: User, surveyInfo: Survey): boolean 
   if (groupName === AuthGroupName.dataAnalyst) {
     return Surveys.isDataAnalystViewNotOwnedRecordsAllowed(surveyInfo)
   }
+  // survey guests can view (but not edit) all the records (restricted by user group qualifiers, if any)
+  if (groupName === AuthGroupName.surveyGuest) return true
   if (canExportAllRecords(user, surveyInfo)) return true
 
   return false
