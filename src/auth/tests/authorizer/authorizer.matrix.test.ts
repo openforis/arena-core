@@ -94,7 +94,15 @@ const surveyChecks: { name: string; check: (user: User, survey: Survey) => boole
     // data editors and data analysts: allowed by default survey security settings (see below)
     name: 'canViewNotOwnedRecords',
     check: Authorizer.canViewNotOwnedRecords,
-    authorized: [G.systemAdmin, G.surveyAdmin, G.surveyEditor, G.dataAnalyst, G.dataCleanser, G.dataEditor],
+    authorized: [
+      G.systemAdmin,
+      G.surveyAdmin,
+      G.surveyEditor,
+      G.dataAnalyst,
+      G.dataCleanser,
+      G.dataEditor,
+      G.surveyGuest,
+    ],
   },
   { name: 'canInviteUsers', check: Authorizer.canInviteUsers, authorized: [G.systemAdmin, G.surveyAdmin] },
   {
@@ -143,7 +151,7 @@ describe('Authorizer matrix - canViewNotOwnedRecords with survey security restri
       },
     },
   }
-  test.each(casesWithAuthorizedGroups([G.systemAdmin, G.surveyAdmin, G.surveyEditor, G.dataCleanser]))(
+  test.each(casesWithAuthorizedGroups([G.systemAdmin, G.surveyAdmin, G.surveyEditor, G.dataCleanser, G.surveyGuest]))(
     '%s => %s',
     (groupName, expected) => {
       expect(Authorizer.canViewNotOwnedRecords(createUser(groupName), surveyRestricted)).toBe(expected)
