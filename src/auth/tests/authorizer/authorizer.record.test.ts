@@ -62,5 +62,7 @@ describe('Authorizer - permission checks never throw', () => {
     expect(Authorizer.canViewSurvey(systemAdmin, noSurvey)).toBe(true)
     expect(Authorizer.canViewNotOwnedRecords(user, noSurvey)).toBe(false)
     expect(Authorizer.canViewNotOwnedRecords(systemAdmin, noSurvey)).toBe(false)
+    expect(Authorizer.canEditRecords(user, noSurvey)).toBe(false)
+    expect(Authorizer.canEditRecords(systemAdmin, noSurvey)).toBe(true)
   })
 })

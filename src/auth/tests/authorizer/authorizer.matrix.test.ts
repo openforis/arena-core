@@ -68,6 +68,11 @@ const surveyChecks: { name: string; check: (user: User, survey: Survey) => boole
     authorized: [G.systemAdmin, G.surveyAdmin, G.surveyEditor, G.dataAnalyst, G.dataCleanser, G.dataEditor],
   },
   {
+    name: 'canEditRecords',
+    check: Authorizer.canEditRecords,
+    authorized: [G.systemAdmin, G.surveyAdmin, G.surveyEditor, G.dataAnalyst, G.dataCleanser, G.dataEditor],
+  },
+  {
     name: 'canViewRecord',
     check: Authorizer.canViewRecord,
     authorized: [
