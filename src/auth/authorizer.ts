@@ -127,6 +127,9 @@ export const canEditRecord = (user: User, record: ArenaRecord, allowAnalysisStep
   return level === RecordStepPermission.all || (level === RecordStepPermission.own && ownerUuid === user.uuid)
 }
 
+// survey level: the user's role allows editing records (e.g. not survey guests); see canEditRecord for a specific record
+const canEditRecords = _hasSurveyPermission(Permission.recordEdit)
+
 const canChangeRecordProps = (user: User, record: ArenaRecord) => canEditRecord(user, record, true)
 
 const canDeleteRecord = canEditRecord
@@ -298,6 +301,7 @@ export const Authorizer = {
   canViewNotOwnedRecords,
   canExportRecordsList,
   canEditRecord,
+  canEditRecords,
   canDeleteRecord,
   canDemoteRecord,
   canChangeRecordOwner,
