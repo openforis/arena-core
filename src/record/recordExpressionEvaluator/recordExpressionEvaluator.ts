@@ -10,6 +10,8 @@ import { Taxon } from '../../taxonomy'
 import { Objects } from '../../utils'
 import { Records } from '../records'
 import { AreaOfInterestProvider } from '../../nodeDefExpressionEvaluator/areaOfInterestProvider'
+import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { RecordExpressionContext } from './context'
 import { recordExpressionFunctions } from './functions'
 import { RecordIdentifierEvaluator } from './node/identifier'
@@ -22,6 +24,8 @@ type ExpressionEvaluateParams = {
   prevCycleRecord?: ArenaRecord
   timezoneOffset?: number
   lang?: LanguageCode
+  categoryItemProvider?: CategoryItemProvider
+  taxonProvider?: TaxonProvider
   areaOfInterestProvider?: AreaOfInterestProvider
 }
 
