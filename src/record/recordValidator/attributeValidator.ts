@@ -159,10 +159,12 @@ const _validateNodeValidations =
     survey: Survey
     record: ArenaRecord
     nodeDef: NodeDef<NodeDefType, NodeDefProps>
+    categoryItemProvider?: CategoryItemProvider
+    taxonProvider?: TaxonProvider
     areaOfInterestProvider?: AreaOfInterestProvider
   }) =>
   async (_propName: string, node: ArenaRecordNode): Promise<ValidationResult> => {
-    const { user, survey, record, nodeDef, areaOfInterestProvider } = params
+    const { user, survey, record, nodeDef, categoryItemProvider, taxonProvider, areaOfInterestProvider } = params
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const validations = NodeDefs.getValidations(nodeDef)
@@ -172,6 +174,8 @@ const _validateNodeValidations =
       user,
       survey,
       record,
+      categoryItemProvider,
+      taxonProvider,
       areaOfInterestProvider,
       nodeCtx: node,
       expressions: validations.expressions,
