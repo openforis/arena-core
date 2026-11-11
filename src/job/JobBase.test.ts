@@ -445,6 +445,73 @@ test('rolls back the transaction when an inner job fails without throwing', asyn
   expect(wasCommitted()).toBe(false)
 })
 
+// client with a transaction that tells whether it is still open
+const createClientTrackingOpenTransaction = () => {
+  let transactionOpen = false
+  const createTx = (): any => ({ tx: async (fn: (tx: any) => Promise<void>) => fn(createTx()) })
+  const client = {
+    tx: async (fn: (tx: any) => Promise<void>) => {
+      transactionOpen = true
+      try {
+        await fn(createTx())
+      } finally {
+        transactionOpen = false
+      }
+    },
+  }
+  return { client, isTransactionOpen: () => transactionOpen }
+}
+
+class TestJobRecordingOnEnd extends TestJob {
+  onEndTransactionOpen: boolean[] = []
+  isTransactionOpen: () => boolean = () => false
+
+  protected async onEnd(): Promise<void> {
+    this.onEndTransactionOpen.push(this.isTransactionOpen())
+    await super.onEnd()
+  }
+}
+
+test('onEnd runs out of the transaction when an inner job fails', async () => {
+  const { client, isTransactionOpen } = createClientTrackingOpenTransaction()
+  const innerJob = new TestJob(createContext(), [], {
+    execute: async () => {
+      throw new Error('inner job failure')
+    },
+  })
+  const parentJob = new TestJobRecordingOnEnd(createContext(), [innerJob, new TestJob(createContext())])
+  parentJob.isTransactionOpen = isTransactionOpen
+  const statusEvents: JobStatus[] = []
+  parentJob.onEvent((event) => {
+    if (event.type === JobEventType.statusChange) statusEvents.push(event.status)
+  })
+
+  await parentJob.start(client)
+
+  expect(parentJob.isFailed()).toBe(true)
+  expect(parentJob.onEndTransactionOpen).toEqual([false])
+  expect(statusEvents).toEqual([JobStatus.running, JobStatus.failed])
+  expect(parentJob.errors).toEqual(innerJob.errors)
+})
+
+test('onEnd of a job canceled while running runs out of the transaction', async () => {
+  const { client, isTransactionOpen } = createClientTrackingOpenTransaction()
+  const job: TestJobRecordingOnEnd = new TestJobRecordingOnEnd(createContext(), [], {
+    execute: async () => {
+      await job.cancel()
+      // ended, but its onEnd waits for the transaction to end
+      expect(job.isCanceled()).toBe(true)
+      expect(job.onEndTransactionOpen).toEqual([])
+    },
+  })
+  job.isTransactionOpen = isTransactionOpen
+
+  await job.start(client)
+
+  expect(job.isCanceled()).toBe(true)
+  expect(job.onEndTransactionOpen).toEqual([false])
+})
+
 test('commits the transaction when the job succeeds', async () => {
   const { client, wasCommitted, wasRolledBack } = createTrackedClient()
   const job = new TestJob(createContext())
