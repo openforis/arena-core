@@ -1,11 +1,7 @@
-import { User } from '../../auth'
 import { Dictionary } from '../../common'
 import { Labels } from '../../language'
 import { ArenaRecordNode, NodeKeys, Nodes, NodeValues } from '../../node'
 import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
-import { AreaOfInterestProvider } from '../../nodeDefExpressionEvaluator/areaOfInterestProvider'
-import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
-import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Survey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { Objects } from '../../utils'
@@ -20,6 +16,10 @@ import { ValidationFields } from '../../validation/validation'
 import { NodePointers } from '../nodePointers'
 import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
+import {
+  RecordExpressionEvaluationContexts,
+  RecordExpressionEvaluationParams,
+} from '../recordNodesUpdater/recordExpressionEvaluationContext'
 import { evaluateRequiredIf } from '../recordNodesUpdater/recordNodeDependentsRequiredUpdater'
 import { Records } from '../records'
 import { RecordValidations } from '../recordValidations'
@@ -29,14 +29,8 @@ import { AttributeUniqueValidator } from './attributeUniqueValidator'
 
 const expressionEvaluator = new RecordExpressionEvaluator()
 
-export interface RecordValidatorParams {
-  user: User
-  survey: Survey
-  categoryItemProvider?: CategoryItemProvider
-  taxonProvider?: TaxonProvider
-  areaOfInterestProvider?: AreaOfInterestProvider
-  record: ArenaRecord
-}
+// the params of the record expression evaluator (validation expressions, required if)
+export type RecordValidatorParams = RecordExpressionEvaluationParams
 
 export interface AttributeValidatorParams extends RecordValidatorParams {
   attribute: ArenaRecordNode
@@ -154,29 +148,16 @@ const _validateRequired =
  * Evaluates the validation expressions.
  */
 const _validateNodeValidations =
-  (params: {
-    user: User
-    survey: Survey
-    record: ArenaRecord
-    nodeDef: NodeDef<NodeDefType, NodeDefProps>
-    categoryItemProvider?: CategoryItemProvider
-    taxonProvider?: TaxonProvider
-    areaOfInterestProvider?: AreaOfInterestProvider
-  }) =>
+  (params: RecordValidatorParams & { nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
   async (_propName: string, node: ArenaRecordNode): Promise<ValidationResult> => {
-    const { user, survey, record, nodeDef, categoryItemProvider, taxonProvider, areaOfInterestProvider } = params
+    const { survey, nodeDef } = params
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const validations = NodeDefs.getValidations(nodeDef)
     if (!validations?.expressions?.length) return ValidationResultFactory.createInstance()
 
     const applicableExpressionsEval = await expressionEvaluator.evalApplicableExpressions({
-      user,
-      survey,
-      record,
-      categoryItemProvider,
-      taxonProvider,
-      areaOfInterestProvider,
+      ...RecordExpressionEvaluationContexts.extractEvaluationParams(params),
       nodeCtx: node,
       expressions: validations.expressions,
       stopAtFirstFound: false,
