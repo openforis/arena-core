@@ -78,6 +78,10 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   private beforeEndCalled = false
   // inner job events are handled in sequence; executeJobs waits for them before going on
   private innerJobEventsQueue: Promise<void> = Promise.resolve()
+  // true while the job is executing in its own transaction: onEnd must run out of it
+  private executingInTransaction = false
+  // status change event of a job ended while executing in its transaction (e.g. when an inner job fails)
+  private deferredEndEvent: JobEvent | null = null
 
   public constructor(context: C, innerJobs: JobBase<C, any>[] = []) {
     this.context = { ...context }
@@ -268,14 +272,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     this.logDebug('start')
 
     try {
-      if (client) {
-        await client.tx(async (tx: any) => {
-          this.context.tx = tx
-          await this.executeInTransaction()
-        })
-      } else {
-        await this.executeInTransaction()
-      }
+      await this.executeInOwnTransaction(client)
       if (!this.isCancelRequestedOrNotRunning()) {
         await this.setStatus(JobStatus.succeeded)
       }
@@ -289,6 +286,25 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       }
     } finally {
       this.context.tx = undefined
+    }
+  }
+
+  private async executeInOwnTransaction(client: JobTxClient | null): Promise<void> {
+    this.executingInTransaction = true
+    try {
+      if (client) {
+        await client.tx(async (tx: any) => {
+          this.context.tx = tx
+          await this.executeInTransaction()
+        })
+      } else {
+        await this.executeInTransaction()
+      }
+    } finally {
+      this.executingInTransaction = false
+      // the job ended while executing (e.g. an inner job failed, or it was canceled): onEnd runs now, out of the
+      // transaction (onEnd can use other connections, e.g. to delete data locked by the transaction)
+      await this.endDeferred()
     }
   }
 
@@ -441,6 +457,15 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
       event.errors = this.errors
     }
 
+    if (this.isEnded() && this.executingInTransaction) {
+      // onEnd (and the event notifying the end) run when the transaction has ended
+      this.deferredEndEvent = event
+      return
+    }
+    await this.end(event)
+  }
+
+  private async end(event: JobEvent): Promise<void> {
     if (this.isEnded()) {
       this.logDebug('onEnd...')
       await this.onEnd()
@@ -448,6 +473,13 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     }
 
     this.notifyEvent(event)
+  }
+
+  private async endDeferred(): Promise<void> {
+    const event = this.deferredEndEvent
+    if (!event) return
+    this.deferredEndEvent = null
+    await this.end(event)
   }
 
   /**
