@@ -8,12 +8,13 @@ import { User } from '../../auth'
 import { CategoryItem, CategoryItemFactory } from '../../category'
 import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { ExtraPropDataType } from '../../extraProp'
+import { LanguageCode } from '../../language'
 import { Surveys } from '../../survey'
 import { Validations } from '../../validation'
 import { RecordValidations } from '../recordValidations'
 import { RecordValidator } from './index'
 
-const { category, categoryItem, codeDef, entityDef, textDef } = SurveyObjectBuilders
+const { category, categoryItem, codeDef, entityDef, integerDef, textDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
 let user: User
@@ -77,5 +78,36 @@ describe('Attribute validator - validation expressions', () => {
     })
     const plotIdValidation = RecordValidations.getValidationNode({ nodeUuid: plotIdNode.uuid })(validation)
     expect(Validations.isValid(plotIdValidation)).toBe(true)
+  })
+
+  test('validation expressions are evaluated with all the evaluation params (e.g. lang)', async () => {
+    const survey = await new SurveyBuilder(
+      user,
+      entityDef(
+        'plot',
+        integerDef('plot_id').key(),
+        integerDef('trees').validationExpressions(`numberToWords(this) == 'dix'`)
+      )
+    ).build()
+
+    const record = new RecordBuilder(
+      user,
+      survey,
+      entity('plot', attribute('plot_id', 1), attribute('trees', 10))
+    ).build()
+    const treesNode = TestUtils.getNodeByPath({ survey, record, path: 'plot.trees' })
+
+    const validateTrees = async (lang: LanguageCode) => {
+      const validation = await RecordValidator.validateNodes({
+        user,
+        survey,
+        record,
+        nodes: { [treesNode.uuid]: treesNode },
+        lang,
+      })
+      return Validations.isValid(RecordValidations.getValidationNode({ nodeUuid: treesNode.uuid })(validation))
+    }
+    expect(await validateTrees(LanguageCode.fr)).toBe(true)
+    expect(await validateTrees(LanguageCode.en)).toBe(false)
   })
 })
