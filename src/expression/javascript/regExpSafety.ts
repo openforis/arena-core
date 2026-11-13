@@ -103,7 +103,7 @@ const createGroupState = (source: string, contentStartIndex: number): GroupState
 const hasAmbiguousAlternatives = (group: GroupState): boolean => {
   const { alternativesFirstChars } = group
   if (alternativesFirstChars.length < 2) return false
-  if (alternativesFirstChars.some((char) => char === null)) return true
+  if (alternativesFirstChars.includes(null)) return true
   return new Set(alternativesFirstChars).size < alternativesFirstChars.length
 }
 
@@ -119,7 +119,7 @@ const closeGroup = (source: string, index: number, groupsStack: GroupState[]): b
   if ((group.quantified || ambiguous) && isUnboundedQuantifierAt(source, index + 1)) {
     return true
   }
-  const parent = groupsStack[groupsStack.length - 1]
+  const parent = groupsStack.at(-1)
   if (parent) {
     parent.quantified = parent.quantified || group.quantified || isQuantifierAt(source, index + 1)
     // the parent group could be repeated
@@ -155,7 +155,7 @@ export const isUnsafeRegExpSource = (source: string): boolean => {
         break
       }
       case '|': {
-        groupsStack[groupsStack.length - 1]?.alternativesFirstChars.push(getAlternativeFirstChar(source, i + 1))
+        groupsStack.at(-1)?.alternativesFirstChars.push(getAlternativeFirstChar(source, i + 1))
         i += 1
         break
       }
@@ -164,7 +164,7 @@ export const isUnsafeRegExpSource = (source: string): boolean => {
         i += 1
         break
       default: {
-        const group = groupsStack[groupsStack.length - 1]
+        const group = groupsStack.at(-1)
         if (group && isQuantifierAt(source, i)) {
           group.quantified = true
         }
