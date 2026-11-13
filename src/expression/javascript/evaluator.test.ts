@@ -124,6 +124,11 @@ describe('JavascriptExpressionEvaluator regular expressions safety', () => {
     [`'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!'.match('(a+)+$')`, 'expression.unsafeRegularExpression'],
     [`'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!'.matchAll('(a+)+$')`, 'expression.unsafeRegularExpression'],
     [`'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!'.search('(a+)+$')`, 'expression.unsafeRegularExpression'],
+    // overlapping alternatives
+    ['/^(a|aa)+$/.test("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!")', 'expression.unsafeRegularExpression'],
+    [`'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!'.match('^(a|aa)+$')`, 'expression.unsafeRegularExpression'],
+    // repetitions with a high maximum
+    ['/^(a+){1,1000}$/.test("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!")', 'expression.unsafeRegularExpression'],
     [`'${'a'.repeat(1001)}'.match('b')`, 'expression.regularExpressionInputTooLong'],
     [`'${'a'.repeat(1001)}'.search('b')`, 'expression.regularExpressionInputTooLong'],
   ])('unsafe regular expression or input %# rejected', async (expression, errorKey) => {

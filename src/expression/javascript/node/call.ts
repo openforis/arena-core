@@ -10,7 +10,7 @@ import {
   MemberExpression,
 } from '../../node'
 import { getGlobalObjectProperty } from '../global'
-import { hasNestedQuantifiers, REG_EXP_INPUT_MAX_LENGTH } from '../regExpSafety'
+import { isUnsafeRegExpSource, REG_EXP_INPUT_MAX_LENGTH } from '../regExpSafety'
 
 // String functions converting a string argument into a regular expression (replace, replaceAll and split don't)
 const stringFunctionsWithRegExpArgument = new Set(['match', 'matchAll', 'search'])
@@ -27,7 +27,7 @@ const isRegExpStringPatternCall = (callee: MemberExpression, args: any[]): boole
 }
 
 const checkRegExpStringPattern = (pattern: string): void => {
-  if (hasNestedQuantifiers(pattern)) {
+  if (isUnsafeRegExpSource(pattern)) {
     throw new SystemError(SystemErrorKeys.expression.unsafeRegularExpression, { pattern })
   }
 }
