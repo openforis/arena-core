@@ -63,6 +63,43 @@ describe('Objects', () => {
     expect(obj).toEqual({ a: [1, 2] })
   })
 
+  test.each([false, true])(
+    'assocPath does not modify Object.prototype with "__proto__" in the path (sideEffect: %s)',
+    (sideEffect) => {
+      const obj: any = {}
+      Objects.assocPath({ obj, path: ['a', '__proto__', 'polluted'], value: 'yes', sideEffect })
+      const objectUpdated: any = Objects.assocPath({ obj, path: ['__proto__', 'polluted2'], value: 'yes', sideEffect })
+      expect(({} as any).polluted).toBeUndefined()
+      expect(({} as any).polluted2).toBeUndefined()
+      expect(Object.getPrototypeOf(objectUpdated)).toBe(Object.prototype)
+      // "__proto__" is set as an own property
+      expect(Object.hasOwn(objectUpdated, '__proto__')).toBeTruthy()
+      expect(objectUpdated['__proto__']).toEqual({ polluted2: 'yes' })
+    }
+  )
+
+  test.each([false, true])(
+    'assocPath does not modify Object with "constructor" in the path (sideEffect: %s)',
+    (sideEffect) => {
+      const obj: any = {}
+      const objectUpdated: any = Objects.assocPath({
+        obj,
+        path: ['constructor', 'prototype', 'polluted'],
+        value: 'yes',
+        sideEffect,
+      })
+      expect(({} as any).polluted).toBeUndefined()
+      expect((Object as any).prototype.polluted).toBeUndefined()
+      expect(objectUpdated.constructor).toEqual({ prototype: { polluted: 'yes' } })
+    }
+  )
+
+  test('assocPath with "__proto__" as value key with a value of type object does not change the prototype', () => {
+    const objectUpdated: any = Objects.assocPath({ obj: {}, path: ['__proto__'], value: { isAdmin: true } })
+    expect(objectUpdated.isAdmin).toBeUndefined()
+    expect(Object.getPrototypeOf(objectUpdated)).toBe(Object.prototype)
+  })
+
   test('camelize (no side effect)', () => {
     const objectA = { p_1: 'A', p_2: 'B', p_3: 5 }
     const objectAString = JSON.stringify(objectA)
