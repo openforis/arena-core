@@ -3,6 +3,7 @@ import { describe, test, expect } from '@jest/globals'
 import { NodeDefFactory } from './factory'
 import { NodeDefType } from './nodeDef'
 import { NodeDefs } from './nodeDefs'
+import { NodeDefFile, NodeDefFileProps, NodeDefFileType } from './types/file'
 import { NodeDefGeo, NodeDefGeoProps } from './types/geo'
 import { NodeDefTime, NodeDefTimeProps } from './types/time'
 
@@ -41,6 +42,21 @@ describe('NodeDefs.isPositionTracking', () => {
       props: { positionTracking: true } as NodeDefGeoProps,
     }) as NodeDefGeo
     expect(NodeDefs.isPositionTracking(nodeDef)).toBe(true)
+  })
+})
+
+describe('NodeDefs.isScreenCaptureInMapAllowed', () => {
+  test('is false when screenCaptureInMapAllowed prop is not set', () => {
+    const nodeDef = NodeDefFactory.createInstance({ type: NodeDefType.file }) as NodeDefFile
+    expect(NodeDefs.isScreenCaptureInMapAllowed(nodeDef)).toBe(false)
+  })
+
+  test('is true when screenCaptureInMapAllowed prop is true', () => {
+    const nodeDef = NodeDefFactory.createInstance({
+      type: NodeDefType.file,
+      props: { fileType: NodeDefFileType.image, screenCaptureInMapAllowed: true } as NodeDefFileProps,
+    }) as NodeDefFile
+    expect(NodeDefs.isScreenCaptureInMapAllowed(nodeDef)).toBe(true)
   })
 })
 
