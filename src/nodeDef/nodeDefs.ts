@@ -172,6 +172,7 @@ const getFileType = (nodeDef: NodeDefFile): NodeDefFileType | undefined => nodeD
 const getFileNameExpression = (nodeDef: NodeDefFile): string | undefined => nodeDef.propsAdvanced?.fileNameExpression
 const getFileMaxSize = (nodeDef: NodeDefFile): number | undefined => nodeDef.props.maxFileSize
 const isGeotagInformationShown = (nodeDef: NodeDefFile): boolean => !!nodeDef.props.geotagInformationShown
+const isScreenCaptureInMapAllowed = (nodeDef: NodeDefFile): boolean => !!nodeDef.props.screenCaptureInMapAllowed
 
 // geo
 const isPositionTracking = (nodeDef: NodeDefGeo): boolean => !!nodeDef.props.positionTracking
@@ -372,6 +373,7 @@ export const NodeDefs = {
   getFileType,
   getFileMaxSize,
   isGeotagInformationShown,
+  isScreenCaptureInMapAllowed,
   isPositionTracking,
   isSecondsIncluded,
   getTaxonomyUuid,
