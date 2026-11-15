@@ -3,6 +3,16 @@ export { NodePointers } from './nodePointers'
 export type { ArenaRecord, Record } from './record'
 export { RECORD_STEP_DEFAULT } from './record'
 
+export type { RecordStep } from './recordStep'
+export {
+  RecordStepAnalysisCode,
+  RecordStepCleansingCode,
+  RecordStepEntryCode,
+  RecordStepNames,
+  RecordSteps,
+  RecordStepsList,
+} from './recordStep'
+
 export { Records } from './records'
 export type { RecordUpdateOptions } from './records'
 
