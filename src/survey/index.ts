@@ -14,6 +14,7 @@ export type {
   SurveyDocImageProps,
   SurveyFile,
   SurveyFileProps,
+  SurveyNodeDefsIndex,
   SurveyProps,
   SurveySecurity,
 } from './survey'

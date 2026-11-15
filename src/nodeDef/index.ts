@@ -10,8 +10,10 @@ export type {
   NodeDefLayout,
   NodeDefValidations,
   NodeDefMap,
+  NodeDefCountExpression,
+  NodeDefExpressionFactoryParams,
 } from './nodeDef'
-export { NodeDefCountType, NodeDefType } from './nodeDef'
+export { NodeDefCountType, NodeDefExpressionFactory, NodeDefType } from './nodeDef'
 export { NodeDefs } from './nodeDefs'
 
 export type { NodeDefService } from './service'
@@ -31,6 +33,7 @@ export type {
   NodeDefEntity,
   NodeDefEntityChildPosition,
   NodeDefEntityLayout,
+  NodeDefEntityLayoutChildItem,
   NodeDefEntityProps,
   NodeDefPrintOrientation,
 } from './types/entity'
