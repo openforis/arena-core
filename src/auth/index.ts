@@ -1,6 +1,6 @@
 export { Authorizer } from './authorizer'
 
-export { AuthGroupName } from './authGroup'
+export { AuthGroupName, createDefaultAuthGroups } from './authGroup'
 export type { AuthGroup } from './authGroup'
 
 export type {

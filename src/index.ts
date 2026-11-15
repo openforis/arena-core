@@ -1,6 +1,15 @@
 export type { AppInfo } from './app'
 
-export { Authorizer, AuthGroupName, UserStatus, Permission, UserTitle, UserFactory, Users } from './auth'
+export {
+  Authorizer,
+  AuthGroupName,
+  createDefaultAuthGroups,
+  UserStatus,
+  Permission,
+  UserTitle,
+  UserFactory,
+  Users,
+} from './auth'
 export type {
   AuthGroup,
   User,
@@ -136,6 +145,7 @@ export type {
 
 export {
   NodeDefCountType,
+  NodeDefExpressionFactory,
   NodeDefType,
   NodeDefFactory,
   NodeDefs,
@@ -168,6 +178,7 @@ export type {
   NodeDefEntity,
   NodeDefEntityChildPosition,
   NodeDefEntityLayout,
+  NodeDefEntityLayoutChildItem,
   NodeDefEntityProps,
   NodeDefPrintOrientation,
   NodeDefFile,
@@ -185,7 +196,9 @@ export type {
   NodeDefTextLayout,
   NodeDefTime,
   NodeDefTimeProps,
+  NodeDefCountExpression,
   NodeDefExpression,
+  NodeDefExpressionFactoryParams,
   NodeDefMap,
   NodeDefService,
   NodeDefValidations,
@@ -198,6 +211,12 @@ export {
   RecordFixer,
   Records,
   RECORD_STEP_DEFAULT,
+  RecordStepAnalysisCode,
+  RecordStepCleansingCode,
+  RecordStepEntryCode,
+  RecordStepNames,
+  RecordSteps,
+  RecordStepsList,
   RecordExpressionEvaluator,
   RecordNodesUpdater,
   RecordPrettyPrinter,
@@ -216,6 +235,7 @@ export type {
   RecordExpressionContext,
   RecordExpressionEvaluationContext,
   RecordService,
+  RecordStep,
   RecordUpdateOptions,
   RecordValidatorParams,
   SortedAttributesValidatorParams,
@@ -254,6 +274,7 @@ export type {
   SurveyFile,
   SurveyFileFactoryParams,
   SurveyFileProps,
+  SurveyNodeDefsIndex,
   SurveyProps,
   SurveyRefData,
   SurveySecurity,

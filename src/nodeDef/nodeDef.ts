@@ -71,7 +71,8 @@ export interface NodeDefExpression {
 
 export interface NodeDefExpressionFactoryParams {
   applyIf?: string
-  expression: string
+  expression?: string
+  messages?: Labels
   severity?: ValidationSeverity
 }
 
