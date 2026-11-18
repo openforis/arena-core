@@ -3,6 +3,9 @@ import { NodeDef, NodeDefLayout, NodeDefPropsWithLayout, NodeDefType } from '../
 export interface NodeDefEntityChildPosition {
   h?: number
   i: string
+  maxH?: number
+  minH?: number
+  minW?: number
   moved?: boolean
   static?: number
   w?: number

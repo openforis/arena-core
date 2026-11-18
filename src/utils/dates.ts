@@ -14,6 +14,7 @@ export enum DateFormats {
   timeStorage = 'HH:mm',
   timeWithSeconds = 'HH:mm:ss',
   datetimeDefault = 'YYYY-MM-DD_HH-mm-ss',
+  datetimeExport = 'YYYY-MM-DD HH:mm:ss', // exported files (e.g. CSV)
 }
 
 export enum UnitOfTime {
