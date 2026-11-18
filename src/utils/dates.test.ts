@@ -102,6 +102,7 @@ describe('Dates.convertDate', () => {
     ['14:30', DateFormats.timeStorage, DateFormats.timeWithSeconds, '14:30:00'],
     ['14:30:45', DateFormats.timeWithSeconds, DateFormats.timeStorage, '14:30'],
     ['2020-01-31_23-59-58', DateFormats.datetimeDefault, DateFormats.dateStorage, '2020-01-31'],
+    ['2020-01-31_23-59-58', DateFormats.datetimeDefault, DateFormats.datetimeExport, '2020-01-31 23:59:58'],
   ])('%s (%s) => %s: %s', (dateStr, formatFrom, formatTo, expected) => {
     // the result must not depend on the time zone of the machine
     expect(Dates.convertDate({ dateStr, formatFrom, formatTo })).toBe(expected)
