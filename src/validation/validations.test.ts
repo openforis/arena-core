@@ -219,6 +219,15 @@ describe('Validations', () => {
       expect(Validations.isObjValid(recordInvalid)).toBe(false)
       expect(Validations.isObjValid(Validations.dissocValidation(recordInvalid))).toBe(true)
     })
+
+    test('setFieldValidation / setFieldValidations / setErrors / setWarnings return the type of the object passed', () => {
+      const fieldValidation = makeValidation({ errors: [errorResult], valid: false })
+      // typed as Validation (not object): the result can be passed where a Validation is expected
+      const validation: Validation = Validations.setFieldValidation('field', fieldValidation)(makeValidation())
+      const validationWithErrors: Validation = Validations.setErrors([errorResult])(validation)
+      expect(Validations.getFieldValidation('field')(validationWithErrors)).toEqual(fieldValidation)
+      expect(Validations.getErrors(validationWithErrors)).toEqual([errorResult])
+    })
   })
 
   // ── getFieldValidation / getFieldValidations / getFieldValidationsByFields ─
