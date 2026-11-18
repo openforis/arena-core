@@ -1,6 +1,8 @@
 import { describe, expect, test } from '@jest/globals'
 
+import { UserFactory } from '../auth'
 import { LanguageCode } from '../language'
+import { ArenaRecord, RecordFactory } from '../record'
 import { ValidationFactory, ValidationResultFactory } from './factory'
 import { Validation, ValidationSeverity } from './validation'
 import { ValidationResults } from './validationResults'
@@ -205,6 +207,17 @@ describe('Validations', () => {
       const invalidObj = { validation: makeValidation({ errors: [errorResult], valid: false }) }
       expect(Validations.isObjValid(validObj)).toBe(true)
       expect(Validations.isObjValid(invalidObj)).toBe(false)
+    })
+
+    test('isObjValid / assocValidation / dissocValidation accept typed objects (interfaces without index signature)', () => {
+      const record: ArenaRecord = RecordFactory.createInstance({
+        surveyUuid: 'survey-uuid',
+        user: UserFactory.createInstance({ email: 'test@openforis-arena.org', name: 'test' }),
+      })
+      const invalidValidation = makeValidation({ errors: [errorResult], valid: false })
+      const recordInvalid = Validations.assocValidation(invalidValidation)(record)
+      expect(Validations.isObjValid(recordInvalid)).toBe(false)
+      expect(Validations.isObjValid(Validations.dissocValidation(recordInvalid))).toBe(true)
     })
   })
 
