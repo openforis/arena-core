@@ -268,6 +268,12 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     evaluateArgsToNodes: true,
     executor: emptyExecutor,
   },
+  nodeDateLastModified: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: emptyExecutor,
+  },
   now: {
     minArity: 0,
     maxArity: 0,
