@@ -68,7 +68,7 @@ const hasWarnings = (validation: Validation): boolean => {
 
 const isValid = (validation: Validation): boolean => Objects.isEmpty(validation) || validation.valid
 const isNotValid = (validation: Validation): boolean => !isValid(validation)
-const isObjValid = (obj: Record<string, unknown>): boolean => isValid(getValidation(obj))
+const isObjValid = (obj: object): boolean => isValid(getValidation(obj))
 
 const getCounts = (validation: Validation): ValidationCounts | undefined => validation?.counts
 const getErrorsCount = (validation: Validation): number => getCounts(validation)?.errors ?? 0
@@ -309,25 +309,32 @@ const mergeFieldValidations = (
 
 const setValid = (valid: boolean) => (obj: object) => Objects.setInPath({ obj, path: [keys.valid], value: valid })
 
-const setErrors = (errors: ValidationResult[]) => (obj: object) =>
-  Objects.setInPath({ obj, path: [keys.errors], value: errors })
+const setErrors =
+  (errors: ValidationResult[]) =>
+  <T extends object>(obj: T): T =>
+    Objects.setInPath({ obj, path: [keys.errors], value: errors })
 
-const setWarnings = (warnings: ValidationResult[]) => (obj: object) =>
-  Objects.setInPath({ obj, path: [keys.warnings], value: warnings })
+const setWarnings =
+  (warnings: ValidationResult[]) =>
+  <T extends object>(obj: T): T =>
+    Objects.setInPath({ obj, path: [keys.warnings], value: warnings })
 
-const setFieldValidations = (fieldValidations: ValidationFields) => (obj: object) =>
-  Objects.setInPath({ obj, path: [keys.fields], value: fieldValidations })
+const setFieldValidations =
+  (fieldValidations: ValidationFields) =>
+  <T extends object>(obj: T): T =>
+    Objects.setInPath({ obj, path: [keys.fields], value: fieldValidations })
 
-const setFieldValidation = (field: string, fieldValidation: Validation) => (obj: object) =>
-  Objects.setInPath({ obj, path: [keys.fields, field], value: fieldValidation })
+const setFieldValidation =
+  (field: string, fieldValidation: Validation) =>
+  <T extends object>(obj: T): T =>
+    Objects.setInPath({ obj, path: [keys.fields, field], value: fieldValidation })
 
 const assocFieldValidation = (field: string, fieldValidation: Validation) => (validation: Validation) =>
   cleanup(Objects.assocPath({ obj: validation, path: [keys.fields, field], value: fieldValidation }))
 
-const assocValidation = (v: Validation) => (obj: Record<string, unknown>) =>
-  Objects.assoc({ obj, prop: 'validation', value: v })
+const assocValidation = (v: Validation) => (obj: object) => Objects.assoc({ obj, prop: 'validation', value: v })
 
-const dissocValidation = (obj: Record<string, unknown>) => Objects.dissoc({ obj, prop: 'validation' })
+const dissocValidation = (obj: object) => Objects.dissoc({ obj, prop: 'validation' })
 
 export const Validations = {
   keys,
