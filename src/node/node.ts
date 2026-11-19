@@ -57,10 +57,16 @@ export interface NodeMeta {
   qualifierValueApplied?: boolean
 }
 
+/** Alias of NodeMeta, not clashing with the NodeMeta modules of the consumers. */
+export type ArenaRecordNodeMeta = NodeMeta
+
 export interface NodeRefData {
   categoryItem?: CategoryItem
   taxon?: Taxon
 }
+
+/** Alias of NodeRefData, not clashing with the NodeRefData modules of the consumers. */
+export type ArenaRecordNodeRefData = NodeRefData
 
 export interface ArenaRecordNode {
   dateCreated?: string

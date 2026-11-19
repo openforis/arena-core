@@ -1,10 +1,11 @@
 export { Authorizer } from './authorizer'
 
 export { AuthGroupName, createDefaultAuthGroups } from './authGroup'
-export type { AuthGroup } from './authGroup'
+export type { AuthGroup, ArenaAuthGroup } from './authGroup'
 
 export type {
   User,
+  ArenaUser,
   UserAuthGroup,
   UserAuthGroupProps,
   UserInvitation,
@@ -29,6 +30,12 @@ export { UserFactory } from './factory'
 
 export { Permission } from './permission'
 
-export type { UserGroupQualifier, UserGroupProps, UserGroup } from './userGroup'
+export type {
+  UserGroupQualifier,
+  ArenaUserGroupQualifier,
+  UserGroupProps,
+  UserGroup,
+  ArenaUserGroup,
+} from './userGroup'
 
 export { Users } from './users'

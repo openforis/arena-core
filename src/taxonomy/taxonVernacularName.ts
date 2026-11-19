@@ -6,3 +6,6 @@ export interface VernacularNameProps {
 }
 
 export type VernacularName = ArenaObject<VernacularNameProps>
+
+/** Alias of VernacularName, not clashing with the VernacularName modules of the consumers. */
+export type ArenaVernacularName = VernacularName

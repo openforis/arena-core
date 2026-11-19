@@ -23,3 +23,6 @@ export interface Chain extends ArenaObject<ChainProps> {
   validation: Validation
   temporary?: boolean
 }
+
+/** Alias of Chain, not clashing with the Chain modules of the consumers. */
+export type ArenaChain = Chain

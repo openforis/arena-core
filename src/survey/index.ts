@@ -7,12 +7,14 @@ export type { SurveyDocImageFactoryParams } from './surveyDocImageFactory'
 
 export type {
   Survey,
+  ArenaSurvey,
   SurveyCycle,
   SurveyDependencyGraph,
   SurveyDependency,
   SurveyDocImage,
   SurveyDocImageProps,
   SurveyFile,
+  ArenaSurveyFile,
   SurveyFileProps,
   SurveyNodeDefsIndex,
   SurveyProps,

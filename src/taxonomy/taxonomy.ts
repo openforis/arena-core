@@ -14,3 +14,6 @@ export interface Taxonomy extends ArenaObject<TaxonomyProps> {
   id?: number
   published?: boolean
 }
+
+/** Alias of Taxonomy, not clashing with the Taxonomy modules of the consumers. */
+export type ArenaTaxonomy = Taxonomy

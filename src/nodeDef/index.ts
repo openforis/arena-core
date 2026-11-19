@@ -2,13 +2,16 @@ export { NodeDefFactory } from './factory'
 
 export type {
   NodeDef,
+  ArenaNodeDef,
   NodeDefProps,
   NodeDefPropsWithLayout,
   NodeDefMeta,
   NodeDefPropsAdvanced,
   NodeDefExpression,
+  ArenaNodeDefExpression,
   NodeDefLayout,
   NodeDefValidations,
+  ArenaNodeDefValidations,
   NodeDefMap,
   NodeDefCountExpression,
   NodeDefExpressionFactoryParams,

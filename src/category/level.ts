@@ -9,3 +9,6 @@ export interface CategoryLevel extends ArenaObject<CategoryLevelProps> {
   id?: number
   index?: number
 }
+
+/** Alias of CategoryLevel, not clashing with the CategoryLevel modules of the consumers. */
+export type ArenaCategoryLevel = CategoryLevel

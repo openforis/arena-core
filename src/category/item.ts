@@ -15,3 +15,6 @@ export interface CategoryItem extends ArenaObject<CategoryItemProps> {
   parentUuid?: string
   published?: boolean
 }
+
+/** Alias of CategoryItem, not clashing with the CategoryItem modules of the consumers. */
+export type ArenaCategoryItem = CategoryItem

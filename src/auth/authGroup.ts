@@ -19,6 +19,9 @@ export interface AuthGroup {
   uuid?: string
 }
 
+/** Alias of AuthGroup, not clashing with the AuthGroup modules of the consumers. */
+export type ArenaAuthGroup = AuthGroup
+
 export const sortedGroupNames = [
   AuthGroupName.systemAdmin,
   AuthGroupName.surveyManager,

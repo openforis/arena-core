@@ -1,4 +1,4 @@
-export type { Chain, ChainProps } from './chain'
+export type { Chain, ArenaChain, ChainProps } from './chain'
 export { ChainStatusExec } from './chain'
 export { ChainFactory } from './chainFactory'
 export type { ChainService } from './chainService'

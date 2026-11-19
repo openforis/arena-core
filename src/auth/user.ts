@@ -53,3 +53,6 @@ export interface User extends ArenaObject<UserProps> {
   password?: string
   invitation?: UserInvitation
 }
+
+/** Alias of User, not clashing with the User modules of the consumers. */
+export type ArenaUser = User

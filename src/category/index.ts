@@ -1,9 +1,9 @@
-export type { Category, CategoryProps } from './category'
+export type { Category, ArenaCategory, CategoryProps } from './category'
 export { CategoryFactory, CategoryLevelFactory, CategoryItemFactory } from './factory'
 
-export type { CategoryItem, CategoryItemProps } from './item'
+export type { CategoryItem, ArenaCategoryItem, CategoryItemProps } from './item'
 
-export type { CategoryLevel, CategoryLevelProps } from './level'
+export type { CategoryLevel, ArenaCategoryLevel, CategoryLevelProps } from './level'
 
 export type { CategoryImportSummary, CategoryImportSummaryColumn } from './categoryImportSummary'
 

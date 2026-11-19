@@ -97,6 +97,9 @@ export type SurveyFile = {
   dateCreated: string
 }
 
+/** Alias of SurveyFile, not clashing with the SurveyFile modules of the consumers. */
+export type ArenaSurveyFile = SurveyFile
+
 export type SurveyDocImage = SurveyFile & {
   props: SurveyDocImageProps
 }
@@ -162,3 +165,6 @@ export interface Survey extends ArenaObject<SurveyProps> {
 
   nodeDefsIndex?: SurveyNodeDefsIndex
 }
+
+/** Alias of Survey, not clashing with the Survey modules of the consumers. */
+export type ArenaSurvey = Survey

@@ -12,7 +12,9 @@ export {
 } from './auth'
 export type {
   AuthGroup,
+  ArenaAuthGroup,
   User,
+  ArenaUser,
   UserAuthGroup,
   UserAuthGroupProps,
   AuthToken,
@@ -28,8 +30,10 @@ export type {
   UserTokenPayload,
   DownloadAuthTokenPayload,
   UserGroup,
+  ArenaUserGroup,
   UserGroupProps,
   UserGroupQualifier,
+  ArenaUserGroupQualifier,
   UserInvitation,
 } from './auth'
 
@@ -37,8 +41,11 @@ export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, Categor
 export type {
   CategoryItemProps,
   Category,
+  ArenaCategory,
   CategoryItem,
+  ArenaCategoryItem,
   CategoryLevel,
+  ArenaCategoryLevel,
   CategoryLevelProps,
   CategoryImportSummary,
   CategoryImportSummaryColumn,
@@ -53,6 +60,7 @@ export { Categories, CategoryItems } from './category'
 export { ChainFactory, ChainStatusExec, ChainNodeDefFactory } from './chain'
 export type {
   Chain,
+  ArenaChain,
   ChainProps,
   ChainService,
   ChainNodeDef,
@@ -133,8 +141,10 @@ export type {
   ArenaRecordNode,
   Node,
   NodeMeta,
+  ArenaRecordNodeMeta,
   NodePointer,
   NodeRefData,
+  ArenaRecordNodeRefData,
   NodeService,
   NodesMap,
   NodeValueCode,
@@ -161,6 +171,7 @@ export type { AreaOfInterestProvider, CategoryItemProvider, TaxonProvider } from
 
 export type {
   NodeDef,
+  ArenaNodeDef,
   NodeDefLayout,
   NodeDefMeta,
   NodeDefProps,
@@ -198,10 +209,12 @@ export type {
   NodeDefTimeProps,
   NodeDefCountExpression,
   NodeDefExpression,
+  ArenaNodeDefExpression,
   NodeDefExpressionFactoryParams,
   NodeDefMap,
   NodeDefService,
   NodeDefValidations,
+  ArenaNodeDefValidations,
 } from './nodeDef'
 
 export {
@@ -265,6 +278,7 @@ export {
 } from './survey'
 export type {
   Survey,
+  ArenaSurvey,
   SurveyCycle,
   SurveyDependency,
   SurveyDependencyGraph,
@@ -272,6 +286,7 @@ export type {
   SurveyDocImageFactoryParams,
   SurveyDocImageProps,
   SurveyFile,
+  ArenaSurveyFile,
   SurveyFileFactoryParams,
   SurveyFileProps,
   SurveyNodeDefsIndex,
@@ -287,11 +302,14 @@ export type {
   TaxonomyFactoryParams,
   TaxonFactoryParams,
   Taxonomy,
+  ArenaTaxonomy,
   TaxonomyService,
   VernacularNameProps,
   VernacularName,
+  ArenaVernacularName,
   TaxonProps,
   Taxon,
+  ArenaTaxon,
   TaxonomyProps,
   TaxonService,
 } from './taxonomy'
@@ -332,7 +350,9 @@ export type {
   DissocFieldValidationOptions,
   FieldValidator,
   Validation,
+  ArenaValidation,
   ValidationFields,
   ValidationResult,
+  ArenaValidationResult,
   ValidationCounts,
 } from './validation'

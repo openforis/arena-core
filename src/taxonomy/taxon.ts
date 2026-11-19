@@ -21,3 +21,6 @@ export interface Taxon extends ArenaObject<TaxonProps> {
   vernacularName?: string
   vernacularLang?: string
 }
+
+/** Alias of Taxon, not clashing with the Taxon modules of the consumers. */
+export type ArenaTaxon = Taxon

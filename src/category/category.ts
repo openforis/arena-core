@@ -12,3 +12,6 @@ export interface Category extends ArenaObject<CategoryProps> {
   levels: Dictionary<CategoryLevel>
   published?: boolean
 }
+
+/** Alias of Category, not clashing with the Category modules of the consumers. */
+export type ArenaCategory = Category

@@ -13,6 +13,9 @@ export interface ValidationResult {
   valid: boolean
 }
 
+/** Alias of ValidationResult, not clashing with the ValidationResult modules of the consumers. */
+export type ArenaValidationResult = ValidationResult
+
 export interface ValidationCounts {
   errors: number
   warnings: number
@@ -29,3 +32,6 @@ export interface Validation {
   warnings?: ValidationResult[]
   counts?: ValidationCounts
 }
+
+/** Alias of Validation, not clashing with the Validation modules of the consumers. */
+export type ArenaValidation = Validation

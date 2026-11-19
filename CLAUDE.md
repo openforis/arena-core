@@ -149,6 +149,10 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 - Getters are plain curried functions with positional parameters, taking the record last: `Records.getParent(node)(record)`, `Records.getChildren(parentNode, childDefUuid)(record)`, `Records.getAncestor(node, ancestorDefUuid)(record)`; getters needing only the record take it directly (`Records.getRoot(record)`)
 - No params objects or wrapper helpers (params copies, overloads): getters run for every ancestor in the record update loops, so keep them allocation-free where possible
 
+**Arena-prefixed type aliases**
+
+- Domain types whose names clash with consumers' modules (`Survey`, `NodeDef`, `User`, `Validation`, `Category`, `Taxon`, ...) also have an `Arena`-prefixed alias (`ArenaSurvey`, `ArenaNodeDef`, ...), so consumers can import them without `as` renames; add one when exporting a new such type
+
 **Utility Modules** (`src/utils/`)
 
 - Arrays, Dates, Numbers, Objects, Strings, UUIDs, Promises, Queue

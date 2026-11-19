@@ -69,6 +69,9 @@ export interface NodeDefExpression {
   uuid: string
 }
 
+/** Alias of NodeDefExpression, not clashing with the NodeDefExpression modules of the consumers. */
+export type ArenaNodeDefExpression = NodeDefExpression
+
 export interface NodeDefExpressionFactoryParams {
   applyIf?: string
   expression?: string
@@ -101,6 +104,9 @@ export interface NodeDefValidations {
   requiredIf?: NodeDefExpression[]
   unique?: boolean
 }
+
+/** Alias of NodeDefValidations, not clashing with the NodeDefValidations modules of the consumers. */
+export type ArenaNodeDefValidations = NodeDefValidations
 
 export interface NodeDefPropsAdvanced {
   applicable?: NodeDefExpression[]
@@ -147,6 +153,9 @@ export interface NodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDef
   type: T
   virtual?: boolean
 }
+
+/** Alias of NodeDef, not clashing with the NodeDef modules of the consumers. */
+export type ArenaNodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDefProps> = NodeDef<T, P>
 
 export interface NodeDefMap {
   [key: string]: NodeDef<any>

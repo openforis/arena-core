@@ -3,6 +3,9 @@ export type UserGroupQualifier = {
   value: string
 }
 
+/** Alias of UserGroupQualifier, not clashing with the UserGroupQualifier modules of the consumers. */
+export type ArenaUserGroupQualifier = UserGroupQualifier
+
 export type UserGroupProps = {
   name?: string
   qualifiers?: UserGroupQualifier[]
@@ -19,3 +22,6 @@ export type UserGroup = {
   dateCreated?: string
   dateModified?: string
 }
+
+/** Alias of UserGroup, not clashing with the UserGroup modules of the consumers. */
+export type ArenaUserGroup = UserGroup
