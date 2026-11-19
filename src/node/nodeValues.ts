@@ -1,6 +1,6 @@
 import { CategoryItems } from '../category'
 import { ArenaPoint, PointFactory } from '../geo'
-import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaAnyNodeDef, ArenaNodeDef, ArenaNodeDefCode, NodeDefType } from '../nodeDef'
 import { ArenaRecord, Records } from '../record'
 import { ArenaSurvey, Surveys } from '../survey'
 import { DateFormats, Dates, Objects } from '../utils'
@@ -133,16 +133,12 @@ const _valuePropGetters: { [key in NodeDefType]?: (prop: string) => (node: Arena
   [NodeDefType.time]: (prop: string) => _timePropGetters[ValuePropsTime[prop as keyof typeof ValuePropsTime]],
 }
 
-const isValueProp = (params: { nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>; prop: string }): boolean => {
+const isValueProp = (params: { nodeDef: ArenaAnyNodeDef; prop: string }): boolean => {
   const { nodeDef, prop } = params
   return Object.values(ValuePropsByType[nodeDef.type] ?? {}).includes(prop)
 }
 
-const getNodeValueProp = (params: {
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
-  node: ArenaRecordNode
-  prop: string
-}): any => {
+const getNodeValueProp = (params: { nodeDef: ArenaAnyNodeDef; node: ArenaRecordNode; prop: string }): any => {
   const { nodeDef, node, prop } = params
   const propGetter: any = _valuePropGetters[nodeDef.type]
   return propGetter ? propGetter(prop)(node) : getNodeValuePropRaw({ node, prop })

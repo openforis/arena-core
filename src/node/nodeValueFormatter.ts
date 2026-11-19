@@ -1,6 +1,6 @@
 import { ArenaCategoryItem, CategoryItems } from '../category'
 import { LanguageCode } from '../language'
-import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefDecimal, NodeDefs, NodeDefType } from '../nodeDef'
+import { ArenaAnyNodeDef, ArenaNodeDefCode, ArenaNodeDefDecimal, NodeDefs, NodeDefType } from '../nodeDef'
 import { ArenaSurvey, Surveys } from '../survey'
 import { Taxa } from '../taxonomy'
 import { DateFormats, Dates, Numbers, Objects, Strings } from '../utils'
@@ -25,7 +25,7 @@ const extractCategoryItem = (params: {
 type FormatParams = {
   survey: ArenaSurvey
   cycle: string
-  nodeDef: ArenaNodeDef<NodeDefType>
+  nodeDef: ArenaAnyNodeDef
   node?: ArenaRecordNode
   value: any
   showLabel?: boolean

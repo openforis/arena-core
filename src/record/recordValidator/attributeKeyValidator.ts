@@ -1,6 +1,6 @@
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
-import { ArenaNodeDef, NodeDefs, ArenaNodeDefProps, NodeDefType } from '../../nodeDef'
+import { ArenaAnyNodeDef, NodeDefs } from '../../nodeDef'
 import { ArenaRecordNode, RecordNodes, RecordNodeValues } from '../../node'
 import { getValueEqualityKey } from '../../node/nodeValues'
 import { ArenaValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
@@ -25,7 +25,7 @@ type SiblingEntitiesKeysIndex = {
  * and compare them S times with the key values of every sibling.
  */
 export type EntityKeysCache = {
-  keyDefsByEntityDefUuid: Map<string, ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[]>
+  keyDefsByEntityDefUuid: Map<string, ArenaAnyNodeDef[]>
   keyValuesByEntityUuid: Map<string, ArenaDictionary<any>>
   equalityKeyByEntityUuid: Map<string, string | undefined>
   siblingEntitiesKeysIndexByParentAndDefUuid: Map<string, SiblingEntitiesKeysIndex>
@@ -40,9 +40,9 @@ export const createEntityKeysCache = (): EntityKeysCache => ({
 
 const _getKeyDefs = (params: {
   survey: ArenaSurvey
-  entityDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  entityDef: ArenaAnyNodeDef
   cache?: EntityKeysCache
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[] => {
+}): ArenaAnyNodeDef[] => {
   const { survey, entityDef, cache } = params
   let keyDefs = cache?.keyDefsByEntityDefUuid.get(entityDef.uuid)
   if (!keyDefs) {
@@ -56,7 +56,7 @@ const _getKeyValuesByDefUuid = (params: {
   survey: ArenaSurvey
   record: ArenaRecord
   entity: ArenaRecordNode
-  keyDefs: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[]
+  keyDefs: ArenaAnyNodeDef[]
   cache?: EntityKeysCache
 }): ArenaDictionary<any> => {
   const { survey, record, entity, keyDefs, cache } = params
@@ -71,7 +71,7 @@ const _getKeyValuesByDefUuid = (params: {
 const _getEqualityKey = (params: {
   survey: ArenaSurvey
   entity: ArenaRecordNode
-  keyDefs: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[]
+  keyDefs: ArenaAnyNodeDef[]
   keyValuesByDefUuid: ArenaDictionary<any>
   cache: EntityKeysCache
 }): string | undefined => {
@@ -94,7 +94,7 @@ const _getEqualityKey = (params: {
 
 const _areKeyValuesEqual = (params: {
   survey: ArenaSurvey
-  keyDefs: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[]
+  keyDefs: ArenaAnyNodeDef[]
   keyValuesByDefUuid: ArenaDictionary<any>
   siblingKeyValuesByDefUuid: ArenaDictionary<any>
 }): boolean => {
@@ -114,7 +114,7 @@ const _getSiblingEntitiesKeysIndex = (params: {
   record: ArenaRecord
   nodeParent: ArenaRecordNode
   entityDefUuid: string
-  keyDefs: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[]
+  keyDefs: ArenaAnyNodeDef[]
   cache: EntityKeysCache
 }): SiblingEntitiesKeysIndex => {
   const { survey, record, nodeParent, entityDefUuid, keyDefs, cache } = params
@@ -190,10 +190,7 @@ const _isEntityDuplicate = (params: {
   )
 }
 
-const isNodeDefToBeValidated = (params: {
-  survey: ArenaSurvey
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
-}): boolean => {
+const isNodeDefToBeValidated = (params: { survey: ArenaSurvey; nodeDef: ArenaAnyNodeDef }): boolean => {
   const { survey, nodeDef } = params
   if (!NodeDefs.isKey(nodeDef)) return false
 
@@ -203,12 +200,7 @@ const isNodeDefToBeValidated = (params: {
 }
 
 const validateAttributeKey =
-  (params: {
-    survey: ArenaSurvey
-    record: ArenaRecord
-    nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
-    entityKeysCache?: EntityKeysCache
-  }) =>
+  (params: { survey: ArenaSurvey; record: ArenaRecord; nodeDef: ArenaAnyNodeDef; entityKeysCache?: EntityKeysCache }) =>
   (_propName: string, node: ArenaRecordNode): Promise<ArenaValidationResult> => {
     const { survey, nodeDef, record, entityKeysCache } = params
 

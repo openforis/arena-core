@@ -2,7 +2,7 @@ import { describe, test, expect, beforeAll } from '@jest/globals'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../tests/data'
-import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaAnyNodeDef } from '../nodeDef'
 import { ArenaSurvey, Surveys } from '../survey'
 import { NodeDefExpressionEvaluator } from './evaluator'
 
@@ -40,7 +40,7 @@ const checkExpressionEvaluateResult = (params: {
     expect(result).toBe(expectedResultValue)
   } else {
     expectToBeNodeDef(result)
-    const nodeDefResult: ArenaNodeDef<NodeDefType, ArenaNodeDefProps> = result
+    const nodeDefResult: ArenaAnyNodeDef = result
     expect(nodeDefResult.props.name).toEqual(expectedResultValue)
   }
 }

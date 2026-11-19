@@ -1,7 +1,7 @@
 import { ArenaDictionary } from '../../common'
 import { ArenaLabels } from '../../language'
 import { ArenaRecordNode, RecordNodeKeys, RecordNodes, RecordNodeValues } from '../../node'
-import { ArenaNodeDef, ArenaNodeDefExpression, ArenaNodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { ArenaAnyNodeDef, ArenaNodeDefExpression, NodeDefs } from '../../nodeDef'
 import { ArenaSurvey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { Objects } from '../../utils'
@@ -119,7 +119,7 @@ const _getValidationMessagesWithDefault = (params: {
 }
 
 const _isValueRequired = async (
-  params: ArenaAttributeValidatorParams & { nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps> }
+  params: ArenaAttributeValidatorParams & { nodeDef: ArenaAnyNodeDef }
 ): Promise<boolean> => {
   const { record, attribute, nodeDef } = params
   if (NodeDefs.isKey(nodeDef) || NodeDefs.isRequired(nodeDef)) return true
@@ -132,7 +132,7 @@ const _isValueRequired = async (
 }
 
 const _validateRequired =
-  (params: ArenaAttributeValidatorParams & { nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps> }) =>
+  (params: ArenaAttributeValidatorParams & { nodeDef: ArenaAnyNodeDef }) =>
   async (_field: string, node: any): Promise<ArenaValidationResult> => {
     const valid = !RecordNodes.isValueBlank(node) || !(await _isValueRequired(params))
     return valid
@@ -148,7 +148,7 @@ const _validateRequired =
  * Evaluates the validation expressions.
  */
 const _validateNodeValidations =
-  (params: ArenaRecordValidatorParams & { nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps> }) =>
+  (params: ArenaRecordValidatorParams & { nodeDef: ArenaAnyNodeDef }) =>
   async (_propName: string, node: ArenaRecordNode): Promise<ArenaValidationResult> => {
     const { survey, nodeDef } = params
     if (RecordNodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
@@ -206,7 +206,7 @@ const validateAttribute = async (params: ArenaAttributeValidatorParams & { entit
 
 const findSiblingKeyNodesToValidate = (
   params: ArenaAttributeValidatorParams & {
-    nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+    nodeDef: ArenaAnyNodeDef
     nodeParent?: ArenaRecordNode
     siblingKeyNodesCache: SiblingKeyNodesCache
     nodeUuidsToValidate: Set<string>
@@ -266,7 +266,7 @@ type AttributeSiblingsAddedCache = Map<string, { firstParentEntity: ArenaRecordN
 const findUniqueAttributeSiblingsToValidate = (params: {
   record: ArenaRecord
   node: ArenaRecordNode
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDef: ArenaAnyNodeDef
   nodeParent?: ArenaRecordNode
   attributeSiblingsAddedCache: AttributeSiblingsAddedCache
 }): ArenaRecordNode[] => {

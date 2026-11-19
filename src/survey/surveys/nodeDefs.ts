@@ -1,12 +1,12 @@
 import { ArenaSurvey } from '../survey'
 import {
+  ArenaAnyNodeDef,
   ArenaNodeDef,
   ArenaNodeDefCode,
   ArenaNodeDefCodeProps,
   ArenaNodeDefEntity,
   ArenaNodeDefEntityChildPosition,
   ArenaNodeDefMap,
-  ArenaNodeDefProps,
   NodeDefType,
   NodeDefs,
 } from '../../nodeDef'
@@ -19,28 +19,19 @@ import { getCategoryByUuid } from './surveysGetters'
 
 export const getNodeDefsArray = NodeDefsReader.getNodeDefsArray
 
-export const findNodeDefByUuid = (params: {
-  survey: ArenaSurvey
-  uuid: string
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> | undefined => {
+export const findNodeDefByUuid = (params: { survey: ArenaSurvey; uuid: string }): ArenaAnyNodeDef | undefined => {
   const { survey, uuid } = params
   return survey.nodeDefs?.[uuid]
 }
 
-export const getNodeDefByUuid = (params: {
-  survey: ArenaSurvey
-  uuid: string
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> => {
+export const getNodeDefByUuid = (params: { survey: ArenaSurvey; uuid: string }): ArenaAnyNodeDef => {
   const { survey, uuid } = params
   const nodeDef = findNodeDefByUuid({ survey, uuid })
   if (!nodeDef) throw new SystemError(SystemErrorKeys.survey.nodeDefUuidNotFound, { uuid })
   return nodeDef
 }
 
-export const findNodeDefByName = (params: {
-  survey: ArenaSurvey
-  name: string
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> | undefined => {
+export const findNodeDefByName = (params: { survey: ArenaSurvey; name: string }): ArenaAnyNodeDef | undefined => {
   const { survey, name } = params
   const nodeDefUuidByNameIndex = survey.nodeDefsIndex?.nodeDefUuidByName
   if (nodeDefUuidByNameIndex) {
@@ -50,10 +41,7 @@ export const findNodeDefByName = (params: {
   return getNodeDefsArray(survey).find((nodeDef) => nodeDef.props.name === name)
 }
 
-export const getNodeDefByName = (params: {
-  survey: ArenaSurvey
-  name: string
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> => {
+export const getNodeDefByName = (params: { survey: ArenaSurvey; name: string }): ArenaAnyNodeDef => {
   const { survey, name } = params
   const nodeDef = findNodeDefByName({ survey, name })
   if (!nodeDef) {
@@ -67,12 +55,9 @@ export const getNodeDefsByUuids = (params: { survey: ArenaSurvey; uuids: string[
   return uuids.map((uuid) => getNodeDefByUuid({ survey, uuid }))
 }
 
-export const findNodeDefsByUuids = (params: {
-  survey: ArenaSurvey
-  uuids: string[]
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[] => {
+export const findNodeDefsByUuids = (params: { survey: ArenaSurvey; uuids: string[] }): ArenaAnyNodeDef[] => {
   const { survey, uuids } = params
-  return uuids.reduce((acc: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[], uuid) => {
+  return uuids.reduce((acc: ArenaAnyNodeDef[], uuid) => {
     const nodeDef = findNodeDefByUuid({ survey, uuid })
     if (nodeDef) {
       acc.push(nodeDef)
@@ -83,7 +68,7 @@ export const findNodeDefsByUuids = (params: {
 
 export const getNodeDefParent = (params: {
   survey: ArenaSurvey
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDef: ArenaAnyNodeDef
 }): ArenaNodeDefEntity | undefined => {
   const { survey, nodeDef } = params
   if (!nodeDef.parentUuid) return undefined
@@ -92,7 +77,7 @@ export const getNodeDefParent = (params: {
 
 export const getNodeDefAncestorMultipleEntity = (params: {
   survey: ArenaSurvey
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDef: ArenaAnyNodeDef
 }): ArenaNodeDefEntity | undefined => {
   const { survey, nodeDef } = params
   return findAncestorNodeDef({
@@ -103,8 +88,8 @@ export const getNodeDefAncestorMultipleEntity = (params: {
 }
 
 export const isNodeDefAncestor = (params: {
-  nodeDefAncestor: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
-  nodeDefDescendant: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDefAncestor: ArenaAnyNodeDef
+  nodeDefDescendant: ArenaAnyNodeDef
 }): boolean => {
   const { nodeDefAncestor, nodeDefDescendant } = params
 
@@ -128,18 +113,18 @@ export const getNodeDefRoot = (params: { survey: ArenaSurvey }): ArenaNodeDefEnt
 
 export const getNodeDefSource = (params: {
   survey: ArenaSurvey
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> | undefined => {
+  nodeDef: ArenaAnyNodeDef
+}): ArenaAnyNodeDef | undefined => {
   const { survey, nodeDef } = params
   return nodeDef.virtual ? getNodeDefParent({ survey, nodeDef }) : undefined
 }
 
 export const getNodeDefChildren = (params: {
   survey: ArenaSurvey
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDef: ArenaAnyNodeDef
   includeAnalysis?: boolean
   includeLayoutElements?: boolean
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[] => {
+}): ArenaAnyNodeDef[] => {
   const { survey, nodeDef, includeAnalysis = false, includeLayoutElements = false } = params
 
   if (!survey.nodeDefs) return []
@@ -163,7 +148,7 @@ export const getNodeDefChildren = (params: {
   })
 }
 
-export const getQualifierDefs = (params: { survey: ArenaSurvey }): ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[] => {
+export const getQualifierDefs = (params: { survey: ArenaSurvey }): ArenaAnyNodeDef[] => {
   const { survey } = params
   const qualifierPresence = survey.nodeDefsIndex?.qualifierPresenceByUuid
   if (qualifierPresence) {
@@ -185,7 +170,7 @@ const getIndexInChain = (params: { survey: ArenaSurvey; nodeDef: ArenaNodeDef<an
 }
 
 const getNodeDefChildrenUuidsSortedByLayout = (params: {
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDef: ArenaAnyNodeDef
   cycle: string
   children: ArenaNodeDef<any>[]
 }): string[] => {
@@ -238,11 +223,11 @@ const _compareBooleans = (value1: boolean | undefined, value2: boolean | undefin
 
 export const getNodeDefChildrenSorted = (params: {
   survey: ArenaSurvey
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDef: ArenaAnyNodeDef
   cycle: string
   includeAnalysis?: boolean
   includeLayoutElements?: boolean
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[] => {
+}): ArenaAnyNodeDef[] => {
   const { survey, nodeDef, cycle, includeAnalysis, includeLayoutElements } = params
 
   const children = getNodeDefChildren({ survey, nodeDef, includeAnalysis, includeLayoutElements }).filter(
@@ -330,7 +315,7 @@ type NodeDefTraverseParams = {
 }
 
 const traverseBreadthFirst = ({ nodeDef, visitor, shouldTraverse, getChildren }: NodeDefTraverseParams) => {
-  const queue = new Queue<ArenaNodeDef<NodeDefType>>()
+  const queue = new Queue<ArenaAnyNodeDef>()
 
   queue.enqueue(nodeDef)
 
@@ -441,10 +426,7 @@ export const getNodeDefAncestorCodes = (params: {
   return ancestors
 }
 
-export const isNodeDefParentCode = (params: {
-  survey: ArenaSurvey
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
-}): boolean => {
+export const isNodeDefParentCode = (params: { survey: ArenaSurvey; nodeDef: ArenaAnyNodeDef }): boolean => {
   const { survey, nodeDef } = params
   const nodeDefsArray = getNodeDefsArray(survey)
   return nodeDefsArray.some(
@@ -497,9 +479,9 @@ export const getDependentEnumeratedEntityDefs = (params: {
 
 export const getNodeDefKeys = (params: {
   survey: ArenaSurvey
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDef: ArenaAnyNodeDef
   cycle?: string
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[] => {
+}): ArenaAnyNodeDef[] => {
   const { survey, cycle, nodeDef } = params
 
   return getDescendantsInSingleEntities({
@@ -534,7 +516,7 @@ export const getNodeDefEnumerator = (params: {
   return undefined
 }
 
-export const isNodeDefEnumerator = (params: { survey: ArenaSurvey; nodeDef: ArenaNodeDef<NodeDefType> }): boolean => {
+export const isNodeDefEnumerator = (params: { survey: ArenaSurvey; nodeDef: ArenaAnyNodeDef }): boolean => {
   const { survey, nodeDef } = params
   if (nodeDef.type !== NodeDefType.code) return false
   const entityDef = getNodeDefParent({ survey, nodeDef })
@@ -546,10 +528,10 @@ export const isNodeDefEnumerator = (params: { survey: ArenaSurvey; nodeDef: Aren
 export const getDescendantsInSingleEntities = (params: {
   survey: ArenaSurvey
   cycle?: string
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
-  predicate?: (visitedNodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>) => boolean
+  nodeDef: ArenaAnyNodeDef
+  predicate?: (visitedNodeDef: ArenaAnyNodeDef) => boolean
   includeAnalysis?: boolean
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[] => {
+}): ArenaAnyNodeDef[] => {
   const { survey, cycle, nodeDef, predicate, includeAnalysis } = params
   const result: ArenaNodeDef<any>[] = []
   visitDescendantsAndSelfNodeDef({
@@ -570,8 +552,8 @@ export const getDescendantsInSingleEntities = (params: {
 export const getNodeDefsIncludedInMultipleEntitySummary = (params: {
   survey: ArenaSurvey
   cycle: string
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[] => {
+  nodeDef: ArenaAnyNodeDef
+}): ArenaAnyNodeDef[] => {
   const { survey, cycle, nodeDef } = params
   return getDescendantsInSingleEntities({
     survey,

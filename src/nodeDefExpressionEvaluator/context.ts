@@ -1,7 +1,6 @@
 import { ArenaUser } from '../auth'
 import { ArenaExpressionContext } from '../expression'
-import { ArenaNodeDef } from '../nodeDef'
-import { ArenaNodeDefProps, NodeDefType } from '../nodeDef/nodeDef'
+import { ArenaAnyNodeDef } from '../nodeDef'
 import { ArenaSurvey } from '../survey'
 import { ArenaAreaOfInterestProvider } from './areaOfInterestProvider'
 import { ArenaCategoryItemProvider } from './categoryItemProvider'
@@ -10,8 +9,8 @@ import { ArenaTaxonProvider } from './taxonProvider'
 export interface NodeDefExpressionContext extends ArenaExpressionContext {
   survey: ArenaSurvey
   user?: ArenaUser
-  nodeDefCurrent: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
-  nodeDefContext?: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDefCurrent: ArenaAnyNodeDef
+  nodeDefContext?: ArenaAnyNodeDef
   /**
    * Unique UUIDs of node definitions being visited during expression evaluation.
    */

@@ -1,5 +1,5 @@
 import { ArenaRecordNode, RecordNodes } from '../../node'
-import { ArenaNodeDef, ArenaNodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { ArenaAnyNodeDef, NodeDefs } from '../../nodeDef'
 import { ArenaSurvey, Surveys } from '../../survey'
 import { Numbers } from '../../utils'
 import { ArenaRecord } from '../record'
@@ -17,7 +17,7 @@ const addStats = (statsAcc: EntityCompletionStats, statsToAdd: EntityCompletionS
   statsAcc.filled += statsToAdd.filled
 }
 
-const isAttributeRequired = (entity: ArenaRecordNode, nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>): boolean =>
+const isAttributeRequired = (entity: ArenaRecordNode, nodeDef: ArenaAnyNodeDef): boolean =>
   NodeDefs.isKey(nodeDef) ||
   NodeDefs.isRequired(nodeDef) ||
   (NodeDefs.isRequiredIfDefined(nodeDef) && RecordNodes.isChildRequired(entity, nodeDef.uuid))
@@ -25,7 +25,7 @@ const isAttributeRequired = (entity: ArenaRecordNode, nodeDef: ArenaNodeDef<Node
 const getAttributeCompletionStats = (params: {
   record: ArenaRecord
   entity: ArenaRecordNode
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDef: ArenaAnyNodeDef
 }): EntityCompletionStats => {
   const { record, entity, nodeDef } = params
 
@@ -48,7 +48,7 @@ const getChildEntityCompletionStats = (params: {
   survey: ArenaSurvey
   record: ArenaRecord
   parentEntity: ArenaRecordNode
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDef: ArenaAnyNodeDef
 }): EntityCompletionStats => {
   const { survey, record, parentEntity, nodeDef } = params
   const childEntities = getChildren(parentEntity, nodeDef.uuid)(record)

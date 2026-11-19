@@ -1,4 +1,4 @@
-import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefEntity, NodeDefType } from '../../../nodeDef'
+import { ArenaAnyNodeDef, ArenaNodeDefCode, ArenaNodeDefEntity, NodeDefType } from '../../../nodeDef'
 import { ArenaSurvey, Surveys } from '../../../survey'
 import { NodeDefAttributeBuilder } from './nodeDefAttributeBuilder'
 
@@ -17,7 +17,7 @@ export class NodeDefCodeBuilder extends NodeDefAttributeBuilder {
   }
 
   build(params: { survey: ArenaSurvey; nodeDefParent?: ArenaNodeDefEntity }): {
-    [uuid: string]: ArenaNodeDef<NodeDefType>
+    [uuid: string]: ArenaAnyNodeDef
   } {
     const { survey } = params
     const result = super.build(params)

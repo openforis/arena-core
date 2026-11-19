@@ -1,11 +1,11 @@
 import * as SurveyNodeDefs from './nodeDefs'
 import {
+  ArenaAnyNodeDef,
   ArenaNodeDef,
   ArenaNodeDefCode,
   ArenaNodeDefEntity,
   ArenaNodeDefExpression,
   ArenaNodeDefFile,
-  ArenaNodeDefProps,
   NodeDefs,
   NodeDefType,
 } from '../../nodeDef'
@@ -82,7 +82,7 @@ export const getNodeDefDependents = (params: {
   survey: ArenaSurvey
   nodeDefUuid: string
   dependencyType?: SurveyDependencyType
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[] => {
+}): ArenaAnyNodeDef[] => {
   const { survey, nodeDefUuid, dependencyType } = params
   const dependencyGraph = getDependencyGraph(survey)
 
@@ -127,7 +127,7 @@ const addDependency = (params: {
 
 const addDependencies = async (params: {
   survey: ArenaSurvey
-  nodeDef: ArenaNodeDef<NodeDefType>
+  nodeDef: ArenaAnyNodeDef
   type: SurveyDependencyType
   graphs: ArenaSurveyDependencyGraph
   expressions: ArenaNodeDefExpression[]
@@ -144,7 +144,7 @@ const addDependencies = async (params: {
 
   const findReferencedNodeDefs = async (
     expression: string | undefined
-  ): Promise<{ [key: string]: ArenaNodeDef<NodeDefType> }> => {
+  ): Promise<{ [key: string]: ArenaAnyNodeDef }> => {
     if (!expression) return {}
 
     const referencedNodeDefUuids = await new NodeDefExpressionEvaluator().findReferencedNodeDefUuids({
@@ -183,7 +183,7 @@ const addDependencies = async (params: {
 }
 
 export const addNodeDefDependencies = async (params: {
-  nodeDef: ArenaNodeDef<NodeDefType>
+  nodeDef: ArenaAnyNodeDef
   survey: ArenaSurvey
   sideEffect?: boolean
 }): Promise<ArenaSurvey> => {

@@ -1,4 +1,4 @@
-import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../../nodeDef/nodeDef'
+import { ArenaAnyNodeDef } from '../../nodeDef/nodeDef'
 import { getNodeDefChildren, getNodeDefParent, getNodeDefSource } from '../../survey/surveys/nodeDefs'
 import { NodeDefs } from '../../nodeDef/nodeDefs'
 import { Objects, Queue } from '../../utils'
@@ -17,9 +17,7 @@ import { RecordNodeValues } from '../../node/nodeValues'
  * - virtual entity def => source node def
  * - entity def => entity def itself
  */
-const findActualContextNode = (params: {
-  context: NodeDefExpressionContext
-}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> | undefined => {
+const findActualContextNode = (params: { context: NodeDefExpressionContext }): ArenaAnyNodeDef | undefined => {
   const { context } = params
   const { survey, object: nodeDefObjectContext } = context
 
@@ -117,9 +115,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     return null
   }
 
-  private findReferencedNodeDef(
-    expressionNode: ArenaIdentifierExpression
-  ): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> | undefined {
+  private findReferencedNodeDef(expressionNode: ArenaIdentifierExpression): ArenaAnyNodeDef | undefined {
     const { nodeDefCurrent, selfReferenceAllowed } = this.context
     const referencedNodeDef = this.findIdentifierAmongReachableNodeDefs(expressionNode)
     if (!referencedNodeDef) return undefined
@@ -131,9 +127,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     return referencedNodeDef
   }
 
-  private getReferencedNodeDef(
-    expressionNode: ArenaIdentifierExpression
-  ): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> {
+  private getReferencedNodeDef(expressionNode: ArenaIdentifierExpression): ArenaAnyNodeDef {
     return this.findReferencedNodeDef(expressionNode) ?? this.throwIdentifierNotFound(expressionNode)
   }
 
@@ -155,7 +149,7 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
    */
   protected findIdentifierAmongReachableNodeDefs(
     expressionNode: ArenaIdentifierExpression
-  ): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> | undefined {
+  ): ArenaAnyNodeDef | undefined {
     const { object: contextObject } = this.context
 
     if (!contextObject) return undefined
@@ -173,14 +167,14 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
    * Iterates over the reachable node defs, i.e. the actual context node def, the children of its ancestors
    * (including the ones inside single entities) and the ancestors themselves, yielding every node def only once.
    */
-  private *iterateReachableNodeDefs(): Generator<ArenaNodeDef<NodeDefType, ArenaNodeDefProps>> {
+  private *iterateReachableNodeDefs(): Generator<ArenaAnyNodeDef> {
     const { context } = this
     const { survey, includeAnalysis } = context
 
     const reachableNodeDefUuids = new Set<string>()
     const visitedUuids = new Set<string>()
 
-    const queue = new Queue<ArenaNodeDef<NodeDefType>>()
+    const queue = new Queue<ArenaAnyNodeDef>()
 
     const actualContextNode = findActualContextNode({ context })
     if (actualContextNode) {

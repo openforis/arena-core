@@ -2,6 +2,7 @@ export { NodeDefFactory } from './factory'
 
 export type {
   ArenaNodeDef,
+  ArenaAnyNodeDef,
   ArenaNodeDefProps,
   ArenaNodeDefPropsWithLayout,
   ArenaNodeDefMeta,

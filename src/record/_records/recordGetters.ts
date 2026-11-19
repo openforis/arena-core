@@ -3,10 +3,10 @@ import { SystemError, SystemErrorKeys } from '../../error'
 import { ArenaRecordNode, ArenaRecordNodePointer, RecordNodes, ArenaRecordNodesMap } from '../../node'
 import { RecordNodeValues } from '../../node/nodeValues'
 import {
+  ArenaAnyNodeDef,
   ArenaNodeDef,
   ArenaNodeDefCode,
   ArenaNodeDefCodeProps,
-  ArenaNodeDefProps,
   NodeDefs,
   NodeDefType,
 } from '../../nodeDef'
@@ -133,7 +133,7 @@ export const isNodeVisible = isNodeFlagTrue((parent, nodeDefUuid) => RecordNodes
  * condition met in its parent entity (evaluated condition stored in the parent node meta).
  */
 export const isNodeRequired =
-  (nodeDef: ArenaNodeDef<NodeDefType>, node: ArenaRecordNode) =>
+  (nodeDef: ArenaAnyNodeDef, node: ArenaRecordNode) =>
   (record: ArenaRecord): boolean => {
     if (NodeDefs.isKey(nodeDef) || NodeDefs.isRequired(nodeDef)) return true
     if (!NodeDefs.isRequiredIfDefined(nodeDef)) return false
@@ -331,8 +331,8 @@ export const findDescendantOrSelf =
 const getClosestAncestorNode =
   (
     node: ArenaRecordNode,
-    nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>,
-    dependentDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>,
+    nodeDef: ArenaAnyNodeDef,
+    dependentDef: ArenaAnyNodeDef,
     dependencyType: SurveyDependencyType
   ) =>
   (record: ArenaRecord): ArenaRecordNode | undefined => {
@@ -353,7 +353,7 @@ const getClosestAncestorNode =
     return getAncestor(node, commonAncestorDefUuid)(record)
   }
 
-type KeyDefs = ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[]
+type KeyDefs = ArenaAnyNodeDef[]
 
 /**
  * Returns the key nodes of the entity, indexed by key def uuid; keyDefs, when specified, are used instead of the
@@ -402,7 +402,7 @@ export const getEntitySiblings =
   }
 
 export const getAttributeSiblings =
-  (node: ArenaRecordNode, nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>) =>
+  (node: ArenaRecordNode, nodeDef: ArenaAnyNodeDef) =>
   (record: ArenaRecord): ArenaRecordNode[] => {
     const parentEntity = getParent(node)(record)
     if (!parentEntity) return []

@@ -1,11 +1,4 @@
-import {
-  ArenaNodeDef,
-  ArenaNodeDefCode,
-  ArenaNodeDefProps,
-  NodeDefs,
-  ArenaNodeDefTaxon,
-  NodeDefType,
-} from '../../nodeDef'
+import { ArenaAnyNodeDef, ArenaNodeDefCode, NodeDefs, ArenaNodeDefTaxon, NodeDefType } from '../../nodeDef'
 import { ArenaRecordNode, RecordNodes } from '../../node'
 import { ArenaValidationResult, ValidationResultFactory } from '../../validation'
 import { ArenaSurvey, Surveys } from '../../survey'
@@ -22,7 +15,7 @@ interface AttributeTypeValidatorParams {
   categoryItemProvider?: ArenaCategoryItemProvider
   taxonProvider?: ArenaTaxonProvider
   record: ArenaRecord
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDef: ArenaAnyNodeDef
 }
 
 interface AttributeTypeValidatorInternalParams extends AttributeTypeValidatorParams {

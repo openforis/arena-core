@@ -151,7 +151,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 **Type names**
 
-- Every exported type (interface or type alias) starts with `Arena` (`ArenaSurvey`, `ArenaNodeDef`, `ArenaNodeDefEntity`, `ArenaSurveyProps`, ...), so consumers can import it without clashing with their own modules; record node types start with `ArenaRecordNode` (`ArenaRecordNodeMeta`, `ArenaRecordNodeValueCode`, ...)
+- Every exported type (interface or type alias) starts with `Arena` (`ArenaSurvey`, `ArenaNodeDef`, `ArenaNodeDefEntity`, `ArenaSurveyProps`, ...), so consumers can import it without clashing with their own modules; record node types start with `ArenaRecordNode` (`ArenaRecordNodeMeta`, `ArenaRecordNodeValueCode`, ...); use `ArenaAnyNodeDef` for a node def of any type (instead of `ArenaNodeDef<NodeDefType>`)
 - Enums, classes and utility objects (`NodeDefType`, `JobBase`, `Surveys`, ...) keep their unprefixed names; utility objects are plural (`Surveys`, `NodeDefs`, `Records`, `RecordNodes`) and the record node ones start with `RecordNode` (`RecordNodes`, `RecordNodeValues`, `RecordNodeFactory`, ...)
 
 **Utility Modules** (`src/utils/`)

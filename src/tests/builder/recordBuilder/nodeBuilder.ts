@@ -1,5 +1,5 @@
 import { ArenaRecordNode } from '../../../node'
-import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../../../nodeDef'
+import { ArenaAnyNodeDef } from '../../../nodeDef'
 import { ArenaRecord } from '../../../record'
 import { ArenaSurvey } from '../../../survey'
 
@@ -10,7 +10,7 @@ export abstract class NodeBuilder {
     this.nodeDefName = nodeDefName
   }
 
-  protected getNodeDef(params: { survey: ArenaSurvey }): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> {
+  protected getNodeDef(params: { survey: ArenaSurvey }): ArenaAnyNodeDef {
     const nodeDef = Object.values(params.survey.nodeDefs ?? {}).find((n) => n.props.name === this.nodeDefName)
 
     if (!nodeDef) {

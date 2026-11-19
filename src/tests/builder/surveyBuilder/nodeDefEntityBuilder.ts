@@ -1,4 +1,4 @@
-import { ArenaNodeDef, ArenaNodeDefEntity, ArenaNodeDefEntityProps, NodeDefType } from '../../../nodeDef'
+import { ArenaAnyNodeDef, ArenaNodeDefEntity, ArenaNodeDefEntityProps, NodeDefType } from '../../../nodeDef'
 import { ArenaSurvey } from '../../../survey'
 import { NodeDefBuilder } from './nodeDefBuilder'
 
@@ -28,7 +28,7 @@ export class NodeDefEntityBuilder extends NodeDefBuilder {
   }
 
   build(params: { survey: ArenaSurvey; nodeDefParent?: ArenaNodeDefEntity }): {
-    [uuid: string]: ArenaNodeDef<NodeDefType>
+    [uuid: string]: ArenaAnyNodeDef
   } {
     const { survey, nodeDefParent } = params
     const def: ArenaNodeDefEntity = this.createNodeDef({ nodeDefParent }) as ArenaNodeDefEntity
@@ -36,7 +36,7 @@ export class NodeDefEntityBuilder extends NodeDefBuilder {
     let surveyUpdated = { ...survey }
 
     return this.childBuilders.reduce(
-      (nodeDefsAcc: { [uuid: string]: ArenaNodeDef<NodeDefType> }, childBuilder: NodeDefBuilder) => {
+      (nodeDefsAcc: { [uuid: string]: ArenaAnyNodeDef }, childBuilder: NodeDefBuilder) => {
         const nodeDefs = childBuilder.build({ survey: surveyUpdated, nodeDefParent: def })
         surveyUpdated = { ...survey, nodeDefs: { ...surveyUpdated.nodeDefs, ...nodeDefs } }
         return { ...nodeDefsAcc, ...nodeDefs }
