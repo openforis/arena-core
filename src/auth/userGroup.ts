@@ -1,4 +1,4 @@
-export type UserGroupQualifier = {
+export interface UserGroupQualifier {
   name: string
   value: string
 }
@@ -15,7 +15,7 @@ export type UserGroupProps = {
   readableGroupUuids?: string[]
 }
 
-export type UserGroup = {
+export interface UserGroup {
   uuid: string
   surveyUuid?: string
   props: UserGroupProps

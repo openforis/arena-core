@@ -90,7 +90,7 @@ export type SurveyFileProps = {
   type?: string
 }
 
-export type SurveyFile = {
+export interface SurveyFile {
   uuid: string
   props: SurveyFileProps
   content?: Buffer | null
