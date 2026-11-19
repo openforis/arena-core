@@ -1,25 +1,25 @@
-import { Category, CategoryLevel, CategoryLevelFactory, CategoryLevelService } from '../../category'
+import { ArenaCategory, ArenaCategoryLevel, CategoryLevelFactory, ArenaCategoryLevelService } from '../../category'
 
-export const categoryLevelMock: CategoryLevel = CategoryLevelFactory.createInstance()
+export const categoryLevelMock: ArenaCategoryLevel = CategoryLevelFactory.createInstance()
 
-export class CategoryLevelServiceMock implements CategoryLevelService {
-  create(): Promise<{ level: CategoryLevel; category: Category }> {
+export class CategoryLevelServiceMock implements ArenaCategoryLevelService {
+  create(): Promise<{ level: ArenaCategoryLevel; category: ArenaCategory }> {
     throw new Error('Not implemented')
   }
 
-  get(): Promise<CategoryLevel> {
+  get(): Promise<ArenaCategoryLevel> {
     return Promise.resolve(categoryLevelMock)
   }
 
-  getMany(): Promise<Array<CategoryLevel>> {
+  getMany(): Promise<Array<ArenaCategoryLevel>> {
     throw new Error('Not implemented')
   }
 
-  update(): Promise<{ level: CategoryLevel; category: Category }> {
+  update(): Promise<{ level: ArenaCategoryLevel; category: ArenaCategory }> {
     throw new Error('Not implemented')
   }
 
-  delete(): Promise<Category> {
+  delete(): Promise<ArenaCategory> {
     throw new Error('Not implemented')
   }
 }

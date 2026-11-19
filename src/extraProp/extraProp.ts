@@ -4,11 +4,11 @@ export enum ExtraPropDataType {
   geometryPoint = 'geometryPoint',
 }
 
-export interface ExtraPropDef {
+export interface ArenaExtraPropDef {
   key: string
   dataType?: ExtraPropDataType
 }
 
-export interface ExtraPropDefs {
-  [key: string]: ExtraPropDef
+export interface ArenaExtraPropDefs {
+  [key: string]: ArenaExtraPropDef
 }

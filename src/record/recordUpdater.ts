@@ -1,14 +1,14 @@
-import { Dictionary } from '../common'
+import { ArenaDictionary } from '../common'
 import { SystemError, SystemErrorKeys } from '../error'
-import { ArenaRecordNode, NodePointer, NodesMap } from '../node'
-import { NodeDef, NodeDefs } from '../nodeDef'
-import { Survey, SurveyDependencyType, Surveys } from '../survey'
+import { ArenaRecordNode, ArenaRecordNodePointer, ArenaRecordNodesMap } from '../node'
+import { ArenaNodeDef, NodeDefs } from '../nodeDef'
+import { ArenaSurvey, SurveyDependencyType, Surveys } from '../survey'
 import { Dates, Objects } from '../utils'
 import { Validations } from '../validation/validations'
 import { NodePointers } from './nodePointers'
 import { ArenaRecord } from './record'
 import { RecordNodesUpdater, RecordUpdateResult } from './recordNodesUpdater'
-import { NodeCreateParams, NodesUpdateParams } from './recordNodesUpdater/recordNodesCreator'
+import { ArenaRecordNodeCreateParams, ArenaRecordNodesUpdateParams } from './recordNodesUpdater/recordNodesCreator'
 import { Records } from './records'
 import { RecordValidator } from './recordValidator'
 
@@ -20,12 +20,12 @@ const validationDependencyTypes = [
 ]
 
 const getDependentValidationNodePointers = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
-  nodes: NodesMap
-}): NodePointer[] => {
+  nodes: ArenaRecordNodesMap
+}): ArenaRecordNodePointer[] => {
   const { survey, record, nodes } = params
-  const uniquePointersByKey = new Map<string, NodePointer>()
+  const uniquePointersByKey = new Map<string, ArenaRecordNodePointer>()
   for (const node of Object.values(nodes)) {
     for (const dependencyType of validationDependencyTypes) {
       const nodePointers = Records.getDependentNodePointers(survey, node, dependencyType)(record)
@@ -43,7 +43,10 @@ const getDependentValidationNodePointers = (params: {
 }
 
 const _onRecordNodesCreateOrUpdate = async (
-  params: NodesUpdateParams & { nodes: Dictionary<ArenaRecordNode>; additionalNodesToValidate?: NodesMap }
+  params: ArenaRecordNodesUpdateParams & {
+    nodes: ArenaDictionary<ArenaRecordNode>
+    additionalNodesToValidate?: ArenaRecordNodesMap
+  }
 ): Promise<RecordUpdateResult> => {
   const {
     user,
@@ -90,20 +93,20 @@ const _onRecordNodesCreateOrUpdate = async (
   return updateResult
 }
 
-const createDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
+const createDescendants = async (params: ArenaRecordNodeCreateParams): Promise<RecordUpdateResult> => {
   const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.addDescendants(params)
 
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
 }
 
-const createNodeAndDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
+const createNodeAndDescendants = async (params: ArenaRecordNodeCreateParams): Promise<RecordUpdateResult> => {
   const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.addNodeAndDescendants(params)
 
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
 }
 
 const createRootEntity = async (
-  params: NodesUpdateParams & {
+  params: ArenaRecordNodesUpdateParams & {
     createMultipleEntities?: boolean
   }
 ): Promise<RecordUpdateResult> => {
@@ -113,7 +116,7 @@ const createRootEntity = async (
 }
 
 const updateAttributeValue = async (
-  params: NodesUpdateParams & {
+  params: ArenaRecordNodesUpdateParams & {
     attributeUuid: string
     value: any
   }
@@ -140,10 +143,10 @@ const updateAttributeValue = async (
  * they could have been duplicates of the ones being deleted, so they must be validated again.
  */
 const getEntityKeyOrUniqueAttributes = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   entity: ArenaRecordNode
-  uniqueAttributeDefs: NodeDef<any>[]
+  uniqueAttributeDefs: ArenaNodeDef<any>[]
 }): ArenaRecordNode[] => {
   const { survey, record, entity, uniqueAttributeDefs } = params
   return [
@@ -153,13 +156,13 @@ const getEntityKeyOrUniqueAttributes = (params: {
 }
 
 const getSiblingKeyOrUniqueAttributes = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   nodeUuids: string[]
-}): NodesMap => {
+}): ArenaRecordNodesMap => {
   const { survey, record, nodeUuids } = params
   const nodeUuidsSet = new Set(nodeUuids)
-  const result: NodesMap = {}
+  const result: ArenaRecordNodesMap = {}
   for (const nodeUuid of nodeUuids) {
     const node = Records.getNodeByUuid(nodeUuid)(record)
     const parentNode = node ? Records.getParent(node)(record) : undefined
@@ -185,7 +188,7 @@ const getSiblingKeyOrUniqueAttributes = (params: {
 }
 
 const deleteNodes = async (
-  params: NodesUpdateParams & {
+  params: ArenaRecordNodesUpdateParams & {
     nodeUuids: string[]
   }
 ): Promise<RecordUpdateResult> => {
@@ -207,7 +210,7 @@ const deleteNodes = async (
   return result
 }
 
-const deleteNode = async (params: NodesUpdateParams & { nodeUuid: string }): Promise<RecordUpdateResult> => {
+const deleteNode = async (params: ArenaRecordNodesUpdateParams & { nodeUuid: string }): Promise<RecordUpdateResult> => {
   const { nodeUuid } = params
   return deleteNodes({ ...params, nodeUuids: [nodeUuid] })
 }

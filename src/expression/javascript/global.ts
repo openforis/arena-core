@@ -1,7 +1,7 @@
-import { Dictionary } from '../../common'
+import { ArenaDictionary } from '../../common'
 import { SystemError, SystemErrorKeys } from '../../error'
 
-const globalObjectsDictionary: Dictionary<any> = {
+const globalObjectsDictionary: ArenaDictionary<any> = {
   Array,
   Boolean,
   Date,

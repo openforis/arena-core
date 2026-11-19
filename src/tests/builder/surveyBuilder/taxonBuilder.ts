@@ -1,4 +1,4 @@
-import { Taxonomy, Taxon, TaxonFactory, VernacularName, VernacularNameFactory } from '../../../taxonomy'
+import { ArenaTaxonomy, ArenaTaxon, TaxonFactory, ArenaVernacularName, VernacularNameFactory } from '../../../taxonomy'
 
 export class TaxonBuilder {
   private readonly code: string
@@ -6,7 +6,7 @@ export class TaxonBuilder {
   private readonly genus: string
   private readonly scientificName: string
   private extraProps: { [key: string]: any }
-  private readonly vernacularNames: { [key: string]: VernacularName[] }
+  private readonly vernacularNames: { [key: string]: ArenaVernacularName[] }
 
   constructor(code: string, family: string, genus: string, scientificName: string) {
     this.code = code
@@ -29,7 +29,7 @@ export class TaxonBuilder {
     return this
   }
 
-  build(taxonomy: Taxonomy): Taxon {
+  build(taxonomy: ArenaTaxonomy): ArenaTaxon {
     return TaxonFactory.createInstance({
       props: {
         code: this.code,

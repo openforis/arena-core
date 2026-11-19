@@ -1,10 +1,10 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { VernacularNameFactory, VernacularNameParams } from './factory'
+import { VernacularNameFactory, ArenaVernacularNameParams } from './factory'
 
 describe('VernacularNameFactory', () => {
   test('createInstance', () => {
-    const vernacularNameParams: VernacularNameParams = {
+    const vernacularNameParams: ArenaVernacularNameParams = {
       lang: 'eng',
       name: 'vernacular_name',
     }

@@ -2,10 +2,10 @@ import { ArenaRecordNode } from '../../node'
 import { ArenaRecord } from '../record'
 import * as RecordGetters from './recordGetters'
 import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
-import { RecordUpdateOptions, RecordUpdateOptionsDefaults } from './recordUpdateOptions'
+import { ArenaRecordUpdateOptions, RecordUpdateOptionsDefaults } from './recordUpdateOptions'
 
 export const addNodes =
-  (nodes: { [key: string]: ArenaRecordNode }, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+  (nodes: { [key: string]: ArenaRecordNode }, options: ArenaRecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: ArenaRecord): ArenaRecord => {
     const { sideEffect, updateNodesIndex, sortNodes } = { ...RecordUpdateOptionsDefaults, ...options }
 
@@ -42,6 +42,6 @@ export const addNodes =
   }
 
 export const addNode =
-  (node: ArenaRecordNode, options: RecordUpdateOptions = RecordUpdateOptionsDefaults) =>
+  (node: ArenaRecordNode, options: ArenaRecordUpdateOptions = RecordUpdateOptionsDefaults) =>
   (record: ArenaRecord) =>
     addNodes({ [node.uuid]: node }, options)(record)

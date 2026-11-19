@@ -1,9 +1,9 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaRecordNode, Nodes } from '../node'
 import { NodeDefExpressionFactory } from '../nodeDef/nodeDef'
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../tests/data'
@@ -19,9 +19,9 @@ import { Records } from './records'
 const { entityDef, integerDef, textDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-let user: User
+let user: ArenaUser
 
-const createSurvey = async (): Promise<Survey> =>
+const createSurvey = async (): Promise<ArenaSurvey> =>
   new SurveyBuilder(
     user,
     entityDef(
@@ -46,26 +46,32 @@ const hasValueRequiredError = (record: ArenaRecord, node: ArenaRecordNode): bool
   return !!valueValidation?.errors?.some((error) => error.key === 'record.attribute.valueRequired')
 }
 
-const getNode = (survey: Survey, record: ArenaRecord, path: string) => TestUtils.getNodeByPath({ survey, record, path })
+const getNode = (survey: ArenaSurvey, record: ArenaRecord, path: string) =>
+  TestUtils.getNodeByPath({ survey, record, path })
 
-const updateValue = async (survey: Survey, record: ArenaRecord, path: string, value: any): Promise<ArenaRecord> => {
+const updateValue = async (
+  survey: ArenaSurvey,
+  record: ArenaRecord,
+  path: string,
+  value: any
+): Promise<ArenaRecord> => {
   const attributeUuid = getNode(survey, record, path).uuid
   const result = await RecordUpdater.updateAttributeValue({ user, survey, record, attributeUuid, value })
   return result.record
 }
 
-const isRequired = (survey: Survey, record: ArenaRecord, path: string): boolean => {
+const isRequired = (survey: ArenaSurvey, record: ArenaRecord, path: string): boolean => {
   const node = getNode(survey, record, path)
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
   return Records.isNodeRequired(nodeDef, node)(record)
 }
 
-const createRecord = async (survey: Survey): Promise<ArenaRecord> => {
+const createRecord = async (survey: ArenaSurvey): Promise<ArenaRecord> => {
   const record = RecordFactory.createInstance({ surveyUuid: survey.uuid, user })
   return (await RecordUpdater.createRootEntity({ user, survey, record })).record
 }
 
-const addTree = async (survey: Survey, record: ArenaRecord): Promise<ArenaRecord> => {
+const addTree = async (survey: ArenaSurvey, record: ArenaRecord): Promise<ArenaRecord> => {
   const treeDef = Surveys.getNodeDefByName({ survey, name: 'tree' })
   const result = await RecordUpdater.createNodeAndDescendants({
     user,
@@ -182,7 +188,10 @@ describe('RecordUpdater - required if', () => {
     // condition removed from the survey => flag removed
     const remarksDef = Surveys.getNodeDefByUuid({ survey, uuid: remarksDefUuid })
     const remarksDefUpdated = { ...remarksDef, propsAdvanced: { ...remarksDef.propsAdvanced, validations: {} } }
-    const surveyUpdated: Survey = { ...survey, nodeDefs: { ...survey.nodeDefs, [remarksDefUuid]: remarksDefUpdated } }
+    const surveyUpdated: ArenaSurvey = {
+      ...survey,
+      nodeDefs: { ...survey.nodeDefs, [remarksDefUuid]: remarksDefUpdated },
+    }
     const result2 = await RecordNodesUpdater.updateRequiredFlags({
       user,
       survey: surveyUpdated,

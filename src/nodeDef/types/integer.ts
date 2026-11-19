@@ -1,3 +1,3 @@
-import { NodeDef, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, NodeDefType } from '../nodeDef'
 
-export type NodeDefInteger = NodeDef<NodeDefType.integer>
+export type ArenaNodeDefInteger = ArenaNodeDef<NodeDefType.integer>

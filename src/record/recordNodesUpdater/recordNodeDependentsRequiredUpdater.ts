@@ -1,10 +1,10 @@
 import { ArenaRecordNode, Nodes } from '../../node'
-import { NodeDef, NodeDefs, NodeDefType } from '../../nodeDef'
+import { ArenaNodeDef, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { getNodesByDefUuid } from '../_records/recordGetters'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
+import { ArenaRecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
 import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
@@ -15,9 +15,9 @@ const expressionEvaluator = new RecordExpressionEvaluator()
  * Evaluates the "required if" condition of the specified child def in the context of the specified parent entity.
  */
 export const evaluateRequiredIf = async (
-  params: RecordExpressionEvaluationContext & {
+  params: ArenaRecordExpressionEvaluationContext & {
     nodeCtx: ArenaRecordNode
-    nodeDef: NodeDef<NodeDefType>
+    nodeDef: ArenaNodeDef<NodeDefType>
   }
 ): Promise<boolean> => {
   const { nodeCtx, nodeDef } = params
@@ -62,7 +62,10 @@ export const updateSelfAndDependentsRequired = async (
 }
 
 const updateNodeDefRequiredFlags = async (
-  params: RecordExpressionEvaluationContext & { nodeDef: NodeDef<NodeDefType>; updateResult: RecordUpdateResult }
+  params: ArenaRecordExpressionEvaluationContext & {
+    nodeDef: ArenaNodeDef<NodeDefType>
+    updateResult: RecordUpdateResult
+  }
 ): Promise<void> => {
   const { nodeDef, updateResult, sideEffect = false } = params
   const requiredIfDefined = NodeDefs.isRequiredIfDefined(nodeDef)
@@ -86,7 +89,7 @@ const updateNodeDefRequiredFlags = async (
  * e.g. after their "required if" condition has been added, changed or removed. Validation is not updated.
  */
 export const updateRequiredFlags = async (
-  params: RecordExpressionEvaluationContext & { nodeDefUuids: string[] }
+  params: ArenaRecordExpressionEvaluationContext & { nodeDefUuids: string[] }
 ): Promise<RecordUpdateResult> => {
   const { survey, record, nodeDefUuids } = params
   const updateResult = new RecordUpdateResult({ record })

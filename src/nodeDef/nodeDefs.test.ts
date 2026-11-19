@@ -3,59 +3,59 @@ import { describe, test, expect } from '@jest/globals'
 import { NodeDefFactory } from './factory'
 import { NodeDefType } from './nodeDef'
 import { NodeDefs } from './nodeDefs'
-import { NodeDefFile, NodeDefFileProps, NodeDefFileType } from './types/file'
-import { NodeDefGeo, NodeDefGeoProps } from './types/geo'
-import { NodeDefTime, NodeDefTimeProps } from './types/time'
+import { ArenaNodeDefFile, ArenaNodeDefFileProps, NodeDefFileType } from './types/file'
+import { ArenaNodeDefGeo, ArenaNodeDefGeoProps } from './types/geo'
+import { ArenaNodeDefTime, ArenaNodeDefTimeProps } from './types/time'
 
 describe('NodeDefs.isSecondsIncluded', () => {
   test('is false when includeSeconds prop is not set', () => {
-    const nodeDef = NodeDefFactory.createInstance({ type: NodeDefType.time }) as NodeDefTime
+    const nodeDef = NodeDefFactory.createInstance({ type: NodeDefType.time }) as ArenaNodeDefTime
     expect(NodeDefs.isSecondsIncluded(nodeDef)).toBe(false)
   })
 
   test('is false when includeSeconds prop is explicitly false', () => {
     const nodeDef = NodeDefFactory.createInstance({
       type: NodeDefType.time,
-      props: { includeSeconds: false } as NodeDefTimeProps,
-    }) as NodeDefTime
+      props: { includeSeconds: false } as ArenaNodeDefTimeProps,
+    }) as ArenaNodeDefTime
     expect(NodeDefs.isSecondsIncluded(nodeDef)).toBe(false)
   })
 
   test('is true when includeSeconds prop is true', () => {
     const nodeDef = NodeDefFactory.createInstance({
       type: NodeDefType.time,
-      props: { includeSeconds: true } as NodeDefTimeProps,
-    }) as NodeDefTime
+      props: { includeSeconds: true } as ArenaNodeDefTimeProps,
+    }) as ArenaNodeDefTime
     expect(NodeDefs.isSecondsIncluded(nodeDef)).toBe(true)
   })
 })
 
 describe('NodeDefs.isPositionTracking', () => {
   test('is false when positionTracking prop is not set', () => {
-    const nodeDef = NodeDefFactory.createInstance({ type: NodeDefType.geo }) as NodeDefGeo
+    const nodeDef = NodeDefFactory.createInstance({ type: NodeDefType.geo }) as ArenaNodeDefGeo
     expect(NodeDefs.isPositionTracking(nodeDef)).toBe(false)
   })
 
   test('is true when positionTracking prop is true', () => {
     const nodeDef = NodeDefFactory.createInstance({
       type: NodeDefType.geo,
-      props: { positionTracking: true } as NodeDefGeoProps,
-    }) as NodeDefGeo
+      props: { positionTracking: true } as ArenaNodeDefGeoProps,
+    }) as ArenaNodeDefGeo
     expect(NodeDefs.isPositionTracking(nodeDef)).toBe(true)
   })
 })
 
 describe('NodeDefs.isScreenCaptureInMapAllowed', () => {
   test('is false when screenCaptureInMapAllowed prop is not set', () => {
-    const nodeDef = NodeDefFactory.createInstance({ type: NodeDefType.file }) as NodeDefFile
+    const nodeDef = NodeDefFactory.createInstance({ type: NodeDefType.file }) as ArenaNodeDefFile
     expect(NodeDefs.isScreenCaptureInMapAllowed(nodeDef)).toBe(false)
   })
 
   test('is true when screenCaptureInMapAllowed prop is true', () => {
     const nodeDef = NodeDefFactory.createInstance({
       type: NodeDefType.file,
-      props: { fileType: NodeDefFileType.image, screenCaptureInMapAllowed: true } as NodeDefFileProps,
-    }) as NodeDefFile
+      props: { fileType: NodeDefFileType.image, screenCaptureInMapAllowed: true } as ArenaNodeDefFileProps,
+    }) as ArenaNodeDefFile
     expect(NodeDefs.isScreenCaptureInMapAllowed(nodeDef)).toBe(true)
   })
 })

@@ -4,7 +4,7 @@ import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyB
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 import * as RecordNodesUpdater from './recordNodesUpdater'
 import { RecordUpdater } from '../recordUpdater'
-import { User } from '../../auth'
+import { ArenaUser } from '../../auth'
 import { Nodes } from '../../node'
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
@@ -14,7 +14,7 @@ import { Surveys } from '../../survey'
 const { entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-let user: User
+let user: ArenaUser
 
 describe('Record nodes updater - editable/visible', () => {
   beforeAll(async () => {

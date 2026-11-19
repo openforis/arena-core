@@ -1,17 +1,17 @@
-import { Survey } from '../survey'
-import { Taxon } from '../taxonomy'
+import { ArenaSurvey } from '../survey'
+import { ArenaTaxon } from '../taxonomy'
 
-export interface TaxonProvider {
+export interface ArenaTaxonProvider {
   getTaxonByCode: (params: {
-    survey: Survey
+    survey: ArenaSurvey
     taxonomyUuid: string
     taxonCode: string
     draft: boolean
-  }) => Promise<Taxon | undefined>
+  }) => Promise<ArenaTaxon | undefined>
   getTaxonByUuid: (params: {
-    survey: Survey
+    survey: ArenaSurvey
     taxonomyUuid: string
     taxonUuid: string
     draft: boolean
-  }) => Promise<Taxon | undefined>
+  }) => Promise<ArenaTaxon | undefined>
 }

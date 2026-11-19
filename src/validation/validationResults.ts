@@ -1,23 +1,23 @@
-import { Labels, LanguageCode } from '../language'
-import { ValidationResult, ValidationSeverity } from './validation'
+import { ArenaLabels, LanguageCode } from '../language'
+import { ArenaValidationResult, ValidationSeverity } from './validation'
 
-const getKey = (result: ValidationResult): string | undefined => result?.key
+const getKey = (result: ArenaValidationResult): string | undefined => result?.key
 
-const getParams = (result: ValidationResult): { [key: string]: any } | undefined => result?.params
+const getParams = (result: ArenaValidationResult): { [key: string]: any } | undefined => result?.params
 
-const getSeverity = (result: ValidationResult): ValidationSeverity => result?.severity ?? ValidationSeverity.error
+const getSeverity = (result: ArenaValidationResult): ValidationSeverity => result?.severity ?? ValidationSeverity.error
 
-const getMessages = (result: ValidationResult): Labels | undefined => result?.messages
+const getMessages = (result: ArenaValidationResult): ArenaLabels | undefined => result?.messages
 
 const getMessage =
   (lang: LanguageCode) =>
-  (result: ValidationResult): string | undefined =>
+  (result: ArenaValidationResult): string | undefined =>
     result?.messages?.[lang] ?? Object.values(result?.messages ?? {})[0] // fallback to first message if the requested language is not available
 
-const hasMessages = (result: ValidationResult): boolean =>
+const hasMessages = (result: ArenaValidationResult): boolean =>
   result?.messages != null && Object.keys(result.messages).length > 0
 
-const isError = (result: ValidationResult): boolean => getSeverity(result) === ValidationSeverity.error
+const isError = (result: ArenaValidationResult): boolean => getSeverity(result) === ValidationSeverity.error
 
 export const ValidationResults = {
   getKey,

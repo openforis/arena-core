@@ -1,14 +1,14 @@
 import { beforeEach, describe, test, expect } from '@jest/globals'
 
-import { NodeDefEntity, NodeDefs } from '../nodeDef'
-import { NodeDefsFixer, Survey, Surveys } from '../survey'
+import { ArenaNodeDefEntity, NodeDefs } from '../nodeDef'
+import { NodeDefsFixer, ArenaSurvey, Surveys } from '../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../tests/data'
 import { Objects, UUIDs } from '../utils'
 
 const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
 
-let survey: Survey
+let survey: ArenaSurvey
 
 describe('Survey NodeDefsFixer', () => {
   beforeEach(async () => {
@@ -29,7 +29,7 @@ describe('Survey NodeDefsFixer', () => {
     const rootDef = Surveys.getNodeDefRoot({ survey })
     const clusterIdDef = Surveys.getNodeDefByName({ survey, name: 'cluster_id' })
     const clusterAttrDef = Surveys.getNodeDefByName({ survey, name: 'cluster_attr' })
-    const plotDef: NodeDefEntity = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+    const plotDef: ArenaNodeDefEntity = Surveys.getNodeDefByName({ survey, name: 'plot' }) as ArenaNodeDefEntity
     const plotPageUuid = UUIDs.v4()
     Objects.setInPath({ obj: plotDef, path: ['props', 'layout', cycle, 'pageUuid'], value: plotPageUuid })
 

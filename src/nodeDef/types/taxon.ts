@@ -1,9 +1,9 @@
-import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
 
-export interface NodeDefTaxonProps extends NodeDefProps {
+export interface ArenaNodeDefTaxonProps extends ArenaNodeDefProps {
   taxonomyUuid: string
   vernacularNameSelectionKept?: boolean
   vernacularNameAlwaysIncludedIfSingle?: boolean
 }
 
-export type NodeDefTaxon = NodeDef<NodeDefType.taxon, NodeDefTaxonProps>
+export type ArenaNodeDefTaxon = ArenaNodeDef<NodeDefType.taxon, ArenaNodeDefTaxonProps>

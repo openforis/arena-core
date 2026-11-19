@@ -4,9 +4,9 @@ import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyB
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
-import { User } from '../../auth'
-import { CategoryItem, CategoryItemFactory } from '../../category'
-import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { ArenaUser } from '../../auth'
+import { ArenaCategoryItem, CategoryItemFactory } from '../../category'
+import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { ExtraPropDataType } from '../../extraProp'
 import { LanguageCode } from '../../language'
 import { Surveys } from '../../survey'
@@ -17,7 +17,7 @@ import { RecordValidator } from './index'
 const { category, categoryItem, codeDef, entityDef, integerDef, textDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-let user: User
+let user: ArenaUser
 
 describe('Attribute validator - validation expressions', () => {
   beforeAll(async () => {
@@ -48,11 +48,11 @@ describe('Attribute validator - validation expressions', () => {
     const item1 = TestUtils.getCategoryItem({ survey, categoryName, codePaths: ['1'] })
 
     // item known only by the categoryItemProvider (e.g. fetched from the DB)
-    const bigItem: CategoryItem = CategoryItemFactory.createInstance({
+    const bigItem: ArenaCategoryItem = CategoryItemFactory.createInstance({
       levelUuid: item1.levelUuid!,
       props: { code: '2', extra: { lot: '5' } },
     })
-    const categoryItemProvider: CategoryItemProvider = {
+    const categoryItemProvider: ArenaCategoryItemProvider = {
       getItemByCodePaths: async ({ categoryUuid: categoryUuidParam, codePaths }) =>
         categoryUuidParam === categoryUuid && codePaths.join() === '2' ? bigItem : undefined,
       getItems: async () => [],

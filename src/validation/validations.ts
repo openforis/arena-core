@@ -1,7 +1,7 @@
 import { Objects } from '../utils'
-import { MutationOptions } from '../utils/mutationOptions'
+import { ArenaMutationOptions } from '../utils/mutationOptions'
 import { ValidationFactory } from './factory'
-import { Validation, ValidationCounts, ValidationFields, ValidationResult } from './validation'
+import { ArenaValidation, ArenaValidationCounts, ArenaValidationFields, ArenaValidationResult } from './validation'
 
 const keys = {
   counts: 'counts',
@@ -14,15 +14,15 @@ const keys = {
 
 const hasValidation = (obj: any): boolean => !!obj?.validation
 
-const getValidation = (obj: any): Validation => obj?.validation || ValidationFactory.createInstance()
+const getValidation = (obj: any): ArenaValidation => obj?.validation || ValidationFactory.createInstance()
 
-const getFieldValidations = (validation: Validation): ValidationFields => validation?.fields ?? {}
+const getFieldValidations = (validation: ArenaValidation): ArenaValidationFields => validation?.fields ?? {}
 
 const getFieldValidationUnsafe =
   (field: string | number) =>
-  (validation: Validation): Validation | undefined => {
+  (validation: ArenaValidation): ArenaValidation | undefined => {
     if (typeof field === 'string') {
-      let validationCurrent: Validation | undefined = validation
+      let validationCurrent: ArenaValidation | undefined = validation
       const parts = field.split('.')
       parts.some((part) => {
         validationCurrent = getFieldValidations(validationCurrent!)[part]
@@ -35,14 +35,14 @@ const getFieldValidationUnsafe =
   }
 
 const getFieldValidation =
-  (field: string | number, defaultValue: Validation = ValidationFactory.createInstance()) =>
-  (validation: Validation): Validation =>
+  (field: string | number, defaultValue: ArenaValidation = ValidationFactory.createInstance()) =>
+  (validation: ArenaValidation): ArenaValidation =>
     getFieldValidationUnsafe(field)(validation) ?? defaultValue
 
 const getFieldValidationsByFields =
   (fields: (string | number)[]) =>
-  (validation: Validation): ValidationFields => {
-    const result: ValidationFields = {}
+  (validation: ArenaValidation): ArenaValidationFields => {
+    const result: ArenaValidationFields = {}
     for (const field of fields) {
       const fieldValidation = getFieldValidationUnsafe(field)(validation)
       if (fieldValidation) {
@@ -52,27 +52,27 @@ const getFieldValidationsByFields =
     return result
   }
 
-const getErrors = (validation: Validation): ValidationResult[] => validation?.errors ?? []
+const getErrors = (validation: ArenaValidation): ArenaValidationResult[] => validation?.errors ?? []
 
-const getWarnings = (validation: Validation): ValidationResult[] => validation?.warnings ?? []
+const getWarnings = (validation: ArenaValidation): ArenaValidationResult[] => validation?.warnings ?? []
 
-const hasErrors = (validation: Validation): boolean => {
+const hasErrors = (validation: ArenaValidation): boolean => {
   const errors = getErrors(validation)
   return !Objects.isEmpty(errors) || Object.values(getFieldValidations(validation)).some(hasErrors)
 }
 
-const hasWarnings = (validation: Validation): boolean => {
+const hasWarnings = (validation: ArenaValidation): boolean => {
   const warnings = getWarnings(validation)
   return !Objects.isEmpty(warnings) || Object.values(getFieldValidations(validation)).some(hasWarnings)
 }
 
-const isValid = (validation: Validation): boolean => Objects.isEmpty(validation) || validation.valid
-const isNotValid = (validation: Validation): boolean => !isValid(validation)
+const isValid = (validation: ArenaValidation): boolean => Objects.isEmpty(validation) || validation.valid
+const isNotValid = (validation: ArenaValidation): boolean => !isValid(validation)
 const isObjValid = (obj: object): boolean => isValid(getValidation(obj))
 
-const getCounts = (validation: Validation): ValidationCounts | undefined => validation?.counts
-const getErrorsCount = (validation: Validation): number => getCounts(validation)?.errors ?? 0
-const getWarningsCount = (validation: Validation): number => getCounts(validation)?.warnings ?? 0
+const getCounts = (validation: ArenaValidation): ArenaValidationCounts | undefined => validation?.counts
+const getErrorsCount = (validation: ArenaValidation): number => getCounts(validation)?.errors ?? 0
+const getWarningsCount = (validation: ArenaValidation): number => getCounts(validation)?.warnings ?? 0
 
 /**
  * Creates a validation object like ValidationFactory.createInstance does, but without checking again
@@ -80,24 +80,24 @@ const getWarningsCount = (validation: Validation): number => getCounts(validatio
  */
 const _createValidation = (params: {
   valid: boolean
-  fields: ValidationFields
+  fields: ArenaValidationFields
   hasFields: boolean
-  errors: ValidationResult[]
-  warnings: ValidationResult[]
-}): Validation => {
+  errors: ArenaValidationResult[]
+  warnings: ArenaValidationResult[]
+}): ArenaValidation => {
   const { valid, fields, hasFields, errors, warnings } = params
-  const result: Validation = { valid }
+  const result: ArenaValidation = { valid }
   if (errors.length > 0) result.errors = errors
   if (hasFields) result.fields = fields
   if (warnings.length > 0) result.warnings = warnings
   return result
 }
 
-const recalculateValidity = (validation: Validation): Validation => {
+const recalculateValidity = (validation: ArenaValidation): ArenaValidation => {
   let allFieldsValid = true
   let hasFields = false
 
-  const fieldsWithValidationRecalculated: ValidationFields = {}
+  const fieldsWithValidationRecalculated: ArenaValidationFields = {}
 
   for (const [fieldKey, fieldValidation] of Object.entries(getFieldValidations(validation))) {
     const fieldValidationUpdated = recalculateValidity(fieldValidation)
@@ -116,8 +116,8 @@ const recalculateValidity = (validation: Validation): Validation => {
   return _createValidation({ valid, fields: fieldsWithValidationRecalculated, hasFields, errors, warnings })
 }
 
-const traverse = (visitor: (visitedItem: Validation) => void) => (validation: Validation) => {
-  const stack: Validation[] = []
+const traverse = (visitor: (visitedItem: ArenaValidation) => void) => (validation: ArenaValidation) => {
+  const stack: ArenaValidation[] = []
   stack.push(validation)
 
   while (stack.length) {
@@ -131,7 +131,7 @@ const traverse = (visitor: (visitedItem: Validation) => void) => (validation: Va
   }
 }
 
-const calculateCounts = (validation: Validation): ValidationCounts => {
+const calculateCounts = (validation: ArenaValidation): ArenaValidationCounts => {
   let errors = 0
   let warnings = 0
 
@@ -146,18 +146,18 @@ const calculateCounts = (validation: Validation): ValidationCounts => {
   }
 }
 
-const updateCounts = (validation: Validation): Validation => ({
+const updateCounts = (validation: ArenaValidation): ArenaValidation => ({
   ...validation,
   counts: calculateCounts(validation),
 })
 
-const calculateHasNestedErrors = (validation: Validation): boolean => calculateCounts(validation).errors > 0
-const calculateHasNestedWarnings = (validation: Validation): boolean => calculateCounts(validation).warnings > 0
+const calculateHasNestedErrors = (validation: ArenaValidation): boolean => calculateCounts(validation).errors > 0
+const calculateHasNestedWarnings = (validation: ArenaValidation): boolean => calculateCounts(validation).warnings > 0
 
-const cleanup = (validation: Validation): Validation => {
+const cleanup = (validation: ArenaValidation): ArenaValidation => {
   // only not valid field validations are kept
   let hasFields = false
-  const fieldsCleaned: ValidationFields = {}
+  const fieldsCleaned: ArenaValidationFields = {}
   for (const [field, fieldValidation] of Object.entries(getFieldValidations(validation))) {
     const fieldValidationCleaned = cleanup(fieldValidation)
     if (!fieldValidationCleaned.valid) {
@@ -177,7 +177,7 @@ const cleanup = (validation: Validation): Validation => {
 /**
  * Options of the functions removing field validations.
  */
-export interface DissocFieldValidationOptions extends MutationOptions {
+export interface ArenaDissocFieldValidationOptions extends ArenaMutationOptions {
   /**
    * When true (default), the validation is cleaned up after removing the field validations (empty field validations
    * removed and validity recalculated).
@@ -186,28 +186,28 @@ export interface DissocFieldValidationOptions extends MutationOptions {
 }
 
 const toDissocFieldValidationOptions = (
-  options?: DissocFieldValidationOptions | boolean,
+  options?: ArenaDissocFieldValidationOptions | boolean,
   doCleanup?: boolean
-): DissocFieldValidationOptions =>
+): ArenaDissocFieldValidationOptions =>
   typeof options === 'boolean' || options === undefined ? { sideEffect: options, doCleanup } : options
 
 function dissocFieldValidation(
   fieldKey: string,
-  options?: DissocFieldValidationOptions
-): (validation: Validation) => Validation
+  options?: ArenaDissocFieldValidationOptions
+): (validation: ArenaValidation) => ArenaValidation
 /** @deprecated Pass the options object instead of the positional booleans: `{ sideEffect, doCleanup }` */
 function dissocFieldValidation(
   fieldKey: string,
   sideEffect?: boolean,
   doCleanup?: boolean
-): (validation: Validation) => Validation
+): (validation: ArenaValidation) => ArenaValidation
 function dissocFieldValidation(
   fieldKey: string,
-  options?: DissocFieldValidationOptions | boolean,
+  options?: ArenaDissocFieldValidationOptions | boolean,
   doCleanupParam?: boolean
-): (validation: Validation) => Validation {
+): (validation: ArenaValidation) => ArenaValidation {
   const { sideEffect = false, doCleanup = true } = toDissocFieldValidationOptions(options, doCleanupParam)
-  return (validation: Validation): Validation => {
+  return (validation: ArenaValidation): ArenaValidation => {
     const validationUpdated = Objects.dissocPath({ obj: validation, path: ['fields', fieldKey], sideEffect })
     return doCleanup ? cleanup(validationUpdated) : validationUpdated
   }
@@ -215,21 +215,21 @@ function dissocFieldValidation(
 
 function dissocFieldValidationsStartingWith(
   fieldStartsWith: string,
-  options?: DissocFieldValidationOptions
-): (validation: Validation) => Validation
+  options?: ArenaDissocFieldValidationOptions
+): (validation: ArenaValidation) => ArenaValidation
 /** @deprecated Pass the options object instead of the positional booleans: `{ sideEffect, doCleanup }` */
 function dissocFieldValidationsStartingWith(
   fieldStartsWith: string,
   sideEffect?: boolean,
   doCleanup?: boolean
-): (validation: Validation) => Validation
+): (validation: ArenaValidation) => ArenaValidation
 function dissocFieldValidationsStartingWith(
   fieldStartsWith: string,
-  options?: DissocFieldValidationOptions | boolean,
+  options?: ArenaDissocFieldValidationOptions | boolean,
   doCleanupParam?: boolean
-): (validation: Validation) => Validation {
+): (validation: ArenaValidation) => ArenaValidation {
   const { sideEffect = false, doCleanup = true } = toDissocFieldValidationOptions(options, doCleanupParam)
-  return (validation: Validation): Validation => {
+  return (validation: ArenaValidation): ArenaValidation => {
     if (!validation?.fields) return validation
 
     const fieldsUpdated = sideEffect ? validation.fields : { ...validation.fields }
@@ -257,9 +257,9 @@ function dissocFieldValidationsStartingWith(
 }
 
 const mergeValidation =
-  (validationNext: Validation, doCleanup = true) =>
-  (validationPrev: Validation): Validation => {
-    const validationFieldsResult: ValidationFields = {
+  (validationNext: ArenaValidation, doCleanup = true) =>
+  (validationPrev: ArenaValidation): ArenaValidation => {
+    const validationFieldsResult: ArenaValidationFields = {
       ...getFieldValidations(validationPrev),
     }
     const validationFieldsNext = getFieldValidations(validationNext)
@@ -283,7 +283,7 @@ const mergeValidation =
       }
     }
 
-    const validationResult: Validation = { ...validationPrev, fields: validationFieldsResult }
+    const validationResult: ArenaValidation = { ...validationPrev, fields: validationFieldsResult }
     validationResult.errors = getErrors(validationNext)
     validationResult.warnings = getWarnings(validationNext)
 
@@ -294,10 +294,10 @@ const mergeValidation =
 const mergeValidations = mergeValidation
 
 const mergeFieldValidations = (
-  fieldValidationsNext: ValidationFields,
-  fieldValidationsPrev: ValidationFields
-): ValidationFields => {
-  const result: ValidationFields = { ...fieldValidationsPrev }
+  fieldValidationsNext: ArenaValidationFields,
+  fieldValidationsPrev: ArenaValidationFields
+): ArenaValidationFields => {
+  const result: ArenaValidationFields = { ...fieldValidationsPrev }
   for (const [fieldKey, fieldValidationNext] of Object.entries(fieldValidationsNext)) {
     const fieldValidationPrev = fieldValidationsPrev[fieldKey]
     result[fieldKey] = fieldValidationPrev
@@ -310,29 +310,29 @@ const mergeFieldValidations = (
 const setValid = (valid: boolean) => (obj: object) => Objects.setInPath({ obj, path: [keys.valid], value: valid })
 
 const setErrors =
-  (errors: ValidationResult[]) =>
+  (errors: ArenaValidationResult[]) =>
   <T extends object>(obj: T): T =>
     Objects.setInPath({ obj, path: [keys.errors], value: errors })
 
 const setWarnings =
-  (warnings: ValidationResult[]) =>
+  (warnings: ArenaValidationResult[]) =>
   <T extends object>(obj: T): T =>
     Objects.setInPath({ obj, path: [keys.warnings], value: warnings })
 
 const setFieldValidations =
-  (fieldValidations: ValidationFields) =>
+  (fieldValidations: ArenaValidationFields) =>
   <T extends object>(obj: T): T =>
     Objects.setInPath({ obj, path: [keys.fields], value: fieldValidations })
 
 const setFieldValidation =
-  (field: string, fieldValidation: Validation) =>
+  (field: string, fieldValidation: ArenaValidation) =>
   <T extends object>(obj: T): T =>
     Objects.setInPath({ obj, path: [keys.fields, field], value: fieldValidation })
 
-const assocFieldValidation = (field: string, fieldValidation: Validation) => (validation: Validation) =>
+const assocFieldValidation = (field: string, fieldValidation: ArenaValidation) => (validation: ArenaValidation) =>
   cleanup(Objects.assocPath({ obj: validation, path: [keys.fields, field], value: fieldValidation }))
 
-const assocValidation = (v: Validation) => (obj: object) => Objects.assoc({ obj, prop: 'validation', value: v })
+const assocValidation = (v: ArenaValidation) => (obj: object) => Objects.assoc({ obj, prop: 'validation', value: v })
 
 const dissocValidation = (obj: object) => Objects.dissoc({ obj, prop: 'validation' })
 

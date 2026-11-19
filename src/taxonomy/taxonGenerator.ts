@@ -1,17 +1,17 @@
 import { ExtraPropsDataGenerator } from '../extraProp'
-import { Survey } from '../survey'
+import { ArenaSurvey } from '../survey'
 import { getTaxonomyByUuid } from '../survey/surveys/surveysGetters'
 import { UUIDs } from '../utils'
-import { Taxon } from './taxon'
+import { ArenaTaxon } from './taxon'
 import { Taxonomies } from './taxonomies'
 
-const generateTaxon = (params: { survey: Survey; taxonomyUuid: string }): Taxon | null => {
+const generateTaxon = (params: { survey: ArenaSurvey; taxonomyUuid: string }): ArenaTaxon | null => {
   const { survey, taxonomyUuid } = params
   const taxonomy = taxonomyUuid ? getTaxonomyByUuid({ survey, taxonomyUuid }) : null
   if (!taxonomy) return null
   const extraPropDefs = Taxonomies.getExtraPropDefs(taxonomy)
 
-  const taxon: Taxon = {
+  const taxon: ArenaTaxon = {
     uuid: UUIDs.v4(),
     props: { code: 'AFZ/QUA', family: 'Fabaceae', genus: 'Afzelia', scientificName: 'Afzelia quanzensis' },
   }

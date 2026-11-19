@@ -1,12 +1,12 @@
 import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
-import { NodeDefCode, NodeDefEntity, NodeDefType } from '../../nodeDef'
-import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
-import { Survey, Surveys } from '../../survey'
+import { ArenaNodeDefCode, ArenaNodeDefEntity, NodeDefType } from '../../nodeDef'
+import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { Objects } from '../../utils'
 import { getAncestor, getChild, getChildren } from '../_records/recordGetters'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
 import { getEnumeratingItemsAllowedCodes } from './recordEnumeratingItemsExpressionEvaluator'
-import { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
+import { ArenaRecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { createEnumeratedEntityNodes } from './recordNodesCreator'
 import { removeNodes } from './recordNodesDeleter'
@@ -15,13 +15,13 @@ import { RecordUpdateResult } from './recordUpdateResult'
 const uuidsCompare = (uuidA: string, uuidB: string): number => uuidA.localeCompare(uuidB)
 
 const shouldExistingEntitiesBeDeleted = async (params: {
-  survey: Survey
-  entityDef: NodeDefEntity
+  survey: ArenaSurvey
+  entityDef: ArenaNodeDefEntity
   existingEntities: ArenaRecordNode[]
   parentNode: ArenaRecordNode
   updateResult: RecordUpdateResult
-  categoryItemProvider?: CategoryItemProvider
-  user: RecordExpressionEvaluationContext['user']
+  categoryItemProvider?: ArenaCategoryItemProvider
+  user: ArenaRecordExpressionEvaluationContext['user']
 }) => {
   const { survey, entityDef, existingEntities, parentNode, updateResult, categoryItemProvider, user } = params
   const enumeratorDef = Surveys.getNodeDefEnumerator({ survey, entityDef })!
@@ -54,9 +54,9 @@ const shouldExistingEntitiesBeDeleted = async (params: {
 }
 
 export const createOrDeleteEnumeratedEntities = async (
-  params: RecordExpressionEvaluationContext & {
+  params: ArenaRecordExpressionEvaluationContext & {
     parentNode: ArenaRecordNode
-    entityDef: NodeDefEntity
+    entityDef: ArenaNodeDefEntity
     updateResult: RecordUpdateResult
   }
 ) => {
@@ -110,7 +110,7 @@ export const updateDependentEnumeratedEntities = async (
   const { nodeDefUuid } = node
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
   if (nodeDef.type !== NodeDefType.code) return updateResult
-  const codeDef = nodeDef as NodeDefCode
+  const codeDef = nodeDef as ArenaNodeDefCode
 
   const dependentEnumeratedEntityDefs = Surveys.getDependentEnumeratedEntityDefs({ survey, nodeDef: codeDef })
   if (dependentEnumeratedEntityDefs.length === 0) return updateResult

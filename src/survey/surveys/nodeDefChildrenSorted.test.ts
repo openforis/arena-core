@@ -1,16 +1,16 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
 import { NodeDefEntityRenderType } from '../../nodeDef'
-import { Survey, Surveys } from '../../survey'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
 
 const { entityDef, integerDef, textDef } = SurveyObjectBuilders
 
 const cycle = '0'
-let survey: Survey
+let survey: ArenaSurvey
 
-const getSortedChildrenNames = (surveyParam: Survey): (string | undefined)[] => {
+const getSortedChildrenNames = (surveyParam: ArenaSurvey): (string | undefined)[] => {
   const tree = Surveys.getNodeDefByName({ survey: surveyParam, name: 'tree' })
   return Surveys.getNodeDefChildrenSorted({ survey: surveyParam, nodeDef: tree, cycle }).map(
     (child) => child.props.name
@@ -44,7 +44,7 @@ describe('Surveys.getNodeDefChildrenSorted', () => {
         },
       },
     }
-    const surveyWithLayout: Survey = { ...survey, nodeDefs: { ...survey.nodeDefs, [tree.uuid]: treeWithLayout } }
+    const surveyWithLayout: ArenaSurvey = { ...survey, nodeDefs: { ...survey.nodeDefs, [tree.uuid]: treeWithLayout } }
 
     expect(getSortedChildrenNames(surveyWithLayout)).toEqual(['dbh', 'tree_id', 'species'])
   })

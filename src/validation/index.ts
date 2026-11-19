@@ -1,17 +1,10 @@
-export type { FieldValidator } from './fieldValidator'
+export type { ArenaFieldValidator } from './fieldValidator'
 export { FieldValidators } from './fieldValidators'
-export type {
-  Validation,
-  ArenaValidation,
-  ValidationFields,
-  ValidationResult,
-  ArenaValidationResult,
-  ValidationCounts,
-} from './validation'
+export type { ArenaValidation, ArenaValidationFields, ArenaValidationResult, ArenaValidationCounts } from './validation'
 export { ValidationSeverity } from './validation'
 export { ValidationFactory, ValidationResultFactory } from './factory'
 export { ValidationResults } from './validationResults'
 export { Validations } from './validations'
-export type { DissocFieldValidationOptions } from './validations'
+export type { ArenaDissocFieldValidationOptions } from './validations'
 export { Validator } from './validator'
 export { ValidatorErrorKeys } from './validatorErrorKeys'

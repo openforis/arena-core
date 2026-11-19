@@ -1,14 +1,23 @@
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaService } from '../common'
-import { Category } from './category'
-import { CategoryLevel, CategoryLevelProps } from './level'
+import { ArenaCategory } from './category'
+import { ArenaCategoryLevel, ArenaCategoryLevelProps } from './level'
 
-export interface CategoryLevelService extends ArenaService {
+export interface ArenaCategoryLevelService extends ArenaService {
   // ==== CREATE
-  create(options: { level: any; surveyId: number; user: User }): Promise<{ level: CategoryLevel; category: Category }>
+  create(options: {
+    level: any
+    surveyId: number
+    user: ArenaUser
+  }): Promise<{ level: ArenaCategoryLevel; category: ArenaCategory }>
 
   // ==== READ
-  get(options: { validate?: boolean; draft?: boolean; categoryUuid: string; surveyId: number }): Promise<CategoryLevel>
+  get(options: {
+    validate?: boolean
+    draft?: boolean
+    categoryUuid: string
+    surveyId: number
+  }): Promise<ArenaCategoryLevel>
 
   getMany(options: {
     draft?: boolean
@@ -17,17 +26,22 @@ export interface CategoryLevelService extends ArenaService {
     offset?: number
     search?: string
     surveyId: number
-  }): Promise<Array<CategoryLevel>>
+  }): Promise<Array<ArenaCategoryLevel>>
 
   // ==== UPDATE
   update(options: {
     categoryUuid: string
     levelUuid: string
     surveyId: number
-    user: User
-    props: CategoryLevelProps
-  }): Promise<{ level: CategoryLevel; category: Category }>
+    user: ArenaUser
+    props: ArenaCategoryLevelProps
+  }): Promise<{ level: ArenaCategoryLevel; category: ArenaCategory }>
 
   // ==== DELETE
-  delete(options: { levelUuid: string; categoryUuid: string; surveyId: number; user: User }): Promise<Category>
+  delete(options: {
+    levelUuid: string
+    categoryUuid: string
+    surveyId: number
+    user: ArenaUser
+  }): Promise<ArenaCategory>
 }

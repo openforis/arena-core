@@ -1,14 +1,14 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { NodeDef, NodeDefFactory, NodeDefs, NodeDefType } from '../../nodeDef'
-import { Survey } from '../../survey'
+import { ArenaNodeDef, NodeDefFactory, NodeDefs, NodeDefType } from '../../nodeDef'
+import { ArenaSurvey } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
 import { addNodeDefToIndex, deleteNodeDefIndex } from './_nodeDefs/nodeDefsIndex'
 
 const { entityDef, integerDef, textDef } = SurveyObjectBuilders
 
-let survey: Survey
+let survey: ArenaSurvey
 
 describe('Survey Node Definitionss index', () => {
   beforeAll(async () => {
@@ -75,7 +75,7 @@ describe('Survey Node Definitionss index', () => {
 
   test('deleteNodeDefIndex and addNodeDefToIndex update the qualifier index', () => {
     const clusterRemarksUuid = survey.nodeDefsIndex!.nodeDefUuidByName!['cluster_remarks']
-    const clusterRemarksDef: NodeDef<any> = survey.nodeDefs![clusterRemarksUuid]
+    const clusterRemarksDef: ArenaNodeDef<any> = survey.nodeDefs![clusterRemarksUuid]
 
     const surveyWithoutQualifier = deleteNodeDefIndex(clusterRemarksDef)(survey)
     expect(surveyWithoutQualifier.nodeDefsIndex?.qualifierPresenceByUuid?.[clusterRemarksUuid]).toBeUndefined()

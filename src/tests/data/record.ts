@@ -1,12 +1,12 @@
-import { User } from '../../auth'
+import { ArenaUser } from '../../auth'
 import { ArenaRecord } from '../../record'
 import { DEFAULT_SRS } from '../../srs'
-import { Survey } from '../../survey'
+import { ArenaSurvey } from '../../survey'
 import { RecordBuilder, RecordNodeBuilders } from '../builder/recordBuilder'
 
 const { attribute, entity } = RecordNodeBuilders
 
-export const createTestRecord = (params: { user: User; survey: Survey }): ArenaRecord =>
+export const createTestRecord = (params: { user: ArenaUser; survey: ArenaSurvey }): ArenaRecord =>
   new RecordBuilder(
     params.user,
     params.survey,

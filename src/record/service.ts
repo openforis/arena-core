@@ -1,10 +1,10 @@
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaService } from '../common'
 import { ArenaRecord } from './record'
 
-export interface RecordService extends ArenaService {
+export interface ArenaRecordService extends ArenaService {
   // ==== CREATE
-  create(options: { socketId: string; record: ArenaRecord; surveyId: number; user: User }): Promise<ArenaRecord>
+  create(options: { socketId: string; record: ArenaRecord; surveyId: number; user: ArenaUser }): Promise<ArenaRecord>
 
   // ==== READ
   count(options: { cycle: string; surveyId: number }): Promise<number>
@@ -16,18 +16,18 @@ export interface RecordService extends ArenaService {
   getManyByUuids(options: { surveyId: number; uuids: string[] }): Promise<ArenaRecord[]>
 
   // ==== UPDATE
-  update(options: { recordUuid: string; step: string; surveyId: number; user: User }): Promise<ArenaRecord>
+  update(options: { recordUuid: string; step: string; surveyId: number; user: ArenaUser }): Promise<ArenaRecord>
 
   checkIn(options: {
     draft?: boolean
     recordUuid: string
     socketId: string
     surveyId: number
-    user: User
+    user: ArenaUser
   }): Promise<ArenaRecord>
 
-  checkOut(options: { recordUuid: string; socketId: string; surveyId: number; user: User }): void
+  checkOut(options: { recordUuid: string; socketId: string; surveyId: number; user: ArenaUser }): void
 
   // ==== DELETE
-  delete(options: { recordUuid: string; socketId: string; surveyId: number; user: User }): void
+  delete(options: { recordUuid: string; socketId: string; surveyId: number; user: ArenaUser }): void
 }

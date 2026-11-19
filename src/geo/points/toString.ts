@@ -1,3 +1,3 @@
-import { Point } from '../point'
+import { ArenaPoint } from '../point'
 
-export const toString = (point: Point): string => `SRID=${point.srs};POINT(${point.x} ${point.y})`
+export const toString = (point: ArenaPoint): string => `SRID=${point.srs};POINT(${point.x} ${point.y})`

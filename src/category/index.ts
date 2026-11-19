@@ -1,15 +1,15 @@
-export type { Category, ArenaCategory, CategoryProps } from './category'
+export type { ArenaCategory, ArenaCategoryProps } from './category'
 export { CategoryFactory, CategoryLevelFactory, CategoryItemFactory } from './factory'
 
-export type { CategoryItem, ArenaCategoryItem, CategoryItemProps } from './item'
+export type { ArenaCategoryItem, ArenaCategoryItemProps } from './item'
 
-export type { CategoryLevel, ArenaCategoryLevel, CategoryLevelProps } from './level'
+export type { ArenaCategoryLevel, ArenaCategoryLevelProps } from './level'
 
-export type { CategoryImportSummary, CategoryImportSummaryColumn } from './categoryImportSummary'
+export type { ArenaCategoryImportSummary, ArenaCategoryImportSummaryColumn } from './categoryImportSummary'
 
-export type { CategoryService } from './service'
-export type { CategoryItemService } from './itemService'
-export type { CategoryLevelService } from './levelService'
+export type { ArenaCategoryService } from './service'
+export type { ArenaCategoryItemService } from './itemService'
+export type { ArenaCategoryLevelService } from './levelService'
 
 export { CategoryImportColumnType } from './categoryImportSummary'
 

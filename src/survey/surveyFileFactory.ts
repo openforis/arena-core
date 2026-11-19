@@ -1,15 +1,15 @@
-import { Factory } from '../common'
+import { ArenaFactory } from '../common'
 import { Dates, UUIDs } from '../utils'
-import { SurveyFile, SurveyFileProps } from './survey'
+import { ArenaSurveyFile, ArenaSurveyFileProps } from './survey'
 
 export enum SurveyFileType {
   surveyDocImage = 'surveyDocImage',
 }
 
-export type SurveyFileFactoryParams = Pick<SurveyFileProps, 'name' | 'labels' | 'size' | 'type' | 'temporary'>
+export type ArenaSurveyFileFactoryParams = Pick<ArenaSurveyFileProps, 'name' | 'labels' | 'size' | 'type' | 'temporary'>
 
-export const SurveyFileFactory: Factory<SurveyFile, SurveyFileFactoryParams> = {
-  createInstance: (params: SurveyFileFactoryParams = {}): SurveyFile => {
+export const SurveyFileFactory: ArenaFactory<ArenaSurveyFile, ArenaSurveyFileFactoryParams> = {
+  createInstance: (params: ArenaSurveyFileFactoryParams = {}): ArenaSurveyFile => {
     const { name, labels, size, type, temporary = false } = params
 
     return {

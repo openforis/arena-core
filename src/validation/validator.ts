@@ -1,6 +1,6 @@
 import { ValidationFactory } from './factory'
-import { FieldValidator } from './fieldValidator'
-import { ValidationSeverity, Validation, ValidationResult, ValidationFields } from './validation'
+import { ArenaFieldValidator } from './fieldValidator'
+import { ValidationSeverity, ArenaValidation, ArenaValidationResult, ArenaValidationFields } from './validation'
 
 interface ValidateOptions {
   removeValid: boolean
@@ -9,10 +9,14 @@ interface ValidateOptions {
 const defaultValidateOptions: ValidateOptions = { removeValid: true }
 
 export class Validator {
-  private async validateField(obj: any, field: string, fieldValidators: Array<FieldValidator>): Promise<Validation> {
+  private async validateField(
+    obj: any,
+    field: string,
+    fieldValidators: Array<ArenaFieldValidator>
+  ): Promise<ArenaValidation> {
     const validations = await Promise.all(fieldValidators.map((fieldValidator) => fieldValidator(field, obj)))
-    const errors: Array<ValidationResult> = []
-    const warnings: Array<ValidationResult> = []
+    const errors: Array<ArenaValidationResult> = []
+    const warnings: Array<ArenaValidationResult> = []
     validations.forEach((validationResult) => {
       if (!validationResult.valid) {
         const arr = validationResult.severity === ValidationSeverity.error ? errors : warnings
@@ -25,18 +29,18 @@ export class Validator {
 
   async validate(
     obj: any,
-    fieldsValidators: { [field: string]: Array<FieldValidator> },
+    fieldsValidators: { [field: string]: Array<ArenaFieldValidator> },
     options: ValidateOptions = defaultValidateOptions
-  ): Promise<Validation> {
-    const fieldsValidationArray: Array<Validation> = await Promise.all(
+  ): Promise<ArenaValidation> {
+    const fieldsValidationArray: Array<ArenaValidation> = await Promise.all(
       Object.entries(fieldsValidators).map(async ([field, fieldValidators]) =>
         this.validateField(obj, field, fieldValidators)
       )
     )
-    const fields: ValidationFields = {}
+    const fields: ArenaValidationFields = {}
     let valid = true
     Object.keys(fieldsValidators).forEach((field, index) => {
-      const fieldValidation: Validation = fieldsValidationArray[index]
+      const fieldValidation: ArenaValidation = fieldsValidationArray[index]
       if (!fieldValidation.valid) {
         valid = false
       }

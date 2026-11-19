@@ -1,4 +1,4 @@
-import { ExtraPropDataType, ExtraPropDefs } from './extraProp'
+import { ExtraPropDataType, ArenaExtraPropDefs } from './extraProp'
 import { PointFactory } from '../geo'
 import { ExtraProps } from './extraProps'
 
@@ -8,7 +8,7 @@ const valueByDataType: { [key in ExtraPropDataType]: any } = {
   [ExtraPropDataType.text]: 'abc',
 }
 
-const generateData = (params: { extraPropDefs: ExtraPropDefs }): { [key: string]: any } => {
+const generateData = (params: { extraPropDefs: ArenaExtraPropDefs }): { [key: string]: any } => {
   const { extraPropDefs } = params
   return Object.entries(extraPropDefs).reduce((acc: { [key: string]: any }, [key, extraProp]) => {
     acc[key] = valueByDataType[ExtraProps.getDataType(extraProp)]

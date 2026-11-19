@@ -1,9 +1,9 @@
 import { ArenaRecordNode, NodeValues, Nodes } from '../node'
 import { NodeKeys, NodeMetaKeys } from '../node/node'
-import { NodeDefCode, NodeDefType, NodeDefs } from '../nodeDef'
-import { Survey, Surveys } from '../survey'
+import { ArenaNodeDefCode, NodeDefType, NodeDefs } from '../nodeDef'
+import { ArenaSurvey, Surveys } from '../survey'
 import { Dates, Objects, UUIDs } from '../utils'
-import { Validation } from '../validation'
+import { ArenaValidation } from '../validation'
 import { ArenaRecord } from './record'
 import { RecordFixer } from './recordFixer'
 import { RecordUpdateResult } from './recordNodesUpdater'
@@ -99,10 +99,10 @@ const assignNewUuidsToNodes = (params: {
 }
 
 const assignNewUuidsToValidation = (params: {
-  validation: Validation
+  validation: ArenaValidation
   newNodeUuidsByOldUuid: OldUuidToNewUuidMap
   sideEffect: boolean
-}): Validation => {
+}): ArenaValidation => {
   const { validation, newNodeUuidsByOldUuid, sideEffect } = params
 
   const validationFields = validation?.fields
@@ -170,7 +170,7 @@ const assignNewUuids = (params: {
 }
 
 const removeExcludedNodes = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   sideEffect: boolean
 }): RecordUpdateResult => {
@@ -184,7 +184,9 @@ const removeExcludedNodes = (params: {
     visitor: (nodeDef) => {
       const hasAncestorCodeDefExcludedInClone =
         nodeDef.type === NodeDefType.code &&
-        Surveys.getNodeDefAncestorCodes({ survey, nodeDef: nodeDef as NodeDefCode }).some(NodeDefs.isExcludedInClone)
+        Surveys.getNodeDefAncestorCodes({ survey, nodeDef: nodeDef as ArenaNodeDefCode }).some(
+          NodeDefs.isExcludedInClone
+        )
 
       if (
         !NodeDefs.isInCycle(cycle)(nodeDef) ||
@@ -205,7 +207,7 @@ const removeExcludedNodes = (params: {
   return result
 }
 
-const cloneRecord = (params: { survey: Survey; record: ArenaRecord; cycleTo: string; sideEffect?: boolean }) => {
+const cloneRecord = (params: { survey: ArenaSurvey; record: ArenaRecord; cycleTo: string; sideEffect?: boolean }) => {
   const { survey, record, cycleTo, sideEffect = false } = params
 
   const recordUpdated = sideEffect ? record : { ...record }

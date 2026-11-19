@@ -1,15 +1,15 @@
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaService } from '../common'
-import { ChainNodeDef } from './chainNodeDef'
+import { ArenaChainNodeDef } from './chainNodeDef'
 
-export interface ChainNodeDefService extends ArenaService {
+export interface ArenaChainNodeDefService extends ArenaService {
   // ==== READ
   count(options: { chainUuid: string; surveyId: number }): Promise<{ [entityDefUuid: string]: number }>
 
-  getMany(options: { chainUuid: string; entityDefUuid: string; surveyId: number }): Promise<Array<ChainNodeDef>>
+  getMany(options: { chainUuid: string; entityDefUuid: string; surveyId: number }): Promise<Array<ArenaChainNodeDef>>
 
   // ==== UPDATE
-  update(options: { chainNodeDef: ChainNodeDef; surveyId: number; user: User }): Promise<ChainNodeDef>
+  update(options: { chainNodeDef: ArenaChainNodeDef; surveyId: number; user: ArenaUser }): Promise<ArenaChainNodeDef>
 
   updateIndexes(options: { surveyId: number }): Promise<void>
 }

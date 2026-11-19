@@ -1,6 +1,6 @@
-import { ExpressionContext } from './context'
+import { ArenaExpressionContext } from './context'
 
-export interface ExpressionFunction<C extends ExpressionContext> {
+export interface ArenaExpressionFunction<C extends ArenaExpressionContext> {
   minArity: number
   maxArity?: number
   /**
@@ -21,6 +21,6 @@ export interface ExpressionFunction<C extends ExpressionContext> {
   evaluateToNode?: boolean
 }
 
-export interface ExpressionFunctions<C extends ExpressionContext> {
-  [name: string]: ExpressionFunction<C>
+export interface ArenaExpressionFunctions<C extends ArenaExpressionContext> {
+  [name: string]: ArenaExpressionFunction<C>
 }

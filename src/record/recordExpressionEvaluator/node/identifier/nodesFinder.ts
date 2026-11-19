@@ -1,15 +1,15 @@
 import { ArenaRecordNode, Nodes } from '../../../../node'
-import { NodeDef, NodeDefType } from '../../../../nodeDef'
+import { ArenaNodeDef, NodeDefType } from '../../../../nodeDef'
 import { ArenaRecord } from '../../../record'
 import { Records } from '../../../records'
-import { Survey, Surveys } from '../../../../survey'
+import { ArenaSurvey, Surveys } from '../../../../survey'
 import { Arrays } from '../../../../utils'
 
 const getCommonAncestor = (params: {
   record: ArenaRecord
   nodeCtxHierarchy: string[]
-  nodeDefCtx: NodeDef<any>
-  nodeDefReferenced: NodeDef<any>
+  nodeDefCtx: ArenaNodeDef<any>
+  nodeDefReferenced: ArenaNodeDef<any>
 }): ArenaRecordNode | undefined => {
   const { record, nodeCtxHierarchy, nodeDefCtx, nodeDefReferenced } = params
   if (!nodeDefCtx.parentUuid) {
@@ -31,10 +31,10 @@ const getCommonAncestor = (params: {
 }
 
 const getReferencedNodesParent = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   nodeContext: ArenaRecordNode
-  nodeDefReferenced: NodeDef<any>
+  nodeDefReferenced: ArenaNodeDef<any>
 }): ArenaRecordNode | undefined => {
   const { survey, record, nodeContext, nodeDefReferenced } = params
 
@@ -78,10 +78,10 @@ const getReferencedNodesParent = (params: {
 // Get reachable nodes, i.e. the children of the node's ancestors.
 // NOTE: The root node is excluded, but it _should_ be an entity, so that is fine.
 const findDescendants = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   nodeContext: ArenaRecordNode
-  nodeDefReferenced: NodeDef<any>
+  nodeDefReferenced: ArenaNodeDef<any>
 }): ArenaRecordNode[] => {
   const { survey, record, nodeContext, nodeDefReferenced } = params
   const nodeReferencedParent = getReferencedNodesParent({ survey, record, nodeContext, nodeDefReferenced })

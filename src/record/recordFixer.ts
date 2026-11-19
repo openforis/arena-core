@@ -1,14 +1,14 @@
 import { ArenaRecordNode, NodeFactory, Nodes } from '../node'
-import { NodeDef, NodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
-import { Survey, Surveys } from '../survey'
+import { ArenaNodeDef, ArenaNodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
+import { ArenaSurvey, Surveys } from '../survey'
 import { Objects } from '../utils'
 import type { ArenaRecord } from './record'
 import { RecordUpdateResult } from './recordNodesUpdater'
 import { Records } from './records'
 
 const fixCodeAttribute = (params: {
-  survey: Survey
-  nodeDef: NodeDefCode
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDefCode
   record: ArenaRecord
   node: ArenaRecordNode
   sideEffect: boolean
@@ -35,8 +35,8 @@ const fixCodeAttribute = (params: {
 }
 
 const insertMissingSingleNode = (params: {
-  survey: Survey
-  nodeDef: NodeDef<any>
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDef<any>
   record: ArenaRecord
   parentNode: ArenaRecordNode
   sideEffect: boolean
@@ -57,7 +57,7 @@ const insertMissingSingleNode = (params: {
   let node = NodeFactory.createInstance({ nodeDefUuid, recordUuid, parentNode })
 
   if (nodeDef.type === NodeDefType.code) {
-    node = fixCodeAttribute({ survey, nodeDef: nodeDef as NodeDefCode, record, node, sideEffect })
+    node = fixCodeAttribute({ survey, nodeDef: nodeDef as ArenaNodeDefCode, record, node, sideEffect })
   }
 
   const recordUpdated = Records.addNode(node, { sideEffect })(record)
@@ -65,7 +65,7 @@ const insertMissingSingleNode = (params: {
 }
 
 const insertMissingSingleNodes = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   sideEffect: boolean
 }): RecordUpdateResult => {
@@ -126,7 +126,7 @@ const deleteNodesByDefUuid = (params: { record: ArenaRecord; nodeDefUuid: string
  * - deleting nodes with non existing node defs
  * - removing status flags (created, deleted, updated) from all nodes
  */
-const fixRecord = (params: { survey: Survey; record: ArenaRecord; sideEffect?: boolean }): RecordUpdateResult => {
+const fixRecord = (params: { survey: ArenaSurvey; record: ArenaRecord; sideEffect?: boolean }): RecordUpdateResult => {
   const { survey, record, sideEffect = false } = params
   const result = new RecordUpdateResult({ record })
 
@@ -151,7 +151,7 @@ const fixRecord = (params: { survey: Survey; record: ArenaRecord; sideEffect?: b
     if (nodeDef.type === NodeDefType.code) {
       nodeUpdated = fixCodeAttribute({
         survey,
-        nodeDef: nodeDef as NodeDefCode,
+        nodeDef: nodeDef as ArenaNodeDefCode,
         record: result.record,
         node: nodeUpdated,
         sideEffect,

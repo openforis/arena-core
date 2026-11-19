@@ -1,7 +1,7 @@
 import { ArenaRecordNode } from './node'
-import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
 
-export interface NodePointer {
+export interface ArenaRecordNodePointer {
   nodeCtx: ArenaRecordNode
-  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
 }

@@ -1,4 +1,4 @@
-export type ParsedVersion = {
+export type ArenaParsedVersion = {
   major: number
   minor: number
   patch?: number
@@ -7,14 +7,14 @@ export type ParsedVersion = {
 
 const VERSION_REGEX = /^v?(\d+)\.(\d+)(?:\.(\d+))?(?:-(\d+)(?:-g[0-9a-f]+)?)?$/i
 
-const parse = (version: string): ParsedVersion => {
+const parse = (version: string): ArenaParsedVersion => {
   const match = VERSION_REGEX.exec(version.trim())
   if (!match) {
     throw new Error(
       `Invalid version format: "${version}". Expected format: [v]major.minor[.patch][-commitsSinceTag[-g<commitHash>]] (e.g. "2.3", "2.3.1", "v2.3.1" or "v2.3.19-4-g207bc95f8")`
     )
   }
-  const parsedVersion: ParsedVersion = {
+  const parsedVersion: ArenaParsedVersion = {
     major: Number.parseInt(match[1], 10),
     minor: Number.parseInt(match[2], 10),
   }

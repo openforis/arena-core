@@ -1,7 +1,7 @@
-import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
 
-export interface NodeDefBooleanProps extends NodeDefProps {
+export interface ArenaNodeDefBooleanProps extends ArenaNodeDefProps {
   labelValue: 'yesNo' | 'trueFalse'
 }
 
-export type NodeDefBoolean = NodeDef<NodeDefType.boolean, NodeDefBooleanProps>
+export type ArenaNodeDefBoolean = ArenaNodeDef<NodeDefType.boolean, ArenaNodeDefBooleanProps>

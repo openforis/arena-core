@@ -1,11 +1,11 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { Survey, Surveys } from '../../../../survey'
+import { ArenaSurvey, Surveys } from '../../../../survey'
 import { ArenaRecord, Records } from '../../..'
 import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../../../tests/data'
 import { NodesFinder } from './nodesFinder'
 
-let survey: Survey
+let survey: ArenaSurvey
 let record: ArenaRecord
 
 const getRoot = () => {

@@ -1,16 +1,16 @@
-export type { Dictionary } from './Dictionary'
-export type { I18n } from './i18n'
+export type { ArenaDictionary } from './Dictionary'
+export type { ArenaI18n } from './i18n'
 
-import { Validation } from '../validation'
+import { ArenaValidation } from '../validation'
 
 export interface ArenaObject<T> {
   readonly uuid: string
   props: T
   propsDraft?: T
-  validation?: Validation
+  validation?: ArenaValidation
 }
 
-export type { Factory } from './factory'
+export type { ArenaFactory } from './factory'
 
 export enum TraverseMethod {
   bfs = 'bfs',

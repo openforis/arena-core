@@ -7,18 +7,18 @@ const { booleanDef, category, categoryItem, codeDef, entityDef, integerDef } = S
 const { entity, attribute } = RecordNodeBuilders
 
 import { NodeValueFormatter, NodeValues } from '../node'
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 import { ArenaRecord } from './record'
 import { RecordUpdater } from './recordUpdater'
-import { Category, CategoryItem } from '../category'
+import { ArenaCategory, ArenaCategoryItem } from '../category'
 import { Validations } from '../validation'
 
 const user = createTestAdminUser()
-let survey: Survey
-let enumeratingCategory: Category
-let item1: CategoryItem, item2: CategoryItem
+let survey: ArenaSurvey
+let enumeratingCategory: ArenaCategory
+let item1: ArenaCategoryItem, item2: ArenaCategoryItem
 let record: ArenaRecord
 
 const initTestSurvey = async () => {
@@ -72,7 +72,7 @@ const createRecord = (): ArenaRecord =>
   ).build()
 
 const updateAttributeAndExpectDependentEnumeratedKeys = async (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   nodePath: string
   value: any

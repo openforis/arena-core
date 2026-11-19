@@ -1,13 +1,13 @@
-import { Survey } from '../../../../survey'
+import { ArenaSurvey } from '../../../../survey'
 import { RECORD_STEP_DEFAULT, RecordFactory } from '../../../../record'
 import { AuthGroupName } from '../../../authGroup'
 import { Authorizer } from '../../../authorizer'
 import { UserFactory } from '../../../factory'
-import { User } from '../../../user'
+import { ArenaUser } from '../../../user'
 
 import { Query } from '../common'
 
-const createRecord = (params: { user: User; survey: Survey; step?: string }) =>
+const createRecord = (params: { user: ArenaUser; survey: ArenaSurvey; step?: string }) =>
   RecordFactory.createInstance({
     user: params.user,
     surveyUuid: params.survey.uuid,

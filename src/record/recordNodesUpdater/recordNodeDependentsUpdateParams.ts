@@ -1,6 +1,6 @@
 import { ArenaRecordNode } from '../../node'
-import { NodesUpdateParams } from './recordNodesCreator'
+import { ArenaRecordNodesUpdateParams } from './recordNodesCreator'
 
-export interface RecordNodeDependentsUpdateParams extends NodesUpdateParams {
+export interface RecordNodeDependentsUpdateParams extends ArenaRecordNodesUpdateParams {
   node: ArenaRecordNode
 }

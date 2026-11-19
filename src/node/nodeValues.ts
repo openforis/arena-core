@@ -1,11 +1,11 @@
 import { CategoryItems } from '../category'
-import { Point, PointFactory } from '../geo'
-import { NodeDef, NodeDefCode, NodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaPoint, PointFactory } from '../geo'
+import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
 import { ArenaRecord, Records } from '../record'
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { DateFormats, Dates, Objects } from '../utils'
 import { ArenaRecordNode } from './node'
-import { NodeValueCoordinate } from './nodeValue/coordinate'
+import { ArenaRecordNodeValueCoordinate } from './nodeValue/coordinate'
 import {
   ValuePropsCode,
   ValuePropsCoordinate,
@@ -133,13 +133,13 @@ const _valuePropGetters: { [key in NodeDefType]?: (prop: string) => (node: Arena
   [NodeDefType.time]: (prop: string) => _timePropGetters[ValuePropsTime[prop as keyof typeof ValuePropsTime]],
 }
 
-const isValueProp = (params: { nodeDef: NodeDef<NodeDefType, NodeDefProps>; prop: string }): boolean => {
+const isValueProp = (params: { nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>; prop: string }): boolean => {
   const { nodeDef, prop } = params
   return Object.values(ValuePropsByType[nodeDef.type] ?? {}).includes(prop)
 }
 
 const getNodeValueProp = (params: {
-  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
   node: ArenaRecordNode
   prop: string
 }): any => {
@@ -165,7 +165,7 @@ const extractCategoryItemUuidFromValue = (params: NodeValuesCompareParams): stri
   const valueCode = getValueCode(value)
   if (Objects.isEmpty(valueCode)) return undefined
 
-  const nodeDefCode = nodeDef as NodeDefCode
+  const nodeDefCode = nodeDef as ArenaNodeDefCode
   const code = valueCode!
   const categoryUuid = nodeDefCode.props?.categoryUuid
   const levelIndex = Surveys.getNodeDefCategoryLevelIndex({ survey, nodeDef: nodeDefCode })
@@ -174,7 +174,7 @@ const extractCategoryItemUuidFromValue = (params: NodeValuesCompareParams): stri
   }
   if (!record || !parentNode) return undefined
 
-  const parentCodeAttribute = Records.getParentCodeAttribute(parentNode, nodeDef as NodeDefCode)(record)
+  const parentCodeAttribute = Records.getParentCodeAttribute(parentNode, nodeDef as ArenaNodeDefCode)(record)
   if (!parentCodeAttribute) return undefined
 
   const parentItemUuid = getItemUuid(parentCodeAttribute)
@@ -188,7 +188,7 @@ const extractCategoryItemUuidFromValue = (params: NodeValuesCompareParams): stri
   })
 }
 
-const extractCategoryItemCodeFromValue = (params: { survey: Survey; value: any }): string | undefined => {
+const extractCategoryItemCodeFromValue = (params: { survey: ArenaSurvey; value: any }): string | undefined => {
   const { survey, value } = params
   const itemUuid = getValueItemUuid(value)
   if (itemUuid) {
@@ -263,8 +263,8 @@ const valueComparatorByNodeDefType: { [key in NodeDefType]?: (params: NodeValues
 }
 
 interface NodeValuesCompareParams {
-  survey: Survey
-  nodeDef: NodeDef<NodeDefType, any>
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDef<NodeDefType, any>
   value: any
   valueSearch: any
   record?: ArenaRecord
@@ -299,7 +299,7 @@ const dateTimeKeyExtractor =
     toDateTime({ ...formats, value }) || undefined
 
 const valueEqualityKeyByNodeDefType: {
-  [key in NodeDefType]?: (params: { survey: Survey; value: any }) => string | undefined
+  [key in NodeDefType]?: (params: { survey: ArenaSurvey; value: any }) => string | undefined
 } = {
   [NodeDefType.boolean]: ({ value }) => String(value),
   [NodeDefType.code]: ({ survey, value }) => {
@@ -321,8 +321,8 @@ const valueEqualityKeyByNodeDefType: {
  * Not exported in NodeValues: internal, used to look up duplicate values without comparing every pair of values.
  */
 export const getValueEqualityKey = (params: {
-  survey: Survey
-  nodeDef: NodeDef<NodeDefType, any>
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDef<NodeDefType, any>
   value: any
 }): string | undefined => {
   const { survey, nodeDef, value } = params
@@ -336,7 +336,7 @@ export const getValueEqualityKey = (params: {
   return key === undefined ? undefined : `value:${key}`
 }
 
-const getValueAsPoint = (params: { survey: Survey; node: ArenaRecordNode }): Point | null => {
+const getValueAsPoint = (params: { survey: ArenaSurvey; node: ArenaRecordNode }): ArenaPoint | null => {
   const { survey, node } = params
   const nodeValue = node?.value
 
@@ -344,7 +344,7 @@ const getValueAsPoint = (params: { survey: Survey; node: ArenaRecordNode }): Poi
 
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
   if (nodeDef.type === NodeDefType.coordinate) {
-    const { x, y, srs } = nodeValue as NodeValueCoordinate
+    const { x, y, srs } = nodeValue as ArenaRecordNodeValueCoordinate
 
     const srsObject = Surveys.getSRSByCode(srs)(survey)
     if (!srsObject) return null

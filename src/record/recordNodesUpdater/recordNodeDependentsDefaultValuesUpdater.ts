@@ -1,8 +1,8 @@
 import { SystemErrorKeys } from '../../error'
-import { ArenaRecordNode, NodePointer, Nodes } from '../../node'
-import { NodeDef, NodeDefs } from '../../nodeDef'
+import { ArenaRecordNode, ArenaRecordNodePointer, Nodes } from '../../node'
+import { ArenaNodeDef, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
-import { Survey, SurveyDependencyType } from '../../survey/survey'
+import { ArenaSurvey, SurveyDependencyType } from '../../survey/survey'
 import { Dates, Objects } from '../../utils'
 import { NodePointers } from '../nodePointers'
 import { ArenaRecord } from '../record'
@@ -18,7 +18,11 @@ const expressionEvaluator = new RecordExpressionEvaluator()
 /**
  * Default value should be reset when a node becomes not applicable, but only if the default value was applied or if the node def is read only (therefore the value can only be set by default value expression)
  */
-const shouldResetDefaultValue = (params: { survey: Survey; record: ArenaRecord; node: ArenaRecordNode }): boolean => {
+const shouldResetDefaultValue = (params: {
+  survey: ArenaSurvey
+  record: ArenaRecord
+  node: ArenaRecordNode
+}): boolean => {
   const { survey, record, node } = params
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
   return (
@@ -31,7 +35,7 @@ const shouldResetDefaultValue = (params: { survey: Survey; record: ArenaRecord; 
 const canApplyDefaultValue = (params: {
   record: ArenaRecord
   node: ArenaRecordNode
-  nodeDef: NodeDef<any>
+  nodeDef: ArenaNodeDef<any>
 }): boolean => {
   const { record, node, nodeDef } = params
   return (
@@ -43,10 +47,10 @@ const canApplyDefaultValue = (params: {
 }
 
 const updateDefaultValueInNode = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   updateResult: RecordUpdateResult
   nodeToUpdate: ArenaRecordNode
-  nodeDef: NodeDef<any>
+  nodeDef: ArenaNodeDef<any>
   exprValue: any
   sideEffect: boolean
 }): void => {
@@ -87,7 +91,7 @@ const updateDefaultValueInNode = (params: {
 
 const updateDefaultValuesInNodes = async (
   params: RecordNodeDependentsUpdateParams & {
-    nodePointer: NodePointer
+    nodePointer: ArenaRecordNodePointer
     updateResult: RecordUpdateResult
   }
 ): Promise<void> => {
@@ -166,7 +170,7 @@ export const updateSelfAndDependentsDefaultValues = async (
 
   // filter nodes to update including itself and (attributes with empty values or with default values applied)
   // therefore attributes with user defined values are excluded
-  const nodePointersFilterFn = (nodePointer: NodePointer): boolean => {
+  const nodePointersFilterFn = (nodePointer: ArenaRecordNodePointer): boolean => {
     const { nodeDef } = nodePointer
     if (!NodeDefs.isAttribute(nodeDef)) return false
 

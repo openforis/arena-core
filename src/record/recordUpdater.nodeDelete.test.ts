@@ -9,7 +9,7 @@ const { entity, attribute } = RecordNodeBuilders
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { RecordUpdater } from './recordUpdater'
 import { RecordValidations } from './recordValidations'
 import { Records } from './records'
@@ -17,7 +17,7 @@ import { Surveys } from '../survey'
 import { Validations } from '../validation'
 import { NodeFactory } from '../node'
 
-let user: User
+let user: ArenaUser
 
 const createSurveyAndRecordWithMultipleEntities = async () => {
   const survey = await new SurveyBuilder(

@@ -1,7 +1,7 @@
-import { Dictionary } from '../common'
-import { NodeDef, NodeDefCountType, NodeDefs } from '../nodeDef'
+import { ArenaDictionary } from '../common'
+import { ArenaNodeDef, NodeDefCountType, NodeDefs } from '../nodeDef'
 import { Dates, Objects } from '../utils'
-import { MutationOptions, toMutationOptions } from '../utils/mutationOptions'
+import { ArenaMutationOptions, toMutationOptions } from '../utils/mutationOptions'
 import { ArenaRecordNode } from './node'
 
 const isRoot = (node: ArenaRecordNode): boolean => !node.parentUuid
@@ -30,7 +30,7 @@ const isChildRequired = (node: ArenaRecordNode, nodeDefUuid: string): boolean =>
 
 const getChildrenMinOrMaxCount = (params: {
   parentNode: ArenaRecordNode
-  nodeDef: NodeDef<any>
+  nodeDef: ArenaNodeDef<any>
   countType: NodeDefCountType
 }): number => {
   const { parentNode, nodeDef, countType } = params
@@ -47,10 +47,10 @@ const getChildrenMinOrMaxCount = (params: {
   return nodeDefCount && !Array.isArray(nodeDefCount) ? Number(nodeDefCount) : Number.NaN
 }
 
-const getChildrenMaxCount = (params: { parentNode: ArenaRecordNode; nodeDef: NodeDef<any> }): number =>
+const getChildrenMaxCount = (params: { parentNode: ArenaRecordNode; nodeDef: ArenaNodeDef<any> }): number =>
   getChildrenMinOrMaxCount({ ...params, countType: NodeDefCountType.max })
 
-const getChildrenMinCount = (params: { parentNode: ArenaRecordNode; nodeDef: NodeDef<any> }): number =>
+const getChildrenMinCount = (params: { parentNode: ArenaRecordNode; nodeDef: ArenaNodeDef<any> }): number =>
   getChildrenMinOrMaxCount({ ...params, countType: NodeDefCountType.min })
 
 const getHierarchy = (node: ArenaRecordNode): string[] => [...(node.meta?.h ?? [])]
@@ -115,7 +115,7 @@ const updateMetaDictionary = ({
   const nodeUpdated = sideEffect ? node : { ...node }
   const metaOriginal = nodeUpdated.meta ?? {}
   const meta = sideEffect ? metaOriginal : { ...metaOriginal }
-  const existingDictionary: Dictionary<boolean> = meta[propName] ?? {}
+  const existingDictionary: ArenaDictionary<boolean> = meta[propName] ?? {}
   const dictionary = sideEffect ? existingDictionary : { ...existingDictionary }
   if (propValue === defaultValue) {
     // default value: not stored
@@ -134,7 +134,7 @@ function assocChildEditable(
   node: ArenaRecordNode,
   nodeDefUuid: string,
   editable: boolean,
-  options?: MutationOptions
+  options?: ArenaMutationOptions
 ): ArenaRecordNode
 /** @deprecated Pass the options object instead of the positional boolean: `{ sideEffect }` */
 function assocChildEditable(
@@ -147,7 +147,7 @@ function assocChildEditable(
   node: ArenaRecordNode,
   nodeDefUuid: string,
   editable: boolean,
-  options?: MutationOptions | boolean
+  options?: ArenaMutationOptions | boolean
 ): ArenaRecordNode {
   const { sideEffect = false } = toMutationOptions(options)
   return updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
@@ -157,7 +157,7 @@ const assocChildRequired = (
   node: ArenaRecordNode,
   nodeDefUuid: string,
   required: boolean,
-  options?: MutationOptions
+  options?: ArenaMutationOptions
 ): ArenaRecordNode => {
   const { sideEffect = false } = options ?? {}
   return updateMetaDictionary({
@@ -174,7 +174,7 @@ function assocChildVisible(
   node: ArenaRecordNode,
   nodeDefUuid: string,
   visible: boolean,
-  options?: MutationOptions
+  options?: ArenaMutationOptions
 ): ArenaRecordNode
 /** @deprecated Pass the options object instead of the positional boolean: `{ sideEffect }` */
 function assocChildVisible(
@@ -187,7 +187,7 @@ function assocChildVisible(
   node: ArenaRecordNode,
   nodeDefUuid: string,
   visible: boolean,
-  options?: MutationOptions | boolean
+  options?: ArenaMutationOptions | boolean
 ): ArenaRecordNode {
   const { sideEffect = false } = toMutationOptions(options)
   return updateMetaDictionary({ node, nodeDefUuid, propName: 'cVis', propValue: visible, sideEffect })
@@ -255,10 +255,10 @@ const removeStatusFlags = ({
   sideEffect?: boolean
 }): ArenaRecordNode => (sideEffect ? clearStatusFlagsInPlace(node) : omitStatusFlags(node))
 
-function assocValue(node: ArenaRecordNode, value: any, options?: MutationOptions): ArenaRecordNode
+function assocValue(node: ArenaRecordNode, value: any, options?: ArenaMutationOptions): ArenaRecordNode
 /** @deprecated Pass the options object instead of the positional boolean: `{ sideEffect }` */
 function assocValue(node: ArenaRecordNode, value: any, sideEffect: boolean): ArenaRecordNode
-function assocValue(node: ArenaRecordNode, value: any, options?: MutationOptions | boolean): ArenaRecordNode {
+function assocValue(node: ArenaRecordNode, value: any, options?: ArenaMutationOptions | boolean): ArenaRecordNode {
   const { sideEffect = false } = toMutationOptions(options)
   const nodeUpdated = sideEffect ? node : { ...node }
   nodeUpdated.value = value

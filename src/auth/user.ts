@@ -1,5 +1,5 @@
-import { ArenaObject, Dictionary } from '../common'
-import { AuthGroup } from './authGroup'
+import { ArenaObject, ArenaDictionary } from '../common'
+import { ArenaAuthGroup } from './authGroup'
 
 export enum UserStatus {
   INVITED = 'INVITED',
@@ -13,46 +13,43 @@ export enum UserTitle {
   preferNotToSay = 'preferNotToSay',
 }
 
-export interface UserPrefSurveys {
+export interface ArenaUserPrefSurveys {
   [surveyId: number]: { cycle: number }
   current?: number
 }
 
-export interface UserPrefs {
-  surveys?: UserPrefSurveys
+export interface ArenaUserPrefs {
+  surveys?: ArenaUserPrefSurveys
 }
 
-export interface UserProps {
-  extra?: Dictionary<any>
+export interface ArenaUserProps {
+  extra?: ArenaDictionary<any>
   // private props (visible only to the user itself)
-  mapApiKeyByProvider?: Dictionary<string>
+  mapApiKeyByProvider?: ArenaDictionary<string>
   // restricted props (editable only by system admins)
   maxSurveys?: number
   title?: UserTitle
 }
 
-export interface UserInvitation {
+export interface ArenaUserInvitation {
   expired: boolean
 }
 
-export interface UserAuthGroupProps {
-  extra: Dictionary<any>
+export interface ArenaUserAuthGroupProps {
+  extra: ArenaDictionary<any>
 }
 
-export interface UserAuthGroup extends AuthGroup {
-  props?: UserAuthGroupProps
+export interface ArenaUserAuthGroup extends ArenaAuthGroup {
+  props?: ArenaUserAuthGroupProps
 }
 
-export interface User extends ArenaObject<UserProps> {
-  authGroups?: UserAuthGroup[]
+export interface ArenaUser extends ArenaObject<ArenaUserProps> {
+  authGroups?: ArenaUserAuthGroup[]
   email: string
   hasProfilePicture: boolean
   name: string
-  prefs?: UserPrefs
+  prefs?: ArenaUserPrefs
   status: UserStatus
   password?: string
-  invitation?: UserInvitation
+  invitation?: ArenaUserInvitation
 }
-
-/** Alias of User, not clashing with the User modules of the consumers. */
-export type ArenaUser = User

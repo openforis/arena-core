@@ -1,4 +1,4 @@
-import { Validation, Validations } from '../validation'
+import { ArenaValidation, Validations } from '../validation'
 
 const prefixValidationFieldChildrenCount = 'childrenCount_'
 
@@ -16,14 +16,14 @@ const extractValidationChildrenCountKeyNodeDefUuid = (validationFieldKey: string
 
 const getValidationChildrenCount =
   (params: { nodeParentUuid: string; nodeDefChildUuid: string }) =>
-  (validation: Validation): Validation => {
+  (validation: ArenaValidation): ArenaValidation => {
     const key = getValidationChildrenCountKey(params)
     return Validations.getFieldValidation(key)(validation)
   }
 
 const getValidationNode =
   (params: { nodeUuid: string }) =>
-  (validation: Validation): Validation => {
+  (validation: ArenaValidation): ArenaValidation => {
     const { nodeUuid } = params
     return Validations.getFieldValidation(nodeUuid)(validation)
   }

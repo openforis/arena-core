@@ -1,25 +1,25 @@
-import { User } from '../auth'
-import { Dictionary } from '../common'
+import { ArenaUser } from '../auth'
+import { ArenaDictionary } from '../common'
 import { SystemError, SystemErrorKeys } from '../error'
-import { Logger } from '../logger'
-import { Survey } from '../survey'
+import { ArenaLogger } from '../logger'
+import { ArenaSurvey } from '../survey'
 import { UUIDs } from '../utils'
 
-import { Job } from './job'
-import { JobContext } from './jobContext'
-import { JobEvent, JobEventType } from './jobEvent'
-import { JobSerialized } from './jobSerialized'
+import { ArenaJob } from './job'
+import { ArenaJobContext } from './jobContext'
+import { ArenaJobEvent, JobEventType } from './jobEvent'
+import { ArenaJobSerialized } from './jobSerialized'
 import { JobStatus } from './status'
 
 export interface JobConstructor {
-  new <C extends JobContext, R>(context: C, innerJobs?: JobBase<any>[]): JobBase<C, R>
+  new <C extends ArenaJobContext, R>(context: C, innerJobs?: JobBase<any>[]): JobBase<C, R>
   readonly prototype: JobBase<any, any>
 }
 
 /**
  * Client able to open a transaction (e.g. a pg-promise database): the job runs inside `client.tx(callback)`.
  */
-export interface JobTxClient {
+export interface ArenaJobTxClient {
   tx(callback: (tx: any) => Promise<void>): Promise<unknown>
 }
 
@@ -46,7 +46,7 @@ const PROGRESS_NOTIFICATION_THROTTLE_MILLIS = 1000
  * - onEnd (out of tx)
  * - getErrorInfo
  */
-export abstract class JobBase<C extends JobContext, R = undefined> implements Job<R> {
+export abstract class JobBase<C extends ArenaJobContext, R = undefined> implements ArenaJob<R> {
   static readonly keysContext = {
     surveyId: 'surveyId',
     survey: 'survey',
@@ -63,13 +63,13 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   errors: Record<string, any> = {}
   canceledByAdmin?: boolean
 
-  protected logger: Logger
+  protected logger: ArenaLogger
   protected context: C
   protected innerJobs: JobBase<C, any>[]
   protected currentInnerJobIndex = -1
 
   private _processed = 0
-  private eventListener: ((event: JobEvent) => unknown) | undefined = undefined
+  private eventListener: ((event: ArenaJobEvent) => unknown) | undefined = undefined
   private progressThrottleTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined
   private progressThrottleLastRunTime = 0
   private _stopOnInnerJobFailure = true
@@ -81,7 +81,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   // true while the job is executing in its own transaction: onEnd must run out of it
   private executingInTransaction = false
   // status change event of a job ended while executing in its transaction (e.g. when an inner job fails)
-  private deferredEndEvent: JobEvent | null = null
+  private deferredEndEvent: ArenaJobEvent | null = null
 
   public constructor(context: C, innerJobs: JobBase<C, any>[] = []) {
     this.context = { ...context }
@@ -117,7 +117,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     return this.context.surveyId ?? null
   }
 
-  protected get user(): User {
+  protected get user(): ArenaUser {
     return this.context.user
   }
 
@@ -125,7 +125,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     return this.user?.uuid
   }
 
-  protected get contextSurvey(): Survey | undefined {
+  protected get contextSurvey(): ArenaSurvey | undefined {
     return this.context.survey
   }
 
@@ -158,7 +158,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
    * Only one listener can be registered at a time; registering a new one replaces the previous one.
    * Errors thrown (or rejections returned) by the listener are logged and do not affect the job execution.
    */
-  onEvent(listener: (event: JobEvent) => unknown): this {
+  onEvent(listener: (event: ArenaJobEvent) => unknown): this {
     this.eventListener = listener
     return this
   }
@@ -265,7 +265,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     await this.beforeEnd()
   }
 
-  async start(client: JobTxClient | null = null): Promise<void> {
+  async start(client: ArenaJobTxClient | null = null): Promise<void> {
     // canceled before being started: nothing to execute
     if (this.cancelRequested || this.isEnded()) return
 
@@ -289,7 +289,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     }
   }
 
-  private async executeInOwnTransaction(client: JobTxClient | null): Promise<void> {
+  private async executeInOwnTransaction(client: ArenaJobTxClient | null): Promise<void> {
     this.executingInTransaction = true
     try {
       if (client) {
@@ -340,7 +340,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   /**
    * Generates a plain JSON-serializable representation of the job, including its inner jobs.
    */
-  toJSON(): JobSerialized<R> {
+  toJSON(): ArenaJobSerialized<R> {
     const { errors, processed, result, status, total, type, userUuid, uuid } = this
 
     return {
@@ -452,7 +452,12 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     this.logDebug(`set status: ${status}`)
     this.status = status
 
-    const event: JobEvent = { type: JobEventType.statusChange, status, total: this.total, processed: this.processed }
+    const event: ArenaJobEvent = {
+      type: JobEventType.statusChange,
+      status,
+      total: this.total,
+      processed: this.processed,
+    }
     if (status === JobStatus.failed) {
       event.errors = this.errors
     }
@@ -465,7 +470,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     await this.end(event)
   }
 
-  private async end(event: JobEvent): Promise<void> {
+  private async end(event: ArenaJobEvent): Promise<void> {
     if (this.isEnded()) {
       this.logDebug('onEnd...')
       await this.onEnd()
@@ -485,7 +490,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
   /**
    * Inner job event handler.
    */
-  protected async onInnerJobEvent(event: JobEvent): Promise<void> {
+  protected async onInnerJobEvent(event: ArenaJobEvent): Promise<void> {
     const { status } = event
     if (status === JobStatus.canceled) {
       this.canceledByAdmin = this.getCurrentInnerJob()?.canceledByAdmin ?? false
@@ -582,7 +587,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     this.errors[key] = error
   }
 
-  protected throwError(errorKey: string, params?: Dictionary<any>): void {
+  protected throwError(errorKey: string, params?: ArenaDictionary<any>): void {
     // SystemError: getErrorInfo will report the translatable key instead of a generic error
     throw new SystemError(errorKey, params)
   }
@@ -594,7 +599,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
     return { key: 'appErrors:generic', params: { text: error.toString() } }
   }
 
-  protected abstract createLogger(): Logger
+  protected abstract createLogger(): ArenaLogger
 
   protected logDebug(...msgs: any[]): void {
     this.logger.debug(...msgs)
@@ -690,7 +695,7 @@ export abstract class JobBase<C extends JobContext, R = undefined> implements Jo
    * Listener errors are only logged: they would otherwise fail the job or, when thrown inside the progress
    * throttle timeout, crash the process.
    */
-  private notifyEvent(event: JobEvent): void {
+  private notifyEvent(event: ArenaJobEvent): void {
     const listener = this.eventListener
     if (!listener) return
     try {

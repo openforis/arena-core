@@ -1,13 +1,13 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { Survey, Surveys } from '../../survey'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
 const { booleanDef, category, categoryItem, codeDef, entityDef, integerDef, textDef } = SurveyObjectBuilders
 
 import { SurveyDependencyType } from '../survey'
 
-let survey: Survey
+let survey: ArenaSurvey
 
 const expectDependents = (params: {
   sourceName: string
@@ -237,7 +237,7 @@ describe('Survey Dependencies - identifiers referenced inside a filter predicate
   // readonly attribute using this expression was computed once (typically with an empty "$context"
   // attribute, resulting in an empty/zero result) and never recomputed when the user filled in or
   // edited those attributes afterwards.
-  let filterSurvey: Survey
+  let filterSurvey: ArenaSurvey
 
   beforeAll(async () => {
     const user = createTestAdminUser()
@@ -302,7 +302,7 @@ describe('Survey Dependencies - identifiers referenced inside a filter predicate
 })
 
 describe('Survey Dependencies - enumeratingItemsExpression', () => {
-  let enumeratingItemsSurvey: Survey
+  let enumeratingItemsSurvey: ArenaSurvey
 
   beforeAll(async () => {
     const user = createTestAdminUser()

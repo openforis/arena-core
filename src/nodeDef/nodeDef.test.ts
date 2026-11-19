@@ -1,7 +1,7 @@
 import { describe, test, expect } from '@jest/globals'
 
 import { NodeDefFactory, NodeDefFactoryParams } from './factory'
-import { NodeDef, NodeDefType } from './nodeDef'
+import { ArenaNodeDef, NodeDefType } from './nodeDef'
 
 const clusterParams: NodeDefFactoryParams = {
   analysis: false,
@@ -26,7 +26,7 @@ const dbhParams: NodeDefFactoryParams = {
 }
 const dbh = NodeDefFactory.createInstance(dbhParams)
 
-const testNodeDef = (nodeDef: NodeDef<any>, params: NodeDefFactoryParams) =>
+const testNodeDef = (nodeDef: ArenaNodeDef<any>, params: NodeDefFactoryParams) =>
   test(`createInstance ${nodeDef.props.name}`, () => {
     const { analysis, nodeDefParent, props, type, virtual } = params
 

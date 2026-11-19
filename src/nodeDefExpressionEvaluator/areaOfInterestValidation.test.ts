@@ -1,12 +1,12 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { withAreasOfInterest } from '../tests/areaOfInterestTestUtils'
 import { createTestAdminUser, createTestSurvey } from '../tests/data'
 import { NodeDefExpressionValidator } from './validator'
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 
 const validate = (expression: string) =>
   new NodeDefExpressionValidator().validate({ expression, survey, nodeDefCurrent: Surveys.getNodeDefRoot({ survey }) })

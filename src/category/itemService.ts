@@ -1,36 +1,41 @@
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaService } from '../common'
-import { Category } from './category'
-import { CategoryItem, CategoryItemProps } from './item'
+import { ArenaCategory } from './category'
+import { ArenaCategoryItem, ArenaCategoryItemProps } from './item'
 
-export interface CategoryItemService extends ArenaService {
+export interface ArenaCategoryItemService extends ArenaService {
   // ==== CREATE
   create(options: {
     categoryUuid: string
-    item: CategoryItem
+    item: ArenaCategoryItem
     surveyId: number
-    user: User
-  }): Promise<{ item: CategoryItem; category: Category }>
+    user: ArenaUser
+  }): Promise<{ item: ArenaCategoryItem; category: ArenaCategory }>
 
   // ==== READ
-  get(options: { validate?: boolean; draft?: boolean; categoryUuid: string; surveyId: number }): Promise<CategoryItem>
+  get(options: {
+    validate?: boolean
+    draft?: boolean
+    categoryUuid: string
+    surveyId: number
+  }): Promise<ArenaCategoryItem>
 
   getMany(options: {
     categoryUuid: string
     draft?: boolean
     parentUuid?: string
     surveyId: number
-  }): Promise<Array<CategoryItem>>
+  }): Promise<Array<ArenaCategoryItem>>
 
   // ==== UPDATE
   update(options: {
     categoryUuid: string
     itemUuid: string
     surveyId: number
-    user: User
-    props: CategoryItemProps
-  }): Promise<{ item: CategoryItem; category: Category }>
+    user: ArenaUser
+    props: ArenaCategoryItemProps
+  }): Promise<{ item: ArenaCategoryItem; category: ArenaCategory }>
 
   // ==== DELETE
-  delete(options: { itemUuid: string; categoryUuid: string; surveyId: number; user: User }): Promise<Category>
+  delete(options: { itemUuid: string; categoryUuid: string; surveyId: number; user: ArenaUser }): Promise<ArenaCategory>
 }

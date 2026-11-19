@@ -1,6 +1,6 @@
-import { ArenaRecordNode, NodePointer, Nodes, NodeValues } from '../../node'
-import { NodeDefEntity, NodeDefs } from '../../nodeDef'
-import { Survey, Surveys } from '../../survey'
+import { ArenaRecordNode, ArenaRecordNodePointer, Nodes, NodeValues } from '../../node'
+import { ArenaNodeDefEntity, NodeDefs } from '../../nodeDef'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { getChild, getChildren, getRoot } from '../_records/recordGetters'
 import { ArenaRecord } from '../record'
@@ -13,10 +13,10 @@ import { removeNodes } from './recordNodesDeleter'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 const getEnumeratingItemsNodePointers = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   node: ArenaRecordNode
-}): NodePointer[] => {
+}): ArenaRecordNodePointer[] => {
   const { survey, record, node } = params
   const nodePointers = Records.getDependentNodePointers(survey, node, SurveyDependencyType.enumeratingItems)(record)
 
@@ -35,7 +35,10 @@ const getEnumeratingItemsNodePointers = (params: {
   }
 
   for (const dependentDef of dependentDefs) {
-    if (!NodeDefs.isEntity(dependentDef) || !NodeDefs.getEnumeratingItemsExpression(dependentDef as NodeDefEntity)) {
+    if (
+      !NodeDefs.isEntity(dependentDef) ||
+      !NodeDefs.getEnumeratingItemsExpression(dependentDef as ArenaNodeDefEntity)
+    ) {
       continue
     }
     const parentDef = Surveys.getNodeDefParent({ survey, nodeDef: dependentDef })
@@ -53,7 +56,7 @@ const getEnumeratingItemsNodePointers = (params: {
 export const syncEnumeratingItemsEntities = async (
   params: RecordNodeDependentsUpdateParams & {
     parentNode: ArenaRecordNode
-    entityDef: NodeDefEntity
+    entityDef: ArenaNodeDefEntity
     updateResult: RecordUpdateResult
   }
 ): Promise<void> => {
@@ -139,7 +142,7 @@ export const updateDependentEnumeratingItemsEntities = async (
     const { nodeCtx: parentNode, nodeDef } = nodePointer
     if (!NodeDefs.isEntity(nodeDef)) continue
 
-    const entityDef = nodeDef as NodeDefEntity
+    const entityDef = nodeDef as ArenaNodeDefEntity
     if (!NodeDefs.isEnumerate(entityDef)) continue
     if (!NodeDefs.getEnumeratingItemsExpression(entityDef)) continue
 

@@ -1,36 +1,36 @@
-import { AppInfo } from '../app'
+import { ArenaAppInfo } from '../app'
 
-export type AuthToken = {
+export type ArenaAuthToken = {
   token: string
   dateCreated: Date
   expiresAt: Date
 }
 
-export type UserAuthRefreshTokenProps = {
-  appInfo?: AppInfo
+export type ArenaUserAuthRefreshTokenProps = {
+  appInfo?: ArenaAppInfo
   ipAddress?: string
   userAgent?: string
 }
 
-export type UserAuthRefreshToken = AuthToken & {
+export type ArenaUserAuthRefreshToken = ArenaAuthToken & {
   uuid: string
   userUuid: string
-  props: UserAuthRefreshTokenProps
+  props: ArenaUserAuthRefreshTokenProps
   revoked?: boolean
 }
 
-export type UserTokenPayload = {
+export type ArenaUserTokenPayload = {
   userUuid: string
 }
 
-export type UserAuthTokenPayload = UserTokenPayload & {
+export type ArenaUserAuthTokenPayload = ArenaUserTokenPayload & {
   uuid?: string
 }
 
-export type UserAuthRefreshTokenPayload = UserTokenPayload & {
+export type ArenaUserAuthRefreshTokenPayload = ArenaUserTokenPayload & {
   uuid: string
 }
 
-export type DownloadAuthTokenPayload = UserTokenPayload & {
+export type ArenaDownloadAuthTokenPayload = ArenaUserTokenPayload & {
   fileName: string
 }

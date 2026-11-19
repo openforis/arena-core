@@ -1,8 +1,11 @@
-import { ExpressionContext } from '../../context'
-import { ExpressionNodeEvaluator, SequenceExpression } from '../../node'
+import { ArenaExpressionContext } from '../../context'
+import { ExpressionNodeEvaluator, ArenaSequenceExpression } from '../../node'
 
-export class SequenceEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, SequenceExpression> {
-  async evaluate(expressionNode: SequenceExpression): Promise<any> {
+export class SequenceEvaluator<C extends ArenaExpressionContext> extends ExpressionNodeEvaluator<
+  C,
+  ArenaSequenceExpression
+> {
+  async evaluate(expressionNode: ArenaSequenceExpression): Promise<any> {
     const { expression } = expressionNode
     return this.evaluator.evaluateNode(expression, this.context)
   }

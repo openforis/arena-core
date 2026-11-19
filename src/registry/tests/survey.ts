@@ -1,17 +1,17 @@
-import { Survey, SurveyFactory, SurveyService } from '../../survey'
-import { JobSerialized } from '../../job'
+import { ArenaSurvey, SurveyFactory, ArenaSurveyService } from '../../survey'
+import { ArenaJobSerialized } from '../../job'
 
-export const surveyMock: Survey = SurveyFactory.createInstance({
+export const surveyMock: ArenaSurvey = SurveyFactory.createInstance({
   ownerUuid: 'survey_owner_uuid',
   name: 'survey_name',
 })
 
-export class SurveyServiceMock implements SurveyService {
-  create(): Promise<Survey> {
+export class SurveyServiceMock implements ArenaSurveyService {
+  create(): Promise<ArenaSurvey> {
     throw new Error('Not implemented')
   }
 
-  clone(): Promise<JobSerialized<any>> {
+  clone(): Promise<ArenaJobSerialized<any>> {
     throw new Error('Not implemented')
   }
 
@@ -23,19 +23,19 @@ export class SurveyServiceMock implements SurveyService {
     throw new Error('Not implemented')
   }
 
-  getMany(): Promise<Array<Survey>> {
+  getMany(): Promise<Array<ArenaSurvey>> {
     throw new Error('Not implemented')
   }
 
-  get(): Promise<Survey> {
+  get(): Promise<ArenaSurvey> {
     return Promise.resolve(surveyMock)
   }
 
-  update(): Promise<Survey> {
+  update(): Promise<ArenaSurvey> {
     throw new Error('Not implemented')
   }
 
-  publish(): Promise<JobSerialized<any>> {
+  publish(): Promise<ArenaJobSerialized<any>> {
     throw new Error('Not implemented')
   }
 

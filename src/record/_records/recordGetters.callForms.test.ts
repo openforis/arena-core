@@ -1,13 +1,13 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
 import { ArenaRecordNode, Nodes } from '../../node'
-import { Survey, Surveys } from '../../survey'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { TestUtils } from '../../tests/testUtils'
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
 import { createClusterPlotSurveyAndRecord } from './tests/clusterPlotRecord'
 
-let survey: Survey
+let survey: ArenaSurvey
 let record: ArenaRecord
 
 // record getters take positional parameters first and the record as separate parameter: getter(...params)(record)

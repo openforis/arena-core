@@ -1,9 +1,9 @@
 export { NodePointers } from './nodePointers'
 
-export type { ArenaRecord, Record } from './record'
+export type { ArenaRecord } from './record'
 export { RECORD_STEP_DEFAULT } from './record'
 
-export type { RecordStep } from './recordStep'
+export type { ArenaRecordStep } from './recordStep'
 export {
   RecordStepAnalysisCode,
   RecordStepCleansingCode,
@@ -14,25 +14,29 @@ export {
 } from './recordStep'
 
 export { Records } from './records'
-export type { RecordUpdateOptions } from './records'
+export type { ArenaRecordUpdateOptions } from './records'
 
 export { RecordCloner } from './recordCloner'
 export { RecordExpressionEvaluator } from './recordExpressionEvaluator'
-export type { RecordExpressionContext } from './recordExpressionEvaluator'
+export type { ArenaRecordExpressionContext } from './recordExpressionEvaluator'
 export { RecordFixer } from './recordFixer'
 export { RecordNodesUpdater, RecordUpdateResult } from './recordNodesUpdater'
-export type { NodeCreateParams, NodesUpdateParams, RecordExpressionEvaluationContext } from './recordNodesUpdater'
+export type {
+  ArenaRecordNodeCreateParams,
+  ArenaRecordNodesUpdateParams,
+  ArenaRecordExpressionEvaluationContext,
+} from './recordNodesUpdater'
 export { RecordUpdater } from './recordUpdater'
 export { RecordValidator } from './recordValidator'
 export type {
-  AttributeValidatorParams,
-  AttributesValidatorParams,
-  RecordValidatorParams,
-  SortedAttributesValidatorParams,
+  ArenaAttributeValidatorParams,
+  ArenaAttributesValidatorParams,
+  ArenaRecordValidatorParams,
+  ArenaSortedAttributesValidatorParams,
 } from './recordValidator'
 export { RecordValidations } from './recordValidations'
 
 export { RecordFactory } from './factory'
-export type { RecordService } from './service'
+export type { ArenaRecordService } from './service'
 
 export { RecordPrettyPrinter } from './recordPrettyPrinter'

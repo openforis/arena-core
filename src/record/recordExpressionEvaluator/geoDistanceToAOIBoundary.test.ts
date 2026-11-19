@@ -1,20 +1,20 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
 import { SystemError } from '../../error'
-import { AreaOfInterest } from '../../geo'
-import { AreaOfInterestProvider } from '../../nodeDefExpressionEvaluator'
+import { ArenaAreaOfInterest } from '../../geo'
+import { ArenaAreaOfInterestProvider } from '../../nodeDefExpressionEvaluator'
 import { DEFAULT_SRS } from '../../srs'
-import { Survey } from '../../survey'
+import { ArenaSurvey } from '../../survey'
 import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../tests/data'
 import { createTestAreaOfInterestProvider, withAreasOfInterest } from '../../tests/areaOfInterestTestUtils'
 import { TestUtils } from '../../tests/testUtils'
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
-import { RecordExpressionContext } from './context'
+import { ArenaRecordExpressionContext } from './context'
 import { RecordExpressionEvaluator } from './recordExpressionEvaluator'
 
 // square around the test record locations (lon 41.8..42.0, lat 12.4..12.6)
-const areaOfInterest: AreaOfInterest = {
+const areaOfInterest: ArenaAreaOfInterest = {
   type: 'Polygon',
   coordinates: [
     [
@@ -28,8 +28,8 @@ const areaOfInterest: AreaOfInterest = {
 }
 
 const user = createTestAdminUser()
-let surveyWithAOI: Survey
-let surveyWithoutAOI: Survey
+let surveyWithAOI: ArenaSurvey
+let surveyWithoutAOI: ArenaSurvey
 let record: ArenaRecord
 
 const pilotArea = 'pilot_area'
@@ -37,11 +37,11 @@ const areaOfInterestProvider = createTestAreaOfInterestProvider({ [pilotArea]: a
 
 const evaluate = (
   expression: string,
-  params: { survey?: Survey; record?: ArenaRecord; provider?: AreaOfInterestProvider | null } = {}
+  params: { survey?: ArenaSurvey; record?: ArenaRecord; provider?: ArenaAreaOfInterestProvider | null } = {}
 ) => {
   const { survey = surveyWithAOI, record: recordToEvaluate = record, provider = areaOfInterestProvider } = params
   const nodeContext = Records.getRoot(recordToEvaluate)!
-  const context: RecordExpressionContext = {
+  const context: ArenaRecordExpressionContext = {
     user,
     survey,
     record: recordToEvaluate,

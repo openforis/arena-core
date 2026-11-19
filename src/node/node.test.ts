@@ -1,6 +1,6 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { NodeDefFactory, NodeDefType, NodeDefValidations } from '../nodeDef'
+import { NodeDefFactory, NodeDefType, ArenaNodeDefValidations } from '../nodeDef'
 import { NodeFactory, NodeFactoryParams } from './factory'
 import { ArenaRecordNode } from './node'
 import { Nodes } from './nodes'
@@ -129,7 +129,7 @@ describe('Nodes mutation options', () => {
 
 describe('Nodes.getChildrenMinCount / getChildrenMaxCount', () => {
   const parentNode = NodeFactory.createInstance({ nodeDefUuid: 'parentDef', recordUuid: 'rec' })
-  const createNodeDef = (count: NodeDefValidations['count']) =>
+  const createNodeDef = (count: ArenaNodeDefValidations['count']) =>
     NodeDefFactory.createInstance({ type: NodeDefType.entity, propsAdvanced: { validations: { count } } })
 
   test('constant counts are converted to numbers', () => {

@@ -1,16 +1,16 @@
 import { ArenaRecordNode } from '../../node'
-import { Validation, ValidationFactory } from '../../validation'
+import { ArenaValidation, ValidationFactory } from '../../validation'
 import { Validations } from '../../validation/validations'
 import { Records } from '../records'
 import {
-  AttributesValidatorParams,
+  ArenaAttributesValidatorParams,
   AttributeValidator,
-  RecordValidatorParams,
-  SortedAttributesValidatorParams,
+  ArenaRecordValidatorParams,
+  ArenaSortedAttributesValidatorParams,
 } from './attributeValidator'
 import { CountValidator } from './countValidator'
 
-export const validateSortedNodes = async (params: SortedAttributesValidatorParams): Promise<Validation> => {
+export const validateSortedNodes = async (params: ArenaSortedAttributesValidatorParams): Promise<ArenaValidation> => {
   const { survey, record, nodesArray } = params
 
   // 1. validate attributes
@@ -34,10 +34,10 @@ export const validateSortedNodes = async (params: SortedAttributesValidatorParam
   )
 }
 
-export const validateNodes = async (params: AttributesValidatorParams): Promise<Validation> =>
+export const validateNodes = async (params: ArenaAttributesValidatorParams): Promise<ArenaValidation> =>
   validateSortedNodes({ ...params, nodesArray: Object.values(params.nodes) })
 
-export const validateRecord = async (params: RecordValidatorParams): Promise<Validation> => {
+export const validateRecord = async (params: ArenaRecordValidatorParams): Promise<ArenaValidation> => {
   const { record } = params
   const nodesArray: ArenaRecordNode[] = []
   Records.visitDescendantsAndSelf(Records.getRoot(record)!, (node) => {

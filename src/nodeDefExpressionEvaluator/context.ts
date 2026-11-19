@@ -1,17 +1,17 @@
-import { User } from '../auth'
-import { ExpressionContext } from '../expression'
-import { NodeDef } from '../nodeDef'
-import { NodeDefProps, NodeDefType } from '../nodeDef/nodeDef'
-import { Survey } from '../survey'
-import { AreaOfInterestProvider } from './areaOfInterestProvider'
-import { CategoryItemProvider } from './categoryItemProvider'
-import { TaxonProvider } from './taxonProvider'
+import { ArenaUser } from '../auth'
+import { ArenaExpressionContext } from '../expression'
+import { ArenaNodeDef } from '../nodeDef'
+import { ArenaNodeDefProps, NodeDefType } from '../nodeDef/nodeDef'
+import { ArenaSurvey } from '../survey'
+import { ArenaAreaOfInterestProvider } from './areaOfInterestProvider'
+import { ArenaCategoryItemProvider } from './categoryItemProvider'
+import { ArenaTaxonProvider } from './taxonProvider'
 
-export interface NodeDefExpressionContext extends ExpressionContext {
-  survey: Survey
-  user?: User
-  nodeDefCurrent: NodeDef<NodeDefType, NodeDefProps>
-  nodeDefContext?: NodeDef<NodeDefType, NodeDefProps>
+export interface NodeDefExpressionContext extends ArenaExpressionContext {
+  survey: ArenaSurvey
+  user?: ArenaUser
+  nodeDefCurrent: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeDefContext?: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
   /**
    * Unique UUIDs of node definitions being visited during expression evaluation.
    */
@@ -22,7 +22,7 @@ export interface NodeDefExpressionContext extends ExpressionContext {
   // true when evaluating the property of a member expression (e.g. "length" in "text_attr.length")
   memberProperty?: boolean
 
-  categoryItemProvider?: CategoryItemProvider
-  taxonProvider?: TaxonProvider
-  areaOfInterestProvider?: AreaOfInterestProvider
+  categoryItemProvider?: ArenaCategoryItemProvider
+  taxonProvider?: ArenaTaxonProvider
+  areaOfInterestProvider?: ArenaAreaOfInterestProvider
 }

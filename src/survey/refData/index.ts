@@ -1,3 +1,3 @@
 export { SurveyRefDataFactory } from './factory'
 
-export type { SurveyRefData } from './refData'
+export type { ArenaSurveyRefData } from './refData'

@@ -1,5 +1,5 @@
 import { NodeValueComposite } from './nodeValueComposite'
 
-export interface NodeValueCode extends NodeValueComposite {
+export interface ArenaRecordNodeValueCode extends NodeValueComposite {
   itemUuid: string
 }

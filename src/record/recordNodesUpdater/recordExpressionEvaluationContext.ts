@@ -1,28 +1,28 @@
-import { User } from '../../auth'
+import { ArenaUser } from '../../auth'
 import { LanguageCode } from '../../language'
-import { AreaOfInterestProvider } from '../../nodeDefExpressionEvaluator/areaOfInterestProvider'
-import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
-import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
-import { Survey } from '../../survey'
+import { ArenaAreaOfInterestProvider } from '../../nodeDefExpressionEvaluator/areaOfInterestProvider'
+import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { ArenaTaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
+import { ArenaSurvey } from '../../survey'
 import type { ArenaRecord } from '../record'
 
-export interface RecordExpressionEvaluationContext {
-  user: User
-  survey: Survey
+export interface ArenaRecordExpressionEvaluationContext {
+  user: ArenaUser
+  survey: ArenaSurvey
   record: ArenaRecord
   prevCycleRecord?: ArenaRecord
   timezoneOffset?: number
   lang?: LanguageCode
-  categoryItemProvider?: CategoryItemProvider
-  taxonProvider?: TaxonProvider
-  areaOfInterestProvider?: AreaOfInterestProvider
+  categoryItemProvider?: ArenaCategoryItemProvider
+  taxonProvider?: ArenaTaxonProvider
+  areaOfInterestProvider?: ArenaAreaOfInterestProvider
   sideEffect?: boolean
 }
 
 /**
  * Params read by the record expression evaluator (the evaluation context without the update options).
  */
-export type RecordExpressionEvaluationParams = Omit<RecordExpressionEvaluationContext, 'sideEffect'>
+export type RecordExpressionEvaluationParams = Omit<ArenaRecordExpressionEvaluationContext, 'sideEffect'>
 
 // every key of RecordExpressionEvaluationParams must be listed here (checked by the compiler)
 const evaluationParamsKeysMap: { [key in keyof RecordExpressionEvaluationParams]-?: true } = {

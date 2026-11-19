@@ -1,27 +1,27 @@
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaService } from '../common'
-import { JobSerialized } from '../job'
+import { ArenaJobSerialized } from '../job'
 import { LanguageCode } from '../language'
-import { Survey, SurveyProps } from './survey'
+import { ArenaSurvey, ArenaSurveyProps } from './survey'
 
-export interface SurveyService extends ArenaService {
+export interface ArenaSurveyService extends ArenaService {
   // ==== CREATE
-  create(options: { name: string; label: string; lang: LanguageCode; user: User }): Promise<Survey>
+  create(options: { name: string; label: string; lang: LanguageCode; user: ArenaUser }): Promise<ArenaSurvey>
 
   clone(options: {
     name: string
     label: string
     lang: LanguageCode
     surveyId: number
-    user: User
-  }): Promise<JobSerialized<any>>
+    user: ArenaUser
+  }): Promise<ArenaJobSerialized<any>>
 
   // ==== READ
-  count(options: { user: User }): Promise<number>
+  count(options: { user: ArenaUser }): Promise<number>
 
   getAllIds(): Promise<Array<number>>
 
-  getMany(options: { limit?: number; offset?: number; user: User }): Promise<Array<Survey>>
+  getMany(options: { limit?: number; offset?: number; user: ArenaUser }): Promise<Array<ArenaSurvey>>
 
   get(options: {
     draft?: boolean
@@ -29,13 +29,13 @@ export interface SurveyService extends ArenaService {
     surveyId: number
     validate?: boolean
     backup?: boolean
-  }): Promise<Survey>
+  }): Promise<ArenaSurvey>
 
   // ==== UPDATE
-  update(options: { props: SurveyProps; surveyId: number; user: User }): Promise<Survey>
+  update(options: { props: ArenaSurveyProps; surveyId: number; user: ArenaUser }): Promise<ArenaSurvey>
 
-  publish(options: { surveyId: number; user: User }): Promise<JobSerialized<any>>
+  publish(options: { surveyId: number; user: ArenaUser }): Promise<ArenaJobSerialized<any>>
 
   // ==== DELETE
-  delete(options: { surveyId: number; user: User }): Promise<void>
+  delete(options: { surveyId: number; user: ArenaUser }): Promise<void>
 }

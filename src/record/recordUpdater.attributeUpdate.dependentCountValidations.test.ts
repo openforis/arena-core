@@ -6,10 +6,10 @@ import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuil
 const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { Nodes } from '../node'
-import { NodeDef, NodeDefExpressionFactory } from '../nodeDef/nodeDef'
-import { Survey, Surveys } from '../survey'
+import { ArenaNodeDef, NodeDefExpressionFactory } from '../nodeDef/nodeDef'
+import { ArenaSurvey, Surveys } from '../survey'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 import { Validations } from '../validation'
@@ -18,7 +18,7 @@ import { RecordUpdater } from './recordUpdater'
 import { RecordValidations } from './recordValidations'
 import { Records } from './records'
 
-let user: User
+let user: ArenaUser
 
 const updateSourceAndExpectMinCountValidation = async ({
   survey,
@@ -29,10 +29,10 @@ const updateSourceAndExpectMinCountValidation = async ({
   expectedMinCount,
   expectedValid,
 }: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   attributeUuid: string
-  dependentNodeDef: NodeDef<any>
+  dependentNodeDef: ArenaNodeDef<any>
   value: number
   expectedMinCount: number
   expectedValid: boolean

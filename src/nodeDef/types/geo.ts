@@ -1,8 +1,8 @@
-import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
 
-export interface NodeDefGeoProps extends NodeDefProps {
+export interface ArenaNodeDefGeoProps extends ArenaNodeDefProps {
   // when true, the value is the track recorded by position tracking in Arena Mobile
   positionTracking?: boolean
 }
 
-export type NodeDefGeo = NodeDef<NodeDefType.geo, NodeDefGeoProps>
+export type ArenaNodeDefGeo = ArenaNodeDef<NodeDefType.geo, ArenaNodeDefGeoProps>

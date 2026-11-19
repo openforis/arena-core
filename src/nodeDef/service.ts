@@ -1,17 +1,17 @@
-import { User } from '../auth'
-import { ChainNodeDef } from '../chain'
+import { ArenaUser } from '../auth'
+import { ArenaChainNodeDef } from '../chain'
 import { ArenaService } from '../common'
-import { NodeDef, NodeDefType } from './nodeDef'
+import { ArenaNodeDef, NodeDefType } from './nodeDef'
 
-export interface NodeDefService extends ArenaService {
+export interface ArenaNodeDefService extends ArenaService {
   // ==== CREATE
   create(options: {
-    chainNodeDef?: ChainNodeDef
+    chainNodeDef?: ArenaChainNodeDef
     cycle: string
-    nodeDef: NodeDef<NodeDefType>
+    nodeDef: ArenaNodeDef<NodeDefType>
     surveyId: number
-    user: User
-  }): Promise<{ [nodeDefUuid: string]: NodeDef<NodeDefType> }>
+    user: ArenaUser
+  }): Promise<{ [nodeDefUuid: string]: ArenaNodeDef<NodeDefType> }>
 
   // ==== READ
   getMany(options: {
@@ -22,23 +22,23 @@ export interface NodeDefService extends ArenaService {
     limit?: number
     offset?: number
     surveyId: number
-    user: User
+    user: ArenaUser
     validate?: boolean
-  }): Promise<{ [nodeDefUuid: string]: NodeDef<NodeDefType> }>
+  }): Promise<{ [nodeDefUuid: string]: ArenaNodeDef<NodeDefType> }>
 
   // ==== UPDATE
   update(options: {
     cycle: string
-    nodeDef: NodeDef<NodeDefType>
-    user: User
+    nodeDef: ArenaNodeDef<NodeDefType>
+    user: ArenaUser
     surveyId: number
-  }): Promise<{ [nodeDefUuid: string]: NodeDef<NodeDefType> }>
+  }): Promise<{ [nodeDefUuid: string]: ArenaNodeDef<NodeDefType> }>
 
   // ==== DELETE
   delete(options: {
     cycle: string
     nodeDefUuid: string
-    user: User
+    user: ArenaUser
     surveyId: number
-  }): Promise<{ [nodeDefUuid: string]: NodeDef<NodeDefType> }>
+  }): Promise<{ [nodeDefUuid: string]: ArenaNodeDef<NodeDefType> }>
 }

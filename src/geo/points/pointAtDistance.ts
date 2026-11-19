@@ -1,8 +1,8 @@
 import turfDestination from '@turf/destination'
 
-import { DEFAULT_SRS_INDEX, SRSIndex } from '../../srs'
+import { DEFAULT_SRS_INDEX, ArenaSRSIndex } from '../../srs'
 import { Numbers } from '../../utils'
-import { Point } from '../point'
+import { ArenaPoint } from '../point'
 import { PointFactory } from '../pointFactory'
 import { toLatLong } from './toLatLong'
 import { transform } from './transform'
@@ -23,11 +23,11 @@ export const pointAtDistance = ({
   bearingDeg,
   srsIndex = DEFAULT_SRS_INDEX,
 }: {
-  origin: Point
+  origin: ArenaPoint
   distanceMeters: number
   bearingDeg: number
-  srsIndex?: SRSIndex
-}): Point | null => {
+  srsIndex?: ArenaSRSIndex
+}): ArenaPoint | null => {
   const originLatLong = toLatLong(origin, srsIndex)
 
   // Validate numeric inputs and lat/long bounds before calling turfDestination

@@ -1,24 +1,24 @@
-export type { ExpressionContext } from './context'
+export type { ArenaExpressionContext } from './context'
 
-export type { ExpressionEvaluator } from './evaluator'
+export type { ArenaExpressionEvaluator } from './evaluator'
 
-export type { ExpressionFunction, ExpressionFunctions } from './function'
+export type { ArenaExpressionFunction, ArenaExpressionFunctions } from './function'
 
 export type {
-  AnyExpressionNode,
-  ExpressionNode,
-  ExpressionNodeEvaluatorConstructor,
-  ArrayExpression,
-  BinaryExpression,
-  CallExpression,
-  CompoundExpression,
-  ConditionalExpression,
-  IdentifierExpression,
-  LiteralExpression,
-  MemberExpression,
-  SequenceExpression,
-  ThisExpression,
-  UnaryExpression,
+  ArenaAnyExpressionNode,
+  ArenaExpressionNode,
+  ArenaExpressionNodeEvaluatorConstructor,
+  ArenaArrayExpression,
+  ArenaBinaryExpression,
+  ArenaCallExpression,
+  ArenaCompoundExpression,
+  ArenaConditionalExpression,
+  ArenaIdentifierExpression,
+  ArenaLiteralExpression,
+  ArenaMemberExpression,
+  ArenaSequenceExpression,
+  ArenaThisExpression,
+  ArenaUnaryExpression,
 } from './node'
 export { ExpressionNodeType, ExpressionNodeEvaluator } from './node'
 

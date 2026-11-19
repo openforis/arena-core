@@ -1,7 +1,7 @@
 import bearingTurf from '@turf/bearing'
 
-import { Point } from '../point'
-import { DEFAULT_SRS_INDEX, SRSIndex } from '../../srs'
+import { ArenaPoint } from '../point'
+import { DEFAULT_SRS_INDEX, ArenaSRSIndex } from '../../srs'
 import { toLatLong } from './toLatLong'
 import { Numbers } from '../../utils'
 
@@ -11,10 +11,14 @@ import { Numbers } from '../../utils'
  *
  * @param {!object} pointFrom - Start point.
  * @param {!object} pointTo - End point.
- * @param {!SRSIndex} srsIndex - SRSs indexed by SRS code.
+ * @param {!ArenaSRSIndex} srsIndex - SRSs indexed by SRS code.
  * @returns {number} - Bearing angle in degrees [0-360).
  */
-export const bearing = (pointFrom: Point, pointTo: Point, srsIndex: SRSIndex = DEFAULT_SRS_INDEX): number | null => {
+export const bearing = (
+  pointFrom: ArenaPoint,
+  pointTo: ArenaPoint,
+  srsIndex: ArenaSRSIndex = DEFAULT_SRS_INDEX
+): number | null => {
   const point1LatLong = toLatLong(pointFrom, srsIndex)
   const point2LatLong = toLatLong(pointTo, srsIndex)
 

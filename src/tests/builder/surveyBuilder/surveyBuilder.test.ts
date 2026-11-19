@@ -1,14 +1,14 @@
 import { describe, test, expect } from '@jest/globals'
 
 import { NodeDefType } from '../../../nodeDef'
-import { Survey, Surveys } from '../../../survey'
+import { ArenaSurvey, Surveys } from '../../../survey'
 import { SurveyBuilder } from './surveyBuilder'
 import { SurveyObjectBuilders } from '.'
 import { createTestAdminUser } from '../../data'
 
 const { entityDef, integerDef } = SurveyObjectBuilders
 
-const expectNodeDefToExist = (params: { survey: Survey; name: string }): void => {
+const expectNodeDefToExist = (params: { survey: ArenaSurvey; name: string }): void => {
   const def = Surveys.getNodeDefByName(params)
   expect(def).toBeDefined()
   expect(def?.props.name).toBeDefined()
@@ -17,7 +17,7 @@ const expectNodeDefToExist = (params: { survey: Survey; name: string }): void =>
 describe('SurveyBuilder', () => {
   test('simple survey build', async () => {
     const user = createTestAdminUser()
-    const survey: Survey = await new SurveyBuilder(
+    const survey: ArenaSurvey = await new SurveyBuilder(
       user,
       entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
     ).build()

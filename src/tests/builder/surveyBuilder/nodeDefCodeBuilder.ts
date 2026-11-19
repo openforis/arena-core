@@ -1,5 +1,5 @@
-import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType } from '../../../nodeDef'
-import { Survey, Surveys } from '../../../survey'
+import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefEntity, NodeDefType } from '../../../nodeDef'
+import { ArenaSurvey, Surveys } from '../../../survey'
 import { NodeDefAttributeBuilder } from './nodeDefAttributeBuilder'
 
 export class NodeDefCodeBuilder extends NodeDefAttributeBuilder {
@@ -16,7 +16,9 @@ export class NodeDefCodeBuilder extends NodeDefAttributeBuilder {
     return this
   }
 
-  build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> } {
+  build(params: { survey: ArenaSurvey; nodeDefParent?: ArenaNodeDefEntity }): {
+    [uuid: string]: ArenaNodeDef<NodeDefType>
+  } {
     const { survey } = params
     const result = super.build(params)
 
@@ -24,7 +26,7 @@ export class NodeDefCodeBuilder extends NodeDefAttributeBuilder {
     if (!category) {
       throw new Error(`Category with name "${this.categoryName}" not found`)
     }
-    const nodeDef: NodeDefCode = Object.values(result)[0] as NodeDefCode
+    const nodeDef: ArenaNodeDefCode = Object.values(result)[0] as ArenaNodeDefCode
     nodeDef.props.categoryUuid = category.uuid
     if (this.parentCodeAttributeName) {
       const parentCodeDef = Surveys.getNodeDefByName({ survey, name: this.parentCodeAttributeName })

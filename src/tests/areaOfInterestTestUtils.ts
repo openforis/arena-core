@@ -1,20 +1,20 @@
-import { AreaOfInterest } from '../geo'
-import { AreaOfInterestProvider } from '../nodeDefExpressionEvaluator'
-import { Survey } from '../survey'
+import { ArenaAreaOfInterest } from '../geo'
+import { ArenaAreaOfInterestProvider } from '../nodeDefExpressionEvaluator'
+import { ArenaSurvey } from '../survey'
 
 /**
  * Provider returning the specified geometries, by area name.
  */
 export const createTestAreaOfInterestProvider = (
-  geometriesByName: Record<string, AreaOfInterest>
-): AreaOfInterestProvider => ({
+  geometriesByName: Record<string, ArenaAreaOfInterest>
+): ArenaAreaOfInterestProvider => ({
   getAreaOfInterest: ({ name }) => Promise.resolve(geometriesByName[name]),
 })
 
 /**
  * Survey with the descriptors of the specified areas of interest (in the specified order).
  */
-export const withAreasOfInterest = (survey: Survey, names: string[]): Survey => ({
+export const withAreasOfInterest = (survey: ArenaSurvey, names: string[]): ArenaSurvey => ({
   ...survey,
   props: {
     ...survey.props,

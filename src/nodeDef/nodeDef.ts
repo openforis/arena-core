@@ -1,6 +1,6 @@
 import { Objects, UUIDs } from '../utils'
-import { ArenaObject, Factory } from '../common'
-import { Labels } from '../language'
+import { ArenaObject, ArenaFactory } from '../common'
+import { ArenaLabels } from '../language'
 import { ValidationSeverity } from '../validation'
 
 export enum NodeDefType {
@@ -25,16 +25,16 @@ export enum NodeDefCountType {
   min = 'min',
 }
 
-export interface NodeDefMeta {
+export interface ArenaNodeDefMeta {
   h: string[]
 }
 
-export interface NodeDefProps {
+export interface ArenaNodeDefProps {
   cycles?: string[]
-  descriptions?: Labels
+  descriptions?: ArenaLabels
   key?: boolean
   autoIncrementalKey?: boolean
-  labels?: Labels
+  labels?: ArenaLabels
   multiple?: boolean
   name?: string
   qualifier?: boolean
@@ -46,7 +46,7 @@ export interface NodeDefProps {
   visibleFields?: string[]
 }
 
-export interface NodeDefLayout {
+export interface ArenaNodeDefLayout {
   hiddenWhenNotRelevant?: boolean
   hiddenInMobile?: boolean
   includedInMultipleEntitySummary?: boolean
@@ -55,68 +55,62 @@ export interface NodeDefLayout {
   codeShown?: boolean
 }
 
-export interface NodeDefPropsWithLayout<L extends NodeDefLayout> extends NodeDefProps {
+export interface ArenaNodeDefPropsWithLayout<L extends ArenaNodeDefLayout> extends ArenaNodeDefProps {
   layout?: {
     [cycleKey: string]: L
   }
 }
 
-export interface NodeDefExpression {
+export interface ArenaNodeDefExpression {
   applyIf?: string
   expression?: string
-  messages?: Labels
+  messages?: ArenaLabels
   severity?: ValidationSeverity
   uuid: string
 }
 
-/** Alias of NodeDefExpression, not clashing with the NodeDefExpression modules of the consumers. */
-export type ArenaNodeDefExpression = NodeDefExpression
-
-export interface NodeDefExpressionFactoryParams {
+export interface ArenaNodeDefExpressionFactoryParams {
   applyIf?: string
   expression?: string
-  messages?: Labels
+  messages?: ArenaLabels
   severity?: ValidationSeverity
 }
 
-export const NodeDefExpressionFactory: Factory<NodeDefExpression, NodeDefExpressionFactoryParams> = {
-  createInstance: (params: NodeDefExpressionFactoryParams): NodeDefExpression => {
+export const NodeDefExpressionFactory: ArenaFactory<ArenaNodeDefExpression, ArenaNodeDefExpressionFactoryParams> = {
+  createInstance: (params: ArenaNodeDefExpressionFactoryParams): ArenaNodeDefExpression => {
     const result = { uuid: UUIDs.v4() }
     Object.assign(result, Objects.deleteEmptyProps({ ...params }))
     return result
   },
 }
 
-export type NodeDefCountExpression = string | NodeDefExpression[]
+export type ArenaNodeDefCountExpression = string | ArenaNodeDefExpression[]
 
 export interface NodeDefCountValidations {
-  max?: NodeDefCountExpression
-  min?: NodeDefCountExpression
+  max?: ArenaNodeDefCountExpression
+  min?: ArenaNodeDefCountExpression
 }
 
-export interface NodeDefValidations {
+export interface ArenaNodeDefValidations {
   count?: NodeDefCountValidations
-  expressions?: NodeDefExpression[]
+  expressions?: ArenaNodeDefExpression[]
   required?: boolean
   /**
    * Conditions making a single attribute required (alternative to `required`, which makes it always required).
    */
-  requiredIf?: NodeDefExpression[]
+  requiredIf?: ArenaNodeDefExpression[]
   unique?: boolean
 }
 
-/** Alias of NodeDefValidations, not clashing with the NodeDefValidations modules of the consumers. */
-export type ArenaNodeDefValidations = NodeDefValidations
-
-export interface NodeDefPropsAdvanced {
-  applicable?: NodeDefExpression[]
-  defaultValues?: NodeDefExpression[]
+export interface ArenaNodeDefPropsAdvanced {
+  applicable?: ArenaNodeDefExpression[]
+  defaultValues?: ArenaNodeDefExpression[]
   defaultValueEvaluatedOneTime?: boolean
-  editableIf?: NodeDefExpression[]
+  editableIf?: ArenaNodeDefExpression[]
   excludedInClone?: boolean
-  formula?: NodeDefExpression[]
-  validations?: NodeDefValidations
-  visibleIf?: NodeDefExpression[]
+  formula?: ArenaNodeDefExpression[]
+  validations?: ArenaNodeDefValidations
+  visibleIf?: ArenaNodeDefExpression[]
   // file attribute
   fileNameExpression?: string
   // enumerate entity
@@ -137,26 +131,26 @@ export interface NodeDefPropsAdvanced {
   areaBasedEstimatedOf?: string // uuid of area based estimated node def
 }
 
-export interface NodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDefProps> extends ArenaObject<P> {
+export interface ArenaNodeDef<
+  T extends NodeDefType,
+  P extends ArenaNodeDefProps = ArenaNodeDefProps,
+> extends ArenaObject<P> {
   analysis?: boolean
   dateCreated?: string
   dateModified?: string
   deleted?: boolean
   draft?: boolean
   id?: number
-  meta: NodeDefMeta
+  meta: ArenaNodeDefMeta
   parentUuid?: string
-  propsAdvanced?: NodeDefPropsAdvanced
-  propsAdvancedDraft?: NodeDefPropsAdvanced
+  propsAdvanced?: ArenaNodeDefPropsAdvanced
+  propsAdvancedDraft?: ArenaNodeDefPropsAdvanced
   published?: boolean
   temporary?: boolean
   type: T
   virtual?: boolean
 }
 
-/** Alias of NodeDef, not clashing with the NodeDef modules of the consumers. */
-export type ArenaNodeDef<T extends NodeDefType, P extends NodeDefProps = NodeDefProps> = NodeDef<T, P>
-
-export interface NodeDefMap {
-  [key: string]: NodeDef<any>
+export interface ArenaNodeDefMap {
+  [key: string]: ArenaNodeDef<any>
 }

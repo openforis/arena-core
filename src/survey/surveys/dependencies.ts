@@ -1,20 +1,20 @@
 import * as SurveyNodeDefs from './nodeDefs'
 import {
-  NodeDef,
-  NodeDefCode,
-  NodeDefEntity,
-  NodeDefExpression,
-  NodeDefFile,
-  NodeDefProps,
+  ArenaNodeDef,
+  ArenaNodeDefCode,
+  ArenaNodeDefEntity,
+  ArenaNodeDefExpression,
+  ArenaNodeDefFile,
+  ArenaNodeDefProps,
   NodeDefs,
   NodeDefType,
 } from '../../nodeDef'
 import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 
-import { Survey, SurveyDependencyGraph, SurveyDependencyType } from '../survey'
+import { ArenaSurvey, ArenaSurveyDependencyGraph, SurveyDependencyType } from '../survey'
 import { Arrays, Objects } from '../../utils'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
-import { Dictionary } from '../../common'
+import { ArenaDictionary } from '../../common'
 
 const functionsRequiringOnUpdateDependency = ['recordDateLastModified']
 
@@ -66,10 +66,11 @@ const newDependencyGraph = () => ({
   [SurveyDependencyType.visible]: {},
 })
 
-const getDependencyGraph = (survey: Survey): SurveyDependencyGraph => survey.dependencyGraph ?? newDependencyGraph()
+const getDependencyGraph = (survey: ArenaSurvey): ArenaSurveyDependencyGraph =>
+  survey.dependencyGraph ?? newDependencyGraph()
 
 const getDependencies = (params: {
-  graphs: SurveyDependencyGraph
+  graphs: ArenaSurveyDependencyGraph
   type: SurveyDependencyType
   nodeDefUuid: string
 }): Array<string> => {
@@ -78,10 +79,10 @@ const getDependencies = (params: {
 }
 
 export const getNodeDefDependents = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   nodeDefUuid: string
   dependencyType?: SurveyDependencyType
-}): NodeDef<NodeDefType, NodeDefProps>[] => {
+}): ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[] => {
   const { survey, nodeDefUuid, dependencyType } = params
   const dependencyGraph = getDependencyGraph(survey)
 
@@ -100,7 +101,7 @@ export const getNodeDefDependents = (params: {
   return dependentUuids.size > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: [...dependentUuids] }) : []
 }
 
-export const getOnUpdateDependents = (params: { survey: Survey }) => {
+export const getOnUpdateDependents = (params: { survey: ArenaSurvey }) => {
   const { survey } = params
   const dependencyGraph = getDependencyGraph(survey)
   const sourceDefUuids = Object.keys(dependencyGraph[SurveyDependencyType.onUpdate] ?? {})
@@ -110,12 +111,12 @@ export const getOnUpdateDependents = (params: { survey: Survey }) => {
 // UPDATE
 
 const addDependency = (params: {
-  graphs: SurveyDependencyGraph
+  graphs: ArenaSurveyDependencyGraph
   type: SurveyDependencyType
   nodeDefUuid: string
   nodeDefDepUuid: string
   sideEffect: boolean
-}): SurveyDependencyGraph => {
+}): ArenaSurveyDependencyGraph => {
   const { graphs, type, nodeDefUuid, nodeDefDepUuid, sideEffect = false } = params
   const deps = getDependencies({ graphs, type, nodeDefUuid })
   // dependencies of a node def can be added again (e.g. when it is updated): keep each dependent only once
@@ -125,13 +126,13 @@ const addDependency = (params: {
 }
 
 const addDependencies = async (params: {
-  survey: Survey
-  nodeDef: NodeDef<NodeDefType>
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDef<NodeDefType>
   type: SurveyDependencyType
-  graphs: SurveyDependencyGraph
-  expressions: NodeDefExpression[]
+  graphs: ArenaSurveyDependencyGraph
+  expressions: ArenaNodeDefExpression[]
   sideEffect?: boolean
-}): Promise<SurveyDependencyGraph> => {
+}): Promise<ArenaSurveyDependencyGraph> => {
   const { survey, nodeDef, type, expressions, graphs: graphsParam, sideEffect = false } = params
 
   if (!expressions || expressions.length === 0) return graphsParam
@@ -143,7 +144,7 @@ const addDependencies = async (params: {
 
   const findReferencedNodeDefs = async (
     expression: string | undefined
-  ): Promise<{ [key: string]: NodeDef<NodeDefType> }> => {
+  ): Promise<{ [key: string]: ArenaNodeDef<NodeDefType> }> => {
     if (!expression) return {}
 
     const referencedNodeDefUuids = await new NodeDefExpressionEvaluator().findReferencedNodeDefUuids({
@@ -153,7 +154,7 @@ const addDependencies = async (params: {
       isContextParent,
       selfReferenceAllowed,
     })
-    const referencedNodeDefsByUuid: Dictionary<NodeDef<any>> = {}
+    const referencedNodeDefsByUuid: ArenaDictionary<ArenaNodeDef<any>> = {}
     for (const uuid of referencedNodeDefUuids) {
       referencedNodeDefsByUuid[uuid] = SurveyNodeDefs.getNodeDefByUuid({ survey, uuid })
     }
@@ -166,7 +167,7 @@ const addDependencies = async (params: {
       findReferencedNodeDefs(nodeDefExpr.applyIf),
     ])
   )
-  const referencedNodeDefs: Dictionary<NodeDef<any>> = Object.assign({}, ...referencedNodeDefsArray)
+  const referencedNodeDefs: ArenaDictionary<ArenaNodeDef<any>> = Object.assign({}, ...referencedNodeDefsArray)
 
   for (const nodeDefRef of Object.values(referencedNodeDefs)) {
     graphsUpdated = addDependency({
@@ -182,15 +183,15 @@ const addDependencies = async (params: {
 }
 
 export const addNodeDefDependencies = async (params: {
-  nodeDef: NodeDef<NodeDefType>
-  survey: Survey
+  nodeDef: ArenaNodeDef<NodeDefType>
+  survey: ArenaSurvey
   sideEffect?: boolean
-}): Promise<Survey> => {
+}): Promise<ArenaSurvey> => {
   const { nodeDef, survey, sideEffect = false } = params
   const graphs = getDependencyGraph(survey)
   let graphsUpdated = sideEffect ? graphs : { ...graphs }
 
-  const _addDependencies = async (type: SurveyDependencyType, expressions: NodeDefExpression[]) => {
+  const _addDependencies = async (type: SurveyDependencyType, expressions: ArenaNodeDefExpression[]) => {
     let _graphUpdated = await addDependencies({
       survey,
       nodeDef,
@@ -232,7 +233,7 @@ export const addNodeDefDependencies = async (params: {
   }
   // file name expression
   if (NodeDefs.getType(nodeDef) === NodeDefType.file) {
-    const fileNameExpression = NodeDefs.getFileNameExpression(nodeDef as NodeDefFile)
+    const fileNameExpression = NodeDefs.getFileNameExpression(nodeDef as ArenaNodeDefFile)
     if (fileNameExpression) {
       graphsUpdated = await _addDependencies(SurveyDependencyType.fileName, [
         NodeDefExpressionFactory.createInstance({ expression: fileNameExpression }),
@@ -240,7 +241,7 @@ export const addNodeDefDependencies = async (params: {
     }
   }
   if (NodeDefs.isEntity(nodeDef)) {
-    const enumeratingItemsExpression = NodeDefs.getEnumeratingItemsExpression(nodeDef as NodeDefEntity)
+    const enumeratingItemsExpression = NodeDefs.getEnumeratingItemsExpression(nodeDef as ArenaNodeDefEntity)
     if (enumeratingItemsExpression) {
       graphsUpdated = await _addDependencies(SurveyDependencyType.enumeratingItems, [
         NodeDefExpressionFactory.createInstance({ expression: enumeratingItemsExpression }),
@@ -249,7 +250,7 @@ export const addNodeDefDependencies = async (params: {
   }
   // parent code
   if (NodeDefs.getType(nodeDef) === NodeDefType.code) {
-    const parentCodeDefUuid = NodeDefs.getParentCodeDefUuid(nodeDef as NodeDefCode)
+    const parentCodeDefUuid = NodeDefs.getParentCodeDefUuid(nodeDef as ArenaNodeDefCode)
     if (parentCodeDefUuid) {
       graphsUpdated = addDependency({
         graphs: graphsUpdated,
@@ -270,10 +271,10 @@ export const addNodeDefDependencies = async (params: {
 // DELETE
 
 const _removeNodeDefDependenciesOfType = (params: {
-  graphs: SurveyDependencyGraph
+  graphs: ArenaSurveyDependencyGraph
   dependencyType: SurveyDependencyType
   nodeDefUuid: string
-}): SurveyDependencyGraph => {
+}): ArenaSurveyDependencyGraph => {
   const { graphs, nodeDefUuid, dependencyType } = params
 
   const graphsUpdated = { ...graphs }
@@ -293,10 +294,10 @@ const _removeNodeDefDependenciesOfType = (params: {
 }
 
 export const removeNodeDefDependencies = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   nodeDefUuid: string
   dependencyType?: SurveyDependencyType
-}): Survey => {
+}): ArenaSurvey => {
   const { survey, nodeDefUuid, dependencyType = null } = params
   const graphs = getDependencyGraph(survey)
   const dependencyTypes = dependencyType ? [dependencyType] : (Object.keys(graphs) as SurveyDependencyType[])
@@ -314,12 +315,12 @@ export const removeNodeDefDependencies = (params: {
  * @param survey - The survey.
  * @returns A copy of the survey with the dependency graph (the survey passed in is not modified).
  */
-export const buildAndAssocDependencyGraph = async (survey: Survey): Promise<Survey> => {
+export const buildAndAssocDependencyGraph = async (survey: ArenaSurvey): Promise<ArenaSurvey> => {
   // the new graph is built from scratch with side effect (to avoid re-creating objects): it belongs only to the copy of the survey
   const sideEffect = true
 
   // add dependencies for every node def
-  let surveyUpdated: Survey = { ...survey, dependencyGraph: newDependencyGraph() }
+  let surveyUpdated: ArenaSurvey = { ...survey, dependencyGraph: newDependencyGraph() }
   for (const nodeDef of SurveyNodeDefs.getNodeDefsArray(survey)) {
     // sequential: each iteration updates the survey
     surveyUpdated = await addNodeDefDependencies({ nodeDef, survey: surveyUpdated, sideEffect }) // NOSONAR

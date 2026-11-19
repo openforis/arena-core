@@ -1,10 +1,10 @@
-import { CategoryItem } from '../../category'
-import { Taxon } from '../../taxonomy'
+import { ArenaCategoryItem } from '../../category'
+import { ArenaTaxon } from '../../taxonomy'
 
 /**
  * Cache of reference data items (category items and taxa).
  */
-export interface SurveyRefData {
+export interface ArenaSurveyRefData {
   /**
    * Category item UUIDs indexed by category UUID, parent item UUID and code.
    */
@@ -12,7 +12,7 @@ export interface SurveyRefData {
   /**
    * Category items indexed by item UUID.
    */
-  categoryItemIndex: { [categoryItemUuid: string]: CategoryItem }
+  categoryItemIndex: { [categoryItemUuid: string]: ArenaCategoryItem }
   /**
    * Taxa UUIDs indexed by taxonomy UUID and taxon code.
    */
@@ -20,5 +20,5 @@ export interface SurveyRefData {
   /**
    * Taxa indexed by taxon UUID.
    */
-  taxonIndex: { [taxonUuid: string]: Taxon }
+  taxonIndex: { [taxonUuid: string]: ArenaTaxon }
 }

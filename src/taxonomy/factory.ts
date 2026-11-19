@@ -1,18 +1,18 @@
-import { Factory } from '../common'
-import { Taxonomy, TaxonomyProps } from './taxonomy'
-import { Taxon, TaxonProps } from './taxon'
-import { VernacularName } from './taxonVernacularName'
+import { ArenaFactory } from '../common'
+import { ArenaTaxonomy, ArenaTaxonomyProps } from './taxonomy'
+import { ArenaTaxon, ArenaTaxonProps } from './taxon'
+import { ArenaVernacularName } from './taxonVernacularName'
 
 import { UUIDs } from '../utils'
 
-export type TaxonomyFactoryParams = {
-  props?: TaxonomyProps
+export type ArenaTaxonomyFactoryParams = {
+  props?: ArenaTaxonomyProps
   draft?: boolean
   published?: boolean
 }
 
-export const TaxonomyFactory: Factory<Taxonomy, TaxonomyFactoryParams> = {
-  createInstance: (params: TaxonomyFactoryParams): Taxonomy => {
+export const TaxonomyFactory: ArenaFactory<ArenaTaxonomy, ArenaTaxonomyFactoryParams> = {
+  createInstance: (params: ArenaTaxonomyFactoryParams): ArenaTaxonomy => {
     const defaultProps = {
       props: {},
       published: false,
@@ -34,16 +34,16 @@ export const TaxonomyFactory: Factory<Taxonomy, TaxonomyFactoryParams> = {
 }
 
 // Taxon
-export type TaxonFactoryParams = {
-  props: TaxonProps
+export type ArenaTaxonFactoryParams = {
+  props: ArenaTaxonProps
   taxonomyUuid: string
   vernacularNames?: {
-    [key: string]: VernacularName[]
+    [key: string]: ArenaVernacularName[]
   }
 }
 
-export const TaxonFactory: Factory<Taxon, TaxonFactoryParams> = {
-  createInstance: (params: TaxonFactoryParams): Taxon => {
+export const TaxonFactory: ArenaFactory<ArenaTaxon, ArenaTaxonFactoryParams> = {
+  createInstance: (params: ArenaTaxonFactoryParams): ArenaTaxon => {
     const defaultProps = {
       props: {},
       vernacularNames: {},
@@ -64,13 +64,13 @@ export const TaxonFactory: Factory<Taxon, TaxonFactoryParams> = {
 }
 
 // VernacularNameFactory
-export type VernacularNameParams = {
+export type ArenaVernacularNameParams = {
   lang: string
   name: string
 }
 
-export const VernacularNameFactory: Factory<VernacularName, VernacularNameParams> = {
-  createInstance: (params: VernacularNameParams): VernacularName => {
+export const VernacularNameFactory: ArenaFactory<ArenaVernacularName, ArenaVernacularNameParams> = {
+  createInstance: (params: ArenaVernacularNameParams): ArenaVernacularName => {
     const { lang, name } = params
 
     return {

@@ -1,8 +1,11 @@
 import { SystemError, SystemErrorKeys } from '../../../error'
-import { ExpressionContext } from '../../context'
-import { CompoundExpression, ExpressionNodeEvaluator } from '../../node'
+import { ArenaExpressionContext } from '../../context'
+import { ArenaCompoundExpression, ExpressionNodeEvaluator } from '../../node'
 
-export class CompoundEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, CompoundExpression> {
+export class CompoundEvaluator<C extends ArenaExpressionContext> extends ExpressionNodeEvaluator<
+  C,
+  ArenaCompoundExpression
+> {
   evaluate(): Promise<any> {
     return Promise.reject(new SystemError(SystemErrorKeys.expression.notSupported, { type: 'compound' }))
   }

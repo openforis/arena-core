@@ -1,10 +1,10 @@
-import { Factory } from '../common'
+import { ArenaFactory } from '../common'
 import { UUIDs } from '../utils'
-import { Chain, ChainProps } from './chain'
+import { ArenaChain, ArenaChainProps } from './chain'
 import { ValidationFactory } from '../validation'
 
-export const ChainFactory: Factory<Chain, ChainProps> = {
-  createInstance(params?: ChainProps): Chain {
+export const ChainFactory: ArenaFactory<ArenaChain, ArenaChainProps> = {
+  createInstance(params?: ArenaChainProps): ArenaChain {
     return {
       uuid: UUIDs.v4(),
       props: params ?? {},

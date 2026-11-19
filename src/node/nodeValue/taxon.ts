@@ -1,6 +1,6 @@
 import { NodeValueComposite } from './nodeValueComposite'
 
-export interface NodeValueTaxon extends NodeValueComposite {
+export interface ArenaRecordNodeValueTaxon extends NodeValueComposite {
   taxonUuid: string
   code?: string
   scientificName?: string

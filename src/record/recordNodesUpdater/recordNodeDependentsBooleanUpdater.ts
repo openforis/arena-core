@@ -1,6 +1,6 @@
-import { ArenaRecordNode, NodePointer } from '../../node'
-import { NodeDefExpression } from '../../nodeDef'
-import { MutationOptions } from '../../utils/mutationOptions'
+import { ArenaRecordNode, ArenaRecordNodePointer } from '../../node'
+import { ArenaNodeDefExpression } from '../../nodeDef'
+import { ArenaMutationOptions } from '../../utils/mutationOptions'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
@@ -12,13 +12,13 @@ const expressionEvaluator = new RecordExpressionEvaluator()
 type UpdateSelfAndDependentsBooleanParams = {
   params: RecordNodeDependentsUpdateParams
   dependencyType: SurveyDependencyType
-  getExpressions: (nodePointer: NodePointer) => NodeDefExpression[]
+  getExpressions: (nodePointer: ArenaRecordNodePointer) => ArenaNodeDefExpression[]
   getValuePrev: (nodeCtx: ArenaRecordNode, nodeDefUuid: string) => boolean
   assocValue: (
     nodeCtx: ArenaRecordNode,
     nodeDefUuid: string,
     value: boolean,
-    options: MutationOptions
+    options: ArenaMutationOptions
   ) => ArenaRecordNode
   includeNewEntitySelf?: boolean
 }
@@ -33,9 +33,9 @@ export const calculateBooleanValueNext = async ({
 }: {
   params: RecordNodeDependentsUpdateParams
   updateResult: RecordUpdateResult
-  nodePointer: NodePointer
+  nodePointer: ArenaRecordNodePointer
   nodeCtx: ArenaRecordNode
-  getExpressions: (nodePointer: NodePointer) => NodeDefExpression[]
+  getExpressions: (nodePointer: ArenaRecordNodePointer) => ArenaNodeDefExpression[]
   getValuePrev: (nodeCtx: ArenaRecordNode, nodeDefUuid: string) => boolean
 }): Promise<boolean | undefined> => {
   const { nodeDef: nodeDefNodePointer } = nodePointer

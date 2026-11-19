@@ -1,10 +1,17 @@
-import { Dictionary, TraverseMethod } from '../../common'
+import { ArenaDictionary, TraverseMethod } from '../../common'
 import { SystemError, SystemErrorKeys } from '../../error'
-import { ArenaRecordNode, NodePointer, Nodes, NodesMap } from '../../node'
+import { ArenaRecordNode, ArenaRecordNodePointer, Nodes, ArenaRecordNodesMap } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
-import { NodeDef, NodeDefCode, NodeDefCodeProps, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import {
+  ArenaNodeDef,
+  ArenaNodeDefCode,
+  ArenaNodeDefCodeProps,
+  ArenaNodeDefProps,
+  NodeDefs,
+  NodeDefType,
+} from '../../nodeDef'
 import { defaultCycle, Surveys } from '../../survey'
-import { Survey, SurveyDependencyType } from '../../survey/survey'
+import { ArenaSurvey, SurveyDependencyType } from '../../survey/survey'
 import { Arrays, Queue } from '../../utils'
 import { ArenaRecord, RECORD_STEP_DEFAULT, RecordNodesIndex } from '../record'
 import { RecordStepAnalysisCode } from '../recordStep'
@@ -14,7 +21,7 @@ import { NodeDefSelfReferences } from './nodeDefSelfReferences'
 
 export const getCycle = (record: ArenaRecord): string => record.cycle ?? defaultCycle
 
-export const getNodes = (record: ArenaRecord): Dictionary<ArenaRecordNode> => record.nodes ?? {}
+export const getNodes = (record: ArenaRecord): ArenaDictionary<ArenaRecordNode> => record.nodes ?? {}
 
 export const getNodesArray = (record: ArenaRecord): ArenaRecordNode[] => Object.values(getNodes(record))
 
@@ -124,7 +131,7 @@ export const isNodeVisible = isNodeFlagTrue((parent, nodeDefUuid) => Nodes.isChi
  * condition met in its parent entity (evaluated condition stored in the parent node meta).
  */
 export const isNodeRequired =
-  (nodeDef: NodeDef<NodeDefType>, node: ArenaRecordNode) =>
+  (nodeDef: ArenaNodeDef<NodeDefType>, node: ArenaRecordNode) =>
   (record: ArenaRecord): boolean => {
     if (NodeDefs.isKey(nodeDef) || NodeDefs.isRequired(nodeDef)) return true
     if (!NodeDefs.isRequiredIfDefined(nodeDef)) return false
@@ -143,7 +150,7 @@ export const getDependentCodeAttributes =
   }
 
 export const getParentCodeAttribute =
-  (parentNode: ArenaRecordNode, nodeDef: NodeDefCode) =>
+  (parentNode: ArenaRecordNode, nodeDef: ArenaNodeDefCode) =>
   (record: ArenaRecord): ArenaRecordNode | undefined => {
     const parentCodeDefUuid = NodeDefs.getParentCodeDefUuid(nodeDef)
     if (!parentCodeDefUuid) return undefined
@@ -221,7 +228,7 @@ export const getAncestorsAndSelf =
 // descendants
 
 export const getDescendantsOrSelf =
-  (node: ArenaRecordNode, nodeDefDescendant: NodeDef<any>) =>
+  (node: ArenaRecordNode, nodeDefDescendant: ArenaNodeDef<any>) =>
   (record: ArenaRecord): ArenaRecordNode[] => {
     if (nodeDefDescendant.uuid === node.nodeDefUuid) return [node]
 
@@ -250,7 +257,7 @@ export const getDescendantsOrSelf =
  * Returns the first descendant (or the node itself) with the specified node def, or undefined if not found.
  */
 export const getDescendant =
-  (node: ArenaRecordNode, nodeDefDescendant: NodeDef<any>) =>
+  (node: ArenaRecordNode, nodeDefDescendant: ArenaNodeDef<any>) =>
   (record: ArenaRecord): ArenaRecordNode | undefined =>
     getDescendantsOrSelf(node, nodeDefDescendant)(record)[0]
 
@@ -322,8 +329,8 @@ export const findDescendantOrSelf =
 const getClosestAncestorNode =
   (
     node: ArenaRecordNode,
-    nodeDef: NodeDef<NodeDefType, NodeDefProps>,
-    dependentDef: NodeDef<NodeDefType, NodeDefProps>,
+    nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>,
+    dependentDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>,
     dependencyType: SurveyDependencyType
   ) =>
   (record: ArenaRecord): ArenaRecordNode | undefined => {
@@ -344,18 +351,18 @@ const getClosestAncestorNode =
     return getAncestor(node, commonAncestorDefUuid)(record)
   }
 
-type KeyDefs = NodeDef<NodeDefType, NodeDefProps>[]
+type KeyDefs = ArenaNodeDef<NodeDefType, ArenaNodeDefProps>[]
 
 /**
  * Returns the key nodes of the entity, indexed by key def uuid; keyDefs, when specified, are used instead of the
  * entity def keys in the cycle.
  */
 export const getEntityKeyNodesByDefUuid =
-  (survey: Survey, entity: ArenaRecordNode, cycle?: string, keyDefs?: KeyDefs) =>
-  (record: ArenaRecord): NodesMap => {
+  (survey: ArenaSurvey, entity: ArenaRecordNode, cycle?: string, keyDefs?: KeyDefs) =>
+  (record: ArenaRecord): ArenaRecordNodesMap => {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: entity.nodeDefUuid })
     const nodeDefKeys = keyDefs ?? Surveys.getNodeDefKeys({ survey, cycle, nodeDef })
-    return nodeDefKeys.reduce((acc: NodesMap, nodeDefKey) => {
+    return nodeDefKeys.reduce((acc: ArenaRecordNodesMap, nodeDefKey) => {
       const nodeKey = getDescendant(entity, nodeDefKey)(record)
       // missing key nodes are kept as undefined entries
       acc[nodeDefKey.uuid] = nodeKey as ArenaRecordNode
@@ -364,22 +371,22 @@ export const getEntityKeyNodesByDefUuid =
   }
 
 export const getEntityKeyNodes =
-  (survey: Survey, entity: ArenaRecordNode, cycle?: string, keyDefs?: KeyDefs) =>
+  (survey: ArenaSurvey, entity: ArenaRecordNode, cycle?: string, keyDefs?: KeyDefs) =>
   (record: ArenaRecord): ArenaRecordNode[] =>
     Object.values(getEntityKeyNodesByDefUuid(survey, entity, cycle, keyDefs)(record))
 
 export const getEntityKeyValuesByDefUuid =
-  (survey: Survey, entity: ArenaRecordNode, cycle?: string, keyDefs?: KeyDefs) =>
-  (record: ArenaRecord): Dictionary<any> => {
+  (survey: ArenaSurvey, entity: ArenaRecordNode, cycle?: string, keyDefs?: KeyDefs) =>
+  (record: ArenaRecord): ArenaDictionary<any> => {
     const keyNodesByDefUuid = getEntityKeyNodesByDefUuid(survey, entity, cycle, keyDefs)(record)
-    return Object.entries(keyNodesByDefUuid).reduce((acc: Dictionary<any>, [uuid, keyNode]) => {
+    return Object.entries(keyNodesByDefUuid).reduce((acc: ArenaDictionary<any>, [uuid, keyNode]) => {
       acc[uuid] = keyNode?.value
       return acc
     }, {})
   }
 
 export const getEntityKeyValues =
-  (survey: Survey, entity: ArenaRecordNode, cycle?: string, keyDefs?: KeyDefs) =>
+  (survey: ArenaSurvey, entity: ArenaRecordNode, cycle?: string, keyDefs?: KeyDefs) =>
   (record: ArenaRecord): any[] =>
     Object.values(getEntityKeyValuesByDefUuid(survey, entity, cycle, keyDefs)(record))
 
@@ -393,7 +400,7 @@ export const getEntitySiblings =
   }
 
 export const getAttributeSiblings =
-  (node: ArenaRecordNode, nodeDef: NodeDef<NodeDefType, NodeDefProps>) =>
+  (node: ArenaRecordNode, nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>) =>
   (record: ArenaRecord): ArenaRecordNode[] => {
     const parentEntity = getParent(node)(record)
     if (!parentEntity) return []
@@ -416,11 +423,11 @@ export const getNodeIndex = (node: ArenaRecordNode) => (record: ArenaRecord) => 
 
 export const findEntityByKeyValues =
   (
-    survey: Survey,
+    survey: ArenaSurvey,
     cycle: string,
     parentEntity: ArenaRecordNode,
     entityDefUuid: string,
-    keyValuesByDefUuid: Dictionary<any>
+    keyValuesByDefUuid: ArenaDictionary<any>
   ) =>
   (record: ArenaRecord): ArenaRecordNode | undefined => {
     const entityDef = Surveys.getNodeDefByUuid({ survey, uuid: entityDefUuid })
@@ -451,7 +458,7 @@ export const findEntityByKeyValues =
   }
 
 export const findEntityWithSameKeysInAnotherRecord =
-  (survey: Survey, cycle: string, entityUuid: string, recordOther: ArenaRecord) =>
+  (survey: ArenaSurvey, cycle: string, entityUuid: string, recordOther: ArenaRecord) =>
   (record: ArenaRecord): ArenaRecordNode | undefined => {
     const entity = getNodeByUuid(entityUuid)(record)
     if (!entity) return undefined
@@ -482,19 +489,19 @@ export const findEntityWithSameKeysInAnotherRecord =
 
 export const getDependentNodePointers =
   (
-    survey: Survey,
+    survey: ArenaSurvey,
     node: ArenaRecordNode,
     dependencyType: SurveyDependencyType,
     includeSelf = false,
-    filterFn: ((nodePointer: NodePointer) => boolean) | null = null
+    filterFn: ((nodePointer: ArenaRecordNodePointer) => boolean) | null = null
   ) =>
-  (record: ArenaRecord): NodePointer[] => {
+  (record: ArenaRecord): ArenaRecordNodePointer[] => {
     const nodeDefUuid = node.nodeDefUuid
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
     const dependentDefs = Surveys.getNodeDefDependents({ survey, nodeDefUuid, dependencyType })
-    const nodePointers: Array<NodePointer> = []
+    const nodePointers: Array<ArenaRecordNodePointer> = []
 
-    const addToNodePointers = (nodePointer: NodePointer): void => {
+    const addToNodePointers = (nodePointer: ArenaRecordNodePointer): void => {
       if (filterFn === null || filterFn(nodePointer)) {
         nodePointers.push(nodePointer)
       }
@@ -535,7 +542,7 @@ export const getDependentNodePointers =
  * Returns the code attributes the specified code attribute depends on, from the top level one to the parent one.
  */
 export const getAncestorCodeAttributes =
-  (survey: Survey, parentNode: ArenaRecordNode, nodeDef: NodeDefCode) =>
+  (survey: ArenaSurvey, parentNode: ArenaRecordNode, nodeDef: ArenaNodeDefCode) =>
   (record: ArenaRecord): ArenaRecordNode[] => {
     const ancestorCodeAttributes = []
     let currentParentCodeAttribute = getParentCodeAttribute(parentNode, nodeDef)(record)
@@ -544,14 +551,14 @@ export const getAncestorCodeAttributes =
       const ancestorCodeDef = Surveys.getNodeDefByUuid({
         survey,
         uuid: currentParentCodeAttribute.nodeDefUuid,
-      }) as NodeDefCode
+      }) as ArenaNodeDefCode
       currentParentCodeAttribute = getParentCodeAttribute(parentNode, ancestorCodeDef)(record)
     }
     return ancestorCodeAttributes
   }
 
 export const getAncestorCodePath =
-  (survey: Survey, parentNode: ArenaRecordNode, nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>) =>
+  (survey: ArenaSurvey, parentNode: ArenaRecordNode, nodeDef: ArenaNodeDef<NodeDefType.code, ArenaNodeDefCodeProps>) =>
   (record: ArenaRecord): string[] =>
     getAncestorCodeAttributes(
       survey,
@@ -567,7 +574,12 @@ export const getAncestorCodePath =
     })
 
 export const getCategoryItemUuid =
-  (survey: Survey, nodeDef: NodeDef<NodeDefType.code, NodeDefCodeProps>, parentNode: ArenaRecordNode, code: string) =>
+  (
+    survey: ArenaSurvey,
+    nodeDef: ArenaNodeDef<NodeDefType.code, ArenaNodeDefCodeProps>,
+    parentNode: ArenaRecordNode,
+    code: string
+  ) =>
   (record: ArenaRecord): string | undefined => {
     const categoryUuid = nodeDef.props.categoryUuid
 

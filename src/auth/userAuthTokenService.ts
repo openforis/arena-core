@@ -1,7 +1,12 @@
 import { ArenaService } from '../common'
-import { UserAuthRefreshToken, UserAuthRefreshTokenProps, AuthToken, UserTokenPayload } from './userAuth'
+import {
+  ArenaUserAuthRefreshToken,
+  ArenaUserAuthRefreshTokenProps,
+  ArenaAuthToken,
+  ArenaUserTokenPayload,
+} from './userAuth'
 
-export interface UserAuthTokenService extends ArenaService {
+export interface ArenaUserAuthTokenService extends ArenaService {
   // ==== CREATE
   /**
    * Create new auth and refresh tokens for the specified user.
@@ -12,9 +17,9 @@ export interface UserAuthTokenService extends ArenaService {
    * @returns An object containing the created AuthToken and UserAuthRefreshToken.
    */
   createUserAuthTokens(
-    options: { userUuid: string; props: UserAuthRefreshTokenProps },
+    options: { userUuid: string; props: ArenaUserAuthRefreshTokenProps },
     dbClient?: any
-  ): Promise<{ authToken: AuthToken; refreshToken: UserAuthRefreshToken }>
+  ): Promise<{ authToken: ArenaAuthToken; refreshToken: ArenaUserAuthRefreshToken }>
 
   /**
    * Create a one-time download auth token for the specified user and file name.
@@ -23,10 +28,10 @@ export interface UserAuthTokenService extends ArenaService {
    * @param options.fileName The name of the file to be downloaded.
    * @returns An AuthToken object containing the token string, creation date, and expiration date.
    */
-  createDownloadAuthToken(options: { userUuid: string; fileName: string }): AuthToken
+  createDownloadAuthToken(options: { userUuid: string; fileName: string }): ArenaAuthToken
 
   // ==== READ
-  getByUuid(tokenUuid: string): Promise<UserAuthRefreshToken | null>
+  getByUuid(tokenUuid: string): Promise<ArenaUserAuthRefreshToken | null>
 
   // ==== UPDATE
   /**
@@ -38,11 +43,11 @@ export interface UserAuthTokenService extends ArenaService {
    * @returns An object containing the new AuthToken and UserAuthRefreshToken, or null if the refresh token is invalid.
    */
   rotateTokens(
-    options: { refreshToken: string; refreshTokenProps: UserAuthRefreshTokenProps },
+    options: { refreshToken: string; refreshTokenProps: ArenaUserAuthRefreshTokenProps },
     dbClient?: any
   ): Promise<{
-    authToken: AuthToken
-    refreshToken: UserAuthRefreshToken
+    authToken: ArenaAuthToken
+    refreshToken: ArenaUserAuthRefreshToken
   } | null>
 
   revoke(options: { tokenUuid: string }): Promise<void>
@@ -57,5 +62,5 @@ export interface UserAuthTokenService extends ArenaService {
    * @param token The auth token string to verify.
    * @returns The payload of the verified token.
    */
-  verifyAuthToken<P extends UserTokenPayload>(token: string): P
+  verifyAuthToken<P extends ArenaUserTokenPayload>(token: string): P
 }

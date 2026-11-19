@@ -8,7 +8,7 @@ export enum CategoryImportColumnType {
   label = 'label',
 }
 
-export interface CategoryImportSummaryColumn {
+export interface ArenaCategoryImportSummaryColumn {
   dataType: ExtraPropDataType
   lang: LanguageCode
   levelIndex: number
@@ -17,7 +17,7 @@ export interface CategoryImportSummaryColumn {
   type: CategoryImportColumnType
 }
 
-export interface CategoryImportSummary {
-  columns: { [key: string]: CategoryImportSummaryColumn }
+export interface ArenaCategoryImportSummary {
+  columns: { [key: string]: ArenaCategoryImportSummaryColumn }
   filePath: string
 }

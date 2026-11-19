@@ -1,5 +1,5 @@
 export { NodeDefExpressionEvaluator } from './evaluator'
 export { NodeDefExpressionValidator } from './validator'
-export type { AreaOfInterestProvider } from './areaOfInterestProvider'
-export type { CategoryItemProvider } from './categoryItemProvider'
-export type { TaxonProvider } from './taxonProvider'
+export type { ArenaAreaOfInterestProvider } from './areaOfInterestProvider'
+export type { ArenaCategoryItemProvider } from './categoryItemProvider'
+export type { ArenaTaxonProvider } from './taxonProvider'

@@ -1,9 +1,9 @@
-import { ArenaRecordNode, NodePointer, Nodes, NodesMap } from '../../node'
-import { NodeDefEntity, NodeDefs } from '../../nodeDef'
+import { ArenaRecordNode, ArenaRecordNodePointer, Nodes, ArenaRecordNodesMap } from '../../node'
+import { ArenaNodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
-import { Survey, SurveyDependencyType } from '../../survey/survey'
+import { ArenaSurvey, SurveyDependencyType } from '../../survey/survey'
 import { ArenaRecord } from '../record'
-import { Records, RecordUpdateOptions } from '../records'
+import { Records, ArenaRecordUpdateOptions } from '../records'
 import { calculateBooleanValueNext } from './recordNodeDependentsBooleanUpdater'
 import { createOrDeleteEnumeratedEntities } from './recordNodeDependentsEnumeratedEntitiesUpdater'
 import { syncEnumeratingItemsEntities } from './recordNodeDependentsEnumeratingItemsUpdater'
@@ -13,7 +13,7 @@ import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCo
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-const extractNodePointersToUpdate = (params: { survey: Survey; record: ArenaRecord; node: ArenaRecordNode }) => {
+const extractNodePointersToUpdate = (params: { survey: ArenaSurvey; record: ArenaRecord; node: ArenaRecordNode }) => {
   const { survey, record, node } = params
 
   const nodePointersToUpdate = getDependentNodePointersByType({
@@ -30,7 +30,7 @@ const extractNodePointersToUpdate = (params: { survey: Survey; record: ArenaReco
 const calculateApplicableNext = (params: {
   params: RecordNodeDependentsUpdateParams
   updateResult: RecordUpdateResult
-  nodePointer: NodePointer
+  nodePointer: ArenaRecordNodePointer
   nodeCtx: ArenaRecordNode
 }): Promise<boolean | undefined> =>
   calculateBooleanValueNext({
@@ -50,7 +50,7 @@ const updateDescendantsApplicability = ({
   nodeCtxChild: ArenaRecordNode
   applicable: boolean
   params: RecordNodeDependentsUpdateParams
-  recordUpdateOptions: RecordUpdateOptions
+  recordUpdateOptions: ArenaRecordUpdateOptions
 }): void => {
   const { survey, sideEffect = false, clearNonApplicableValues = false } = params
 
@@ -59,7 +59,7 @@ const updateDescendantsApplicability = ({
 
   // nodes added to the record all together: adding them one by one would copy the record nodes at every node
   // (when sideEffect is false)
-  const nodesUpdated: NodesMap = {}
+  const nodesUpdated: ArenaRecordNodesMap = {}
 
   Records.visitDescendantsAndSelf(nodeCtxChild, (nodeDescendant): boolean => {
     const nodeDescendantCleared = clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
@@ -105,7 +105,7 @@ const createMissingApplicableMultipleEntities = async ({
   params: RecordNodeDependentsUpdateParams
   updateResult: RecordUpdateResult
   parentNode: ArenaRecordNode
-  nodeDef: NodeDefEntity
+  nodeDef: ArenaNodeDefEntity
 }): Promise<void> => {
   if (!NodeDefs.isAutoCreateMinCountItems(nodeDef)) return
 
@@ -131,8 +131,8 @@ const updateNodePointerApplicability = async ({
 }: {
   params: RecordNodeDependentsUpdateParams
   updateResult: RecordUpdateResult
-  nodePointer: NodePointer
-  recordUpdateOptions: RecordUpdateOptions
+  nodePointer: ArenaRecordNodePointer
+  recordUpdateOptions: ArenaRecordUpdateOptions
 }): Promise<void> => {
   const { nodeCtx: nodeCtxNodePointer, nodeDef: nodeDefNodePointer } = nodePointer
 
@@ -158,7 +158,7 @@ const updateNodePointerApplicability = async ({
       params,
       updateResult,
       parentNode: nodeCtx,
-      nodeDef: nodeDefNodePointer as NodeDefEntity,
+      nodeDef: nodeDefNodePointer as ArenaNodeDefEntity,
     })
   }
 
@@ -174,8 +174,8 @@ const updateNodePointerApplicability = async ({
 
   let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)
 
-  if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as NodeDefEntity)) {
-    const entityDef = nodeDefNodePointer as NodeDefEntity
+  if (NodeDefs.isMultipleEntity(nodeDefNodePointer) && NodeDefs.isEnumerate(nodeDefNodePointer as ArenaNodeDefEntity)) {
+    const entityDef = nodeDefNodePointer as ArenaNodeDefEntity
     if (NodeDefs.getEnumeratingItemsExpression(entityDef)) {
       await syncEnumeratingItemsEntities({
         ...params,
@@ -212,7 +212,7 @@ export const updateSelfAndDependentsApplicable = async (
 
   const updateResult = new RecordUpdateResult({ record })
 
-  const recordUpdateOptions: RecordUpdateOptions = { sideEffect }
+  const recordUpdateOptions: ArenaRecordUpdateOptions = { sideEffect }
 
   // 1. fetch dependent nodes
   const nodePointersToUpdate = extractNodePointersToUpdate({ survey, record, node })

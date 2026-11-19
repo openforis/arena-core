@@ -1,11 +1,11 @@
-import { ExtraPropDefs } from '../../../extraProp'
-import { Taxonomy, TaxonomyFactory, Taxon } from '../../../taxonomy'
+import { ArenaExtraPropDefs } from '../../../extraProp'
+import { ArenaTaxonomy, TaxonomyFactory, ArenaTaxon } from '../../../taxonomy'
 import { TaxonBuilder } from './taxonBuilder'
 
 export class TaxonomyBuilder {
   private readonly name: string
   private taxonBuilders: TaxonBuilder[]
-  private _extraProps: ExtraPropDefs
+  private _extraProps: ArenaExtraPropDefs
 
   constructor(name: string) {
     this.name = name
@@ -18,12 +18,12 @@ export class TaxonomyBuilder {
     return this
   }
 
-  extraProps(extraPropsDef: ExtraPropDefs): this {
+  extraProps(extraPropsDef: ArenaExtraPropDefs): this {
     this._extraProps = extraPropsDef
     return this
   }
 
-  build(): { taxonomy: Taxonomy; taxa: Taxon[] } {
+  build(): { taxonomy: ArenaTaxonomy; taxa: ArenaTaxon[] } {
     const taxonomy = TaxonomyFactory.createInstance({ props: { name: this.name, extraPropsDefs: this._extraProps } })
     const taxa = this.taxonBuilders.flatMap((taxonBuilder) => taxonBuilder.build(taxonomy))
 

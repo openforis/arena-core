@@ -1,6 +1,6 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { Survey, Surveys } from '../../survey'
+import { ArenaSurvey, Surveys } from '../../survey'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
@@ -17,7 +17,7 @@ import { RecordNodesUpdater } from '../recordNodesUpdater'
 import { Records } from '../records'
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 let record: ArenaRecord
 
 describe('Record nodes index', () => {

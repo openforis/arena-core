@@ -1,14 +1,14 @@
-import { Factory } from '../common'
+import { ArenaFactory } from '../common'
 import { UUIDs } from '../utils'
-import { ChainNodeDef } from './chainNodeDef'
+import { ArenaChainNodeDef } from './chainNodeDef'
 
 type ChainNodeDefCreateParams = {
   chainUuid: string
   nodeDefUuid: string
 }
 
-export const ChainNodeDefFactory: Factory<ChainNodeDef, ChainNodeDefCreateParams> = {
-  createInstance(params: ChainNodeDefCreateParams): ChainNodeDef {
+export const ChainNodeDefFactory: ArenaFactory<ArenaChainNodeDef, ChainNodeDefCreateParams> = {
+  createInstance(params: ChainNodeDefCreateParams): ArenaChainNodeDef {
     const { chainUuid, nodeDefUuid } = params
 
     return {

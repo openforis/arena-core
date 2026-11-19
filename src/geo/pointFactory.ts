@@ -1,6 +1,6 @@
-import { Factory } from '../common'
+import { ArenaFactory } from '../common'
 import { DEFAULT_SRS } from '../srs'
-import { Point } from './point'
+import { ArenaPoint } from './point'
 
 export type PointFactoryParams = {
   srs?: string
@@ -11,8 +11,8 @@ export type PointFactoryParams = {
   altitudeAccuracy?: number
 }
 
-export const PointFactory: Factory<Point, PointFactoryParams> = {
-  createInstance: (params: PointFactoryParams): Point => {
+export const PointFactory: ArenaFactory<ArenaPoint, PointFactoryParams> = {
+  createInstance: (params: PointFactoryParams): ArenaPoint => {
     return { ...params, srs: params.srs ?? DEFAULT_SRS.code }
   },
 }

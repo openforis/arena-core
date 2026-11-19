@@ -1,11 +1,11 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { NodeDef, NodeDefProps, NodeDefType } from '../../nodeDef'
-import { Survey, Surveys } from '../../survey'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../../nodeDef'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { ArenaRecordNode } from '../../node'
 import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from './recordExpressionEvaluator'
-import { RecordExpressionContext } from './context'
+import { ArenaRecordExpressionContext } from './context'
 import { Records } from '../records'
 import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../tests/data'
 import { SystemError } from '../../error'
@@ -25,13 +25,13 @@ type Query = {
 }
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 let record: ArenaRecord
 
 const getNode = (path: string): ArenaRecordNode => TestUtils.getNodeByPath({ survey, record, path })
 
 const determineContextNode = (params: {
-  nodeCurrentDef: NodeDef<NodeDefType, NodeDefProps>
+  nodeCurrentDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
   nodeCurrent: ArenaRecordNode
   node: string | undefined
 }): ArenaRecordNode => {
@@ -67,7 +67,7 @@ describe('RecordExpressionEvaluator', () => {
     const nodeCurrent = TestUtils.getNodeByPath({ survey, record: currentRecord, path: 'cluster.remarks' })
     const nodeContext = Records.getParent(nodeCurrent)(currentRecord)
     if (!nodeContext) throw new Error('Cannot find context node: cluster.remarks')
-    const context: RecordExpressionContext = {
+    const context: ArenaRecordExpressionContext = {
       user,
       survey,
       record: currentRecord,
@@ -93,10 +93,17 @@ describe('RecordExpressionEvaluator', () => {
 
     const evaluator = new RecordExpressionEvaluator()
 
-    const contextEn: RecordExpressionContext = { user, survey, record, nodeContext, nodeCurrent, object: nodeContext }
+    const contextEn: ArenaRecordExpressionContext = {
+      user,
+      survey,
+      record,
+      nodeContext,
+      nodeCurrent,
+      object: nodeContext,
+    }
     expect(await evaluator.evaluate('numberToWords(cluster_id)', contextEn)).toBe('twelve')
 
-    const contextFr: RecordExpressionContext = { ...contextEn, lang: LanguageCode.fr }
+    const contextFr: ArenaRecordExpressionContext = { ...contextEn, lang: LanguageCode.fr }
     expect(await evaluator.evaluate('numberToWords(cluster_id)', contextFr)).toBe('douze')
   })
 
@@ -535,7 +542,14 @@ describe('RecordExpressionEvaluator', () => {
 
         const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid })
         const nodeContext = determineContextNode({ nodeCurrentDef, nodeCurrent, node })
-        const context: RecordExpressionContext = { user, survey, record, nodeContext, nodeCurrent, object: nodeContext }
+        const context: ArenaRecordExpressionContext = {
+          user,
+          survey,
+          record,
+          nodeContext,
+          nodeCurrent,
+          object: nodeContext,
+        }
         const res = await new RecordExpressionEvaluator().evaluate(expression, context)
         expect(res).toEqual(result instanceof Function ? result() : result)
       }

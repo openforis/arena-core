@@ -1,11 +1,11 @@
-import { Taxon } from './taxon'
-import { VernacularName } from './taxonVernacularName'
+import { ArenaTaxon } from './taxon'
+import { ArenaVernacularName } from './taxonVernacularName'
 
-const getCode = (taxon: Taxon) => taxon.props.code
-const getScientificName = (taxon: Taxon) => taxon.props.scientificName
+const getCode = (taxon: ArenaTaxon) => taxon.props.code
+const getScientificName = (taxon: ArenaTaxon) => taxon.props.scientificName
 const getVernacularNameByUuid =
   (vernacularNameUuid: string) =>
-  (taxon: Taxon): VernacularName | undefined => {
+  (taxon: ArenaTaxon): ArenaVernacularName | undefined => {
     const vernacularNamesByLang = taxon?.vernacularNames ?? {}
     const vernacularNameArrays = Object.values(vernacularNamesByLang)
     for (const vernacularNameArray of vernacularNameArrays) {
@@ -18,10 +18,10 @@ const getVernacularNameByUuid =
     return undefined
   }
 
-const getVernacularNameName = (vernacularName: VernacularName): string | undefined => vernacularName?.props?.name
-const getVernacularNameLang = (vernacularName: VernacularName): string | undefined => vernacularName?.props?.lang
+const getVernacularNameName = (vernacularName: ArenaVernacularName): string | undefined => vernacularName?.props?.name
+const getVernacularNameLang = (vernacularName: ArenaVernacularName): string | undefined => vernacularName?.props?.lang
 
-const getVernacularNameAndLang = (vernacularNameUuid: string) => (taxon: Taxon) => {
+const getVernacularNameAndLang = (vernacularNameUuid: string) => (taxon: ArenaTaxon) => {
   let vernacularName, vernacularLang
   const vernacularNameObj = getVernacularNameByUuid(vernacularNameUuid)(taxon)
   if (vernacularNameObj) {
@@ -34,7 +34,7 @@ const getVernacularNameAndLang = (vernacularNameUuid: string) => (taxon: Taxon) 
   return vernacularName ? { vernacularName, vernacularLang } : {}
 }
 
-const isUnknownOrUnlisted = (taxon: Taxon): boolean => ['UNK', 'UNL'].includes(getCode(taxon))
+const isUnknownOrUnlisted = (taxon: ArenaTaxon): boolean => ['UNK', 'UNL'].includes(getCode(taxon))
 
 export const Taxa = {
   getCode,

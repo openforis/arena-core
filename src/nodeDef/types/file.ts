@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
 
 export enum NodeDefFileType {
   audio = 'audio',
@@ -7,11 +7,11 @@ export enum NodeDefFileType {
   other = 'other',
 }
 
-export interface NodeDefFileProps extends NodeDefProps {
+export interface ArenaNodeDefFileProps extends ArenaNodeDefProps {
   fileType?: NodeDefFileType
   maxFileSize?: number
   geotagInformationShown?: boolean
   screenCaptureInMapAllowed?: boolean // image files only: the map view can save its screen capture in it
 }
 
-export type NodeDefFile = NodeDef<NodeDefType.file, NodeDefFileProps>
+export type ArenaNodeDefFile = ArenaNodeDef<NodeDefType.file, ArenaNodeDefFileProps>

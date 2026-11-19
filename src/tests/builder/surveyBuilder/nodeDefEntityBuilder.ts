@@ -1,5 +1,5 @@
-import { NodeDef, NodeDefEntity, NodeDefEntityProps, NodeDefType } from '../../../nodeDef'
-import { Survey } from '../../../survey'
+import { ArenaNodeDef, ArenaNodeDefEntity, ArenaNodeDefEntityProps, NodeDefType } from '../../../nodeDef'
+import { ArenaSurvey } from '../../../survey'
 import { NodeDefBuilder } from './nodeDefBuilder'
 
 export class NodeDefEntityBuilder extends NodeDefBuilder {
@@ -11,7 +11,7 @@ export class NodeDefEntityBuilder extends NodeDefBuilder {
   }
 
   enumerate(): this {
-    const p = this.props as NodeDefEntityProps
+    const p = this.props as ArenaNodeDefEntityProps
     p.enumerate = true
     return this
   }
@@ -22,19 +22,21 @@ export class NodeDefEntityBuilder extends NodeDefBuilder {
   }
 
   autoCreateMinCountItems(): this {
-    const p = this.props as NodeDefEntityProps
+    const p = this.props as ArenaNodeDefEntityProps
     p.autoCreateMinCountItems = true
     return this
   }
 
-  build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> } {
+  build(params: { survey: ArenaSurvey; nodeDefParent?: ArenaNodeDefEntity }): {
+    [uuid: string]: ArenaNodeDef<NodeDefType>
+  } {
     const { survey, nodeDefParent } = params
-    const def: NodeDefEntity = this.createNodeDef({ nodeDefParent }) as NodeDefEntity
+    const def: ArenaNodeDefEntity = this.createNodeDef({ nodeDefParent }) as ArenaNodeDefEntity
 
     let surveyUpdated = { ...survey }
 
     return this.childBuilders.reduce(
-      (nodeDefsAcc: { [uuid: string]: NodeDef<NodeDefType> }, childBuilder: NodeDefBuilder) => {
+      (nodeDefsAcc: { [uuid: string]: ArenaNodeDef<NodeDefType> }, childBuilder: NodeDefBuilder) => {
         const nodeDefs = childBuilder.build({ survey: surveyUpdated, nodeDefParent: def })
         surveyUpdated = { ...survey, nodeDefs: { ...surveyUpdated.nodeDefs, ...nodeDefs } }
         return { ...nodeDefsAcc, ...nodeDefs }

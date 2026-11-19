@@ -1,8 +1,8 @@
-import { ArenaRecordNode, NodeFactory, NodeValueCode, NodeValueTaxon } from '../../../node'
-import { NodeMeta } from '../../../node/node'
-import { NodeDef, NodeDefCode, NodeDefTaxon, NodeDefType } from '../../../nodeDef'
+import { ArenaRecordNode, NodeFactory, ArenaRecordNodeValueCode, ArenaRecordNodeValueTaxon } from '../../../node'
+import { ArenaRecordNodeMeta } from '../../../node/node'
+import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefTaxon, NodeDefType } from '../../../nodeDef'
 import { ArenaRecord, Records } from '../../../record'
-import { Survey, Surveys } from '../../../survey'
+import { ArenaSurvey, Surveys } from '../../../survey'
 import { NodeBuilder } from './nodeBuilder'
 
 export class AttributeBuilder extends NodeBuilder {
@@ -13,7 +13,7 @@ export class AttributeBuilder extends NodeBuilder {
     this.value = value
   }
 
-  private buildCodeValue(params: { survey: Survey; nodeDef: NodeDefCode }) {
+  private buildCodeValue(params: { survey: ArenaSurvey; nodeDef: ArenaNodeDefCode }) {
     const { survey, nodeDef } = params
 
     if (this.value.itemUuid) {
@@ -34,10 +34,10 @@ export class AttributeBuilder extends NodeBuilder {
     return {
       itemUuid: item.uuid,
       code: item.props.code,
-    } as NodeValueCode
+    } as ArenaRecordNodeValueCode
   }
 
-  private buildTaxonValue(params: { survey: Survey; nodeDef: NodeDefTaxon }) {
+  private buildTaxonValue(params: { survey: ArenaSurvey; nodeDef: ArenaNodeDefTaxon }) {
     const { survey, nodeDef } = params
 
     if (this.value.taxonUuid) {
@@ -56,31 +56,35 @@ export class AttributeBuilder extends NodeBuilder {
       taxonUuid: taxon.uuid,
       code: taxon.props.code,
       scientificName: taxon.props.scientificName,
-    } as NodeValueTaxon
+    } as ArenaRecordNodeValueTaxon
   }
 
-  private buildValue(params: { survey: Survey }) {
+  private buildValue(params: { survey: ArenaSurvey }) {
     const { survey } = params
     const nodeDef = this.getNodeDef({ survey })
 
     if (this.value === null || this.value === undefined) return null
 
     if (nodeDef.type === NodeDefType.code) {
-      return this.buildCodeValue({ survey, nodeDef: nodeDef as NodeDefCode })
+      return this.buildCodeValue({ survey, nodeDef: nodeDef as ArenaNodeDefCode })
     }
     if (nodeDef.type === NodeDefType.taxon) {
-      return this.buildTaxonValue({ survey, nodeDef: nodeDef as NodeDefTaxon })
+      return this.buildTaxonValue({ survey, nodeDef: nodeDef as ArenaNodeDefTaxon })
     }
     return this.value
   }
 
-  private buildMeta(params: { nodeDef: NodeDef<any>; record: ArenaRecord; parentNode?: ArenaRecordNode }): NodeMeta {
+  private buildMeta(params: {
+    nodeDef: ArenaNodeDef<any>
+    record: ArenaRecord
+    parentNode?: ArenaRecordNode
+  }): ArenaRecordNodeMeta {
     const { nodeDef, record, parentNode } = params
 
-    const meta: NodeMeta = {}
+    const meta: ArenaRecordNodeMeta = {}
 
     if (nodeDef.type === NodeDefType.code) {
-      const nodeDefCode = nodeDef as NodeDefCode
+      const nodeDefCode = nodeDef as ArenaNodeDefCode
       if (nodeDefCode.props.parentCodeDefUuid && parentNode) {
         const parentCodeAttribute = Records.getParentCodeAttribute(parentNode, nodeDefCode)(record)
         if (!parentCodeAttribute) throw new Error('Could not find the parent code attibute')
@@ -91,7 +95,7 @@ export class AttributeBuilder extends NodeBuilder {
     return meta
   }
 
-  build(params: { survey: Survey; record: ArenaRecord; parentNode?: ArenaRecordNode }): ArenaRecord {
+  build(params: { survey: ArenaSurvey; record: ArenaRecord; parentNode?: ArenaRecordNode }): ArenaRecord {
     const { survey, record, parentNode } = params
 
     const nodeDef = this.getNodeDef({ survey })

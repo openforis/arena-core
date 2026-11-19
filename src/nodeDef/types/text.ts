@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefLayout, NodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefLayout, ArenaNodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
 
 export enum NodeDefTextInputType {
   singleLine = 'singleLine',
@@ -11,13 +11,13 @@ export enum NodeDefTextRenderType {
   markdown = 'markdown',
 }
 
-export interface NodeDefTextLayout extends NodeDefLayout {
+export interface ArenaNodeDefTextLayout extends ArenaNodeDefLayout {
   renderType: NodeDefTextRenderType
 }
 
-export interface NodeDefTextProps extends NodeDefPropsWithLayout<NodeDefTextLayout> {
+export interface ArenaNodeDefTextProps extends ArenaNodeDefPropsWithLayout<ArenaNodeDefTextLayout> {
   textInputType: NodeDefTextInputType
   textTransform: 'none' | 'capitalize' | 'lowercase' | 'uppercase'
 }
 
-export type NodeDefText = NodeDef<NodeDefType.text, NodeDefTextProps>
+export type ArenaNodeDefText = ArenaNodeDef<NodeDefType.text, ArenaNodeDefTextProps>

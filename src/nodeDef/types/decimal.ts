@@ -1,7 +1,7 @@
-import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
 
-export interface NodeDefDecimalProps extends NodeDefProps {
+export interface ArenaNodeDefDecimalProps extends ArenaNodeDefProps {
   maxNumberDecimalDigits: number
 }
 
-export type NodeDefDecimal = NodeDef<NodeDefType.decimal, NodeDefDecimalProps>
+export type ArenaNodeDefDecimal = ArenaNodeDef<NodeDefType.decimal, ArenaNodeDefDecimalProps>

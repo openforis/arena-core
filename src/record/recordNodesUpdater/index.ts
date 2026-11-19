@@ -4,8 +4,8 @@ import { removeNode, removeNodes } from './recordNodesDeleter'
 import { updateRequiredFlags } from './recordNodeDependentsRequiredUpdater'
 
 export { RecordUpdateResult } from './recordUpdateResult'
-export type { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
-export type { NodeCreateParams, NodesUpdateParams } from './recordNodesCreator'
+export type { ArenaRecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
+export type { ArenaRecordNodeCreateParams, ArenaRecordNodesUpdateParams } from './recordNodesCreator'
 
 export const RecordNodesUpdater = {
   /** Low-level: adds the descendants of a node to the record without updating dependents and validation (see RecordUpdater.createDescendants) */

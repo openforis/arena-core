@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefs } from '../nodeDef'
+import { ArenaNodeDef, NodeDefs } from '../nodeDef'
 import { Strings } from '../utils'
 
 const attachedFilesSubfolderName = 'files'
@@ -8,7 +8,7 @@ const getFileName = ({
   index,
   extension = 'csv',
 }: {
-  nodeDef: NodeDef<any>
+  nodeDef: ArenaNodeDef<any>
   index: number
   extension: string
 }): string => {

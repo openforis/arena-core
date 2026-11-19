@@ -1,11 +1,11 @@
 import { ArenaObject } from '../common'
-import { Labels } from '../language'
+import { ArenaLabels } from '../language'
 
-export interface ChainNodeDefAggregateProps {
-  alias: Labels
+export interface ArenaChainNodeDefAggregateProps {
+  alias: ArenaLabels
 }
 
-export interface ChainNodeDefAggregate extends ArenaObject<ChainNodeDefAggregateProps> {
+export interface ArenaChainNodeDefAggregate extends ArenaObject<ArenaChainNodeDefAggregateProps> {
   chainUuid: string
   nodeDefUuid: string
   formula: string

@@ -1,28 +1,28 @@
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaService } from '../common'
 
-export interface UserService extends ArenaService {
+export interface ArenaUserService extends ArenaService {
   // ==== CREATE
   create(options: {
-    user: User
+    user: ArenaUser
     surveyId: number
     surveyCycleKey: string
     userToInviteParam: string
     urlServer: string
     repeatInvitation?: boolean
-  }): Promise<User>
+  }): Promise<ArenaUser>
 
   // ==== READ
-  count(options: { user: User; surveyId: number }): Promise<number>
+  count(options: { user: ArenaUser; surveyId: number }): Promise<number>
 
-  get(options: { userUuid: string } | { email: string; password?: string }): Promise<User | null>
-  getMany(options: { surveyId: number; limit?: number; offset?: number; user: User }): Promise<Array<User>>
+  get(options: { userUuid: string } | { email: string; password?: string }): Promise<ArenaUser | null>
+  getMany(options: { surveyId: number; limit?: number; offset?: number; user: ArenaUser }): Promise<Array<ArenaUser>>
   getProfilePicture(options: { userUuid: string }): Promise<string>
 
   // ==== UPDATE
-  update(options: { user: User; surveyId: number; userToUpdate: User; filePath?: string }): Promise<User>
-  updateUserPrefs(options: { userToUpdate: User }): Promise<User>
+  update(options: { user: ArenaUser; surveyId: number; userToUpdate: ArenaUser; filePath?: string }): Promise<ArenaUser>
+  updateUserPrefs(options: { userToUpdate: ArenaUser }): Promise<ArenaUser>
 
   // ==== DELETE
-  delete(options: { surveyId: number; user: User; userUuid: string }): Promise<void>
+  delete(options: { surveyId: number; user: ArenaUser; userUuid: string }): Promise<void>
 }

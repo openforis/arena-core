@@ -1,8 +1,8 @@
-import { AuthGroupName, User, Users, UserTitle } from '../auth'
-import type { I18n } from '../common'
+import { AuthGroupName, ArenaUser, Users, UserTitle } from '../auth'
+import type { ArenaI18n } from '../common'
 import { Objects } from '../utils'
 
-import { Message, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUserType } from './message'
+import { ArenaMessage, MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUserType } from './message'
 
 const hiddenProps = [
   MessagePropsKey.targetUserEmails,
@@ -10,83 +10,84 @@ const hiddenProps = [
   MessagePropsKey.targetExcludedUserEmails,
 ]
 
-const getStatus = (message: Message): MessageStatus => message.status
+const getStatus = (message: ArenaMessage): MessageStatus => message.status
 
-const getDateCreated = (message: Message): Date | undefined => message.dateCreated
+const getDateCreated = (message: ArenaMessage): Date | undefined => message.dateCreated
 
-const getDateModified = (message: Message): Date | undefined => message.dateModified
+const getDateModified = (message: ArenaMessage): Date | undefined => message.dateModified
 
-const getDateValidUntil = (message: Message): Date | undefined => message.props?.dateValidUntil
+const getDateValidUntil = (message: ArenaMessage): Date | undefined => message.props?.dateValidUntil
 
-const getDateScheduledAt = (message: Message): Date | undefined => message.props?.dateScheduledAt
+const getDateScheduledAt = (message: ArenaMessage): Date | undefined => message.props?.dateScheduledAt
 
-const getNotificationTypes = (message: Message): MessageNotificationType[] => message.props?.notificationTypes ?? []
+const getNotificationTypes = (message: ArenaMessage): MessageNotificationType[] =>
+  message.props?.notificationTypes ?? []
 
-const getSubject = (message: Message): string | undefined => message.props?.subject
+const getSubject = (message: ArenaMessage): string | undefined => message.props?.subject
 
-const getBody = (message: Message): string | undefined => message.props?.body
+const getBody = (message: ArenaMessage): string | undefined => message.props?.body
 
-const getTargetAppIds = (message: Message): string[] => message.props?.targetAppIds ?? []
+const getTargetAppIds = (message: ArenaMessage): string[] => message.props?.targetAppIds ?? []
 
-const getTargetUserTypes = (message: Message): MessageTargetUserType[] => message.props?.targetUserTypes ?? []
+const getTargetUserTypes = (message: ArenaMessage): MessageTargetUserType[] => message.props?.targetUserTypes ?? []
 
-const getTargetUserEmails = (message: Message): string[] => message.props?.targetUserEmails ?? []
+const getTargetUserEmails = (message: ArenaMessage): string[] => message.props?.targetUserEmails ?? []
 
-const getTargetExcludedUserEmails = (message: Message): string[] => message.props?.targetExcludedUserEmails ?? []
+const getTargetExcludedUserEmails = (message: ArenaMessage): string[] => message.props?.targetExcludedUserEmails ?? []
 
 const assocStatus =
   (status: MessageStatus) =>
-  (message: Message): Message =>
+  (message: ArenaMessage): ArenaMessage =>
     Objects.assoc({ obj: message, prop: 'status', value: status })
 
 const assocProp =
   (propKey: MessagePropsKey, propValue: any) =>
-  (message: Message): Message =>
+  (message: ArenaMessage): ArenaMessage =>
     Objects.assocPath({ obj: message, path: ['props', propKey], value: propValue })
 
 const assocSubject =
   (subject: string) =>
-  (message: Message): Message =>
+  (message: ArenaMessage): ArenaMessage =>
     assocProp(MessagePropsKey.subject, subject)(message)
 
 const assocBody =
   (body: string) =>
-  (message: Message): Message =>
+  (message: ArenaMessage): ArenaMessage =>
     assocProp(MessagePropsKey.body, body)(message)
 
 const assocNotificationTypes =
   (notificationTypes: MessageNotificationType[]) =>
-  (message: Message): Message =>
+  (message: ArenaMessage): ArenaMessage =>
     assocProp(MessagePropsKey.notificationTypes, notificationTypes)(message)
 
 const assocTargetAppIds =
   (targetAppIds: string[]) =>
-  (message: Message): Message =>
+  (message: ArenaMessage): ArenaMessage =>
     assocProp(MessagePropsKey.targetAppIds, targetAppIds)(message)
 
 const assocTargetUserTypes =
   (targetUserTypes: MessageTargetUserType[]) =>
-  (message: Message): Message =>
+  (message: ArenaMessage): ArenaMessage =>
     assocProp(MessagePropsKey.targetUserTypes, targetUserTypes)(message)
 
 const assocTargetUserEmails =
   (emails: string[]) =>
-  (message: Message): Message =>
+  (message: ArenaMessage): ArenaMessage =>
     assocProp(MessagePropsKey.targetUserEmails, emails)(message)
 
 const assocTargetExcludedUserEmails =
   (emails: string[]) =>
-  (message: Message): Message =>
+  (message: ArenaMessage): ArenaMessage =>
     assocProp(MessagePropsKey.targetExcludedUserEmails, emails)(message)
 
 const assocDateValidUntil =
   (dateValidUntil: Date | undefined) =>
-  (message: Message): Message =>
+  (message: ArenaMessage): ArenaMessage =>
     assocProp(MessagePropsKey.dateValidUntil, dateValidUntil)(message)
 
 const isTargetingUser =
-  (user: User) =>
-  (message: Message): boolean => {
+  (user: ArenaUser) =>
+  (message: ArenaMessage): boolean => {
     const now = Date.now()
     // dates can be strings (e.g. when the message comes from JSON): compare timestamps
     const validUntil = getDateValidUntil(message)
@@ -119,11 +120,11 @@ const isTargetingUser =
     )
   }
 
-const clearHiddenProps = (message: Message): Message => {
+const clearHiddenProps = (message: ArenaMessage): ArenaMessage => {
   return hiddenProps.reduce((msg, prop) => assocProp(prop, undefined)(msg), message)
 }
 
-const clearNotApplicableProps = (message: Message): Message => {
+const clearNotApplicableProps = (message: ArenaMessage): ArenaMessage => {
   const targets = getTargetUserTypes(message)
   let messageNext = message
   const targetEmailsNext = targets.includes(MessageTargetUserType.Individual) ? getTargetUserEmails(message) : []
@@ -136,8 +137,8 @@ const clearNotApplicableProps = (message: Message): Message => {
 }
 
 const replaceBodyTemplateVariables =
-  ({ i18n, user }: { i18n: I18n; user: User }) =>
-  (message: Message): Message => {
+  ({ i18n, user }: { i18n: ArenaI18n; user: ArenaUser }) =>
+  (message: ArenaMessage): ArenaMessage => {
     const body = getBody(message) ?? ''
     const titleKey = user.props?.title
     const name = user.name

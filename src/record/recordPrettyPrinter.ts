@@ -1,7 +1,7 @@
-import { Dictionary, TraverseMethod } from '../common'
+import { ArenaDictionary, TraverseMethod } from '../common'
 import { ArenaRecordNode, NodeValueFormatter, Nodes } from '../node'
 import { NodeDefs } from '../nodeDef'
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { Strings } from '../utils'
 import { ArenaRecord } from './record'
 import * as RecordGetters from './_records/recordGetters'
@@ -20,7 +20,7 @@ const DefaultPrintOptions: PrintOptions = {
   showNotVisible: false,
 }
 
-const print = (params: { survey: Survey; record: ArenaRecord; options?: PrintOptions }): string => {
+const print = (params: { survey: ArenaSurvey; record: ArenaRecord; options?: PrintOptions }): string => {
   const { survey, record, options = DefaultPrintOptions } = params
   const { includeEmptyNodes, showNotApplicable, showNotEditable, showNotVisible } = options
 
@@ -109,7 +109,7 @@ const print = (params: { survey: Survey; record: ArenaRecord; options?: PrintOpt
   return parts.join('\n')
 }
 
-const printNodePath = (params: { survey: Survey; record: ArenaRecord; node: ArenaRecordNode }): string => {
+const printNodePath = (params: { survey: ArenaSurvey; record: ArenaRecord; node: ArenaRecordNode }): string => {
   const { survey, record, node } = params
   const parts: string[] = []
   RecordGetters.visitAncestorsAndSelf(node, (visitedNode) => {
@@ -125,9 +125,9 @@ const printNodePath = (params: { survey: Survey; record: ArenaRecord; node: Aren
 }
 
 const printNodesPaths = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
-  nodes: Dictionary<ArenaRecordNode>
+  nodes: ArenaDictionary<ArenaRecordNode>
 }): string[] => {
   const { survey, record, nodes } = params
   return Object.values(nodes).map((node) => RecordPrettyPrinter.printNodePath({ survey, record, node }))

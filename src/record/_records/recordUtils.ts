@@ -1,8 +1,8 @@
-import { CategoryItem } from '../../category'
+import { ArenaCategoryItem } from '../../category'
 import { ArenaRecordNode, NodeValues } from '../../node'
-import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefs, NodeDefType } from '../../nodeDef'
-import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
-import { Survey, Surveys } from '../../survey'
+import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefEntity, NodeDefs, NodeDefType } from '../../nodeDef'
+import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { ArenaRecord } from '../record'
 import {
   getChildren,
@@ -13,11 +13,14 @@ import {
   isNodeFilledByUser,
 } from './recordGetters'
 
-const findDependentEnumeratedEntityDefs = (params: { survey: Survey; nodeDef: NodeDef<any> }): NodeDefEntity[] => {
+const findDependentEnumeratedEntityDefs = (params: {
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDef<any>
+}): ArenaNodeDefEntity[] => {
   const { survey, nodeDef } = params
   const dependentEnumeratedEntityDefs =
     NodeDefs.getType(nodeDef) === NodeDefType.code
-      ? Surveys.getDependentEnumeratedEntityDefs({ survey, nodeDef: nodeDef as NodeDefCode })
+      ? Surveys.getDependentEnumeratedEntityDefs({ survey, nodeDef: nodeDef as ArenaNodeDefCode })
       : []
 
   const applicableDependentEnumeratedEntityDefs = Surveys.findApplicableDependentEnumeratedEntityDefs(nodeDef)(survey)
@@ -29,7 +32,7 @@ const findDependentEnumeratedEntityDefs = (params: { survey: Survey; nodeDef: No
 const hasNodeNonEmptyDescendants = (params: {
   record: ArenaRecord
   parentNode: ArenaRecordNode | undefined
-  nodeDefDescendant: NodeDefEntity
+  nodeDefDescendant: ArenaNodeDefEntity
 }): boolean => {
   const { record, parentNode, nodeDefDescendant } = params
   const descendants = getDescendantsOrSelf(parentNode ?? getRoot(record)!, nodeDefDescendant)(record)
@@ -40,7 +43,7 @@ const hasNodeNonEmptyDescendants = (params: {
 }
 
 export const findDependentEnumeratedEntityDefsNotEmpty =
-  (params: { survey: Survey; node: ArenaRecordNode; nodeDef: NodeDef<any> }) => (record: ArenaRecord) => {
+  (params: { survey: ArenaSurvey; node: ArenaRecordNode; nodeDef: ArenaNodeDef<any> }) => (record: ArenaRecord) => {
     const { survey, node, nodeDef } = params
     const dependentEnumeratedEntityDefs = findDependentEnumeratedEntityDefs({ survey, nodeDef })
     if (dependentEnumeratedEntityDefs.length === 0) return []
@@ -54,13 +57,13 @@ export const findDependentEnumeratedEntityDefsNotEmpty =
 
 export const getEnumeratingCategoryItems =
   (params: {
-    survey: Survey
-    enumeratorDef: NodeDefCode
+    survey: ArenaSurvey
+    enumeratorDef: ArenaNodeDefCode
     parentNode: ArenaRecordNode
-    categoryItemProvider?: CategoryItemProvider
+    categoryItemProvider?: ArenaCategoryItemProvider
     allowedCodes?: Set<string>
   }) =>
-  async (record: ArenaRecord): Promise<CategoryItem[]> => {
+  async (record: ArenaRecord): Promise<ArenaCategoryItem[]> => {
     const { survey, enumeratorDef, parentNode, categoryItemProvider, allowedCodes } = params
     const categoryUuid = NodeDefs.getCategoryUuid(enumeratorDef)
     if (!categoryUuid) return []

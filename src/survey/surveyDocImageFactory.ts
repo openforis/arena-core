@@ -1,21 +1,21 @@
-import { Factory } from '../common'
+import { ArenaFactory } from '../common'
 import { SurveyDocImages } from './surveyDocImages'
-import { SurveyDocImage, SurveyDocPlace } from './survey'
-import { SurveyFileFactory, SurveyFileFactoryParams, SurveyFileType } from './surveyFileFactory'
+import { ArenaSurveyDocImage, SurveyDocPlace } from './survey'
+import { SurveyFileFactory, ArenaSurveyFileFactoryParams, SurveyFileType } from './surveyFileFactory'
 
-export type SurveyDocImageFactoryParams = SurveyFileFactoryParams & {
+export type ArenaSurveyDocImageFactoryParams = ArenaSurveyFileFactoryParams & {
   documentPlace?: SurveyDocPlace | null
   applyIf?: string
 }
 
-export const SurveyDocImageFactory: Factory<SurveyDocImage, SurveyDocImageFactoryParams> = {
-  createInstance: (params: SurveyDocImageFactoryParams = {}): SurveyDocImage => {
+export const SurveyDocImageFactory: ArenaFactory<ArenaSurveyDocImage, ArenaSurveyDocImageFactoryParams> = {
+  createInstance: (params: ArenaSurveyDocImageFactoryParams = {}): ArenaSurveyDocImage => {
     const { documentPlace, applyIf, ...fileParams } = params
 
     let image = SurveyFileFactory.createInstance({
       ...fileParams,
       type: SurveyFileType.surveyDocImage,
-    }) as SurveyDocImage
+    }) as ArenaSurveyDocImage
 
     if (documentPlace) image = SurveyDocImages.assocDocumentPlace(documentPlace)(image)
     if (applyIf) image = SurveyDocImages.assocApplyIf(applyIf)(image)

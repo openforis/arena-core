@@ -1,5 +1,5 @@
 import { ArenaService } from '../common'
-import type { ServiceTypeMap } from './serviceTypeMap'
+import type { ArenaServiceTypeMap } from './serviceTypeMap'
 
 export class ServiceRegistry {
   private static _instance: ServiceRegistry
@@ -16,7 +16,7 @@ export class ServiceRegistry {
     return ServiceRegistry._instance
   }
 
-  getService<K extends keyof ServiceTypeMap>(key: K): ServiceTypeMap[K]
+  getService<K extends keyof ArenaServiceTypeMap>(key: K): ArenaServiceTypeMap[K]
   getService<S extends ArenaService>(key: string): S
   getService(key: string): ArenaService {
     const service = this.services[key]

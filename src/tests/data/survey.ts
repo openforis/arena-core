@@ -1,6 +1,6 @@
-import { User } from '../../auth'
+import { ArenaUser } from '../../auth'
 import { ExtraPropDataType } from '../../extraProp'
-import { Survey } from '../../survey'
+import { ArenaSurvey } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../builder/surveyBuilder'
 
 const {
@@ -19,7 +19,7 @@ const {
   timeDef,
 } = SurveyObjectBuilders
 
-export const createTestSurvey = async (params: { user: User }): Promise<Survey> =>
+export const createTestSurvey = async (params: { user: ArenaUser }): Promise<ArenaSurvey> =>
   new SurveyBuilder(
     params.user,
     entityDef(

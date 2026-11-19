@@ -1,9 +1,9 @@
-import { AnyExpressionNode } from '../../node'
+import { ArenaAnyExpressionNode } from '../../node'
 import { ExpressionParser } from '../../parser'
 import { jsep } from './jsep'
 
 export class JavascriptExpressionParser implements ExpressionParser {
-  parse(expression: string): AnyExpressionNode {
-    return jsep(expression) as AnyExpressionNode
+  parse(expression: string): ArenaAnyExpressionNode {
+    return jsep(expression) as ArenaAnyExpressionNode
   }
 }

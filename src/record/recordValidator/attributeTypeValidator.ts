@@ -1,21 +1,28 @@
-import { NodeDef, NodeDefCode, NodeDefProps, NodeDefs, NodeDefTaxon, NodeDefType } from '../../nodeDef'
+import {
+  ArenaNodeDef,
+  ArenaNodeDefCode,
+  ArenaNodeDefProps,
+  NodeDefs,
+  ArenaNodeDefTaxon,
+  NodeDefType,
+} from '../../nodeDef'
 import { ArenaRecordNode, Nodes } from '../../node'
-import { ValidationResult, ValidationResultFactory } from '../../validation'
-import { Survey, Surveys } from '../../survey'
+import { ArenaValidationResult, ValidationResultFactory } from '../../validation'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { NodeValues } from '../../node/nodeValues'
 import { Points } from '../../geo'
 import { Numbers, Dates } from '../../utils'
-import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
-import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
+import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { ArenaTaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 import { Taxa } from '../../taxonomy'
 import { ArenaRecord } from '../record'
 
 interface AttributeTypeValidatorParams {
-  survey: Survey
-  categoryItemProvider?: CategoryItemProvider
-  taxonProvider?: TaxonProvider
+  survey: ArenaSurvey
+  categoryItemProvider?: ArenaCategoryItemProvider
+  taxonProvider?: ArenaTaxonProvider
   record: ArenaRecord
-  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
 }
 
 interface AttributeTypeValidatorInternalParams extends AttributeTypeValidatorParams {
@@ -40,7 +47,7 @@ const validateCode = async (params: AttributeTypeValidatorInternalParams) => {
   if (!categoryItemProvider) return false
 
   // loookup item with categoryItemProvider
-  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefCode
+  const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as ArenaNodeDefCode
   const categoryUuid = NodeDefs.getCategoryUuid(nodeDef)
   if (!categoryUuid) return false
   const draft = !!record.preview
@@ -56,7 +63,7 @@ const validateTaxon = async (params: AttributeTypeValidatorInternalParams): Prom
   let taxon = Surveys.getTaxonByUuid({ survey, taxonUuid })
   if (!taxon && taxonProvider) {
     // lookup taxon with taxonProvider
-    const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefTaxon
+    const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as ArenaNodeDefTaxon
     const taxonomyUuid = NodeDefs.getTaxonomyUuid(nodeDef)
     if (!taxonomyUuid) return false
     const draft = !!record.preview
@@ -125,7 +132,7 @@ const typeValidatorFns: {
 
 const validateValueType =
   (params: AttributeTypeValidatorParams) =>
-  async (_propName: string, node: ArenaRecordNode): Promise<ValidationResult> => {
+  async (_propName: string, node: ArenaRecordNode): Promise<ArenaValidationResult> => {
     const { survey, nodeDef, record, categoryItemProvider, taxonProvider } = params
 
     if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()

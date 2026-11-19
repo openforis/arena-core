@@ -1,6 +1,6 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
@@ -17,10 +17,10 @@ import { RecordUpdater } from './recordUpdater'
 import { Nodes } from '../node'
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 let record: ArenaRecord
 
-const deleteNodeDef = (params: { survey: Survey; parentUuid: string; uuid: string }) => {
+const deleteNodeDef = (params: { survey: ArenaSurvey; parentUuid: string; uuid: string }) => {
   const { survey, parentUuid, uuid } = params
   delete survey.nodeDefs?.[uuid]
   delete survey.nodeDefsIndex?.childDefUuidPresenceByParentUuid?.[parentUuid]?.[uuid]

@@ -1,9 +1,9 @@
 import { ThisEvaluator } from '../../../expression/javascript/node/this'
-import { RecordExpressionContext } from '../context'
+import { ArenaRecordExpressionContext } from '../context'
 import { NodeValueExtractor } from '../nodeValueExtractor'
 import { Surveys } from '../../../survey'
 
-export class RecordThisEvaluator extends ThisEvaluator<RecordExpressionContext> {
+export class RecordThisEvaluator extends ThisEvaluator<ArenaRecordExpressionContext> {
   evaluate(): Promise<any> {
     return Promise.resolve(this.evaluateValue())
   }

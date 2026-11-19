@@ -1,4 +1,4 @@
-import { AuthGroup, AuthGroupName, SYSTEM_ADMIN_GROUP } from '../../authGroup'
+import { ArenaAuthGroup, AuthGroupName, SYSTEM_ADMIN_GROUP } from '../../authGroup'
 import { SurveyFactory } from '../../../survey'
 import { AuthGroups } from '../../authGroups'
 import { UserFactory } from '../../factory'
@@ -44,7 +44,7 @@ export const createQueryTestCases = (queries: Query[]): QueryTestCase[] => {
   return queries.map((query) => {
     const { title, groups, authorizer, result: resultExpected, getParams = false } = query
 
-    const authGroups: AuthGroup[] =
+    const authGroups: ArenaAuthGroup[] =
       groups.length === 1 && groups[0] === AuthGroupName.systemAdmin
         ? [SYSTEM_ADMIN_GROUP]
         : survey.authGroups.filter((group) => groups.includes(group.name))

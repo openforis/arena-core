@@ -1,12 +1,12 @@
 import { describe, expect, test } from '@jest/globals'
 
 import { ArenaRecord, RecordFactory } from '../../../record'
-import { Survey, SurveyFactory, SurveySecurityProp } from '../../../survey'
-import { AuthGroup, AuthGroupName, SYSTEM_ADMIN_GROUP } from '../../authGroup'
+import { ArenaSurvey, SurveyFactory, SurveySecurityProp } from '../../../survey'
+import { ArenaAuthGroup, AuthGroupName, SYSTEM_ADMIN_GROUP } from '../../authGroup'
 import { AuthGroups } from '../../authGroups'
 import { Authorizer } from '../../authorizer'
 import { UserFactory } from '../../factory'
-import { User } from '../../user'
+import { ArenaUser } from '../../user'
 
 // Explicit permission matrix: every auth group (alone) against the Authorizer checks.
 // Expected values are written by hand on purpose (not derived from DEFAULT_AUTH_GROUPS / permissionsByGroupName):
@@ -17,11 +17,11 @@ const allGroupNames = Object.values(AuthGroupName)
 
 const owner = UserFactory.createInstance({ email: 'owner@arena.org', name: 'survey owner' })
 const otherUser = UserFactory.createInstance({ email: 'other@arena.org', name: 'other user' })
-const survey: Survey = SurveyFactory.createInstance({ name: 'test_authorizer_matrix', ownerUuid: owner.uuid })
+const survey: ArenaSurvey = SurveyFactory.createInstance({ name: 'test_authorizer_matrix', ownerUuid: owner.uuid })
 survey.authGroups = AuthGroups.getDefaultAuthGroups(survey.uuid)
 
-const createUser = (groupName: AuthGroupName): User => {
-  let authGroups: AuthGroup[]
+const createUser = (groupName: AuthGroupName): ArenaUser => {
+  let authGroups: ArenaAuthGroup[]
   if (groupName === G.systemAdmin) {
     authGroups = [SYSTEM_ADMIN_GROUP]
   } else if (groupName === G.surveyManager) {
@@ -34,7 +34,7 @@ const createUser = (groupName: AuthGroupName): User => {
   return { ...user, authGroups }
 }
 
-const createRecord = (params: { user: User; step: string }): ArenaRecord =>
+const createRecord = (params: { user: ArenaUser; step: string }): ArenaRecord =>
   RecordFactory.createInstance({ user: params.user, surveyUuid: survey.uuid, step: params.step })
 
 /**
@@ -43,7 +43,11 @@ const createRecord = (params: { user: User; step: string }): ArenaRecord =>
 const casesWithAuthorizedGroups = (authorizedGroups: AuthGroupName[]): [AuthGroupName, boolean][] =>
   allGroupNames.map((groupName) => [groupName, authorizedGroups.includes(groupName)])
 
-const surveyChecks: { name: string; check: (user: User, survey: Survey) => boolean; authorized: AuthGroupName[] }[] = [
+const surveyChecks: {
+  name: string
+  check: (user: ArenaUser, survey: ArenaSurvey) => boolean
+  authorized: AuthGroupName[]
+}[] = [
   {
     name: 'canViewSurvey',
     check: Authorizer.canViewSurvey,
@@ -146,7 +150,7 @@ describe('Authorizer matrix - survey level checks', () => {
 })
 
 describe('Authorizer matrix - canViewNotOwnedRecords with survey security restrictions', () => {
-  const surveyRestricted: Survey = {
+  const surveyRestricted: ArenaSurvey = {
     ...survey,
     props: {
       ...survey.props,
@@ -165,13 +169,13 @@ describe('Authorizer matrix - canViewNotOwnedRecords with survey security restri
 })
 
 describe('Authorizer matrix - canViewSurveyOrPublishedTemplate with a published template', () => {
-  const template: Survey = { ...survey, template: true, published: true }
+  const template: ArenaSurvey = { ...survey, template: true, published: true }
   // any logged in user, also without groups in the template
   test.each(casesWithAuthorizedGroups(allGroupNames))('%s => %s', (groupName, expected) => {
     expect(Authorizer.canViewSurveyOrPublishedTemplate(createUser(groupName), template)).toBe(expected)
   })
   test('not published template => only users with a group in it', () => {
-    const templateNotPublished: Survey = { ...template, published: false }
+    const templateNotPublished: ArenaSurvey = { ...template, published: false }
     expect(Authorizer.canViewSurveyOrPublishedTemplate(createUser(G.surveyManager), templateNotPublished)).toBe(false)
     expect(Authorizer.canViewSurveyOrPublishedTemplate(createUser(G.dataEditor), templateNotPublished)).toBe(true)
   })
@@ -251,7 +255,7 @@ const recordCases = (expectations: typeof editRecordExpectations) =>
   )
 
 const runRecordCheck = (
-  check: (user: User, record: ArenaRecord) => boolean,
+  check: (user: ArenaUser, record: ArenaRecord) => boolean,
   params: { groupName: AuthGroupName; step: string; owned: boolean }
 ): boolean => {
   const { groupName, step, owned } = params

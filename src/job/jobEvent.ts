@@ -5,7 +5,7 @@ export enum JobEventType {
   progress = 'progress',
 }
 
-export interface JobEvent {
+export interface ArenaJobEvent {
   type: JobEventType
   status: JobStatus
   total: number

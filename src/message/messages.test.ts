@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals'
 
 import { AuthGroupName, UserFactory } from '../auth'
-import { Message, MessageNotificationType, MessageStatus, MessageTargetUserType } from './message'
+import { ArenaMessage, MessageNotificationType, MessageStatus, MessageTargetUserType } from './message'
 import { Messages } from './messages'
 
 const user = { ...UserFactory.createInstance({ email: 'user@arena.org', name: 'user' }), authGroups: [] }
@@ -10,7 +10,7 @@ const admin = {
   authGroups: [{ name: AuthGroupName.systemAdmin }],
 }
 
-const createMessage = (props: Partial<NonNullable<Message['props']>> = {}): Message => ({
+const createMessage = (props: Partial<NonNullable<ArenaMessage['props']>> = {}): ArenaMessage => ({
   uuid: 'message-uuid',
   status: MessageStatus.Sent,
   createdByUserUuid: 'creator-uuid',

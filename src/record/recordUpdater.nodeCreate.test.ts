@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeAll } from '@jest/globals'
 
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { Validations } from '../validation/validations'
 import { RecordFactory } from './factory'
 import { RecordUpdater } from './recordUpdater'
@@ -15,7 +15,7 @@ import { Nodes } from '../node'
 const { category, categoryItem, codeDef, dateDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-let user: User
+let user: ArenaUser
 
 describe('RecordUpdater - node create', () => {
   beforeAll(async () => {

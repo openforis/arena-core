@@ -1,4 +1,4 @@
-import { Factory } from '../common'
+import { ArenaFactory } from '../common'
 import { Dates, UUIDs } from '../utils'
 import { ArenaRecordNode } from './node'
 
@@ -10,7 +10,7 @@ export type NodeFactoryParams = {
   value?: any
 }
 
-export const NodeFactory: Factory<ArenaRecordNode, NodeFactoryParams> = {
+export const NodeFactory: ArenaFactory<ArenaRecordNode, NodeFactoryParams> = {
   createInstance: (params: NodeFactoryParams): ArenaRecordNode => {
     const { nodeDefUuid, recordUuid, parentNode, surveyUuid, value } = params
     const now = Dates.nowFormattedForStorage()

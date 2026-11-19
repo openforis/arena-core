@@ -1,6 +1,6 @@
 import { NodeValueComposite } from './nodeValueComposite'
 
-export interface NodeValueCoordinate extends NodeValueComposite {
+export interface ArenaRecordNodeValueCoordinate extends NodeValueComposite {
   srs: string
   x: number
   y: number

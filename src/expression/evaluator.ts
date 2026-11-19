@@ -1,9 +1,9 @@
-import { ExpressionContext } from './context'
-import { ExpressionFunction } from './function'
-import { ExpressionNode, ExpressionNodeType } from './node'
+import { ArenaExpressionContext } from './context'
+import { ArenaExpressionFunction } from './function'
+import { ArenaExpressionNode, ExpressionNodeType } from './node'
 
-export interface ExpressionEvaluator<C extends ExpressionContext> {
-  functions: { [functionName: string]: ExpressionFunction<C> }
+export interface ArenaExpressionEvaluator<C extends ArenaExpressionContext> {
+  functions: { [functionName: string]: ArenaExpressionFunction<C> }
   evaluate(expression: string, context?: C): Promise<any>
-  evaluateNode(expression: ExpressionNode<ExpressionNodeType>, context: C): Promise<any>
+  evaluateNode(expression: ArenaExpressionNode<ExpressionNodeType>, context: C): Promise<any>
 }

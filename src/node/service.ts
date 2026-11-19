@@ -1,15 +1,15 @@
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaRecordNode } from '../node'
 import { ArenaService } from '../common'
 
-export interface NodeService extends ArenaService {
+export interface ArenaRecordNodeService extends ArenaService {
   // ==== CREATE
   create(options: {
     filePath?: string
     node: ArenaRecordNode
     socketId: string
     surveyId: number
-    user: User
+    user: ArenaUser
   }): Promise<ArenaRecordNode>
 
   // ==== READ
@@ -21,7 +21,7 @@ export interface NodeService extends ArenaService {
     node: ArenaRecordNode
     socketId: string
     surveyId: number
-    user: User
+    user: ArenaUser
   }): Promise<ArenaRecordNode>
 
   // ==== DELETE
@@ -30,6 +30,6 @@ export interface NodeService extends ArenaService {
     recordUuid: string
     socketId: string
     surveyId: number
-    user: User
+    user: ArenaUser
   }): Promise<void>
 }

@@ -1,13 +1,13 @@
-import { ExtraPropDef, ExtraPropDefs } from '../extraProp'
-import { Category } from './category'
+import { ArenaExtraPropDef, ArenaExtraPropDefs } from '../extraProp'
+import { ArenaCategory } from './category'
 
-const getExtraPropDefs = (category: Category): ExtraPropDefs | undefined => category.props.itemExtraDef
+const getExtraPropDefs = (category: ArenaCategory): ArenaExtraPropDefs | undefined => category.props.itemExtraDef
 
-const getExtraPropDefNames = (category: Category): string[] => Object.keys(getExtraPropDefs(category) ?? {})
+const getExtraPropDefNames = (category: ArenaCategory): string[] => Object.keys(getExtraPropDefs(category) ?? {})
 
 const getExtraPropDefByName =
   (name: string) =>
-  (category: Category): ExtraPropDef | undefined =>
+  (category: ArenaCategory): ArenaExtraPropDef | undefined =>
     getExtraPropDefs(category)?.[name]
 
 export const Categories = {

@@ -1,6 +1,6 @@
 import { LanguageCode } from '../language'
 
-export interface ExpressionContext {
+export interface ArenaExpressionContext {
   object?: any
   evaluateToNode?: boolean
   includeAnalysis?: boolean

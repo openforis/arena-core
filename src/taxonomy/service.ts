@@ -1,10 +1,10 @@
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaService } from '../common'
-import { Taxonomy, TaxonomyProps } from './taxonomy'
+import { ArenaTaxonomy, ArenaTaxonomyProps } from './taxonomy'
 
-export interface TaxonomyService extends ArenaService {
+export interface ArenaTaxonomyService extends ArenaService {
   // ==== CREATE
-  create(options: { user: User; surveyId: number; taxonomy: Taxonomy }): Promise<Taxonomy>
+  create(options: { user: ArenaUser; surveyId: number; taxonomy: ArenaTaxonomy }): Promise<ArenaTaxonomy>
 
   // ==== READ
   count(options: { surveyId: number }): Promise<number>
@@ -16,14 +16,14 @@ export interface TaxonomyService extends ArenaService {
     search?: string
     surveyId: number
     validate?: boolean
-  }): Promise<Array<Taxonomy>>
+  }): Promise<Array<ArenaTaxonomy>>
 
-  get(options: { surveyId: number; taxonomyUuid: string; draft?: boolean; validate?: boolean }): Promise<Taxonomy>
+  get(options: { surveyId: number; taxonomyUuid: string; draft?: boolean; validate?: boolean }): Promise<ArenaTaxonomy>
 
   // ==== UPDATE
 
-  update(options: { user: User; surveyId: number; taxonomyUuid: string; props: TaxonomyProps }): Promise<void>
+  update(options: { user: ArenaUser; surveyId: number; taxonomyUuid: string; props: ArenaTaxonomyProps }): Promise<void>
 
   // ==== DELETE
-  delete(options: { user: User; surveyId: number; taxonomyUuid: string }): void
+  delete(options: { user: ArenaUser; surveyId: number; taxonomyUuid: string }): void
 }

@@ -1,9 +1,9 @@
 import { describe, test, expect } from '@jest/globals'
 
 import { Objects } from '../utils'
-import { FieldValidator } from './fieldValidator'
+import { ArenaFieldValidator } from './fieldValidator'
 import { FieldValidators } from './fieldValidators'
-import { Validation, ValidationResult, ValidationSeverity } from './validation'
+import { ArenaValidation, ArenaValidationResult, ValidationSeverity } from './validation'
 import { ValidationResultFactory } from './factory'
 import { Validator } from './validator'
 
@@ -12,7 +12,7 @@ const { name, notKeyword, numeric, numericPositive, required } = FieldValidators
 type ValidationTest = {
   title: string
   obj: any
-  fieldsValidators: { [field: string]: Array<FieldValidator> }
+  fieldsValidators: { [field: string]: Array<ArenaFieldValidator> }
   valid: boolean
   errorsCountByField?: { [field: string]: number }
   warningsCountByField?: { [field: string]: number }
@@ -20,7 +20,7 @@ type ValidationTest = {
 
 const greaterThan10 =
   (severity: ValidationSeverity) =>
-  async (field: string, obj: any): Promise<ValidationResult> => {
+  async (field: string, obj: any): Promise<ArenaValidationResult> => {
     const value = Objects.path(field)(obj)
     return ValidationResultFactory.createInstance({ valid: value >= 10, key: 'less_or_equal_to_10', severity })
   }
@@ -144,7 +144,7 @@ describe('Validator', () => {
   tests.forEach((query) => {
     const { title, obj, fieldsValidators, valid, errorsCountByField, warningsCountByField } = query
     test(`Validator: ${title}`, async () => {
-      const validation: Validation = await validator.validate(obj, fieldsValidators)
+      const validation: ArenaValidation = await validator.validate(obj, fieldsValidators)
       expect(validation).toBeDefined()
       expect(validation.valid).toBe(valid)
       if (errorsCountByField) {

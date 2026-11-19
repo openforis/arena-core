@@ -1,7 +1,7 @@
 import { ArenaRecordNode } from '../../../node'
-import { NodeDef, NodeDefProps, NodeDefType } from '../../../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../../../nodeDef'
 import { ArenaRecord } from '../../../record'
-import { Survey } from '../../../survey'
+import { ArenaSurvey } from '../../../survey'
 
 export abstract class NodeBuilder {
   protected nodeDefName: string
@@ -10,7 +10,7 @@ export abstract class NodeBuilder {
     this.nodeDefName = nodeDefName
   }
 
-  protected getNodeDef(params: { survey: Survey }): NodeDef<NodeDefType, NodeDefProps> {
+  protected getNodeDef(params: { survey: ArenaSurvey }): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> {
     const nodeDef = Object.values(params.survey.nodeDefs ?? {}).find((n) => n.props.name === this.nodeDefName)
 
     if (!nodeDef) {
@@ -20,5 +20,5 @@ export abstract class NodeBuilder {
     return nodeDef
   }
 
-  abstract build(params: { survey: Survey; record: ArenaRecord; parentNode?: ArenaRecordNode }): ArenaRecord
+  abstract build(params: { survey: ArenaSurvey; record: ArenaRecord; parentNode?: ArenaRecordNode }): ArenaRecord
 }

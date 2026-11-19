@@ -1,41 +1,34 @@
 export { Authorizer } from './authorizer'
 
 export { AuthGroupName, createDefaultAuthGroups } from './authGroup'
-export type { AuthGroup, ArenaAuthGroup } from './authGroup'
+export type { ArenaAuthGroup } from './authGroup'
 
 export type {
-  User,
   ArenaUser,
-  UserAuthGroup,
-  UserAuthGroupProps,
-  UserInvitation,
-  UserPrefs,
-  UserProps,
-  UserPrefSurveys,
+  ArenaUserAuthGroup,
+  ArenaUserAuthGroupProps,
+  ArenaUserInvitation,
+  ArenaUserPrefs,
+  ArenaUserProps,
+  ArenaUserPrefSurveys,
 } from './user'
 export type {
-  AuthToken,
-  UserAuthTokenPayload,
-  UserAuthRefreshToken,
-  UserAuthRefreshTokenPayload,
-  UserAuthRefreshTokenProps,
-  UserTokenPayload,
-  DownloadAuthTokenPayload,
+  ArenaAuthToken,
+  ArenaUserAuthTokenPayload,
+  ArenaUserAuthRefreshToken,
+  ArenaUserAuthRefreshTokenPayload,
+  ArenaUserAuthRefreshTokenProps,
+  ArenaUserTokenPayload,
+  ArenaDownloadAuthTokenPayload,
 } from './userAuth'
-export type { UserService } from './userService'
-export type { UserAuthTokenService } from './userAuthTokenService'
+export type { ArenaUserService } from './userService'
+export type { ArenaUserAuthTokenService } from './userAuthTokenService'
 
 export { UserStatus, UserTitle } from './user'
 export { UserFactory } from './factory'
 
 export { Permission } from './permission'
 
-export type {
-  UserGroupQualifier,
-  ArenaUserGroupQualifier,
-  UserGroupProps,
-  UserGroup,
-  ArenaUserGroup,
-} from './userGroup'
+export type { ArenaUserGroupQualifier, ArenaUserGroupProps, ArenaUserGroup } from './userGroup'
 
 export { Users } from './users'

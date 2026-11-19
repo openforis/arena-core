@@ -1,3 +1,3 @@
-export interface Factory<T, P> {
+export interface ArenaFactory<T, P> {
   createInstance(params?: P): T
 }

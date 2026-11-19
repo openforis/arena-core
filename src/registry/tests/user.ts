@@ -1,12 +1,12 @@
-import { User, UserFactory, UserService } from '../../auth'
+import { ArenaUser, UserFactory, ArenaUserService } from '../../auth'
 
-export const userMock: User = UserFactory.createInstance({
+export const userMock: ArenaUser = UserFactory.createInstance({
   email: 'email@mock.org',
   name: 'survey_name',
 })
 
-export class UserServiceMock implements UserService {
-  create(): Promise<User> {
+export class UserServiceMock implements ArenaUserService {
+  create(): Promise<ArenaUser> {
     throw new Error('Not implemented')
   }
 
@@ -14,11 +14,11 @@ export class UserServiceMock implements UserService {
     throw new Error('Not implemented')
   }
 
-  get(): Promise<User> {
+  get(): Promise<ArenaUser> {
     return Promise.resolve(userMock)
   }
 
-  getMany(): Promise<Array<User>> {
+  getMany(): Promise<Array<ArenaUser>> {
     throw new Error('Not implemented')
   }
 
@@ -26,11 +26,11 @@ export class UserServiceMock implements UserService {
     throw new Error('Not implemented')
   }
 
-  update(): Promise<User> {
+  update(): Promise<ArenaUser> {
     throw new Error('Not implemented')
   }
 
-  updateUserPrefs(): Promise<User> {
+  updateUserPrefs(): Promise<ArenaUser> {
     throw new Error('Not implemented')
   }
 

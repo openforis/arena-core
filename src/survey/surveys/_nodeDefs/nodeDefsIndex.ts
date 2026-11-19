@@ -1,7 +1,7 @@
-import { NodeDef, NodeDefs } from '../../../nodeDef'
+import { ArenaNodeDef, NodeDefs } from '../../../nodeDef'
 import { Objects } from '../../../utils'
-import { MutationOptions } from '../../../utils/mutationOptions'
-import { Survey, SurveyNodeDefsIndex } from '../../survey'
+import { ArenaMutationOptions } from '../../../utils/mutationOptions'
+import { ArenaSurvey, ArenaSurveyNodeDefsIndex } from '../../survey'
 import { getNodeDefsArray } from './nodeDefsReader'
 
 const keys = {
@@ -10,7 +10,7 @@ const keys = {
 
 // keys and values must match: forces every property of SurveyNodeDefsIndex to be present here,
 // and a rename/typo on either side becomes a compile error instead of a silent runtime mismatch.
-const indexKeys: { [K in keyof SurveyNodeDefsIndex]-?: K } = {
+const indexKeys: { [K in keyof ArenaSurveyNodeDefsIndex]-?: K } = {
   childDefUuidPresenceByParentUuid: 'childDefUuidPresenceByParentUuid',
   nodeDefUuidByName: 'nodeDefUuidByName',
   qualifierPresenceByUuid: 'qualifierPresenceByUuid',
@@ -20,14 +20,14 @@ const indexKeys: { [K in keyof SurveyNodeDefsIndex]-?: K } = {
 // ==== UPDATE
 
 export const addNodeDefToIndex =
-  (nodeDef: NodeDef<any>, options: MutationOptions = {}) =>
-  (survey: Survey): Survey => {
+  (nodeDef: ArenaNodeDef<any>, options: ArenaMutationOptions = {}) =>
+  (survey: ArenaSurvey): ArenaSurvey => {
     const { sideEffect = false } = options
 
     const { analysis, parentUuid, temporary, uuid } = nodeDef
     const name = NodeDefs.getName(nodeDef)
 
-    let surveyUpdated: Survey = Objects.assocPath({
+    let surveyUpdated: ArenaSurvey = Objects.assocPath({
       obj: survey,
       path: [keys.nodeDefsIndex, indexKeys.nodeDefUuidByName, name],
       value: nodeDef.uuid,
@@ -63,8 +63,8 @@ export const addNodeDefToIndex =
   }
 
 export const updateNodeDefUuidByNameIndex =
-  (nodeDef: NodeDef<any>, nodeDefPrevious?: NodeDef<any>, options?: MutationOptions) =>
-  (survey: Survey): Survey => {
+  (nodeDef: ArenaNodeDef<any>, nodeDefPrevious?: ArenaNodeDef<any>, options?: ArenaMutationOptions) =>
+  (survey: ArenaSurvey): ArenaSurvey => {
     const { sideEffect } = options ?? {}
     let surveyUpdated = survey
     const currentName = NodeDefs.getName(nodeDef)
@@ -88,12 +88,12 @@ export const updateNodeDefUuidByNameIndex =
 // ==== DELETE
 
 export const deleteNodeDefIndex =
-  (nodeDef: NodeDef<any>) =>
-  (survey: Survey): Survey => {
+  (nodeDef: ArenaNodeDef<any>) =>
+  (survey: ArenaSurvey): ArenaSurvey => {
     const { parentUuid, uuid } = nodeDef
     const name = NodeDefs.getName(nodeDef)
 
-    let surveyUpdated: Survey = Objects.dissocPath({
+    let surveyUpdated: ArenaSurvey = Objects.dissocPath({
       obj: survey,
       path: [keys.nodeDefsIndex, indexKeys.childDefUuidPresenceByParentUuid, uuid],
     })
@@ -133,9 +133,9 @@ export const deleteNodeDefIndex =
  * @param survey - The survey.
  * @returns A copy of the survey with the node defs index (the survey passed in is not modified).
  */
-export const buildAndAssocNodeDefsIndex = (survey: Survey): Survey => {
+export const buildAndAssocNodeDefsIndex = (survey: ArenaSurvey): ArenaSurvey => {
   // the new index is built in place: it belongs only to the copy of the survey
-  const surveyUpdated: Survey = {
+  const surveyUpdated: ArenaSurvey = {
     ...survey,
     nodeDefsIndex: {
       childDefUuidPresenceByParentUuid: {},
@@ -143,7 +143,7 @@ export const buildAndAssocNodeDefsIndex = (survey: Survey): Survey => {
     },
   }
   getNodeDefsArray(survey)
-    .sort((nodeDef1: NodeDef<any>, nodeDef2: NodeDef<any>) => (nodeDef1.id ?? 0) - (nodeDef2.id ?? 0))
+    .sort((nodeDef1: ArenaNodeDef<any>, nodeDef2: ArenaNodeDef<any>) => (nodeDef1.id ?? 0) - (nodeDef2.id ?? 0))
     .forEach((nodeDef) => addNodeDefToIndex(nodeDef, { sideEffect: true })(surveyUpdated))
 
   return surveyUpdated

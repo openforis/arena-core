@@ -1,5 +1,5 @@
-import { Factory } from '../common'
-import { SRS } from './srs'
+import { ArenaFactory } from '../common'
+import { ArenaSRS } from './srs'
 
 export type SRSFactoryParams = {
   code: string
@@ -7,8 +7,8 @@ export type SRSFactoryParams = {
   wkt: string
 }
 
-export const SRSFactory: Factory<SRS, SRSFactoryParams> = {
-  createInstance: (params: SRSFactoryParams): SRS => {
+export const SRSFactory: ArenaFactory<ArenaSRS, SRSFactoryParams> = {
+  createInstance: (params: SRSFactoryParams): ArenaSRS => {
     const { code, name, wkt } = params
 
     return { code, name, wkt }

@@ -1,8 +1,11 @@
-import { ExpressionContext } from '../../context'
-import { ExpressionNode, ExpressionNodeEvaluator, MemberExpression } from '../../node'
+import { ArenaExpressionContext } from '../../context'
+import { ArenaExpressionNode, ExpressionNodeEvaluator, ArenaMemberExpression } from '../../node'
 
-export class MemberEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, MemberExpression> {
-  async evaluateComputedProperty(property: ExpressionNode<any>, objectEval: any): Promise<any> {
+export class MemberEvaluator<C extends ArenaExpressionContext> extends ExpressionNodeEvaluator<
+  C,
+  ArenaMemberExpression
+> {
+  async evaluateComputedProperty(property: ArenaExpressionNode<any>, objectEval: any): Promise<any> {
     // expressions like plot[1] or plot[plot_id == 1]
 
     const propertyEval = await this.evaluator.evaluateNode(property, {
@@ -33,7 +36,7 @@ export class MemberEvaluator<C extends ExpressionContext> extends ExpressionNode
     }
   }
 
-  async evaluate(expressionNode: MemberExpression): Promise<any> {
+  async evaluate(expressionNode: ArenaMemberExpression): Promise<any> {
     const { object, property, computed } = expressionNode
 
     const objectEval = await this.evaluator.evaluateNode(object, { ...this.context, evaluateToNode: true })

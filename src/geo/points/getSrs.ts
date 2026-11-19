@@ -1,6 +1,6 @@
-import { DEFAULT_SRS, SRS, SRSIndex } from '../../srs'
+import { DEFAULT_SRS, ArenaSRS, ArenaSRSIndex } from '../../srs'
 
-export const getSrs = (params: { code: string; srsIndex: SRSIndex }): SRS | undefined => {
+export const getSrs = (params: { code: string; srsIndex: ArenaSRSIndex }): ArenaSRS | undefined => {
   const { code, srsIndex } = params
   if (code === DEFAULT_SRS.code) {
     return DEFAULT_SRS

@@ -1,7 +1,7 @@
-import { Labels, LanguageCode } from '../language'
+import { ArenaLabels, LanguageCode } from '../language'
 import { getLabelOrDefault } from '../language/labels'
 import { Objects, UUIDs } from '../utils'
-import { DataQuery, DataQuerySummary, DataQuerySummaryProps } from './dataQuery'
+import { ArenaDataQuery, ArenaDataQuerySummary, ArenaDataQuerySummaryProps } from './dataQuery'
 
 const PropKeys = {
   name: 'name',
@@ -13,29 +13,29 @@ const Keys = {
   content: 'content',
 }
 
-const create = (params: { props?: DataQuerySummaryProps; content?: DataQuery }): DataQuerySummary => {
+const create = (params: { props?: ArenaDataQuerySummaryProps; content?: ArenaDataQuery }): ArenaDataQuerySummary => {
   const { props, content } = params ?? {}
   return { uuid: UUIDs.v4(), content, props }
 }
 
-const getUuid = (querySummary: DataQuerySummary): string => querySummary?.uuid ?? ''
+const getUuid = (querySummary: ArenaDataQuerySummary): string => querySummary?.uuid ?? ''
 
-const getName = (querySummary: DataQuerySummary): string => querySummary?.props?.name ?? ''
+const getName = (querySummary: ArenaDataQuerySummary): string => querySummary?.props?.name ?? ''
 
-const getContent = (querySummary: DataQuerySummary): DataQuery | undefined => querySummary?.content
+const getContent = (querySummary: ArenaDataQuerySummary): ArenaDataQuery | undefined => querySummary?.content
 
-const getLabels = (querySummary: DataQuerySummary): Labels => querySummary?.props?.labels ?? {}
+const getLabels = (querySummary: ArenaDataQuerySummary): ArenaLabels => querySummary?.props?.labels ?? {}
 
 const getLabel =
   (lang: LanguageCode) =>
-  (querySummary: DataQuerySummary): string =>
+  (querySummary: ArenaDataQuerySummary): string =>
     getLabelOrDefault(getLabels(querySummary), lang)
 
-const getDescriptions = (querySummary: DataQuerySummary): Labels => querySummary?.props?.descriptions ?? {}
+const getDescriptions = (querySummary: ArenaDataQuerySummary): ArenaLabels => querySummary?.props?.descriptions ?? {}
 
 const getDescription =
   (lang: LanguageCode) =>
-  (querySummary: DataQuerySummary): string =>
+  (querySummary: ArenaDataQuerySummary): string =>
     getLabelOrDefault(getDescriptions(querySummary), lang)
 
 const assocProp =
@@ -45,22 +45,22 @@ const assocProp =
 
 const assocName =
   (value: string) =>
-  (querySummary: DataQuerySummary): DataQuerySummary =>
+  (querySummary: ArenaDataQuerySummary): ArenaDataQuerySummary =>
     assocProp(PropKeys.name, value)(querySummary)
 
 const assocLabels =
-  (value: Labels) =>
-  (querySummary: DataQuerySummary): DataQuerySummary =>
+  (value: ArenaLabels) =>
+  (querySummary: ArenaDataQuerySummary): ArenaDataQuerySummary =>
     assocProp(PropKeys.labels, value)(querySummary)
 
 const assocDescriptions =
-  (value: Labels) =>
-  (querySummary: DataQuerySummary): DataQuerySummary =>
+  (value: ArenaLabels) =>
+  (querySummary: ArenaDataQuerySummary): ArenaDataQuerySummary =>
     assocProp(PropKeys.descriptions, value)(querySummary)
 
 const assocContent =
-  (content: DataQuery) =>
-  (querySummary: DataQuerySummary): DataQuerySummary =>
+  (content: ArenaDataQuery) =>
+  (querySummary: ArenaDataQuerySummary): ArenaDataQuerySummary =>
     Objects.assoc({ obj: querySummary, prop: Keys.content, value: content })
 
 export const DataQuerySummaries = {

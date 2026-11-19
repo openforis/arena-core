@@ -1,6 +1,6 @@
-import { AnyExpressionNode, ExpressionNodeType } from '../../expression'
+import { ArenaAnyExpressionNode, ExpressionNodeType } from '../../expression'
 import { parseExpression } from '../../expression/javascript/evaluator'
-import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { SurveyDependencyType } from '../../survey/survey'
 
 /**
@@ -18,7 +18,7 @@ const isReferencedThroughMember = (params: {
     return expressionNode.some((item) => isReferencedThroughMember({ expressionNode: item, name, inMemberProperty }))
   }
   // parsed expression nodes (or their array or object properties)
-  const node = expressionNode as AnyExpressionNode
+  const node = expressionNode as ArenaAnyExpressionNode
   if (node.type === ExpressionNodeType.Identifier) {
     return inMemberProperty && node.name === name
   }
@@ -52,7 +52,7 @@ const isExpressionSelfReferenceLocal = (params: { expression: string | undefined
  * the same node def in the record.
  */
 const isSelfReferenceLocal = (params: {
-  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
   dependencyType: SurveyDependencyType
 }): boolean => {
   const { nodeDef, dependencyType } = params

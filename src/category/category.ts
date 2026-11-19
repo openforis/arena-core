@@ -1,17 +1,14 @@
-import { ArenaObject, Dictionary } from '../common'
-import { ExtraPropDefs } from '../extraProp'
-import { CategoryLevel } from './level'
+import { ArenaObject, ArenaDictionary } from '../common'
+import { ArenaExtraPropDefs } from '../extraProp'
+import { ArenaCategoryLevel } from './level'
 
-export interface CategoryProps {
-  itemExtraDef?: ExtraPropDefs
+export interface ArenaCategoryProps {
+  itemExtraDef?: ArenaExtraPropDefs
   name?: string
 }
 
-export interface Category extends ArenaObject<CategoryProps> {
+export interface ArenaCategory extends ArenaObject<ArenaCategoryProps> {
   id?: number
-  levels: Dictionary<CategoryLevel>
+  levels: ArenaDictionary<ArenaCategoryLevel>
   published?: boolean
 }
-
-/** Alias of Category, not clashing with the Category modules of the consumers. */
-export type ArenaCategory = Category

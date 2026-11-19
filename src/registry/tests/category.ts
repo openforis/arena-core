@@ -1,18 +1,18 @@
-import { Category, CategoryFactory, CategoryService, CategoryImportSummary } from '../../category'
-import { JobSerialized } from '../../job'
+import { ArenaCategory, CategoryFactory, ArenaCategoryService, ArenaCategoryImportSummary } from '../../category'
+import { ArenaJobSerialized } from '../../job'
 
-export const categoryMock: Category = CategoryFactory.createInstance({ props: { name: 'category_mock' } })
+export const categoryMock: ArenaCategory = CategoryFactory.createInstance({ props: { name: 'category_mock' } })
 
-export class CategoryServiceMock implements CategoryService {
-  create(): Promise<Category> {
+export class CategoryServiceMock implements ArenaCategoryService {
+  create(): Promise<ArenaCategory> {
     throw new Error('Not implemented')
   }
 
-  createImportSummary(): Promise<CategoryImportSummary> {
+  createImportSummary(): Promise<ArenaCategoryImportSummary> {
     throw new Error('Not implemented')
   }
 
-  createImportCategory(): Promise<JobSerialized<any>> {
+  createImportCategory(): Promise<ArenaJobSerialized<any>> {
     throw new Error('Not implemented')
   }
 
@@ -20,15 +20,15 @@ export class CategoryServiceMock implements CategoryService {
     throw new Error('Not implemented')
   }
 
-  get(): Promise<Category> {
+  get(): Promise<ArenaCategory> {
     return Promise.resolve(categoryMock)
   }
 
-  getMany(): Promise<Array<Category>> {
+  getMany(): Promise<Array<ArenaCategory>> {
     throw new Error('Not implemented')
   }
 
-  update(): Promise<Category> {
+  update(): Promise<ArenaCategory> {
     throw new Error('Not implemented')
   }
 

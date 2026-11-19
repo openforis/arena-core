@@ -1,7 +1,7 @@
-import { User } from '../../auth'
+import { ArenaUser } from '../../auth'
 import { ArenaRecordNode } from '../../node'
-import { NodeDefEntity, NodeDefs } from '../../nodeDef'
-import { Survey } from '../../survey'
+import { ArenaNodeDefEntity, NodeDefs } from '../../nodeDef'
+import { ArenaSurvey } from '../../survey'
 import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 
@@ -14,10 +14,10 @@ const expressionEvaluator = new RecordExpressionEvaluator()
  * @returns Allowed category item codes, or undefined when no expression is configured.
  */
 export const getEnumeratingItemsAllowedCodes = async (params: {
-  survey: Survey
-  user: User
+  survey: ArenaSurvey
+  user: ArenaUser
   record: ArenaRecord
-  entityDef: NodeDefEntity
+  entityDef: ArenaNodeDefEntity
   parentNode: ArenaRecordNode
 }): Promise<Set<string> | undefined> => {
   const { survey, user, record, entityDef, parentNode } = params

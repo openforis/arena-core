@@ -1,12 +1,12 @@
 import { describe, expect, test } from '@jest/globals'
 
 import { RecordFactory } from '../../../record'
-import { Survey } from '../../../survey'
-import { AuthGroup, AuthGroupName } from '../../authGroup'
+import { ArenaSurvey } from '../../../survey'
+import { ArenaAuthGroup, AuthGroupName } from '../../authGroup'
 import { Authorizer } from '../../authorizer'
 import { RecordStepPermission } from '../../permission'
 import { UserFactory } from '../../factory'
-import { User } from '../../user'
+import { ArenaUser } from '../../user'
 import { createQueryTestCases } from './common'
 import { canAnalyzeRecordQueries } from './record/canAnalyzeRecord'
 import { canCleanseRecordQueries } from './record/canCleanseRecord'
@@ -34,7 +34,7 @@ describe('Authorizer - Record', () => {
 describe('Authorizer - permission checks never throw', () => {
   const surveyUuid = 'survey-uuid'
 
-  const createUser = (authGroups: AuthGroup[]): User => {
+  const createUser = (authGroups: ArenaAuthGroup[]): ArenaUser => {
     const user = UserFactory.createInstance({ email: 'user@openforis-arena.org', name: 'user' })
     user.authGroups = authGroups
     return user
@@ -56,7 +56,7 @@ describe('Authorizer - permission checks never throw', () => {
   test('survey checks without survey info', () => {
     const user = createUser([{ name: AuthGroupName.dataEditor, surveyUuid }])
     const systemAdmin = createUser([{ name: AuthGroupName.systemAdmin }])
-    const noSurvey = undefined as unknown as Survey
+    const noSurvey = undefined as unknown as ArenaSurvey
 
     expect(Authorizer.canViewSurvey(user, noSurvey)).toBe(false)
     expect(Authorizer.canViewSurvey(systemAdmin, noSurvey)).toBe(true)

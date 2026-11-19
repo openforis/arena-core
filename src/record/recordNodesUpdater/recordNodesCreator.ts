@@ -1,30 +1,33 @@
-import { User } from '../../auth'
+import { ArenaUser } from '../../auth'
 import { SystemError, SystemErrorKeys } from '../../error'
-import { CategoryItem } from '../../category'
+import { ArenaCategoryItem } from '../../category'
 import { ArenaRecordNode, NodeFactory, Nodes } from '../../node'
 import { NodeValues } from '../../node/nodeValues'
-import { NodeDef, NodeDefCode, NodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
-import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
-import { Survey } from '../../survey'
+import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
+import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { ArenaSurvey } from '../../survey'
 import { getNodeDefChildren, getNodeDefEnumerator } from '../../survey/surveys/nodeDefs'
 import { getAncestorCodeAttributes, getCycle } from '../_records/recordGetters'
 import { getEnumeratingCategoryItems } from '../_records/recordUtils'
 import { getEnumeratingItemsAllowedCodes } from './recordEnumeratingItemsExpressionEvaluator'
-import { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
+import { ArenaRecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
 import { RecordUpdateResult } from './recordUpdateResult'
 
-export type NodesUpdateParams = RecordExpressionEvaluationContext & {
+export type ArenaRecordNodesUpdateParams = ArenaRecordExpressionEvaluationContext & {
   dateModified?: string
   clearNonApplicableValues?: boolean
 }
 
-export type NodeCreateParams = NodesUpdateParams & {
+export type ArenaRecordNodeCreateParams = ArenaRecordNodesUpdateParams & {
   parentNode?: ArenaRecordNode
-  nodeDef: NodeDef<any>
+  nodeDef: ArenaNodeDef<any>
   createMultipleEntities?: boolean
 }
 
-const getNodesToInsertCount = (params: { parentNode: ArenaRecordNode | undefined; nodeDef: NodeDef<any> }): number => {
+const getNodesToInsertCount = (params: {
+  parentNode: ArenaRecordNode | undefined
+  nodeDef: ArenaNodeDef<any>
+}): number => {
   const { nodeDef, parentNode } = params
   if (!parentNode || NodeDefs.isSingle(nodeDef)) return 1
   if (nodeDef.type === NodeDefType.code) return 0 // never create nodes for multiple code attributes
@@ -37,12 +40,12 @@ const getNodesToInsertCount = (params: { parentNode: ArenaRecordNode | undefined
 }
 
 export const createEnumeratedEntityNode = async (params: {
-  user: User
-  survey: Survey
+  user: ArenaUser
+  survey: ArenaSurvey
   parentNode: ArenaRecordNode
-  nodeDef: NodeDefEntity
-  enumeratorDef: NodeDefCode
-  categoryItem: CategoryItem
+  nodeDef: ArenaNodeDefEntity
+  enumeratorDef: ArenaNodeDefCode
+  categoryItem: ArenaCategoryItem
   updateResult: RecordUpdateResult
   sideEffect?: boolean
 }): Promise<void> => {
@@ -74,12 +77,12 @@ export const createEnumeratedEntityNode = async (params: {
 }
 
 export const createEnumeratedEntityNodes = async (params: {
-  user: User
-  survey: Survey
+  user: ArenaUser
+  survey: ArenaSurvey
   parentNode: ArenaRecordNode
-  nodeDef: NodeDefEntity
+  nodeDef: ArenaNodeDefEntity
   updateResult: RecordUpdateResult
-  categoryItemProvider?: CategoryItemProvider
+  categoryItemProvider?: ArenaCategoryItemProvider
   sideEffect?: boolean
 }): Promise<boolean> => {
   const { user, survey, parentNode, nodeDef, updateResult, categoryItemProvider } = params
@@ -112,7 +115,7 @@ export const createEnumeratedEntityNodes = async (params: {
 }
 
 const createChildNodesBasedOnMinCount = async (
-  params: NodeCreateParams & { updateResult: RecordUpdateResult }
+  params: ArenaRecordNodeCreateParams & { updateResult: RecordUpdateResult }
 ): Promise<void> => {
   const { parentNode, nodeDef, updateResult, createMultipleEntities = true } = params
 
@@ -137,7 +140,7 @@ const createChildNodesBasedOnMinCount = async (
   }
 }
 
-export const addDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
+export const addDescendants = async (params: ArenaRecordNodeCreateParams): Promise<RecordUpdateResult> => {
   const { survey, record, nodeDef } = params
 
   const updateResult = new RecordUpdateResult({ record })
@@ -155,7 +158,7 @@ export const addDescendants = async (params: NodeCreateParams): Promise<RecordUp
   return updateResult
 }
 
-export const addNodeAndDescendants = async (params: NodeCreateParams): Promise<RecordUpdateResult> => {
+export const addNodeAndDescendants = async (params: ArenaRecordNodeCreateParams): Promise<RecordUpdateResult> => {
   const { survey, record, parentNode, nodeDef, sideEffect = false } = params
 
   const node = NodeFactory.createInstance({
@@ -164,9 +167,9 @@ export const addNodeAndDescendants = async (params: NodeCreateParams): Promise<R
     parentNode,
     surveyUuid: survey.uuid,
   })
-  if (parentNode && nodeDef.type === NodeDefType.code && NodeDefs.getParentCodeDefUuid(nodeDef as NodeDefCode)) {
+  if (parentNode && nodeDef.type === NodeDefType.code && NodeDefs.getParentCodeDefUuid(nodeDef as ArenaNodeDefCode)) {
     // meta.hCode indexes the node as dependent of its ancestor code attributes (cleared when they change)
-    const ancestorCodeAttributes = getAncestorCodeAttributes(survey, parentNode, nodeDef as NodeDefCode)(record)
+    const ancestorCodeAttributes = getAncestorCodeAttributes(survey, parentNode, nodeDef as ArenaNodeDefCode)(record)
     node.meta = { ...node.meta, hCode: ancestorCodeAttributes.map((codeAttribute) => codeAttribute.uuid) }
   }
 

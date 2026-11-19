@@ -1,6 +1,6 @@
 import { ArenaRecordNode, NodeFactory } from '../../../node'
 import { ArenaRecord, Records } from '../../../record'
-import { Survey } from '../../../survey'
+import { ArenaSurvey } from '../../../survey'
 import { NodeBuilder } from './nodeBuilder'
 
 export class EntityBuilder extends NodeBuilder {
@@ -11,7 +11,7 @@ export class EntityBuilder extends NodeBuilder {
     this.childBuilders = childBuilders
   }
 
-  build(params: { survey: Survey; record: ArenaRecord; parentNode?: ArenaRecordNode }): ArenaRecord {
+  build(params: { survey: ArenaSurvey; record: ArenaRecord; parentNode?: ArenaRecordNode }): ArenaRecord {
     const { survey, record, parentNode } = params
 
     const nodeDef = this.getNodeDef({ survey })

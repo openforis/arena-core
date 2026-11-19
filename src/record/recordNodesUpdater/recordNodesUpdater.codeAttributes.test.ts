@@ -9,15 +9,15 @@ const { entity, attribute } = RecordNodeBuilders
 import { RecordNodesUpdater } from '../recordNodesUpdater'
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
-import { User } from '../../auth'
+import { ArenaUser } from '../../auth'
 import { Records } from './../records'
 import { Surveys } from '../../survey'
-import { CategoryItem, CategoryItemFactory } from '../../category'
-import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { ArenaCategoryItem, CategoryItemFactory } from '../../category'
+import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { ExtraPropDataType } from '../../extraProp'
 import { NodeValues } from '../../node/nodeValues'
 
-let user: User
+let user: ArenaUser
 
 describe('Record nodes updater - dependent code attributes', () => {
   beforeAll(async () => {
@@ -190,12 +190,12 @@ describe('Record nodes updater - dependent code attributes', () => {
     // A "big" category item that only the categoryItemProvider knows about (e.g. loaded from an
     // external reference data source) - deliberately not part of the survey's own ref data index, so
     // Surveys.getCategoryItemByUuid alone cannot resolve it.
-    const bigItem: CategoryItem = CategoryItemFactory.createInstance({
+    const bigItem: ArenaCategoryItem = CategoryItemFactory.createInstance({
       levelUuid: item1.levelUuid!,
       parentUuid: item1.uuid,
       props: { code: '1z' },
     })
-    const categoryItemProvider: CategoryItemProvider = {
+    const categoryItemProvider: ArenaCategoryItemProvider = {
       getItemByCodePaths: async () => undefined,
       getItems: async () => [],
       getItemByUuid: async ({ categoryUuid: categoryUuidParam, itemUuid }) =>

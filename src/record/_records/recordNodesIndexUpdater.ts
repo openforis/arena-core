@@ -1,6 +1,6 @@
 import { ArenaRecordNode, Nodes } from '../../node'
 import { Objects } from '../../utils'
-import { MutationOptions } from '../../utils/mutationOptions'
+import { ArenaMutationOptions } from '../../utils/mutationOptions'
 import { ArenaRecord, RecordNodesIndex } from '../record'
 
 const keys = {
@@ -117,7 +117,7 @@ class NodesIndexDraft {
 }
 
 const addNodes =
-  (nodes: { [key: string]: ArenaRecordNode }, options: MutationOptions & { sortNodes?: boolean } = {}) =>
+  (nodes: { [key: string]: ArenaRecordNode }, options: ArenaMutationOptions & { sortNodes?: boolean } = {}) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
     const { sideEffect = false, sortNodes = false } = options
     const draft = new NodesIndexDraft(index, sideEffect)
@@ -140,7 +140,7 @@ const initializeIndex = (record: ArenaRecord): RecordNodesIndex =>
   addNodes(record.nodes ?? {}, { sideEffect: true, sortNodes: true })({})
 
 const removeNodes =
-  (nodes: ArenaRecordNode[], options: MutationOptions = {}) =>
+  (nodes: ArenaRecordNode[], options: ArenaMutationOptions = {}) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
     const { sideEffect = false } = options
     const draft = new NodesIndexDraft(index, sideEffect)
@@ -151,7 +151,7 @@ const removeNodes =
   }
 
 const removeNode =
-  (node: ArenaRecordNode, options: MutationOptions = {}) =>
+  (node: ArenaRecordNode, options: ArenaMutationOptions = {}) =>
   (index: RecordNodesIndex): RecordNodesIndex =>
     removeNodes([node], options)(index)
 

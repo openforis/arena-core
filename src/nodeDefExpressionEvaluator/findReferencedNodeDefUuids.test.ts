@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../tests/data'
 import { NodeDefExpressionEvaluator } from './evaluator'
@@ -8,7 +8,7 @@ import { NodeDefExpressionEvaluator } from './evaluator'
 const { entityDef, integerDef } = SurveyObjectBuilders
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 
 const findReferencedNames = async (expression: string): Promise<(string | undefined)[]> => {
   const nodeDef = Surveys.getNodeDefByName({ survey, name: 'plot_calc' })

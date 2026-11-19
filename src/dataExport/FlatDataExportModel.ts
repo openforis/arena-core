@@ -1,9 +1,9 @@
 import { CategoryItems } from '../category'
 import { NodeValues } from '../node'
-import { NodeDef, NodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
-import { Survey, Surveys } from '../survey'
+import { ArenaNodeDef, ArenaNodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
+import { ArenaSurvey, Surveys } from '../survey'
 import { Strings } from '../utils'
-import { FlatDataExportDefaultOptions, FlatDataExportOptions } from './FlatDataExportOptions'
+import { FlatDataExportDefaultOptions, ArenaFlatDataExportOptions } from './FlatDataExportOptions'
 
 export enum FlatDataExportColumnDataType {
   boolean = 'boolean',
@@ -11,7 +11,7 @@ export enum FlatDataExportColumnDataType {
   text = 'text',
 }
 
-export const getExpandedCategoryItemColumnHeader = ({ nodeDef, code }: { nodeDef: NodeDef<any>; code: string }) =>
+export const getExpandedCategoryItemColumnHeader = ({ nodeDef, code }: { nodeDef: ArenaNodeDef<any>; code: string }) =>
   `${NodeDefs.getName(nodeDef)}__${code}`
 
 const getMainColumn = ({ nodeDef, dataType }: { nodeDef: any; dataType: string }) => ({
@@ -33,15 +33,15 @@ type ColumnsExtractor = ({
   nodeDef,
   options,
 }: {
-  nodeDef: NodeDef<any>
-  survey: Survey
-  options: FlatDataExportOptions
+  nodeDef: ArenaNodeDef<any>
+  survey: ArenaSurvey
+  options: ArenaFlatDataExportOptions
 }) => Column[]
 
 const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtractor>> = {
   [NodeDefType.boolean]: ({ nodeDef }) => [getMainColumn({ nodeDef, dataType: FlatDataExportColumnDataType.boolean })],
   [NodeDefType.code]: ({ survey, nodeDef, options }) => {
-    const nodeDefCode = nodeDef as NodeDefCode
+    const nodeDefCode = nodeDef as ArenaNodeDefCode
     const { includeCategoryItemsLabels = false, expandCategoryItems = false } = options ?? {}
     const nodeDefName = NodeDefs.getName(nodeDef)
     const result = [
@@ -159,10 +159,10 @@ const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtracto
 const RECORD_CYCLE_HEADER = 'record_cycle'
 
 export class FlatDataExportModel {
-  survey: Survey
+  survey: ArenaSurvey
   cycle: string
-  nodeDefContext: NodeDef<any>
-  options: FlatDataExportOptions
+  nodeDefContext: ArenaNodeDef<any>
+  options: ArenaFlatDataExportOptions
   columns: Column[]
 
   static readonly columnDataType: typeof FlatDataExportColumnDataType = FlatDataExportColumnDataType
@@ -175,10 +175,10 @@ export class FlatDataExportModel {
     nodeDefContext,
     options = FlatDataExportDefaultOptions,
   }: {
-    survey: Survey
+    survey: ArenaSurvey
     cycle: string
-    nodeDefContext: NodeDef<any>
-    options?: FlatDataExportOptions
+    nodeDefContext: ArenaNodeDef<any>
+    options?: ArenaFlatDataExportOptions
   }) {
     this.survey = survey
     this.cycle = cycle
@@ -207,7 +207,7 @@ export class FlatDataExportModel {
     ]
   }
 
-  _createColumnsFromAttributeDefs(attributeDefs: NodeDef<any>[]) {
+  _createColumnsFromAttributeDefs(attributeDefs: ArenaNodeDef<any>[]) {
     const { survey, options } = this
     const result = []
     for (const nodeDef of attributeDefs) {
@@ -249,7 +249,7 @@ export class FlatDataExportModel {
     return ancestorsColumns
   }
 
-  extractAncestorAttributeDefs(nodeDefContext: NodeDef<any>): NodeDef<any>[] {
+  extractAncestorAttributeDefs(nodeDefContext: ArenaNodeDef<any>): ArenaNodeDef<any>[] {
     const { cycle, options, survey } = this
     const {
       includeAnalysis,

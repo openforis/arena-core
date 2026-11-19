@@ -1,10 +1,10 @@
 import { ArenaObject } from '../common'
 
-export interface ChainNodeDefProps {
+export interface ArenaChainNodeDefProps {
   active: boolean
 }
 
-export interface ChainNodeDef extends ArenaObject<ChainNodeDefProps> {
+export interface ArenaChainNodeDef extends ArenaObject<ArenaChainNodeDefProps> {
   chainUuid: string
   index: number
   nodeDefUuid: string

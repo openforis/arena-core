@@ -1,15 +1,15 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { NodeDefCode } from '../../nodeDef'
-import { Survey, Surveys } from '../../survey'
+import { ArenaNodeDefCode } from '../../nodeDef'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { ArenaRecordNode } from '../../node'
 import { ArenaRecord } from '../record'
-import { RecordExpressionContext } from './context'
+import { ArenaRecordExpressionContext } from './context'
 import { Records } from '../records'
 import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { CategoryItem } from '../../category'
+import { ArenaCategoryItem } from '../../category'
 
 type Query = {
   expression: string
@@ -19,7 +19,7 @@ type Query = {
 }
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 let record: ArenaRecord
 
 const getNode = (path: string): ArenaRecordNode => TestUtils.getNodeByPath({ survey, record, path })
@@ -49,7 +49,7 @@ describe('RecordItemFilterExpressionEvaluator', () => {
         const nodeCurrent = node ? getNode(node) : Records.getRoot(record)
         if (!nodeCurrent) throw new Error(`Cannot find current node: ${node}`)
 
-        const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid }) as NodeDefCode
+        const nodeCurrentDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeCurrent.nodeDefUuid }) as ArenaNodeDefCode
         const nodeCurrentParent = Records.getParent(nodeCurrent)(record)
         if (!nodeCurrentParent) {
           throw new Error(`Cannot find context node: ${node}`)
@@ -58,17 +58,17 @@ describe('RecordItemFilterExpressionEvaluator', () => {
 
         const parentCodeAttribute = Records.getParentCodeAttribute(
           nodeCurrentParent,
-          nodeCurrentDef as NodeDefCode
+          nodeCurrentDef as ArenaNodeDefCode
         )(record)
 
-        const items: CategoryItem[] = Surveys.getCategoryItems({
+        const items: ArenaCategoryItem[] = Surveys.getCategoryItems({
           survey,
           categoryUuid: nodeCurrentDef.props.categoryUuid,
           parentItemUuid: parentCodeAttribute?.value?.itemUuid,
         })
-        const filteredItems: CategoryItem[] = []
+        const filteredItems: ArenaCategoryItem[] = []
         for await (const item of items) {
-          const context: RecordExpressionContext = {
+          const context: ArenaRecordExpressionContext = {
             user,
             survey,
             record,

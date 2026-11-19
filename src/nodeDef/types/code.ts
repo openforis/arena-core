@@ -1,12 +1,12 @@
-import { NodeDef, NodeDefLayout, NodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefLayout, ArenaNodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
 
-export interface NodeDefCodeLayout extends NodeDefLayout {
+export interface ArenaNodeDefCodeLayout extends ArenaNodeDefLayout {
   renderType: 'dropdown' | 'checkbox'
 }
 
-export interface NodeDefCodeProps extends NodeDefPropsWithLayout<NodeDefCodeLayout> {
+export interface ArenaNodeDefCodeProps extends ArenaNodeDefPropsWithLayout<ArenaNodeDefCodeLayout> {
   categoryUuid: string
   parentCodeDefUuid?: string
 }
 
-export type NodeDefCode = NodeDef<NodeDefType.code, NodeDefCodeProps>
+export type ArenaNodeDefCode = ArenaNodeDef<NodeDefType.code, ArenaNodeDefCodeProps>

@@ -1,4 +1,4 @@
-import { RecordService, RecordFactory, ArenaRecord } from '../../record'
+import { ArenaRecordService, RecordFactory, ArenaRecord } from '../../record'
 import { userMock } from './user'
 
 export const recordMock: ArenaRecord = RecordFactory.createInstance({
@@ -6,7 +6,7 @@ export const recordMock: ArenaRecord = RecordFactory.createInstance({
   surveyUuid: 'surveyUuid',
 })
 
-export class RecordServiceMock implements RecordService {
+export class RecordServiceMock implements ArenaRecordService {
   create(): Promise<ArenaRecord> {
     throw new Error('Not implemented')
   }

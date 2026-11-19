@@ -1,10 +1,10 @@
 import { SystemError, SystemErrorKeys } from '../../../error'
-import { ExpressionContext } from '../../context'
-import { ConditionalExpression, ExpressionNodeEvaluator } from '../../node'
+import { ArenaExpressionContext } from '../../context'
+import { ArenaConditionalExpression, ExpressionNodeEvaluator } from '../../node'
 
-export class ConditionalEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<
+export class ConditionalEvaluator<C extends ArenaExpressionContext> extends ExpressionNodeEvaluator<
   C,
-  ConditionalExpression
+  ArenaConditionalExpression
 > {
   evaluate(): Promise<any> {
     return Promise.reject(new SystemError(SystemErrorKeys.expression.notSupported, { type: 'conditional' }))

@@ -1,10 +1,10 @@
-export type { Chain, ArenaChain, ChainProps } from './chain'
+export type { ArenaChain, ArenaChainProps } from './chain'
 export { ChainStatusExec } from './chain'
 export { ChainFactory } from './chainFactory'
-export type { ChainService } from './chainService'
+export type { ArenaChainService } from './chainService'
 
-export type { ChainNodeDef, ChainNodeDefProps } from './chainNodeDef'
+export type { ArenaChainNodeDef, ArenaChainNodeDefProps } from './chainNodeDef'
 export { ChainNodeDefFactory } from './chainNodeDefFactory'
-export type { ChainNodeDefService } from './chainNodeDefService'
+export type { ArenaChainNodeDefService } from './chainNodeDefService'
 
-export type { ChainNodeDefAggregate, ChainNodeDefAggregateProps } from './chainNodeDefAggregate'
+export type { ArenaChainNodeDefAggregate, ArenaChainNodeDefAggregateProps } from './chainNodeDefAggregate'

@@ -1,10 +1,13 @@
 import { SystemError, SystemErrorKeys } from '../../../error'
-import { ExpressionContext } from '../../context'
-import { ExpressionNodeEvaluator, LiteralExpression } from '../../node'
+import { ArenaExpressionContext } from '../../context'
+import { ExpressionNodeEvaluator, ArenaLiteralExpression } from '../../node'
 import { isUnsafeRegExpSource } from '../regExpSafety'
 
-export class LiteralEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, LiteralExpression> {
-  evaluate(expressionNode: LiteralExpression): Promise<any> {
+export class LiteralEvaluator<C extends ArenaExpressionContext> extends ExpressionNodeEvaluator<
+  C,
+  ArenaLiteralExpression
+> {
+  evaluate(expressionNode: ArenaLiteralExpression): Promise<any> {
     const { value } = expressionNode
     if (value instanceof RegExp && isUnsafeRegExpSource(value.source)) {
       return Promise.reject(

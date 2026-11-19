@@ -1,4 +1,4 @@
-export type Point = {
+export type ArenaPoint = {
   srs: string
   x: number
   y: number

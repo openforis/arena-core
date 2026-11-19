@@ -136,7 +136,7 @@ export const Records = {
   findDependentEnumeratedEntityDefsNotEmpty,
 }
 
-export type { RecordUpdateOptions } from './_records/recordUpdateOptions'
+export type { ArenaRecordUpdateOptions } from './_records/recordUpdateOptions'
 export type {
   EntitySubtreeStatus,
   PageValidationStatus,

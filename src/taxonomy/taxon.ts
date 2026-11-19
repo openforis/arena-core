@@ -1,19 +1,19 @@
-import { ArenaObject, Dictionary } from '../common'
-import { VernacularName } from './taxonVernacularName'
+import { ArenaObject, ArenaDictionary } from '../common'
+import { ArenaVernacularName } from './taxonVernacularName'
 
-export interface TaxonProps {
+export interface ArenaTaxonProps {
   code: string
   family: string
   genus: string
   scientificName: string
-  extra?: Dictionary<any>
+  extra?: ArenaDictionary<any>
 }
 
-export interface Taxon extends ArenaObject<TaxonProps> {
+export interface ArenaTaxon extends ArenaObject<ArenaTaxonProps> {
   id?: number
   taxonomyUuid?: string
   vernacularNames?: {
-    [key: string]: Array<VernacularName>
+    [key: string]: Array<ArenaVernacularName>
   }
   published?: boolean
   draft?: boolean
@@ -21,6 +21,3 @@ export interface Taxon extends ArenaObject<TaxonProps> {
   vernacularName?: string
   vernacularLang?: string
 }
-
-/** Alias of Taxon, not clashing with the Taxon modules of the consumers. */
-export type ArenaTaxon = Taxon

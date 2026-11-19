@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeAll } from '@jest/globals'
 
-import { Survey, Surveys } from '../../survey'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
@@ -11,7 +11,7 @@ const { entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 
 const validatePlotNum = async (plotNumValues: (number | null)[]) => {
   const record = new RecordBuilder(

@@ -1,20 +1,20 @@
-import { ChainNodeDef, ChainNodeDefFactory, ChainNodeDefService } from '../../chain'
+import { ArenaChainNodeDef, ChainNodeDefFactory, ArenaChainNodeDefService } from '../../chain'
 
-export const chainNodeDefMock: ChainNodeDef = ChainNodeDefFactory.createInstance({
+export const chainNodeDefMock: ArenaChainNodeDef = ChainNodeDefFactory.createInstance({
   chainUuid: 'chainUuid',
   nodeDefUuid: 'nodeDefUuid',
 })
 
-export class ChainNodeDefServiceMock implements ChainNodeDefService {
+export class ChainNodeDefServiceMock implements ArenaChainNodeDefService {
   count(): Promise<{ [p: string]: number }> {
     throw new Error('Not implemented')
   }
 
-  getMany(): Promise<Array<ChainNodeDef>> {
+  getMany(): Promise<Array<ArenaChainNodeDef>> {
     return Promise.resolve([chainNodeDefMock])
   }
 
-  update(): Promise<ChainNodeDef> {
+  update(): Promise<ArenaChainNodeDef> {
     throw new Error('Not implemented')
   }
 

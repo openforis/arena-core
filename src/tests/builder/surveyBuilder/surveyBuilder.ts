@@ -1,14 +1,14 @@
 import { LanguageCode } from '../../../language'
-import { Survey, SurveyFactory, SurveyRefDataFactory, Surveys } from '../../../survey'
-import { Category, CategoryItem } from '../../../category'
-import { Taxon, Taxonomy } from '../../../taxonomy'
-import { User } from '../../../auth'
+import { ArenaSurvey, SurveyFactory, SurveyRefDataFactory, Surveys } from '../../../survey'
+import { ArenaCategory, ArenaCategoryItem } from '../../../category'
+import { ArenaTaxon, ArenaTaxonomy } from '../../../taxonomy'
+import { ArenaUser } from '../../../auth'
 import { NodeDefEntityBuilder } from './nodeDefEntityBuilder'
 import { CategoryBuilder } from './categoryBuilder'
 import { TaxonomyBuilder } from './taxonomyBuilder'
 
 export class SurveyBuilder {
-  private readonly user: User
+  private readonly user: ArenaUser
   private readonly name: string
   private readonly label: string
   private readonly lang: LanguageCode
@@ -16,7 +16,7 @@ export class SurveyBuilder {
   private categoryBuilders: CategoryBuilder[]
   private taxonomyBuilders: TaxonomyBuilder[]
 
-  constructor(user: User, rootDefBuilder: NodeDefEntityBuilder) {
+  constructor(user: ArenaUser, rootDefBuilder: NodeDefEntityBuilder) {
     this.user = user
     this.name = `do_not_use__test_${Date.now()}`
     this.label = 'DO NOT USE! Test'
@@ -37,11 +37,11 @@ export class SurveyBuilder {
   }
 
   private buildCategories(): {
-    categoriesByUuid: { [categoryUuid: string]: Category }
-    itemsByCategoryUuid: { [categoryUuid: string]: CategoryItem[] }
+    categoriesByUuid: { [categoryUuid: string]: ArenaCategory }
+    itemsByCategoryUuid: { [categoryUuid: string]: ArenaCategoryItem[] }
   } {
-    const categoriesByUuid: { [categoryUuid: string]: Category } = {}
-    const itemsByCategoryUuid: { [categoryUuid: string]: CategoryItem[] } = {}
+    const categoriesByUuid: { [categoryUuid: string]: ArenaCategory } = {}
+    const itemsByCategoryUuid: { [categoryUuid: string]: ArenaCategoryItem[] } = {}
 
     this.categoryBuilders.forEach((categoryBuilder) => {
       const { category, items } = categoryBuilder.build()
@@ -52,13 +52,13 @@ export class SurveyBuilder {
   }
 
   private buildTaxonomies(): {
-    taxonomiesByUuid: { [taxonomyUuid: string]: Taxonomy }
-    taxonIndex: { [taxonUuid: string]: Taxon }
+    taxonomiesByUuid: { [taxonomyUuid: string]: ArenaTaxonomy }
+    taxonIndex: { [taxonUuid: string]: ArenaTaxon }
     taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: string } }
   } {
-    const taxonomiesByUuid: { [taxonomyUuid: string]: Taxonomy } = {}
+    const taxonomiesByUuid: { [taxonomyUuid: string]: ArenaTaxonomy } = {}
     const taxonUuidIndex: { [taxonomyUuid: string]: { [taxonCode: string]: string } } = {}
-    const taxonIndex: { [taxonUuid: string]: Taxon } = {}
+    const taxonIndex: { [taxonUuid: string]: ArenaTaxon } = {}
 
     this.taxonomyBuilders.forEach((taxonomyBuilder) => {
       const { taxonomy, taxa } = taxonomyBuilder.build()
@@ -74,7 +74,7 @@ export class SurveyBuilder {
     return { taxonomiesByUuid, taxonIndex, taxonUuidIndex }
   }
 
-  async build(): Promise<Survey> {
+  async build(): Promise<ArenaSurvey> {
     let survey = SurveyFactory.createInstance({
       name: this.name,
       ownerUuid: this.user.uuid,

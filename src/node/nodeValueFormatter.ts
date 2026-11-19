@@ -1,17 +1,17 @@
-import { CategoryItem, CategoryItems } from '../category'
+import { ArenaCategoryItem, CategoryItems } from '../category'
 import { LanguageCode } from '../language'
-import { NodeDef, NodeDefCode, NodeDefDecimal, NodeDefs, NodeDefType } from '../nodeDef'
-import { Survey, Surveys } from '../survey'
+import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefDecimal, NodeDefs, NodeDefType } from '../nodeDef'
+import { ArenaSurvey, Surveys } from '../survey'
 import { Taxa } from '../taxonomy'
 import { DateFormats, Dates, Numbers, Objects, Strings } from '../utils'
 import { ArenaRecordNode } from './node'
 import { NodeValues } from './nodeValues'
 
 const extractCategoryItem = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   node?: ArenaRecordNode
   value: any
-}): CategoryItem | undefined => {
+}): ArenaCategoryItem | undefined => {
   const { survey, node, value } = params
 
   const itemUuid = NodeValues.getValueItemUuid(value)
@@ -23,9 +23,9 @@ const extractCategoryItem = (params: {
 }
 
 type FormatParams = {
-  survey: Survey
+  survey: ArenaSurvey
   cycle: string
-  nodeDef: NodeDef<NodeDefType>
+  nodeDef: ArenaNodeDef<NodeDefType>
   node?: ArenaRecordNode
   value: any
   showLabel?: boolean
@@ -47,7 +47,7 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
 
     if (showLabel) {
       let result
-      if (NodeDefs.isCodeShown(cycle)(nodeDef as NodeDefCode)) {
+      if (NodeDefs.isCodeShown(cycle)(nodeDef as ArenaNodeDefCode)) {
         result = CategoryItems.getLabelWithCode(categoryItem, lang!)
       } else {
         result = CategoryItems.getLabel(categoryItem, lang!, true)
@@ -63,7 +63,7 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
   },
   [NodeDefType.decimal]: (params: FormatParams) => {
     const { value, nodeDef } = params
-    return Numbers.formatDecimal(value, NodeDefs.getMaxNumberDecimalDigits(nodeDef as NodeDefDecimal))
+    return Numbers.formatDecimal(value, NodeDefs.getMaxNumberDecimalDigits(nodeDef as ArenaNodeDefDecimal))
   },
   [NodeDefType.integer]: (params: FormatParams) => {
     const { value } = params

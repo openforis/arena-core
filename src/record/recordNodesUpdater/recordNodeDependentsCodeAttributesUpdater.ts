@@ -1,5 +1,5 @@
 import { ArenaRecordNode, NodeValues, Nodes } from '../../node'
-import { NodeDefCode, NodeDefs } from '../../nodeDef'
+import { ArenaNodeDefCode, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { Arrays, Dates } from '../../utils'
 import { Records } from '../records'
@@ -20,7 +20,7 @@ const isDependentCodeAttributeValueStillValid = async (
   params: Pick<RecordNodeDependentsUpdateParams, 'survey' | 'categoryItemProvider'> & {
     parentItemUuid?: string
     dependentCodeAttribute: ArenaRecordNode
-    dependentCodeAttributeDef: NodeDefCode
+    dependentCodeAttributeDef: ArenaNodeDefCode
     record: ArenaRecord
   }
 ): Promise<boolean> => {
@@ -68,7 +68,7 @@ export const updateDependentCodeAttributes = async (params: RecordNodeDependents
     const dependentCodeAttributeDef = Surveys.getNodeDefByUuid({
       survey,
       uuid: dependentCodeAttribute.nodeDefUuid,
-    }) as NodeDefCode
+    }) as ArenaNodeDefCode
     if (NodeDefs.isReadOnly(dependentCodeAttributeDef) || !Nodes.hasUserInputValue(dependentCodeAttribute)) continue
 
     const validityCheckParams = {

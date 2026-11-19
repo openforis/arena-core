@@ -1,27 +1,21 @@
-export interface UserGroupQualifier {
+export type ArenaUserGroupQualifier = {
   name: string
   value: string
 }
 
-/** Alias of UserGroupQualifier, not clashing with the UserGroupQualifier modules of the consumers. */
-export type ArenaUserGroupQualifier = UserGroupQualifier
-
-export type UserGroupProps = {
+export type ArenaUserGroupProps = {
   name?: string
-  qualifiers?: UserGroupQualifier[]
+  qualifiers?: ArenaUserGroupQualifier[]
   /**
    * uuids of other groups of the same survey whose records the members can read but not edit
    */
   readableGroupUuids?: string[]
 }
 
-export interface UserGroup {
+export type ArenaUserGroup = {
   uuid: string
   surveyUuid?: string
-  props: UserGroupProps
+  props: ArenaUserGroupProps
   dateCreated?: string
   dateModified?: string
 }
-
-/** Alias of UserGroup, not clashing with the UserGroup modules of the consumers. */
-export type ArenaUserGroup = UserGroup

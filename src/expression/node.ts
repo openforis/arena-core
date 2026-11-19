@@ -1,5 +1,5 @@
-import { ExpressionEvaluator } from './evaluator'
-import { ExpressionContext } from './context'
+import { ArenaExpressionEvaluator } from './evaluator'
+import { ArenaExpressionContext } from './context'
 
 export enum ExpressionNodeType {
   Array = 'ArrayExpression',
@@ -15,47 +15,47 @@ export enum ExpressionNodeType {
   Unary = 'UnaryExpression',
 }
 
-export interface ExpressionNode<T extends ExpressionNodeType> {
+export interface ArenaExpressionNode<T extends ExpressionNodeType> {
   type: T
 }
 
-export interface ArrayExpression extends ExpressionNode<ExpressionNodeType.Array> {
-  elements: Array<AnyExpressionNode>
+export interface ArenaArrayExpression extends ArenaExpressionNode<ExpressionNodeType.Array> {
+  elements: Array<ArenaAnyExpressionNode>
 }
-export interface BinaryExpression extends ExpressionNode<ExpressionNodeType.Binary> {
-  left: AnyExpressionNode
-  right: AnyExpressionNode
+export interface ArenaBinaryExpression extends ArenaExpressionNode<ExpressionNodeType.Binary> {
+  left: ArenaAnyExpressionNode
+  right: ArenaAnyExpressionNode
   operator: string
 }
-export interface CallExpression extends ExpressionNode<ExpressionNodeType.Call> {
-  arguments: Array<AnyExpressionNode>
-  callee: AnyExpressionNode
+export interface ArenaCallExpression extends ArenaExpressionNode<ExpressionNodeType.Call> {
+  arguments: Array<ArenaAnyExpressionNode>
+  callee: ArenaAnyExpressionNode
 }
-export type CompoundExpression = ExpressionNode<ExpressionNodeType.Compound>
-export interface ConditionalExpression extends ExpressionNode<ExpressionNodeType.Conditional> {
-  test: AnyExpressionNode
-  consequent: AnyExpressionNode
-  alternate: AnyExpressionNode
+export type ArenaCompoundExpression = ArenaExpressionNode<ExpressionNodeType.Compound>
+export interface ArenaConditionalExpression extends ArenaExpressionNode<ExpressionNodeType.Conditional> {
+  test: ArenaAnyExpressionNode
+  consequent: ArenaAnyExpressionNode
+  alternate: ArenaAnyExpressionNode
 }
-export interface IdentifierExpression extends ExpressionNode<ExpressionNodeType.Identifier> {
+export interface ArenaIdentifierExpression extends ArenaExpressionNode<ExpressionNodeType.Identifier> {
   name: string
 }
-export interface LiteralExpression extends ExpressionNode<ExpressionNodeType.Literal> {
+export interface ArenaLiteralExpression extends ArenaExpressionNode<ExpressionNodeType.Literal> {
   raw: string
   value: any
 }
-export interface MemberExpression extends ExpressionNode<ExpressionNodeType.Member> {
+export interface ArenaMemberExpression extends ArenaExpressionNode<ExpressionNodeType.Member> {
   computed: boolean
-  object: AnyExpressionNode
-  property: AnyExpressionNode
+  object: ArenaAnyExpressionNode
+  property: ArenaAnyExpressionNode
   optional?: boolean
 }
-export interface SequenceExpression extends ExpressionNode<ExpressionNodeType.Sequence> {
-  expression: AnyExpressionNode
+export interface ArenaSequenceExpression extends ArenaExpressionNode<ExpressionNodeType.Sequence> {
+  expression: ArenaAnyExpressionNode
 }
-export type ThisExpression = ExpressionNode<ExpressionNodeType.This>
-export interface UnaryExpression extends ExpressionNode<ExpressionNodeType.Unary> {
-  argument: AnyExpressionNode
+export type ArenaThisExpression = ArenaExpressionNode<ExpressionNodeType.This>
+export interface ArenaUnaryExpression extends ArenaExpressionNode<ExpressionNodeType.Unary> {
+  argument: ArenaAnyExpressionNode
   operator: string
   prefix: boolean
 }
@@ -63,34 +63,34 @@ export interface UnaryExpression extends ExpressionNode<ExpressionNodeType.Unary
 /**
  * Union of all the expression node types: narrow it by `type` to get the specific node.
  */
-export type AnyExpressionNode =
-  | ArrayExpression
-  | BinaryExpression
-  | CallExpression
-  | CompoundExpression
-  | ConditionalExpression
-  | IdentifierExpression
-  | LiteralExpression
-  | MemberExpression
-  | SequenceExpression
-  | ThisExpression
-  | UnaryExpression
+export type ArenaAnyExpressionNode =
+  | ArenaArrayExpression
+  | ArenaBinaryExpression
+  | ArenaCallExpression
+  | ArenaCompoundExpression
+  | ArenaConditionalExpression
+  | ArenaIdentifierExpression
+  | ArenaLiteralExpression
+  | ArenaMemberExpression
+  | ArenaSequenceExpression
+  | ArenaThisExpression
+  | ArenaUnaryExpression
 
-export interface ExpressionNodeEvaluatorConstructor<
-  C extends ExpressionContext,
-  N extends ExpressionNode<ExpressionNodeType>,
+export interface ArenaExpressionNodeEvaluatorConstructor<
+  C extends ArenaExpressionContext,
+  N extends ArenaExpressionNode<ExpressionNodeType>,
 > {
-  new (evaluator: ExpressionEvaluator<C>, context: C): ExpressionNodeEvaluator<C, N>
+  new (evaluator: ArenaExpressionEvaluator<C>, context: C): ExpressionNodeEvaluator<C, N>
 }
 
 export abstract class ExpressionNodeEvaluator<
-  C extends ExpressionContext,
-  N extends ExpressionNode<ExpressionNodeType>,
+  C extends ArenaExpressionContext,
+  N extends ArenaExpressionNode<ExpressionNodeType>,
 > {
-  readonly evaluator: ExpressionEvaluator<C>
+  readonly evaluator: ArenaExpressionEvaluator<C>
   readonly context: C
 
-  constructor(evaluator: ExpressionEvaluator<C>, context: C) {
+  constructor(evaluator: ArenaExpressionEvaluator<C>, context: C) {
     this.evaluator = evaluator
     this.context = context
   }

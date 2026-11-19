@@ -1,17 +1,17 @@
-import { SurveyRefData } from './refData'
-import { Factory } from '../../common'
-import { Taxon } from '../../taxonomy'
-import { CategoryItem } from '../../category'
+import { ArenaSurveyRefData } from './refData'
+import { ArenaFactory } from '../../common'
+import { ArenaTaxon } from '../../taxonomy'
+import { ArenaCategoryItem } from '../../category'
 import { Objects } from '../../utils'
 
 export type SurveyRefDataFactoryParams = {
-  itemsByCategoryUuid?: { [categoryUuid: string]: CategoryItem[] }
+  itemsByCategoryUuid?: { [categoryUuid: string]: ArenaCategoryItem[] }
   taxonUuidIndex?: { [taxonomyUuid: string]: { [taxonCode: string]: string } }
-  taxonIndex?: { [taxonUuid: string]: Taxon }
+  taxonIndex?: { [taxonUuid: string]: ArenaTaxon }
 }
 
-export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryParams> = {
-  createInstance: (params: SurveyRefDataFactoryParams): SurveyRefData => {
+export const SurveyRefDataFactory: ArenaFactory<ArenaSurveyRefData, SurveyRefDataFactoryParams> = {
+  createInstance: (params: SurveyRefDataFactoryParams): ArenaSurveyRefData => {
     const defaultParams = {
       itemsByCategoryUuid: {},
       taxonUuidIndex: {},
@@ -24,7 +24,7 @@ export const SurveyRefDataFactory: Factory<SurveyRefData, SurveyRefDataFactoryPa
     const categoryItemUuidIndex: {
       [categoryUuid: string]: { [parentItemUuid: string]: { [code: string]: string } }
     } = {}
-    const categoryItemIndex: { [categoryItemUuid: string]: CategoryItem } = {}
+    const categoryItemIndex: { [categoryItemUuid: string]: ArenaCategoryItem } = {}
 
     Object.entries(itemsByCategoryUuid).forEach(([categoryUuid, items]) => {
       items.forEach((item) => {

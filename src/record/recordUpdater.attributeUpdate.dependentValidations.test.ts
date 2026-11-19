@@ -9,12 +9,12 @@ const { entity, attribute } = RecordNodeBuilders
 import { RecordUpdater } from './recordUpdater'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
-import { User } from '../auth'
-import { Survey } from '../survey'
+import { ArenaUser } from '../auth'
+import { ArenaSurvey } from '../survey'
 import { Validations } from '../validation'
 import { ArenaRecord } from './record'
 
-let user: User
+let user: ArenaUser
 
 // survey with a multiple entity "table" and a "coverage" attribute with the specified validation expression;
 // record with 2 tables (coverage 10 and 90)
@@ -48,7 +48,7 @@ const createSurveyAndRecord = async (coverageValidationExpression: string) => {
   return { survey, record, nodeToUpdate, siblingNode }
 }
 
-const updateValue = (params: { survey: Survey; record: ArenaRecord; attributeUuid: string; value: number }) =>
+const updateValue = (params: { survey: ArenaSurvey; record: ArenaRecord; attributeUuid: string; value: number }) =>
   RecordUpdater.updateAttributeValue({ user, ...params })
 
 describe('RecordUpdater - attribute update => update dependent validations', () => {

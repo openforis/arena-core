@@ -1,12 +1,12 @@
-export type { Taxonomy, ArenaTaxonomy, TaxonomyProps } from './taxonomy'
-export type { Taxon, ArenaTaxon, TaxonProps } from './taxon'
-export type { VernacularName, ArenaVernacularName, VernacularNameProps } from './taxonVernacularName'
+export type { ArenaTaxonomy, ArenaTaxonomyProps } from './taxonomy'
+export type { ArenaTaxon, ArenaTaxonProps } from './taxon'
+export type { ArenaVernacularName, ArenaVernacularNameProps } from './taxonVernacularName'
 
-export type { TaxonomyService } from './service'
-export type { TaxonService } from './taxonService'
+export type { ArenaTaxonomyService } from './service'
+export type { ArenaTaxonService } from './taxonService'
 
 export { TaxonomyFactory, TaxonFactory, VernacularNameFactory } from './factory'
-export type { TaxonFactoryParams, TaxonomyFactoryParams, VernacularNameParams } from './factory'
+export type { ArenaTaxonFactoryParams, ArenaTaxonomyFactoryParams, ArenaVernacularNameParams } from './factory'
 
 export { Taxa } from './taxa'
 export { Taxonomies } from './taxonomies'

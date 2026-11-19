@@ -1,12 +1,12 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
-import { Survey, Surveys } from '../../survey'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
 
 const { entityDef, integerDef, textDef } = SurveyObjectBuilders
 
-let survey: Survey
+let survey: ArenaSurvey
 
 describe('Surveys.getNodeDefAncestorMultipleEntity', () => {
   beforeAll(async () => {

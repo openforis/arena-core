@@ -5,8 +5,8 @@ import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 import { CategoryItemFactory } from '../category'
 import { NodeValues, Nodes } from '../node'
-import { NodeDefCode } from '../nodeDef'
-import { Survey, Surveys } from '../survey'
+import { ArenaNodeDefCode } from '../nodeDef'
+import { ArenaSurvey, Surveys } from '../survey'
 import { ArenaRecord } from './record'
 import { RecordCloner } from './recordCloner'
 import { RecordFactory } from './factory'
@@ -18,7 +18,7 @@ const { category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectB
 const user = createTestAdminUser()
 const categoryName = 'admin_unit'
 
-const createSurvey = (): Promise<Survey> =>
+const createSurvey = (): Promise<ArenaSurvey> =>
   new SurveyBuilder(
     user,
     entityDef(
@@ -70,7 +70,7 @@ describe('RecordUpdater - code attributes hierarchy (meta.hCode)', () => {
     expect(Nodes.getHierarchyCode(getNode(recordCloned, 'city'))).toEqual([regionCloned.uuid, provinceCloned.uuid])
   })
 
-  const createRecordWithFullHierarchy = async (survey: Survey) => {
+  const createRecordWithFullHierarchy = async (survey: ArenaSurvey) => {
     let record: ArenaRecord = RecordFactory.createInstance({ surveyUuid: survey.uuid, user })
     record = (await RecordUpdater.createRootEntity({ user, survey, record })).record
     const getNode = (name: string) => TestUtils.getNodeByPath({ survey, record, path: name })
@@ -123,7 +123,7 @@ describe('RecordUpdater - code attributes hierarchy (meta.hCode)', () => {
       refData: { categoryItem: bigCategoryItem },
     })(record)
 
-    const cityDef = Surveys.getNodeDefByName({ survey, name: 'city' }) as NodeDefCode
+    const cityDef = Surveys.getNodeDefByName({ survey, name: 'city' }) as ArenaNodeDefCode
     expect(Records.getAncestorCodePath(survey, root, cityDef)(record)).toEqual(['9', ''])
   })
 })

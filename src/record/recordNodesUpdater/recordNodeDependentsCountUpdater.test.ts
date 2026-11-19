@@ -1,6 +1,6 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { User } from '../../auth'
+import { ArenaUser } from '../../auth'
 import { Nodes } from '../../node'
 import { NodeDefCountType } from '../../nodeDef'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
@@ -16,7 +16,7 @@ import * as RecordNodesUpdater from './recordNodesUpdater'
 const { entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-let user: User
+let user: ArenaUser
 
 describe('Record nodes updater - dependents count updater', () => {
   beforeAll(async () => {
