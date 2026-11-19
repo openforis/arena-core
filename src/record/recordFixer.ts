@@ -1,4 +1,4 @@
-import { ArenaRecordNode, NodeFactory, Nodes } from '../node'
+import { ArenaRecordNode, RecordNodeFactory, RecordNodes } from '../node'
 import { ArenaNodeDef, ArenaNodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
 import { ArenaSurvey, Surveys } from '../survey'
 import { Objects } from '../utils'
@@ -14,7 +14,7 @@ const fixCodeAttribute = (params: {
   sideEffect: boolean
 }): ArenaRecordNode => {
   const { survey, nodeDef, record, node, sideEffect } = params
-  if (!NodeDefs.getParentCodeDefUuid(nodeDef) || Objects.isNotEmpty(Nodes.getHierarchyCode(node))) {
+  if (!NodeDefs.getParentCodeDefUuid(nodeDef) || Objects.isNotEmpty(RecordNodes.getHierarchyCode(node))) {
     // nodeDef is not a code attribute or meta.hCode already populated: do nothing
     return node
   }
@@ -54,7 +54,7 @@ const insertMissingSingleNode = (params: {
   }
   // insert missing single node
   const recordUuid = record.uuid
-  let node = NodeFactory.createInstance({ nodeDefUuid, recordUuid, parentNode })
+  let node = RecordNodeFactory.createInstance({ nodeDefUuid, recordUuid, parentNode })
 
   if (nodeDef.type === NodeDefType.code) {
     node = fixCodeAttribute({ survey, nodeDef: nodeDef as ArenaNodeDefCode, record, node, sideEffect })
@@ -107,8 +107,8 @@ const deleteNodesByDefUuid = (params: { record: ArenaRecord; nodeDefUuid: string
   for (const nodeToDelete of nodesToDelete) {
     // cleanup child applicability
     const parentNode = Records.getParent(nodeToDelete)(updateResult.record)
-    if (parentNode && !Nodes.isChildApplicable(parentNode, nodeDefUuid)) {
-      const parentNodeUpdated = Nodes.dissocChildApplicability(parentNode, nodeDefUuid)
+    if (parentNode && !RecordNodes.isChildApplicable(parentNode, nodeDefUuid)) {
+      const parentNodeUpdated = RecordNodes.dissocChildApplicability(parentNode, nodeDefUuid)
       const recordWithParentNodeUpdated = Records.addNode(parentNodeUpdated, recordUpdateOptions)(updateResult.record)
       updateResult.merge(new RecordUpdateResult({ record: recordWithParentNodeUpdated }))
     }
@@ -146,7 +146,7 @@ const fixRecord = (params: { survey: ArenaSurvey; record: ArenaRecord; sideEffec
   for (const node of Records.getNodesArray(result.record)) {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     // remove status flags
-    let nodeUpdated = Nodes.removeStatusFlags({ node, sideEffect })
+    let nodeUpdated = RecordNodes.removeStatusFlags({ node, sideEffect })
 
     if (nodeDef.type === NodeDefType.code) {
       nodeUpdated = fixCodeAttribute({

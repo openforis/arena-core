@@ -1,4 +1,4 @@
-import { ArenaRecordNode, NodeFactory, ArenaRecordNodeValueCode, ArenaRecordNodeValueTaxon } from '../../../node'
+import { ArenaRecordNode, RecordNodeFactory, ArenaRecordNodeValueCode, ArenaRecordNodeValueTaxon } from '../../../node'
 import { ArenaRecordNodeMeta } from '../../../node/node'
 import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefTaxon, NodeDefType } from '../../../nodeDef'
 import { ArenaRecord, Records } from '../../../record'
@@ -102,7 +102,7 @@ export class AttributeBuilder extends NodeBuilder {
 
     const value = this.buildValue({ survey })
 
-    const attribute = NodeFactory.createInstance({
+    const attribute = RecordNodeFactory.createInstance({
       nodeDefUuid: nodeDef.uuid,
       parentNode,
       recordUuid: record.uuid,

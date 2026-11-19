@@ -6,10 +6,10 @@ import {
   ArenaNodeDefTaxon,
   NodeDefType,
 } from '../../nodeDef'
-import { ArenaRecordNode, Nodes } from '../../node'
+import { ArenaRecordNode, RecordNodes } from '../../node'
 import { ArenaValidationResult, ValidationResultFactory } from '../../validation'
 import { ArenaSurvey, Surveys } from '../../survey'
-import { NodeValues } from '../../node/nodeValues'
+import { RecordNodeValues } from '../../node/nodeValues'
 import { Points } from '../../geo'
 import { Numbers, Dates } from '../../utils'
 import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
@@ -38,7 +38,7 @@ const validateDecimal = (params: AttributeTypeValidatorInternalParams): boolean 
 
 const validateCode = async (params: AttributeTypeValidatorInternalParams) => {
   const { survey, record, node, categoryItemProvider } = params
-  const itemUuid = NodeValues.getItemUuid(node)
+  const itemUuid = RecordNodeValues.getItemUuid(node)
   if (!itemUuid) return true
 
   let item = Surveys.getCategoryItemByUuid({ survey, itemUuid })
@@ -57,7 +57,7 @@ const validateCode = async (params: AttributeTypeValidatorInternalParams) => {
 
 const validateTaxon = async (params: AttributeTypeValidatorInternalParams): Promise<boolean> => {
   const { survey, record, node, taxonProvider } = params
-  const taxonUuid = NodeValues.getTaxonUuid(node)
+  const taxonUuid = RecordNodeValues.getTaxonUuid(node)
   if (!taxonUuid) return true
 
   let taxon = Surveys.getTaxonByUuid({ survey, taxonUuid })
@@ -71,7 +71,7 @@ const validateTaxon = async (params: AttributeTypeValidatorInternalParams): Prom
   }
   if (!taxon) return false
 
-  const vernacularNameUuid = NodeValues.getVernacularNameUuid(node)
+  const vernacularNameUuid = RecordNodeValues.getVernacularNameUuid(node)
   if (!vernacularNameUuid) return true
 
   const vernacularName = Taxa.getVernacularNameByUuid(vernacularNameUuid)(taxon)
@@ -87,7 +87,7 @@ const typeValidatorFns: {
   [NodeDefType.coordinate]: (params: AttributeTypeValidatorInternalParams): boolean => {
     const { survey, node } = params
 
-    const point = NodeValues.getValueAsPoint({ survey, node })
+    const point = RecordNodeValues.getValueAsPoint({ survey, node })
     if (!point) return false
 
     const srsIndex = Surveys.getSRSIndex(survey)
@@ -98,9 +98,9 @@ const typeValidatorFns: {
   [NodeDefType.date]: (params: AttributeTypeValidatorInternalParams): boolean => {
     const { node } = params
     const [year, month, day] = [
-      NodeValues.getDateYear(node),
-      NodeValues.getDateMonth(node),
-      NodeValues.getDateDay(node),
+      RecordNodeValues.getDateYear(node),
+      RecordNodeValues.getDateMonth(node),
+      RecordNodeValues.getDateDay(node),
     ]
     return Dates.isValidDate(year, month, day)
   },
@@ -122,9 +122,9 @@ const typeValidatorFns: {
   [NodeDefType.time]: (params: AttributeTypeValidatorInternalParams): boolean => {
     const { node } = params
     const [hour, minute, seconds] = [
-      NodeValues.getTimeHour(node),
-      NodeValues.getTimeMinute(node),
-      NodeValues.getTimeSeconds(node),
+      RecordNodeValues.getTimeHour(node),
+      RecordNodeValues.getTimeMinute(node),
+      RecordNodeValues.getTimeSeconds(node),
     ]
     return Dates.isValidTime(hour, minute, seconds)
   },
@@ -135,7 +135,7 @@ const validateValueType =
   async (_propName: string, node: ArenaRecordNode): Promise<ArenaValidationResult> => {
     const { survey, nodeDef, record, categoryItemProvider, taxonProvider } = params
 
-    if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
+    if (RecordNodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const typeValidatorFn = typeValidatorFns[nodeDef.type]
     const valid =

@@ -1,6 +1,6 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { NodeValueFormatter } from '../node'
+import { RecordNodeValueFormatter } from '../node'
 import { ArenaSurvey, Surveys } from '../survey'
 import { createTestAdminUser } from '../tests/data'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
@@ -69,7 +69,7 @@ const getTableSumKeys = (params: { survey: ArenaSurvey; record: ArenaRecord }): 
   return sumEntities.map((entity) => {
     const keyNode = Records.getChild(entity, sumTypeDef.uuid)(record)!
     const nodeDef = Surveys.getNodeDefByUuid({ survey: surveyParam, uuid: keyNode.nodeDefUuid })
-    return NodeValueFormatter.format({
+    return RecordNodeValueFormatter.format({
       survey: surveyParam,
       cycle: Surveys.getDefaultCycleKey(surveyParam)!,
       nodeDef,
@@ -95,7 +95,7 @@ const getTableSumEntityUuidsByKey = (params: {
     sumEntities.map((entity) => {
       const keyNode = Records.getChild(entity, sumTypeDef.uuid)(record)!
       const nodeDef = Surveys.getNodeDefByUuid({ survey: surveyParam, uuid: keyNode.nodeDefUuid })
-      const key = NodeValueFormatter.format({
+      const key = RecordNodeValueFormatter.format({
         survey: surveyParam,
         cycle: Surveys.getDefaultCycleKey(surveyParam)!,
         nodeDef,

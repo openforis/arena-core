@@ -10,7 +10,7 @@ import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuil
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 import { Records } from './records'
-import { Nodes } from '../node'
+import { RecordNodes } from '../node'
 
 const { category, categoryItem, codeDef, dateDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
@@ -153,7 +153,7 @@ describe('RecordUpdater - node create', () => {
       record,
       path: 'root_entity.child_entity[0]',
     })
-    const secondNestedEntityApplicable = Nodes.isChildApplicable(childEntity, nestedEntityDefUuid)
+    const secondNestedEntityApplicable = RecordNodes.isChildApplicable(childEntity, nestedEntityDefUuid)
     expect(secondNestedEntityApplicable).toBeFalsy()
   })
 

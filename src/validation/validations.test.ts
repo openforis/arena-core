@@ -416,9 +416,7 @@ describe('Validations', () => {
         valid: false,
       })
       expect(Validations.dissocFieldValidation('a', { doCleanup: false })(v).valid).toBe(false)
-      // deprecated positional form
-      expect(Validations.dissocFieldValidation('a', false, false)(v).valid).toBe(false)
-      expect(Validations.dissocFieldValidation('a', false, true)(v).valid).toBe(true)
+      expect(Validations.dissocFieldValidation('a', { doCleanup: true })(v).valid).toBe(true)
     })
   })
 
@@ -439,14 +437,12 @@ describe('Validations', () => {
       expect(result.fields).toHaveProperty('other')
     })
 
-    test('accepts options and the deprecated positional sideEffect', () => {
+    test('accepts the mutation and cleanup options', () => {
       const createValidation = () =>
         makeValidation({ fields: { node_1: makeValidation({ errors: [errorResult], valid: false }) }, valid: false })
       const v1 = createValidation()
       expect(Validations.dissocFieldValidationsStartingWith('node_', { sideEffect: true })(v1)).toBe(v1)
       expect(v1.fields?.node_1).toBeUndefined()
-      const v2 = createValidation()
-      expect(Validations.dissocFieldValidationsStartingWith('node_', true)(v2)).toBe(v2)
       const v3 = createValidation()
       const result = Validations.dissocFieldValidationsStartingWith('node_', { doCleanup: false })(v3)
       expect(result).not.toBe(v3)

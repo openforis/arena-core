@@ -128,7 +128,14 @@ export type { ArenaLogger } from './logger'
 export type { ArenaMessage } from './message'
 export { MessageNotificationType, MessagePropsKey, MessageStatus, MessageTargetUserType, Messages } from './message'
 
-export { NodeFactory, NodeKeys, NodeMetaKeys, Nodes, NodeValueFormatter, NodeValues } from './node'
+export {
+  RecordNodeFactory,
+  RecordNodeKeys,
+  RecordNodeMetaKeys,
+  RecordNodes,
+  RecordNodeValueFormatter,
+  RecordNodeValues,
+} from './node'
 export type {
   ArenaRecordNode,
   ArenaRecordNodeMeta,
@@ -208,7 +215,7 @@ export type {
 } from './nodeDef'
 
 export {
-  NodePointers,
+  RecordNodePointers,
   RecordCloner,
   RecordFactory,
   RecordFixer,

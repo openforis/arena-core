@@ -1,6 +1,6 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { ArenaRecordNode, Nodes } from '../../node'
+import { ArenaRecordNode, RecordNodes } from '../../node'
 import { ArenaSurvey, Surveys } from '../../survey'
 import { TestUtils } from '../../tests/testUtils'
 import { ArenaRecord } from '../record'
@@ -71,6 +71,6 @@ describe('Record getters call forms', () => {
       visitedAll.push(node)
     })(record)
     expect(visitedAll).toHaveLength(3)
-    expect(Nodes.isRoot(visitedAll[2])).toBe(true)
+    expect(RecordNodes.isRoot(visitedAll[2])).toBe(true)
   })
 })

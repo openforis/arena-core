@@ -1,5 +1,5 @@
 import { ArenaCategoryItem } from '../../category'
-import { ArenaRecordNode, NodeValues } from '../../node'
+import { ArenaRecordNode, RecordNodeValues } from '../../node'
 import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefEntity, NodeDefs, NodeDefType } from '../../nodeDef'
 import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { ArenaSurvey, Surveys } from '../../survey'
@@ -74,7 +74,7 @@ export const getEnumeratingCategoryItems =
     const parentCodeDefUuid = NodeDefs.getParentCodeDefUuid(enumeratorDef)
     if (parentCodeDefUuid) {
       const parentCodeAttribute = getParentCodeAttribute(parentNode, enumeratorDef)(record)
-      parentItemUuid = parentCodeAttribute ? NodeValues.getItemUuid(parentCodeAttribute) : null
+      parentItemUuid = parentCodeAttribute ? RecordNodeValues.getItemUuid(parentCodeAttribute) : null
       if (!parentItemUuid) return []
     }
     let items = Surveys.getEnumeratingCategoryItems({ survey, enumerator: enumeratorDef, parentItemUuid })

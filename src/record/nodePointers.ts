@@ -25,7 +25,7 @@ const getNodesMapFromNodePointers = (params: {
   return nodesMap
 }
 
-export const NodePointers = {
+export const RecordNodePointers = {
   getNodesFromNodePointers,
   getNodesMapFromNodePointers,
 }

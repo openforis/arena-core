@@ -318,7 +318,7 @@ const valueEqualityKeyByNodeDefType: {
  * Returns a key such that two values have the same key if and only if they are equal according to isValueEqual
  * (not strict, without record), or undefined if such a key cannot be built for the value (e.g. NaN, empty objects, code values
  * without code, invalid dates, coordinates): such values must be compared with isValueEqual.
- * Not exported in NodeValues: internal, used to look up duplicate values without comparing every pair of values.
+ * Not exported in RecordNodeValues: internal, used to look up duplicate values without comparing every pair of values.
  */
 export const getValueEqualityKey = (params: {
   survey: ArenaSurvey
@@ -354,7 +354,7 @@ const getValueAsPoint = (params: { survey: ArenaSurvey; node: ArenaRecordNode })
   return null
 }
 
-export const NodeValues = {
+export const RecordNodeValues = {
   ValuePropsByType,
   ValuePropsCode,
   ValuePropsCoordinate,

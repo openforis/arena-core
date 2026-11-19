@@ -1,4 +1,4 @@
-import { ArenaRecordNode, ArenaRecordNodePointer, Nodes, ArenaRecordNodesMap } from '../../node'
+import { ArenaRecordNode, ArenaRecordNodePointer, RecordNodes, ArenaRecordNodesMap } from '../../node'
 import { ArenaNodeDefEntity, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { ArenaSurvey, SurveyDependencyType } from '../../survey/survey'
@@ -36,7 +36,7 @@ const calculateApplicableNext = (params: {
   calculateBooleanValueNext({
     ...params,
     getExpressions: (nodePointer) => NodeDefs.getApplicable(nodePointer.nodeDef),
-    getValuePrev: Nodes.isChildApplicable,
+    getValuePrev: RecordNodes.isChildApplicable,
   })
 
 const updateDescendantsApplicability = ({
@@ -62,15 +62,15 @@ const updateDescendantsApplicability = ({
   const nodesUpdated: ArenaRecordNodesMap = {}
 
   Records.visitDescendantsAndSelf(nodeCtxChild, (nodeDescendant): boolean => {
-    const nodeDescendantCleared = clearNonApplicableValues && !applicable && Nodes.isValueNotBlank(nodeDescendant)
+    const nodeDescendantCleared = clearNonApplicableValues && !applicable && RecordNodes.isValueNotBlank(nodeDescendant)
     // values set by expressions (default values, read only attributes) are applied again when applicable: not reported
     // (evaluated before clearing the value: with sideEffect the node is modified in place)
     const nodeDescendantDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDescendant.nodeDefUuid })
     const userValueCleared =
-      nodeDescendantCleared && !NodeDefs.isReadOnly(nodeDescendantDef) && Nodes.hasUserInputValue(nodeDescendant)
+      nodeDescendantCleared && !NodeDefs.isReadOnly(nodeDescendantDef) && RecordNodes.hasUserInputValue(nodeDescendant)
     // Clear value if becoming non-applicable and parameter is enabled
     const nodeDescendantUpdated = nodeDescendantCleared
-      ? Nodes.assocValue(nodeDescendant, null, { sideEffect })
+      ? RecordNodes.assocValue(nodeDescendant, null, { sideEffect })
       : nodeDescendant
     nodesUpdated[nodeDescendantUpdated.uuid] = nodeDescendantUpdated
     if (userValueCleared) {
@@ -109,7 +109,7 @@ const createMissingApplicableMultipleEntities = async ({
 }): Promise<void> => {
   if (!NodeDefs.isAutoCreateMinCountItems(nodeDef)) return
 
-  const minCount = Nodes.getChildrenMinCount({ parentNode, nodeDef })
+  const minCount = RecordNodes.getChildrenMinCount({ parentNode, nodeDef })
   if (Number.isNaN(minCount) || minCount <= 0) return
 
   const existingChildren = Records.getChildren(parentNode, nodeDef.uuid)(updateResult.record)
@@ -142,7 +142,7 @@ const updateNodePointerApplicability = async ({
   // nodeCtx could have been updated in a previous iteration
   const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
-  const applicablePrev = Nodes.isChildApplicable(nodeCtx, nodeDefUuid)
+  const applicablePrev = RecordNodes.isChildApplicable(nodeCtx, nodeDefUuid)
   const applicable = await calculateApplicableNext({
     params,
     updateResult,
@@ -169,7 +169,7 @@ const updateNodePointerApplicability = async ({
   // Applicability changed
 
   // update node and add it to nodes updated
-  const nodeCtxUpdated = Nodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
+  const nodeCtxUpdated = RecordNodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
   updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
 
   let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)

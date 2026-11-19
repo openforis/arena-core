@@ -1,4 +1,4 @@
-import { ArenaRecordNode, NodeValues, Nodes } from '../../node'
+import { ArenaRecordNode, RecordNodeValues, RecordNodes } from '../../node'
 import { ArenaNodeDefCode, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { Arrays, Dates } from '../../utils'
@@ -28,7 +28,7 @@ const isDependentCodeAttributeValueStillValid = async (
     params
   if (!parentItemUuid) return false
 
-  const dependentItemUuid = NodeValues.getItemUuid(dependentCodeAttribute)
+  const dependentItemUuid = RecordNodeValues.getItemUuid(dependentCodeAttribute)
   if (!dependentItemUuid) return false
 
   let dependentItem = Surveys.getCategoryItemByUuid({ survey, itemUuid: dependentItemUuid })
@@ -57,11 +57,11 @@ export const updateDependentCodeAttributes = async (params: RecordNodeDependents
   // 1. get dependent code attributes: only the direct ones (the index registers every ancestor code attribute);
   // deeper levels are checked when the cleared direct dependents are visited
   const dependentCodeAttributes = Records.getDependentCodeAttributes(node)(record).filter(
-    (dependentCodeAttribute) => Arrays.last(Nodes.getHierarchyCode(dependentCodeAttribute)) === node.uuid
+    (dependentCodeAttribute) => Arrays.last(RecordNodes.getHierarchyCode(dependentCodeAttribute)) === node.uuid
   )
   if (dependentCodeAttributes.length === 0) return updateResult
 
-  const parentItemUuid = NodeValues.getItemUuid(node)
+  const parentItemUuid = RecordNodeValues.getItemUuid(node)
 
   // 2. clear dependent code attributes' values that are no longer valid children of the parent's current item
   for (const dependentCodeAttribute of dependentCodeAttributes) {
@@ -69,7 +69,8 @@ export const updateDependentCodeAttributes = async (params: RecordNodeDependents
       survey,
       uuid: dependentCodeAttribute.nodeDefUuid,
     }) as ArenaNodeDefCode
-    if (NodeDefs.isReadOnly(dependentCodeAttributeDef) || !Nodes.hasUserInputValue(dependentCodeAttribute)) continue
+    if (NodeDefs.isReadOnly(dependentCodeAttributeDef) || !RecordNodes.hasUserInputValue(dependentCodeAttribute))
+      continue
 
     const validityCheckParams = {
       survey,

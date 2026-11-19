@@ -7,7 +7,7 @@ const { booleanDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
 import { ArenaUser } from '../auth'
-import { Nodes } from '../node'
+import { RecordNodes } from '../node'
 import { ArenaNodeDef, NodeDefExpressionFactory } from '../nodeDef/nodeDef'
 import { ArenaSurvey, Surveys } from '../survey'
 import { createTestAdminUser } from '../tests/data'
@@ -49,7 +49,7 @@ const updateSourceAndExpectMinCountValidation = async ({
   const root = Records.getRoot(record)!
 
   // check min count value
-  const minCount = Nodes.getChildrenMinCount({ parentNode: root, nodeDef: dependentNodeDef })
+  const minCount = RecordNodes.getChildrenMinCount({ parentNode: root, nodeDef: dependentNodeDef })
   expect(minCount).toEqual(expectedMinCount)
 
   // check validation

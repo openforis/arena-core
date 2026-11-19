@@ -1,4 +1,4 @@
-import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, RecordNodes, RecordNodeValues } from '../../node'
 import { ArenaNodeDef, ArenaNodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { ArenaSurvey, Surveys } from '../../survey'
 import { ArenaValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
@@ -13,10 +13,10 @@ const _isAttributeDuplicate = (params: {
 }): boolean => {
   const { survey, attribute, record, nodeDef } = params
   // blank values are never considered duplicates
-  if (Nodes.isValueBlank(attribute)) return false
+  if (RecordNodes.isValueBlank(attribute)) return false
   const nodeSiblings = Records.getAttributeSiblings(attribute, nodeDef)(record)
   return nodeSiblings.some((sibling) =>
-    NodeValues.isValueEqual({ survey, nodeDef, value: sibling.value, valueSearch: attribute.value })
+    RecordNodeValues.isValueEqual({ survey, nodeDef, value: sibling.value, valueSearch: attribute.value })
   )
 }
 

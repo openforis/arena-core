@@ -1,6 +1,6 @@
 import { ArenaExpressionFunctions } from '../../expression'
 import { ArenaPoint, Points } from '../../geo'
-import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, RecordNodes, RecordNodeValues } from '../../node'
 import { nodeDefExpressionFunctions } from '../../nodeDefExpressionEvaluator/functions'
 import { Surveys } from '../../survey'
 import { Arrays } from '../../utils'
@@ -76,7 +76,7 @@ export const recordExpressionFunctions: ArenaExpressionFunctions<ArenaRecordExpr
           }
           return Points.isValid(nodeOrPoint, srsIndex)
             ? nodeOrPoint
-            : NodeValues.getValueAsPoint({ survey, node: nodeOrPoint })
+            : RecordNodeValues.getValueAsPoint({ survey, node: nodeOrPoint })
         }
 
         const pointsLatLon: ArenaPoint[] = nodeSetOrPoints.reduce((acc, nodeSetOrPoint) => {
@@ -109,7 +109,7 @@ export const recordExpressionFunctions: ArenaExpressionFunctions<ArenaRecordExpr
       if (!node) {
         return -1
       }
-      if (Nodes.isRoot(node)) {
+      if (RecordNodes.isRoot(node)) {
         return 0
       }
       const { record } = context
@@ -118,7 +118,7 @@ export const recordExpressionFunctions: ArenaExpressionFunctions<ArenaRecordExpr
         return -1
       }
       const children = Records.getChildren(parentNode, node.nodeDefUuid)(record)
-      return children.findIndex((n) => Nodes.areEqual(n, node))
+      return children.findIndex((n) => RecordNodes.areEqual(n, node))
     },
   },
   last: {
@@ -138,7 +138,7 @@ export const recordExpressionFunctions: ArenaExpressionFunctions<ArenaRecordExpr
     evaluateArgsToNodes: true,
     evaluateToNode: true,
     executor: (context: ArenaRecordExpressionContext) => (node) => {
-      if (!node || Nodes.isRoot(node)) {
+      if (!node || RecordNodes.isRoot(node)) {
         return null
       }
       const { record } = context

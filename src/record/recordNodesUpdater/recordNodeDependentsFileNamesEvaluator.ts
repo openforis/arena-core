@@ -1,12 +1,18 @@
 import { SystemErrorKeys } from '../../error'
 import { ArenaUser } from '../../auth'
-import { ArenaRecordNode, ArenaRecordNodePointer, Nodes, ArenaRecordNodeValueFile, NodeValues } from '../../node'
+import {
+  ArenaRecordNode,
+  ArenaRecordNodePointer,
+  RecordNodes,
+  ArenaRecordNodeValueFile,
+  RecordNodeValues,
+} from '../../node'
 import { ArenaNodeDefFile, NodeDefs } from '../../nodeDef'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
 import { ArenaSurvey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { Dates, FileNames, Objects } from '../../utils'
-import { NodePointers } from '../nodePointers'
+import { RecordNodePointers } from '../nodePointers'
 import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
@@ -79,10 +85,10 @@ const updateFileNamesInNodes = async (params: {
 
   const { record } = updateResult
 
-  const nodes = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
+  const nodes = RecordNodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
 
   for (const node of nodes) {
-    if (!Nodes.isValueBlank(node)) {
+    if (!RecordNodes.isValueBlank(node)) {
       // sequential: each iteration updates the record
       await updateFileNameInNode({ user, survey, updateResult, sideEffect, nodeDef: nodeDef as ArenaNodeDefFile, node }) // NOSONAR
     }
@@ -125,10 +131,10 @@ const updateFileNameInNode = async (params: {
   const expressionToEvaluate = NodeDefs.getFileNameExpression(nodeDef)
   try {
     const fileNameCalculated = await calculateFileName({ user, survey, record: updateResult.record, node })
-    const oldFileNameCalculated = NodeValues.getFileNameCalculated(node)
+    const oldFileNameCalculated = RecordNodeValues.getFileNameCalculated(node)
     if (fileNameCalculated !== oldFileNameCalculated) {
-      const nodeUpdated = Nodes.mergeNodes(node, {
-        value: { [NodeValues.ValuePropsFile.fileNameCalculated]: fileNameCalculated },
+      const nodeUpdated = RecordNodes.mergeNodes(node, {
+        value: { [RecordNodeValues.ValuePropsFile.fileNameCalculated]: fileNameCalculated },
         updated: true,
         dateModified: Dates.nowFormattedForStorage(),
       })

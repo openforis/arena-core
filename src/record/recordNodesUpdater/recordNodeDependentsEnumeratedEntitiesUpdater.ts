@@ -1,4 +1,4 @@
-import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, RecordNodes, RecordNodeValues } from '../../node'
 import { ArenaNodeDefCode, ArenaNodeDefEntity, NodeDefType } from '../../nodeDef'
 import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { ArenaSurvey, Surveys } from '../../survey'
@@ -29,7 +29,7 @@ const shouldExistingEntitiesBeDeleted = async (params: {
     .map((existingEntity) => {
       const existingEnumerator = getChild(existingEntity, enumeratorDef.uuid)(updateResult.record)
       // an entity without enumerator item makes the lists differ, so the entities are recreated
-      return (existingEnumerator ? NodeValues.getItemUuid(existingEnumerator) : undefined) ?? ''
+      return (existingEnumerator ? RecordNodeValues.getItemUuid(existingEnumerator) : undefined) ?? ''
     })
     .sort(uuidsCompare)
 
@@ -65,7 +65,7 @@ export const createOrDeleteEnumeratedEntities = async (
   const existingEntities = getChildren(parentNode, entityDef.uuid)(updateResult.record)
   const existingEntitiesCount = existingEntities.length
   const hasExistingEntities = existingEntitiesCount > 0
-  const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
+  const applicable = RecordNodes.isChildApplicable(parentNode, entityDef.uuid)
 
   const deleteExistingEntities = () => {
     const existingEntityUuids = existingEntities.map((node) => node.uuid)

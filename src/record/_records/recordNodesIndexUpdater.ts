@@ -1,4 +1,4 @@
-import { ArenaRecordNode, Nodes } from '../../node'
+import { ArenaRecordNode, RecordNodes } from '../../node'
 import { Objects } from '../../utils'
 import { ArenaMutationOptions } from '../../utils/mutationOptions'
 import { ArenaRecord, RecordNodesIndex } from '../record'
@@ -13,7 +13,7 @@ const keys = {
 const sortNodesByIdOrCreationDate = (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): number => {
   if (!nodeA.parentUuid) return -1
   if (!nodeB.parentUuid) return 1
-  // read the hierarchy length directly: Nodes.getHierarchy copies the array on every comparison
+  // read the hierarchy length directly: RecordNodes.getHierarchy copies the array on every comparison
   const hierarchyDepthA = nodeA.meta?.h?.length ?? 0
   const hierarchyDepthB = nodeB.meta?.h?.length ?? 0
   const depthDiff = hierarchyDepthA - hierarchyDepthB
@@ -109,7 +109,7 @@ class NodesIndexDraft {
     }
     this.delete([keys.nodesByDef, nodeDefUuid, nodeUuid])
     // code dependents
-    for (const ancestorCodeAttributeUuid of Nodes.getHierarchyCode(node)) {
+    for (const ancestorCodeAttributeUuid of RecordNodes.getHierarchyCode(node)) {
       this.delete([keys.nodeCodeDependents, ancestorCodeAttributeUuid, nodeUuid])
     }
     this.delete([keys.nodeCodeDependents, nodeUuid])

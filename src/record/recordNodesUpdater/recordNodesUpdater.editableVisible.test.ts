@@ -5,7 +5,7 @@ import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBui
 import * as RecordNodesUpdater from './recordNodesUpdater'
 import { RecordUpdater } from '../recordUpdater'
 import { ArenaUser } from '../../auth'
-import { Nodes } from '../../node'
+import { RecordNodes } from '../../node'
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
 import { Records } from '../records'
@@ -59,8 +59,8 @@ describe('Record nodes updater - editable/visible', () => {
 
     let rootNodeUpdated = TestUtils.getNodeByPath({ survey, record: updateResult.record, path: 'root_entity' })
 
-    expect(Nodes.isChildEditable(rootNodeUpdated, dependentEditableDef.uuid)).toBe(false)
-    expect(Nodes.isChildVisible(rootNodeUpdated, dependentVisibleDef.uuid)).toBe(false)
+    expect(RecordNodes.isChildEditable(rootNodeUpdated, dependentEditableDef.uuid)).toBe(false)
+    expect(RecordNodes.isChildVisible(rootNodeUpdated, dependentVisibleDef.uuid)).toBe(false)
     expect(rootNodeUpdated.meta?.cEdit?.[dependentEditableDef.uuid]).toBe(false)
     expect(rootNodeUpdated.meta?.cVis?.[dependentVisibleDef.uuid]).toBe(false)
 
@@ -79,8 +79,8 @@ describe('Record nodes updater - editable/visible', () => {
 
     rootNodeUpdated = TestUtils.getNodeByPath({ survey, record: updateResult.record, path: 'root_entity' })
 
-    expect(Nodes.isChildEditable(rootNodeUpdated, dependentEditableDef.uuid)).toBe(true)
-    expect(Nodes.isChildVisible(rootNodeUpdated, dependentVisibleDef.uuid)).toBe(true)
+    expect(RecordNodes.isChildEditable(rootNodeUpdated, dependentEditableDef.uuid)).toBe(true)
+    expect(RecordNodes.isChildVisible(rootNodeUpdated, dependentVisibleDef.uuid)).toBe(true)
     expect(rootNodeUpdated.meta?.cEdit?.[dependentEditableDef.uuid]).toBeUndefined()
     expect(rootNodeUpdated.meta?.cVis?.[dependentVisibleDef.uuid]).toBeUndefined()
   })
@@ -133,7 +133,7 @@ describe('Record nodes updater - editable/visible', () => {
       record: recordAfterCreate,
       path: 'root_entity.plot[0]',
     })
-    expect(Nodes.isChildEditable(plotNodeAfterCreate, subplotDef.uuid)).toBe(false)
+    expect(RecordNodes.isChildEditable(plotNodeAfterCreate, subplotDef.uuid)).toBe(false)
     expect(plotNodeAfterCreate.meta?.cEdit?.[subplotDef.uuid]).toBe(false)
 
     // Now update threshold to 20 (condition met) and check the plot node reflects editability
@@ -153,7 +153,7 @@ describe('Record nodes updater - editable/visible', () => {
       record: updateResult.record,
       path: 'root_entity.plot[0]',
     })
-    expect(Nodes.isChildEditable(plotNodeAfterUpdate, subplotDef.uuid)).toBe(true)
+    expect(RecordNodes.isChildEditable(plotNodeAfterUpdate, subplotDef.uuid)).toBe(true)
     expect(plotNodeAfterUpdate.meta?.cEdit?.[subplotDef.uuid]).toBeUndefined()
   })
 })

@@ -5,7 +5,7 @@ import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBui
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
 import { ArenaUser } from '../../auth'
-import { NodeValues } from '../../node'
+import { RecordNodeValues } from '../../node'
 import { ArenaSurvey } from '../../survey'
 import { Validations } from '../../validation'
 import { ArenaRecord } from '../record'
@@ -117,7 +117,7 @@ describe('AttributeKeyValidator - duplicate entity keys', () => {
   test('validating many key attributes at once does not compare every key with all the sibling keys', async () => {
     const tablesCount = 200
     const record = buildRecord(Array.from({ length: tablesCount }, (_t, index) => (index % 100) + 1))
-    const isValueEqualSpy = jest.spyOn(NodeValues, 'isValueEqual')
+    const isValueEqualSpy = jest.spyOn(RecordNodeValues, 'isValueEqual')
     try {
       const validation = await RecordValidator.validateRecord({ user, survey, record })
       const recordValidated = { ...record, validation }
@@ -138,7 +138,7 @@ describe('AttributeKeyValidator - duplicate entity keys', () => {
     const record = buildRecord(
       Array.from({ length: tablesCount }, (_t, index) => (index === tablesCount - 1 ? 1 : index + 1))
     )
-    const isValueEqualSpy = jest.spyOn(NodeValues, 'isValueEqual')
+    const isValueEqualSpy = jest.spyOn(RecordNodeValues, 'isValueEqual')
     try {
       const validation = await RecordValidator.validateRecord({ user, survey, record })
       const recordValidated = { ...record, validation }

@@ -4,7 +4,7 @@ import { IdentifierEvaluator } from '../../../../expression/javascript/node/iden
 import { ArenaRecordNode } from '../../../../node'
 import { ArenaNodeDef, NodeDefs, NodeDefType } from '../../../../nodeDef'
 import { Records } from '../../../records'
-import { NodeValues } from '../../../../node/nodeValues'
+import { RecordNodeValues } from '../../../../node/nodeValues'
 import { ArenaSurvey, Surveys } from '../../../../survey'
 import { ArenaRecordExpressionContext } from '../../context'
 import { NodesFinder } from './nodesFinder'
@@ -62,8 +62,8 @@ const evaluateIdentifierOnNode = (params: {
   }
   if (NodeDefs.isAttribute(nodeDefObject)) {
     // node value prop (Arena specific value property)
-    if (NodeValues.isValueProp({ nodeDef: nodeDefObject, prop: propName })) {
-      return NodeValues.getNodeValueProp({ nodeDef: nodeDefObject, node: nodeObject, prop: propName })
+    if (RecordNodeValues.isValueProp({ nodeDef: nodeDefObject, prop: propName })) {
+      return RecordNodeValues.getNodeValueProp({ nodeDef: nodeDefObject, node: nodeObject, prop: propName })
     } else {
       throw new SystemError(SystemErrorKeys.expression.invalidAttributeValuePropertyName, {
         attributeName: NodeDefs.getName(nodeDefObject),

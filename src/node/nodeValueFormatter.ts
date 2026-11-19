@@ -5,7 +5,7 @@ import { ArenaSurvey, Surveys } from '../survey'
 import { Taxa } from '../taxonomy'
 import { DateFormats, Dates, Numbers, Objects, Strings } from '../utils'
 import { ArenaRecordNode } from './node'
-import { NodeValues } from './nodeValues'
+import { RecordNodeValues } from './nodeValues'
 
 const extractCategoryItem = (params: {
   survey: ArenaSurvey
@@ -14,7 +14,7 @@ const extractCategoryItem = (params: {
 }): ArenaCategoryItem | undefined => {
   const { survey, node, value } = params
 
-  const itemUuid = NodeValues.getValueItemUuid(value)
+  const itemUuid = RecordNodeValues.getValueItemUuid(value)
   if (!itemUuid) return undefined
 
   const item = node?.refData?.categoryItem ?? Surveys.getCategoryItemByUuid({ survey, itemUuid })
@@ -39,7 +39,7 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
 
     if (!showLabel) {
       // item code already inside value, no need to get category item
-      const itemCode = NodeValues.getValueCode(value)
+      const itemCode = RecordNodeValues.getValueCode(value)
       if (!Objects.isEmpty(itemCode)) return itemCode
     }
     const categoryItem = extractCategoryItem({ survey, node, value })
@@ -71,7 +71,7 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
   },
   [NodeDefType.taxon]: (params: FormatParams) => {
     const { survey, value, showLabel } = params
-    const taxonUuid = NodeValues.getValueTaxonUuid(value)
+    const taxonUuid = RecordNodeValues.getValueTaxonUuid(value)
     if (!taxonUuid) return null
     const taxon = Surveys.getTaxonByUuid({ survey, taxonUuid })
     if (!taxon) return null
@@ -94,6 +94,6 @@ const format = (params: FormatParams) => {
   return NodeDefs.isMultiple(nodeDef) && Array.isArray(value) ? value.map(formatValue).join(', ') : formatValue(value)
 }
 
-export const NodeValueFormatter = {
+export const RecordNodeValueFormatter = {
   format,
 }

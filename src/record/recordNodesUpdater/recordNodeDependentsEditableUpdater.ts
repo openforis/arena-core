@@ -1,4 +1,4 @@
-import { Nodes } from '../../node'
+import { RecordNodes } from '../../node'
 import { NodeDefs } from '../../nodeDef'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
@@ -12,8 +12,8 @@ export const updateSelfAndDependentsEditable = async (
     params,
     dependencyType: SurveyDependencyType.editable,
     getExpressions: ({ nodeDef }) => NodeDefs.getEditableIf(nodeDef),
-    getValuePrev: (nodeCtx, nodeDefUuid) => Nodes.isChildEditable(nodeCtx, nodeDefUuid),
+    getValuePrev: (nodeCtx, nodeDefUuid) => RecordNodes.isChildEditable(nodeCtx, nodeDefUuid),
     assocValue: (nodeCtx, nodeDefUuid, value, options) =>
-      Nodes.assocChildEditable(nodeCtx, nodeDefUuid, value, options),
+      RecordNodes.assocChildEditable(nodeCtx, nodeDefUuid, value, options),
   })
 }

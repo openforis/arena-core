@@ -1,4 +1,4 @@
-import { ArenaRecordNode, Nodes } from '../../node'
+import { ArenaRecordNode, RecordNodes } from '../../node'
 import { ArenaNodeDef, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
@@ -50,12 +50,12 @@ export const updateSelfAndDependentsRequired = async (
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
   for (const { nodeCtx: nodeCtxNodePointer, nodeDef } of nodePointersToUpdate) {
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxNodePointer.uuid) ?? nodeCtxNodePointer
-    const valuePrev = Nodes.isChildRequired(nodeCtx, nodeDef.uuid)
+    const valuePrev = RecordNodes.isChildRequired(nodeCtx, nodeDef.uuid)
     // NOSONAR: sequential evaluation needed (see note above)
     const value = await evaluateRequiredIf({ ...params, record: updateResult.record, nodeCtx, nodeDef }) // NOSONAR
     if (valuePrev === value) continue
 
-    const nodeCtxUpdated = Nodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect })
+    const nodeCtxUpdated = RecordNodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect })
     updateResult.addNode(nodeCtxUpdated, { sideEffect })
   }
   return updateResult
@@ -73,12 +73,12 @@ const updateNodeDefRequiredFlags = async (
 
   for (const parentNode of parentNodes) {
     const nodeCtx = updateResult.getNodeByUuid(parentNode.uuid) ?? parentNode
-    const valuePrev = Nodes.isChildRequired(nodeCtx, nodeDef.uuid)
+    const valuePrev = RecordNodes.isChildRequired(nodeCtx, nodeDef.uuid)
     // sequential evaluation: the same parent node can be updated for different child defs
     const value =
       requiredIfDefined && (await evaluateRequiredIf({ ...params, record: updateResult.record, nodeCtx, nodeDef })) // NOSONAR
     if (value !== valuePrev) {
-      const nodeCtxUpdated = Nodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect })
+      const nodeCtxUpdated = RecordNodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect })
       updateResult.addNode(nodeCtxUpdated, { sideEffect })
     }
   }

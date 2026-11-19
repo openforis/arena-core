@@ -9,7 +9,7 @@ import { ExpressionVariable, ArenaIdentifierExpression } from '../../expression'
 import { SystemError, SystemErrorKeys } from '../../error'
 import { ValidatorErrorKeys } from '../../validation'
 import { NodeNativeProperties } from './nodeDefExpressionNativeProperties'
-import { NodeValues } from '../../node/nodeValues'
+import { RecordNodeValues } from '../../node/nodeValues'
 
 /**
  * Determines the actual context node def
@@ -73,7 +73,10 @@ export class NodeDefIdentifierEvaluator extends IdentifierEvaluator<NodeDefExpre
     }
 
     // check if identifier is a composite attribute value prop
-    if (NodeDefs.isAttribute(objectContext) && NodeValues.isValueProp({ nodeDef: objectContext, prop: exprName })) {
+    if (
+      NodeDefs.isAttribute(objectContext) &&
+      RecordNodeValues.isValueProp({ nodeDef: objectContext, prop: exprName })
+    ) {
       return objectContext
     }
 

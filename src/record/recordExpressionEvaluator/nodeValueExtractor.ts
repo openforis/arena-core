@@ -1,7 +1,7 @@
 import { ArenaSurvey, Surveys } from '../../survey'
 import { ArenaNodeDef, NodeDefType } from '../../nodeDef'
 import { ArenaRecordNode } from '../../node'
-import { NodeValues } from '../../node/nodeValues'
+import { RecordNodeValues } from '../../node/nodeValues'
 import { Dates, Objects } from '../../utils'
 import { ArenaCategoryItem } from '../../category'
 import { ArenaTaxon } from '../../taxonomy'
@@ -17,7 +17,7 @@ const extractCategoryItem = (params: ExtractorParams): ArenaCategoryItem | undef
   const { survey, node } = params
   const item = node.refData?.categoryItem
   if (item) return item
-  const itemUuid = NodeValues.getItemUuid(node)
+  const itemUuid = RecordNodeValues.getItemUuid(node)
   return itemUuid ? Surveys.getCategoryItemByUuid({ survey, itemUuid }) : undefined
 }
 
@@ -25,7 +25,7 @@ const extractTaxon = (params: ExtractorParams): ArenaTaxon | undefined => {
   const { survey, node } = params
   const taxon = node.refData?.taxon
   if (taxon) return taxon
-  const taxonUuid = NodeValues.getTaxonUuid(node)
+  const taxonUuid = RecordNodeValues.getTaxonUuid(node)
   return taxonUuid ? Surveys.getTaxonByUuid({ survey, taxonUuid }) : undefined
 }
 
@@ -42,9 +42,9 @@ const extractorsByNodeDefType: { [key in NodeDefType]?: Extractor } = {
   [NodeDefType.date]: (params: ExtractorParams) => {
     const { node } = params
     const [year, month, day] = [
-      NodeValues.getDateYear(node),
-      NodeValues.getDateMonth(node),
-      NodeValues.getDateDay(node),
+      RecordNodeValues.getDateYear(node),
+      RecordNodeValues.getDateMonth(node),
+      RecordNodeValues.getDateDay(node),
     ]
     if (Dates.isValidDate(year, month, day)) {
       return node.value
@@ -69,9 +69,9 @@ const extractorsByNodeDefType: { [key in NodeDefType]?: Extractor } = {
   [NodeDefType.time]: (params: ExtractorParams) => {
     const { node } = params
     const [hour, minute, seconds] = [
-      NodeValues.getTimeHour(node),
-      NodeValues.getTimeMinute(node),
-      NodeValues.getTimeSeconds(node),
+      RecordNodeValues.getTimeHour(node),
+      RecordNodeValues.getTimeMinute(node),
+      RecordNodeValues.getTimeSeconds(node),
     ]
     if (Dates.isValidTime(hour, minute, seconds)) {
       return node.value

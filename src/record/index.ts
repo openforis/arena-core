@@ -1,4 +1,4 @@
-export { NodePointers } from './nodePointers'
+export { RecordNodePointers } from './nodePointers'
 
 export type { ArenaRecord } from './record'
 export { RECORD_STEP_DEFAULT } from './record'

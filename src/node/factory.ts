@@ -10,7 +10,7 @@ export type NodeFactoryParams = {
   value?: any
 }
 
-export const NodeFactory: ArenaFactory<ArenaRecordNode, NodeFactoryParams> = {
+export const RecordNodeFactory: ArenaFactory<ArenaRecordNode, NodeFactoryParams> = {
   createInstance: (params: NodeFactoryParams): ArenaRecordNode => {
     const { nodeDefUuid, recordUuid, parentNode, surveyUuid, value } = params
     const now = Dates.nowFormattedForStorage()

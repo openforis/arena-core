@@ -1,4 +1,4 @@
-import { Nodes } from '../../node'
+import { RecordNodes } from '../../node'
 import { NodeDefs } from '../../nodeDef'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
@@ -12,7 +12,8 @@ export const updateSelfAndDependentsVisible = async (
     params,
     dependencyType: SurveyDependencyType.visible,
     getExpressions: ({ nodeDef }) => NodeDefs.getVisibleIf(nodeDef),
-    getValuePrev: (nodeCtx, nodeDefUuid) => Nodes.isChildVisible(nodeCtx, nodeDefUuid),
-    assocValue: (nodeCtx, nodeDefUuid, value, options) => Nodes.assocChildVisible(nodeCtx, nodeDefUuid, value, options),
+    getValuePrev: (nodeCtx, nodeDefUuid) => RecordNodes.isChildVisible(nodeCtx, nodeDefUuid),
+    assocValue: (nodeCtx, nodeDefUuid, value, options) =>
+      RecordNodes.assocChildVisible(nodeCtx, nodeDefUuid, value, options),
   })
 }

@@ -1,12 +1,12 @@
 import { ArenaCategoryItem } from '../category'
 import { ArenaTaxon } from '../taxonomy'
 
-export enum NodeKeys {
+export enum RecordNodeKeys {
   meta = 'meta',
   value = 'value',
 }
 
-export enum NodeMetaKeys {
+export enum RecordNodeMetaKeys {
   h = 'h',
   hCode = 'hCode',
 }

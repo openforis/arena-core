@@ -1,4 +1,4 @@
-import { ArenaRecordNode, Nodes } from '../../../../node'
+import { ArenaRecordNode, RecordNodes } from '../../../../node'
 import { ArenaNodeDef, NodeDefType } from '../../../../nodeDef'
 import { ArenaRecord } from '../../../record'
 import { Records } from '../../../records'
@@ -45,7 +45,7 @@ const getReferencedNodesParent = (params: {
 
   const nodeDefCtx = Surveys.getNodeDefByUuid({ survey, uuid: nodeContext.nodeDefUuid })
 
-  const nodeCtxH = Nodes.getHierarchy(nodeContext)
+  const nodeCtxH = RecordNodes.getHierarchy(nodeContext)
   if (nodeDefCtx.type === NodeDefType.entity) {
     // When nodeDefCtx is entity, expression is type applicableIf (and context always starts from parent)
     nodeCtxH.push(nodeContext.uuid)

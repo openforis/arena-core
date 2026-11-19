@@ -1,7 +1,7 @@
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
 import { ArenaNodeDef, NodeDefs, ArenaNodeDefProps, NodeDefType } from '../../nodeDef'
-import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, RecordNodes, RecordNodeValues } from '../../node'
 import { getValueEqualityKey } from '../../node/nodeValues'
 import { ArenaValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { ArenaSurvey, Surveys } from '../../survey'
@@ -100,7 +100,7 @@ const _areKeyValuesEqual = (params: {
 }): boolean => {
   const { survey, keyDefs, keyValuesByDefUuid, siblingKeyValuesByDefUuid } = params
   return keyDefs.every((keyDef) =>
-    NodeValues.isValueEqual({
+    RecordNodeValues.isValueEqual({
       survey,
       nodeDef: keyDef,
       value: keyValuesByDefUuid[keyDef.uuid],
@@ -160,7 +160,7 @@ const _isEntityDuplicate = (params: {
   if (Object.values(keyValuesByDefUuid).every(Objects.isEmpty)) return false
 
   const isDuplicateOf = (siblingEntity: ArenaRecordNode): boolean =>
-    !Nodes.areEqual(entity, siblingEntity) &&
+    !RecordNodes.areEqual(entity, siblingEntity) &&
     _areKeyValuesEqual({
       survey,
       keyDefs,
@@ -183,7 +183,9 @@ const _isEntityDuplicate = (params: {
     cache,
   })
   return (
-    !!index.entitiesByEqualityKey.get(equalityKey)?.some((siblingEntity) => !Nodes.areEqual(entity, siblingEntity)) ||
+    !!index.entitiesByEqualityKey
+      .get(equalityKey)
+      ?.some((siblingEntity) => !RecordNodes.areEqual(entity, siblingEntity)) ||
     index.entitiesWithoutEqualityKey.some(isDuplicateOf)
   )
 }

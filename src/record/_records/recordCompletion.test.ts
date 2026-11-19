@@ -1,6 +1,6 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { Nodes } from '../../node'
+import { RecordNodes } from '../../node'
 import { Records } from '../records'
 import { Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
@@ -57,11 +57,11 @@ describe('RecordCompletion', () => {
 
     // condition not met: not counted
     expect(Records.getRecordCompletionPercent({ survey, record })).toBe(100)
-    Nodes.assocChildRequired(root, remarksDefUuid, false, { sideEffect: true })
+    RecordNodes.assocChildRequired(root, remarksDefUuid, false, { sideEffect: true })
     expect(Records.getRecordCompletionPercent({ survey, record })).toBe(100)
 
     // condition met: counted
-    Nodes.assocChildRequired(root, remarksDefUuid, true, { sideEffect: true })
+    RecordNodes.assocChildRequired(root, remarksDefUuid, true, { sideEffect: true })
     expect(Records.getRecordCompletionPercent({ survey, record })).toBe(0)
   })
 
@@ -236,7 +236,7 @@ describe('RecordCompletion', () => {
 
     const remarksDef = Surveys.getNodeDefByName({ survey, name: 'remarks' })
     let cluster = Records.getRoot(record)!
-    cluster = Nodes.assocChildApplicability(cluster, remarksDef.uuid, false)
+    cluster = RecordNodes.assocChildApplicability(cluster, remarksDef.uuid, false)
     const recordWithNonApplicableRemarks = Records.addNode(cluster)(record)
 
     expect(Records.getRecordCompletionPercent({ survey, record: recordWithNonApplicableRemarks })).toBe(100)

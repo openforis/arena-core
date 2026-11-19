@@ -6,7 +6,7 @@ import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuil
 const { booleanDef, category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-import { NodeValueFormatter, NodeValues } from '../node'
+import { RecordNodeValueFormatter, RecordNodeValues } from '../node'
 import { ArenaSurvey, Surveys } from '../survey'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
@@ -98,7 +98,7 @@ const updateAttributeAndExpectDependentEnumeratedKeys = async (params: {
 
   const valuesFormatted = dependentNodes?.map((node) => {
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
-    return NodeValueFormatter.format({
+    return RecordNodeValueFormatter.format({
       survey,
       cycle: Surveys.getDefaultCycleKey(survey)!,
       nodeDef,
@@ -121,7 +121,7 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       survey,
       record,
       nodePath: 'parent_code',
-      value: NodeValues.newCodeValue({ itemUuid: item1!.uuid }),
+      value: RecordNodeValues.newCodeValue({ itemUuid: item1!.uuid }),
       enumeratedKeysPath: 'enumerated_entity.enumerated_entity_key',
       expectedKeys: ['1a'],
     })
@@ -129,7 +129,7 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       survey,
       record,
       nodePath: 'parent_code',
-      value: NodeValues.newCodeValue({ itemUuid: item2!.uuid }),
+      value: RecordNodeValues.newCodeValue({ itemUuid: item2!.uuid }),
       enumeratedKeysPath: 'enumerated_entity.enumerated_entity_key',
       expectedKeys: ['2a'],
     })
@@ -142,7 +142,7 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       survey,
       record,
       nodePath: 'parent_code',
-      value: NodeValues.newCodeValue({ itemUuid: item1!.uuid }),
+      value: RecordNodeValues.newCodeValue({ itemUuid: item1!.uuid }),
       enumeratedKeysPath: 'enumerated_entity.enumerated_entity_key',
       expectedKeys: ['1a'],
     })
@@ -164,7 +164,7 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       survey,
       record,
       nodePath: 'parent_code',
-      value: NodeValues.newCodeValue({ itemUuid: item1!.uuid }),
+      value: RecordNodeValues.newCodeValue({ itemUuid: item1!.uuid }),
       enumeratedKeysPath: 'enumerated_entity.enumerated_entity_key',
       expectedKeys: ['1a'],
     })
@@ -191,7 +191,7 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       survey,
       record,
       nodePath: 'parent_code',
-      value: NodeValues.newCodeValue({ itemUuid: item1!.uuid }),
+      value: RecordNodeValues.newCodeValue({ itemUuid: item1!.uuid }),
       enumeratedKeysPath: 'enumerated_entity.enumerated_entity_key',
       expectedKeys: ['1a'],
     })
@@ -205,7 +205,7 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
       survey,
       record,
       nodePath: 'parent_code',
-      value: NodeValues.newCodeValue({ itemUuid: item2!.uuid }),
+      value: RecordNodeValues.newCodeValue({ itemUuid: item2!.uuid }),
       enumeratedKeysPath: 'enumerated_entity.enumerated_entity_key',
       expectedKeys: ['2a'],
     })
@@ -223,7 +223,7 @@ describe('RecordUpdater - attribute update => update dependent enumerated entity
         survey,
         record,
         attributeUuid: parentCodeNode.uuid,
-        value: NodeValues.newCodeValue({ itemUuid }),
+        value: RecordNodeValues.newCodeValue({ itemUuid }),
       })
       record = updateResult.record
     }

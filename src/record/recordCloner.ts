@@ -1,5 +1,5 @@
-import { ArenaRecordNode, NodeValues, Nodes } from '../node'
-import { NodeKeys, NodeMetaKeys } from '../node/node'
+import { ArenaRecordNode, RecordNodeValues, RecordNodes } from '../node'
+import { RecordNodeKeys, RecordNodeMetaKeys } from '../node/node'
 import { ArenaNodeDefCode, NodeDefType, NodeDefs } from '../nodeDef'
 import { ArenaSurvey, Surveys } from '../survey'
 import { Dates, Objects, UUIDs } from '../utils'
@@ -27,7 +27,7 @@ const assignNewUuidsToNodes = (params: {
   // sort nodes before removing the id, to preserve their hierarchy (faster than comparing each meta.h property)
   const nodesArray = Records.getNodesArray(record).sort(
     (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): number =>
-      Nodes.getHierarchy(nodeA).length - Nodes.getHierarchy(nodeB).length
+      RecordNodes.getHierarchy(nodeA).length - RecordNodes.getHierarchy(nodeB).length
   )
 
   const recordUpdated = sideEffect ? record : { ...record }
@@ -63,27 +63,27 @@ const assignNewUuidsToNodes = (params: {
       const hierarchyUpdated = hierarchy.map((ancestorUuid) => newNodeUuidsByOldUuid[ancestorUuid])
       nodeUpdated = Objects.assocPath({
         obj: nodeUpdated,
-        path: [NodeKeys.meta, NodeMetaKeys.h],
+        path: [RecordNodeKeys.meta, RecordNodeMetaKeys.h],
         value: hierarchyUpdated,
         sideEffect,
       })
     }
-    const hierarchyCode = Nodes.getHierarchyCode(node)
+    const hierarchyCode = RecordNodes.getHierarchyCode(node)
     if (hierarchyCode.length > 0) {
       nodeUpdated = Objects.assocPath({
         obj: nodeUpdated,
-        path: [NodeKeys.meta, NodeMetaKeys.hCode],
+        path: [RecordNodeKeys.meta, RecordNodeMetaKeys.hCode],
         value: hierarchyCode.map((ancestorCodeUuid) => newNodeUuidsByOldUuid[ancestorCodeUuid]),
         sideEffect,
       })
     }
     // assign new file uuid (file should be cloned elsewhere)
-    const fileUuid = NodeValues.getFileUuid(node)
+    const fileUuid = RecordNodeValues.getFileUuid(node)
     if (fileUuid) {
       const newFileUuid = UUIDs.v4()
       nodeUpdated = Objects.assocPath({
         obj: nodeUpdated,
-        path: [NodeKeys.value, NodeValues.ValuePropsFile.fileUuid],
+        path: [RecordNodeKeys.value, RecordNodeValues.ValuePropsFile.fileUuid],
         value: newFileUuid,
       })
       newFileUuidsByOldUuid[fileUuid] = newFileUuid

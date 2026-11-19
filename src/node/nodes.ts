@@ -1,7 +1,7 @@
 import { ArenaDictionary } from '../common'
 import { ArenaNodeDef, NodeDefCountType, NodeDefs } from '../nodeDef'
 import { Dates, Objects } from '../utils'
-import { ArenaMutationOptions, toMutationOptions } from '../utils/mutationOptions'
+import { ArenaMutationOptions } from '../utils/mutationOptions'
 import { ArenaRecordNode } from './node'
 
 const isRoot = (node: ArenaRecordNode): boolean => !node.parentUuid
@@ -135,21 +135,8 @@ function assocChildEditable(
   nodeDefUuid: string,
   editable: boolean,
   options?: ArenaMutationOptions
-): ArenaRecordNode
-/** @deprecated Pass the options object instead of the positional boolean: `{ sideEffect }` */
-function assocChildEditable(
-  node: ArenaRecordNode,
-  nodeDefUuid: string,
-  editable: boolean,
-  sideEffect: boolean
-): ArenaRecordNode
-function assocChildEditable(
-  node: ArenaRecordNode,
-  nodeDefUuid: string,
-  editable: boolean,
-  options?: ArenaMutationOptions | boolean
 ): ArenaRecordNode {
-  const { sideEffect = false } = toMutationOptions(options)
+  const { sideEffect = false } = options ?? {}
   return updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
 }
 
@@ -175,21 +162,8 @@ function assocChildVisible(
   nodeDefUuid: string,
   visible: boolean,
   options?: ArenaMutationOptions
-): ArenaRecordNode
-/** @deprecated Pass the options object instead of the positional boolean: `{ sideEffect }` */
-function assocChildVisible(
-  node: ArenaRecordNode,
-  nodeDefUuid: string,
-  visible: boolean,
-  sideEffect: boolean
-): ArenaRecordNode
-function assocChildVisible(
-  node: ArenaRecordNode,
-  nodeDefUuid: string,
-  visible: boolean,
-  options?: ArenaMutationOptions | boolean
 ): ArenaRecordNode {
-  const { sideEffect = false } = toMutationOptions(options)
+  const { sideEffect = false } = options ?? {}
   return updateMetaDictionary({ node, nodeDefUuid, propName: 'cVis', propValue: visible, sideEffect })
 }
 
@@ -255,11 +229,8 @@ const removeStatusFlags = ({
   sideEffect?: boolean
 }): ArenaRecordNode => (sideEffect ? clearStatusFlagsInPlace(node) : omitStatusFlags(node))
 
-function assocValue(node: ArenaRecordNode, value: any, options?: ArenaMutationOptions): ArenaRecordNode
-/** @deprecated Pass the options object instead of the positional boolean: `{ sideEffect }` */
-function assocValue(node: ArenaRecordNode, value: any, sideEffect: boolean): ArenaRecordNode
-function assocValue(node: ArenaRecordNode, value: any, options?: ArenaMutationOptions | boolean): ArenaRecordNode {
-  const { sideEffect = false } = toMutationOptions(options)
+function assocValue(node: ArenaRecordNode, value: any, options?: ArenaMutationOptions): ArenaRecordNode {
+  const { sideEffect = false } = options ?? {}
   const nodeUpdated = sideEffect ? node : { ...node }
   nodeUpdated.value = value
   nodeUpdated.updated = true
@@ -273,7 +244,7 @@ function assocValue(node: ArenaRecordNode, value: any, options?: ArenaMutationOp
   return nodeUpdated
 }
 
-export const Nodes = {
+export const RecordNodes = {
   isRoot,
   areEqual,
   isChildApplicable,

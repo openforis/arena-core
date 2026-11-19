@@ -1,7 +1,7 @@
 import { ArenaDictionary, TraverseMethod } from '../../common'
 import { SystemError, SystemErrorKeys } from '../../error'
-import { ArenaRecordNode, ArenaRecordNodePointer, Nodes, ArenaRecordNodesMap } from '../../node'
-import { NodeValues } from '../../node/nodeValues'
+import { ArenaRecordNode, ArenaRecordNodePointer, RecordNodes, ArenaRecordNodesMap } from '../../node'
+import { RecordNodeValues } from '../../node/nodeValues'
 import {
   ArenaNodeDef,
   ArenaNodeDefCode,
@@ -122,9 +122,11 @@ const isNodeFlagTrue =
     return true
   }
 
-export const isNodeApplicable = isNodeFlagTrue((parent, nodeDefUuid) => Nodes.isChildApplicable(parent, nodeDefUuid))
-export const isNodeEditable = isNodeFlagTrue((parent, nodeDefUuid) => Nodes.isChildEditable(parent, nodeDefUuid))
-export const isNodeVisible = isNodeFlagTrue((parent, nodeDefUuid) => Nodes.isChildVisible(parent, nodeDefUuid))
+export const isNodeApplicable = isNodeFlagTrue((parent, nodeDefUuid) =>
+  RecordNodes.isChildApplicable(parent, nodeDefUuid)
+)
+export const isNodeEditable = isNodeFlagTrue((parent, nodeDefUuid) => RecordNodes.isChildEditable(parent, nodeDefUuid))
+export const isNodeVisible = isNodeFlagTrue((parent, nodeDefUuid) => RecordNodes.isChildVisible(parent, nodeDefUuid))
 
 /**
  * Whether a value is required for the node: key or always required attribute, or attribute with a "required if"
@@ -136,7 +138,7 @@ export const isNodeRequired =
     if (NodeDefs.isKey(nodeDef) || NodeDefs.isRequired(nodeDef)) return true
     if (!NodeDefs.isRequiredIfDefined(nodeDef)) return false
     const parent = getParentNode(record, node)
-    return !!parent && Nodes.isChildRequired(parent, nodeDef.uuid)
+    return !!parent && RecordNodes.isChildRequired(parent, nodeDef.uuid)
   }
 
 export const getDependentCodeAttributes =
@@ -262,7 +264,7 @@ export const getDescendant =
     getDescendantsOrSelf(node, nodeDefDescendant)(record)[0]
 
 export const isDescendantOf = (node: ArenaRecordNode, ancestor: ArenaRecordNode): boolean =>
-  Nodes.getHierarchy(node).includes(ancestor.uuid)
+  RecordNodes.getHierarchy(node).includes(ancestor.uuid)
 
 export const visitDescendantsAndSelf =
   (
@@ -396,7 +398,7 @@ export const getEntitySiblings =
     const parentEntity = getParent(entity)(record)
     if (!parentEntity) return []
     const siblingEntities = getChildren(parentEntity, entity.nodeDefUuid)(record)
-    return includeSelf ? siblingEntities : siblingEntities.filter((sibling) => !Nodes.areEqual(sibling, entity))
+    return includeSelf ? siblingEntities : siblingEntities.filter((sibling) => !RecordNodes.areEqual(sibling, entity))
   }
 
 export const getAttributeSiblings =
@@ -447,7 +449,7 @@ export const findEntityByKeyValues =
       return keyDefs.every((keyDef) => {
         const keyValue = siblingEntityKeyValuesByDefUuid[keyDef.uuid]
         const keyValueSearch = keyValuesByDefUuid[keyDef.uuid]
-        return NodeValues.isValueEqual({
+        return RecordNodeValues.isValueEqual({
           survey,
           nodeDef: keyDef,
           value: keyValue,
@@ -565,7 +567,7 @@ export const getAncestorCodePath =
       parentNode,
       nodeDef
     )(record).map((codeAttribute) => {
-      const codeItemUuid = NodeValues.getItemUuid(codeAttribute)
+      const codeItemUuid = RecordNodeValues.getItemUuid(codeAttribute)
       if (!codeItemUuid) return ''
       // items of big categories are not in the survey ref data: they can be in the node ref data
       const item =
@@ -593,7 +595,7 @@ export const getCategoryItemUuid =
 export const isNodeFilledByUser =
   (node: ArenaRecordNode) =>
   (record: ArenaRecord): boolean =>
-    !!findDescendantOrSelf(node, (visitedNode) => Nodes.hasUserInputValue(visitedNode))(record)
+    !!findDescendantOrSelf(node, (visitedNode) => RecordNodes.hasUserInputValue(visitedNode))(record)
 
 export const isNodeEmpty =
   (node: ArenaRecordNode) =>

@@ -8,9 +8,3 @@ export interface ArenaMutationOptions {
    */
   sideEffect?: boolean
 }
-
-/**
- * Converts the (deprecated) positional sideEffect boolean parameter into MutationOptions.
- */
-export const toMutationOptions = (options?: ArenaMutationOptions | boolean): ArenaMutationOptions =>
-  typeof options === 'boolean' ? { sideEffect: options } : (options ?? {})

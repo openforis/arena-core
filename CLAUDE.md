@@ -142,7 +142,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 **Immutable updates and `ArenaMutationOptions`**
 
 - Update functions return updated copies of the objects passed to them; `ArenaMutationOptions` (`{ sideEffect?: boolean }`, `src/utils/mutationOptions.ts`) lets the caller modify them in place instead (only for objects not shared, e.g. just created)
-- Pass it as an options object (or as a field of a parameters object), never as a positional boolean: the remaining positional `sideEffect` forms are deprecated overloads
+- Pass it as an options object (or as a field of a parameters object), never as a positional boolean
 
 **Record getters** (`src/record/_records/recordGetters.ts`)
 
@@ -152,7 +152,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 **Type names**
 
 - Every exported type (interface or type alias) starts with `Arena` (`ArenaSurvey`, `ArenaNodeDef`, `ArenaNodeDefEntity`, `ArenaSurveyProps`, ...), so consumers can import it without clashing with their own modules; record node types start with `ArenaRecordNode` (`ArenaRecordNodeMeta`, `ArenaRecordNodeValueCode`, ...)
-- Enums, classes and utility objects (`NodeDefType`, `JobBase`, `Surveys`, ...) keep their unprefixed names
+- Enums, classes and utility objects (`NodeDefType`, `JobBase`, `Surveys`, ...) keep their unprefixed names; utility objects are plural (`Surveys`, `NodeDefs`, `Records`, `RecordNodes`) and the record node ones start with `RecordNode` (`RecordNodes`, `RecordNodeValues`, `RecordNodeFactory`, ...)
 
 **Utility Modules** (`src/utils/`)
 

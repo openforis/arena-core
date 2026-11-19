@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
 import { ArenaUser } from '../auth'
-import { ArenaRecordNode, Nodes } from '../node'
+import { ArenaRecordNode, RecordNodes } from '../node'
 import { NodeDefExpressionFactory } from '../nodeDef/nodeDef'
 import { ArenaSurvey, Surveys } from '../survey'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
@@ -94,7 +94,7 @@ describe('RecordUpdater - required if', () => {
 
     // condition not met (land_use empty)
     const remarksDefUuid = Surveys.getNodeDefByName({ survey, name: 'remarks' }).uuid
-    expect(Nodes.isChildRequired(Records.getRoot(record)!, remarksDefUuid)).toBe(false)
+    expect(RecordNodes.isChildRequired(Records.getRoot(record)!, remarksDefUuid)).toBe(false)
     expect(isRequired(survey, record, 'remarks')).toBeFalsy()
     expect(hasValueRequiredError(record, getNode(survey, record, 'remarks'))).toBeFalsy()
 
@@ -182,7 +182,7 @@ describe('RecordUpdater - required if', () => {
       record,
       nodeDefUuids: [remarksDefUuid],
     })
-    expect(Nodes.isChildRequired(Records.getRoot(result.record)!, remarksDefUuid)).toBe(true)
+    expect(RecordNodes.isChildRequired(Records.getRoot(result.record)!, remarksDefUuid)).toBe(true)
     expect(Object.keys(result.nodes)).toEqual([Records.getRoot(result.record)!.uuid])
 
     // condition removed from the survey => flag removed
@@ -198,7 +198,7 @@ describe('RecordUpdater - required if', () => {
       record: result.record,
       nodeDefUuids: [remarksDefUuid],
     })
-    expect(Nodes.isChildRequired(Records.getRoot(result2.record)!, remarksDefUuid)).toBe(false)
+    expect(RecordNodes.isChildRequired(Records.getRoot(result2.record)!, remarksDefUuid)).toBe(false)
     expect(Records.getRoot(result2.record)?.meta?.cReq).toEqual({})
   })
 })

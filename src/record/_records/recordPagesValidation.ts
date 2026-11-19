@@ -1,4 +1,4 @@
-import { ArenaRecordNode, Nodes } from '../../node'
+import { ArenaRecordNode, RecordNodes } from '../../node'
 import { ArenaNodeDefEntity, NodeDefs } from '../../nodeDef'
 import { ArenaSurvey, Surveys } from '../../survey'
 import { Validations } from '../../validation'
@@ -34,7 +34,7 @@ export const nodeBelongsToPage = (params: {
 }): boolean => {
   const { node, pageNodeDefUuid, record } = params
   if (node.nodeDefUuid === pageNodeDefUuid) return true
-  return Nodes.getHierarchy(node).some((ancestorUuid) => {
+  return RecordNodes.getHierarchy(node).some((ancestorUuid) => {
     const ancestor = getNodeByUuid(ancestorUuid)(record)
     return ancestor?.nodeDefUuid === pageNodeDefUuid
   })
@@ -118,7 +118,7 @@ export const getDescendantPageNodeDefUuids = (params: {
 const nodeIsUnderEntity = (params: { node: ArenaRecordNode; entityUuid: string }): boolean => {
   const { node, entityUuid } = params
   if (node.uuid === entityUuid) return true
-  return Nodes.getHierarchy(node).includes(entityUuid)
+  return RecordNodes.getHierarchy(node).includes(entityUuid)
 }
 
 const getOwnPageFieldValidationFlags = (params: {

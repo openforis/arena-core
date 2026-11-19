@@ -127,10 +127,6 @@ export const Records = {
   removeNode,
   /** Low-level: removes the nodes and their descendants without updating dependents and validation (see RecordUpdater.deleteNodes) */
   removeNodes,
-  /** @deprecated Use removeNode (or RecordUpdater.deleteNode to update dependents and validation too) */
-  deleteNode: removeNode,
-  /** @deprecated Use removeNodes (or RecordUpdater.deleteNodes to update dependents and validation too) */
-  deleteNodes: removeNodes,
   // Utils
   getEnumeratingCategoryItems,
   findDependentEnumeratedEntityDefsNotEmpty,

@@ -1,6 +1,6 @@
 import { ArenaDictionary } from '../../common'
 import { ArenaLabels } from '../../language'
-import { ArenaRecordNode, NodeKeys, Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, RecordNodeKeys, RecordNodes, RecordNodeValues } from '../../node'
 import { ArenaNodeDef, ArenaNodeDefExpression, ArenaNodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { ArenaSurvey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
@@ -13,7 +13,7 @@ import {
   Validator,
 } from '../../validation'
 import { ArenaValidationFields } from '../../validation/validation'
-import { NodePointers } from '../nodePointers'
+import { RecordNodePointers } from '../nodePointers'
 import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import {
@@ -134,7 +134,7 @@ const _isValueRequired = async (
 const _validateRequired =
   (params: ArenaAttributeValidatorParams & { nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps> }) =>
   async (_field: string, node: any): Promise<ArenaValidationResult> => {
-    const valid = !Nodes.isValueBlank(node) || !(await _isValueRequired(params))
+    const valid = !RecordNodes.isValueBlank(node) || !(await _isValueRequired(params))
     return valid
       ? ValidationResultFactory.createInstance()
       : ValidationResultFactory.createInstance({
@@ -151,7 +151,7 @@ const _validateNodeValidations =
   (params: ArenaRecordValidatorParams & { nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps> }) =>
   async (_propName: string, node: ArenaRecordNode): Promise<ArenaValidationResult> => {
     const { survey, nodeDef } = params
-    if (Nodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
+    if (RecordNodes.isValueBlank(node)) return ValidationResultFactory.createInstance()
 
     const validations = NodeDefs.getValidations(nodeDef)
     if (!validations?.expressions?.length) return ValidationResultFactory.createInstance()
@@ -192,7 +192,7 @@ const validateAttribute = async (params: ArenaAttributeValidatorParams & { entit
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: attribute.nodeDefUuid })
     const validatorParams = { ...params, nodeDef }
     return new Validator().validate(attribute, {
-      [NodeKeys.value]: [
+      [RecordNodeKeys.value]: [
         _validateRequired(validatorParams),
         AttributeTypeValidator.validateValueType(validatorParams),
         _validateNodeValidations(validatorParams),
@@ -216,7 +216,7 @@ const findSiblingKeyNodesToValidate = (
   if (
     !NodeDefs.isKey(nodeDef) ||
     !parentNode ||
-    (NodeDefs.isAutoIncrementalKey(nodeDef) && attribute.created && Nodes.isDefaultValueApplied(attribute))
+    (NodeDefs.isAutoIncrementalKey(nodeDef) && attribute.created && RecordNodes.isDefaultValueApplied(attribute))
   ) {
     // when a new node is created and the key is autoincremental, its value will be unique
     // and the validation of sibling key attributes is not necessary
@@ -235,7 +235,7 @@ const findSiblingKeyNodesToValidate = (
   for (const { entityUuid: itemEntityUuid, keyNode } of group.itemsToCompare) {
     if (
       itemEntityUuid !== entityUuid &&
-      NodeValues.isValueEqual({ survey, nodeDef, parentNode, value: keyNode.value, valueSearch: attribute.value })
+      RecordNodeValues.isValueEqual({ survey, nodeDef, parentNode, value: keyNode.value, valueSearch: attribute.value })
     ) {
       result.push(keyNode)
     }
@@ -317,7 +317,9 @@ const findSortedNodesToValidate = (params: ArenaSortedAttributesValidatorParams)
 
     const nodeParent = Records.getParent(node)(record)
 
-    addToResult(NodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents }))
+    addToResult(
+      RecordNodePointers.getNodesFromNodePointers({ record, nodePointers: nodePointersAttributeAndDependents })
+    )
     addToResult(
       findSiblingKeyNodesToValidate({
         ...params,

@@ -5,7 +5,7 @@ import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilde
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 
-import { Nodes } from '../node'
+import { RecordNodes } from '../node'
 import { ArenaSurvey, Surveys } from '../survey'
 import { ArenaRecord } from './record'
 import { RecordUpdater } from './recordUpdater'
@@ -90,7 +90,9 @@ describe('RecordUpdater: clear values of attributes becoming non-applicable', ()
     const survey = await createSurvey()
     const record = await createRecord(survey)
     expect(getValue(survey, record, 'with_default')).toBe(5)
-    expect(Nodes.isDefaultValueApplied(TestUtils.getNodeByPath({ survey, record, path: 'with_default' }))).toBe(true)
+    expect(RecordNodes.isDefaultValueApplied(TestUtils.getNodeByPath({ survey, record, path: 'with_default' }))).toBe(
+      true
+    )
     expect(getValue(survey, record, 'calculated')).toBe(40)
     expect(getValue(survey, record, 'mult_entity[0].mult_entity_attr')).toBe(3)
 

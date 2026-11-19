@@ -1,5 +1,5 @@
 import { CategoryItems } from '../category'
-import { NodeValues } from '../node'
+import { RecordNodeValues } from '../node'
 import { ArenaNodeDef, ArenaNodeDefCode, NodeDefs, NodeDefType } from '../nodeDef'
 import { ArenaSurvey, Surveys } from '../survey'
 import { Strings } from '../utils'
@@ -49,7 +49,7 @@ const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtracto
         header: nodeDefName,
         nodeDef,
         dataType: FlatDataExportColumnDataType.text,
-        valueProp: NodeValues.ValuePropsCode.code,
+        valueProp: RecordNodeValues.ValuePropsCode.code,
       },
     ]
     if (includeCategoryItemsLabels) {
@@ -57,7 +57,7 @@ const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtracto
         header: `${nodeDefName}_label`,
         nodeDef,
         dataType: FlatDataExportColumnDataType.text,
-        valueProp: NodeValues.ValuePropsCode.label,
+        valueProp: RecordNodeValues.ValuePropsCode.label,
       })
     }
     if (expandCategoryItems) {
@@ -69,7 +69,7 @@ const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtracto
           header: getExpandedCategoryItemColumnHeader({ nodeDef, code: CategoryItems.getCode(item) }),
           nodeDef,
           dataType: FlatDataExportColumnDataType.boolean,
-          valueProp: NodeValues.ValuePropsCode.code,
+          valueProp: RecordNodeValues.ValuePropsCode.code,
         })
       })
     }
@@ -82,19 +82,19 @@ const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtracto
         header: `${nodeDefName}_x`,
         nodeDef,
         dataType: FlatDataExportColumnDataType.numeric,
-        valueProp: NodeValues.ValuePropsCoordinate.x,
+        valueProp: RecordNodeValues.ValuePropsCoordinate.x,
       },
       {
         header: `${nodeDefName}_y`,
         nodeDef,
         dataType: FlatDataExportColumnDataType.numeric,
-        valueProp: NodeValues.ValuePropsCoordinate.y,
+        valueProp: RecordNodeValues.ValuePropsCoordinate.y,
       },
       {
         header: `${nodeDefName}_srs`,
         nodeDef,
         dataType: FlatDataExportColumnDataType.text,
-        valueProp: NodeValues.ValuePropsCoordinate.srs,
+        valueProp: RecordNodeValues.ValuePropsCoordinate.srs,
       },
       ...NodeDefs.getCoordinateAdditionalFields(nodeDef).map((field) => ({
         header: `${nodeDefName}_${Strings.snakeCase(field)}`,
@@ -113,13 +113,13 @@ const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtracto
         header: `${nodeDefName}_file_uuid`,
         nodeDef,
         dataType: FlatDataExportColumnDataType.text,
-        valueProp: NodeValues.ValuePropsFile.fileUuid,
+        valueProp: RecordNodeValues.ValuePropsFile.fileUuid,
       },
       {
         header: `${nodeDefName}_file_name`,
         nodeDef,
         dataType: FlatDataExportColumnDataType.text,
-        valueProp: NodeValues.ValuePropsFile.fileName,
+        valueProp: RecordNodeValues.ValuePropsFile.fileName,
       },
     ]
   },
@@ -132,7 +132,7 @@ const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtracto
         header: nodeDefName,
         nodeDef,
         dataType: FlatDataExportColumnDataType.text,
-        valueProp: NodeValues.ValuePropsTaxon.code,
+        valueProp: RecordNodeValues.ValuePropsTaxon.code,
       },
       ...(includeTaxonScientificName
         ? [
@@ -140,13 +140,13 @@ const columnsExtractorByNodeDefType: Partial<Record<NodeDefType, ColumnsExtracto
               header: `${nodeDefName}_scientific_name`,
               nodeDef,
               dataType: FlatDataExportColumnDataType.text,
-              valueProp: NodeValues.ValuePropsTaxon.scientificName,
+              valueProp: RecordNodeValues.ValuePropsTaxon.scientificName,
             },
             {
               header: `${nodeDefName}_vernacular_name`,
               nodeDef,
               dataType: FlatDataExportColumnDataType.text,
-              valueProp: NodeValues.ValuePropsTaxon.vernacularName,
+              valueProp: RecordNodeValues.ValuePropsTaxon.vernacularName,
             },
           ]
         : []),

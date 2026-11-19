@@ -5,7 +5,7 @@ import { ArenaNodeDef, NodeDefs } from '../nodeDef'
 import { ArenaSurvey, SurveyDependencyType, Surveys } from '../survey'
 import { Dates, Objects } from '../utils'
 import { Validations } from '../validation/validations'
-import { NodePointers } from './nodePointers'
+import { RecordNodePointers } from './nodePointers'
 import { ArenaRecord } from './record'
 import { RecordNodesUpdater, RecordUpdateResult } from './recordNodesUpdater'
 import { ArenaRecordNodeCreateParams, ArenaRecordNodesUpdateParams } from './recordNodesUpdater/recordNodesCreator'
@@ -67,7 +67,7 @@ const _onRecordNodesCreateOrUpdate = async (
     nodes: updatedNodes,
   })
 
-  const dependentValidationNodes = NodePointers.getNodesMapFromNodePointers({
+  const dependentValidationNodes = RecordNodePointers.getNodesMapFromNodePointers({
     record: updatedRecord,
     nodePointers: dependentValidationNodePointers,
   })

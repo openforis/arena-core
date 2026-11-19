@@ -185,28 +185,11 @@ export interface ArenaDissocFieldValidationOptions extends ArenaMutationOptions 
   doCleanup?: boolean
 }
 
-const toDissocFieldValidationOptions = (
-  options?: ArenaDissocFieldValidationOptions | boolean,
-  doCleanup?: boolean
-): ArenaDissocFieldValidationOptions =>
-  typeof options === 'boolean' || options === undefined ? { sideEffect: options, doCleanup } : options
-
 function dissocFieldValidation(
   fieldKey: string,
   options?: ArenaDissocFieldValidationOptions
-): (validation: ArenaValidation) => ArenaValidation
-/** @deprecated Pass the options object instead of the positional booleans: `{ sideEffect, doCleanup }` */
-function dissocFieldValidation(
-  fieldKey: string,
-  sideEffect?: boolean,
-  doCleanup?: boolean
-): (validation: ArenaValidation) => ArenaValidation
-function dissocFieldValidation(
-  fieldKey: string,
-  options?: ArenaDissocFieldValidationOptions | boolean,
-  doCleanupParam?: boolean
 ): (validation: ArenaValidation) => ArenaValidation {
-  const { sideEffect = false, doCleanup = true } = toDissocFieldValidationOptions(options, doCleanupParam)
+  const { sideEffect = false, doCleanup = true } = options ?? {}
   return (validation: ArenaValidation): ArenaValidation => {
     const validationUpdated = Objects.dissocPath({ obj: validation, path: ['fields', fieldKey], sideEffect })
     return doCleanup ? cleanup(validationUpdated) : validationUpdated
@@ -216,19 +199,8 @@ function dissocFieldValidation(
 function dissocFieldValidationsStartingWith(
   fieldStartsWith: string,
   options?: ArenaDissocFieldValidationOptions
-): (validation: ArenaValidation) => ArenaValidation
-/** @deprecated Pass the options object instead of the positional booleans: `{ sideEffect, doCleanup }` */
-function dissocFieldValidationsStartingWith(
-  fieldStartsWith: string,
-  sideEffect?: boolean,
-  doCleanup?: boolean
-): (validation: ArenaValidation) => ArenaValidation
-function dissocFieldValidationsStartingWith(
-  fieldStartsWith: string,
-  options?: ArenaDissocFieldValidationOptions | boolean,
-  doCleanupParam?: boolean
 ): (validation: ArenaValidation) => ArenaValidation {
-  const { sideEffect = false, doCleanup = true } = toDissocFieldValidationOptions(options, doCleanupParam)
+  const { sideEffect = false, doCleanup = true } = options ?? {}
   return (validation: ArenaValidation): ArenaValidation => {
     if (!validation?.fields) return validation
 

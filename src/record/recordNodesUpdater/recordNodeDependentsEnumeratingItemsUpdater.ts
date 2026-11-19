@@ -1,4 +1,4 @@
-import { ArenaRecordNode, ArenaRecordNodePointer, Nodes, NodeValues } from '../../node'
+import { ArenaRecordNode, ArenaRecordNodePointer, RecordNodes, RecordNodeValues } from '../../node'
 import { ArenaNodeDefEntity, NodeDefs } from '../../nodeDef'
 import { ArenaSurvey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
@@ -63,7 +63,7 @@ export const syncEnumeratingItemsEntities = async (
   const { survey, user, parentNode, entityDef, categoryItemProvider, updateResult, sideEffect } = params
   const recordUpdateOptions = { sideEffect }
   const existingEntities = getChildren(parentNode, entityDef.uuid)(updateResult.record)
-  const applicable = Nodes.isChildApplicable(parentNode, entityDef.uuid)
+  const applicable = RecordNodes.isChildApplicable(parentNode, entityDef.uuid)
 
   const deleteExistingEntities = () => {
     const existingEntityUuids = existingEntities.map((node) => node.uuid)
@@ -102,7 +102,7 @@ export const syncEnumeratingItemsEntities = async (
 
   for (const existingEntity of existingEntities) {
     const existingEnumerator = getChild(existingEntity, enumeratorDef.uuid)(updateResult.record)
-    const itemUuid = existingEnumerator ? NodeValues.getItemUuid(existingEnumerator) : undefined
+    const itemUuid = existingEnumerator ? RecordNodeValues.getItemUuid(existingEnumerator) : undefined
     if (!itemUuid || !targetItemUuids.has(itemUuid)) {
       const nodesDeleteUpdatedResult = removeNodes([existingEntity.uuid], recordUpdateOptions)(updateResult.record)
       updateResult.merge(nodesDeleteUpdatedResult)

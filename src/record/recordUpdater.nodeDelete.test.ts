@@ -15,7 +15,7 @@ import { RecordValidations } from './recordValidations'
 import { Records } from './records'
 import { Surveys } from '../survey'
 import { Validations } from '../validation'
-import { NodeFactory } from '../node'
+import { RecordNodeFactory } from '../node'
 
 let user: ArenaUser
 
@@ -405,7 +405,7 @@ describe('RecordUpdater - node delete', () => {
 
     // add
     const recordWithoutIndex2 = { ...record, _nodesIndex: undefined }
-    const newEntity = NodeFactory.createInstance({
+    const newEntity = RecordNodeFactory.createInstance({
       nodeDefUuid: multEntityDef.uuid,
       recordUuid: record.uuid,
       parentNode: root,

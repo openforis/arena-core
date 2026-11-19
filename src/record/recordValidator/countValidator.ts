@@ -1,4 +1,4 @@
-import { ArenaRecordNode, ArenaRecordNodePointer, Nodes } from '../../node'
+import { ArenaRecordNode, ArenaRecordNodePointer, RecordNodes } from '../../node'
 import { ArenaNodeDef, ArenaNodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Records } from '../records'
 import { ArenaValidation, ValidationFactory, ValidationResultFactory, ValidationSeverity } from '../../validation'
@@ -46,8 +46,8 @@ const validateChildrenCount = (params: {
 }): ArenaValidation => {
   const { parentNode, nodeDefChild, count } = params
 
-  const minCount = Nodes.getChildrenMinCount({ parentNode, nodeDef: nodeDefChild })
-  const maxCount = Nodes.getChildrenMaxCount({ parentNode, nodeDef: nodeDefChild })
+  const minCount = RecordNodes.getChildrenMinCount({ parentNode, nodeDef: nodeDefChild })
+  const maxCount = RecordNodes.getChildrenMaxCount({ parentNode, nodeDef: nodeDefChild })
 
   const minCountValid = Number.isNaN(minCount) || count >= minCount
   const maxCountValid = Number.isNaN(maxCount) || count <= maxCount
@@ -70,7 +70,7 @@ const _countChildren = (params: {
   const { record, parentNode, childDef } = params
   const children = Records.getChildren(parentNode, childDef.uuid)(record)
   const nonEmptyChildren = NodeDefs.isAttribute(childDef)
-    ? children.filter((child) => !Nodes.isValueBlank(child))
+    ? children.filter((child) => !RecordNodes.isValueBlank(child))
     : children
   return nonEmptyChildren.length
 }
@@ -85,7 +85,7 @@ const validateNodePointer = (params: {
 }) => {
   const { record, nodeCtx, nodeDef } = params
   // Check children count only for applicable nodes
-  if (Nodes.isChildApplicable(nodeCtx, nodeDef.uuid)) {
+  if (RecordNodes.isChildApplicable(nodeCtx, nodeDef.uuid)) {
     const count = _countChildren({ record, parentNode: nodeCtx, childDef: nodeDef })
     return validateChildrenCount({ parentNode: nodeCtx, nodeDefChild: nodeDef, count })
   }

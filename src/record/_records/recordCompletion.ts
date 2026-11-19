@@ -1,4 +1,4 @@
-import { ArenaRecordNode, Nodes } from '../../node'
+import { ArenaRecordNode, RecordNodes } from '../../node'
 import { ArenaNodeDef, ArenaNodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { ArenaSurvey, Surveys } from '../../survey'
 import { Numbers } from '../../utils'
@@ -20,7 +20,7 @@ const addStats = (statsAcc: EntityCompletionStats, statsToAdd: EntityCompletionS
 const isAttributeRequired = (entity: ArenaRecordNode, nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>): boolean =>
   NodeDefs.isKey(nodeDef) ||
   NodeDefs.isRequired(nodeDef) ||
-  (NodeDefs.isRequiredIfDefined(nodeDef) && Nodes.isChildRequired(entity, nodeDef.uuid))
+  (NodeDefs.isRequiredIfDefined(nodeDef) && RecordNodes.isChildRequired(entity, nodeDef.uuid))
 
 const getAttributeCompletionStats = (params: {
   record: ArenaRecord
@@ -30,10 +30,10 @@ const getAttributeCompletionStats = (params: {
   const { record, entity, nodeDef } = params
 
   if (NodeDefs.isMultiple(nodeDef)) {
-    const minCount = Nodes.getChildrenMinCount({ parentNode: entity, nodeDef })
+    const minCount = RecordNodes.getChildrenMinCount({ parentNode: entity, nodeDef })
     if (Number.isNaN(minCount) || minCount <= 0) return emptyStats()
 
-    const filledNodesCount = getChildren(entity, nodeDef.uuid)(record).filter(Nodes.isValueNotBlank).length
+    const filledNodesCount = getChildren(entity, nodeDef.uuid)(record).filter(RecordNodes.isValueNotBlank).length
 
     return { total: minCount, filled: Math.min(filledNodesCount, minCount) }
   }
@@ -41,7 +41,7 @@ const getAttributeCompletionStats = (params: {
   if (!isAttributeRequired(entity, nodeDef)) return emptyStats()
 
   const node = getChildren(entity, nodeDef.uuid)(record)[0]
-  return { total: 1, filled: node && Nodes.isValueNotBlank(node) ? 1 : 0 }
+  return { total: 1, filled: node && RecordNodes.isValueNotBlank(node) ? 1 : 0 }
 }
 
 const getChildEntityCompletionStats = (params: {
@@ -58,7 +58,7 @@ const getChildEntityCompletionStats = (params: {
     return childEntity ? getEntityCompletionStats({ survey, record, entity: childEntity }) : emptyStats()
   }
 
-  const minCountRaw = Nodes.getChildrenMinCount({ parentNode: parentEntity, nodeDef })
+  const minCountRaw = RecordNodes.getChildrenMinCount({ parentNode: parentEntity, nodeDef })
   const minCount = Number.isNaN(minCountRaw) ? 0 : Math.max(minCountRaw, 0)
 
   const stats = emptyStats()
@@ -85,7 +85,7 @@ export const getEntityCompletionStats = (params: {
 
   const stats = emptyStats()
   for (const childDef of childDefs) {
-    if (!Nodes.isChildApplicable(entity, childDef.uuid)) continue
+    if (!RecordNodes.isChildApplicable(entity, childDef.uuid)) continue
 
     if (NodeDefs.isEntity(childDef)) {
       if (!includeNestedEntities) continue
@@ -106,7 +106,7 @@ const toCompletionPercent = (stats: EntityCompletionStats): number => {
 /**
  * Returns the percentage of completion of the given entity (0-100), considering every descendant recursively.
  * A required or key attribute is considered filled when it has a non empty value; multiple attributes and
- * entities are considered filled based on their min count (see Nodes.getChildrenMinCount).
+ * entities are considered filled based on their min count (see RecordNodes.getChildrenMinCount).
  */
 export const getEntityCompletionPercent = (params: {
   survey: ArenaSurvey

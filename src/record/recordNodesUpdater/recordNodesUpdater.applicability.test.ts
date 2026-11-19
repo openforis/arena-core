@@ -13,7 +13,7 @@ import { ArenaUser } from '../../auth'
 import { Records } from '../records'
 import { Surveys } from '../../survey'
 import { ArenaRecord } from '../record'
-import { Nodes } from '../../node'
+import { RecordNodes } from '../../node'
 
 let user: ArenaUser
 
@@ -197,7 +197,7 @@ describe('Record nodes updater - applicability', () => {
     expect(Records.isNodeApplicable(dependentNode)(updateResult.record)).toBe(true)
     expect(dependentNode.value).toBe(100) // Value restored
     expect(dependentReadOnlyNode.value).toBe(101)
-    expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(true)
+    expect(RecordNodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(true)
 
     // Now make it non-applicable WITH clearNonApplicableValues
     recordUpdated = Records.addNode({ ...nodeToUpdate, value: 5 })(updateResult.record)
@@ -222,7 +222,7 @@ describe('Record nodes updater - applicability', () => {
     expect(Records.isNodeApplicable(dependentNode)(updateResult.record)).toBe(false)
     expect(dependentNode.value).toBeNull() // Value should be cleared
     expect(dependentReadOnlyNode.value).toBeNull()
-    expect(Nodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(false) // defaultValueApplied should be reset
+    expect(RecordNodes.isDefaultValueApplied(dependentReadOnlyNode)).toBe(false) // defaultValueApplied should be reset
     expect(updateResult.clearedDefUuids.has(dependentNode.nodeDefUuid)).toBe(true)
   })
 

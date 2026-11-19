@@ -1,8 +1,8 @@
 import { ArenaUser } from '../../auth'
 import { SystemError, SystemErrorKeys } from '../../error'
 import { ArenaCategoryItem } from '../../category'
-import { ArenaRecordNode, NodeFactory, Nodes } from '../../node'
-import { NodeValues } from '../../node/nodeValues'
+import { ArenaRecordNode, RecordNodeFactory, RecordNodes } from '../../node'
+import { RecordNodeValues } from '../../node/nodeValues'
 import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefEntity, NodeDefType, NodeDefs } from '../../nodeDef'
 import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { ArenaSurvey } from '../../survey'
@@ -34,7 +34,7 @@ const getNodesToInsertCount = (params: {
 
   if (NodeDefs.isMultipleEntity(nodeDef) && !NodeDefs.isAutoCreateMinCountItems(nodeDef)) return 0
 
-  const minCount = Nodes.getChildrenMinCount({ parentNode, nodeDef })
+  const minCount = RecordNodes.getChildrenMinCount({ parentNode, nodeDef })
   if (Number.isNaN(minCount) || minCount <= 0) return 0
   return minCount
 }
@@ -69,7 +69,7 @@ export const createEnumeratedEntityNode = async (params: {
       enumerator: NodeDefs.getName(enumeratorDef),
     })
   }
-  enumeratorNode.value = NodeValues.newCodeValue({ itemUuid: categoryItem.uuid })
+  enumeratorNode.value = RecordNodeValues.newCodeValue({ itemUuid: categoryItem.uuid })
   enumeratorNode.meta = { ...enumeratorNode.meta, defaultValueApplied: true }
   enumeratorNode.refData = { categoryItem }
 
@@ -129,7 +129,7 @@ const createChildNodesBasedOnMinCount = async (
   if (
     nodesToInsertCount === 0 ||
     (NodeDefs.isMultipleEntity(nodeDef) &&
-      (!createMultipleEntities || (parentNode && !Nodes.isChildApplicable(parentNode, nodeDef.uuid))))
+      (!createMultipleEntities || (parentNode && !RecordNodes.isChildApplicable(parentNode, nodeDef.uuid))))
   ) {
     return // do nothing
   }
@@ -161,7 +161,7 @@ export const addDescendants = async (params: ArenaRecordNodeCreateParams): Promi
 export const addNodeAndDescendants = async (params: ArenaRecordNodeCreateParams): Promise<RecordUpdateResult> => {
   const { survey, record, parentNode, nodeDef, sideEffect = false } = params
 
-  const node = NodeFactory.createInstance({
+  const node = RecordNodeFactory.createInstance({
     nodeDefUuid: nodeDef.uuid,
     recordUuid: record.uuid,
     parentNode,
