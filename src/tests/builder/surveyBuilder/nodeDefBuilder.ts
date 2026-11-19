@@ -1,6 +1,6 @@
 import { ArenaSurvey } from '../../../survey'
 import {
-  ArenaNodeDef,
+  ArenaAnyNodeDef,
   NodeDefFactory,
   ArenaNodeDefEntity,
   ArenaNodeDefProps,
@@ -23,9 +23,7 @@ export abstract class NodeDefBuilder {
     this.propsAdvanced = {}
   }
 
-  protected createNodeDef(
-    params: { nodeDefParent?: ArenaNodeDefEntity } = {}
-  ): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> {
+  protected createNodeDef(params: { nodeDefParent?: ArenaNodeDefEntity } = {}): ArenaAnyNodeDef {
     const nodeDef = NodeDefFactory.createInstance({
       nodeDefParent: params.nodeDefParent,
       type: this.type,
@@ -37,7 +35,7 @@ export abstract class NodeDefBuilder {
   }
 
   abstract build(params: { survey: ArenaSurvey; nodeDefParent?: ArenaNodeDefEntity }): {
-    [uuid: string]: ArenaNodeDef<NodeDefType>
+    [uuid: string]: ArenaAnyNodeDef
   }
 
   multiple(): this {

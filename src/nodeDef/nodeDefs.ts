@@ -4,12 +4,12 @@ import { ValuePropsCoordinate } from '../node/nodeValueProps'
 import { defaultCycle } from '../survey'
 import { Objects } from '../utils'
 import {
+  ArenaAnyNodeDef,
   ArenaNodeDef,
   ArenaNodeDefCountExpression,
   NodeDefCountType,
   ArenaNodeDefExpression,
   ArenaNodeDefLayout,
-  ArenaNodeDefProps,
   ArenaNodeDefPropsWithLayout,
   NodeDefType,
   ArenaNodeDefValidations,
@@ -34,74 +34,69 @@ import { ArenaNodeDefTaxon } from './types/taxon'
 import { ArenaNodeDefText, NodeDefTextRenderType, NodeDefTextInputType } from './types/text'
 import { ArenaNodeDefTime } from './types/time'
 
-const isRoot = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => !nodeDef.parentUuid
+const isRoot = (nodeDef: ArenaAnyNodeDef): boolean => !nodeDef.parentUuid
 
-const isAttribute = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => !isEntity(nodeDef)
+const isAttribute = (nodeDef: ArenaAnyNodeDef): boolean => !isEntity(nodeDef)
 
-const isEntity = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefEntity =>
-  nodeDef.type === NodeDefType.entity
+const isEntity = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefEntity => nodeDef.type === NodeDefType.entity
 
-const isBoolean = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefBoolean =>
-  nodeDef.type === NodeDefType.boolean
+const isBoolean = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefBoolean => nodeDef.type === NodeDefType.boolean
 
-const isCode = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefCode => nodeDef.type === NodeDefType.code
+const isCode = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefCode => nodeDef.type === NodeDefType.code
 
-const isCoordinate = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefCoordinate =>
+const isCoordinate = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefCoordinate =>
   nodeDef.type === NodeDefType.coordinate
 
-const isDate = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefDate => nodeDef.type === NodeDefType.date
+const isDate = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefDate => nodeDef.type === NodeDefType.date
 
-const isDecimal = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefDecimal =>
-  nodeDef.type === NodeDefType.decimal
+const isDecimal = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefDecimal => nodeDef.type === NodeDefType.decimal
 
-const isFile = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefFile => nodeDef.type === NodeDefType.file
+const isFile = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefFile => nodeDef.type === NodeDefType.file
 
-const isGeo = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefGeo => nodeDef.type === NodeDefType.geo
+const isGeo = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefGeo => nodeDef.type === NodeDefType.geo
 
-const isInteger = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefInteger =>
-  nodeDef.type === NodeDefType.integer
+const isInteger = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefInteger => nodeDef.type === NodeDefType.integer
 
-const isTaxon = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefTaxon => nodeDef.type === NodeDefType.taxon
+const isTaxon = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefTaxon => nodeDef.type === NodeDefType.taxon
 
-const isText = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefText => nodeDef.type === NodeDefType.text
+const isText = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefText => nodeDef.type === NodeDefType.text
 
-const isTime = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefTime => nodeDef.type === NodeDefType.time
+const isTime = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefTime => nodeDef.type === NodeDefType.time
 
-const isMultiple = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => nodeDef.props.multiple ?? false
+const isMultiple = (nodeDef: ArenaAnyNodeDef): boolean => nodeDef.props.multiple ?? false
 
-const isSingle = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => !isMultiple(nodeDef)
+const isSingle = (nodeDef: ArenaAnyNodeDef): boolean => !isMultiple(nodeDef)
 
-const isSingleEntity = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefEntity =>
+const isSingleEntity = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefEntity =>
   isEntity(nodeDef) && isSingle(nodeDef)
 
-const isSingleAttribute = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => isAttribute(nodeDef) && isSingle(nodeDef)
+const isSingleAttribute = (nodeDef: ArenaAnyNodeDef): boolean => isAttribute(nodeDef) && isSingle(nodeDef)
 
-const isMultipleEntity = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefEntity =>
+const isMultipleEntity = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefEntity =>
   isEntity(nodeDef) && isMultiple(nodeDef)
 
-const isMultipleAttribute = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => isAttribute(nodeDef) && isMultiple(nodeDef)
+const isMultipleAttribute = (nodeDef: ArenaAnyNodeDef): boolean => isAttribute(nodeDef) && isMultiple(nodeDef)
 
-const isKey = (nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>): boolean => nodeDef.props.key ?? false
+const isKey = (nodeDef: ArenaAnyNodeDef): boolean => nodeDef.props.key ?? false
 
-const isAutoIncrementalKey = (nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>): boolean =>
-  nodeDef.props.autoIncrementalKey ?? false
+const isAutoIncrementalKey = (nodeDef: ArenaAnyNodeDef): boolean => nodeDef.props.autoIncrementalKey ?? false
 
-const isAnalysis = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => nodeDef.analysis ?? false
+const isAnalysis = (nodeDef: ArenaAnyNodeDef): boolean => nodeDef.analysis ?? false
 
-const getType = (nodeDef: ArenaNodeDef<NodeDefType>): NodeDefType => nodeDef.type
+const getType = (nodeDef: ArenaAnyNodeDef): NodeDefType => nodeDef.type
 
-const isLayoutElement = (nodeDef: ArenaNodeDef<NodeDefType>): nodeDef is ArenaNodeDefFormHeader =>
+const isLayoutElement = (nodeDef: ArenaAnyNodeDef): nodeDef is ArenaNodeDefFormHeader =>
   nodeDef.type === NodeDefType.formHeader
 
-const getName = (nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>): string => nodeDef.props.name ?? ''
+const getName = (nodeDef: ArenaAnyNodeDef): string => nodeDef.props.name ?? ''
 
-const getLabelOrName = (nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>, lang: LanguageCode): string =>
+const getLabelOrName = (nodeDef: ArenaAnyNodeDef, lang: LanguageCode): string =>
   getLabelOrDefault(nodeDef.props.labels, lang, getName(nodeDef))
 
-const getDescription = (nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>, lang: LanguageCode): string =>
+const getDescription = (nodeDef: ArenaAnyNodeDef, lang: LanguageCode): string =>
   getLabelOrDefault(nodeDef.props.descriptions, lang)
 
-const isQualifier = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => nodeDef.props.qualifier ?? false
+const isQualifier = (nodeDef: ArenaAnyNodeDef): boolean => nodeDef.props.qualifier ?? false
 
 const isReadOnly = (nodeDef: ArenaNodeDef<any>): boolean => nodeDef.props.readOnly ?? false
 
@@ -118,16 +113,15 @@ const isAutoCreateMinCountItems = (nodeDef: ArenaNodeDefEntity): boolean =>
 const getPrintOrientation = (nodeDef: ArenaNodeDefEntity): ArenaNodeDefPrintOrientation | undefined =>
   nodeDef.props.printOrientation
 
-const getDefaultValues = (nodeDef: ArenaNodeDef<NodeDefType>): ArenaNodeDefExpression[] =>
+const getDefaultValues = (nodeDef: ArenaAnyNodeDef): ArenaNodeDefExpression[] =>
   nodeDef.propsAdvanced?.defaultValues ?? []
 
-const isDefaultValueEvaluatedOneTime = (nodeDef: ArenaNodeDef<NodeDefType>): boolean =>
+const isDefaultValueEvaluatedOneTime = (nodeDef: ArenaAnyNodeDef): boolean =>
   !!nodeDef.propsAdvanced?.defaultValueEvaluatedOneTime
 
-const getApplicable = (nodeDef: ArenaNodeDef<NodeDefType>): ArenaNodeDefExpression[] =>
-  nodeDef.propsAdvanced?.applicable ?? []
+const getApplicable = (nodeDef: ArenaAnyNodeDef): ArenaNodeDefExpression[] => nodeDef.propsAdvanced?.applicable ?? []
 
-const getVisibleFields = (nodeDef: ArenaNodeDef<NodeDefType>): string[] | undefined => nodeDef.props.visibleFields
+const getVisibleFields = (nodeDef: ArenaAnyNodeDef): string[] | undefined => nodeDef.props.visibleFields
 
 const isFieldVisible = (field: string) => (nodeDef: ArenaNodeDef<any>) => {
   const visibleFields = getVisibleFields(nodeDef)
@@ -136,22 +130,20 @@ const isFieldVisible = (field: string) => (nodeDef: ArenaNodeDef<any>) => {
 
 const isInCycle =
   (cycle: string) =>
-  (nodeDef: ArenaNodeDef<NodeDefType>): boolean => {
+  (nodeDef: ArenaAnyNodeDef): boolean => {
     const cycles = nodeDef.props.cycles ?? [defaultCycle]
     return cycles.includes(cycle)
   }
 
-const isExcludedInClone = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => !!nodeDef.propsAdvanced?.excludedInClone
+const isExcludedInClone = (nodeDef: ArenaAnyNodeDef): boolean => !!nodeDef.propsAdvanced?.excludedInClone
 
-const getEditableIf = (nodeDef: ArenaNodeDef<NodeDefType>): ArenaNodeDefExpression[] =>
-  nodeDef.propsAdvanced?.editableIf ?? []
+const getEditableIf = (nodeDef: ArenaAnyNodeDef): ArenaNodeDefExpression[] => nodeDef.propsAdvanced?.editableIf ?? []
 
-const isAlwaysEditable = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => getEditableIf(nodeDef).length === 0
+const isAlwaysEditable = (nodeDef: ArenaAnyNodeDef): boolean => getEditableIf(nodeDef).length === 0
 
-const getVisibleIf = (nodeDef: ArenaNodeDef<NodeDefType>): ArenaNodeDefExpression[] =>
-  nodeDef.propsAdvanced?.visibleIf ?? []
+const getVisibleIf = (nodeDef: ArenaAnyNodeDef): ArenaNodeDefExpression[] => nodeDef.propsAdvanced?.visibleIf ?? []
 
-const isAlwaysVisible = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => getVisibleIf(nodeDef).length === 0
+const isAlwaysVisible = (nodeDef: ArenaAnyNodeDef): boolean => getVisibleIf(nodeDef).length === 0
 
 // code
 const getCategoryUuid = (nodeDef: ArenaNodeDefCode): string | undefined => nodeDef.props.categoryUuid
@@ -206,43 +198,39 @@ const getTextInputType = (nodeDef: ArenaNodeDefText): NodeDefTextInputType | und
 const getItemsFilter = (nodeDef: ArenaNodeDef<any>): string | undefined => nodeDef.propsAdvanced?.itemsFilter
 
 // Validations
-const getValidations = (nodeDef: ArenaNodeDef<NodeDefType>): ArenaNodeDefValidations | undefined =>
+const getValidations = (nodeDef: ArenaAnyNodeDef): ArenaNodeDefValidations | undefined =>
   nodeDef.propsAdvanced?.validations
 
-const getValidationsExpressions = (nodeDef: ArenaNodeDef<NodeDefType>): ArenaNodeDefExpression[] =>
+const getValidationsExpressions = (nodeDef: ArenaAnyNodeDef): ArenaNodeDefExpression[] =>
   getValidations(nodeDef)?.expressions ?? []
 
-const isRequired = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => getValidations(nodeDef)?.required ?? false
+const isRequired = (nodeDef: ArenaAnyNodeDef): boolean => getValidations(nodeDef)?.required ?? false
 
-const getRequiredIf = (nodeDef: ArenaNodeDef<NodeDefType>): ArenaNodeDefExpression[] =>
-  getValidations(nodeDef)?.requiredIf ?? []
+const getRequiredIf = (nodeDef: ArenaAnyNodeDef): ArenaNodeDefExpression[] => getValidations(nodeDef)?.requiredIf ?? []
 
-const isRequiredIfDefined = (nodeDef: ArenaNodeDef<NodeDefType>): boolean => getRequiredIf(nodeDef).length > 0
+const isRequiredIfDefined = (nodeDef: ArenaAnyNodeDef): boolean => getRequiredIf(nodeDef).length > 0
 
 /**
  * True if the node def is always required or required when a condition is met (node def level, not record level).
  */
-const isRequiredOrConditionallyRequired = (nodeDef: ArenaNodeDef<NodeDefType>): boolean =>
+const isRequiredOrConditionallyRequired = (nodeDef: ArenaAnyNodeDef): boolean =>
   isRequired(nodeDef) || isRequiredIfDefined(nodeDef)
 
 // // Min/max count
 
-const getCount = (
-  nodeDef: ArenaNodeDef<NodeDefType>,
-  countType: NodeDefCountType
-): ArenaNodeDefCountExpression | undefined => {
+const getCount = (nodeDef: ArenaAnyNodeDef, countType: NodeDefCountType): ArenaNodeDefCountExpression | undefined => {
   const countValidations = getValidations(nodeDef)?.count
   if (!countValidations) return undefined
   return countType === NodeDefCountType.max ? countValidations.max : countValidations.min
 }
 
-const getMinCount = (nodeDef: ArenaNodeDef<NodeDefType>): ArenaNodeDefCountExpression | undefined =>
+const getMinCount = (nodeDef: ArenaAnyNodeDef): ArenaNodeDefCountExpression | undefined =>
   getCount(nodeDef, NodeDefCountType.min)
 
-const getMaxCount = (nodeDef: ArenaNodeDef<NodeDefType>): ArenaNodeDefCountExpression | undefined =>
+const getMaxCount = (nodeDef: ArenaAnyNodeDef): ArenaNodeDefCountExpression | undefined =>
   getCount(nodeDef, NodeDefCountType.max)
 
-const hasMinOrMaxCount = (nodeDef: ArenaNodeDef<NodeDefType>): boolean =>
+const hasMinOrMaxCount = (nodeDef: ArenaAnyNodeDef): boolean =>
   Objects.isNotEmpty(getMinCount(nodeDef)) || Objects.isNotEmpty(getMaxCount(nodeDef))
 
 // layout

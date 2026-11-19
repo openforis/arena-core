@@ -171,6 +171,7 @@ export type {
 
 export type {
   ArenaNodeDef,
+  ArenaAnyNodeDef,
   ArenaNodeDefLayout,
   ArenaNodeDefMeta,
   ArenaNodeDefProps,

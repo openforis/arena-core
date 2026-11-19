@@ -1,6 +1,6 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../../nodeDef'
+import { ArenaAnyNodeDef, NodeDefType } from '../../nodeDef'
 import { ArenaSurvey, Surveys } from '../../survey'
 import { ArenaRecordNode } from '../../node'
 import { ArenaRecord } from '../record'
@@ -31,7 +31,7 @@ let record: ArenaRecord
 const getNode = (path: string): ArenaRecordNode => TestUtils.getNodeByPath({ survey, record, path })
 
 const determineContextNode = (params: {
-  nodeCurrentDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  nodeCurrentDef: ArenaAnyNodeDef
   nodeCurrent: ArenaRecordNode
   node: string | undefined
 }): ArenaRecordNode => {

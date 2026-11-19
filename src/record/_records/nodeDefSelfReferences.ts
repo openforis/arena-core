@@ -1,6 +1,6 @@
 import { ArenaAnyExpressionNode, ExpressionNodeType } from '../../expression'
 import { parseExpression } from '../../expression/javascript/evaluator'
-import { ArenaNodeDef, ArenaNodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { ArenaAnyNodeDef, NodeDefs } from '../../nodeDef'
 import { SurveyDependencyType } from '../../survey/survey'
 
 /**
@@ -51,10 +51,7 @@ const isExpressionSelfReferenceLocal = (params: { expression: string | undefined
  * children of the node's parent entity, so only the node and its siblings depend on it, not every node with
  * the same node def in the record.
  */
-const isSelfReferenceLocal = (params: {
-  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
-  dependencyType: SurveyDependencyType
-}): boolean => {
+const isSelfReferenceLocal = (params: { nodeDef: ArenaAnyNodeDef; dependencyType: SurveyDependencyType }): boolean => {
   const { nodeDef, dependencyType } = params
   // self references by plain identifier are allowed only in validation expressions (see dependencies.ts)
   if (dependencyType !== SurveyDependencyType.validations) return false

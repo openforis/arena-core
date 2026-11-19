@@ -4,7 +4,7 @@ import { ArenaLabels, LanguageCode } from '../language'
 import type { ArenaAreaOfInterestDescriptor } from '../geo'
 import { ArenaSRS } from '../srs'
 
-import { ArenaNodeDef, NodeDefType } from '../nodeDef'
+import { ArenaAnyNodeDef } from '../nodeDef'
 import { ArenaCategory } from '../category'
 import { ArenaTaxonomy } from '../taxonomy'
 import { ArenaSurveyRefData } from './refData/refData'
@@ -141,7 +141,7 @@ export interface ArenaSurvey extends ArenaObject<ArenaSurveyProps> {
   datePublished?: string
   dependencyGraph?: ArenaSurveyDependencyGraph
   draft: boolean
-  nodeDefs?: { [nodeDefUuid: string]: ArenaNodeDef<NodeDefType> }
+  nodeDefs?: { [nodeDefUuid: string]: ArenaAnyNodeDef }
   ownerUuid: string
   published: boolean
   readonly id?: number

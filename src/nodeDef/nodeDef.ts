@@ -151,6 +151,9 @@ export interface ArenaNodeDef<
   virtual?: boolean
 }
 
+/** Node definition of any type. */
+export type ArenaAnyNodeDef = ArenaNodeDef<NodeDefType>
+
 export interface ArenaNodeDefMap {
   [key: string]: ArenaNodeDef<any>
 }

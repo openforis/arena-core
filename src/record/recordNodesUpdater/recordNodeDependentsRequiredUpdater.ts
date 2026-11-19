@@ -1,5 +1,5 @@
 import { ArenaRecordNode, RecordNodes } from '../../node'
-import { ArenaNodeDef, NodeDefs, NodeDefType } from '../../nodeDef'
+import { ArenaAnyNodeDef, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { getNodesByDefUuid } from '../_records/recordGetters'
@@ -17,7 +17,7 @@ const expressionEvaluator = new RecordExpressionEvaluator()
 export const evaluateRequiredIf = async (
   params: ArenaRecordExpressionEvaluationContext & {
     nodeCtx: ArenaRecordNode
-    nodeDef: ArenaNodeDef<NodeDefType>
+    nodeDef: ArenaAnyNodeDef
   }
 ): Promise<boolean> => {
   const { nodeCtx, nodeDef } = params
@@ -63,7 +63,7 @@ export const updateSelfAndDependentsRequired = async (
 
 const updateNodeDefRequiredFlags = async (
   params: ArenaRecordExpressionEvaluationContext & {
-    nodeDef: ArenaNodeDef<NodeDefType>
+    nodeDef: ArenaAnyNodeDef
     updateResult: RecordUpdateResult
   }
 ): Promise<void> => {

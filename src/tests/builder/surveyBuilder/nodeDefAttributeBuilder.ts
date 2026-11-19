@@ -1,4 +1,4 @@
-import { ArenaNodeDef, ArenaNodeDefEntity, NodeDefType } from '../../../nodeDef'
+import { ArenaAnyNodeDef, ArenaNodeDefEntity, NodeDefType } from '../../../nodeDef'
 import { ArenaNodeDefExpression, NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
 import { NodeDefBuilder } from './nodeDefBuilder'
 
@@ -7,9 +7,9 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     super(name, type)
   }
 
-  build(params: { nodeDefParent?: ArenaNodeDefEntity } = {}): { [uuid: string]: ArenaNodeDef<NodeDefType> } {
+  build(params: { nodeDefParent?: ArenaNodeDefEntity } = {}): { [uuid: string]: ArenaAnyNodeDef } {
     const { nodeDefParent } = params
-    const def: ArenaNodeDef<NodeDefType> = this.createNodeDef({ nodeDefParent })
+    const def: ArenaAnyNodeDef = this.createNodeDef({ nodeDefParent })
     return { [def.uuid]: def }
   }
 
