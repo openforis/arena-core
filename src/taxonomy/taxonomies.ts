@@ -1,13 +1,13 @@
-import { ExtraPropDef } from '../extraProp'
-import { Taxonomy } from './taxonomy'
+import { ArenaExtraPropDef } from '../extraProp'
+import { ArenaTaxonomy } from './taxonomy'
 
-const getExtraPropDefs = (taxonomy: Taxonomy) => taxonomy.props.extraPropsDefs
+const getExtraPropDefs = (taxonomy: ArenaTaxonomy) => taxonomy.props.extraPropsDefs
 
-const getExtraPropDefNames = (taxonomy: Taxonomy): string[] => Object.keys(getExtraPropDefs(taxonomy) ?? {})
+const getExtraPropDefNames = (taxonomy: ArenaTaxonomy): string[] => Object.keys(getExtraPropDefs(taxonomy) ?? {})
 
 const getExtraPropDefByName =
   (name: string) =>
-  (taxonomy: Taxonomy): ExtraPropDef | undefined =>
+  (taxonomy: ArenaTaxonomy): ArenaExtraPropDef | undefined =>
     getExtraPropDefs(taxonomy)?.[name]
 
 export const Taxonomies = {

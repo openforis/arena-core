@@ -4,7 +4,7 @@ import { UserFactory } from '../auth'
 import { LanguageCode } from '../language'
 import { ArenaRecord, RecordFactory } from '../record'
 import { ValidationFactory, ValidationResultFactory } from './factory'
-import { Validation, ValidationSeverity } from './validation'
+import { ArenaValidation, ValidationSeverity } from './validation'
 import { ValidationResults } from './validationResults'
 import { Validations } from './validations'
 
@@ -21,7 +21,8 @@ const warningResult = ValidationResultFactory.createInstance({
   severity: ValidationSeverity.warning,
 })
 
-const makeValidation = (overrides?: Partial<Validation>): Validation => ValidationFactory.createInstance(overrides)
+const makeValidation = (overrides?: Partial<ArenaValidation>): ArenaValidation =>
+  ValidationFactory.createInstance(overrides)
 
 // ─── ValidationResults ──────────────────────────────────────────────────────
 
@@ -223,8 +224,8 @@ describe('Validations', () => {
     test('setFieldValidation / setFieldValidations / setErrors / setWarnings return the type of the object passed', () => {
       const fieldValidation = makeValidation({ errors: [errorResult], valid: false })
       // typed as Validation (not object): the result can be passed where a Validation is expected
-      const validation: Validation = Validations.setFieldValidation('field', fieldValidation)(makeValidation())
-      const validationWithErrors: Validation = Validations.setErrors([errorResult])(validation)
+      const validation: ArenaValidation = Validations.setFieldValidation('field', fieldValidation)(makeValidation())
+      const validationWithErrors: ArenaValidation = Validations.setErrors([errorResult])(validation)
       expect(Validations.getFieldValidation('field')(validationWithErrors)).toEqual(fieldValidation)
       expect(Validations.getErrors(validationWithErrors)).toEqual([errorResult])
     })
@@ -295,7 +296,7 @@ describe('Validations', () => {
     })
 
     test('calculateCounts handles a validation with a large number of fields', () => {
-      const fields: Record<string, Validation> = {}
+      const fields: Record<string, ArenaValidation> = {}
       for (let i = 0; i < 300000; i++) {
         fields[`f${i}`] = { valid: false, errors: [errorResult] }
       }
@@ -308,7 +309,7 @@ describe('Validations', () => {
   // ── recalculateValidity ────────────────────────────────────────────────────
   describe('recalculateValidity', () => {
     test('marks validation as invalid when it has errors', () => {
-      const v: Validation = { valid: true, errors: [errorResult] }
+      const v: ArenaValidation = { valid: true, errors: [errorResult] }
       expect(Validations.recalculateValidity(v).valid).toBe(false)
     })
 
@@ -317,7 +318,7 @@ describe('Validations', () => {
     })
 
     test('marks validation as invalid when a nested field is invalid', () => {
-      const v: Validation = {
+      const v: ArenaValidation = {
         valid: true,
         fields: { f: { valid: true, errors: [errorResult] } },
       }
@@ -415,9 +416,7 @@ describe('Validations', () => {
         valid: false,
       })
       expect(Validations.dissocFieldValidation('a', { doCleanup: false })(v).valid).toBe(false)
-      // deprecated positional form
-      expect(Validations.dissocFieldValidation('a', false, false)(v).valid).toBe(false)
-      expect(Validations.dissocFieldValidation('a', false, true)(v).valid).toBe(true)
+      expect(Validations.dissocFieldValidation('a', { doCleanup: true })(v).valid).toBe(true)
     })
   })
 
@@ -438,14 +437,12 @@ describe('Validations', () => {
       expect(result.fields).toHaveProperty('other')
     })
 
-    test('accepts options and the deprecated positional sideEffect', () => {
+    test('accepts the mutation and cleanup options', () => {
       const createValidation = () =>
         makeValidation({ fields: { node_1: makeValidation({ errors: [errorResult], valid: false }) }, valid: false })
       const v1 = createValidation()
       expect(Validations.dissocFieldValidationsStartingWith('node_', { sideEffect: true })(v1)).toBe(v1)
       expect(v1.fields?.node_1).toBeUndefined()
-      const v2 = createValidation()
-      expect(Validations.dissocFieldValidationsStartingWith('node_', true)(v2)).toBe(v2)
       const v3 = createValidation()
       const result = Validations.dissocFieldValidationsStartingWith('node_', { doCleanup: false })(v3)
       expect(result).not.toBe(v3)
@@ -501,7 +498,7 @@ describe('Validations', () => {
   // ── traverse / calculateHasNestedErrors / calculateHasNestedWarnings ──────
   describe('traverse', () => {
     test('visits every validation node including nested ones', () => {
-      const visited: Validation[] = []
+      const visited: ArenaValidation[] = []
       const v = makeValidation({
         errors: [errorResult],
         fields: { f: makeValidation({ warnings: [warningResult], valid: false }) },
@@ -547,29 +544,29 @@ describe('Validations', () => {
   // ── setValid / setErrors / setWarnings / setFieldValidations / setFieldValidation / assocFieldValidation ──
   describe('set* / assocFieldValidation', () => {
     test('setValid sets the valid flag on any object', () => {
-      const result = Validations.setValid(false)({}) as Validation
+      const result = Validations.setValid(false)({}) as ArenaValidation
       expect(result.valid).toBe(false)
     })
 
     test('setErrors stores errors on any object', () => {
-      const result = Validations.setErrors([errorResult])({}) as Validation
+      const result = Validations.setErrors([errorResult])({}) as ArenaValidation
       expect(result.errors).toEqual([errorResult])
     })
 
     test('setWarnings stores warnings on any object', () => {
-      const result = Validations.setWarnings([warningResult])({}) as Validation
+      const result = Validations.setWarnings([warningResult])({}) as ArenaValidation
       expect(result.warnings).toEqual([warningResult])
     })
 
     test('setFieldValidation stores a field validation by key', () => {
       const fieldV = makeValidation({ errors: [errorResult], valid: false })
-      const result = Validations.setFieldValidation('x', fieldV)({}) as Validation
+      const result = Validations.setFieldValidation('x', fieldV)({}) as ArenaValidation
       expect(result.fields?.x).toEqual(fieldV)
     })
 
     test('setFieldValidations replaces the whole fields map', () => {
       const fields = { x: makeValidation({ errors: [errorResult], valid: false }) }
-      const result = Validations.setFieldValidations(fields)({}) as Validation
+      const result = Validations.setFieldValidations(fields)({}) as ArenaValidation
       expect(result.fields).toEqual(fields)
     })
 

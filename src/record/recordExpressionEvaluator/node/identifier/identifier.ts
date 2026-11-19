@@ -1,21 +1,21 @@
-import { ExpressionVariable, IdentifierExpression } from '../../../../expression'
+import { ExpressionVariable, ArenaIdentifierExpression } from '../../../../expression'
 import { getGlobalObjectProperty, isForbiddenPropertyName } from '../../../../expression/javascript/global'
 import { IdentifierEvaluator } from '../../../../expression/javascript/node/identifier'
 import { ArenaRecordNode } from '../../../../node'
-import { NodeDef, NodeDefs, NodeDefType } from '../../../../nodeDef'
+import { ArenaNodeDef, NodeDefs, NodeDefType } from '../../../../nodeDef'
 import { Records } from '../../../records'
-import { NodeValues } from '../../../../node/nodeValues'
-import { Survey, Surveys } from '../../../../survey'
-import { RecordExpressionContext } from '../../context'
+import { RecordNodeValues } from '../../../../node/nodeValues'
+import { ArenaSurvey, Surveys } from '../../../../survey'
+import { ArenaRecordExpressionContext } from '../../context'
 import { NodesFinder } from './nodesFinder'
 import { SystemError, SystemErrorKeys } from '../../../../error'
 import { NodeValueExtractor } from '../../nodeValueExtractor'
 import { ArenaRecord } from '../../../record'
 
 const getNodesOrValues = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   referencedNodes: ArenaRecordNode[]
-  nodeDefReferenced: NodeDef<any>
+  nodeDefReferenced: ArenaNodeDef<any>
   propName: string
   evaluateToNode?: boolean
 }): any[] => {
@@ -41,7 +41,7 @@ const getNodesOrValues = (params: {
 }
 
 const evaluateIdentifierOnNode = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   nodeObject: ArenaRecordNode
   evaluateToNode?: boolean
@@ -62,8 +62,8 @@ const evaluateIdentifierOnNode = (params: {
   }
   if (NodeDefs.isAttribute(nodeDefObject)) {
     // node value prop (Arena specific value property)
-    if (NodeValues.isValueProp({ nodeDef: nodeDefObject, prop: propName })) {
-      return NodeValues.getNodeValueProp({ nodeDef: nodeDefObject, node: nodeObject, prop: propName })
+    if (RecordNodeValues.isValueProp({ nodeDef: nodeDefObject, prop: propName })) {
+      return RecordNodeValues.getNodeValueProp({ nodeDef: nodeDefObject, node: nodeObject, prop: propName })
     } else {
       throw new SystemError(SystemErrorKeys.expression.invalidAttributeValuePropertyName, {
         attributeName: NodeDefs.getName(nodeDefObject),
@@ -91,12 +91,12 @@ const evaluateIdentifierOnNode = (params: {
   return nodeDefReferenced.props.multiple ? nodesOrValues : nodesOrValues[0]
 }
 
-export class RecordIdentifierEvaluator extends IdentifierEvaluator<RecordExpressionContext> {
-  evaluate(expressionNode: IdentifierExpression): Promise<any> {
+export class RecordIdentifierEvaluator extends IdentifierEvaluator<ArenaRecordExpressionContext> {
+  evaluate(expressionNode: ArenaIdentifierExpression): Promise<any> {
     return Promise.resolve(this.evaluateValue(expressionNode))
   }
 
-  private evaluateValue(expressionNode: IdentifierExpression): any {
+  private evaluateValue(expressionNode: ArenaIdentifierExpression): any {
     const { name: propName } = expressionNode
 
     if (propName === ExpressionVariable.CONTEXT) {

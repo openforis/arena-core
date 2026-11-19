@@ -1,6 +1,6 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { Survey } from '../survey'
+import { ArenaSurvey } from '../survey'
 import { SurveyDependencyType } from '../survey/survey'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
@@ -14,7 +14,7 @@ import { TestUtils } from '../tests/testUtils'
 import { Records } from './records'
 import { createTestAdminUser } from '../tests/data'
 
-let survey: Survey
+let survey: ArenaSurvey
 let record: ArenaRecord
 
 const expectDependents = (params: {

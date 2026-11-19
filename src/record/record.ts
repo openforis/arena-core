@@ -1,6 +1,6 @@
-import { AppInfo } from '../app'
+import { ArenaAppInfo } from '../app'
 import { ArenaRecordNode } from '../node'
-import { Validation } from '../validation'
+import { ArenaValidation } from '../validation'
 
 export const RECORD_STEP_DEFAULT = '1'
 
@@ -30,8 +30,8 @@ export interface RecordNodesIndex {
 }
 
 export interface RecordInfo {
-  createdWith?: AppInfo
-  updatedWith?: AppInfo
+  createdWith?: ArenaAppInfo
+  updatedWith?: ArenaAppInfo
 }
 
 export interface ArenaRecord {
@@ -49,15 +49,9 @@ export interface ArenaRecord {
   surveyId?: number
   surveyUuid?: string
   uuid: string
-  validation?: Validation
+  validation?: ArenaValidation
 
   _nodesIndex?: RecordNodesIndex
 
   info?: RecordInfo
 }
-
-/**
- * @deprecated Use ArenaRecord: this name shadows the TypeScript built-in Record utility type.
- * It will be removed in the next major version.
- */
-export type Record = ArenaRecord

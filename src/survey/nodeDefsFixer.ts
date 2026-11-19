@@ -1,11 +1,11 @@
 import { SystemError, SystemErrorKeys } from '../error'
-import { NodeDef, NodeDefEntity, NodeDefMap, NodeDefs } from '../nodeDef'
-import { NodeDefEntityLayoutChildItem } from '../nodeDef/types/entity'
+import { ArenaNodeDef, ArenaNodeDefEntity, ArenaNodeDefMap, NodeDefs } from '../nodeDef'
+import { ArenaNodeDefEntityLayoutChildItem } from '../nodeDef/types/entity'
 import { Objects } from '../utils'
-import { MutationOptions } from '../utils/mutationOptions'
+import { ArenaMutationOptions } from '../utils/mutationOptions'
 
-type NodeDefsFixParams = MutationOptions & {
-  nodeDefs: NodeDefMap
+type NodeDefsFixParams = ArenaMutationOptions & {
+  nodeDefs: ArenaNodeDefMap
   cycles: string[]
 }
 
@@ -14,7 +14,7 @@ type NodeDefsInCycleFixParams = NodeDefsFixParams & {
 }
 
 type NodeDefFixParams = NodeDefsInCycleFixParams & {
-  nodeDef: NodeDef<any>
+  nodeDef: ArenaNodeDef<any>
 }
 
 type LayoutPropFixParams = NodeDefFixParams & {
@@ -23,7 +23,7 @@ type LayoutPropFixParams = NodeDefFixParams & {
 
 type LayoutPropFixerFnParams = LayoutPropFixParams & { propOld: any }
 
-const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: NodeDefMap }): string[] => {
+const calculateNodeDefHierarchy = (params: { nodeDef: ArenaNodeDef<any>; nodeDefs: ArenaNodeDefMap }): string[] => {
   const { nodeDef, nodeDefs } = params
   const hierarchy = []
   const visitedNodeDefUuids = new Set<string>()
@@ -51,7 +51,7 @@ const calculateNodeDefHierarchy = (params: { nodeDef: NodeDef<any>; nodeDefs: No
   return hierarchy
 }
 
-const fixHierarchy = (params: NodeDefFixParams): NodeDef<any> | null => {
+const fixHierarchy = (params: NodeDefFixParams): ArenaNodeDef<any> | null => {
   const { nodeDefs, nodeDef, sideEffect } = params
   const calculatedHierarchy = calculateNodeDefHierarchy({ nodeDefs, nodeDef })
   // compare the whole hierarchy: a node def moved to another parent at the same depth has a hierarchy with the same length
@@ -62,7 +62,7 @@ const fixHierarchy = (params: NodeDefFixParams): NodeDef<any> | null => {
 
 const fixLayoutProp = (
   params: LayoutPropFixParams & { fixerFn: (params: LayoutPropFixerFnParams) => any }
-): NodeDef<any> | null => {
+): ArenaNodeDef<any> | null => {
   const { cycle, nodeDef, propName, sideEffect, fixerFn } = params
 
   const propPath = ['props', 'layout', cycle, propName]
@@ -83,7 +83,7 @@ const fixLayoutProp = (
   })
 }
 
-const fixIndexChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
+const fixIndexChildren = (params: NodeDefFixParams): ArenaNodeDef<any> | null =>
   fixLayoutProp({
     ...params,
     propName: 'indexChildren',
@@ -93,29 +93,29 @@ const fixIndexChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
         return (
           childDef?.parentUuid === params.nodeDef.uuid &&
           NodeDefs.isEntity(childDef) &&
-          NodeDefs.isDisplayInOwnPage(cycle)(childDef as NodeDefEntity)
+          NodeDefs.isDisplayInOwnPage(cycle)(childDef as ArenaNodeDefEntity)
         )
       }),
   })
 
-const fixLayoutChildren = (params: NodeDefFixParams): NodeDef<any> | null =>
+const fixLayoutChildren = (params: NodeDefFixParams): ArenaNodeDef<any> | null =>
   fixLayoutProp({
     ...params,
     propName: 'layoutChildren',
     fixerFn: ({ nodeDefs, cycle, propOld: layoutChildren }) =>
-      (layoutChildren as NodeDefEntityLayoutChildItem[]).filter((item) => {
+      (layoutChildren as ArenaNodeDefEntityLayoutChildItem[]).filter((item) => {
         const childDefUuid = typeof item === 'string' ? item : item.i
         const childDef = nodeDefs[childDefUuid]
         return (
           childDef?.parentUuid === params.nodeDef.uuid &&
-          (!NodeDefs.isEntity(childDef) || !NodeDefs.isDisplayInOwnPage(cycle)(childDef as NodeDefEntity))
+          (!NodeDefs.isEntity(childDef) || !NodeDefs.isDisplayInOwnPage(cycle)(childDef as ArenaNodeDefEntity))
         )
       }),
   })
 
-const fix = (params: NodeDefFixParams): NodeDef<any> | null => {
+const fix = (params: NodeDefFixParams): ArenaNodeDef<any> | null => {
   const { nodeDef } = params
-  let nodeDefFixed: NodeDef<any> | null = fixHierarchy(params)
+  let nodeDefFixed: ArenaNodeDef<any> | null = fixHierarchy(params)
   if (NodeDefs.isEntity(nodeDef)) {
     nodeDefFixed = fixIndexChildren({ ...params, nodeDef: nodeDefFixed ?? nodeDef }) ?? nodeDefFixed
     nodeDefFixed = fixLayoutChildren({ ...params, nodeDef: nodeDefFixed ?? nodeDef }) ?? nodeDefFixed
@@ -123,10 +123,10 @@ const fix = (params: NodeDefFixParams): NodeDef<any> | null => {
   return nodeDefFixed
 }
 
-const fixNodeDefs = (params: NodeDefsFixParams): { nodeDefs: NodeDefMap; updatedNodeDefs: NodeDefMap } => {
+const fixNodeDefs = (params: NodeDefsFixParams): { nodeDefs: ArenaNodeDefMap; updatedNodeDefs: ArenaNodeDefMap } => {
   const { nodeDefs, cycles } = params
-  const nodeDefsResult: NodeDefMap = { ...nodeDefs }
-  const updatedNodeDefs: NodeDefMap = {}
+  const nodeDefsResult: ArenaNodeDefMap = { ...nodeDefs }
+  const updatedNodeDefs: ArenaNodeDefMap = {}
 
   for (const cycle of cycles) {
     for (const nodeDef of Object.values(nodeDefs)) {

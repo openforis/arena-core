@@ -1,8 +1,8 @@
 import proj4, { type Converter } from 'proj4'
 
 import { SystemError, SystemErrorKeys } from '../../error'
-import { DEFAULT_SRS_INDEX, SRSIndex } from '../../srs'
-import { Point } from '../point'
+import { DEFAULT_SRS_INDEX, ArenaSRSIndex } from '../../srs'
+import { ArenaPoint } from '../point'
 import { PointFactory } from '../pointFactory'
 import { isFilled } from './isFilled'
 import { getSrs } from './getSrs'
@@ -29,7 +29,11 @@ const getConverter = (wktFrom: string, wktTo: string): Converter => {
  * @returns The transformed point (the point itself if it is already in the target SRS).
  * @throws {SystemError} `geo.pointNotFilled`, `geo.srsNotFound` (with the `code` param) or `geo.transformFailed`.
  */
-export const transformOrThrow = (point: Point, srsCodeTo: string, srsIndex: SRSIndex = DEFAULT_SRS_INDEX): Point => {
+export const transformOrThrow = (
+  point: ArenaPoint,
+  srsCodeTo: string,
+  srsIndex: ArenaSRSIndex = DEFAULT_SRS_INDEX
+): ArenaPoint => {
   if (!isFilled(point)) throw new SystemError(SystemErrorKeys.geo.pointNotFilled)
 
   const { srs: srsCodeFrom } = point
@@ -67,7 +71,11 @@ export const transformOrThrow = (point: Point, srsCodeTo: string, srsIndex: SRSI
  * @param srsIndex - SRSs indexed by SRS code.
  * @returns The transformed point, or null if the point is not filled, an SRS is unknown or the transformation fails.
  */
-export const transform = (point: Point, srsCodeTo: string, srsIndex: SRSIndex = DEFAULT_SRS_INDEX): Point | null => {
+export const transform = (
+  point: ArenaPoint,
+  srsCodeTo: string,
+  srsIndex: ArenaSRSIndex = DEFAULT_SRS_INDEX
+): ArenaPoint | null => {
   try {
     return transformOrThrow(point, srsCodeTo, srsIndex)
   } catch {

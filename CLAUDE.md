@@ -115,7 +115,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 
 - `JobBase<C, R>` is an abstract base class for asynchronous tasks with a status workflow: pending → running → (succeeded | failed | canceled)
 - Subclasses override lifecycle hooks (`shouldExecute`, `onStart`, `execute`, `beforeSuccess`, `generateResult`, `beforeEnd`, `onEnd`), several of which run "in tx" (inside a transaction) per the class doc comment
-- Jobs can be composed of `innerJobs` and emit throttled `JobEvent` progress notifications
+- Jobs can be composed of `innerJobs` and emit throttled `ArenaJobEvent` progress notifications
 
 **Other supporting modules** — smaller, mostly self-contained: `src/chain/` (processing chains and their node defs), `src/dataExport/` (flattening record data for export), `src/dataQuery/`, `src/extraProp/` (arbitrary extra properties on domain objects), `src/geo/` (points, SRS conversion via `src/srs/`), `src/language/` and `src/message/` (i18n labels/messages), `src/error/` (`SystemError`), `src/app/` (`AppInfo`).
 
@@ -139,15 +139,20 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 - Most domain types extend or follow this pattern
 - Props contain the actual data, uuid is the identifier
 
-**Immutable updates and `MutationOptions`**
+**Immutable updates and `ArenaMutationOptions`**
 
-- Update functions return updated copies of the objects passed to them; `MutationOptions` (`{ sideEffect?: boolean }`, `src/utils/mutationOptions.ts`) lets the caller modify them in place instead (only for objects not shared, e.g. just created)
-- Pass it as an options object (or as a field of a parameters object), never as a positional boolean: the remaining positional `sideEffect` forms are deprecated overloads
+- Update functions return updated copies of the objects passed to them; `ArenaMutationOptions` (`{ sideEffect?: boolean }`, `src/utils/mutationOptions.ts`) lets the caller modify them in place instead (only for objects not shared, e.g. just created)
+- Pass it as an options object (or as a field of a parameters object), never as a positional boolean
 
 **Record getters** (`src/record/_records/recordGetters.ts`)
 
 - Getters are plain curried functions with positional parameters, taking the record last: `Records.getParent(node)(record)`, `Records.getChildren(parentNode, childDefUuid)(record)`, `Records.getAncestor(node, ancestorDefUuid)(record)`; getters needing only the record take it directly (`Records.getRoot(record)`)
 - No params objects or wrapper helpers (params copies, overloads): getters run for every ancestor in the record update loops, so keep them allocation-free where possible
+
+**Type names**
+
+- Every exported type (interface or type alias) starts with `Arena` (`ArenaSurvey`, `ArenaNodeDef`, `ArenaNodeDefEntity`, `ArenaSurveyProps`, ...), so consumers can import it without clashing with their own modules; record node types start with `ArenaRecordNode` (`ArenaRecordNodeMeta`, `ArenaRecordNodeValueCode`, ...)
+- Enums, classes and utility objects (`NodeDefType`, `JobBase`, `Surveys`, ...) keep their unprefixed names; utility objects are plural (`Surveys`, `NodeDefs`, `Records`, `RecordNodes`) and the record node ones start with `RecordNode` (`RecordNodes`, `RecordNodeValues`, `RecordNodeFactory`, ...)
 
 **Utility Modules** (`src/utils/`)
 

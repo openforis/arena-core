@@ -1,13 +1,13 @@
-import { NodeDef } from '../nodeDef'
-import { Survey } from '../survey'
+import { ArenaNodeDef } from '../nodeDef'
+import { ArenaSurvey } from '../survey'
 import { getNodeDefParent } from '../survey/surveys/nodeDefs'
-import { ValidationResult, ValidationResultFactory } from '../validation'
+import { ArenaValidationResult, ValidationResultFactory } from '../validation'
 import { NodeDefs } from '../nodeDef/nodeDefs'
 import { NodeDefExpressionContext } from './context'
 import { NodeDefExpressionEvaluator } from './evaluator'
 import { SystemError } from '../error'
 
-const determineNodeDefContext = (params: { survey: Survey; nodeDefCurrent: NodeDef<any> }) => {
+const determineNodeDefContext = (params: { survey: ArenaSurvey; nodeDefCurrent: ArenaNodeDef<any> }) => {
   const { survey, nodeDefCurrent } = params
 
   const nodeDefContext = NodeDefs.isRoot(nodeDefCurrent)
@@ -25,7 +25,7 @@ export class NodeDefExpressionValidator extends NodeDefExpressionEvaluator {
     params: NodeDefExpressionContext & {
       expression: string
     }
-  ): Promise<{ validationResult: ValidationResult; referencedNodeDefUuids: Set<string> }> {
+  ): Promise<{ validationResult: ArenaValidationResult; referencedNodeDefUuids: Set<string> }> {
     const { expression, survey, nodeDefCurrent, nodeDefContext: nodeDefContextParam } = params
     try {
       const nodeDefContext = nodeDefContextParam ?? determineNodeDefContext({ survey, nodeDefCurrent })

@@ -1,10 +1,10 @@
 import { SystemErrorKeys } from '../../error'
-import { ArenaRecordNode, NodePointer, Nodes } from '../../node'
-import { NodeDef, NodeDefs } from '../../nodeDef'
+import { ArenaRecordNode, ArenaRecordNodePointer, RecordNodes } from '../../node'
+import { ArenaNodeDef, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
-import { Survey, SurveyDependencyType } from '../../survey/survey'
+import { ArenaSurvey, SurveyDependencyType } from '../../survey/survey'
 import { Dates, Objects } from '../../utils'
-import { NodePointers } from '../nodePointers'
+import { RecordNodePointers } from '../nodePointers'
 import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
@@ -18,41 +18,45 @@ const expressionEvaluator = new RecordExpressionEvaluator()
 /**
  * Default value should be reset when a node becomes not applicable, but only if the default value was applied or if the node def is read only (therefore the value can only be set by default value expression)
  */
-const shouldResetDefaultValue = (params: { survey: Survey; record: ArenaRecord; node: ArenaRecordNode }): boolean => {
+const shouldResetDefaultValue = (params: {
+  survey: ArenaSurvey
+  record: ArenaRecord
+  node: ArenaRecordNode
+}): boolean => {
   const { survey, record, node } = params
   const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
   return (
     !Records.isNodeApplicable(node)(record) &&
-    !Nodes.isValueBlank(node) &&
-    (Nodes.isDefaultValueApplied(node) || NodeDefs.isReadOnly(nodeDef))
+    !RecordNodes.isValueBlank(node) &&
+    (RecordNodes.isDefaultValueApplied(node) || NodeDefs.isReadOnly(nodeDef))
   )
 }
 
 const canApplyDefaultValue = (params: {
   record: ArenaRecord
   node: ArenaRecordNode
-  nodeDef: NodeDef<any>
+  nodeDef: ArenaNodeDef<any>
 }): boolean => {
   const { record, node, nodeDef } = params
   return (
     Records.isNodeApplicable(node)(record) &&
-    (Nodes.isValueBlank(node) ||
+    (RecordNodes.isValueBlank(node) ||
       (!NodeDefs.isDefaultValueEvaluatedOneTime(nodeDef) &&
-        (Nodes.isDefaultValueApplied(node) || NodeDefs.isReadOnly(nodeDef))))
+        (RecordNodes.isDefaultValueApplied(node) || NodeDefs.isReadOnly(nodeDef))))
   )
 }
 
 const updateDefaultValueInNode = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   updateResult: RecordUpdateResult
   nodeToUpdate: ArenaRecordNode
-  nodeDef: NodeDef<any>
+  nodeDef: ArenaNodeDef<any>
   exprValue: any
   sideEffect: boolean
 }): void => {
   const { survey, updateResult, nodeToUpdate, nodeDef, exprValue, sideEffect } = params
   if (shouldResetDefaultValue({ survey, record: updateResult.record, node: nodeToUpdate })) {
-    const nodeUpdated = Nodes.mergeNodes(nodeToUpdate, {
+    const nodeUpdated = RecordNodes.mergeNodes(nodeToUpdate, {
       value: null,
       meta: { defaultValueApplied: false },
       updated: true,
@@ -75,7 +79,7 @@ const updateDefaultValueInNode = (params: {
 
   // the value is replaced, not merged: props of the previous value (e.g. vernacularNameUuid) must not be kept
   const nodeUpdated: ArenaRecordNode = {
-    ...Nodes.mergeNodes(nodeToUpdate, {
+    ...RecordNodes.mergeNodes(nodeToUpdate, {
       meta: { defaultValueApplied },
       updated: true,
       dateModified: Dates.nowFormattedForStorage(),
@@ -87,7 +91,7 @@ const updateDefaultValueInNode = (params: {
 
 const updateDefaultValuesInNodes = async (
   params: RecordNodeDependentsUpdateParams & {
-    nodePointer: NodePointer
+    nodePointer: ArenaRecordNodePointer
     updateResult: RecordUpdateResult
   }
 ): Promise<void> => {
@@ -100,7 +104,7 @@ const updateDefaultValuesInNodes = async (
   const { record } = updateResult
 
   let nodesToUpdate: ArenaRecordNode[] = []
-  const dependentNodes = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
+  const dependentNodes = RecordNodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
   let exprValue: any = null
   const expressionsToEvaluate = NodeDefs.getDefaultValues(nodeDef)
   if (expressionsToEvaluate.length === 0) {
@@ -110,7 +114,7 @@ const updateDefaultValuesInNodes = async (
       return
     }
     // no default expressions to evaluate; check if there are dependent nodes with default value applied, as their default value should be removed
-    nodesToUpdate = dependentNodes.filter(Nodes.isDefaultValueApplied)
+    nodesToUpdate = dependentNodes.filter(RecordNodes.isDefaultValueApplied)
     if (nodesToUpdate.length === 0) {
       // no default expressions to evaluate and no nodes with default value applied, therefore no update needed
       return
@@ -166,11 +170,11 @@ export const updateSelfAndDependentsDefaultValues = async (
 
   // filter nodes to update including itself and (attributes with empty values or with default values applied)
   // therefore attributes with user defined values are excluded
-  const nodePointersFilterFn = (nodePointer: NodePointer): boolean => {
+  const nodePointersFilterFn = (nodePointer: ArenaRecordNodePointer): boolean => {
     const { nodeDef } = nodePointer
     if (!NodeDefs.isAttribute(nodeDef)) return false
 
-    const referencedNodes = NodePointers.getNodesFromNodePointers({
+    const referencedNodes = RecordNodePointers.getNodesFromNodePointers({
       record: updateResult.record,
       nodePointers: [nodePointer],
     })

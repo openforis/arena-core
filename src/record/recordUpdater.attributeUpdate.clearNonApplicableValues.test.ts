@@ -5,8 +5,8 @@ import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilde
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 
-import { Nodes } from '../node'
-import { Survey, Surveys } from '../survey'
+import { RecordNodes } from '../node'
+import { ArenaSurvey, Surveys } from '../survey'
 import { ArenaRecord } from './record'
 import { RecordUpdater } from './recordUpdater'
 
@@ -16,7 +16,7 @@ const { entity, attribute } = RecordNodeBuilders
 const user = createTestAdminUser()
 
 // all the attributes (and the multiple entity) are relevant only if source > 10
-const createSurvey = (): Promise<Survey> =>
+const createSurvey = (): Promise<ArenaSurvey> =>
   new SurveyBuilder(
     user,
     entityDef(
@@ -31,7 +31,7 @@ const createSurvey = (): Promise<Survey> =>
   ).build()
 
 const updateValue = async (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   path: string
   value: any
@@ -51,15 +51,15 @@ const updateValue = async (params: {
   })
 }
 
-const getClearedDefNames = (survey: Survey, clearedDefUuids: Set<string>): string[] =>
+const getClearedDefNames = (survey: ArenaSurvey, clearedDefUuids: Set<string>): string[] =>
   [...clearedDefUuids].map((uuid) => Surveys.getNodeDefByUuid({ survey, uuid }).props.name ?? '').sort()
 
-const getValue = (survey: Survey, record: ArenaRecord, path: string) =>
+const getValue = (survey: ArenaSurvey, record: ArenaRecord, path: string) =>
   TestUtils.getNodeByPath({ survey, record, path }).value
 
 // creates a record where all the dependent attributes are applicable and the default values are applied
 const createRecord = async (
-  survey: Survey,
+  survey: ArenaSurvey,
   { userEnteredValue = null as number | null } = {}
 ): Promise<ArenaRecord> => {
   let record = new RecordBuilder(
@@ -90,7 +90,9 @@ describe('RecordUpdater: clear values of attributes becoming non-applicable', ()
     const survey = await createSurvey()
     const record = await createRecord(survey)
     expect(getValue(survey, record, 'with_default')).toBe(5)
-    expect(Nodes.isDefaultValueApplied(TestUtils.getNodeByPath({ survey, record, path: 'with_default' }))).toBe(true)
+    expect(RecordNodes.isDefaultValueApplied(TestUtils.getNodeByPath({ survey, record, path: 'with_default' }))).toBe(
+      true
+    )
     expect(getValue(survey, record, 'calculated')).toBe(40)
     expect(getValue(survey, record, 'mult_entity[0].mult_entity_attr')).toBe(3)
 

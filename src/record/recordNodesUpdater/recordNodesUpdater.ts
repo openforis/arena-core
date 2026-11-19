@@ -1,6 +1,6 @@
 import { Queue } from '../../utils'
 
-import { Dictionary } from '../../common'
+import { ArenaDictionary } from '../../common'
 import { ArenaRecordNode } from '../../node'
 import { NodeDefCountType } from '../../nodeDef'
 import { Surveys } from '../../survey'
@@ -16,7 +16,7 @@ import { updateSelfAndDependentsFileNames } from './recordNodeDependentsFileName
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { updateSelfAndDependentsRequired } from './recordNodeDependentsRequiredUpdater'
 import { updateSelfAndDependentsVisible } from './recordNodeDependentsVisibleUpdater'
-import { NodesUpdateParams } from './recordNodesCreator'
+import { ArenaRecordNodesUpdateParams } from './recordNodesCreator'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 /**
@@ -46,7 +46,7 @@ const dependentsUpdaters: RecordNodeDependentsUpdater[] = [
 ]
 
 export const updateNodesDependents = async (
-  params: NodesUpdateParams & { nodes: Dictionary<ArenaRecordNode> }
+  params: ArenaRecordNodesUpdateParams & { nodes: ArenaDictionary<ArenaRecordNode> }
 ): Promise<RecordUpdateResult> => {
   const { survey, record, nodes } = params
   // always copy: the nodes passed (e.g. the deleted nodes) must not collect the dependent nodes visited
@@ -74,7 +74,7 @@ export const updateNodesDependents = async (
   const nodeUuidsToVisit = new Queue(Object.keys(initialNodesToVisit))
 
   // Avoid loops: visit the same node maximum 2 times (the second time the applicability could have been changed)
-  const visitedCountByUuid: Dictionary<number> = {}
+  const visitedCountByUuid: ArenaDictionary<number> = {}
 
   while (!nodeUuidsToVisit.isEmpty()) {
     const nodeUuid = nodeUuidsToVisit.dequeue()!
@@ -82,7 +82,7 @@ export const updateNodesDependents = async (
     const visitedCount = visitedCountByUuid[nodeUuid] ?? 0
 
     if (visitedCount < MAX_DEPENDENTS_VISITING_TIMES) {
-      const nodesUpdatedCurrent: Dictionary<ArenaRecordNode> = {}
+      const nodesUpdatedCurrent: ArenaDictionary<ArenaRecordNode> = {}
       for (const dependentsUpdater of dependentsUpdaters) {
         // updaters must run sequentially: each one works on the record (and node) updated by the previous ones
         const node = updateResult.getNodeByUuid(nodeUuid)

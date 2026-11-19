@@ -2,37 +2,37 @@ import { describe, test, expect } from '@jest/globals'
 
 import { NodeDefFactory, NodeDefType } from '../nodeDef'
 import { DateFormats, Dates } from '../utils'
-import { NodeFactory } from './factory'
-import { getValueEqualityKey, NodeValues } from './nodeValues'
+import { RecordNodeFactory } from './factory'
+import { getValueEqualityKey, RecordNodeValues } from './nodeValues'
 
 const buildTimeNode = (value: string | undefined) =>
-  NodeFactory.createInstance({ nodeDefUuid: 'time-def-uuid', recordUuid: 'record-uuid', value })
+  RecordNodeFactory.createInstance({ nodeDefUuid: 'time-def-uuid', recordUuid: 'record-uuid', value })
 
-describe('NodeValues time getters', () => {
+describe('RecordNodeValues time getters', () => {
   test('getTimeHour and getTimeMinute read an HH:mm value', () => {
     const node = buildTimeNode('14:30')
-    expect(NodeValues.getTimeHour(node)).toBe(14)
-    expect(NodeValues.getTimeMinute(node)).toBe(30)
+    expect(RecordNodeValues.getTimeHour(node)).toBe(14)
+    expect(RecordNodeValues.getTimeMinute(node)).toBe(30)
   })
 
   test('getTimeSeconds reads the third part of an HH:mm:ss value', () => {
     const node = buildTimeNode('14:30:45')
-    expect(NodeValues.getTimeSeconds(node)).toBe(45)
+    expect(RecordNodeValues.getTimeSeconds(node)).toBe(45)
   })
 
   test('getTimeSeconds defaults to 0 for an HH:mm value with no seconds part', () => {
     const node = buildTimeNode('14:30')
-    expect(NodeValues.getTimeSeconds(node)).toBe(0)
+    expect(RecordNodeValues.getTimeSeconds(node)).toBe(0)
   })
 
   test('getTimeMinute still returns NaN for a malformed value with a missing part (unchanged by the seconds fix)', () => {
     const node = buildTimeNode('14')
-    expect(Number.isNaN(NodeValues.getTimeMinute(node))).toBe(true)
+    expect(Number.isNaN(RecordNodeValues.getTimeMinute(node))).toBe(true)
   })
 
   test('getTimeSeconds returns NaN for a malformed (present but non-numeric) seconds part, unlike a missing one', () => {
     const node = buildTimeNode('14:30:xx')
-    expect(Number.isNaN(NodeValues.getTimeSeconds(node))).toBe(true)
+    expect(Number.isNaN(RecordNodeValues.getTimeSeconds(node))).toBe(true)
   })
 })
 
@@ -72,13 +72,15 @@ describe('NodeValues.isValueEqual - time', () => {
   const nodeDef = { type: NodeDefType.time } as any
 
   test('treats "14:30" and "14:30:00" as equal', () => {
-    expect(NodeValues.isValueEqual({ survey: {} as any, nodeDef, value: '14:30', valueSearch: '14:30:00' })).toBe(true)
+    expect(RecordNodeValues.isValueEqual({ survey: {} as any, nodeDef, value: '14:30', valueSearch: '14:30:00' })).toBe(
+      true
+    )
   })
 
   test('treats "14:30:00" and "14:30:45" as different', () => {
-    expect(NodeValues.isValueEqual({ survey: {} as any, nodeDef, value: '14:30:00', valueSearch: '14:30:45' })).toBe(
-      false
-    )
+    expect(
+      RecordNodeValues.isValueEqual({ survey: {} as any, nodeDef, value: '14:30:00', valueSearch: '14:30:45' })
+    ).toBe(false)
   })
 })
 
@@ -119,7 +121,7 @@ describe('getValueEqualityKey', () => {
         const key = getValueEqualityKey({ survey, nodeDef, value })
         const keySearch = getValueEqualityKey({ survey, nodeDef, value: valueSearch })
         if (key !== undefined && keySearch !== undefined) {
-          const equal = NodeValues.isValueEqual({ survey, nodeDef, value, valueSearch })
+          const equal = RecordNodeValues.isValueEqual({ survey, nodeDef, value, valueSearch })
           expect({ value, valueSearch, sameKey: key === keySearch }).toEqual({ value, valueSearch, sameKey: equal })
         }
       }
@@ -140,8 +142,8 @@ describe('getValueEqualityKey', () => {
 describe('code attribute value props', () => {
   test('label is a value prop of code attributes', () => {
     const nodeDef = NodeDefFactory.createInstance({ type: NodeDefType.code })
-    expect(NodeValues.ValuePropsCode.label).toBe('label')
-    expect(NodeValues.isValueProp({ nodeDef, prop: 'label' })).toBe(true)
-    expect(NodeValues.isValueProp({ nodeDef, prop: 'level' })).toBe(false)
+    expect(RecordNodeValues.ValuePropsCode.label).toBe('label')
+    expect(RecordNodeValues.isValueProp({ nodeDef, prop: 'label' })).toBe(true)
+    expect(RecordNodeValues.isValueProp({ nodeDef, prop: 'level' })).toBe(false)
   })
 })

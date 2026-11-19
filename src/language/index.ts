@@ -1,4 +1,4 @@
-export type { Labels } from './labels'
+export type { ArenaLabels } from './labels'
 
 export { LanguageCode } from './languageCode'
 

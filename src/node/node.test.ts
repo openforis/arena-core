@@ -1,9 +1,9 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { NodeDefFactory, NodeDefType, NodeDefValidations } from '../nodeDef'
-import { NodeFactory, NodeFactoryParams } from './factory'
+import { NodeDefFactory, NodeDefType, ArenaNodeDefValidations } from '../nodeDef'
+import { RecordNodeFactory, NodeFactoryParams } from './factory'
 import { ArenaRecordNode } from './node'
-import { Nodes } from './nodes'
+import { RecordNodes } from './nodes'
 
 const checkNode = (node: ArenaRecordNode, nodeParams: NodeFactoryParams) => {
   expect(node).toHaveProperty('uuid')
@@ -32,7 +32,7 @@ const checkNode = (node: ArenaRecordNode, nodeParams: NodeFactoryParams) => {
   expect(nodeHierarchy).toMatchObject(expectedHierarchy)
 }
 
-describe('NodeFactory', () => {
+describe('RecordNodeFactory', () => {
   test('createInstence - node', () => {
     const nodeParams: NodeFactoryParams = {
       nodeDefUuid: 'nodedef-uuid-0001-test',
@@ -48,7 +48,7 @@ describe('NodeFactory', () => {
       value: 'VALUE',
     }
 
-    const node = NodeFactory.createInstance(nodeParams)
+    const node = RecordNodeFactory.createInstance(nodeParams)
     checkNode(node, nodeParams)
   })
 
@@ -59,18 +59,18 @@ describe('NodeFactory', () => {
       value: 'VALUE',
     }
 
-    const node = NodeFactory.createInstance(nodeParams)
+    const node = RecordNodeFactory.createInstance(nodeParams)
     checkNode(node, nodeParams)
   })
 })
 
-describe('Nodes.removeStatusFlags', () => {
+describe('RecordNodes.removeStatusFlags', () => {
   test('sideEffect - clears the flags in place', () => {
     const node: ArenaRecordNode = {
-      ...NodeFactory.createInstance({ nodeDefUuid: 'def', recordUuid: 'rec' }),
+      ...RecordNodeFactory.createInstance({ nodeDefUuid: 'def', recordUuid: 'rec' }),
       updated: true,
     }
-    const nodeUpdated = Nodes.removeStatusFlags({ node, sideEffect: true })
+    const nodeUpdated = RecordNodes.removeStatusFlags({ node, sideEffect: true })
     expect(nodeUpdated).toBe(node)
     expect(nodeUpdated.created).toBeUndefined()
     expect(nodeUpdated.updated).toBeUndefined()
@@ -79,10 +79,10 @@ describe('Nodes.removeStatusFlags', () => {
 
   test('no sideEffect - returns a new node without the flags', () => {
     const node: ArenaRecordNode = {
-      ...NodeFactory.createInstance({ nodeDefUuid: 'def', recordUuid: 'rec' }),
+      ...RecordNodeFactory.createInstance({ nodeDefUuid: 'def', recordUuid: 'rec' }),
       updated: true,
     }
-    const nodeUpdated = Nodes.removeStatusFlags({ node })
+    const nodeUpdated = RecordNodes.removeStatusFlags({ node })
     expect(nodeUpdated).not.toBe(node)
     expect(nodeUpdated).not.toHaveProperty('created')
     expect(nodeUpdated).not.toHaveProperty('updated')
@@ -90,12 +90,12 @@ describe('Nodes.removeStatusFlags', () => {
   })
 })
 
-describe('Nodes mutation options', () => {
-  const createNode = (): ArenaRecordNode => NodeFactory.createInstance({ nodeDefUuid: 'def', recordUuid: 'rec' })
+describe('RecordNodes mutation options', () => {
+  const createNode = (): ArenaRecordNode => RecordNodeFactory.createInstance({ nodeDefUuid: 'def', recordUuid: 'rec' })
 
   test('assocValue copies the node by default', () => {
     const node = createNode()
-    const nodeUpdated = Nodes.assocValue(node, 'a')
+    const nodeUpdated = RecordNodes.assocValue(node, 'a')
     expect(nodeUpdated).not.toBe(node)
     expect(nodeUpdated.value).toBe('a')
     expect(node.value).toBeUndefined()
@@ -103,50 +103,44 @@ describe('Nodes mutation options', () => {
 
   test('assocValue modifies the node in place with { sideEffect: true }', () => {
     const node = createNode()
-    const nodeUpdated = Nodes.assocValue(node, 'a', { sideEffect: true })
+    const nodeUpdated = RecordNodes.assocValue(node, 'a', { sideEffect: true })
     expect(nodeUpdated).toBe(node)
     expect(node.value).toBe('a')
   })
 
-  test('assocValue still accepts the deprecated positional sideEffect', () => {
+  test('assocChildEditable and assocChildVisible accept options', () => {
     const node = createNode()
-    expect(Nodes.assocValue(node, 'a', true)).toBe(node)
-    expect(Nodes.assocValue(node, 'b', false)).not.toBe(node)
-  })
-
-  test('assocChildEditable and assocChildVisible accept options and the deprecated positional sideEffect', () => {
-    const node = createNode()
-    const nodeNotEditable = Nodes.assocChildEditable(node, 'child', false)
+    const nodeNotEditable = RecordNodes.assocChildEditable(node, 'child', false)
     expect(nodeNotEditable).not.toBe(node)
-    expect(Nodes.isChildEditable(nodeNotEditable, 'child')).toBe(false)
-    expect(Nodes.assocChildEditable(node, 'child', false, { sideEffect: true })).toBe(node)
-    expect(Nodes.assocChildVisible(node, 'child', false, { sideEffect: true })).toBe(node)
-    expect(Nodes.isChildVisible(node, 'child')).toBe(false)
-    expect(Nodes.assocChildVisible(node, 'child', true, true)).toBe(node)
-    expect(Nodes.isChildVisible(node, 'child')).toBe(true)
+    expect(RecordNodes.isChildEditable(nodeNotEditable, 'child')).toBe(false)
+    expect(RecordNodes.assocChildEditable(node, 'child', false, { sideEffect: true })).toBe(node)
+    expect(RecordNodes.assocChildVisible(node, 'child', false, { sideEffect: true })).toBe(node)
+    expect(RecordNodes.isChildVisible(node, 'child')).toBe(false)
+    expect(RecordNodes.assocChildVisible(node, 'child', true, { sideEffect: true })).toBe(node)
+    expect(RecordNodes.isChildVisible(node, 'child')).toBe(true)
   })
 })
 
-describe('Nodes.getChildrenMinCount / getChildrenMaxCount', () => {
-  const parentNode = NodeFactory.createInstance({ nodeDefUuid: 'parentDef', recordUuid: 'rec' })
-  const createNodeDef = (count: NodeDefValidations['count']) =>
+describe('RecordNodes.getChildrenMinCount / getChildrenMaxCount', () => {
+  const parentNode = RecordNodeFactory.createInstance({ nodeDefUuid: 'parentDef', recordUuid: 'rec' })
+  const createNodeDef = (count: ArenaNodeDefValidations['count']) =>
     NodeDefFactory.createInstance({ type: NodeDefType.entity, propsAdvanced: { validations: { count } } })
 
   test('constant counts are converted to numbers', () => {
     const nodeDef = createNodeDef({ min: '1', max: '3' })
-    expect(Nodes.getChildrenMinCount({ parentNode, nodeDef })).toBe(1)
-    expect(Nodes.getChildrenMaxCount({ parentNode, nodeDef })).toBe(3)
+    expect(RecordNodes.getChildrenMinCount({ parentNode, nodeDef })).toBe(1)
+    expect(RecordNodes.getChildrenMaxCount({ parentNode, nodeDef })).toBe(3)
   })
 
   test('empty or not evaluated count expressions are NaN', () => {
     const nodeDef = createNodeDef({ min: '1', max: [] })
-    expect(Nodes.getChildrenMinCount({ parentNode, nodeDef })).toBe(1)
-    expect(Nodes.getChildrenMaxCount({ parentNode, nodeDef })).toBeNaN()
+    expect(RecordNodes.getChildrenMinCount({ parentNode, nodeDef })).toBe(1)
+    expect(RecordNodes.getChildrenMaxCount({ parentNode, nodeDef })).toBeNaN()
     const nodeDefWithExpression = createNodeDef({
       min: [{ uuid: 'expr1', expression: '2' }],
       max: [{ uuid: 'expr1', expression: '2' }],
     })
-    expect(Nodes.getChildrenMinCount({ parentNode, nodeDef: nodeDefWithExpression })).toBeNaN()
-    expect(Nodes.getChildrenMaxCount({ parentNode, nodeDef: nodeDefWithExpression })).toBeNaN()
+    expect(RecordNodes.getChildrenMinCount({ parentNode, nodeDef: nodeDefWithExpression })).toBeNaN()
+    expect(RecordNodes.getChildrenMaxCount({ parentNode, nodeDef: nodeDefWithExpression })).toBeNaN()
   })
 })

@@ -1,13 +1,13 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
 import { ArenaRecordNode } from '../../node'
-import { Survey, Surveys } from '../../survey'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { TestUtils } from '../../tests/testUtils'
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
 import { createClusterPlotSurveyAndRecord } from './tests/clusterPlotRecord'
 
-let survey: Survey
+let survey: ArenaSurvey
 let record: ArenaRecord
 
 // node getters return undefined when the node is not found

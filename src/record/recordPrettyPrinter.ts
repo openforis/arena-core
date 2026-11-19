@@ -1,7 +1,7 @@
-import { Dictionary, TraverseMethod } from '../common'
-import { ArenaRecordNode, NodeValueFormatter, Nodes } from '../node'
+import { ArenaDictionary, TraverseMethod } from '../common'
+import { ArenaRecordNode, RecordNodeValueFormatter, RecordNodes } from '../node'
 import { NodeDefs } from '../nodeDef'
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { Strings } from '../utils'
 import { ArenaRecord } from './record'
 import * as RecordGetters from './_records/recordGetters'
@@ -20,7 +20,7 @@ const DefaultPrintOptions: PrintOptions = {
   showNotVisible: false,
 }
 
-const print = (params: { survey: Survey; record: ArenaRecord; options?: PrintOptions }): string => {
+const print = (params: { survey: ArenaSurvey; record: ArenaRecord; options?: PrintOptions }): string => {
   const { survey, record, options = DefaultPrintOptions } = params
   const { includeEmptyNodes, showNotApplicable, showNotEditable, showNotVisible } = options
 
@@ -36,13 +36,13 @@ const print = (params: { survey: Survey; record: ArenaRecord; options?: PrintOpt
       return []
     }
     const infoParts: string[] = []
-    if (showNotApplicable && !Nodes.isChildApplicable(parentNode, childDefUuid)) {
+    if (showNotApplicable && !RecordNodes.isChildApplicable(parentNode, childDefUuid)) {
       infoParts.push('not applicable')
     }
-    if (showNotEditable && !Nodes.isChildEditable(parentNode, childDefUuid)) {
+    if (showNotEditable && !RecordNodes.isChildEditable(parentNode, childDefUuid)) {
       infoParts.push('not editable')
     }
-    if (showNotVisible && !Nodes.isChildVisible(parentNode, childDefUuid)) {
+    if (showNotVisible && !RecordNodes.isChildVisible(parentNode, childDefUuid)) {
       infoParts.push('not visible')
     }
     return infoParts
@@ -64,8 +64,8 @@ const print = (params: { survey: Survey; record: ArenaRecord; options?: PrintOpt
     const printNodeAndChildren = (params: { node: ArenaRecordNode; parentNode: ArenaRecordNode | null }): void => {
       const { node, parentNode } = params
       const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
-      const value = NodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
-      const depth = Nodes.getHierarchy(node).length
+      const value = RecordNodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
+      const depth = RecordNodes.getHierarchy(node).length
       const infoParts = getInfoParts({ parentNode, childDefUuid: node.nodeDefUuid })
       parts.push(toPart({ depth, name: NodeDefs.getName(nodeDef), value, infoParts }))
 
@@ -97,8 +97,8 @@ const print = (params: { survey: Survey; record: ArenaRecord; options?: PrintOpt
     (node) => {
       const { nodeDefUuid } = node
       const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
-      const value = NodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
-      const depth = Nodes.getHierarchy(node).length
+      const value = RecordNodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
+      const depth = RecordNodes.getHierarchy(node).length
       const parentNode = NodeDefs.isRoot(nodeDef) ? null : RecordGetters.getParent(node)(record)
       const infoParts = getInfoParts({ parentNode, childDefUuid: nodeDefUuid })
       parts.push(toPart({ depth, name: NodeDefs.getName(nodeDef), value, infoParts }))
@@ -109,7 +109,7 @@ const print = (params: { survey: Survey; record: ArenaRecord; options?: PrintOpt
   return parts.join('\n')
 }
 
-const printNodePath = (params: { survey: Survey; record: ArenaRecord; node: ArenaRecordNode }): string => {
+const printNodePath = (params: { survey: ArenaSurvey; record: ArenaRecord; node: ArenaRecordNode }): string => {
   const { survey, record, node } = params
   const parts: string[] = []
   RecordGetters.visitAncestorsAndSelf(node, (visitedNode) => {
@@ -125,9 +125,9 @@ const printNodePath = (params: { survey: Survey; record: ArenaRecord; node: Aren
 }
 
 const printNodesPaths = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
-  nodes: Dictionary<ArenaRecordNode>
+  nodes: ArenaDictionary<ArenaRecordNode>
 }): string[] => {
   const { survey, record, nodes } = params
   return Object.values(nodes).map((node) => RecordPrettyPrinter.printNodePath({ survey, record, node }))

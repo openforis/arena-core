@@ -1,6 +1,6 @@
-import { ArenaRecordNode, Nodes } from '../../node'
-import { NodeDefEntity, NodeDefs } from '../../nodeDef'
-import { Survey, Surveys } from '../../survey'
+import { ArenaRecordNode, RecordNodes } from '../../node'
+import { ArenaNodeDefEntity, NodeDefs } from '../../nodeDef'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { Validations } from '../../validation'
 import { ArenaRecord } from '../record'
 import { RecordValidations } from '../recordValidations'
@@ -34,7 +34,7 @@ export const nodeBelongsToPage = (params: {
 }): boolean => {
   const { node, pageNodeDefUuid, record } = params
   if (node.nodeDefUuid === pageNodeDefUuid) return true
-  return Nodes.getHierarchy(node).some((ancestorUuid) => {
+  return RecordNodes.getHierarchy(node).some((ancestorUuid) => {
     const ancestor = getNodeByUuid(ancestorUuid)(record)
     return ancestor?.nodeDefUuid === pageNodeDefUuid
   })
@@ -62,15 +62,15 @@ export const nodeBelongsToOwnPage = (params: {
  * Child page-entity defs displayed in their own page under the given entity.
  */
 export const getNodeDefChildrenInOwnPage = (params: {
-  survey: Survey
-  nodeDef: NodeDefEntity
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDefEntity
   cycle: string
-}): NodeDefEntity[] => {
+}): ArenaNodeDefEntity[] => {
   const { survey, nodeDef, cycle } = params
   return Surveys.getNodeDefChildren({ survey, nodeDef, includeAnalysis: true }).filter(
-    (child): child is NodeDefEntity => {
+    (child): child is ArenaNodeDefEntity => {
       if (!NodeDefs.isEntity(child)) return false
-      return NodeDefs.isDisplayInOwnPage(cycle)(child as NodeDefEntity)
+      return NodeDefs.isDisplayInOwnPage(cycle)(child as ArenaNodeDefEntity)
     }
   )
 }
@@ -78,13 +78,13 @@ export const getNodeDefChildrenInOwnPage = (params: {
 /**
  * Collects all page-entity node defs in the survey cycle (root + nested own-pages).
  */
-export const getPageNodeDefs = (params: { survey: Survey; cycle: string }): NodeDefEntity[] => {
+export const getPageNodeDefs = (params: { survey: ArenaSurvey; cycle: string }): ArenaNodeDefEntity[] => {
   const { survey, cycle } = params
-  const root = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity | undefined
+  const root = Surveys.getNodeDefRoot({ survey }) as ArenaNodeDefEntity | undefined
   if (!root) return []
 
-  const pages: NodeDefEntity[] = []
-  const stack: NodeDefEntity[] = [root]
+  const pages: ArenaNodeDefEntity[] = []
+  const stack: ArenaNodeDefEntity[] = [root]
   while (stack.length > 0) {
     const current = stack.pop()
     if (!current) continue
@@ -98,13 +98,13 @@ export const getPageNodeDefs = (params: { survey: Survey; cycle: string }): Node
  * Collects descendant page node def UUIDs under a page (not including the page itself).
  */
 export const getDescendantPageNodeDefUuids = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   cycle: string
-  pageNodeDef: NodeDefEntity
+  pageNodeDef: ArenaNodeDefEntity
 }): string[] => {
   const { survey, cycle, pageNodeDef } = params
   const uuids: string[] = []
-  const visit = (nodeDef: NodeDefEntity) => {
+  const visit = (nodeDef: ArenaNodeDefEntity) => {
     const children = getNodeDefChildrenInOwnPage({ survey, nodeDef, cycle })
     for (const child of children) {
       uuids.push(child.uuid)
@@ -118,7 +118,7 @@ export const getDescendantPageNodeDefUuids = (params: {
 const nodeIsUnderEntity = (params: { node: ArenaRecordNode; entityUuid: string }): boolean => {
   const { node, entityUuid } = params
   if (node.uuid === entityUuid) return true
-  return Nodes.getHierarchy(node).includes(entityUuid)
+  return RecordNodes.getHierarchy(node).includes(entityUuid)
 }
 
 const getOwnPageFieldValidationFlags = (params: {
@@ -237,7 +237,7 @@ const aggregatePageValidationStatuses = (statuses: PageValidationStatus[]): Page
  * Returns null when the node is missing or is not an entity.
  */
 export const getEntitySubtreeStatus = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   entityUuid: string
   cycle?: string
@@ -250,12 +250,12 @@ export const getEntitySubtreeStatus = (params: {
   if (!NodeDefs.isEntity(entityDef)) return null
 
   const cycle = params.cycle ?? getCycle(record)
-  const entityPageDef = entityDef as NodeDefEntity
+  const entityPageDef = entityDef as ArenaNodeDefEntity
   const descendantPageUuids = getDescendantPageNodeDefUuids({ survey, cycle, pageNodeDef: entityPageDef })
   const pageUuidsToCheck = [entity.nodeDefUuid, ...descendantPageUuids]
 
   const validationStatuses = pageUuidsToCheck.map((pageNodeDefUuid) => {
-    const pageNodeDef = Surveys.getNodeDefByUuid({ survey, uuid: pageNodeDefUuid }) as NodeDefEntity
+    const pageNodeDef = Surveys.getNodeDefByUuid({ survey, uuid: pageNodeDefUuid }) as ArenaNodeDefEntity
     const pageDescendantUuids = getDescendantPageNodeDefUuids({ survey, cycle, pageNodeDef })
     return getPageValidationStatus({
       pageNodeDefUuid,
@@ -279,7 +279,7 @@ export const getEntitySubtreeStatus = (params: {
  * Empty instance lists return a non-complete status with no validation flags.
  */
 export const getMultiplePageEntitiesStatus = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   pageNodeDefUuid: string
   cycle?: string
@@ -320,7 +320,7 @@ export const pageHasOwnErrors = (params: {
  * Warnings do not reduce the score (matches Arena sidebar red-icon signal).
  */
 export const getRecordPagesValidationProgress = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   cycle?: string
 }): PagesValidationProgress | null => {

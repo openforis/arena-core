@@ -1,9 +1,9 @@
 import { Users } from '../auth'
-import { CategoryItem } from '../category'
+import { ArenaCategoryItem } from '../category'
 import { SystemError, SystemErrorKeys } from '../error'
-import { ExpressionFunctions } from '../expression'
+import { ArenaExpressionFunctions } from '../expression'
 import { ExtraProps } from '../extraProp/extraProps'
-import { AreaOfInterest, Point, Points } from '../geo'
+import { ArenaAreaOfInterest, ArenaPoint, Points } from '../geo'
 import { LanguagesISO639part2 } from '../language'
 import { ArenaRecord } from '../record'
 import { getNodeDefParent } from '../survey/surveys/nodeDefs'
@@ -15,7 +15,7 @@ import {
   getSRSIndex,
   getTaxonomyByName,
 } from '../survey/surveys/surveysGetters'
-import { Taxon } from '../taxonomy'
+import { ArenaTaxon } from '../taxonomy'
 import { Dates, Numbers, Objects } from '../utils'
 import { NodeDefExpressionContext } from './context'
 
@@ -49,7 +49,7 @@ const getOrFetchCategoryItem = async (params: {
   context: NodeDefExpressionContext
   categoryUuid: string
   codePaths: string[]
-}): Promise<CategoryItem | undefined> => {
+}): Promise<ArenaCategoryItem | undefined> => {
   const { context, categoryUuid, codePaths } = params
   // if any code path is empty, return null (no category item can be found)
   if (Objects.isEmpty(codePaths) || codePaths.some(Objects.isEmpty)) {
@@ -65,7 +65,7 @@ const getOrFetchTaxon = async (params: {
   context: NodeDefExpressionContext
   taxonomyUuid: string
   taxonCode: string
-}): Promise<Taxon | undefined> => {
+}): Promise<ArenaTaxon | undefined> => {
   const { context, taxonomyUuid, taxonCode } = params
   if (typeof taxonCode !== 'string' && typeof taxonCode !== 'number') {
     return undefined // node def expression validator could call it passing a node def object
@@ -85,7 +85,7 @@ const getOrFetchTaxon = async (params: {
 const fetchAreaOfInterest = async (params: {
   context: NodeDefExpressionContext
   name: string
-}): Promise<AreaOfInterest | undefined> => {
+}): Promise<ArenaAreaOfInterest | undefined> => {
   const { context, name } = params
   const { survey, areaOfInterestProvider } = context
   if (!areaOfInterestProvider || !getAreaOfInterestByName({ survey, name })) return undefined
@@ -103,7 +103,7 @@ const validateAreaOfInterestName = (params: { context: NodeDefExpressionContext;
 
 const distanceToAreaOfInterestBoundary = async (params: {
   context: NodeDefExpressionContext
-  point: Point
+  point: ArenaPoint
   name: string
 }): Promise<number | null> => {
   const { context, point, name } = params
@@ -114,7 +114,7 @@ const distanceToAreaOfInterestBoundary = async (params: {
 
 const geoDistanceExecutor =
   (context: NodeDefExpressionContext) =>
-  (coordinateFrom: Point | string, coordinateTo: Point | string): number | null => {
+  (coordinateFrom: ArenaPoint | string, coordinateTo: ArenaPoint | string): number | null => {
     const { survey } = context
     const srsIndex = getSRSIndex(survey)
 
@@ -124,7 +124,7 @@ const geoDistanceExecutor =
     return pointFrom && pointTo ? Points.distance(pointFrom, pointTo, srsIndex) : null
   }
 
-export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionContext> = {
+export const nodeDefExpressionFunctions: ArenaExpressionFunctions<NodeDefExpressionContext> = {
   categoryItemProp: {
     minArity: 3,
     executor:
@@ -191,7 +191,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 3,
     executor:
       (context: NodeDefExpressionContext) =>
-      (coordinate: Point | string, distanceMeters: number, bearingDeg: number): Point | null => {
+      (coordinate: ArenaPoint | string, distanceMeters: number, bearingDeg: number): ArenaPoint | null => {
         // validate parameters
         const origin = Points.parse(coordinate)
         if (!origin) return null
@@ -219,7 +219,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 1,
     executor:
       (context: NodeDefExpressionContext) =>
-      async (coordinate: Point | string): Promise<string | null> => {
+      async (coordinate: ArenaPoint | string): Promise<string | null> => {
         const point = Points.parse(coordinate)
         if (!point || !context.areaOfInterestProvider) return null
         // the survey order is the priority of overlapping areas
@@ -235,7 +235,7 @@ export const nodeDefExpressionFunctions: ExpressionFunctions<NodeDefExpressionCo
     maxArity: 2,
     executor:
       (context: NodeDefExpressionContext) =>
-      async (coordinate: Point | string, name: string): Promise<number | null> => {
+      async (coordinate: ArenaPoint | string, name: string): Promise<number | null> => {
         validateAreaOfInterestName({ context, name })
         const point = Points.parse(coordinate)
         if (!point || typeof name !== 'string') return null

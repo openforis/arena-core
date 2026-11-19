@@ -1,13 +1,13 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
-import { Survey, SurveyDependencyType, Surveys } from '../../survey'
+import { ArenaSurvey, SurveyDependencyType, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
 
 const { entityDef, integerDef } = SurveyObjectBuilders
 
 // survey without node defs index and dependency graph
-let surveyNotIndexed: Survey
+let surveyNotIndexed: ArenaSurvey
 
 describe('Surveys build and assoc functions return a copy of the survey', () => {
   beforeAll(async () => {

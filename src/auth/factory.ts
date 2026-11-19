@@ -1,17 +1,17 @@
-import { Dictionary, Factory } from '../common'
+import { ArenaDictionary, ArenaFactory } from '../common'
 import { UUIDs } from '../utils'
-import { User, UserStatus, UserTitle } from './user'
+import { ArenaUser, UserStatus, UserTitle } from './user'
 
 export type UserFactoryParams = {
   email: string
   name: string
   status?: UserStatus
   title?: UserTitle
-  extra?: Dictionary<any>
+  extra?: ArenaDictionary<any>
 }
 
-export const UserFactory: Factory<User, UserFactoryParams> = {
-  createInstance: (params: UserFactoryParams): User => {
+export const UserFactory: ArenaFactory<ArenaUser, UserFactoryParams> = {
+  createInstance: (params: UserFactoryParams): ArenaUser => {
     const defaultProps = {
       hasProfilePicture: false,
       status: UserStatus.INVITED,

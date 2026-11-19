@@ -1,19 +1,19 @@
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ExpressionNodeType, JavascriptExpressionEvaluator } from '../expression'
 import { NodeDefIdentifierEvaluator } from './node/identifier'
 import { NodeDefMemberEvaluator } from './node/member'
 import { NodeDefThisEvaluator } from './node/thisEvaluator'
 import { nodeDefExpressionFunctions } from './functions'
 import { NodeDefExpressionContext } from './context'
-import { NodeDef } from '../nodeDef/nodeDef'
-import { Survey } from '../survey'
+import { ArenaNodeDef } from '../nodeDef/nodeDef'
+import { ArenaSurvey } from '../survey'
 import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 
 export type ExpressionEvaluatorParams = {
   expression: string
-  user?: User
-  survey: Survey
-  nodeDef: NodeDef<any>
+  user?: ArenaUser
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDef<any>
   isContextParent?: boolean
   selfReferenceAllowed?: boolean
   itemsFilter?: boolean

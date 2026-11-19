@@ -1,12 +1,18 @@
 import { SystemErrorKeys } from '../../error'
-import { User } from '../../auth'
-import { ArenaRecordNode, NodePointer, Nodes, NodeValueFile, NodeValues } from '../../node'
-import { NodeDefFile, NodeDefs } from '../../nodeDef'
+import { ArenaUser } from '../../auth'
+import {
+  ArenaRecordNode,
+  ArenaRecordNodePointer,
+  RecordNodes,
+  ArenaRecordNodeValueFile,
+  RecordNodeValues,
+} from '../../node'
+import { ArenaNodeDefFile, NodeDefs } from '../../nodeDef'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
-import { Survey, Surveys } from '../../survey'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { Dates, FileNames, Objects } from '../../utils'
-import { NodePointers } from '../nodePointers'
+import { RecordNodePointers } from '../nodePointers'
 import { ArenaRecord } from '../record'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
@@ -24,14 +30,14 @@ const addPositionSuffix = (params: { fileName: string; position: number }) => {
 }
 
 const calculateFileName = async (params: {
-  user: User
-  survey: Survey
+  user: ArenaUser
+  survey: ArenaSurvey
   record: ArenaRecord
   node: ArenaRecordNode
 }): Promise<string | undefined> => {
   const { user, survey, record, node } = params
 
-  const nodeDef: NodeDefFile = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as NodeDefFile
+  const nodeDef: ArenaNodeDefFile = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid }) as ArenaNodeDefFile
   const fileNameExpression = NodeDefs.getFileNameExpression(nodeDef)
   if (!fileNameExpression) return undefined
 
@@ -53,7 +59,7 @@ const calculateFileName = async (params: {
   }
 
   // add extension from original file name
-  const originalFilaName = value ? (value as NodeValueFile).fileName : undefined
+  const originalFilaName = value ? (value as ArenaRecordNodeValueFile).fileName : undefined
   if (Objects.isNotEmpty(originalFilaName)) {
     const originalExtension = FileNames.getExtension(originalFilaName)
     fileNameCalculated = FileNames.addExtensionIfMissing(fileNameCalculated, originalExtension)
@@ -62,9 +68,9 @@ const calculateFileName = async (params: {
 }
 
 const updateFileNamesInNodes = async (params: {
-  user: User
-  survey: Survey
-  nodePointer: NodePointer
+  user: ArenaUser
+  survey: ArenaSurvey
+  nodePointer: ArenaRecordNodePointer
   updateResult: RecordUpdateResult
   sideEffect?: boolean
 }): Promise<void> => {
@@ -74,17 +80,17 @@ const updateFileNamesInNodes = async (params: {
 
   if (nodeCtx.deleted) return
 
-  const expressionToEvaluate = NodeDefs.getFileNameExpression(nodeDef as NodeDefFile)
+  const expressionToEvaluate = NodeDefs.getFileNameExpression(nodeDef as ArenaNodeDefFile)
   if (!expressionToEvaluate) return
 
   const { record } = updateResult
 
-  const nodes = NodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
+  const nodes = RecordNodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
 
   for (const node of nodes) {
-    if (!Nodes.isValueBlank(node)) {
+    if (!RecordNodes.isValueBlank(node)) {
       // sequential: each iteration updates the record
-      await updateFileNameInNode({ user, survey, updateResult, sideEffect, nodeDef: nodeDef as NodeDefFile, node }) // NOSONAR
+      await updateFileNameInNode({ user, survey, updateResult, sideEffect, nodeDef: nodeDef as ArenaNodeDefFile, node }) // NOSONAR
     }
   }
 }
@@ -114,21 +120,21 @@ export const updateSelfAndDependentsFileNames = async (
 }
 
 const updateFileNameInNode = async (params: {
-  user: User
-  survey: Survey
+  user: ArenaUser
+  survey: ArenaSurvey
   updateResult: RecordUpdateResult
   sideEffect: boolean
-  nodeDef: NodeDefFile
+  nodeDef: ArenaNodeDefFile
   node: ArenaRecordNode
 }): Promise<void> => {
   const { user, survey, updateResult, sideEffect, node, nodeDef } = params
   const expressionToEvaluate = NodeDefs.getFileNameExpression(nodeDef)
   try {
     const fileNameCalculated = await calculateFileName({ user, survey, record: updateResult.record, node })
-    const oldFileNameCalculated = NodeValues.getFileNameCalculated(node)
+    const oldFileNameCalculated = RecordNodeValues.getFileNameCalculated(node)
     if (fileNameCalculated !== oldFileNameCalculated) {
-      const nodeUpdated = Nodes.mergeNodes(node, {
-        value: { [NodeValues.ValuePropsFile.fileNameCalculated]: fileNameCalculated },
+      const nodeUpdated = RecordNodes.mergeNodes(node, {
+        value: { [RecordNodeValues.ValuePropsFile.fileNameCalculated]: fileNameCalculated },
         updated: true,
         dateModified: Dates.nowFormattedForStorage(),
       })

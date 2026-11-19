@@ -1,6 +1,6 @@
 import { Objects } from '../../utils'
 import { ValidationResultFactory } from '../factory'
-import { ValidationResult, ValidationSeverity } from '../validation'
+import { ArenaValidationResult, ValidationSeverity } from '../validation'
 
 /**
  * Email regular expression
@@ -10,7 +10,7 @@ const emailRegex =
 
 export const email =
   (messageKey: string) =>
-  (field: string, obj: any): Promise<ValidationResult> => {
+  (field: string, obj: any): Promise<ArenaValidationResult> => {
     const value = Objects.path(field)(obj)
     const valid = Objects.isEmpty(value) || emailRegex.test(value)
 

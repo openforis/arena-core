@@ -1,4 +1,4 @@
-import { JobSerialized } from './jobSerialized'
+import { ArenaJobSerialized } from './jobSerialized'
 import { JobStatus } from './status'
 
 /**
@@ -12,7 +12,7 @@ import { JobStatus } from './status'
  * -- failed
  * -- canceled
  *  */
-export interface Job<R> {
+export interface ArenaJob<R> {
   readonly uuid: string
   readonly type: string
   status: JobStatus
@@ -27,5 +27,5 @@ export interface Job<R> {
   /**
    * Generates a plain JSON-serializable representation of the job.
    */
-  toJSON(): JobSerialized<R>
+  toJSON(): ArenaJobSerialized<R>
 }

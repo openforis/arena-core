@@ -1,8 +1,8 @@
 import { SystemError, SystemErrorKeys } from '../../../error'
-import { ExpressionContext } from '../../context'
-import { ArrayExpression, ExpressionNodeEvaluator } from '../../node'
+import { ArenaExpressionContext } from '../../context'
+import { ArenaArrayExpression, ExpressionNodeEvaluator } from '../../node'
 
-export class ArrayEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, ArrayExpression> {
+export class ArrayEvaluator<C extends ArenaExpressionContext> extends ExpressionNodeEvaluator<C, ArenaArrayExpression> {
   evaluate(): Promise<any> {
     return Promise.reject(new SystemError(SystemErrorKeys.expression.notSupported, { type: 'array' }))
   }

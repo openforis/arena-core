@@ -1,11 +1,11 @@
-import { MutationOptions } from '../../utils/mutationOptions'
+import { ArenaMutationOptions } from '../../utils/mutationOptions'
 
-export interface RecordUpdateOptions extends MutationOptions {
+export interface ArenaRecordUpdateOptions extends ArenaMutationOptions {
   updateNodesIndex?: boolean
   sortNodes?: boolean
 }
 
-export const RecordUpdateOptionsDefaults: RecordUpdateOptions = {
+export const RecordUpdateOptionsDefaults: ArenaRecordUpdateOptions = {
   updateNodesIndex: true,
   sideEffect: false,
   sortNodes: false,

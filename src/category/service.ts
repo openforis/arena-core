@@ -1,26 +1,26 @@
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaService } from '../common'
-import { JobSerialized } from '../job'
-import { Category, CategoryProps } from './category'
-import { CategoryImportSummary } from './categoryImportSummary'
+import { ArenaJobSerialized } from '../job'
+import { ArenaCategory, ArenaCategoryProps } from './category'
+import { ArenaCategoryImportSummary } from './categoryImportSummary'
 
-export interface CategoryService extends ArenaService {
+export interface ArenaCategoryService extends ArenaService {
   // ==== CREATE
-  create(options: { surveyId: number; category: Category; user: User }): Promise<Category>
+  create(options: { surveyId: number; category: ArenaCategory; user: ArenaUser }): Promise<ArenaCategory>
 
-  createImportSummary(filePath: string): Promise<CategoryImportSummary>
+  createImportSummary(filePath: string): Promise<ArenaCategoryImportSummary>
 
   createImportCategory(options: {
     categoryUuid: string
-    summary: CategoryImportSummary
+    summary: ArenaCategoryImportSummary
     surveyId: number
-    user: User
-  }): Promise<JobSerialized<any>>
+    user: ArenaUser
+  }): Promise<ArenaJobSerialized<any>>
 
   // ==== READ
-  count(options: { draft?: boolean; user: User }): Promise<number>
+  count(options: { draft?: boolean; user: ArenaUser }): Promise<number>
 
-  get(options: { validate?: boolean; draft?: boolean; categoryUuid: string; surveyId: number }): Promise<Category>
+  get(options: { validate?: boolean; draft?: boolean; categoryUuid: string; surveyId: number }): Promise<ArenaCategory>
 
   getMany(options: {
     draft?: boolean
@@ -29,17 +29,17 @@ export interface CategoryService extends ArenaService {
     offset?: number
     search?: string
     surveyId: number
-  }): Promise<Array<Category>>
+  }): Promise<Array<ArenaCategory>>
 
   // ==== UPDATE
   update(options: {
     categoryUuid: string
     surveyId: number
     system?: boolean
-    user: User
-    props: CategoryProps
-  }): Promise<Category>
+    user: ArenaUser
+    props: ArenaCategoryProps
+  }): Promise<ArenaCategory>
 
   // ==== DELETE
-  delete(options: { categoryUuid: string; surveyId: number; user: User }): Promise<void>
+  delete(options: { categoryUuid: string; surveyId: number; user: ArenaUser }): Promise<void>
 }

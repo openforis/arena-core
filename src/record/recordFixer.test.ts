@@ -1,6 +1,6 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
@@ -14,13 +14,13 @@ import { ArenaRecord } from './record'
 import { RecordFixer } from './recordFixer'
 import { Records } from './records'
 import { RecordUpdater } from './recordUpdater'
-import { Nodes } from '../node'
+import { RecordNodes } from '../node'
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 let record: ArenaRecord
 
-const deleteNodeDef = (params: { survey: Survey; parentUuid: string; uuid: string }) => {
+const deleteNodeDef = (params: { survey: ArenaSurvey; parentUuid: string; uuid: string }) => {
   const { survey, parentUuid, uuid } = params
   delete survey.nodeDefs?.[uuid]
   delete survey.nodeDefsIndex?.childDefUuidPresenceByParentUuid?.[parentUuid]?.[uuid]
@@ -72,7 +72,7 @@ describe('Record fixer', () => {
     const plotAttrDefUuid = plotAttrDef.uuid
 
     let rootNode = Records.getRoot(record)!
-    expect(Nodes.isChildApplicable(rootNode, clusterAttrDefUuid)).toBeFalsy()
+    expect(RecordNodes.isChildApplicable(rootNode, clusterAttrDefUuid)).toBeFalsy()
 
     // delete cluster_attr def and plot_attr
     deleteNodeDef({ survey, parentUuid: rootDef.uuid, uuid: clusterAttrDefUuid })
@@ -91,7 +91,7 @@ describe('Record fixer', () => {
 
     // test applicability cleared (applicable = true by default)
     rootNode = Records.getRoot(record)!
-    expect(Nodes.isChildApplicable(rootNode, clusterAttrDefUuid)).toBeTruthy()
+    expect(RecordNodes.isChildApplicable(rootNode, clusterAttrDefUuid)).toBeTruthy()
   })
 
   test('fixCodeAttribute: missing hierarchical code node inserted with correct hCode', async () => {

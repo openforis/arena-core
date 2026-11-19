@@ -1,10 +1,10 @@
-import { Chain, ChainFactory, ChainService } from '../../chain'
+import { ArenaChain, ChainFactory, ArenaChainService } from '../../chain'
 import { LanguageCode } from '../../language'
 
-export const chainMock: Chain = ChainFactory.createInstance({ labels: { [LanguageCode.en]: 'Chain' } })
+export const chainMock: ArenaChain = ChainFactory.createInstance({ labels: { [LanguageCode.en]: 'Chain' } })
 
-export class ChainServiceMock implements ChainService {
-  create(): Promise<Chain> {
+export class ChainServiceMock implements ArenaChainService {
+  create(): Promise<ArenaChain> {
     throw new Error('Not implemented')
   }
 
@@ -12,19 +12,19 @@ export class ChainServiceMock implements ChainService {
     throw new Error('Not implemented')
   }
 
-  get(): Promise<Chain> {
+  get(): Promise<ArenaChain> {
     return Promise.resolve(chainMock)
   }
 
-  getMany(): Promise<Array<Chain>> {
+  getMany(): Promise<Array<ArenaChain>> {
     throw new Error('Not implemented')
   }
 
-  update(): Promise<Chain> {
+  update(): Promise<ArenaChain> {
     throw new Error('Not implemented')
   }
 
-  delete(): Promise<Chain> {
+  delete(): Promise<ArenaChain> {
     throw new Error('Not implemented')
   }
 }

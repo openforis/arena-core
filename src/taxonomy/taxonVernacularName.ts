@@ -1,8 +1,8 @@
 import { ArenaObject } from '../common'
 
-export interface VernacularNameProps {
+export interface ArenaVernacularNameProps {
   lang: string
   name: string
 }
 
-export type VernacularName = ArenaObject<VernacularNameProps>
+export type ArenaVernacularName = ArenaObject<ArenaVernacularNameProps>

@@ -1,26 +1,29 @@
-import { ArenaRecordNode, Nodes, NodeValues } from '../../node'
-import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
-import { Survey, Surveys } from '../../survey'
-import { ValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
+import { ArenaRecordNode, RecordNodes, RecordNodeValues } from '../../node'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { ArenaSurvey, Surveys } from '../../survey'
+import { ArenaValidationResult, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
 
 const _isAttributeDuplicate = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   attribute: ArenaRecordNode
-  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
 }): boolean => {
   const { survey, attribute, record, nodeDef } = params
   // blank values are never considered duplicates
-  if (Nodes.isValueBlank(attribute)) return false
+  if (RecordNodes.isValueBlank(attribute)) return false
   const nodeSiblings = Records.getAttributeSiblings(attribute, nodeDef)(record)
   return nodeSiblings.some((sibling) =>
-    NodeValues.isValueEqual({ survey, nodeDef, value: sibling.value, valueSearch: attribute.value })
+    RecordNodeValues.isValueEqual({ survey, nodeDef, value: sibling.value, valueSearch: attribute.value })
   )
 }
 
-const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeDefType, NodeDefProps> }): boolean => {
+const isNodeDefToBeValidated = (params: {
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+}): boolean => {
   const { survey, nodeDef } = params
   const nodeDefValidations = NodeDefs.getValidations(nodeDef)
   if (!nodeDefValidations?.unique) return false
@@ -34,8 +37,8 @@ const isNodeDefToBeValidated = (params: { survey: Survey; nodeDef: NodeDef<NodeD
 }
 
 export const validateAttributeUnique =
-  (params: { survey: Survey; record: ArenaRecord; nodeDef: NodeDef<NodeDefType, NodeDefProps> }) =>
-  (_propName: string, node: ArenaRecordNode): Promise<ValidationResult> => {
+  (params: { survey: ArenaSurvey; record: ArenaRecord; nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps> }) =>
+  (_propName: string, node: ArenaRecordNode): Promise<ArenaValidationResult> => {
     const { survey, record, nodeDef } = params
 
     if (

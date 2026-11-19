@@ -1,17 +1,17 @@
 import { Categories } from './categories'
-import { CategoryItem } from './item'
+import { ArenaCategoryItem } from './item'
 import { ExtraPropsDataGenerator } from '../extraProp'
-import { Survey } from '../survey'
+import { ArenaSurvey } from '../survey'
 import { getCategoryByUuid } from '../survey/surveys/surveysGetters'
 import { UUIDs } from '../utils'
 
-const generateItem = (params: { survey: Survey; categoryUuid: string }): CategoryItem | null => {
+const generateItem = (params: { survey: ArenaSurvey; categoryUuid: string }): ArenaCategoryItem | null => {
   const { survey, categoryUuid } = params
   const category = categoryUuid ? getCategoryByUuid({ survey, categoryUuid }) : null
   if (!category) return null
   const extraPropDefs = Categories.getExtraPropDefs(category)
 
-  const item: CategoryItem = {
+  const item: ArenaCategoryItem = {
     uuid: UUIDs.v4(),
     props: { code: 'ABC' },
   }

@@ -1,4 +1,4 @@
-import { Nodes } from '../../node'
+import { RecordNodes } from '../../node'
 import { NodeDefCountType, NodeDefs } from '../../nodeDef'
 import { SurveyDependencyType } from '../../survey'
 import { Objects } from '../../utils'
@@ -47,13 +47,17 @@ export const updateDependentsCount = async (
     // 4. persist updated count if changed, and return updated nodes
     const nodeDefUuid = nodeDefNodePointer.uuid
 
-    const countPrev = Nodes.getChildrenMinOrMaxCount({ parentNode: nodeCtx, nodeDef: nodeDefNodePointer, countType })
+    const countPrev = RecordNodes.getChildrenMinOrMaxCount({
+      parentNode: nodeCtx,
+      nodeDef: nodeDefNodePointer,
+      countType,
+    })
     // count not defined (NaN) before and after: NaN !== NaN would mark the node as updated every time
     if (countPrev !== count && !(Number.isNaN(countPrev) && Number.isNaN(count))) {
       // count changed
 
       // 5. update node and add it to nodes updated
-      const nodeCtxUpdated = Nodes.assocChildrenCount({ node: nodeCtx, nodeDefUuid, count, countType })
+      const nodeCtxUpdated = RecordNodes.assocChildrenCount({ node: nodeCtx, nodeDefUuid, count, countType })
       updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
     }
   }

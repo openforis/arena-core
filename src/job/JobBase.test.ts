@@ -2,14 +2,14 @@ import { expect, jest, test } from '@jest/globals'
 
 import { UserFactory } from '../auth'
 import { SystemError } from '../error'
-import { Logger } from '../logger'
+import { ArenaLogger } from '../logger'
 
 import { JobBase } from './JobBase'
-import { JobContext } from './jobContext'
-import { JobEvent, JobEventType } from './jobEvent'
+import { ArenaJobContext } from './jobContext'
+import { ArenaJobEvent, JobEventType } from './jobEvent'
 import { JobStatus } from './status'
 
-const silentLogger: Logger = {
+const silentLogger: ArenaLogger = {
   isDebugEnabled: () => false,
   isInfoEnabled: () => false,
   isWarnEnabled: () => false,
@@ -22,7 +22,11 @@ const silentLogger: Logger = {
 
 const user = UserFactory.createInstance({ email: 'job-test@arena.org', name: 'Job Test User' })
 
-const createContext = (overrides: Partial<JobContext> = {}): JobContext => ({ user, surveyId: 1, ...overrides })
+const createContext = (overrides: Partial<ArenaJobContext> = {}): ArenaJobContext => ({
+  user,
+  surveyId: 1,
+  ...overrides,
+})
 
 const createTrackedClient = () => {
   let committed = false
@@ -64,10 +68,10 @@ type TestJobOptions = {
   processedBeforeExecute?: number
 }
 
-class TestJob extends JobBase<JobContext, any> {
+class TestJob extends JobBase<ArenaJobContext, any> {
   private readonly options: TestJobOptions
 
-  constructor(context: JobContext, jobs: JobBase<JobContext, any>[] = [], options: TestJobOptions = {}) {
+  constructor(context: ArenaJobContext, jobs: JobBase<ArenaJobContext, any>[] = [], options: TestJobOptions = {}) {
     super(context, jobs)
     this.options = options
   }
@@ -92,11 +96,11 @@ class TestJob extends JobBase<JobContext, any> {
     return this.options.result ?? (await super.generateResult())
   }
 
-  protected createLogger(): Logger {
+  protected createLogger(): ArenaLogger {
     return silentLogger
   }
 
-  get contextForTest(): JobContext {
+  get contextForTest(): ArenaJobContext {
     return this.context
   }
 
@@ -104,7 +108,7 @@ class TestJob extends JobBase<JobContext, any> {
     return this.getContextProp(prop, defaultValue)
   }
 
-  setContextForTest(context: Partial<JobContext>): void {
+  setContextForTest(context: Partial<ArenaJobContext>): void {
     this.setContext(context)
   }
 
@@ -324,7 +328,7 @@ test('cancel propagates canceledByAdmin from the currently running inner job to 
 })
 
 test('onEvent notifies the listener of status transitions', async () => {
-  const events: JobEvent[] = []
+  const events: ArenaJobEvent[] = []
   const job = new TestJob(createContext())
   job.onEvent((event) => events.push(event))
 
@@ -358,7 +362,7 @@ test('runs inner jobs in order and aggregates their progress', async () => {
 })
 
 test('total already reflects the inner jobs count in the very first running event', async () => {
-  const events: JobEvent[] = []
+  const events: ArenaJobEvent[] = []
   const innerJob1 = new TestJob(createContext())
   const innerJob2 = new TestJob(createContext())
   const parentJob = new TestJob(createContext(), [innerJob1, innerJob2])
@@ -636,7 +640,7 @@ test('createLogger overrides can read the already-assigned uuid/type', () => {
   let typeAtLoggerCreation: string | undefined = undefined
 
   class LoggerCapturingJob extends TestJob {
-    protected createLogger(): Logger {
+    protected createLogger(): ArenaLogger {
       createLoggerCalls += 1
       uuidAtLoggerCreation = this.uuid
       typeAtLoggerCreation = this.type
@@ -687,13 +691,13 @@ test('deleteContextProps removes the given keys from the context', () => {
 })
 
 test('surveyId defaults to null when absent from the context', () => {
-  const job = new TestJob({ user } as JobContext)
+  const job = new TestJob({ user } as ArenaJobContext)
 
   expect(job.surveyIdForTest).toBeNull()
 })
 
 test('userUuid is undefined instead of throwing when the context has no user', () => {
-  const job = new TestJob({ surveyId: 1 } as unknown as JobContext)
+  const job = new TestJob({ surveyId: 1 } as unknown as ArenaJobContext)
 
   expect(job.userUuidForTest).toBeUndefined()
 })
@@ -783,8 +787,8 @@ test('getErrorInfo falls back to a generic appErrors:generic key for unknown err
 // default. When execute() was `abstract`, that default didn't exist at runtime at all, so
 // `super.execute()` threw "(intermediate value).execute is not a function" the moment a subclass
 // whose parent doesn't override execute() reached it.
-class NoExecuteOverrideJob extends JobBase<JobContext, any> {
-  protected createLogger(): Logger {
+class NoExecuteOverrideJob extends JobBase<ArenaJobContext, any> {
+  protected createLogger(): ArenaLogger {
     return silentLogger
   }
 }
@@ -898,7 +902,7 @@ test('parent job status is updated by the inner job events before start() return
     },
   })
   const parentJob = new TestJob(createContext(), [innerJob])
-  const events: JobEvent[] = []
+  const events: ArenaJobEvent[] = []
   parentJob.onEvent((event) => events.push(event))
 
   await parentJob.start()
@@ -915,7 +919,7 @@ test('the failed event of a parent job includes the errors of the failed inner j
     },
   })
   const parentJob = new TestJob(createContext(), [innerJob])
-  const events: JobEvent[] = []
+  const events: ArenaJobEvent[] = []
   parentJob.onEvent((event) => events.push(event))
 
   await parentJob.start()
@@ -999,11 +1003,11 @@ test('a job failing while still pending is marked as failed', async () => {
   expect(JSON.stringify(job.toJSON().errors)).toContain('connection error')
 })
 
-type ContextPropsTestContext = JobContext & { filePath?: string; count?: number }
+type ContextPropsTestContext = ArenaJobContext & { filePath?: string; count?: number }
 
 // exposes the protected context getters, to check their values and types
 class ContextPropsTestJob extends JobBase<ContextPropsTestContext> {
-  protected override createLogger(): Logger {
+  protected override createLogger(): ArenaLogger {
     return silentLogger
   }
 
@@ -1041,7 +1045,7 @@ class EndHooksOrderTrackingJob extends TestJob {
   constructor(
     private readonly name: string,
     private readonly calls: string[],
-    jobs: JobBase<JobContext, any>[] = [],
+    jobs: JobBase<ArenaJobContext, any>[] = [],
     options: TestJobOptions = {}
   ) {
     super(createContext(), jobs, options)
@@ -1129,7 +1133,7 @@ test('errors of inner jobs failing with the same error key are all kept in the p
   const innerJob2 = createFailingJob('e2')
   const parentJob = new TestJob(createContext(), [innerJob1, innerJob2])
   parentJob.stopOnInnerJobFailure = false
-  const events: JobEvent[] = []
+  const events: ArenaJobEvent[] = []
   parentJob.onEvent((event) => events.push(event))
 
   await parentJob.start()

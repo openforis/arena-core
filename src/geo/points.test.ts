@@ -3,8 +3,8 @@ import { describe, test, expect } from '@jest/globals'
 import { PointFactory } from './pointFactory'
 import { Points } from './points'
 import { DEFAULT_SRS_INDEX } from '../srs'
-import { Point } from './point'
-import { AreaOfInterest } from './areaOfInterest'
+import { ArenaPoint } from './point'
+import { ArenaAreaOfInterest } from './areaOfInterest'
 
 const utm33N = {
   code: '32633',
@@ -14,7 +14,7 @@ const utm33N = {
 const srsIndex = { ...DEFAULT_SRS_INDEX, [utm33N.code]: utm33N }
 
 // Helper function to test bearing between points
-const testBearing = (origin: Point, distanceMeters: number, expectedBearing: number) => {
+const testBearing = (origin: ArenaPoint, distanceMeters: number, expectedBearing: number) => {
   const location = Points.pointAtDistance({
     origin,
     distanceMeters,
@@ -185,7 +185,7 @@ describe('Points.distanceToPolygonBoundary', () => {
     [12.4, 42.0],
     [12.4, 41.8],
   ]
-  const polygon: AreaOfInterest = { type: 'Polygon', coordinates: [polygonRing] }
+  const polygon: ArenaAreaOfInterest = { type: 'Polygon', coordinates: [polygonRing] }
 
   test('negative distance for a point inside', () => {
     const point = PointFactory.createInstance({ x: 12.401, y: 41.9 })
@@ -211,7 +211,7 @@ describe('Points.distanceToPolygonBoundary', () => {
       [13, 42],
       [13, 41.8],
     ]
-    const multiPolygon: AreaOfInterest = { type: 'MultiPolygon', coordinates: [[polygonRing], [otherPolygonRing]] }
+    const multiPolygon: ArenaAreaOfInterest = { type: 'MultiPolygon', coordinates: [[polygonRing], [otherPolygonRing]] }
     const point = PointFactory.createInstance({ x: 13.001, y: 41.9 })
     expect(Points.distanceToPolygonBoundary(point, multiPolygon)).toBeLessThan(0)
   })

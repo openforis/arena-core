@@ -1,10 +1,10 @@
-import { User } from '../auth'
-import { Survey } from '../survey'
+import { ArenaUser } from '../auth'
+import { ArenaSurvey } from '../survey'
 
-export interface JobContext {
+export interface ArenaJobContext {
   surveyId?: number
-  survey?: Survey
+  survey?: ArenaSurvey
   type?: string
   tx?: any
-  user: User
+  user: ArenaUser
 }

@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals'
 
-import { ArenaRecordNode, Nodes } from '../node'
+import { ArenaRecordNode, RecordNodes } from '../node'
 import { ArenaRecord, RecordPrettyPrinter, Records } from './index'
 import { Surveys } from '../survey'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
@@ -29,9 +29,9 @@ describe('RecordPrettyPrinter', () => {
 
     let record: ArenaRecord = new RecordBuilder(user, survey, entity('root', attribute('a', 10))).build()
     const rootNode = Records.getRoot(record) as ArenaRecordNode
-    const rootNodeNotApplicable = Nodes.assocChildApplicability(rootNode, bDef.uuid, false)
-    const rootNodeNotEditable = Nodes.assocChildEditable(rootNodeNotApplicable, bDef.uuid, false)
-    const rootNodeNotVisible = Nodes.assocChildVisible(rootNodeNotEditable, bDef.uuid, false)
+    const rootNodeNotApplicable = RecordNodes.assocChildApplicability(rootNode, bDef.uuid, false)
+    const rootNodeNotEditable = RecordNodes.assocChildEditable(rootNodeNotApplicable, bDef.uuid, false)
+    const rootNodeNotVisible = RecordNodes.assocChildVisible(rootNodeNotEditable, bDef.uuid, false)
     record = Records.addNode(rootNodeNotVisible)(record)
 
     const printed = RecordPrettyPrinter.print({

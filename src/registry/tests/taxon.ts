@@ -1,7 +1,7 @@
-import { Taxon, TaxonFactory, TaxonService, VernacularName } from '../../taxonomy'
-import { JobSerialized } from '../../job'
+import { ArenaTaxon, TaxonFactory, ArenaTaxonService, ArenaVernacularName } from '../../taxonomy'
+import { ArenaJobSerialized } from '../../job'
 
-export const taxonMock: Taxon = TaxonFactory.createInstance({
+export const taxonMock: ArenaTaxon = TaxonFactory.createInstance({
   props: {
     genus: 'GENUS',
     code: 'CODE',
@@ -11,24 +11,24 @@ export const taxonMock: Taxon = TaxonFactory.createInstance({
   taxonomyUuid: 'taxonomyUuid',
 })
 
-export class TaxonServiceMock implements TaxonService {
+export class TaxonServiceMock implements ArenaTaxonService {
   count(): Promise<number> {
     throw new Error('Not implemented')
   }
 
-  get(): Promise<Taxon> {
+  get(): Promise<ArenaTaxon> {
     return Promise.resolve(taxonMock)
   }
 
-  getMany(): Promise<Array<Taxon>> {
+  getMany(): Promise<Array<ArenaTaxon>> {
     throw new Error('Not implemented')
   }
 
-  getManyVernacularNames(): Promise<Array<VernacularName>> {
+  getManyVernacularNames(): Promise<Array<ArenaVernacularName>> {
     throw new Error('Not implemented')
   }
 
-  importTaxa(): Promise<JobSerialized<any>> {
+  importTaxa(): Promise<ArenaJobSerialized<any>> {
     throw new Error('Not implemented')
   }
 }

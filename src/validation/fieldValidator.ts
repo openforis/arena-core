@@ -1,3 +1,3 @@
-import { ValidationResult } from './validation'
+import { ArenaValidationResult } from './validation'
 
-export type FieldValidator = (field: string, obj: any) => Promise<ValidationResult>
+export type ArenaFieldValidator = (field: string, obj: any) => Promise<ArenaValidationResult>

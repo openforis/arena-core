@@ -1,16 +1,16 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
-import { AreaOfInterest } from '../../geo'
-import { AreaOfInterestProvider } from '../../nodeDefExpressionEvaluator'
-import { Survey } from '../../survey'
+import { ArenaAreaOfInterest } from '../../geo'
+import { ArenaAreaOfInterestProvider } from '../../nodeDefExpressionEvaluator'
+import { ArenaSurvey } from '../../survey'
 import { createTestAreaOfInterestProvider, withAreasOfInterest } from '../../tests/areaOfInterestTestUtils'
 import { createTestAdminUser, createTestRecord, createTestSurvey } from '../../tests/data'
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
-import { RecordExpressionContext } from './context'
+import { ArenaRecordExpressionContext } from './context'
 import { RecordExpressionEvaluator } from './recordExpressionEvaluator'
 
-const polygon = (west: number, east: number): AreaOfInterest => ({
+const polygon = (west: number, east: number): ArenaAreaOfInterest => ({
   type: 'Polygon',
   coordinates: [
     [
@@ -29,13 +29,16 @@ const square = polygon(41.8, 42.0)
 const areaOfInterestProvider = createTestAreaOfInterestProvider({ west: westArea, square })
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 let record: ArenaRecord
 
-const evaluate = (expression: string, params: { survey: Survey; provider?: AreaOfInterestProvider | null }) => {
+const evaluate = (
+  expression: string,
+  params: { survey: ArenaSurvey; provider?: ArenaAreaOfInterestProvider | null }
+) => {
   const { survey: surveyToEvaluate, provider = areaOfInterestProvider } = params
   const nodeContext = Records.getRoot(record)!
-  const context: RecordExpressionContext = {
+  const context: ArenaRecordExpressionContext = {
     user,
     survey: surveyToEvaluate,
     record,

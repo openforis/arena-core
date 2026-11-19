@@ -1,4 +1,4 @@
-export interface Logger {
+export interface ArenaLogger {
   isDebugEnabled(): boolean
 
   isInfoEnabled(): boolean

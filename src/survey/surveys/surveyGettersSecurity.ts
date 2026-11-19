@@ -1,32 +1,32 @@
-import { Survey, SurveySecurity, surveySecurityDefaults, SurveySecurityProp } from '../survey'
+import { ArenaSurvey, ArenaSurveySecurity, surveySecurityDefaults, SurveySecurityProp } from '../survey'
 
-export const getSecurity = (survey: Survey): SurveySecurity => ({
+export const getSecurity = (survey: ArenaSurvey): ArenaSurveySecurity => ({
   ...surveySecurityDefaults,
   ...survey?.props?.security,
 })
 
 export const isSecurityPropEnabled =
   (prop: SurveySecurityProp) =>
-  (survey: Survey): boolean =>
+  (survey: ArenaSurvey): boolean =>
     !!getSecurity(survey)[prop]
 
-export const isDataEditorViewNotOwnedRecordsAllowed = (survey: Survey): boolean =>
+export const isDataEditorViewNotOwnedRecordsAllowed = (survey: ArenaSurvey): boolean =>
   isSecurityPropEnabled(SurveySecurityProp.dataEditorViewNotOwnedRecordsAllowed)(survey)
 
-export const isDataAnalystViewNotOwnedRecordsAllowed = (survey: Survey): boolean =>
+export const isDataAnalystViewNotOwnedRecordsAllowed = (survey: ArenaSurvey): boolean =>
   isSecurityPropEnabled(SurveySecurityProp.dataAnalystViewNotOwnedRecordsAllowed)(survey)
 
-export const isVisibleInMobile = (survey: Survey): boolean =>
+export const isVisibleInMobile = (survey: ArenaSurvey): boolean =>
   isSecurityPropEnabled(SurveySecurityProp.visibleInMobile)(survey)
 
-export const isRecordsDownloadInMobileAllowed = (survey: Survey): boolean =>
+export const isRecordsDownloadInMobileAllowed = (survey: ArenaSurvey): boolean =>
   isSecurityPropEnabled(SurveySecurityProp.allowRecordsDownloadInMobile)(survey)
 
-export const isRecordsUploadFromMobileAllowed = (survey: Survey): boolean =>
+export const isRecordsUploadFromMobileAllowed = (survey: ArenaSurvey): boolean =>
   isSecurityPropEnabled(SurveySecurityProp.allowRecordsUploadFromMobile)(survey)
 
-export const isRecordsWithErrorsUploadFromMobileAllowed = (survey: Survey): boolean =>
+export const isRecordsWithErrorsUploadFromMobileAllowed = (survey: ArenaSurvey): boolean =>
   isSecurityPropEnabled(SurveySecurityProp.allowRecordsWithErrorsUploadFromMobile)(survey)
 
-export const isRecordsMergeWithSameKeysAllowed = (survey: Survey): boolean =>
+export const isRecordsMergeWithSameKeysAllowed = (survey: ArenaSurvey): boolean =>
   isSecurityPropEnabled(SurveySecurityProp.allowRecordsMergeWithSameKeys)(survey)

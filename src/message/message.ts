@@ -49,7 +49,7 @@ export type MessageProps = {
 /**
  * Represents a message record in the database.
  */
-export type Message = {
+export type ArenaMessage = {
   uuid: string
   status: MessageStatus
   props?: MessageProps

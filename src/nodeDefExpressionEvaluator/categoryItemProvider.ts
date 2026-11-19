@@ -1,23 +1,23 @@
-import { CategoryItem } from '../category'
-import { Survey } from '../survey'
+import { ArenaCategoryItem } from '../category'
+import { ArenaSurvey } from '../survey'
 
-export interface CategoryItemProvider {
+export interface ArenaCategoryItemProvider {
   getItemByCodePaths: (params: {
-    survey: Survey
+    survey: ArenaSurvey
     categoryUuid: string
     codePaths: string[]
     draft?: boolean
-  }) => Promise<CategoryItem | undefined>
+  }) => Promise<ArenaCategoryItem | undefined>
   getItemByUuid: (params: {
-    survey: Survey
+    survey: ArenaSurvey
     categoryUuid: string
     itemUuid: string
     draft?: boolean
-  }) => Promise<CategoryItem | undefined>
+  }) => Promise<ArenaCategoryItem | undefined>
   getItems: (params: {
-    survey: Survey
+    survey: ArenaSurvey
     categoryUuid: string
     parentItemUuid?: string
     draft?: boolean
-  }) => Promise<CategoryItem[]>
+  }) => Promise<ArenaCategoryItem[]>
 }

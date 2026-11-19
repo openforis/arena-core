@@ -1,7 +1,7 @@
-import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
 
-export interface NodeDefTimeProps extends NodeDefProps {
+export interface ArenaNodeDefTimeProps extends ArenaNodeDefProps {
   includeSeconds?: boolean
 }
 
-export type NodeDefTime = NodeDef<NodeDefType.time, NodeDefTimeProps>
+export type ArenaNodeDefTime = ArenaNodeDef<NodeDefType.time, ArenaNodeDefTimeProps>

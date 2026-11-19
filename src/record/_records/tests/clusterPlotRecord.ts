@@ -1,4 +1,4 @@
-import { Survey } from '../../../survey'
+import { ArenaSurvey } from '../../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../../../tests/builder/recordBuilder'
 import { createTestAdminUser } from '../../../tests/data'
@@ -8,7 +8,7 @@ const { entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
 // survey with a cluster (key cluster_id) and multiple plots (key plot_id); record with 2 plots
-export const createClusterPlotSurveyAndRecord = async (): Promise<{ survey: Survey; record: ArenaRecord }> => {
+export const createClusterPlotSurveyAndRecord = async (): Promise<{ survey: ArenaSurvey; record: ArenaRecord }> => {
   const user = createTestAdminUser()
   const survey = await new SurveyBuilder(
     user,

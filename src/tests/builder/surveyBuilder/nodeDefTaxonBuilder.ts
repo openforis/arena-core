@@ -1,5 +1,5 @@
-import { NodeDef, NodeDefEntity, NodeDefTaxon, NodeDefType } from '../../../nodeDef'
-import { Survey, Surveys } from '../../../survey'
+import { ArenaNodeDef, ArenaNodeDefEntity, ArenaNodeDefTaxon, NodeDefType } from '../../../nodeDef'
+import { ArenaSurvey, Surveys } from '../../../survey'
 import { NodeDefAttributeBuilder } from './nodeDefAttributeBuilder'
 
 export class NodeDefTaxonBuilder extends NodeDefAttributeBuilder {
@@ -10,7 +10,9 @@ export class NodeDefTaxonBuilder extends NodeDefAttributeBuilder {
     this.taxonomyName = taxonomyName
   }
 
-  build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> } {
+  build(params: { survey: ArenaSurvey; nodeDefParent?: ArenaNodeDefEntity }): {
+    [uuid: string]: ArenaNodeDef<NodeDefType>
+  } {
     const { survey } = params
     const result = super.build(params)
 
@@ -18,7 +20,7 @@ export class NodeDefTaxonBuilder extends NodeDefAttributeBuilder {
     if (!taxonomy) {
       throw new Error(`Taxonomy with name "${this.taxonomyName}" not found`)
     }
-    const nodeDef = Object.values(result)[0] as NodeDefTaxon
+    const nodeDef = Object.values(result)[0] as ArenaNodeDefTaxon
     nodeDef.props.taxonomyUuid = taxonomy.uuid
 
     return result

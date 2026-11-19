@@ -3,12 +3,12 @@ import { JobStatus } from './status'
 /**
  * Plain JSON-serializable representation of a job, produced by JobBase#toJSON.
  */
-export interface JobSerialized<R = undefined> {
+export interface ArenaJobSerialized<R = undefined> {
   uuid: string
   type: string
   userUuid: string | undefined
   surveyId: number | null
-  innerJobs: JobSerialized<any>[]
+  innerJobs: ArenaJobSerialized<any>[]
   currentInnerJobIndex: number
 
   // Status

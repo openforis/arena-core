@@ -1,17 +1,18 @@
-import { ExtraPropDataType, ExtraPropDef } from './extraProp'
+import { ExtraPropDataType, ArenaExtraPropDef } from './extraProp'
 import { Points } from '../geo'
-import { Survey } from '../survey'
+import { ArenaSurvey } from '../survey'
 import { Objects } from '../utils'
 
-const covertersByType: { [key in ExtraPropDataType]: (params: { survey: Survey; value: any }) => any } = {
+const covertersByType: { [key in ExtraPropDataType]: (params: { survey: ArenaSurvey; value: any }) => any } = {
   [ExtraPropDataType.geometryPoint]: (params: { value: any }) => Points.parse(params.value),
   [ExtraPropDataType.number]: (params: { value: any }) => Number(params.value),
   [ExtraPropDataType.text]: (params: { value: any }) => String(params.value),
 }
 
-const getDataType = (extraPropDef: ExtraPropDef): ExtraPropDataType => extraPropDef.dataType ?? ExtraPropDataType.text
+const getDataType = (extraPropDef: ArenaExtraPropDef): ExtraPropDataType =>
+  extraPropDef.dataType ?? ExtraPropDataType.text
 
-const convertValue = (params: { survey: Survey; extraPropDef: ExtraPropDef; value: any }) => {
+const convertValue = (params: { survey: ArenaSurvey; extraPropDef: ArenaExtraPropDef; value: any }) => {
   const { survey, extraPropDef, value } = params
   if (Objects.isEmpty(value)) return null
 

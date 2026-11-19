@@ -1,6 +1,6 @@
-import { NodeDef, NodeDefLayout, NodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefLayout, ArenaNodeDefPropsWithLayout, NodeDefType } from '../nodeDef'
 
-export interface NodeDefEntityChildPosition {
+export interface ArenaNodeDefEntityChildPosition {
   h?: number
   i: string
   maxH?: number
@@ -13,16 +13,16 @@ export interface NodeDefEntityChildPosition {
   y: number
 }
 
-export type NodeDefEntityLayoutChildItem = NodeDefEntityChildPosition | string
+export type ArenaNodeDefEntityLayoutChildItem = ArenaNodeDefEntityChildPosition | string
 
-export type NodeDefPrintOrientation = 'portrait' | 'landscape'
+export type ArenaNodeDefPrintOrientation = 'portrait' | 'landscape'
 
-export interface NodeDefEntityProps extends NodeDefPropsWithLayout<NodeDefEntityLayout> {
+export interface ArenaNodeDefEntityProps extends ArenaNodeDefPropsWithLayout<ArenaNodeDefEntityLayout> {
   // Applies only to multiple entities; when true, missing repetitions up to min count are auto-created.
   autoCreateMinCountItems?: boolean
   enumerate?: boolean
   /** When set, printable export uses this orientation for the entity's print section. */
-  printOrientation?: NodeDefPrintOrientation
+  printOrientation?: ArenaNodeDefPrintOrientation
 }
 
 export enum NodeDefEntityRenderType {
@@ -30,12 +30,12 @@ export enum NodeDefEntityRenderType {
   table = 'table',
 }
 
-export interface NodeDefEntityLayout extends NodeDefLayout {
+export interface ArenaNodeDefEntityLayout extends ArenaNodeDefLayout {
   columnsNo?: number
   indexChildren?: string[] // sorted children pages uuids
-  layoutChildren?: NodeDefEntityLayoutChildItem[]
+  layoutChildren?: ArenaNodeDefEntityLayoutChildItem[]
   pageUuid?: string
   renderType: NodeDefEntityRenderType
 }
 
-export type NodeDefEntity = NodeDef<NodeDefType.entity, NodeDefEntityProps>
+export type ArenaNodeDefEntity = ArenaNodeDef<NodeDefType.entity, ArenaNodeDefEntityProps>

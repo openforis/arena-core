@@ -1,11 +1,11 @@
 import { Objects } from '../../utils'
 import { ValidationResultFactory } from '../factory'
-import { ValidationResult, ValidationSeverity } from '../validation'
+import { ArenaValidationResult, ValidationSeverity } from '../validation'
 import { numeric } from './numeric'
 
 export const numericPositive =
   (messageKey: string, messageParams: any = {}) =>
-  async (field: string, obj: any): Promise<ValidationResult> => {
+  async (field: string, obj: any): Promise<ArenaValidationResult> => {
     const validateNumberResult = await numeric(messageKey, messageParams)(field, obj)
     if (!validateNumberResult.valid) {
       return validateNumberResult

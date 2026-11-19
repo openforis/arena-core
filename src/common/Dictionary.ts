@@ -1,3 +1,3 @@
-export interface Dictionary<T> {
+export interface ArenaDictionary<T> {
   [key: string]: T
 }

@@ -1,17 +1,22 @@
-export type { ArenaRecordNode, Node, NodeMeta, NodeRefData, NodesMap } from './node'
+export type { ArenaRecordNode, ArenaRecordNodeMeta, ArenaRecordNodeRefData, ArenaRecordNodesMap } from './node'
 
-export { NodeKeys, NodeMetaKeys } from './node'
+export { RecordNodeKeys, RecordNodeMetaKeys } from './node'
 
-export type { NodePointer } from './nodePointer'
+export type { ArenaRecordNodePointer } from './nodePointer'
 
-export type { NodeValueCode, NodeValueCoordinate, NodeValueFile, NodeValueTaxon } from './nodeValue'
+export type {
+  ArenaRecordNodeValueCode,
+  ArenaRecordNodeValueCoordinate,
+  ArenaRecordNodeValueFile,
+  ArenaRecordNodeValueTaxon,
+} from './nodeValue'
 
-export { NodeFactory } from './factory'
+export { RecordNodeFactory } from './factory'
 
-export { Nodes } from './nodes'
+export { RecordNodes } from './nodes'
 
-export { NodeValueFormatter } from './nodeValueFormatter'
+export { RecordNodeValueFormatter } from './nodeValueFormatter'
 
-export { NodeValues } from './nodeValues'
+export { RecordNodeValues } from './nodeValues'
 
-export type { NodeService } from './service'
+export type { ArenaRecordNodeService } from './service'

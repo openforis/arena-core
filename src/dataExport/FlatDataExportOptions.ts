@@ -16,9 +16,9 @@ export enum FlatDataExportOption {
   nullsToEmpty = 'nullsToEmpty',
 }
 
-export type FlatDataExportOptions = Partial<Record<FlatDataExportOption, boolean>>
+export type ArenaFlatDataExportOptions = Partial<Record<FlatDataExportOption, boolean>>
 
-export const FlatDataExportDefaultOptions: FlatDataExportOptions = {
+export const FlatDataExportDefaultOptions: ArenaFlatDataExportOptions = {
   expandCategoryItems: false,
   exportSingleEntitiesIntoSeparateFiles: false,
   includeAnalysis: true,

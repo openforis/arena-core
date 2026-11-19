@@ -1,17 +1,17 @@
-import { ArenaObject, Dictionary } from '../common'
-import { AuthGroup } from '../auth'
-import { Labels, LanguageCode } from '../language'
-import type { AreaOfInterestDescriptor } from '../geo'
-import { SRS } from '../srs'
+import { ArenaObject, ArenaDictionary } from '../common'
+import { ArenaAuthGroup } from '../auth'
+import { ArenaLabels, LanguageCode } from '../language'
+import type { ArenaAreaOfInterestDescriptor } from '../geo'
+import { ArenaSRS } from '../srs'
 
-import { NodeDef, NodeDefType } from '../nodeDef'
-import { Category } from '../category'
-import { Taxonomy } from '../taxonomy'
-import { SurveyRefData } from './refData/refData'
+import { ArenaNodeDef, NodeDefType } from '../nodeDef'
+import { ArenaCategory } from '../category'
+import { ArenaTaxonomy } from '../taxonomy'
+import { ArenaSurveyRefData } from './refData/refData'
 
 export const defaultCycle = '0'
 
-export interface SurveyDependency {
+export interface ArenaSurveyDependency {
   [nodeDefUuid: string]: string[] | boolean
 }
 
@@ -31,11 +31,11 @@ export enum SurveyDependencyType {
   onUpdate = 'onUpdate', // dependencies updated on every record update, stored as dictionary of booleans
 }
 
-export type SurveyDependencyGraph = {
-  [key in SurveyDependencyType]: SurveyDependency
+export type ArenaSurveyDependencyGraph = {
+  [key in SurveyDependencyType]: ArenaSurveyDependency
 }
 
-export interface SurveyCycle {
+export interface ArenaSurveyCycle {
   dateEnd?: string
   dateStart: string
 }
@@ -50,11 +50,11 @@ export enum SurveySecurityProp {
   allowRecordsMergeWithSameKeys = 'allowRecordsMergeWithSameKeys',
 }
 
-export type SurveySecurity = {
+export type ArenaSurveySecurity = {
   [key in SurveySecurityProp]?: boolean
 }
 
-export const surveySecurityDefaults: SurveySecurity = {
+export const surveySecurityDefaults: ArenaSurveySecurity = {
   [SurveySecurityProp.dataEditorViewNotOwnedRecordsAllowed]: true,
   [SurveySecurityProp.dataAnalystViewNotOwnedRecordsAllowed]: true,
   [SurveySecurityProp.visibleInMobile]: true,
@@ -74,14 +74,14 @@ export const surveyDocImagePropKeys = {
   applyIf: 'applyIf',
 } as const
 
-export type SurveyDocImageProps = SurveyFileProps & {
+export type ArenaSurveyDocImageProps = ArenaSurveyFileProps & {
   documentPlace?: SurveyDocPlace
   applyIf?: string
 }
 
-export type SurveyFileProps = {
+export type ArenaSurveyFileProps = {
   deleted?: boolean
-  labels?: Labels
+  labels?: ArenaLabels
   name?: string
   nodeUuid?: string
   recordUuid?: string
@@ -90,58 +90,58 @@ export type SurveyFileProps = {
   type?: string
 }
 
-export type SurveyFile = {
+export type ArenaSurveyFile = {
   uuid: string
-  props: SurveyFileProps
+  props: ArenaSurveyFileProps
   content?: Buffer | null
   dateCreated: string
 }
 
-export type SurveyDocImage = SurveyFile & {
-  props: SurveyDocImageProps
+export type ArenaSurveyDocImage = ArenaSurveyFile & {
+  props: ArenaSurveyDocImageProps
 }
 
 export type SurveyDocOptions = {
   headerOnFirstPageOnly?: boolean // default: true
 }
 
-export interface SurveyProps {
-  areasOfInterest?: AreaOfInterestDescriptor[]
+export interface ArenaSurveyProps {
+  areasOfInterest?: ArenaAreaOfInterestDescriptor[]
   collectUri?: string
   cycles: {
-    [key: string]: SurveyCycle
+    [key: string]: ArenaSurveyCycle
   }
   defaultCycleKey?: string
-  descriptions?: Labels
-  fieldManualLinks?: Labels
+  descriptions?: ArenaLabels
+  fieldManualLinks?: ArenaLabels
   // when true, values of attributes becoming non-applicable are kept during data entry (default: cleared)
   keepNonApplicableValues?: boolean
-  labels?: Labels
+  labels?: ArenaLabels
   languages: LanguageCode[]
   name: string
-  preloadedMapLayers?: SurveyFile[]
+  preloadedMapLayers?: ArenaSurveyFile[]
   preloadedMapLayersEnabled?: boolean
-  security?: SurveySecurity
-  srs: SRS[]
-  surveyDocImages?: SurveyDocImage[]
+  security?: ArenaSurveySecurity
+  srs: ArenaSRS[]
+  surveyDocImages?: ArenaSurveyDocImage[]
   surveyDocOptions?: SurveyDocOptions
 }
 
-export interface SurveyNodeDefsIndex {
+export interface ArenaSurveyNodeDefsIndex {
   rootDefUuid?: string
   childDefUuidPresenceByParentUuid?: { [parentUuid: string]: { [nodeDefUuid: string]: boolean } }
-  nodeDefUuidByName?: Dictionary<string>
+  nodeDefUuidByName?: ArenaDictionary<string>
   qualifierPresenceByUuid?: { [nodeDefUuid: string]: boolean }
 }
 
-export interface Survey extends ArenaObject<SurveyProps> {
-  authGroups: Array<AuthGroup>
+export interface ArenaSurvey extends ArenaObject<ArenaSurveyProps> {
+  authGroups: Array<ArenaAuthGroup>
   dateCreated?: string
   dateModified?: string
   datePublished?: string
-  dependencyGraph?: SurveyDependencyGraph
+  dependencyGraph?: ArenaSurveyDependencyGraph
   draft: boolean
-  nodeDefs?: { [nodeDefUuid: string]: NodeDef<NodeDefType> }
+  nodeDefs?: { [nodeDefUuid: string]: ArenaNodeDef<NodeDefType> }
   ownerUuid: string
   published: boolean
   readonly id?: number
@@ -150,15 +150,15 @@ export interface Survey extends ArenaObject<SurveyProps> {
   /**
    * Categories indexed by uuid.
    */
-  categories?: { [categoryUuid: string]: Category }
+  categories?: { [categoryUuid: string]: ArenaCategory }
   /**
    * Taxonomies indexed by uuid.
    */
-  taxonomies?: { [taxonomyUuid: string]: Taxonomy }
+  taxonomies?: { [taxonomyUuid: string]: ArenaTaxonomy }
   /**
    * Reference data cache (category items and taxa).
    */
-  refData?: SurveyRefData
+  refData?: ArenaSurveyRefData
 
-  nodeDefsIndex?: SurveyNodeDefsIndex
+  nodeDefsIndex?: ArenaSurveyNodeDefsIndex
 }

@@ -1,3 +1,3 @@
-import { NodeDef, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, NodeDefType } from '../nodeDef'
 
-export type NodeDefDate = NodeDef<NodeDefType.date>
+export type ArenaNodeDefDate = ArenaNodeDef<NodeDefType.date>

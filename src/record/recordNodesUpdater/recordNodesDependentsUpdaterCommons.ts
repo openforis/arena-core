@@ -1,7 +1,7 @@
 import { SystemError } from '../../error'
-import { ArenaRecordNode, NodePointer } from '../../node'
-import { NodeDef, NodeDefExpression, NodeDefProps, NodeDefType, NodeDefs } from '../../nodeDef'
-import { Survey, SurveyDependencyType, Surveys } from '../../survey'
+import { ArenaRecordNode, ArenaRecordNodePointer } from '../../node'
+import { ArenaNodeDef, ArenaNodeDefExpression, ArenaNodeDefProps, NodeDefType, NodeDefs } from '../../nodeDef'
+import { ArenaSurvey, SurveyDependencyType, Surveys } from '../../survey'
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
 
@@ -9,9 +9,9 @@ export const throwError = (params: {
   error: any
   errorKey: string
   expressionType: SurveyDependencyType
-  survey: Survey
-  nodeDef: NodeDef<NodeDefType, NodeDefProps>
-  expressionsToEvaluate: NodeDefExpression[]
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  expressionsToEvaluate: ArenaNodeDefExpression[]
 }) => {
   const { error, errorKey, expressionType, survey, nodeDef, expressionsToEvaluate } = params
   const nodeDefName = nodeDef.props.name
@@ -32,9 +32,9 @@ export const throwError = (params: {
 }
 
 const addPointerIfAccepted = (params: {
-  nodePointers: NodePointer[]
-  pointer: NodePointer
-  filterFn?: (nodePointer: NodePointer) => boolean
+  nodePointers: ArenaRecordNodePointer[]
+  pointer: ArenaRecordNodePointer
+  filterFn?: (nodePointer: ArenaRecordNodePointer) => boolean
 }) => {
   const { nodePointers, pointer, filterFn } = params
   if (!filterFn || filterFn(pointer)) {
@@ -43,12 +43,12 @@ const addPointerIfAccepted = (params: {
 }
 
 const addNewEntitySelfPointer = (params: {
-  nodePointers: NodePointer[]
-  survey: Survey
+  nodePointers: ArenaRecordNodePointer[]
+  survey: ArenaSurvey
   record: ArenaRecord
   node: ArenaRecordNode
-  sourceNodeDef: NodeDef<NodeDefType, NodeDefProps>
-  filterFn?: (nodePointer: NodePointer) => boolean
+  sourceNodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  filterFn?: (nodePointer: ArenaRecordNodePointer) => boolean
 }) => {
   const { nodePointers, record, node, sourceNodeDef, filterFn } = params
   if (!node.parentUuid) {
@@ -66,11 +66,11 @@ const addNewEntitySelfPointer = (params: {
 }
 
 const addNewEntityChildMultiplePointers = (params: {
-  nodePointers: NodePointer[]
-  survey: Survey
+  nodePointers: ArenaRecordNodePointer[]
+  survey: ArenaSurvey
   node: ArenaRecordNode
-  sourceNodeDef: NodeDef<NodeDefType, NodeDefProps>
-  filterFn?: (nodePointer: NodePointer) => boolean
+  sourceNodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
+  filterFn?: (nodePointer: ArenaRecordNodePointer) => boolean
 }) => {
   const { nodePointers, survey, node, sourceNodeDef, filterFn } = params
   const multipleNodeDefs = Surveys.getNodeDefChildren({ survey, nodeDef: sourceNodeDef }).filter(NodeDefs.isMultiple)
@@ -85,15 +85,15 @@ const addNewEntityChildMultiplePointers = (params: {
 }
 
 export const getDependentNodePointersByType = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   node: ArenaRecordNode
   dependencyType: SurveyDependencyType
   includeSelfWhenSourceIsAttribute?: boolean
   includeNewEntitySelf?: boolean
   includeNewEntityChildPointers?: boolean
-  filterFn?: (nodePointer: NodePointer) => boolean
-}): NodePointer[] => {
+  filterFn?: (nodePointer: ArenaRecordNodePointer) => boolean
+}): ArenaRecordNodePointer[] => {
   const {
     survey,
     record,

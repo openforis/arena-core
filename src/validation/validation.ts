@@ -1,31 +1,31 @@
-import { Labels } from '../language'
+import { ArenaLabels } from '../language'
 
 export enum ValidationSeverity {
   error = 'error',
   warning = 'warning',
 }
 
-export interface ValidationResult {
+export interface ArenaValidationResult {
   severity?: ValidationSeverity
   key?: string
   params?: { [key: string]: any }
-  messages?: Labels
+  messages?: ArenaLabels
   valid: boolean
 }
 
-export interface ValidationCounts {
+export interface ArenaValidationCounts {
   errors: number
   warnings: number
 }
 
-export interface ValidationFields {
-  [key: string]: Validation
+export interface ArenaValidationFields {
+  [key: string]: ArenaValidation
 }
 
-export interface Validation {
-  errors?: ValidationResult[]
-  fields?: ValidationFields
+export interface ArenaValidation {
+  errors?: ArenaValidationResult[]
+  fields?: ArenaValidationFields
   valid: boolean
-  warnings?: ValidationResult[]
-  counts?: ValidationCounts
+  warnings?: ArenaValidationResult[]
+  counts?: ArenaValidationCounts
 }

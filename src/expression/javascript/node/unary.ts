@@ -1,6 +1,6 @@
 import { SystemError, SystemErrorKeys } from '../../../error'
-import { ExpressionContext } from '../../context'
-import { ExpressionNodeEvaluator, UnaryExpression } from '../../node'
+import { ArenaExpressionContext } from '../../context'
+import { ExpressionNodeEvaluator, ArenaUnaryExpression } from '../../node'
 
 const unaryOperators: { [key: string]: (x: any) => any } = {
   // Only accept bools and nulls as input.
@@ -17,8 +17,8 @@ const unaryOperators: { [key: string]: (x: any) => any } = {
   // '+': x => R.isNil(x) ? null : +x,
 }
 
-export class UnaryEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, UnaryExpression> {
-  async evaluate(expressionNode: UnaryExpression): Promise<any> {
+export class UnaryEvaluator<C extends ArenaExpressionContext> extends ExpressionNodeEvaluator<C, ArenaUnaryExpression> {
+  async evaluate(expressionNode: ArenaUnaryExpression): Promise<any> {
     const { argument, operator } = expressionNode
     const fn = unaryOperators[operator]
 

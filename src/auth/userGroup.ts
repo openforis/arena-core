@@ -1,21 +1,21 @@
-export type UserGroupQualifier = {
+export type ArenaUserGroupQualifier = {
   name: string
   value: string
 }
 
-export type UserGroupProps = {
+export type ArenaUserGroupProps = {
   name?: string
-  qualifiers?: UserGroupQualifier[]
+  qualifiers?: ArenaUserGroupQualifier[]
   /**
    * uuids of other groups of the same survey whose records the members can read but not edit
    */
   readableGroupUuids?: string[]
 }
 
-export type UserGroup = {
+export type ArenaUserGroup = {
   uuid: string
   surveyUuid?: string
-  props: UserGroupProps
+  props: ArenaUserGroupProps
   dateCreated?: string
   dateModified?: string
 }

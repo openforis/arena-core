@@ -1,14 +1,14 @@
 import { describe, test, expect, afterEach } from '@jest/globals'
 
-import { CategoryItem } from '../../category'
+import { ArenaCategoryItem } from '../../category'
 import { SurveyRefDataFactory } from './factory'
 
-const createItem = (params: { uuid: string; parentUuid?: string; code: string }): CategoryItem =>
+const createItem = (params: { uuid: string; parentUuid?: string; code: string }): ArenaCategoryItem =>
   ({
     uuid: params.uuid,
     parentUuid: params.parentUuid,
     props: { code: params.code },
-  }) as unknown as CategoryItem
+  }) as unknown as ArenaCategoryItem
 
 describe('SurveyRefDataFactory', () => {
   afterEach(() => {

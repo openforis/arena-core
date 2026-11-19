@@ -5,9 +5,9 @@ import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilde
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { JavascriptExpressionEvaluator } from '../expression'
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { ArenaRecord } from './record'
 import { RecordUpdater } from './recordUpdater'
 import { RecordUpdateResult } from './recordNodesUpdater'
@@ -31,10 +31,10 @@ const TREES_PER_PLOT_BIG = 50
 // validation of every coverage depending on the coverage of the sibling trees
 const SIBLINGS_EXPRESSION = 'sum(parent($context).tree.coverage) <= 100'
 
-let user: User
-let survey: Survey
+let user: ArenaUser
+let survey: ArenaSurvey
 
-const createSurvey = (): Promise<Survey> =>
+const createSurvey = (): Promise<ArenaSurvey> =>
   new SurveyBuilder(
     user,
     entityDef(

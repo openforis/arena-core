@@ -1,6 +1,6 @@
 import { SystemError, SystemErrorKeys } from '../../../error'
-import { ExpressionContext } from '../../context'
-import { ExpressionNodeEvaluator, IdentifierExpression } from '../../node'
+import { ArenaExpressionContext } from '../../context'
+import { ExpressionNodeEvaluator, ArenaIdentifierExpression } from '../../node'
 import { getGlobalObjectProperty, isForbiddenPropertyName, isForbiddenValue } from '../global'
 
 const getNativeProperty = (name: string, object: any) => {
@@ -14,7 +14,10 @@ const getNativeProperty = (name: string, object: any) => {
   return typeof prop === 'function' ? prop.bind(object) : prop
 }
 
-export class IdentifierEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, IdentifierExpression> {
+export class IdentifierEvaluator<C extends ArenaExpressionContext> extends ExpressionNodeEvaluator<
+  C,
+  ArenaIdentifierExpression
+> {
   /**
    * Looks for the identifier among global or native properties, without throwing when it is not found
    * (creating errors captures stack traces, which is expensive when it happens for every evaluated identifier).
@@ -22,7 +25,7 @@ export class IdentifierEvaluator<C extends ExpressionContext> extends Expression
    * @param expressionNode - The identifier expression node.
    * @returns The property value wrapped in an object, or null if the identifier has not been found.
    */
-  protected findGlobalOrNativeProperty(expressionNode: IdentifierExpression): { value: any } | null {
+  protected findGlobalOrNativeProperty(expressionNode: ArenaIdentifierExpression): { value: any } | null {
     const { name } = expressionNode
     const { object: contextObject } = this.context
 
@@ -37,7 +40,7 @@ export class IdentifierEvaluator<C extends ExpressionContext> extends Expression
     return null
   }
 
-  evaluate(expressionNode: IdentifierExpression): Promise<any> {
+  evaluate(expressionNode: ArenaIdentifierExpression): Promise<any> {
     const property = this.findGlobalOrNativeProperty(expressionNode)
     if (property) {
       return Promise.resolve(property.value)

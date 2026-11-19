@@ -9,16 +9,16 @@ const { entity, attribute } = RecordNodeBuilders
 import { RecordUpdater } from './recordUpdater'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaRecord } from './record'
 import { Validations } from '../validation/validations'
-import { Survey } from '../survey'
+import { ArenaSurvey } from '../survey'
 import { NodeDefExpressionFactory } from '../nodeDef/nodeDef'
 
-let user: User
+let user: ArenaUser
 
 const updateAttributeAndExpectValidation = async (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   nodePath: string
   value: any

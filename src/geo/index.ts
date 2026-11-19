@@ -1,5 +1,5 @@
-export type { AreaOfInterest, AreaOfInterestDescriptor } from './areaOfInterest'
-export type { Point } from './point'
+export type { ArenaAreaOfInterest, ArenaAreaOfInterestDescriptor } from './areaOfInterest'
+export type { ArenaPoint } from './point'
 
 export { PointFactory } from './pointFactory'
 

@@ -1,7 +1,7 @@
 import { SystemError, SystemErrorKeys } from '../../../error'
 import { Objects } from '../../../utils'
-import { ExpressionContext } from '../../context'
-import { BinaryExpression, ExpressionNodeEvaluator } from '../../node'
+import { ArenaExpressionContext } from '../../context'
+import { ArenaBinaryExpression, ExpressionNodeEvaluator } from '../../node'
 
 const booleanOperators: { [operator: string]: (a: any, b: any) => boolean } = {
   // Short-circuiting operators (we coerce the output to bool)
@@ -49,8 +49,11 @@ const binaryOperators = {
 const isNumber = (value: any) => !Objects.isNil(value) && value.constructor === Number
 const isString = (value: any) => !Objects.isNil(value) && value.constructor === String
 
-export class BinaryEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, BinaryExpression> {
-  async evaluate(expressionNode: BinaryExpression): Promise<any> {
+export class BinaryEvaluator<C extends ArenaExpressionContext> extends ExpressionNodeEvaluator<
+  C,
+  ArenaBinaryExpression
+> {
+  async evaluate(expressionNode: ArenaBinaryExpression): Promise<any> {
     const { left, right, operator } = expressionNode
 
     const fn = binaryOperators[operator]

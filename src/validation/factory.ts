@@ -1,17 +1,17 @@
-import { Dictionary, Factory } from '../common'
-import { Labels } from '../language'
+import { ArenaDictionary, ArenaFactory } from '../common'
+import { ArenaLabels } from '../language'
 import { Objects } from '../utils'
-import { Validation, ValidationResult, ValidationSeverity } from './validation'
+import { ArenaValidation, ArenaValidationResult, ValidationSeverity } from './validation'
 
 type ValidationFactoryParams = {
-  errors?: ValidationResult[]
-  fields?: Dictionary<Validation>
+  errors?: ArenaValidationResult[]
+  fields?: ArenaDictionary<ArenaValidation>
   valid?: boolean
-  warnings?: ValidationResult[]
+  warnings?: ArenaValidationResult[]
 }
 
-export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
-  createInstance: (params?: ValidationFactoryParams): Validation => {
+export const ValidationFactory: ArenaFactory<ArenaValidation, ValidationFactoryParams> = {
+  createInstance: (params?: ValidationFactoryParams): ArenaValidation => {
     const defaultParams = {
       valid: true,
     }
@@ -19,7 +19,7 @@ export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
       ...defaultParams,
       ...params,
     }
-    const result: Validation = { valid }
+    const result: ArenaValidation = { valid }
     if (Objects.isNotEmpty(errors)) {
       result.errors = errors
     }
@@ -34,15 +34,15 @@ export const ValidationFactory: Factory<Validation, ValidationFactoryParams> = {
 }
 
 type ValidationResultFactoryParams = {
-  messages?: Labels
+  messages?: ArenaLabels
   key?: string
-  params?: Dictionary<any>
+  params?: ArenaDictionary<any>
   severity?: ValidationSeverity
   valid?: boolean
 }
 
-export const ValidationResultFactory: Factory<ValidationResult, ValidationResultFactoryParams> = {
-  createInstance: (params: ValidationResultFactoryParams = {}): ValidationResult => {
+export const ValidationResultFactory: ArenaFactory<ArenaValidationResult, ValidationResultFactoryParams> = {
+  createInstance: (params: ValidationResultFactoryParams = {}): ArenaValidationResult => {
     const defaultParams = {
       valid: true,
     }

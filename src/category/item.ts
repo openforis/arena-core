@@ -1,14 +1,14 @@
-import { ArenaObject, Dictionary } from '../common'
-import { Labels } from '../language'
+import { ArenaObject, ArenaDictionary } from '../common'
+import { ArenaLabels } from '../language'
 
-export interface CategoryItemProps {
+export interface ArenaCategoryItemProps {
   code?: string
-  extra?: Dictionary<any>
+  extra?: ArenaDictionary<any>
   index?: number
-  labels?: Labels
+  labels?: ArenaLabels
 }
 
-export interface CategoryItem extends ArenaObject<CategoryItemProps> {
+export interface ArenaCategoryItem extends ArenaObject<ArenaCategoryItemProps> {
   draft?: boolean
   id?: number
   levelUuid?: string

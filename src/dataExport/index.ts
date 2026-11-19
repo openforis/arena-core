@@ -1,4 +1,4 @@
-export type { FlatDataExportOptions } from './FlatDataExportOptions'
+export type { ArenaFlatDataExportOptions } from './FlatDataExportOptions'
 export { FlatDataExportOption, FlatDataExportDefaultOptions } from './FlatDataExportOptions'
 export { FlatDataFiles } from './FlatDataFiles'
 export { FlatDataExportModel } from './FlatDataExportModel'

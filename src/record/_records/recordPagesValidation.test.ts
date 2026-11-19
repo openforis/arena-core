@@ -1,10 +1,10 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { NodeDefEntity } from '../../nodeDef'
+import { ArenaNodeDefEntity } from '../../nodeDef'
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
 import { RecordValidations } from '../recordValidations'
-import { Survey, Surveys } from '../../survey'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 import { createTestAdminUser } from '../../tests/data'
@@ -16,7 +16,7 @@ const { attribute, entity } = RecordNodeBuilders
 
 const cycle = '0'
 
-const setOwnPage = (pageNodeDef: NodeDefEntity, parentNodeDef: NodeDefEntity): void => {
+const setOwnPage = (pageNodeDef: ArenaNodeDefEntity, parentNodeDef: ArenaNodeDefEntity): void => {
   const pageUuid = UUIDs.v4()
   Objects.setInPath({ obj: pageNodeDef, path: ['props', 'layout', cycle, 'pageUuid'], value: pageUuid })
   const indexChildren =
@@ -39,7 +39,7 @@ const createErrorValidation = (nodeUuid: string, key: string) =>
     },
   })
 
-const getFirstNodeByDefName = (params: { survey: Survey; record: ArenaRecord; name: string }) => {
+const getFirstNodeByDefName = (params: { survey: ArenaSurvey; record: ArenaRecord; name: string }) => {
   const { survey, record, name } = params
   return Records.getNodesByDefUuid(Surveys.getNodeDefByName({ survey, name }).uuid)(record)[0]
 }
@@ -52,8 +52,8 @@ const createClusterPlotFixture = async () => {
     entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
   ).build()
 
-  const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
-  const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+  const rootDef = Surveys.getNodeDefRoot({ survey }) as ArenaNodeDefEntity
+  const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as ArenaNodeDefEntity
   setOwnPage(plotDef, rootDef)
 
   const record = new RecordBuilder(
@@ -81,9 +81,9 @@ const createLandUseFixture = async () => {
     )
   ).build()
 
-  const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
-  const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
-  const landUseDef = Surveys.getNodeDefByName({ survey, name: 'land_use' }) as NodeDefEntity
+  const rootDef = Surveys.getNodeDefRoot({ survey }) as ArenaNodeDefEntity
+  const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as ArenaNodeDefEntity
+  const landUseDef = Surveys.getNodeDefByName({ survey, name: 'land_use' }) as ArenaNodeDefEntity
   setOwnPage(plotDef, rootDef)
   setOwnPage(landUseDef, plotDef)
 
@@ -142,8 +142,8 @@ describe('RecordPagesValidationProgress', () => {
       entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', integerDef('plot_id').key()).multiple())
     ).build()
 
-    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
-    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+    const rootDef = Surveys.getNodeDefRoot({ survey }) as ArenaNodeDefEntity
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as ArenaNodeDefEntity
     setOwnPage(plotDef, rootDef)
 
     expect(Records.getPageNodeDefs({ survey, cycle }).map((d) => d.props.name)).toEqual(['cluster', 'plot'])
@@ -352,9 +352,9 @@ describe('RecordPagesValidationProgress', () => {
       )
     ).build()
 
-    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
-    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
-    const treeDef = Surveys.getNodeDefByName({ survey, name: 'tree' }) as NodeDefEntity
+    const rootDef = Surveys.getNodeDefRoot({ survey }) as ArenaNodeDefEntity
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as ArenaNodeDefEntity
+    const treeDef = Surveys.getNodeDefByName({ survey, name: 'tree' }) as ArenaNodeDefEntity
     setOwnPage(plotDef, rootDef)
     setOwnPage(treeDef, plotDef)
 
@@ -442,8 +442,8 @@ describe('RecordPagesValidationProgress', () => {
       entityDef('cluster', integerDef('cluster_id').key(), entityDef('plot', textDef('remarks')).multiple())
     ).build()
 
-    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
-    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
+    const rootDef = Surveys.getNodeDefRoot({ survey }) as ArenaNodeDefEntity
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as ArenaNodeDefEntity
     setOwnPage(plotDef, rootDef)
 
     const record = new RecordBuilder(
@@ -529,9 +529,9 @@ describe('RecordPagesValidationProgress', () => {
       )
     ).build()
 
-    const rootDef = Surveys.getNodeDefRoot({ survey }) as NodeDefEntity
-    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as NodeDefEntity
-    const treeDef = Surveys.getNodeDefByName({ survey, name: 'tree' }) as NodeDefEntity
+    const rootDef = Surveys.getNodeDefRoot({ survey }) as ArenaNodeDefEntity
+    const plotDef = Surveys.getNodeDefByName({ survey, name: 'plot' }) as ArenaNodeDefEntity
+    const treeDef = Surveys.getNodeDefByName({ survey, name: 'tree' }) as ArenaNodeDefEntity
     setOwnPage(plotDef, rootDef)
     setOwnPage(treeDef, plotDef)
 

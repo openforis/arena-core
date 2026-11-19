@@ -1,18 +1,18 @@
-import { Survey } from '../../../survey'
+import { ArenaSurvey } from '../../../survey'
 import {
-  NodeDef,
+  ArenaNodeDef,
   NodeDefFactory,
-  NodeDefEntity,
-  NodeDefProps,
-  NodeDefPropsAdvanced,
+  ArenaNodeDefEntity,
+  ArenaNodeDefProps,
+  ArenaNodeDefPropsAdvanced,
   NodeDefType,
 } from '../../../nodeDef'
-import { NodeDefCountExpression, NodeDefExpression, NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
+import { ArenaNodeDefCountExpression, ArenaNodeDefExpression, NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
 import { Objects } from '../../../utils'
 
 export abstract class NodeDefBuilder {
-  protected props: NodeDefProps
-  protected propsAdvanced: NodeDefPropsAdvanced
+  protected props: ArenaNodeDefProps
+  protected propsAdvanced: ArenaNodeDefPropsAdvanced
   protected type: NodeDefType
 
   constructor(name: string, type: NodeDefType) {
@@ -23,7 +23,9 @@ export abstract class NodeDefBuilder {
     this.propsAdvanced = {}
   }
 
-  protected createNodeDef(params: { nodeDefParent?: NodeDefEntity } = {}): NodeDef<NodeDefType, NodeDefProps> {
+  protected createNodeDef(
+    params: { nodeDefParent?: ArenaNodeDefEntity } = {}
+  ): ArenaNodeDef<NodeDefType, ArenaNodeDefProps> {
     const nodeDef = NodeDefFactory.createInstance({
       nodeDefParent: params.nodeDefParent,
       type: this.type,
@@ -34,7 +36,9 @@ export abstract class NodeDefBuilder {
     return nodeDef
   }
 
-  abstract build(params: { survey: Survey; nodeDefParent?: NodeDefEntity }): { [uuid: string]: NodeDef<NodeDefType> }
+  abstract build(params: { survey: ArenaSurvey; nodeDefParent?: ArenaNodeDefEntity }): {
+    [uuid: string]: ArenaNodeDef<NodeDefType>
+  }
 
   multiple(): this {
     this.props.multiple = true
@@ -46,21 +50,21 @@ export abstract class NodeDefBuilder {
     return this
   }
 
-  editableIf(...expressions: (string | NodeDefExpression)[]): this {
+  editableIf(...expressions: (string | ArenaNodeDefExpression)[]): this {
     this.propsAdvanced.editableIf = expressions.map((expression) =>
       typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression
     )
     return this
   }
 
-  visibleIf(...expressions: (string | NodeDefExpression)[]): this {
+  visibleIf(...expressions: (string | ArenaNodeDefExpression)[]): this {
     this.propsAdvanced.visibleIf = expressions.map((expression) =>
       typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression
     )
     return this
   }
 
-  maxCount(countExpr: NodeDefCountExpression): this {
+  maxCount(countExpr: ArenaNodeDefCountExpression): this {
     return Objects.assocPath({
       obj: this,
       path: ['propsAdvanced', 'validations', 'count', 'max'],
@@ -69,7 +73,7 @@ export abstract class NodeDefBuilder {
     })
   }
 
-  minCount(countExpr: NodeDefCountExpression): this {
+  minCount(countExpr: ArenaNodeDefCountExpression): this {
     return Objects.assocPath({
       obj: this,
       path: ['propsAdvanced', 'validations', 'count', 'min'],
@@ -78,7 +82,7 @@ export abstract class NodeDefBuilder {
     })
   }
 
-  requiredIf(...expressions: (string | NodeDefExpression)[]): this {
+  requiredIf(...expressions: (string | ArenaNodeDefExpression)[]): this {
     return Objects.assocPath({
       obj: this,
       path: ['propsAdvanced', 'validations', 'requiredIf'],

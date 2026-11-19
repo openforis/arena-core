@@ -1,20 +1,20 @@
-import { CategoryItem, CategoryItems } from '../category'
+import { ArenaCategoryItem, CategoryItems } from '../category'
 import { LanguageCode } from '../language'
-import { NodeDef, NodeDefCode, NodeDefDecimal, NodeDefs, NodeDefType } from '../nodeDef'
-import { Survey, Surveys } from '../survey'
+import { ArenaNodeDef, ArenaNodeDefCode, ArenaNodeDefDecimal, NodeDefs, NodeDefType } from '../nodeDef'
+import { ArenaSurvey, Surveys } from '../survey'
 import { Taxa } from '../taxonomy'
 import { DateFormats, Dates, Numbers, Objects, Strings } from '../utils'
 import { ArenaRecordNode } from './node'
-import { NodeValues } from './nodeValues'
+import { RecordNodeValues } from './nodeValues'
 
 const extractCategoryItem = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   node?: ArenaRecordNode
   value: any
-}): CategoryItem | undefined => {
+}): ArenaCategoryItem | undefined => {
   const { survey, node, value } = params
 
-  const itemUuid = NodeValues.getValueItemUuid(value)
+  const itemUuid = RecordNodeValues.getValueItemUuid(value)
   if (!itemUuid) return undefined
 
   const item = node?.refData?.categoryItem ?? Surveys.getCategoryItemByUuid({ survey, itemUuid })
@@ -23,9 +23,9 @@ const extractCategoryItem = (params: {
 }
 
 type FormatParams = {
-  survey: Survey
+  survey: ArenaSurvey
   cycle: string
-  nodeDef: NodeDef<NodeDefType>
+  nodeDef: ArenaNodeDef<NodeDefType>
   node?: ArenaRecordNode
   value: any
   showLabel?: boolean
@@ -39,7 +39,7 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
 
     if (!showLabel) {
       // item code already inside value, no need to get category item
-      const itemCode = NodeValues.getValueCode(value)
+      const itemCode = RecordNodeValues.getValueCode(value)
       if (!Objects.isEmpty(itemCode)) return itemCode
     }
     const categoryItem = extractCategoryItem({ survey, node, value })
@@ -47,7 +47,7 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
 
     if (showLabel) {
       let result
-      if (NodeDefs.isCodeShown(cycle)(nodeDef as NodeDefCode)) {
+      if (NodeDefs.isCodeShown(cycle)(nodeDef as ArenaNodeDefCode)) {
         result = CategoryItems.getLabelWithCode(categoryItem, lang!)
       } else {
         result = CategoryItems.getLabel(categoryItem, lang!, true)
@@ -63,7 +63,7 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
   },
   [NodeDefType.decimal]: (params: FormatParams) => {
     const { value, nodeDef } = params
-    return Numbers.formatDecimal(value, NodeDefs.getMaxNumberDecimalDigits(nodeDef as NodeDefDecimal))
+    return Numbers.formatDecimal(value, NodeDefs.getMaxNumberDecimalDigits(nodeDef as ArenaNodeDefDecimal))
   },
   [NodeDefType.integer]: (params: FormatParams) => {
     const { value } = params
@@ -71,7 +71,7 @@ const formatters: { [key in NodeDefType]?: (params: FormatParams) => any } = {
   },
   [NodeDefType.taxon]: (params: FormatParams) => {
     const { survey, value, showLabel } = params
-    const taxonUuid = NodeValues.getValueTaxonUuid(value)
+    const taxonUuid = RecordNodeValues.getValueTaxonUuid(value)
     if (!taxonUuid) return null
     const taxon = Surveys.getTaxonByUuid({ survey, taxonUuid })
     if (!taxon) return null
@@ -94,6 +94,6 @@ const format = (params: FormatParams) => {
   return NodeDefs.isMultiple(nodeDef) && Array.isArray(value) ? value.map(formatValue).join(', ') : formatValue(value)
 }
 
-export const NodeValueFormatter = {
+export const RecordNodeValueFormatter = {
   format,
 }

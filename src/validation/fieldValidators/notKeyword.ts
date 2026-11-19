@@ -1,6 +1,6 @@
 import { Objects } from '../../utils'
 import { ValidationResultFactory } from '../factory'
-import { ValidationResult, ValidationSeverity } from '../validation'
+import { ArenaValidationResult, ValidationSeverity } from '../validation'
 
 const keywords = new Set([
   'asc',
@@ -25,7 +25,7 @@ const keywords = new Set([
 
 export const notKeyword =
   (messageKey: string) =>
-  (field: string, obj: any): Promise<ValidationResult> => {
+  (field: string, obj: any): Promise<ArenaValidationResult> => {
     const value = Objects.path(field)(obj)
     const valid = Objects.isEmpty(value) || !keywords.has(value)
 

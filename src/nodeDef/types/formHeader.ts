@@ -1,4 +1,4 @@
-import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
 
 export enum FormHeaderColor {
   blue = 'blue',
@@ -8,8 +8,8 @@ export enum FormHeaderColor {
   yellow = 'yellow',
 }
 
-export interface NodeDefFormHeaderProps extends NodeDefProps {
+export interface ArenaNodeDefFormHeaderProps extends ArenaNodeDefProps {
   headerColor: FormHeaderColor
 }
 
-export type NodeDefFormHeader = NodeDef<NodeDefType.formHeader, NodeDefFormHeaderProps>
+export type ArenaNodeDefFormHeader = ArenaNodeDef<NodeDefType.formHeader, ArenaNodeDefFormHeaderProps>

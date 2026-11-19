@@ -1,7 +1,7 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { NodeValueFormatter } from '../node'
-import { Survey, Surveys } from '../survey'
+import { RecordNodeValueFormatter } from '../node'
+import { ArenaSurvey, Surveys } from '../survey'
 import { createTestAdminUser } from '../tests/data'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
@@ -15,8 +15,8 @@ const { booleanDef, category, categoryItem, codeDef, entityDef, integerDef, text
 const { attribute, entity } = RecordNodeBuilders
 
 const user = createTestAdminUser()
-let survey: Survey
-let surveyWithApplyIf: Survey
+let survey: ArenaSurvey
+let surveyWithApplyIf: ArenaSurvey
 
 const initTestSurvey = async () => {
   survey = await new SurveyBuilder(
@@ -57,7 +57,7 @@ const initTestSurvey = async () => {
     .build()
 }
 
-const getTableSumKeys = (params: { survey: Survey; record: ArenaRecord }): string[] => {
+const getTableSumKeys = (params: { survey: ArenaSurvey; record: ArenaRecord }): string[] => {
   const { survey: surveyParam, record } = params
   const root = TestUtils.getNodeByPath({ survey: surveyParam, record, path: 'root_entity' })
   const tableSumDef = Surveys.getNodeDefByName({ survey: surveyParam, name: 'table_sum' })
@@ -69,7 +69,7 @@ const getTableSumKeys = (params: { survey: Survey; record: ArenaRecord }): strin
   return sumEntities.map((entity) => {
     const keyNode = Records.getChild(entity, sumTypeDef.uuid)(record)!
     const nodeDef = Surveys.getNodeDefByUuid({ survey: surveyParam, uuid: keyNode.nodeDefUuid })
-    return NodeValueFormatter.format({
+    return RecordNodeValueFormatter.format({
       survey: surveyParam,
       cycle: Surveys.getDefaultCycleKey(surveyParam)!,
       nodeDef,
@@ -79,7 +79,10 @@ const getTableSumKeys = (params: { survey: Survey; record: ArenaRecord }): strin
   })
 }
 
-const getTableSumEntityUuidsByKey = (params: { survey: Survey; record: ArenaRecord }): { [key: string]: string } => {
+const getTableSumEntityUuidsByKey = (params: {
+  survey: ArenaSurvey
+  record: ArenaRecord
+}): { [key: string]: string } => {
   const { survey: surveyParam, record } = params
   const root = TestUtils.getNodeByPath({ survey: surveyParam, record, path: 'root_entity' })
   const tableSumDef = Surveys.getNodeDefByName({ survey: surveyParam, name: 'table_sum' })
@@ -92,7 +95,7 @@ const getTableSumEntityUuidsByKey = (params: { survey: Survey; record: ArenaReco
     sumEntities.map((entity) => {
       const keyNode = Records.getChild(entity, sumTypeDef.uuid)(record)!
       const nodeDef = Surveys.getNodeDefByUuid({ survey: surveyParam, uuid: keyNode.nodeDefUuid })
-      const key = NodeValueFormatter.format({
+      const key = RecordNodeValueFormatter.format({
         survey: surveyParam,
         cycle: Surveys.getDefaultCycleKey(surveyParam)!,
         nodeDef,
@@ -105,7 +108,7 @@ const getTableSumEntityUuidsByKey = (params: { survey: Survey; record: ArenaReco
 }
 
 const addTableSourceRow = async (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   type: string
   value: number
@@ -153,7 +156,7 @@ const addTableSourceRow = async (params: {
 }
 
 const deleteTableSourceEntity = async (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   index: number
 }): Promise<ArenaRecord> => {

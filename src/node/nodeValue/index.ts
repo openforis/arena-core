@@ -1,4 +1,4 @@
-export type { NodeValueCode } from './code'
-export type { NodeValueCoordinate } from './coordinate'
-export type { NodeValueFile } from './file'
-export type { NodeValueTaxon } from './taxon'
+export type { ArenaRecordNodeValueCode } from './code'
+export type { ArenaRecordNodeValueCoordinate } from './coordinate'
+export type { ArenaRecordNodeValueFile } from './file'
+export type { ArenaRecordNodeValueTaxon } from './taxon'

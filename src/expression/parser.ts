@@ -1,5 +1,5 @@
-import { ExpressionNode, ExpressionNodeType } from './node'
+import { ArenaExpressionNode, ExpressionNodeType } from './node'
 
 export interface ExpressionParser {
-  parse(expression: string): ExpressionNode<ExpressionNodeType>
+  parse(expression: string): ArenaExpressionNode<ExpressionNodeType>
 }

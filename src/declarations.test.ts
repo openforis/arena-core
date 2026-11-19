@@ -4,25 +4,23 @@ import * as ts from 'typescript'
 
 // The deprecated API forms must be flagged also for the consumers of the package, i.e. in the emitted .d.ts files:
 // a type used in an exported value but not exported itself is inlined in the declarations, losing its JSDoc (@deprecated).
+// No API is deprecated at the moment: add the deprecated forms to the consumer source below as `deprecated_...` exports.
 
 const rootDir = path.resolve(__dirname, '..')
 const emittedDir = path.join(rootDir, 'declarations-test-dist')
 
 const consumerFileName = path.join(rootDir, 'declarations-test-consumer.ts')
 const consumerSource = `
-import { ArenaRecord, ArenaRecordNode, Nodes, Records, Validations } from './declarations-test-dist'
+import { ArenaRecord, ArenaRecordNode, RecordNodes, Records, Validations } from './declarations-test-dist'
 
 declare const record: ArenaRecord
 declare const node: ArenaRecordNode
-
-export const deprecated_assocValue = Nodes.assocValue(node, 1, true)
-export const deprecated_dissocFieldValidation = Validations.dissocFieldValidation('field', true)
 
 export const current_getChildren = Records.getChildren(node, 'def')(record)
 export const current_getParent = Records.getParent(node)(record)
 export const current_getAncestor = Records.getAncestor(node, 'def')(record)
 export const current_getNodeIndex = Records.getNodeIndex(node)(record)
-export const current_assocValue = Nodes.assocValue(node, 1, { sideEffect: true })
+export const current_assocValue = RecordNodes.assocValue(node, 1, { sideEffect: true })
 export const current_dissocFieldValidation = Validations.dissocFieldValidation('field', { sideEffect: true })
 `
 

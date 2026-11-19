@@ -1,11 +1,11 @@
-import { Labels } from '../language'
+import { ArenaLabels } from '../language'
 
 export enum DataQueryMode {
   raw = 'raw',
   aggregate = 'aggregate',
 }
 
-export interface DataQuery {
+export interface ArenaDataQuery {
   mode: DataQueryMode
   filter?: string
   sort?: string
@@ -16,17 +16,17 @@ export interface DataQuery {
   filterRecordUuids?: string[]
 }
 
-export interface DataQuerySummaryProps {
+export interface ArenaDataQuerySummaryProps {
   name?: string
-  labels?: Labels
-  descriptions?: Labels
+  labels?: ArenaLabels
+  descriptions?: ArenaLabels
 }
 
-export interface DataQuerySummary {
-  content?: DataQuery
+export interface ArenaDataQuerySummary {
+  content?: ArenaDataQuery
   dateCreated?: string
   dateModified?: string
   id?: number
-  props?: DataQuerySummaryProps
+  props?: ArenaDataQuerySummaryProps
   uuid?: string
 }

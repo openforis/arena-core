@@ -1,18 +1,18 @@
-import { ArenaRecordNode, NodePointer, Nodes } from '../../node'
-import { NodeDef, NodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
+import { ArenaRecordNode, ArenaRecordNodePointer, RecordNodes } from '../../node'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Records } from '../records'
-import { Validation, ValidationFactory, ValidationResultFactory, ValidationSeverity } from '../../validation'
+import { ArenaValidation, ValidationFactory, ValidationResultFactory, ValidationSeverity } from '../../validation'
 import { ArenaRecord } from '../record'
-import { Survey, Surveys } from '../../survey'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { RecordValidations } from '../recordValidations'
-import { ValidationFields } from '../../validation/validation'
+import { ArenaValidationFields } from '../../validation/validation'
 
 const createValidationResult = (params: {
   nodeDefUuid: string
   isMinCountValidation: boolean
   minCount: number
   maxCount: number
-}): Validation => {
+}): ArenaValidation => {
   const { nodeDefUuid, isMinCountValidation, minCount, maxCount } = params
 
   if (minCount === maxCount) {
@@ -41,13 +41,13 @@ const createValidationResult = (params: {
 
 const validateChildrenCount = (params: {
   parentNode: ArenaRecordNode
-  nodeDefChild: NodeDef<NodeDefType, NodeDefProps>
+  nodeDefChild: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
   count: number
-}): Validation => {
+}): ArenaValidation => {
   const { parentNode, nodeDefChild, count } = params
 
-  const minCount = Nodes.getChildrenMinCount({ parentNode, nodeDef: nodeDefChild })
-  const maxCount = Nodes.getChildrenMaxCount({ parentNode, nodeDef: nodeDefChild })
+  const minCount = RecordNodes.getChildrenMinCount({ parentNode, nodeDef: nodeDefChild })
+  const maxCount = RecordNodes.getChildrenMaxCount({ parentNode, nodeDef: nodeDefChild })
 
   const minCountValid = Number.isNaN(minCount) || count >= minCount
   const maxCountValid = Number.isNaN(maxCount) || count <= maxCount
@@ -65,26 +65,27 @@ const validateChildrenCount = (params: {
 const _countChildren = (params: {
   record: ArenaRecord
   parentNode: ArenaRecordNode
-  childDef: NodeDef<NodeDefType, NodeDefProps>
+  childDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
 }) => {
   const { record, parentNode, childDef } = params
   const children = Records.getChildren(parentNode, childDef.uuid)(record)
   const nonEmptyChildren = NodeDefs.isAttribute(childDef)
-    ? children.filter((child) => !Nodes.isValueBlank(child))
+    ? children.filter((child) => !RecordNodes.isValueBlank(child))
     : children
   return nonEmptyChildren.length
 }
 
-const isNodePointerToBeValidated = (nodePointer: NodePointer) => NodeDefs.hasMinOrMaxCount(nodePointer.nodeDef)
+const isNodePointerToBeValidated = (nodePointer: ArenaRecordNodePointer) =>
+  NodeDefs.hasMinOrMaxCount(nodePointer.nodeDef)
 
 const validateNodePointer = (params: {
   record: ArenaRecord
   nodeCtx: ArenaRecordNode
-  nodeDef: NodeDef<NodeDefType, NodeDefProps>
+  nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>
 }) => {
   const { record, nodeCtx, nodeDef } = params
   // Check children count only for applicable nodes
-  if (Nodes.isChildApplicable(nodeCtx, nodeDef.uuid)) {
+  if (RecordNodes.isChildApplicable(nodeCtx, nodeDef.uuid)) {
     const count = _countChildren({ record, parentNode: nodeCtx, childDef: nodeDef })
     return validateChildrenCount({ parentNode: nodeCtx, nodeDefChild: nodeDef, count })
   }
@@ -92,12 +93,12 @@ const validateNodePointer = (params: {
 }
 
 const getNodePointersToValidate = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   node: ArenaRecordNode
-}): NodePointer[] => {
+}): ArenaRecordNodePointer[] => {
   const { survey, record, node } = params
-  const nodePointersToValidate: NodePointer[] = []
+  const nodePointersToValidate: ArenaRecordNodePointer[] = []
 
   const nodeDef = Surveys.getNodeDefByUuid({ uuid: node.nodeDefUuid, survey })
 
@@ -123,12 +124,12 @@ const getNodePointersToValidate = (params: {
 }
 
 const validateChildrenCountNodesArray = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   nodesArray: ArenaRecordNode[]
-}): ValidationFields => {
+}): ArenaValidationFields => {
   const { survey, record, nodesArray } = params
-  const validationsAcc: ValidationFields = {}
+  const validationsAcc: ArenaValidationFields = {}
   for (const node of nodesArray) {
     const nodePointersToValidate = getNodePointersToValidate({ survey, record, node })
 
@@ -150,10 +151,10 @@ const validateChildrenCountNodesArray = (params: {
 }
 
 const validateChildrenCountNodes = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   nodes: { [key: string]: ArenaRecordNode }
-}): ValidationFields => validateChildrenCountNodesArray({ ...params, nodesArray: Object.values(params.nodes) })
+}): ArenaValidationFields => validateChildrenCountNodesArray({ ...params, nodesArray: Object.values(params.nodes) })
 
 export const CountValidator = {
   validateChildrenCount,

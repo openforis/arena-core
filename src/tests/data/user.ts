@@ -1,6 +1,6 @@
-import { AuthGroupName, User, UserFactory } from '../../auth'
+import { AuthGroupName, ArenaUser, UserFactory } from '../../auth'
 
-export const createTestAdminUser = (): User => {
+export const createTestAdminUser = (): ArenaUser => {
   const user = UserFactory.createInstance({
     email: 'test@openforis-arena.org',
     name: 'test',

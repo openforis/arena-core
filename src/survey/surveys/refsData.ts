@@ -1,10 +1,13 @@
-import { Survey } from '../survey'
-import { CategoryItem, CategoryItems } from '../../category'
-import { Taxon } from '../../taxonomy'
-import { NodeDefCode, NodeDefs, NodeDefTaxon } from '../../nodeDef'
+import { ArenaSurvey } from '../survey'
+import { ArenaCategoryItem, CategoryItems } from '../../category'
+import { ArenaTaxon } from '../../taxonomy'
+import { ArenaNodeDefCode, NodeDefs, ArenaNodeDefTaxon } from '../../nodeDef'
 import { getNodeDefCategoryLevelIndex } from './nodeDefs'
 
-export const getCategoryItemByUuid = (params: { survey: Survey; itemUuid: string }): CategoryItem | undefined => {
+export const getCategoryItemByUuid = (params: {
+  survey: ArenaSurvey
+  itemUuid: string
+}): ArenaCategoryItem | undefined => {
   const { survey, itemUuid } = params
   return survey.refData?.categoryItemIndex[itemUuid]
 }
@@ -12,15 +15,15 @@ export const getCategoryItemByUuid = (params: { survey: Survey; itemUuid: string
 const nullParentItemUuid = 'null'
 
 export const getCategoryItems = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   categoryUuid: string
   parentItemUuid?: string
-}): CategoryItem[] => {
+}): ArenaCategoryItem[] => {
   const { survey, categoryUuid, parentItemUuid = nullParentItemUuid } = params
   const itemUuids: string[] = Object.values(
     survey.refData?.categoryItemUuidIndex?.[categoryUuid]?.[parentItemUuid] ?? {}
   )
-  const items = itemUuids.reduce((acc: CategoryItem[], itemUuid) => {
+  const items = itemUuids.reduce((acc: ArenaCategoryItem[], itemUuid) => {
     const item = getCategoryItemByUuid({ survey, itemUuid })
     if (item) acc.push(item)
     return acc
@@ -42,7 +45,7 @@ export const getCategoryItems = (params: {
 }
 
 export const getCategoryItemUuidByCode = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   categoryUuid: string
   parentItemUuid: string | undefined
   code: string
@@ -52,10 +55,10 @@ export const getCategoryItemUuidByCode = (params: {
 }
 
 export const getCategoryItemByCodePaths = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   categoryUuid: string
   codePaths: string[]
-}): CategoryItem | undefined => {
+}): ArenaCategoryItem | undefined => {
   const { survey, categoryUuid, codePaths } = params
   const itemUuid = codePaths.reduce(
     (currentParentUuid: string | undefined, code) =>
@@ -67,7 +70,7 @@ export const getCategoryItemByCodePaths = (params: {
   return itemUuid ? getCategoryItemByUuid({ survey, itemUuid }) : undefined
 }
 
-export const getCategoryItemsInLevel = (params: { survey: Survey; categoryUuid: string; levelIndex?: number }) => {
+export const getCategoryItemsInLevel = (params: { survey: ArenaSurvey; categoryUuid: string; levelIndex?: number }) => {
   const { survey, categoryUuid, levelIndex = 0 } = params
   const rootItems = getCategoryItems({ survey, categoryUuid })
   if (levelIndex === 0) return rootItems
@@ -88,30 +91,30 @@ export const getCategoryItemsInLevel = (params: { survey: Survey; categoryUuid: 
   return itemsPrevLevel
 }
 
-export const getCategoryItemsByNodeDef = (params: { survey: Survey; nodeDef: NodeDefCode }) => {
+export const getCategoryItemsByNodeDef = (params: { survey: ArenaSurvey; nodeDef: ArenaNodeDefCode }) => {
   const { survey, nodeDef } = params
   const categoryUuid = NodeDefs.getCategoryUuid(nodeDef)!
   const levelIndex = getNodeDefCategoryLevelIndex({ survey, nodeDef })
   return getCategoryItemsInLevel({ survey, categoryUuid, levelIndex })
 }
 
-export const getTaxonByUuid = (params: { survey: Survey; taxonUuid: string }): Taxon | undefined => {
+export const getTaxonByUuid = (params: { survey: ArenaSurvey; taxonUuid: string }): ArenaTaxon | undefined => {
   const { survey, taxonUuid } = params
   return survey.refData?.taxonIndex?.[taxonUuid]
 }
 
 export const getTaxonByCode = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   taxonomyUuid: string
   taxonCode: string
-}): Taxon | undefined => {
+}): ArenaTaxon | undefined => {
   const { survey, taxonomyUuid, taxonCode } = params
   const taxonUuid = survey.refData?.taxonUuidIndex?.[taxonomyUuid]?.[taxonCode]
   return taxonUuid ? getTaxonByUuid({ survey, taxonUuid }) : undefined
 }
 
 export const getTaxonVernacularNameUuid = (params: {
-  survey: Survey
+  survey: ArenaSurvey
   taxonomyUuid: string
   taxonCode: string
   vernacularName: string
@@ -125,8 +128,8 @@ export const getTaxonVernacularNameUuid = (params: {
 }
 
 export const includesTaxonVernacularName = (params: {
-  survey: Survey
-  nodeDef: NodeDefTaxon
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDefTaxon
   taxonCode: string
   vernacularNameUuid: string
 }): boolean => {

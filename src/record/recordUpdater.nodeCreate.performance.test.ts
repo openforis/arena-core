@@ -6,16 +6,16 @@ const { entityDef, integerDef } = SurveyObjectBuilders
 
 import { createTestAdminUser } from '../tests/data'
 
-import { User } from '../auth'
-import { Survey, Surveys } from '../survey'
+import { ArenaUser } from '../auth'
+import { ArenaSurvey, Surveys } from '../survey'
 import { RecordFactory } from './factory'
 import { Records } from './records'
 import { RecordUpdater } from './recordUpdater'
 import { ArenaRecord } from './record'
 
-let user: User
+let user: ArenaUser
 let record: ArenaRecord
-let survey: Survey
+let survey: ArenaSurvey
 
 const createNodes = async (params: { nodeDefName: string; totalNodes: number }) => {
   const { nodeDefName, totalNodes } = params

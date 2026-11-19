@@ -1,10 +1,10 @@
 import { DEFAULT_SRS } from '../srs'
 
-import { Factory } from '../common'
-import { Survey } from './survey'
-import { Labels, LanguageCode } from '../language'
+import { ArenaFactory } from '../common'
+import { ArenaSurvey } from './survey'
+import { ArenaLabels, LanguageCode } from '../language'
 import { UUIDs } from '../utils'
-import { AuthGroup, createDefaultAuthGroups } from '../auth/authGroup'
+import { ArenaAuthGroup, createDefaultAuthGroups } from '../auth/authGroup'
 
 export type SurveyFactoryParams = {
   ownerUuid: string
@@ -15,8 +15,8 @@ export type SurveyFactoryParams = {
   draft?: boolean
   template?: boolean
   collectUri?: string
-  descriptions?: Labels
-  authGroups?: AuthGroup[]
+  descriptions?: ArenaLabels
+  authGroups?: ArenaAuthGroup[]
 }
 
 // built at every call: default objects must not be shared between survey instances
@@ -28,8 +28,8 @@ const createDefaultParams = () => ({
   authGroups: createDefaultAuthGroups(),
 })
 
-export const SurveyFactory: Factory<Survey, SurveyFactoryParams> = {
-  createInstance: (params: SurveyFactoryParams): Survey => {
+export const SurveyFactory: ArenaFactory<ArenaSurvey, SurveyFactoryParams> = {
+  createInstance: (params: SurveyFactoryParams): ArenaSurvey => {
     const { ownerUuid, name, label, languages, published, draft, collectUri, descriptions, authGroups, template } = {
       ...createDefaultParams(),
       ...params,

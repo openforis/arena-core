@@ -9,15 +9,15 @@ const { entity, attribute } = RecordNodeBuilders
 import { RecordNodesUpdater } from '../recordNodesUpdater'
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
-import { User } from '../../auth'
+import { ArenaUser } from '../../auth'
 import { Records } from './../records'
 import { Surveys } from '../../survey'
-import { CategoryItem, CategoryItemFactory } from '../../category'
-import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { ArenaCategoryItem, CategoryItemFactory } from '../../category'
+import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
 import { ExtraPropDataType } from '../../extraProp'
-import { NodeValues } from '../../node/nodeValues'
+import { RecordNodeValues } from '../../node/nodeValues'
 
-let user: User
+let user: ArenaUser
 
 describe('Record nodes updater - dependent code attributes', () => {
   beforeAll(async () => {
@@ -73,7 +73,7 @@ describe('Record nodes updater - dependent code attributes', () => {
     // update source node value to a different top-level item, invalidating the dependent's current item
     const item2 = TestUtils.getCategoryItem({ survey, categoryName, codePaths: ['2'] })
     const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.parent_code' })
-    const nodeUpdated = { ...nodeToUpdate, value: NodeValues.newCodeValue({ itemUuid: item2.uuid }) }
+    const nodeUpdated = { ...nodeToUpdate, value: RecordNodeValues.newCodeValue({ itemUuid: item2.uuid }) }
     const recordUpdated = Records.addNode(nodeUpdated)(record)
 
     const updateResult = await RecordNodesUpdater.updateNodesDependents({
@@ -190,12 +190,12 @@ describe('Record nodes updater - dependent code attributes', () => {
     // A "big" category item that only the categoryItemProvider knows about (e.g. loaded from an
     // external reference data source) - deliberately not part of the survey's own ref data index, so
     // Surveys.getCategoryItemByUuid alone cannot resolve it.
-    const bigItem: CategoryItem = CategoryItemFactory.createInstance({
+    const bigItem: ArenaCategoryItem = CategoryItemFactory.createInstance({
       levelUuid: item1.levelUuid!,
       parentUuid: item1.uuid,
       props: { code: '1z' },
     })
-    const categoryItemProvider: CategoryItemProvider = {
+    const categoryItemProvider: ArenaCategoryItemProvider = {
       getItemByCodePaths: async () => undefined,
       getItems: async () => [],
       getItemByUuid: async ({ categoryUuid: categoryUuidParam, itemUuid }) =>
@@ -235,7 +235,7 @@ describe('Record nodes updater - dependent code attributes', () => {
 
     // Phase 2: parent value genuinely changes to a different top-level item - the big item (a child of
     // item1) is no longer valid under item2, and the categoryItemProvider is what makes that detectable.
-    const nodeUpdated = { ...nodeToRevisit, value: NodeValues.newCodeValue({ itemUuid: item2.uuid }) }
+    const nodeUpdated = { ...nodeToRevisit, value: RecordNodeValues.newCodeValue({ itemUuid: item2.uuid }) }
     const recordUpdated = Records.addNode(nodeUpdated)(revisitResult.record)
     const updateResult = await RecordNodesUpdater.updateNodesDependents({
       user,
@@ -342,7 +342,10 @@ describe('Record nodes updater - dependent code attributes', () => {
       const nodeToUpdate = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.identifier' })
 
       const samplingPointDataItemUuid = getItemUuid('sampling_point_data', [value])
-      const nodeUpdated = { ...nodeToUpdate, value: NodeValues.newCodeValue({ itemUuid: samplingPointDataItemUuid }) }
+      const nodeUpdated = {
+        ...nodeToUpdate,
+        value: RecordNodeValues.newCodeValue({ itemUuid: samplingPointDataItemUuid }),
+      }
       const recordUpdated = Records.addNode(nodeUpdated)(record)
 
       const updateResult = await RecordNodesUpdater.updateNodesDependents({

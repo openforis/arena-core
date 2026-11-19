@@ -1,21 +1,21 @@
-import { User } from '../../auth'
-import { ExpressionContext } from '../../expression'
+import { ArenaUser } from '../../auth'
+import { ArenaExpressionContext } from '../../expression'
 import { ArenaRecordNode } from '../../node'
-import { AreaOfInterestProvider } from '../../nodeDefExpressionEvaluator/areaOfInterestProvider'
-import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
-import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
-import { Survey } from '../../survey'
+import { ArenaAreaOfInterestProvider } from '../../nodeDefExpressionEvaluator/areaOfInterestProvider'
+import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { ArenaTaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
+import { ArenaSurvey } from '../../survey'
 import { ArenaRecord } from '../record'
 
-export interface RecordExpressionContext extends ExpressionContext {
-  user: User
-  survey: Survey
+export interface ArenaRecordExpressionContext extends ArenaExpressionContext {
+  user: ArenaUser
+  survey: ArenaSurvey
   record: ArenaRecord
   prevCycleRecord?: ArenaRecord
   nodeContext: ArenaRecordNode
   nodeCurrent?: ArenaRecordNode
   item?: any
-  categoryItemProvider?: CategoryItemProvider
-  taxonProvider?: TaxonProvider
-  areaOfInterestProvider?: AreaOfInterestProvider
+  categoryItemProvider?: ArenaCategoryItemProvider
+  taxonProvider?: ArenaTaxonProvider
+  areaOfInterestProvider?: ArenaAreaOfInterestProvider
 }

@@ -1,4 +1,4 @@
-import { Category, CategoryItem, CategoryItemFactory } from '../../../category'
+import { ArenaCategory, ArenaCategoryItem, CategoryItemFactory } from '../../../category'
 
 export class CategoryItemBuilder {
   private readonly code: string
@@ -28,7 +28,7 @@ export class CategoryItemBuilder {
     return this
   }
 
-  build(category: Category, parentItem: CategoryItem | null = null, levelIndex = 0): CategoryItem[] {
+  build(category: ArenaCategory, parentItem: ArenaCategoryItem | null = null, levelIndex = 0): ArenaCategoryItem[] {
     const level = category.levels[levelIndex]
     const item = CategoryItemFactory.createInstance({
       levelUuid: level.uuid,

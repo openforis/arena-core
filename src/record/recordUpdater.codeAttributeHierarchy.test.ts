@@ -4,9 +4,9 @@ import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuil
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 import { CategoryItemFactory } from '../category'
-import { NodeValues, Nodes } from '../node'
-import { NodeDefCode } from '../nodeDef'
-import { Survey, Surveys } from '../survey'
+import { RecordNodeValues, RecordNodes } from '../node'
+import { ArenaNodeDefCode } from '../nodeDef'
+import { ArenaSurvey, Surveys } from '../survey'
 import { ArenaRecord } from './record'
 import { RecordCloner } from './recordCloner'
 import { RecordFactory } from './factory'
@@ -18,7 +18,7 @@ const { category, categoryItem, codeDef, entityDef, integerDef } = SurveyObjectB
 const user = createTestAdminUser()
 const categoryName = 'admin_unit'
 
-const createSurvey = (): Promise<Survey> =>
+const createSurvey = (): Promise<ArenaSurvey> =>
   new SurveyBuilder(
     user,
     entityDef(
@@ -49,11 +49,11 @@ describe('RecordUpdater - code attributes hierarchy (meta.hCode)', () => {
     const region = getNode(record, 'region')
     const province = getNode(record, 'province')
     const city = getNode(record, 'city')
-    expect(Nodes.getHierarchyCode(city)).toEqual([region.uuid, province.uuid])
+    expect(RecordNodes.getHierarchyCode(city)).toEqual([region.uuid, province.uuid])
 
     const setCode = async (attributeUuid: string, codePaths: string[]) => {
       const item = TestUtils.getCategoryItem({ survey, categoryName, codePaths })
-      const value = NodeValues.newCodeValue({ itemUuid: item.uuid })
+      const value = RecordNodeValues.newCodeValue({ itemUuid: item.uuid })
       record = (await RecordUpdater.updateAttributeValue({ user, survey, record, attributeUuid, value })).record
     }
     await setCode(region.uuid, ['1'])
@@ -67,16 +67,19 @@ describe('RecordUpdater - code attributes hierarchy (meta.hCode)', () => {
     const { record: recordCloned } = RecordCloner.cloneRecord({ survey, record, cycleTo: '0' })
     const regionCloned = getNode(recordCloned, 'region')
     const provinceCloned = getNode(recordCloned, 'province')
-    expect(Nodes.getHierarchyCode(getNode(recordCloned, 'city'))).toEqual([regionCloned.uuid, provinceCloned.uuid])
+    expect(RecordNodes.getHierarchyCode(getNode(recordCloned, 'city'))).toEqual([
+      regionCloned.uuid,
+      provinceCloned.uuid,
+    ])
   })
 
-  const createRecordWithFullHierarchy = async (survey: Survey) => {
+  const createRecordWithFullHierarchy = async (survey: ArenaSurvey) => {
     let record: ArenaRecord = RecordFactory.createInstance({ surveyUuid: survey.uuid, user })
     record = (await RecordUpdater.createRootEntity({ user, survey, record })).record
     const getNode = (name: string) => TestUtils.getNodeByPath({ survey, record, path: name })
     const setCode = async (name: string, codePaths: string[]) => {
       const item = TestUtils.getCategoryItem({ survey, categoryName, codePaths })
-      const value = NodeValues.newCodeValue({ itemUuid: item.uuid })
+      const value = RecordNodeValues.newCodeValue({ itemUuid: item.uuid })
       const attributeUuid = getNode(name).uuid
       record = (await RecordUpdater.updateAttributeValue({ user, survey, record, attributeUuid, value })).record
     }
@@ -89,13 +92,13 @@ describe('RecordUpdater - code attributes hierarchy (meta.hCode)', () => {
   test('setting the same item on an ancestor code attribute keeps all the dependent levels', async () => {
     const survey = await createSurvey()
     const { getNode, setCode } = await createRecordWithFullHierarchy(survey)
-    const provinceItemUuid = NodeValues.getItemUuid(getNode('province'))
-    const cityItemUuid = NodeValues.getItemUuid(getNode('city'))
+    const provinceItemUuid = RecordNodeValues.getItemUuid(getNode('province'))
+    const cityItemUuid = RecordNodeValues.getItemUuid(getNode('city'))
 
     await setCode('region', ['1'])
 
-    expect(NodeValues.getItemUuid(getNode('province'))).toBe(provinceItemUuid)
-    expect(NodeValues.getItemUuid(getNode('city'))).toBe(cityItemUuid)
+    expect(RecordNodeValues.getItemUuid(getNode('province'))).toBe(provinceItemUuid)
+    expect(RecordNodeValues.getItemUuid(getNode('city'))).toBe(cityItemUuid)
   })
 
   test('changing an ancestor code attribute clears all the dependent levels (cascade)', async () => {
@@ -119,11 +122,11 @@ describe('RecordUpdater - code attributes hierarchy (meta.hCode)', () => {
     const bigCategoryItem = CategoryItemFactory.createInstance({ levelUuid: 'level_uuid', props: { code: '9' } })
     record = Records.addNode({
       ...region,
-      value: NodeValues.newCodeValue({ itemUuid: bigCategoryItem.uuid }),
+      value: RecordNodeValues.newCodeValue({ itemUuid: bigCategoryItem.uuid }),
       refData: { categoryItem: bigCategoryItem },
     })(record)
 
-    const cityDef = Surveys.getNodeDefByName({ survey, name: 'city' }) as NodeDefCode
+    const cityDef = Surveys.getNodeDefByName({ survey, name: 'city' }) as ArenaNodeDefCode
     expect(Records.getAncestorCodePath(survey, root, cityDef)(record)).toEqual(['9', ''])
   })
 })

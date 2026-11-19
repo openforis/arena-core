@@ -1,10 +1,10 @@
-import { NodeDef, NodeDefProps, NodeDefType } from '../../../nodeDef'
-import { Survey } from '../../survey'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../../../nodeDef'
+import { ArenaSurvey } from '../../survey'
 
-export const getNodeDefsArray = (survey: Survey): Array<NodeDef<NodeDefType, NodeDefProps>> =>
+export const getNodeDefsArray = (survey: ArenaSurvey): Array<ArenaNodeDef<NodeDefType, ArenaNodeDefProps>> =>
   Object.values(survey.nodeDefs ?? {})
 
 export const calculateNodeDefChildren =
-  (nodeDef: NodeDef<NodeDefType, NodeDefProps>) =>
-  (survey: Survey): NodeDef<any>[] =>
+  (nodeDef: ArenaNodeDef<NodeDefType, ArenaNodeDefProps>) =>
+  (survey: ArenaSurvey): ArenaNodeDef<any>[] =>
     getNodeDefsArray(survey).filter((nodeDefCurrent) => nodeDefCurrent.parentUuid === nodeDef.uuid)

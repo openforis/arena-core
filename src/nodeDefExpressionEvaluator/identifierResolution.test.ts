@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../tests/data'
 import { NodeDefExpressionEvaluator } from './evaluator'
@@ -8,7 +8,7 @@ import { NodeDefExpressionEvaluator } from './evaluator'
 const { entityDef, integerDef, textDef } = SurveyObjectBuilders
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 
 // attributes named like properties of node def objects (type, uuid, props, meta) or of their JS value type
 // (e.g. trim, concat for text attributes) must be resolved as references to those attributes

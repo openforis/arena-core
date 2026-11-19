@@ -1,7 +1,7 @@
-import { ExpressionContext } from '../context'
-import { ExpressionEvaluator } from '../evaluator'
-import { ExpressionFunctions } from '../function'
-import { ExpressionNode, ExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
+import { ArenaExpressionContext } from '../context'
+import { ArenaExpressionEvaluator } from '../evaluator'
+import { ArenaExpressionFunctions } from '../function'
+import { ArenaExpressionNode, ArenaExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
 import { SystemError, SystemErrorKeys } from '../../error'
 
 import { functionsDefault } from './functionsDefault'
@@ -18,8 +18,8 @@ import { ThisEvaluator } from './node/this'
 import { UnaryEvaluator } from './node/unary'
 import { JavascriptExpressionParser } from './parser/parser'
 
-type Evaluators<C extends ExpressionContext> = {
-  [nodeType in ExpressionNodeType]?: ExpressionNodeEvaluatorConstructor<C, ExpressionNode<ExpressionNodeType>>
+type Evaluators<C extends ArenaExpressionContext> = {
+  [nodeType in ExpressionNodeType]?: ArenaExpressionNodeEvaluatorConstructor<C, ArenaExpressionNode<ExpressionNodeType>>
 }
 
 const defaultEvaluators = {
@@ -39,10 +39,10 @@ const defaultEvaluators = {
 // Parsed expressions cache: the same expressions are evaluated many times (e.g. for every node during a record update).
 // The cached expression nodes are shared, so evaluators must never modify them.
 const PARSED_EXPRESSIONS_CACHE_MAX_SIZE = 1000
-const parsedExpressionsCache = new Map<string, ExpressionNode<ExpressionNodeType>>()
+const parsedExpressionsCache = new Map<string, ArenaExpressionNode<ExpressionNodeType>>()
 const expressionParser = new JavascriptExpressionParser()
 
-export const parseExpression = (expression: string): ExpressionNode<ExpressionNodeType> => {
+export const parseExpression = (expression: string): ArenaExpressionNode<ExpressionNodeType> => {
   let expressionNode = parsedExpressionsCache.get(expression)
   if (!expressionNode) {
     expressionNode = expressionParser.parse(expression)
@@ -56,11 +56,11 @@ export const parseExpression = (expression: string): ExpressionNode<ExpressionNo
   return expressionNode
 }
 
-export class JavascriptExpressionEvaluator<C extends ExpressionContext> implements ExpressionEvaluator<C> {
-  functions: ExpressionFunctions<C>
+export class JavascriptExpressionEvaluator<C extends ArenaExpressionContext> implements ArenaExpressionEvaluator<C> {
+  functions: ArenaExpressionFunctions<C>
   evaluators: Evaluators<C>
 
-  constructor(functions: ExpressionFunctions<C> = {}, evaluators: Evaluators<C> = {}) {
+  constructor(functions: ArenaExpressionFunctions<C> = {}, evaluators: Evaluators<C> = {}) {
     this.evaluators = { ...defaultEvaluators, ...evaluators }
     this.functions = { ...functionsDefault, ...functions }
   }
@@ -69,7 +69,7 @@ export class JavascriptExpressionEvaluator<C extends ExpressionContext> implemen
     return this.evaluateNode(parseExpression(expression), context ?? ({} as C))
   }
 
-  async evaluateNode(expressionNode: ExpressionNode<ExpressionNodeType>, context: C): Promise<any> {
+  async evaluateNode(expressionNode: ArenaExpressionNode<ExpressionNodeType>, context: C): Promise<any> {
     const { type } = expressionNode
 
     const NodeEvaluator = this.evaluators[type]

@@ -9,10 +9,10 @@ const { entity, attribute } = RecordNodeBuilders
 import { RecordNodesUpdater } from '../recordNodesUpdater'
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
-import { User } from '../../auth'
+import { ArenaUser } from '../../auth'
 import { Records } from './../records'
 
-let user: User
+let user: ArenaUser
 
 describe('Record nodes updater - default values', () => {
   beforeAll(async () => {

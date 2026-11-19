@@ -1,14 +1,14 @@
 import { ArenaRecord, RecordFactory } from '../../../record'
-import { User } from '../../../auth'
-import { Survey } from '../../../survey'
+import { ArenaUser } from '../../../auth'
+import { ArenaSurvey } from '../../../survey'
 import { EntityBuilder } from './entityBuilder'
 
 export class RecordBuilder {
-  private readonly survey: Survey
-  private readonly user: User
+  private readonly survey: ArenaSurvey
+  private readonly user: ArenaUser
   private readonly rootEntityBuilder: EntityBuilder
 
-  constructor(user: User, survey: Survey, rootEntityBuilder: EntityBuilder) {
+  constructor(user: ArenaUser, survey: ArenaSurvey, rootEntityBuilder: EntityBuilder) {
     this.survey = survey
     this.user = user
     this.rootEntityBuilder = rootEntityBuilder

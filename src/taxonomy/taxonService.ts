@@ -1,14 +1,14 @@
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaService } from '../common'
-import { JobSerialized } from '../job'
-import { Taxon } from './taxon'
-import { VernacularName } from './taxonVernacularName'
+import { ArenaJobSerialized } from '../job'
+import { ArenaTaxon } from './taxon'
+import { ArenaVernacularName } from './taxonVernacularName'
 
-export interface TaxonService extends ArenaService {
+export interface ArenaTaxonService extends ArenaService {
   // ==== READ
   count(options: { surveyId: number; taxonomyUuid: string; draft?: boolean }): Promise<number>
 
-  get(options: { surveyId: number; taxonomyUuid: string; taxonUuid?: string; draft?: boolean }): Promise<Taxon>
+  get(options: { surveyId: number; taxonomyUuid: string; taxonUuid?: string; draft?: boolean }): Promise<ArenaTaxon>
 
   getMany(options: {
     draft?: boolean
@@ -19,20 +19,20 @@ export interface TaxonService extends ArenaService {
     surveyId: number
     taxonomyUuid: string
     includeUnlUnk?: boolean
-  }): Promise<Array<Taxon>>
+  }): Promise<Array<ArenaTaxon>>
 
   getManyVernacularNames(options: {
     draft?: boolean
     surveyId: number
     vernacularNameUuid: string
-  }): Promise<Array<VernacularName>>
+  }): Promise<Array<ArenaVernacularName>>
 
   // ==== UPDATE
 
   importTaxa(options: {
-    user: User
+    user: ArenaUser
     surveyId: number
     taxonomyUuid: string
     filePath: string
-  }): Promise<JobSerialized<any>>
+  }): Promise<ArenaJobSerialized<any>>
 }

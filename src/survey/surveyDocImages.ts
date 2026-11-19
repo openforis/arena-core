@@ -1,16 +1,16 @@
-import { Labels } from '../language'
+import { ArenaLabels } from '../language'
 import { Objects } from '../utils'
-import { SurveyDocImage, SurveyDocPlace, surveyDocImagePropKeys } from './survey'
+import { ArenaSurveyDocImage, SurveyDocPlace, surveyDocImagePropKeys } from './survey'
 
-const getDocumentPlace = (image: SurveyDocImage): SurveyDocPlace | undefined =>
+const getDocumentPlace = (image: ArenaSurveyDocImage): SurveyDocPlace | undefined =>
   Objects.path(['props', surveyDocImagePropKeys.documentPlace])(image)
 
-const getApplyIf = (image: SurveyDocImage): string =>
+const getApplyIf = (image: ArenaSurveyDocImage): string =>
   Objects.path(['props', surveyDocImagePropKeys.applyIf])(image) ?? ''
 
 const assocDocumentPlace =
   (place: SurveyDocPlace) =>
-  (image: SurveyDocImage): SurveyDocImage =>
+  (image: ArenaSurveyDocImage): ArenaSurveyDocImage =>
     Objects.assocPath({
       obj: image,
       path: ['props', surveyDocImagePropKeys.documentPlace],
@@ -19,12 +19,12 @@ const assocDocumentPlace =
 
 const assocApplyIf =
   (expr: string) =>
-  (image: SurveyDocImage): SurveyDocImage =>
+  (image: ArenaSurveyDocImage): ArenaSurveyDocImage =>
     Objects.assocPath({ obj: image, path: ['props', surveyDocImagePropKeys.applyIf], value: expr })
 
 const assocLabels =
-  (labels: Labels) =>
-  (image: SurveyDocImage): SurveyDocImage =>
+  (labels: ArenaLabels) =>
+  (image: ArenaSurveyDocImage): ArenaSurveyDocImage =>
     Objects.assocPath({ obj: image, path: ['props', 'labels'], value: labels })
 
 export const SurveyDocImages = {

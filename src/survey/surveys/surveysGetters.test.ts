@@ -2,15 +2,15 @@ import { describe, test, expect } from '@jest/globals'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
-import { Survey } from '../survey'
+import { ArenaSurvey } from '../survey'
 import { Surveys } from '.'
 
-import { AreaOfInterestDescriptor } from '../../geo'
+import { ArenaAreaOfInterestDescriptor } from '../../geo'
 import { LanguageCode } from '../../language'
 
 const { entityDef, integerDef } = SurveyObjectBuilders
 
-const buildSurvey = async (props: Partial<Survey['props']> = {}): Promise<Survey> => {
+const buildSurvey = async (props: Partial<ArenaSurvey['props']> = {}): Promise<ArenaSurvey> => {
   const survey = await new SurveyBuilder(createTestAdminUser(), entityDef('root', integerDef('id').key())).build()
   return { ...survey, props: { ...survey.props, ...props } }
 }
@@ -43,27 +43,27 @@ describe('Surveys getters', () => {
 })
 
 describe('Surveys.getAreasOfInterest', () => {
-  const areasOfInterest: AreaOfInterestDescriptor[] = [
+  const areasOfInterest: ArenaAreaOfInterestDescriptor[] = [
     { name: 'area_a', fileUuid: 'uuid-a', fileName: 'a.geojson', size: 100, polygons: 1, vertices: 5 },
     { name: 'area_b', fileUuid: 'uuid-b', fileName: 'b.geojson', size: 200, polygons: 2, vertices: 10 },
   ]
 
   test('areas of interest in survey props (Arena Mobile)', () => {
-    const survey = { props: { areasOfInterest } } as unknown as Survey
+    const survey = { props: { areasOfInterest } } as unknown as ArenaSurvey
     expect(Surveys.getAreasOfInterest(survey)).toEqual(areasOfInterest)
   })
 
   test('areas of interest in survey info props (Arena)', () => {
-    const survey = { props: {}, info: { props: { areasOfInterest } } } as unknown as Survey
+    const survey = { props: {}, info: { props: { areasOfInterest } } } as unknown as ArenaSurvey
     expect(Surveys.getAreasOfInterest(survey)).toEqual(areasOfInterest)
   })
 
   test('areas of interest not defined => empty array', () => {
-    expect(Surveys.getAreasOfInterest({ props: {} } as unknown as Survey)).toEqual([])
+    expect(Surveys.getAreasOfInterest({ props: {} } as unknown as ArenaSurvey)).toEqual([])
   })
 
   test('area of interest by name', () => {
-    const survey = { props: { areasOfInterest } } as unknown as Survey
+    const survey = { props: { areasOfInterest } } as unknown as ArenaSurvey
     expect(Surveys.getAreaOfInterestByName({ survey, name: 'area_b' })?.fileUuid).toBe('uuid-b')
     expect(Surveys.getAreaOfInterestByName({ survey, name: 'area_c' })).toBeUndefined()
   })

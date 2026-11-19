@@ -1,10 +1,10 @@
-import { ArenaRecordNode, Nodes } from '../../node'
-import { NodeDef, NodeDefs, NodeDefType } from '../../nodeDef'
+import { ArenaRecordNode, RecordNodes } from '../../node'
+import { ArenaNodeDef, NodeDefs, NodeDefType } from '../../nodeDef'
 import { Surveys } from '../../survey'
 import { SurveyDependencyType } from '../../survey/survey'
 import { getNodesByDefUuid } from '../_records/recordGetters'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { RecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
+import { ArenaRecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
 import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
@@ -15,9 +15,9 @@ const expressionEvaluator = new RecordExpressionEvaluator()
  * Evaluates the "required if" condition of the specified child def in the context of the specified parent entity.
  */
 export const evaluateRequiredIf = async (
-  params: RecordExpressionEvaluationContext & {
+  params: ArenaRecordExpressionEvaluationContext & {
     nodeCtx: ArenaRecordNode
-    nodeDef: NodeDef<NodeDefType>
+    nodeDef: ArenaNodeDef<NodeDefType>
   }
 ): Promise<boolean> => {
   const { nodeCtx, nodeDef } = params
@@ -50,19 +50,22 @@ export const updateSelfAndDependentsRequired = async (
   // NOTE: don't do it in parallel, same nodeCtx metadata could be overwritten
   for (const { nodeCtx: nodeCtxNodePointer, nodeDef } of nodePointersToUpdate) {
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxNodePointer.uuid) ?? nodeCtxNodePointer
-    const valuePrev = Nodes.isChildRequired(nodeCtx, nodeDef.uuid)
+    const valuePrev = RecordNodes.isChildRequired(nodeCtx, nodeDef.uuid)
     // NOSONAR: sequential evaluation needed (see note above)
     const value = await evaluateRequiredIf({ ...params, record: updateResult.record, nodeCtx, nodeDef }) // NOSONAR
     if (valuePrev === value) continue
 
-    const nodeCtxUpdated = Nodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect })
+    const nodeCtxUpdated = RecordNodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect })
     updateResult.addNode(nodeCtxUpdated, { sideEffect })
   }
   return updateResult
 }
 
 const updateNodeDefRequiredFlags = async (
-  params: RecordExpressionEvaluationContext & { nodeDef: NodeDef<NodeDefType>; updateResult: RecordUpdateResult }
+  params: ArenaRecordExpressionEvaluationContext & {
+    nodeDef: ArenaNodeDef<NodeDefType>
+    updateResult: RecordUpdateResult
+  }
 ): Promise<void> => {
   const { nodeDef, updateResult, sideEffect = false } = params
   const requiredIfDefined = NodeDefs.isRequiredIfDefined(nodeDef)
@@ -70,12 +73,12 @@ const updateNodeDefRequiredFlags = async (
 
   for (const parentNode of parentNodes) {
     const nodeCtx = updateResult.getNodeByUuid(parentNode.uuid) ?? parentNode
-    const valuePrev = Nodes.isChildRequired(nodeCtx, nodeDef.uuid)
+    const valuePrev = RecordNodes.isChildRequired(nodeCtx, nodeDef.uuid)
     // sequential evaluation: the same parent node can be updated for different child defs
     const value =
       requiredIfDefined && (await evaluateRequiredIf({ ...params, record: updateResult.record, nodeCtx, nodeDef })) // NOSONAR
     if (value !== valuePrev) {
-      const nodeCtxUpdated = Nodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect })
+      const nodeCtxUpdated = RecordNodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect })
       updateResult.addNode(nodeCtxUpdated, { sideEffect })
     }
   }
@@ -86,7 +89,7 @@ const updateNodeDefRequiredFlags = async (
  * e.g. after their "required if" condition has been added, changed or removed. Validation is not updated.
  */
 export const updateRequiredFlags = async (
-  params: RecordExpressionEvaluationContext & { nodeDefUuids: string[] }
+  params: ArenaRecordExpressionEvaluationContext & { nodeDefUuids: string[] }
 ): Promise<RecordUpdateResult> => {
   const { survey, record, nodeDefUuids } = params
   const updateResult = new RecordUpdateResult({ record })

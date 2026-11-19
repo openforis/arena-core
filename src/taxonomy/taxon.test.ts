@@ -1,10 +1,10 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { TaxonFactory, TaxonFactoryParams } from './factory'
+import { TaxonFactory, ArenaTaxonFactoryParams } from './factory'
 
 describe('taxonFactory', () => {
   test('createInstance', () => {
-    const taxonParams: TaxonFactoryParams = {
+    const taxonParams: ArenaTaxonFactoryParams = {
       taxonomyUuid: 'uuid-0001-test',
       props: {
         code: 'CODE',

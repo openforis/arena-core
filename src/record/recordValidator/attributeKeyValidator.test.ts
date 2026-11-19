@@ -4,9 +4,9 @@ import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyB
 import { RecordBuilder, RecordNodeBuilders } from '../../tests/builder/recordBuilder'
 import { createTestAdminUser } from '../../tests/data'
 import { TestUtils } from '../../tests/testUtils'
-import { User } from '../../auth'
-import { NodeValues } from '../../node'
-import { Survey } from '../../survey'
+import { ArenaUser } from '../../auth'
+import { RecordNodeValues } from '../../node'
+import { ArenaSurvey } from '../../survey'
 import { Validations } from '../../validation'
 import { ArenaRecord } from '../record'
 import { RecordUpdater } from '../recordUpdater'
@@ -16,8 +16,8 @@ import { RecordValidator } from './index'
 const { entityDef, integerDef, textDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-let user: User
-let survey: Survey
+let user: ArenaUser
+let survey: ArenaSurvey
 
 const isKeyValid = (params: { record: ArenaRecord; path: string }): boolean => {
   const { record, path } = params
@@ -117,7 +117,7 @@ describe('AttributeKeyValidator - duplicate entity keys', () => {
   test('validating many key attributes at once does not compare every key with all the sibling keys', async () => {
     const tablesCount = 200
     const record = buildRecord(Array.from({ length: tablesCount }, (_t, index) => (index % 100) + 1))
-    const isValueEqualSpy = jest.spyOn(NodeValues, 'isValueEqual')
+    const isValueEqualSpy = jest.spyOn(RecordNodeValues, 'isValueEqual')
     try {
       const validation = await RecordValidator.validateRecord({ user, survey, record })
       const recordValidated = { ...record, validation }
@@ -138,7 +138,7 @@ describe('AttributeKeyValidator - duplicate entity keys', () => {
     const record = buildRecord(
       Array.from({ length: tablesCount }, (_t, index) => (index === tablesCount - 1 ? 1 : index + 1))
     )
-    const isValueEqualSpy = jest.spyOn(NodeValues, 'isValueEqual')
+    const isValueEqualSpy = jest.spyOn(RecordNodeValues, 'isValueEqual')
     try {
       const validation = await RecordValidator.validateRecord({ user, survey, record })
       const recordValidated = { ...record, validation }
@@ -155,7 +155,7 @@ describe('AttributeKeyValidator - duplicate entity keys', () => {
 })
 
 describe('AttributeKeyValidator - duplicate entity composite keys', () => {
-  let compositeKeySurvey: Survey
+  let compositeKeySurvey: ArenaSurvey
 
   beforeAll(async () => {
     user = createTestAdminUser()

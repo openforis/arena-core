@@ -9,17 +9,17 @@ const { entity, attribute } = RecordNodeBuilders
 import { RecordUpdater } from './recordUpdater'
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { ArenaRecord } from './record'
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { Records } from './records'
-import { NodeDef } from '../nodeDef'
+import { ArenaNodeDef } from '../nodeDef'
 import { ArenaRecordNode } from '../node'
 
-let user: User
+let user: ArenaUser
 
 const updateAttributeAndExpectDependentApplicability = async (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   nodePath: string
   value: any
@@ -57,10 +57,10 @@ const updateAttributeAndExpectDependentApplicability = async (params: {
 }
 
 const addNodeAndExpectDependentApplicability = async (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   parentNode: ArenaRecordNode
-  nodeDef: NodeDef<any>
+  nodeDef: ArenaNodeDef<any>
   dependentNodePath: string
   expectedDependentApplicability: boolean
 }): Promise<ArenaRecord> => {

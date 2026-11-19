@@ -1,15 +1,15 @@
-import { Dictionary } from '../common'
+import { ArenaDictionary } from '../common'
 
 export class SystemError extends Error {
   private readonly _key: string
-  private readonly _params: Dictionary<any>
+  private readonly _params: ArenaDictionary<any>
 
   /**
    * @param key - Error key (translatable).
    * @param params - Parameters of the error message.
    * @param options - Error options: `cause` is the original error (kept with its stack trace).
    */
-  constructor(key: string, params?: Dictionary<any>, options?: { cause?: unknown }) {
+  constructor(key: string, params?: ArenaDictionary<any>, options?: { cause?: unknown }) {
     super(key, options)
 
     this.name = 'SystemError'
@@ -27,14 +27,14 @@ export class SystemError extends Error {
     return this._key
   }
 
-  get params(): Dictionary<any> {
+  get params(): ArenaDictionary<any> {
     return this._params
   }
 
   toJSON() {
     const { key, params } = this
     const { error: nestedError } = params ?? {}
-    const paramsAdjusted: Dictionary<any> =
+    const paramsAdjusted: ArenaDictionary<any> =
       nestedError && nestedError instanceof SystemError ? { ...params, error: nestedError?.toJSON() } : params
     return { key, params: paramsAdjusted }
   }

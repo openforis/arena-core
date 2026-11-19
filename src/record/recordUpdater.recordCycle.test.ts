@@ -2,7 +2,7 @@ import { describe, test, expect } from '@jest/globals'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../tests/data'
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { Validations } from '../validation'
 import { ArenaRecord } from './record'
 import { RecordCloner } from './recordCloner'
@@ -15,7 +15,7 @@ const { entityDef, integerDef } = SurveyObjectBuilders
 const user = createTestAdminUser()
 
 // "only_cycle_0" is a required attribute defined only in cycle 0
-const createSurvey = async (): Promise<Survey> => {
+const createSurvey = async (): Promise<ArenaSurvey> => {
   const survey = await new SurveyBuilder(
     user,
     entityDef('root_entity', integerDef('identifier').key(), integerDef('only_cycle_0').required())
@@ -26,12 +26,12 @@ const createSurvey = async (): Promise<Survey> => {
   return survey
 }
 
-const createRecord = async (survey: Survey, cycle: string): Promise<ArenaRecord> => {
+const createRecord = async (survey: ArenaSurvey, cycle: string): Promise<ArenaRecord> => {
   const record = RecordFactory.createInstance({ surveyUuid: survey.uuid, user, cycle })
   return (await RecordUpdater.createRootEntity({ user, survey, record })).record
 }
 
-const countOnlyCycle0Nodes = (survey: Survey, record: ArenaRecord): number => {
+const countOnlyCycle0Nodes = (survey: ArenaSurvey, record: ArenaRecord): number => {
   const nodeDef = Surveys.getNodeDefByName({ survey, name: 'only_cycle_0' })
   return Records.getNodesByDefUuid(nodeDef.uuid)(record).length
 }

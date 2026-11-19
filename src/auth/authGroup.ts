@@ -11,7 +11,7 @@ export enum AuthGroupName {
   dataAnalyst = 'dataAnalyst',
 }
 
-export interface AuthGroup {
+export interface ArenaAuthGroup {
   name: AuthGroupName
   surveyUuid?: string
   permissions?: Array<Permission>
@@ -30,7 +30,7 @@ export const sortedGroupNames = [
   AuthGroupName.surveyGuest,
 ]
 
-export const SYSTEM_ADMIN_GROUP: AuthGroup = { name: AuthGroupName.systemAdmin }
+export const SYSTEM_ADMIN_GROUP: ArenaAuthGroup = { name: AuthGroupName.systemAdmin }
 
 export const permissionsByGroupName: { [key in AuthGroupName]: Permission[] } = {
   [AuthGroupName.systemAdmin]: Object.values(Permission),
@@ -82,7 +82,7 @@ export const permissionsByGroupName: { [key in AuthGroupName]: Permission[] } = 
   [AuthGroupName.surveyGuest]: [Permission.recordView],
 }
 
-export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
+export const DEFAULT_AUTH_GROUPS: Array<ArenaAuthGroup> = [
   {
     name: AuthGroupName.surveyAdmin,
     permissions: permissionsByGroupName[AuthGroupName.surveyAdmin],
@@ -136,7 +136,7 @@ export const DEFAULT_AUTH_GROUPS: Array<AuthGroup> = [
 
 // copies of the default groups: their permissions and record steps must not be shared between surveys
 // (the permissions arrays are the ones in permissionsByGroupName)
-export const createDefaultAuthGroups = (): AuthGroup[] =>
+export const createDefaultAuthGroups = (): ArenaAuthGroup[] =>
   DEFAULT_AUTH_GROUPS.map((group) => ({
     ...group,
     ...(group.permissions ? { permissions: [...group.permissions] } : {}),

@@ -7,7 +7,7 @@ type ChunkProcessor = (args: {
   totalFileSize: number
 }) => Promise<any>
 
-export type FileProcessorConstructorArgs = {
+export type ArenaFileProcessorConstructorArgs = {
   file?: File
   filePath?: string
   chunkProcessor: ChunkProcessor
@@ -56,7 +56,7 @@ export class FileProcessor {
     chunkSize = FileProcessor.defaultChunkSize,
     maxTryings = FileProcessor.defaultMaxTryings,
     retryDelay = FileProcessor.defaultRetryDelay,
-  }: FileProcessorConstructorArgs) {
+  }: ArenaFileProcessorConstructorArgs) {
     this.file = file
     this.filePath = filePath
     this.chunkProcessor = chunkProcessor

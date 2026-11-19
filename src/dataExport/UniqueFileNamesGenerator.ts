@@ -1,11 +1,11 @@
-import { Dictionary } from '../common'
+import { ArenaDictionary } from '../common'
 import { FileNames } from '../utils'
 
 const nameWithIndexRegEx = /^(.*) \((\d+)\)$/ // file name like "example (1).txt"
 
 export class UniqueFileNamesGenerator {
-  private _fileNamesByKey: Dictionary<string>
-  private _keysByFileName: Dictionary<string>
+  private _fileNamesByKey: ArenaDictionary<string>
+  private _keysByFileName: ArenaDictionary<string>
   // file names are compared ignoring case: names differing only in case overwrite each other on Windows/macOS
   private readonly _fileNamesLowerCase: Set<string>
   // last file name generated starting from a given first candidate file name (e.g. "image (1).jpg" => "image (25).jpg"):
@@ -87,11 +87,11 @@ export class UniqueFileNamesGenerator {
     return extension ? `${nameUpdated}.${extension}` : nameUpdated
   }
 
-  get fileNamesByKey(): Readonly<Dictionary<string>> {
+  get fileNamesByKey(): Readonly<ArenaDictionary<string>> {
     return { ...this._fileNamesByKey }
   }
 
-  get keysByFileName(): Readonly<Dictionary<string>> {
+  get keysByFileName(): Readonly<ArenaDictionary<string>> {
     return { ...this._keysByFileName }
   }
 }

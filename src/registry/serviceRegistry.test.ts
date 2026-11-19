@@ -1,13 +1,13 @@
 import { beforeAll, describe, expect, test } from '@jest/globals'
 
-import { UserService } from '../auth'
-import { CategoryItemService, CategoryLevelService, CategoryService } from '../category'
-import { ChainNodeDefService, ChainService } from '../chain'
-import { NodeService } from '../node'
-import { NodeDefService } from '../nodeDef'
-import { RecordService } from '../record'
-import { SurveyService } from '../survey'
-import { TaxonomyService, TaxonService } from '../taxonomy'
+import { ArenaUserService } from '../auth'
+import { ArenaCategoryItemService, ArenaCategoryLevelService, ArenaCategoryService } from '../category'
+import { ArenaChainNodeDefService, ArenaChainService } from '../chain'
+import { ArenaRecordNodeService } from '../node'
+import { ArenaNodeDefService } from '../nodeDef'
+import { ArenaRecordService } from '../record'
+import { ArenaSurveyService } from '../survey'
+import { ArenaTaxonomyService, ArenaTaxonService } from '../taxonomy'
 
 import { ServiceRegistry } from './serviceRegistry'
 import { ServiceType } from './serviceType'
@@ -45,7 +45,7 @@ beforeAll(() => {
 
 describe('ServiceRegistry', () => {
   test('CategoryService', async () => {
-    const service: CategoryService = serviceRegistry.getService(ServiceType.category)
+    const service: ArenaCategoryService = serviceRegistry.getService(ServiceType.category)
     const category = await service.get({ categoryUuid: 'category_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -53,7 +53,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('CategoryItemService', async () => {
-    const service: CategoryItemService = serviceRegistry.getService(ServiceType.categoryItem)
+    const service: ArenaCategoryItemService = serviceRegistry.getService(ServiceType.categoryItem)
     const categoryItem = await service.get({ categoryUuid: 'category_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -61,7 +61,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('CategoryLevelService', async () => {
-    const service: CategoryLevelService = serviceRegistry.getService(ServiceType.categoryLevel)
+    const service: ArenaCategoryLevelService = serviceRegistry.getService(ServiceType.categoryLevel)
     const categoryLevel = await service.get({ categoryUuid: 'category_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -69,7 +69,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('ChainService', async () => {
-    const service: ChainService = serviceRegistry.getService(ServiceType.chain)
+    const service: ArenaChainService = serviceRegistry.getService(ServiceType.chain)
     const chain = await service.get({ chainUuid: 'chain_uuid', surveyId: 1 })
 
     expect(service).toBeDefined()
@@ -79,7 +79,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('ChainNodeDefService', async () => {
-    const service: ChainNodeDefService = serviceRegistry.getService(ServiceType.chainNodeDef)
+    const service: ArenaChainNodeDefService = serviceRegistry.getService(ServiceType.chainNodeDef)
     const chainNodeDefs = await service.getMany({ chainUuid: '', entityDefUuid: '', surveyId: 0 })
     const chainNodeDef = chainNodeDefs[0]
 
@@ -92,7 +92,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('NodeService', async () => {
-    const service: NodeService = serviceRegistry.getService(ServiceType.node)
+    const service: ArenaRecordNodeService = serviceRegistry.getService(ServiceType.node)
     const node = await service.get({ nodeUuid: 'node_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -100,7 +100,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('NodeDefService', async () => {
-    const service: NodeDefService = serviceRegistry.getService(ServiceType.nodeDef)
+    const service: ArenaNodeDefService = serviceRegistry.getService(ServiceType.nodeDef)
     const nodeDefs = await service.getMany({ surveyId: 1, user: userMock })
     const [nodeDef] = Object.values(nodeDefs)
 
@@ -109,7 +109,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('RecordService', async () => {
-    const service: RecordService = serviceRegistry.getService(ServiceType.record)
+    const service: ArenaRecordService = serviceRegistry.getService(ServiceType.record)
     const record = await service.get({ recordUuid: 'record_uuid', surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -117,7 +117,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('SurveyService', async () => {
-    const service: SurveyService = serviceRegistry.getService(ServiceType.survey)
+    const service: ArenaSurveyService = serviceRegistry.getService(ServiceType.survey)
     const survey = await service.get({ surveyId: 1 })
 
     expect(service).not.toBeNull()
@@ -125,7 +125,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('TaxonService', async () => {
-    const service: TaxonService = serviceRegistry.getService(ServiceType.taxon)
+    const service: ArenaTaxonService = serviceRegistry.getService(ServiceType.taxon)
     const taxon = await service.get({ surveyId: 1, taxonomyUuid: 'mock' })
 
     expect(service).not.toBeNull()
@@ -133,7 +133,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('TaxonomyService', async () => {
-    const service: TaxonomyService = serviceRegistry.getService(ServiceType.taxonomy)
+    const service: ArenaTaxonomyService = serviceRegistry.getService(ServiceType.taxonomy)
     const taxonomy = await service.get({ surveyId: 1, taxonomyUuid: 'mock' })
 
     expect(service).not.toBeNull()
@@ -141,7 +141,7 @@ describe('ServiceRegistry', () => {
   })
 
   test('UserService', async () => {
-    const service: UserService = serviceRegistry.getService(ServiceType.user)
+    const service: ArenaUserService = serviceRegistry.getService(ServiceType.user)
     const user = await service.get({ userUuid: 'userUuid' })
 
     expect(service).not.toBeNull()
@@ -150,9 +150,9 @@ describe('ServiceRegistry', () => {
   })
 
   test('getService is typed by ServiceType', () => {
-    const userService: UserService = serviceRegistry.getService(ServiceType.user)
+    const userService: ArenaUserService = serviceRegistry.getService(ServiceType.user)
     // @ts-expect-error the service registered for ServiceType.user is not a SurveyService
-    const surveyService: SurveyService = serviceRegistry.getService(ServiceType.user)
+    const surveyService: ArenaSurveyService = serviceRegistry.getService(ServiceType.user)
 
     expect(surveyService).toBe(userService)
   })

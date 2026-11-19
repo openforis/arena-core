@@ -1,1 +1,1 @@
-export type { Logger } from './logger'
+export type { ArenaLogger } from './logger'

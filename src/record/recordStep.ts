@@ -1,4 +1,4 @@
-export type RecordStep = {
+export type ArenaRecordStep = {
   id: string
   name: string
 }
@@ -19,13 +19,13 @@ export const RecordStepsDictionary = {
   [RecordStepAnalysisCode]: { id: RecordStepAnalysisCode, name: RecordStepNames.Analysis },
 }
 
-export const RecordStepsList: RecordStep[] = Object.values(RecordStepsDictionary)
+export const RecordStepsList: ArenaRecordStep[] = Object.values(RecordStepsDictionary)
 
-const getStepById = (id: string): RecordStep | undefined => {
+const getStepById = (id: string): ArenaRecordStep | undefined => {
   return RecordStepsList.find((step) => step.id === id)
 }
 
-const getStepByName = (name: string): RecordStep | undefined => RecordStepsList.find((step) => step.name === name)
+const getStepByName = (name: string): ArenaRecordStep | undefined => RecordStepsList.find((step) => step.name === name)
 
 export const RecordSteps = {
   getStepById,

@@ -1,15 +1,15 @@
-import { Labels } from '../language'
+import { ArenaLabels } from '../language'
 import { ArenaObject } from '../common'
-import { ExtraPropDefs } from '../extraProp'
+import { ArenaExtraPropDefs } from '../extraProp'
 
-export interface TaxonomyProps {
-  descriptions?: Labels
+export interface ArenaTaxonomyProps {
+  descriptions?: ArenaLabels
   name?: string
   vernacularLanguageCodes?: Array<string>
-  extraPropsDefs?: ExtraPropDefs
+  extraPropsDefs?: ArenaExtraPropDefs
 }
 
-export interface Taxonomy extends ArenaObject<TaxonomyProps> {
+export interface ArenaTaxonomy extends ArenaObject<ArenaTaxonomyProps> {
   draft?: boolean
   id?: number
   published?: boolean

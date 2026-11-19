@@ -1,6 +1,6 @@
 import { LanguageCode } from './languageCode'
 
-export type Labels = {
+export type ArenaLabels = {
   [code in LanguageCode]?: string
 }
 
@@ -8,7 +8,7 @@ export type Labels = {
  * Returns the label in the specified language, or the default value when it is missing or empty.
  */
 export const getLabelOrDefault = (
-  labels: Labels | undefined,
+  labels: ArenaLabels | undefined,
   lang: LanguageCode | undefined,
   defaultValue = ''
 ): string => {

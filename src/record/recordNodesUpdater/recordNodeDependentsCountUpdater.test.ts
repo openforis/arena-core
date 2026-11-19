@@ -1,7 +1,7 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { User } from '../../auth'
-import { Nodes } from '../../node'
+import { ArenaUser } from '../../auth'
+import { RecordNodes } from '../../node'
 import { NodeDefCountType } from '../../nodeDef'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
 import { Surveys } from '../../survey'
@@ -16,7 +16,7 @@ import * as RecordNodesUpdater from './recordNodesUpdater'
 const { entityDef, integerDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-let user: User
+let user: ArenaUser
 
 describe('Record nodes updater - dependents count updater', () => {
   beforeAll(async () => {
@@ -75,7 +75,7 @@ describe('Record nodes updater - dependents count updater', () => {
       const rootNode = Records.getRoot(record)
       if (!rootNode) throw new Error('root node undefined')
 
-      const count = Nodes.getChildrenMinOrMaxCount({
+      const count = RecordNodes.getChildrenMinOrMaxCount({
         parentNode: rootNode,
         nodeDef: dependentAttributeDef,
         countType,

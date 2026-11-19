@@ -1,15 +1,15 @@
-import { CategoryItem } from '../../category'
-import { Dictionary } from '../../common'
-import { NodeDef, NodeDefCode, NodeDefs } from '../../nodeDef'
-import { Survey, SurveyDependencyType } from '../survey'
+import { ArenaCategoryItem } from '../../category'
+import { ArenaDictionary } from '../../common'
+import { ArenaNodeDef, ArenaNodeDefCode, NodeDefs } from '../../nodeDef'
+import { ArenaSurvey, SurveyDependencyType } from '../survey'
 import { getNodeDefDependents } from './dependencies'
 import { getCategoryItems } from './refsData'
 
 export const getEnumeratingCategoryItems = (params: {
-  survey: Survey
-  enumerator: NodeDefCode
+  survey: ArenaSurvey
+  enumerator: ArenaNodeDefCode
   parentItemUuid?: string
-}): CategoryItem[] => {
+}): ArenaCategoryItem[] => {
   const { survey, enumerator, parentItemUuid } = params
   const categoryUuid = NodeDefs.getCategoryUuid(enumerator)!
   const category = survey.categories?.[categoryUuid]
@@ -19,9 +19,9 @@ export const getEnumeratingCategoryItems = (params: {
   return getCategoryItems({ survey, categoryUuid: category.uuid, parentItemUuid })
 }
 
-export const findApplicableDependentEnumeratedEntityDefs = (nodeDef: NodeDef<any>) => (survey: Survey) => {
+export const findApplicableDependentEnumeratedEntityDefs = (nodeDef: ArenaNodeDef<any>) => (survey: ArenaSurvey) => {
   const result = []
-  const visitedNodeDefsByUuid: Dictionary<boolean> = {}
+  const visitedNodeDefsByUuid: ArenaDictionary<boolean> = {}
   const stack = [nodeDef]
   while (stack.length > 0) {
     const currentNodeDef = stack.pop()!
@@ -31,7 +31,7 @@ export const findApplicableDependentEnumeratedEntityDefs = (nodeDef: NodeDef<any
         result.push(currentNodeDef)
       }
       const dependencyTypes = [SurveyDependencyType.applicable, SurveyDependencyType.defaultValues]
-      const dependents = dependencyTypes.reduce((acc: NodeDef<any>[], dependencyType) => {
+      const dependents = dependencyTypes.reduce((acc: ArenaNodeDef<any>[], dependencyType) => {
         const dependentsPartial = getNodeDefDependents({
           survey,
           nodeDefUuid: currentNodeDefUuid,

@@ -1,17 +1,17 @@
-import { CategoryItem } from '../category'
-import { Taxon } from '../taxonomy'
+import { ArenaCategoryItem } from '../category'
+import { ArenaTaxon } from '../taxonomy'
 
-export enum NodeKeys {
+export enum RecordNodeKeys {
   meta = 'meta',
   value = 'value',
 }
 
-export enum NodeMetaKeys {
+export enum RecordNodeMetaKeys {
   h = 'h',
   hCode = 'hCode',
 }
 
-export interface NodeMeta {
+export interface ArenaRecordNodeMeta {
   /**
    * Applicability of the node children (by definition UUID). If not defined, the children are applicable by default.
    */
@@ -57,20 +57,20 @@ export interface NodeMeta {
   qualifierValueApplied?: boolean
 }
 
-export interface NodeRefData {
-  categoryItem?: CategoryItem
-  taxon?: Taxon
+export interface ArenaRecordNodeRefData {
+  categoryItem?: ArenaCategoryItem
+  taxon?: ArenaTaxon
 }
 
 export interface ArenaRecordNode {
   dateCreated?: string
   dateModified?: string
   id?: number
-  meta?: NodeMeta
+  meta?: ArenaRecordNodeMeta
   nodeDefUuid: string
   parentUuid?: string
   recordUuid: string
-  refData?: NodeRefData
+  refData?: ArenaRecordNodeRefData
   uuid: string
   value?: any
   placeholder?: boolean
@@ -91,12 +91,6 @@ export interface ArenaRecordNode {
   updated?: boolean
 }
 
-/**
- * @deprecated Use ArenaRecordNode: this name shadows the DOM Node type.
- * It will be removed in the next major version.
- */
-export type Node = ArenaRecordNode
-
-export interface NodesMap {
+export interface ArenaRecordNodesMap {
   [key: string]: ArenaRecordNode
 }

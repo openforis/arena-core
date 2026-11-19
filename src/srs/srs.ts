@@ -1,14 +1,14 @@
-export interface SRS {
+export interface ArenaSRS {
   code: string
   name: string
   wkt: string
 }
 
-export interface SRSIndex {
-  [srsCode: string]: SRS
+export interface ArenaSRSIndex {
+  [srsCode: string]: ArenaSRS
 }
 
-export const DEFAULT_SRS: SRS = {
+export const DEFAULT_SRS: ArenaSRS = {
   code: '4326',
   name: 'GCS WGS 1984',
   wkt: `

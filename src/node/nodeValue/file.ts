@@ -1,6 +1,6 @@
 import { NodeValueComposite } from './nodeValueComposite'
 
-export interface NodeValueFile extends NodeValueComposite {
+export interface ArenaRecordNodeValueFile extends NodeValueComposite {
   fileName?: string
   fileNameCalculated?: string
   fileSize?: number

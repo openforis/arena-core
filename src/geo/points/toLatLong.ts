@@ -1,6 +1,6 @@
-import { DEFAULT_SRS, SRSIndex } from '../../srs'
-import { Point } from '../point'
+import { DEFAULT_SRS, ArenaSRSIndex } from '../../srs'
+import { ArenaPoint } from '../point'
 import { transform } from './transform'
 
-export const toLatLong = (point: Point, srsIndex: SRSIndex): Point | null =>
+export const toLatLong = (point: ArenaPoint, srsIndex: ArenaSRSIndex): ArenaPoint | null =>
   transform(point, DEFAULT_SRS.code, srsIndex)

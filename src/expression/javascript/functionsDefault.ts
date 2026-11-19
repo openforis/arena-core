@@ -1,9 +1,9 @@
 import { Objects, UUIDs } from '../../utils'
-import { ExpressionContext } from '../context'
+import { ArenaExpressionContext } from '../context'
 
-import { ExpressionFunction } from '../function'
+import { ArenaExpressionFunction } from '../function'
 
-export const functionsDefault: { [key: string]: ExpressionFunction<ExpressionContext> } = {
+export const functionsDefault: { [key: string]: ArenaExpressionFunction<ArenaExpressionContext> } = {
   isEmpty: {
     minArity: 1,
     maxArity: 1,

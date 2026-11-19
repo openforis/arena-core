@@ -1,13 +1,13 @@
 import { SystemError, SystemErrorKeys } from '../../../error'
-import { ExpressionContext } from '../../context'
-import { ExpressionFunction } from '../../function'
+import { ArenaExpressionContext } from '../../context'
+import { ArenaExpressionFunction } from '../../function'
 import {
-  CallExpression,
+  ArenaCallExpression,
   ExpressionNodeEvaluator,
   ExpressionNodeType,
-  IdentifierExpression,
-  LiteralExpression,
-  MemberExpression,
+  ArenaIdentifierExpression,
+  ArenaLiteralExpression,
+  ArenaMemberExpression,
 } from '../../node'
 import { getGlobalObjectProperty } from '../global'
 import { isUnsafeRegExpSource, REG_EXP_INPUT_MAX_LENGTH } from '../regExpSafety'
@@ -16,12 +16,12 @@ import { isUnsafeRegExpSource, REG_EXP_INPUT_MAX_LENGTH } from '../regExpSafety'
 const stringFunctionsWithRegExpArgument = new Set(['match', 'matchAll', 'search'])
 
 // e.g. text.match('(a+)+$'): the string pattern is checked like a regular expression literal
-const isRegExpStringPatternCall = (callee: MemberExpression, args: any[]): boolean => {
+const isRegExpStringPatternCall = (callee: ArenaMemberExpression, args: any[]): boolean => {
   const { computed, property } = callee
   return (
     !computed &&
     property.type === ExpressionNodeType.Identifier &&
-    stringFunctionsWithRegExpArgument.has((property as IdentifierExpression).name) &&
+    stringFunctionsWithRegExpArgument.has((property as ArenaIdentifierExpression).name) &&
     typeof args[0] === 'string'
   )
 }
@@ -45,8 +45,8 @@ const checkRegExpInputLength = (fnObject: any, args: any[], regExpStringPattern:
   }
 }
 
-export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEvaluator<C, CallExpression> {
-  async evaluate(expressionNode: CallExpression): Promise<any> {
+export class CallEvaluator<C extends ArenaExpressionContext> extends ExpressionNodeEvaluator<C, ArenaCallExpression> {
+  async evaluate(expressionNode: ArenaCallExpression): Promise<any> {
     const { callee } = expressionNode
 
     if (callee.type === ExpressionNodeType.Member) {
@@ -60,7 +60,7 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     throw new SystemError(SystemErrorKeys.expression.invalidCalleeType, { type: callee.type })
   }
 
-  private async evaluateMember(expressionNode: CallExpression, callee: MemberExpression): Promise<any> {
+  private async evaluateMember(expressionNode: ArenaCallExpression, callee: ArenaMemberExpression): Promise<any> {
     const { arguments: exprArgs } = expressionNode
 
     // evaluate the callee object only once: evaluating it again to find the function would take exponential time
@@ -69,8 +69,8 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     if (fnObject === null || fnObject === undefined) return null
 
     // find the function (e.g. Math.round or text.toUpperCase) among the properties of the already evaluated object
-    const fnObjectLiteral: LiteralExpression = { type: ExpressionNodeType.Literal, value: fnObject, raw: '' }
-    const calleeWithObjectEvaluated: MemberExpression = { ...callee, object: fnObjectLiteral }
+    const fnObjectLiteral: ArenaLiteralExpression = { type: ExpressionNodeType.Literal, value: fnObject, raw: '' }
+    const calleeWithObjectEvaluated: ArenaMemberExpression = { ...callee, object: fnObjectLiteral }
     const fn = await this.evaluator.evaluateNode(calleeWithObjectEvaluated, this.context)
     if (fn) {
       const argsEvaluated = await Promise.all(exprArgs.map((arg) => this.evaluator.evaluateNode(arg, this.context)))
@@ -85,7 +85,10 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     return null
   }
 
-  private async evaluateIdentifier(expressionNode: CallExpression, callee: IdentifierExpression): Promise<any> {
+  private async evaluateIdentifier(
+    expressionNode: ArenaCallExpression,
+    callee: ArenaIdentifierExpression
+  ): Promise<any> {
     // Arguments is a reserved word in strict mode
     const { arguments: exprArgs } = expressionNode
     const { object: contextObject } = this.context
@@ -109,12 +112,12 @@ export class CallEvaluator<C extends ExpressionContext> extends ExpressionNodeEv
     throw new SystemError(SystemErrorKeys.expression.undefinedFunction, { name: fnName })
   }
 
-  private async evaluateCustomIdentifier(expressionNode: CallExpression, fnName: string): Promise<any> {
+  private async evaluateCustomIdentifier(expressionNode: ArenaCallExpression, fnName: string): Promise<any> {
     // Arguments is a reserved word in strict mode
     const { arguments: exprArgs } = expressionNode
     const numArgs = exprArgs.length
 
-    const expressionFunction: ExpressionFunction<C> = this.evaluator.functions[fnName]
+    const expressionFunction: ArenaExpressionFunction<C> = this.evaluator.functions[fnName]
 
     const { minArity, maxArity, evaluateArgsToNodes, executor } = expressionFunction
 

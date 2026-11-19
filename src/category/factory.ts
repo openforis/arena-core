@@ -1,17 +1,17 @@
-import { Dictionary, Factory } from '../common'
+import { ArenaDictionary, ArenaFactory } from '../common'
 import { UUIDs } from '../utils'
-import { Category, CategoryProps } from './category'
-import { CategoryItem, CategoryItemProps } from './item'
-import { CategoryLevel, CategoryLevelProps } from './level'
+import { ArenaCategory, ArenaCategoryProps } from './category'
+import { ArenaCategoryItem, ArenaCategoryItemProps } from './item'
+import { ArenaCategoryLevel, ArenaCategoryLevelProps } from './level'
 
 export type CategoryFactoryParams = {
-  props?: CategoryProps
-  levels?: Dictionary<CategoryLevel>
+  props?: ArenaCategoryProps
+  levels?: ArenaDictionary<ArenaCategoryLevel>
   published?: boolean
 }
 
-export const CategoryFactory: Factory<Category, CategoryFactoryParams> = {
-  createInstance: (params?: CategoryFactoryParams): Category => {
+export const CategoryFactory: ArenaFactory<ArenaCategory, CategoryFactoryParams> = {
+  createInstance: (params?: CategoryFactoryParams): ArenaCategory => {
     const defaultProps = {
       props: {},
     }
@@ -38,12 +38,12 @@ export const CategoryFactory: Factory<Category, CategoryFactoryParams> = {
 
 export type CategoryLevelFactoryParams = {
   index?: number
-  props?: CategoryLevelProps
+  props?: ArenaCategoryLevelProps
   categoryUuid: string
 }
 
-export const CategoryLevelFactory: Factory<CategoryLevel, CategoryLevelFactoryParams> = {
-  createInstance: (params?: CategoryLevelFactoryParams): CategoryLevel => {
+export const CategoryLevelFactory: ArenaFactory<ArenaCategoryLevel, CategoryLevelFactoryParams> = {
+  createInstance: (params?: CategoryLevelFactoryParams): ArenaCategoryLevel => {
     const defaultProps = {
       props: {},
       index: 0,
@@ -66,11 +66,11 @@ export const CategoryLevelFactory: Factory<CategoryLevel, CategoryLevelFactoryPa
 export type CategoryItemFactoryParams = {
   levelUuid: string
   parentUuid?: string
-  props?: CategoryItemProps
+  props?: ArenaCategoryItemProps
 }
 
-export const CategoryItemFactory: Factory<CategoryItem, CategoryItemFactoryParams> = {
-  createInstance: (params?: CategoryItemFactoryParams): CategoryItem => {
+export const CategoryItemFactory: ArenaFactory<ArenaCategoryItem, CategoryItemFactoryParams> = {
+  createInstance: (params?: CategoryItemFactoryParams): ArenaCategoryItem => {
     const defaultProps = {
       props: {},
     }

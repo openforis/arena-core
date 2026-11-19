@@ -1,12 +1,12 @@
-import { Factory } from '../common'
+import { ArenaFactory } from '../common'
 import { UUIDs } from '../utils'
-import { NodeDef, NodeDefType, NodeDefProps, NodeDefPropsAdvanced } from './nodeDef'
+import { ArenaNodeDef, NodeDefType, ArenaNodeDefProps, ArenaNodeDefPropsAdvanced } from './nodeDef'
 
 export type NodeDefFactoryParams = {
   analysis?: boolean
-  nodeDefParent?: NodeDef<NodeDefType>
-  props?: NodeDefProps
-  propsAdvanced?: NodeDefPropsAdvanced
+  nodeDefParent?: ArenaNodeDef<NodeDefType>
+  props?: ArenaNodeDefProps
+  propsAdvanced?: ArenaNodeDefPropsAdvanced
   type: NodeDefType
   virtual?: boolean
 }
@@ -20,8 +20,8 @@ const defaultProps = {
   virtual: false,
 }
 
-export const NodeDefFactory: Factory<NodeDef<NodeDefType>, NodeDefFactoryParams> = {
-  createInstance: (params: NodeDefFactoryParams): NodeDef<NodeDefType> => {
+export const NodeDefFactory: ArenaFactory<ArenaNodeDef<NodeDefType>, NodeDefFactoryParams> = {
+  createInstance: (params: NodeDefFactoryParams): ArenaNodeDef<NodeDefType> => {
     const { analysis, draft, nodeDefParent, props, propsAdvanced, published, temporary, type, virtual } = {
       ...defaultProps,
       ...params,

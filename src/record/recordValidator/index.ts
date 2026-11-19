@@ -1,10 +1,10 @@
 import { validateNodes, validateRecord, validateSortedNodes } from './recordValidator'
 
 export type {
-  AttributeValidatorParams,
-  AttributesValidatorParams,
-  RecordValidatorParams,
-  SortedAttributesValidatorParams,
+  ArenaAttributeValidatorParams,
+  ArenaAttributesValidatorParams,
+  ArenaRecordValidatorParams,
+  ArenaSortedAttributesValidatorParams,
 } from './attributeValidator'
 
 export const RecordValidator = {

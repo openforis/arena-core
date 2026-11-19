@@ -1,21 +1,21 @@
-import { Dictionary } from '../common'
+import { ArenaDictionary } from '../common'
 import { AuthGroupName } from './authGroup'
 import { AuthGroups } from './authGroups'
-import { User, UserAuthGroup, UserStatus } from './user'
+import { ArenaUser, ArenaUserAuthGroup, UserStatus } from './user'
 
 const defaultMaxSurveys = 5
 
-const hasAccepted = (user: User): boolean => user?.status === UserStatus.ACCEPTED
+const hasAccepted = (user: ArenaUser): boolean => user?.status === UserStatus.ACCEPTED
 
-const getAuthGroups = (user: User): UserAuthGroup[] => user?.authGroups ?? []
+const getAuthGroups = (user: ArenaUser): ArenaUserAuthGroup[] => user?.authGroups ?? []
 
-const isSystemAdmin = (user: User): boolean => getAuthGroups(user).some(AuthGroups.isSystemAdmin)
+const isSystemAdmin = (user: ArenaUser): boolean => getAuthGroups(user).some(AuthGroups.isSystemAdmin)
 
-const isSurveyManager = (user: User): boolean => getAuthGroups(user).some(AuthGroups.isSurveyManager)
+const isSurveyManager = (user: ArenaUser): boolean => getAuthGroups(user).some(AuthGroups.isSurveyManager)
 
 const getAuthGroupBySurveyUuid =
   (surveyUuid?: string, includeSystemAdmin = true) =>
-  (user: User): UserAuthGroup | undefined => {
+  (user: ArenaUser): ArenaUserAuthGroup | undefined => {
     const authGroups = getAuthGroups(user)
     if (includeSystemAdmin && isSystemAdmin(user)) return authGroups.find(AuthGroups.isSystemAdmin)
     // without a survey uuid no survey group can match (groups not associated to a survey, e.g. survey manager, have no survey uuid)
@@ -23,14 +23,14 @@ const getAuthGroupBySurveyUuid =
     return authGroups.find((authGroup) => authGroup.surveyUuid === surveyUuid)
   }
 
-const getAuthGroupByName = (groupName: AuthGroupName) => (user: User) => {
+const getAuthGroupByName = (groupName: AuthGroupName) => (user: ArenaUser) => {
   const authGroups = getAuthGroups(user)
   return authGroups.find((group) => group.name === groupName)
 }
 
 const getCombinedExtraProps =
   (surveyUuid: string) =>
-  (user: User): Dictionary<any> => {
+  (user: ArenaUser): ArenaDictionary<any> => {
     const userSurveyAuthGroup = user ? Users.getAuthGroupBySurveyUuid(surveyUuid)(user) : null
     const userAuthGroupExtraProps = userSurveyAuthGroup?.props?.extra ?? {}
     const userExtraProps = user?.props.extra ?? {}
@@ -38,11 +38,11 @@ const getCombinedExtraProps =
     return { ...userExtraProps, ...userAuthGroupExtraProps }
   }
 
-const getMaxSurveys = (user: User) => user.props?.maxSurveys ?? defaultMaxSurveys
+const getMaxSurveys = (user: ArenaUser) => user.props?.maxSurveys ?? defaultMaxSurveys
 
 const isEqual =
-  (userToCompare: User) =>
-  (user: User): boolean =>
+  (userToCompare: ArenaUser) =>
+  (user: ArenaUser): boolean =>
     user && userToCompare ? user === userToCompare || user.uuid === userToCompare.uuid : false
 
 export const Users = {

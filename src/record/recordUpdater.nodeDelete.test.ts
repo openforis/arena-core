@@ -9,15 +9,15 @@ const { entity, attribute } = RecordNodeBuilders
 import { createTestAdminUser } from '../tests/data'
 import { TestUtils } from '../tests/testUtils'
 
-import { User } from '../auth'
+import { ArenaUser } from '../auth'
 import { RecordUpdater } from './recordUpdater'
 import { RecordValidations } from './recordValidations'
 import { Records } from './records'
 import { Surveys } from '../survey'
 import { Validations } from '../validation'
-import { NodeFactory } from '../node'
+import { RecordNodeFactory } from '../node'
 
-let user: User
+let user: ArenaUser
 
 const createSurveyAndRecordWithMultipleEntities = async () => {
   const survey = await new SurveyBuilder(
@@ -405,7 +405,7 @@ describe('RecordUpdater - node delete', () => {
 
     // add
     const recordWithoutIndex2 = { ...record, _nodesIndex: undefined }
-    const newEntity = NodeFactory.createInstance({
+    const newEntity = RecordNodeFactory.createInstance({
       nodeDefUuid: multEntityDef.uuid,
       recordUuid: record.uuid,
       parentNode: root,

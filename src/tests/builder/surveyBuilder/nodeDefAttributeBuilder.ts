@@ -1,5 +1,5 @@
-import { NodeDef, NodeDefEntity, NodeDefType } from '../../../nodeDef'
-import { NodeDefExpression, NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
+import { ArenaNodeDef, ArenaNodeDefEntity, NodeDefType } from '../../../nodeDef'
+import { ArenaNodeDefExpression, NodeDefExpressionFactory } from '../../../nodeDef/nodeDef'
 import { NodeDefBuilder } from './nodeDefBuilder'
 
 export class NodeDefAttributeBuilder extends NodeDefBuilder {
@@ -7,9 +7,9 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     super(name, type)
   }
 
-  build(params: { nodeDefParent?: NodeDefEntity } = {}): { [uuid: string]: NodeDef<NodeDefType> } {
+  build(params: { nodeDefParent?: ArenaNodeDefEntity } = {}): { [uuid: string]: ArenaNodeDef<NodeDefType> } {
     const { nodeDefParent } = params
-    const def: NodeDef<NodeDefType> = this.createNodeDef({ nodeDefParent })
+    const def: ArenaNodeDef<NodeDefType> = this.createNodeDef({ nodeDefParent })
     return { [def.uuid]: def }
   }
 
@@ -55,7 +55,7 @@ export class NodeDefAttributeBuilder extends NodeDefBuilder {
     return this
   }
 
-  validationExpressions(...expressions: (string | NodeDefExpression)[]): this {
+  validationExpressions(...expressions: (string | ArenaNodeDefExpression)[]): this {
     this.propsAdvanced.validations ??= {}
     this.propsAdvanced.validations.expressions = expressions.map((expression) =>
       typeof expression === 'string' ? NodeDefExpressionFactory.createInstance({ expression }) : expression

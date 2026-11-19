@@ -1,13 +1,13 @@
-import { Taxonomy, TaxonomyFactory, TaxonomyService } from '../../taxonomy'
+import { ArenaTaxonomy, TaxonomyFactory, ArenaTaxonomyService } from '../../taxonomy'
 
-export const taxonomyMock: Taxonomy = TaxonomyFactory.createInstance({})
+export const taxonomyMock: ArenaTaxonomy = TaxonomyFactory.createInstance({})
 
-export class TaxonomyServiceMock implements TaxonomyService {
+export class TaxonomyServiceMock implements ArenaTaxonomyService {
   count(): Promise<number> {
     throw new Error('Not implemented')
   }
 
-  create(): Promise<Taxonomy> {
+  create(): Promise<ArenaTaxonomy> {
     throw new Error('Not implemented')
   }
 
@@ -15,11 +15,11 @@ export class TaxonomyServiceMock implements TaxonomyService {
     throw new Error('Not implemented')
   }
 
-  get(): Promise<Taxonomy> {
+  get(): Promise<ArenaTaxonomy> {
     return Promise.resolve(taxonomyMock)
   }
 
-  getMany(): Promise<Array<Taxonomy>> {
+  getMany(): Promise<Array<ArenaTaxonomy>> {
     throw new Error('Not implemented')
   }
 

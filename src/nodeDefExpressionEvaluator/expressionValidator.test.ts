@@ -1,7 +1,7 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
-import { Survey, Surveys } from '../survey'
+import { ArenaSurvey, Surveys } from '../survey'
 import { NodeDefExpressionValidator } from './validator'
 import { ExtraPropDataType } from '../extraProp'
 import { createTestAdminUser } from '../tests/data'
@@ -19,7 +19,7 @@ type Query = {
 }
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 
 describe('NodeDefExpressionValidator', () => {
   beforeAll(async () => {

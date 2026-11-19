@@ -1,6 +1,6 @@
 import { beforeAll, describe, test, expect } from '@jest/globals'
 
-import { Survey } from '../survey'
+import { ArenaSurvey } from '../survey'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { RecordBuilder, RecordNodeBuilders } from '../tests/builder/recordBuilder'
@@ -13,7 +13,7 @@ const { entity, attribute } = RecordNodeBuilders
 import { ArenaRecord } from './record'
 import { RecordCloner } from './recordCloner'
 
-let survey: Survey
+let survey: ArenaSurvey
 let record: ArenaRecord
 
 describe('Record cloner', () => {

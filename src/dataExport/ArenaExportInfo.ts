@@ -1,4 +1,4 @@
-import { AppInfo } from '../app'
+import { ArenaAppInfo } from '../app'
 
 export type SurveyExportInfo = {
   uuid: string
@@ -22,7 +22,7 @@ export enum ArenaExportType {
 }
 
 export type ArenaExportInfo = {
-  appInfo: AppInfo
+  appInfo: ArenaAppInfo
   dateExported: string // ISO string
   exportedByUserUuid: string
   exportType?: ArenaExportType

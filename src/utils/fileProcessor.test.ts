@@ -1,8 +1,8 @@
 import { describe, expect, jest, test } from '@jest/globals'
 
-import { FileProcessor, type FileProcessorConstructorArgs } from './fileProcessor'
+import { FileProcessor, type ArenaFileProcessorConstructorArgs } from './fileProcessor'
 
-type ChunkProcessor = FileProcessorConstructorArgs['chunkProcessor']
+type ChunkProcessor = ArenaFileProcessorConstructorArgs['chunkProcessor']
 type ChunkProcessorArgs = Parameters<ChunkProcessor>[0]
 
 const createChunkProcessorMock = (): jest.MockedFunction<ChunkProcessor> => jest.fn<ChunkProcessor>()

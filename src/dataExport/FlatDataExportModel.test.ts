@@ -1,11 +1,11 @@
 import { describe, test, expect } from '@jest/globals'
 
-import { NodeDef } from '../nodeDef'
-import { Survey, Surveys, defaultCycle } from '../survey'
+import { ArenaNodeDef } from '../nodeDef'
+import { ArenaSurvey, Surveys, defaultCycle } from '../survey'
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../tests/data'
 import { FlatDataExportColumnDataType, FlatDataExportModel } from './FlatDataExportModel'
-import { FlatDataExportDefaultOptions, FlatDataExportOption, FlatDataExportOptions } from './FlatDataExportOptions'
+import { FlatDataExportDefaultOptions, FlatDataExportOption, ArenaFlatDataExportOptions } from './FlatDataExportOptions'
 
 const {
   booleanDef,
@@ -29,7 +29,7 @@ const createTestSurvey = async (
   nodeDefBuilder: any,
   categoryBuilders: any[] = [],
   taxonomyBuilders: any[] = []
-): Promise<Survey> => {
+): Promise<ArenaSurvey> => {
   const user = createTestAdminUser()
   let surveyBuilder = new SurveyBuilder(user, nodeDefBuilder)
   if (categoryBuilders.length > 0) surveyBuilder = surveyBuilder.categories(...categoryBuilders)
@@ -39,7 +39,7 @@ const createTestSurvey = async (
 
 const createTestModel = async (
   nodeDefBuilder: any,
-  options?: FlatDataExportOptions,
+  options?: ArenaFlatDataExportOptions,
   categoryBuilders: any[] = [],
   taxonomyBuilders: any[] = []
 ): Promise<FlatDataExportModel> => {
@@ -307,7 +307,7 @@ describe('FlatDataExportModel', () => {
     test('exports getExpandedCategoryItemColumnHeader', () => {
       expect(FlatDataExportModel.getExpandedCategoryItemColumnHeader).toBeDefined()
       const header = FlatDataExportModel.getExpandedCategoryItemColumnHeader({
-        nodeDef: { props: { name: 'test_field' } } as NodeDef<any>,
+        nodeDef: { props: { name: 'test_field' } } as ArenaNodeDef<any>,
         code: 'A',
       })
       expect(header).toBe('test_field__A')

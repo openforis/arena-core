@@ -1,22 +1,29 @@
-import { Point, Points } from '../../geo'
-import { ArenaRecordNode, NodeValueCode, NodeValueTaxon } from '../../node'
-import { Survey, Surveys } from '../../survey'
+import { ArenaPoint, Points } from '../../geo'
+import { ArenaRecordNode, ArenaRecordNodeValueCode, ArenaRecordNodeValueTaxon } from '../../node'
+import { ArenaSurvey, Surveys } from '../../survey'
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
-import { NodeDef, NodeDefType, NodeDefs, NodeDefCodeProps, NodeDefTaxon, NodeDefCode } from '../../nodeDef'
+import {
+  ArenaNodeDef,
+  NodeDefType,
+  NodeDefs,
+  ArenaNodeDefCodeProps,
+  ArenaNodeDefTaxon,
+  ArenaNodeDefCode,
+} from '../../nodeDef'
 import { Dates, DateFormats, Objects } from '../../utils'
-import { CategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
-import { TaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
+import { ArenaCategoryItemProvider } from '../../nodeDefExpressionEvaluator/categoryItemProvider'
+import { ArenaTaxonProvider } from '../../nodeDefExpressionEvaluator/taxonProvider'
 
 interface ToNodeValueParams {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
   nodeParent: ArenaRecordNode
-  nodeDef: NodeDef<any>
+  nodeDef: ArenaNodeDef<any>
   valueExpr: string
   timezoneOffset?: number
-  categoryItemProvider?: CategoryItemProvider
-  taxonProvider?: TaxonProvider
+  categoryItemProvider?: ArenaCategoryItemProvider
+  taxonProvider?: ArenaTaxonProvider
 }
 
 const _toPrimitive = (TypeTo: any) => (params: ToNodeValueParams) => {
@@ -31,15 +38,15 @@ const _toBoolean = (params: ToNodeValueParams) => {
 }
 
 const _findCategoryItemUuidByCode = async (params: {
-  survey: Survey
+  survey: ArenaSurvey
   record: ArenaRecord
-  nodeDef: NodeDefCode
+  nodeDef: ArenaNodeDefCode
   nodeParent: ArenaRecordNode
   code: string
-  categoryItemProvider?: CategoryItemProvider
+  categoryItemProvider?: ArenaCategoryItemProvider
 }): Promise<string | undefined> => {
   const { survey, record, nodeDef, nodeParent, code, categoryItemProvider } = params
-  const codeNodeDef = nodeDef as NodeDef<NodeDefType.code, NodeDefCodeProps>
+  const codeNodeDef = nodeDef as ArenaNodeDef<NodeDefType.code, ArenaNodeDefCodeProps>
 
   const categoryItemUuid = Records.getCategoryItemUuid(survey, codeNodeDef, nodeParent, code)(record)
   if (categoryItemUuid) return categoryItemUuid
@@ -53,7 +60,7 @@ const _findCategoryItemUuidByCode = async (params: {
   return item?.uuid
 }
 
-const _toCode = async (params: ToNodeValueParams): Promise<NodeValueCode | null> => {
+const _toCode = async (params: ToNodeValueParams): Promise<ArenaRecordNodeValueCode | null> => {
   const { survey, record, nodeDef, nodeParent, valueExpr, categoryItemProvider } = params
 
   if (!nodeParent) return null
@@ -64,7 +71,7 @@ const _toCode = async (params: ToNodeValueParams): Promise<NodeValueCode | null>
   const categoryItemUuid = await _findCategoryItemUuidByCode({
     survey,
     record,
-    nodeDef: nodeDef as NodeDefCode,
+    nodeDef: nodeDef as ArenaNodeDefCode,
     nodeParent,
     code,
     categoryItemProvider,
@@ -73,7 +80,7 @@ const _toCode = async (params: ToNodeValueParams): Promise<NodeValueCode | null>
   return categoryItemUuid ? { itemUuid: categoryItemUuid } : null
 }
 
-const _toCoordinate = (params: ToNodeValueParams): Point | null => {
+const _toCoordinate = (params: ToNodeValueParams): ArenaPoint | null => {
   const { valueExpr } = params
   return Points.parse(valueExpr)
 }
@@ -99,11 +106,11 @@ const _toDateTime = (params: {
 }
 
 const findTaxonByCode = async (params: {
-  survey: Survey
-  nodeDef: NodeDefTaxon
+  survey: ArenaSurvey
+  nodeDef: ArenaNodeDefTaxon
   taxonCode: string
   draft: boolean
-  taxonProvider?: TaxonProvider
+  taxonProvider?: ArenaTaxonProvider
 }) => {
   const { survey, nodeDef, taxonCode, taxonProvider, draft } = params
   const taxonomyUuid = NodeDefs.getTaxonomyUuid(nodeDef)!
@@ -113,13 +120,13 @@ const findTaxonByCode = async (params: {
   return taxonProvider.getTaxonByCode({ survey, taxonomyUuid, taxonCode, draft })
 }
 
-const _toTaxon = async (params: ToNodeValueParams): Promise<NodeValueTaxon | null> => {
+const _toTaxon = async (params: ToNodeValueParams): Promise<ArenaRecordNodeValueTaxon | null> => {
   const { survey, record, nodeDef, valueExpr, taxonProvider } = params
 
   // ValueExpr is the code of a taxon
   const taxonCode = String(valueExpr)
 
-  const taxonNodeDef = nodeDef as NodeDefTaxon
+  const taxonNodeDef = nodeDef as ArenaNodeDefTaxon
   const draft = !!record.preview
   const taxon = await findTaxonByCode({ survey, nodeDef: taxonNodeDef, taxonCode, taxonProvider, draft })
   return taxon ? { taxonUuid: taxon.uuid } : null
@@ -146,7 +153,7 @@ const _valueExprToValueNodeFns: { [key in NodeDefType]?: (params: ToNodeValuePar
   [NodeDefType.integer]: _toPrimitive(Number),
   [NodeDefType.taxon]: _toTaxon,
   [NodeDefType.text]: _toPrimitive(String),
-  [NodeDefType.time]: (params: { nodeDef: NodeDef<any>; valueExpr: any; timezoneOffset?: number }) => {
+  [NodeDefType.time]: (params: { nodeDef: ArenaNodeDef<any>; valueExpr: any; timezoneOffset?: number }) => {
     const { nodeDef, valueExpr, timezoneOffset } = params
     return _toDateTime({
       valueExpr,

@@ -1,22 +1,22 @@
-import { ArenaRecordNode, NodesMap } from '../../node'
-import { Validation } from '../../validation'
+import { ArenaRecordNode, ArenaRecordNodesMap } from '../../node'
+import { ArenaValidation } from '../../validation'
 import { ArenaRecord } from '../record'
 import { addNode, addNodes } from '../_records/recordUpdater'
-import { RecordUpdateOptions } from '../records'
+import { ArenaRecordUpdateOptions } from '../records'
 
 export class RecordUpdateResult {
   record: ArenaRecord
-  nodes: NodesMap
-  nodesDeleted: NodesMap
+  nodes: ArenaRecordNodesMap
+  nodesDeleted: ArenaRecordNodesMap
   clearedDefUuids: Set<string>
-  validation?: Validation
+  validation?: ArenaValidation
 
   constructor(params: {
     record: ArenaRecord
-    nodes?: NodesMap
-    nodesDeleted?: NodesMap
+    nodes?: ArenaRecordNodesMap
+    nodesDeleted?: ArenaRecordNodesMap
     clearedDefUuids?: Set<string>
-    validation?: Validation
+    validation?: ArenaValidation
   }) {
     this.record = params.record
     this.nodes = params.nodes ?? {}
@@ -29,12 +29,12 @@ export class RecordUpdateResult {
     return this.nodes[uuid]
   }
 
-  addNode(node: ArenaRecordNode, options?: RecordUpdateOptions) {
+  addNode(node: ArenaRecordNode, options?: ArenaRecordUpdateOptions) {
     this.nodes[node.uuid] = node
     this.record = addNode(node, options)(this.record)
   }
 
-  addNodes(nodes: NodesMap, options?: RecordUpdateOptions) {
+  addNodes(nodes: ArenaRecordNodesMap, options?: ArenaRecordUpdateOptions) {
     Object.assign(this.nodes, nodes)
     this.record = addNodes(nodes, options)(this.record)
   }

@@ -1,10 +1,10 @@
 import { ArenaObject } from '../common'
 
-export interface CategoryLevelProps {
+export interface ArenaCategoryLevelProps {
   name?: string
 }
 
-export interface CategoryLevel extends ArenaObject<CategoryLevelProps> {
+export interface ArenaCategoryLevel extends ArenaObject<ArenaCategoryLevelProps> {
   categoryUuid?: string
   id?: number
   index?: number

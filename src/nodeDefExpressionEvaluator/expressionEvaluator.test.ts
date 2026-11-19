@@ -2,8 +2,8 @@ import { describe, test, expect, beforeAll } from '@jest/globals'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../tests/data'
-import { NodeDef, NodeDefProps, NodeDefType } from '../nodeDef'
-import { Survey, Surveys } from '../survey'
+import { ArenaNodeDef, ArenaNodeDefProps, NodeDefType } from '../nodeDef'
+import { ArenaSurvey, Surveys } from '../survey'
 import { NodeDefExpressionEvaluator } from './evaluator'
 
 const { booleanDef, entityDef, integerDef, textDef } = SurveyObjectBuilders
@@ -17,7 +17,7 @@ type Query = {
 }
 
 const user = createTestAdminUser()
-let survey: Survey
+let survey: ArenaSurvey
 
 const expectToBeNodeDef = (value: any): void => {
   expect(value).toHaveProperty(['props', 'name'])
@@ -40,7 +40,7 @@ const checkExpressionEvaluateResult = (params: {
     expect(result).toBe(expectedResultValue)
   } else {
     expectToBeNodeDef(result)
-    const nodeDefResult: NodeDef<NodeDefType, NodeDefProps> = result
+    const nodeDefResult: ArenaNodeDef<NodeDefType, ArenaNodeDefProps> = result
     expect(nodeDefResult.props.name).toEqual(expectedResultValue)
   }
 }

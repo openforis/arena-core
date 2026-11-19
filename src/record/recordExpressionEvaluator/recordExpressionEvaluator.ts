@@ -1,12 +1,12 @@
-import { CategoryItem } from '../../category'
+import { ArenaCategoryItem } from '../../category'
 import { ExpressionNodeType, JavascriptExpressionEvaluator } from '../../expression'
 import { ArenaRecordNode } from '../../node'
-import { NodeDefExpression, NodeDefs } from '../../nodeDef'
+import { ArenaNodeDefExpression, NodeDefs } from '../../nodeDef'
 import { Surveys } from '../../survey'
-import { Taxon } from '../../taxonomy'
+import { ArenaTaxon } from '../../taxonomy'
 import { Objects } from '../../utils'
 import { Records } from '../records'
-import { RecordExpressionContext } from './context'
+import { ArenaRecordExpressionContext } from './context'
 import { recordExpressionFunctions } from './functions'
 import { RecordIdentifierEvaluator } from './node/identifier'
 import { RecordThisEvaluator } from './node/thisEvaluator'
@@ -14,7 +14,7 @@ import type { RecordExpressionEvaluationParams } from '../recordNodesUpdater/rec
 
 type ExpressionEvaluateParams = RecordExpressionEvaluationParams
 
-export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<RecordExpressionContext> {
+export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<ArenaRecordExpressionContext> {
   constructor() {
     super(recordExpressionFunctions, {
       [ExpressionNodeType.Identifier]: RecordIdentifierEvaluator,
@@ -26,26 +26,32 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
     params: ExpressionEvaluateParams & {
       node: ArenaRecordNode
       query: string
-      item?: CategoryItem | Taxon
+      item?: ArenaCategoryItem | ArenaTaxon
     }
   ): Promise<any> {
     const { survey, record, node, query, item } = params
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent(node)(record)
     if (!nodeContext) return null
-    const context: RecordExpressionContext = { ...params, nodeContext, nodeCurrent: node, object: nodeContext, item }
+    const context: ArenaRecordExpressionContext = {
+      ...params,
+      nodeContext,
+      nodeCurrent: node,
+      object: nodeContext,
+      item,
+    }
     return this.evaluate(query, context)
   }
 
   private async _getApplicableExpressions(
     params: ExpressionEvaluateParams & {
       nodeCtx: ArenaRecordNode
-      expressions: NodeDefExpression[]
+      expressions: ArenaNodeDefExpression[]
       stopAtFirstFound?: boolean
     }
-  ): Promise<NodeDefExpression[]> {
+  ): Promise<ArenaNodeDefExpression[]> {
     const { nodeCtx, expressions, stopAtFirstFound = false } = params
-    const applicableExpressions: NodeDefExpression[] = []
+    const applicableExpressions: ArenaNodeDefExpression[] = []
 
     for (const expression of expressions) {
       const applyIfExpr = expression.applyIf
@@ -67,10 +73,10 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
   async evalApplicableExpressions(
     params: ExpressionEvaluateParams & {
       nodeCtx: ArenaRecordNode
-      expressions: NodeDefExpression[]
+      expressions: ArenaNodeDefExpression[]
       stopAtFirstFound?: boolean
     }
-  ): Promise<{ expression: NodeDefExpression; value: any }[]> {
+  ): Promise<{ expression: ArenaNodeDefExpression; value: any }[]> {
     const { nodeCtx } = params
     const applicableExpressions = await this._getApplicableExpressions(params)
 
@@ -85,9 +91,9 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Rec
   async evalApplicableExpression(
     params: ExpressionEvaluateParams & {
       nodeCtx: ArenaRecordNode
-      expressions: NodeDefExpression[]
+      expressions: ArenaNodeDefExpression[]
     }
-  ): Promise<{ expression: NodeDefExpression; value: any } | null> {
+  ): Promise<{ expression: ArenaNodeDefExpression; value: any } | null> {
     const expressionsEvaluated = await this.evalApplicableExpressions({ ...params, stopAtFirstFound: true })
     return expressionsEvaluated[0] ?? null
   }

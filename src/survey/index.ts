@@ -2,21 +2,21 @@ export { NodeDefsFixer } from './nodeDefsFixer'
 export { SurveyDocImages } from './surveyDocImages'
 export { SurveyFileFactory, SurveyFileType } from './surveyFileFactory'
 export { SurveyDocImageFactory } from './surveyDocImageFactory'
-export type { SurveyFileFactoryParams } from './surveyFileFactory'
-export type { SurveyDocImageFactoryParams } from './surveyDocImageFactory'
+export type { ArenaSurveyFileFactoryParams } from './surveyFileFactory'
+export type { ArenaSurveyDocImageFactoryParams } from './surveyDocImageFactory'
 
 export type {
-  Survey,
-  SurveyCycle,
-  SurveyDependencyGraph,
-  SurveyDependency,
-  SurveyDocImage,
-  SurveyDocImageProps,
-  SurveyFile,
-  SurveyFileProps,
-  SurveyNodeDefsIndex,
-  SurveyProps,
-  SurveySecurity,
+  ArenaSurvey,
+  ArenaSurveyCycle,
+  ArenaSurveyDependencyGraph,
+  ArenaSurveyDependency,
+  ArenaSurveyDocImage,
+  ArenaSurveyDocImageProps,
+  ArenaSurveyFile,
+  ArenaSurveyFileProps,
+  ArenaSurveyNodeDefsIndex,
+  ArenaSurveyProps,
+  ArenaSurveySecurity,
 } from './survey'
 
 export {
@@ -32,8 +32,8 @@ export { Surveys } from './surveys'
 
 export { SurveyFactory } from './factory'
 
-export type { SurveyService } from './service'
+export type { ArenaSurveyService } from './service'
 
-export type { SurveyRefData } from './refData'
+export type { ArenaSurveyRefData } from './refData'
 
 export { SurveyRefDataFactory } from './refData'
