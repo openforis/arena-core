@@ -130,7 +130,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 **Service Pattern**
 
 - Services provide business logic for domain objects
-- Exported as interfaces (e.g., `NodeDefService`, `RecordService`, `CategoryService`)
+- Exported as interfaces (`ArenaRecordService`, `ArenaSurveyService`, `ArenaUserService`, `ArenaUserAuthTokenService`), the ones arena-server implements
 - Can be registered in `ServiceRegistry` for custom implementations
 
 **ArenaObject**
