@@ -245,7 +245,8 @@ const canViewUsersAccessRequests = (user: ArenaUser): boolean => Users.isSystemA
 const canEditUsersAccessRequests = (user: ArenaUser): boolean => Users.isSystemAdmin(user)
 
 // TWO-FACTOR AUTHENTICATION
-const canManageUser2FADevices = (user: ArenaUser): boolean => Users.isSystemAdmin(user)
+// every user manages their own 2FA devices
+const canManageUser2FADevices = (_user: ArenaUser): boolean => true
 
 // INVITE
 const getUserGroupsCanAssign = ({
