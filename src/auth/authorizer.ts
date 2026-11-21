@@ -244,10 +244,6 @@ const canEditUserMaxSurveys = (user: ArenaUser) => Users.isSystemAdmin(user)
 const canViewUsersAccessRequests = (user: ArenaUser): boolean => Users.isSystemAdmin(user)
 const canEditUsersAccessRequests = (user: ArenaUser): boolean => Users.isSystemAdmin(user)
 
-// TWO-FACTOR AUTHENTICATION
-// every user manages their own 2FA devices
-const canManageUser2FADevices = (_user: ArenaUser): boolean => true
-
 // INVITE
 const getUserGroupsCanAssign = ({
   user,
@@ -340,8 +336,6 @@ export const Authorizer = {
   // User Access Requests
   canViewUsersAccessRequests,
   canEditUsersAccessRequests,
-  // Two-factor authentication
-  canManageUser2FADevices,
   // Invite
   getUserGroupsCanAssign,
 }

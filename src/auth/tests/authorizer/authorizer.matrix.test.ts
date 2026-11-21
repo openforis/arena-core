@@ -201,19 +201,6 @@ describe('Authorizer matrix - canEditSomeSurvey', () => {
   )
 })
 
-describe('Authorizer matrix - canManageUser2FADevices', () => {
-  test.each(casesWithAuthorizedGroups(allGroupNames))('%s => %s', (groupName, expected) => {
-    expect(Authorizer.canManageUser2FADevices(createUser(groupName))).toBe(expected)
-  })
-})
-
-describe('Authorizer matrix - canManageUser2FADevices (no auth groups)', () => {
-  test('user without auth groups => true', () => {
-    const user = UserFactory.createInstance({ email: 'nogroups@arena.org', name: 'no groups' })
-    expect(Authorizer.canManageUser2FADevices({ ...user, authGroups: [] })).toBe(true)
-  })
-})
-
 describe('Authorizer matrix - canCreateSurvey', () => {
   test.each(casesWithAuthorizedGroups([G.systemAdmin, G.surveyManager]))('%s => %s', (groupName, expected) => {
     expect(Authorizer.canCreateSurvey(createUser(groupName))).toBe(expected)
