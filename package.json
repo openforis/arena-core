@@ -26,19 +26,19 @@
     "@types/lodash.isequal": "^4.5.8",
     "@types/node": "^26.6.6",
     "@types/proj4": "^2.19.0",
-    "@typescript-eslint/eslint-plugin": "^8.72.1",
-    "@typescript-eslint/parser": "^8.72.1",
+    "@typescript-eslint/eslint-plugin": "^8.73.0",
+    "@typescript-eslint/parser": "^8.73.0",
     "@typescript/native": "npm:typescript@7.0.2",
-    "eslint": "^10.13.0",
+    "eslint": "^10.15.0",
     "eslint-plugin-no-explicit-type-exports": "^0.12.1",
     "husky": "^9.1.7",
     "jest": "^30.5.2",
-    "lint-staged": "^17.6.0",
+    "lint-staged": "^17.6.1",
     "pinst": "^3.0.0",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "ts-jest": "^29.4.15",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "typescript-eslint": "^8.72.1"
+    "typescript-eslint": "^8.73.0"
   },
   "dependencies": {
     "@jsep-plugin/regex": "^1.1.0",
@@ -52,8 +52,8 @@
     "dayjs": "^1.11.23",
     "jsep": "^1.6.0",
     "lodash.isequal": "^4.5.0",
-    "n2words": "^6.3.0",
-    "proj4": "^2.22.0",
+    "n2words": "^6.3.1",
+    "proj4": "^2.23.0",
     "uuid": "^14.0.3"
   },
   "scripts": {
