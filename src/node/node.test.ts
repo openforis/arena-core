@@ -20,16 +20,8 @@ const checkNode = (node: ArenaRecordNode, nodeParams: NodeFactoryParams) => {
   expect(node).toHaveProperty('value')
   expect(node.value).toBe(nodeParams.value)
 
-  expect(node).toHaveProperty('meta')
-  expect(node.meta).toHaveProperty('h')
-
-  const expectedHierarchy = [
-    ...(nodeParams.parentNode?.meta?.h ?? []),
-    ...(nodeParams.parentNode?.uuid ? [nodeParams.parentNode?.uuid] : []),
-  ]
-  const nodeHierarchy = [...(node.meta?.h ?? [])]
-  expect(nodeHierarchy).toHaveLength(expectedHierarchy.length)
-  expect(nodeHierarchy).toMatchObject(expectedHierarchy)
+  // the hierarchy is derived from the parent uuids: it's not stored in the node meta
+  expect(node.meta).toEqual({})
 }
 
 describe('RecordNodeFactory', () => {
@@ -41,9 +33,6 @@ describe('RecordNodeFactory', () => {
         uuid: 'parent-node-uuid',
         nodeDefUuid: 'nodeDefUuid',
         recordUuid: 'nodeDefUuid',
-        meta: {
-          h: ['uuid-prev'],
-        },
       },
       value: 'VALUE',
     }

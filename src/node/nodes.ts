@@ -53,12 +53,6 @@ const getChildrenMaxCount = (params: { parentNode: ArenaRecordNode; nodeDef: Are
 const getChildrenMinCount = (params: { parentNode: ArenaRecordNode; nodeDef: ArenaNodeDef<any> }): number =>
   getChildrenMinOrMaxCount({ ...params, countType: NodeDefCountType.min })
 
-/**
- * Returns the (deprecated) meta hierarchy of the node.
- * @deprecated Use Records.getAncestorUuids, which finds the ancestors going up the parent UUIDs.
- */
-const getHierarchy = (node: ArenaRecordNode): string[] => [...(node.meta?.h ?? [])]
-
 const getHierarchyCode = (node: ArenaRecordNode): string[] => [...(node.meta?.hCode ?? [])]
 
 const mergeNodes = (target: ArenaRecordNode, ...sources: ArenaRecordNode[] | object[]): ArenaRecordNode =>
@@ -258,7 +252,6 @@ export const RecordNodes = {
   getChildrenMinOrMaxCount,
   getChildrenMaxCount,
   getChildrenMinCount,
-  getHierarchy,
   getHierarchyCode,
   isDefaultValueApplied,
   isQualifierValueApplied,

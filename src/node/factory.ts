@@ -19,10 +19,7 @@ export const RecordNodeFactory: ArenaFactory<ArenaRecordNode, NodeFactoryParams>
       created: true,
       dateCreated: now,
       dateModified: now,
-      meta: {
-        // deprecated: still set for the consumers reading it (arena-core doesn't)
-        h: [...(parentNode?.meta?.h ?? []), ...(parentNode?.uuid ? [parentNode?.uuid] : [])],
-      },
+      meta: {},
       nodeDefUuid,
       parentUuid: parentNode?.uuid,
       recordUuid,

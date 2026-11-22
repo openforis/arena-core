@@ -280,12 +280,6 @@ export const isNodeDescendantOf =
   (record: ArenaRecord): boolean =>
     RecordNodesHierarchy.isDescendantOf(node, ancestor.uuid, record.nodes ?? {})
 
-/**
- * @deprecated It uses the deprecated node meta hierarchy: use isNodeDescendantOf.
- */
-export const isDescendantOf = (node: ArenaRecordNode, ancestor: ArenaRecordNode): boolean =>
-  RecordNodes.getHierarchy(node).includes(ancestor.uuid)
-
 export const visitDescendantsAndSelf =
   (
     node: ArenaRecordNode,

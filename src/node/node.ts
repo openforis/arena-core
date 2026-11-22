@@ -7,7 +7,6 @@ export enum RecordNodeKeys {
 }
 
 export enum RecordNodeMetaKeys {
-  h = 'h',
   hCode = 'hCode',
 }
 
@@ -39,11 +38,6 @@ export interface ArenaRecordNodeMeta {
    * If not defined, the children are visible by default.
    */
   cVis?: { [uuid: string]: boolean }
-  /**
-   * Hierarchy of ancestor node UUIDs.
-   * @deprecated Derivable from the parent UUIDs: use Records.getAncestorUuids; it will be removed in the next major version.
-   */
-  h?: string[]
   /**
    * Hierarchy of code attribute ancestor UUIDs (according to the parent code defs specified).
    */
