@@ -17,8 +17,6 @@ export type {
 export { NodeDefCountType, NodeDefExpressionFactory, NodeDefType } from './nodeDef'
 export { NodeDefs } from './nodeDefs'
 
-export type { ArenaNodeDefService } from './service'
-
 // ==== node def types
 export type { ArenaNodeDefBoolean, ArenaNodeDefBooleanProps } from './types/boolean'
 

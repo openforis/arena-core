@@ -18,5 +18,3 @@ export { RecordNodes } from './nodes'
 export { RecordNodeValueFormatter } from './nodeValueFormatter'
 
 export { RecordNodeValues } from './nodeValues'
-
-export type { ArenaRecordNodeService } from './service'
