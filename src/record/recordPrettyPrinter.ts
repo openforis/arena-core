@@ -5,6 +5,7 @@ import { ArenaSurvey, Surveys } from '../survey'
 import { Strings } from '../utils'
 import { ArenaRecord } from './record'
 import * as RecordGetters from './_records/recordGetters'
+import * as RecordNodesHierarchy from './_records/recordNodesHierarchy'
 
 type PrintOptions = {
   includeEmptyNodes?: boolean
@@ -26,6 +27,7 @@ const print = (params: { survey: ArenaSurvey; record: ArenaRecord; options?: Pri
 
   const cycle = RecordGetters.getCycle(record)
   const rootNode = RecordGetters.getRoot(record)
+  const getDepth = RecordNodesHierarchy.createNodeDepthGetter(record.nodes ?? {})
   if (!rootNode) {
     return ''
   }
@@ -65,7 +67,7 @@ const print = (params: { survey: ArenaSurvey; record: ArenaRecord; options?: Pri
       const { node, parentNode } = params
       const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
       const value = RecordNodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
-      const depth = RecordNodes.getHierarchy(node).length
+      const depth = getDepth(node)
       const infoParts = getInfoParts({ parentNode, childDefUuid: node.nodeDefUuid })
       parts.push(toPart({ depth, name: NodeDefs.getName(nodeDef), value, infoParts }))
 
@@ -98,7 +100,7 @@ const print = (params: { survey: ArenaSurvey; record: ArenaRecord; options?: Pri
       const { nodeDefUuid } = node
       const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: nodeDefUuid })
       const value = RecordNodeValueFormatter.format({ survey, cycle, nodeDef, node, value: node.value })
-      const depth = RecordNodes.getHierarchy(node).length
+      const depth = getDepth(node)
       const parentNode = NodeDefs.isRoot(nodeDef) ? null : RecordGetters.getParent(node)(record)
       const infoParts = getInfoParts({ parentNode, childDefUuid: nodeDefUuid })
       parts.push(toPart({ depth, name: NodeDefs.getName(nodeDef), value, infoParts }))

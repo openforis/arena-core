@@ -41,6 +41,7 @@ export interface ArenaRecordNodeMeta {
   cVis?: { [uuid: string]: boolean }
   /**
    * Hierarchy of ancestor node UUIDs.
+   * @deprecated Derivable from the parent UUIDs: use Records.getAncestorUuids; it will be removed in the next major version.
    */
   h?: string[]
   /**

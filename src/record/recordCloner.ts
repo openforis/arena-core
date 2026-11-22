@@ -9,6 +9,7 @@ import { RecordFixer } from './recordFixer'
 import { RecordUpdateResult } from './recordNodesUpdater'
 import { RecordValidations } from './recordValidations'
 import { Records } from './records'
+import * as RecordNodesHierarchy from './_records/recordNodesHierarchy'
 
 type OldUuidToNewUuidMap = {
   [key: string]: string
@@ -24,10 +25,10 @@ const assignNewUuidsToNodes = (params: {
   const newNodeUuidsByOldUuid: OldUuidToNewUuidMap = {}
   const newFileUuidsByOldUuid: OldUuidToNewUuidMap = {}
 
-  // sort nodes before removing the id, to preserve their hierarchy (faster than comparing each meta.h property)
+  // sort nodes by depth before removing the id, to preserve their hierarchy
+  const getDepth = RecordNodesHierarchy.createNodeDepthGetter(record.nodes ?? {})
   const nodesArray = Records.getNodesArray(record).sort(
-    (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): number =>
-      RecordNodes.getHierarchy(nodeA).length - RecordNodes.getHierarchy(nodeB).length
+    (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): number => getDepth(nodeA) - getDepth(nodeB)
   )
 
   const recordUpdated = sideEffect ? record : { ...record }
@@ -58,6 +59,7 @@ const assignNewUuidsToNodes = (params: {
     if (parentUuid) {
       nodeUpdated.parentUuid = newNodeUuidsByOldUuid[parentUuid]
     }
+    // deprecated meta hierarchy: updated only if present
     const hierarchy = node.meta?.h ?? []
     if (hierarchy.length > 0) {
       const hierarchyUpdated = hierarchy.map((ancestorUuid) => newNodeUuidsByOldUuid[ancestorUuid])

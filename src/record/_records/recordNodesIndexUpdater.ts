@@ -1,7 +1,8 @@
-import { ArenaRecordNode, RecordNodes } from '../../node'
+import { ArenaRecordNode, ArenaRecordNodesMap, RecordNodes } from '../../node'
 import { Objects } from '../../utils'
 import { ArenaMutationOptions } from '../../utils/mutationOptions'
 import { ArenaRecord, RecordNodesIndex } from '../record'
+import * as RecordNodesHierarchy from './recordNodesHierarchy'
 
 const keys = {
   nodeRootUuid: 'nodeRootUuid',
@@ -10,17 +11,18 @@ const keys = {
   nodeCodeDependents: 'nodeCodeDependents',
 }
 
-const sortNodesByIdOrCreationDate = (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): number => {
-  if (!nodeA.parentUuid) return -1
-  if (!nodeB.parentUuid) return 1
-  // read the hierarchy length directly: RecordNodes.getHierarchy copies the array on every comparison
-  const hierarchyDepthA = nodeA.meta?.h?.length ?? 0
-  const hierarchyDepthB = nodeB.meta?.h?.length ?? 0
-  const depthDiff = hierarchyDepthA - hierarchyDepthB
-  if (depthDiff !== 0) return depthDiff
-  if (nodeA.id && nodeB.id) return nodeA.id - nodeB.id
-  if (nodeA.dateCreated && nodeB.dateCreated) return nodeA.dateCreated.localeCompare(nodeB.dateCreated)
-  return 0
+// sorts the nodes by depth (found going up the parent uuids among the specified nodes), id or creation date
+const sortNodesByDepthIdOrCreationDate = (nodesArray: ArenaRecordNode[], nodesByUuid: ArenaRecordNodesMap): void => {
+  const getDepth = RecordNodesHierarchy.createNodeDepthGetter(nodesByUuid)
+  nodesArray.sort((nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): number => {
+    if (!nodeA.parentUuid) return -1
+    if (!nodeB.parentUuid) return 1
+    const depthDiff = getDepth(nodeA) - getDepth(nodeB)
+    if (depthDiff !== 0) return depthDiff
+    if (nodeA.id && nodeB.id) return nodeA.id - nodeB.id
+    if (nodeA.dateCreated && nodeB.dateCreated) return nodeA.dateCreated.localeCompare(nodeB.dateCreated)
+    return 0
+  })
 }
 
 /**
@@ -116,14 +118,22 @@ class NodesIndexDraft {
   }
 }
 
+/**
+ * Adds the specified nodes to the index.
+ * When sortNodes is true, they are sorted by depth first: allNodes (e.g. all the record nodes, default: the specified nodes)
+ * is used to find their depth going up the parent uuids.
+ */
 const addNodes =
-  (nodes: { [key: string]: ArenaRecordNode }, options: ArenaMutationOptions & { sortNodes?: boolean } = {}) =>
+  (
+    nodes: { [key: string]: ArenaRecordNode },
+    options: ArenaMutationOptions & { sortNodes?: boolean; allNodes?: ArenaRecordNodesMap } = {}
+  ) =>
   (index: RecordNodesIndex): RecordNodesIndex => {
-    const { sideEffect = false, sortNodes = false } = options
+    const { sideEffect = false, sortNodes = false, allNodes = nodes } = options
     const draft = new NodesIndexDraft(index, sideEffect)
     const nodesArray = Object.values(nodes)
     if (sortNodes) {
-      nodesArray.sort(sortNodesByIdOrCreationDate)
+      sortNodesByDepthIdOrCreationDate(nodesArray, allNodes)
     }
     for (const node of nodesArray) {
       draft.addNode(node)

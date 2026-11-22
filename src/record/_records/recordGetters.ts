@@ -17,6 +17,7 @@ import { ArenaRecord, RECORD_STEP_DEFAULT, RecordNodesIndex } from '../record'
 import { RecordStepAnalysisCode } from '../recordStep'
 import { RecordNodesIndexReader } from './recordNodesIndexReader'
 import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
+import * as RecordNodesHierarchy from './recordNodesHierarchy'
 import { NodeDefSelfReferences } from './nodeDefSelfReferences'
 
 export const getCycle = (record: ArenaRecord): string => record.cycle ?? defaultCycle
@@ -263,6 +264,25 @@ export const getDescendant =
   (record: ArenaRecord): ArenaRecordNode | undefined =>
     getDescendantsOrSelf(node, nodeDefDescendant)(record)[0]
 
+/**
+ * Returns the uuids of the ancestors of the specified node (root first), found going up the parent uuids.
+ */
+export const getAncestorUuids =
+  (node: ArenaRecordNode) =>
+  (record: ArenaRecord): string[] =>
+    RecordNodesHierarchy.getAncestorUuids(node, record.nodes ?? {})
+
+/**
+ * Returns true if the specified node is a descendant of the ancestor node, found going up the parent uuids.
+ */
+export const isNodeDescendantOf =
+  (node: ArenaRecordNode, ancestor: ArenaRecordNode) =>
+  (record: ArenaRecord): boolean =>
+    RecordNodesHierarchy.isDescendantOf(node, ancestor.uuid, record.nodes ?? {})
+
+/**
+ * @deprecated It uses the deprecated node meta hierarchy: use isNodeDescendantOf.
+ */
 export const isDescendantOf = (node: ArenaRecordNode, ancestor: ArenaRecordNode): boolean =>
   RecordNodes.getHierarchy(node).includes(ancestor.uuid)
 
