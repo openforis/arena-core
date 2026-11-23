@@ -7,7 +7,7 @@ export interface ArenaNodeDefEntityChildPosition {
   minH?: number
   minW?: number
   moved?: boolean
-  static?: number
+  static?: boolean
   w?: number
   x: number
   y: number
