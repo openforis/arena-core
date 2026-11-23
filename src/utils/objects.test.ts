@@ -178,6 +178,25 @@ describe('Objects', () => {
     expect(Objects.isEqual(o1, o2)).toBeTruthy()
   })
 
+  test.each([
+    ['same primitives', 'a', 'a', true],
+    ['number and numeric string', 1, '1', false],
+    ['null and undefined', null, undefined, false],
+    ['NaN and NaN', NaN, NaN, true],
+    ['0 and -0', 0, -0, true],
+    ['objects with different key order', { a: 1, b: '2' }, { b: '2', a: 1 }, true],
+    ['nested objects and arrays', { a: [{ x: 1, y: { z: [1, 2] } }] }, { a: [{ x: 1, y: { z: [1, 2] } }] }, true],
+    ['nested objects with a different value', { a: [{ x: 1 }] }, { a: [{ x: 2 }] }, false],
+    ['arrays with different order', [1, 2], [2, 1], false],
+    ['empty array and empty object', [], {}, false],
+    ['undefined prop and missing prop', { a: undefined }, {}, false],
+    ['null prop and undefined prop', { a: null }, { a: undefined }, false],
+    ['equal dates', new Date(1000), new Date(1000), true],
+    ['different dates', new Date(1000), new Date(2000), false],
+  ])('isEqual: %s', (_description, value, other, expected) => {
+    expect(Objects.isEqual(value, other)).toBe(expected)
+  })
+
   test('isEmpty', () => {
     expect(Objects.isEmpty(null)).toBeTruthy()
     expect(Objects.isEmpty(undefined)).toBeTruthy()
