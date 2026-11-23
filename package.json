@@ -4,7 +4,7 @@
     "name": "OpenForis",
     "email": "openforis.arena@gmail.com"
   },
-  "version": "3.1.4",
+  "version": "3.1.5",
   "description": "Arena core module",
   "repository": {
     "type": "git",
@@ -25,12 +25,10 @@
     "@types/jest": "^30.0.0",
     "@types/lodash.isequal": "^4.5.8",
     "@types/node": "^26.6.6",
-    "@types/proj4": "^2.19.0",
     "@typescript-eslint/eslint-plugin": "^8.73.0",
     "@typescript-eslint/parser": "^8.73.0",
     "@typescript/native": "npm:typescript@7.0.2",
     "eslint": "^10.15.0",
-    "eslint-plugin-no-explicit-type-exports": "^0.12.1",
     "husky": "^9.1.7",
     "jest": "^30.5.2",
     "lint-staged": "^17.6.2",
