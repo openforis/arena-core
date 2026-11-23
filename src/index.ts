@@ -33,19 +33,14 @@ export type {
   ArenaUserInvitation,
 } from './auth'
 
-export { CategoryFactory, CategoryImportColumnType, CategoryItemFactory, CategoryLevelFactory } from './category'
+export { CategoryFactory, CategoryItemFactory, CategoryLevelFactory } from './category'
 export type {
   ArenaCategoryItemProps,
   ArenaCategory,
   ArenaCategoryItem,
   ArenaCategoryLevel,
   ArenaCategoryLevelProps,
-  ArenaCategoryImportSummary,
-  ArenaCategoryImportSummaryColumn,
-  ArenaCategoryItemService,
-  ArenaCategoryLevelService,
   ArenaCategoryProps,
-  ArenaCategoryService,
 } from './category'
 
 export { Categories, CategoryItems } from './category'
@@ -54,10 +49,8 @@ export { ChainFactory, ChainStatusExec, ChainNodeDefFactory } from './chain'
 export type {
   ArenaChain,
   ArenaChainProps,
-  ArenaChainService,
   ArenaChainNodeDef,
   ArenaChainNodeDefProps,
-  ArenaChainNodeDefService,
   ArenaChainNodeDefAggregate,
   ArenaChainNodeDefAggregateProps,
 } from './chain'
@@ -141,7 +134,6 @@ export type {
   ArenaRecordNodeMeta,
   ArenaRecordNodePointer,
   ArenaRecordNodeRefData,
-  ArenaRecordNodeService,
   ArenaRecordNodesMap,
   ArenaRecordNodeValueCode,
   ArenaRecordNodeValueCoordinate,
@@ -211,7 +203,6 @@ export type {
   ArenaNodeDefExpression,
   ArenaNodeDefExpressionFactoryParams,
   ArenaNodeDefMap,
-  ArenaNodeDefService,
   ArenaNodeDefValidations,
 } from './nodeDef'
 
@@ -297,13 +288,11 @@ export type {
   ArenaTaxonomyFactoryParams,
   ArenaTaxonFactoryParams,
   ArenaTaxonomy,
-  ArenaTaxonomyService,
   ArenaVernacularNameProps,
   ArenaVernacularName,
   ArenaTaxonProps,
   ArenaTaxon,
   ArenaTaxonomyProps,
-  ArenaTaxonService,
 } from './taxonomy'
 
 export { SurveyBuilder, SurveyObjectBuilders } from './tests/builder/surveyBuilder'
