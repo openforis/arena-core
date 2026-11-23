@@ -1,3 +1,7 @@
-import _isEqual from 'lodash.isequal'
+import { isEqual as _isEqual } from 'es-toolkit/predicate'
 
-export const isEqual = _isEqual
+/**
+ * Performs a deep comparison between two values to determine if they are equivalent
+ * (same semantics as lodash isEqual).
+ */
+export const isEqual = (value: unknown, other: unknown): boolean => _isEqual(value, other)
