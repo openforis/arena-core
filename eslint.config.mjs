@@ -1,7 +1,5 @@
 import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
-// NOTE: eslint-plugin-no-explicit-type-exports is not yet compatible with ESLint 10
-// import noExplicitTypeExports from 'eslint-plugin-no-explicit-type-exports'
 
 export default defineConfig([
   {
@@ -24,8 +22,6 @@ export default defineConfig([
         process: 'readonly',
       },
     },
-    // NOTE: eslint-plugin-no-explicit-type-exports disabled - not ESLint 10 compatible yet
-    // plugins: { 'no-explicit-type-exports': noExplicitTypeExports },
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'off',
@@ -33,8 +29,8 @@ export default defineConfig([
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/only-throw-error': 'error',
-      // NOTE: no-explicit-type-exports rule disabled - not ESLint 10 compatible yet
-      // 'no-explicit-type-exports/no-explicit-type-exports': 2,
+      // NOTE: eslint-plugin-no-explicit-type-exports (rule enforcing `export type { ... }`) was removed:
+      // it is not compatible with ESLint 10; add it back when a compatible version is released
     },
   },
 ])
