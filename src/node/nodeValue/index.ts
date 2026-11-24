@@ -1,4 +1,6 @@
 export type { ArenaRecordNodeValueCode } from './code'
 export type { ArenaRecordNodeValueCoordinate } from './coordinate'
 export type { ArenaRecordNodeValueFile } from './file'
+export type { ArenaRecordNodeValueGeo } from './geo'
+export type { ArenaRecordNodeValue } from './nodeValue'
 export type { ArenaRecordNodeValueTaxon } from './taxon'

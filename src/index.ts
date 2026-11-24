@@ -108,7 +108,14 @@ export { ExtraPropDataType, ExtraPropsDataGenerator } from './extraProp'
 export type { ArenaExtraPropDef, ArenaExtraPropDefs } from './extraProp'
 
 export { PointFactory, Points } from './geo'
-export type { ArenaAreaOfInterest, ArenaAreaOfInterestDescriptor, ArenaPoint } from './geo'
+export type {
+  ArenaAreaOfInterest,
+  ArenaAreaOfInterestDescriptor,
+  ArenaGeoPolygonFeature,
+  ArenaGeoTrackFeature,
+  ArenaGeoTrackFeatureProperties,
+  ArenaPoint,
+} from './geo'
 
 export { JobBase, JobEventType, JobStatus } from './job'
 export type { ArenaJob, ArenaJobContext, ArenaJobEvent, ArenaJobSerialized, ArenaJobTxClient } from './job'
@@ -135,9 +142,11 @@ export type {
   ArenaRecordNodePointer,
   ArenaRecordNodeRefData,
   ArenaRecordNodesMap,
+  ArenaRecordNodeValue,
   ArenaRecordNodeValueCode,
   ArenaRecordNodeValueCoordinate,
   ArenaRecordNodeValueFile,
+  ArenaRecordNodeValueGeo,
   ArenaRecordNodeValueTaxon,
 } from './node'
 
@@ -173,6 +182,7 @@ export type {
   ArenaNodeDefCode,
   ArenaNodeDefCodeLayout,
   ArenaNodeDefCodeProps,
+  ArenaCoordinateAdditionalField,
   ArenaNodeDefCoordinate,
   ArenaNodeDefCoordinateProps,
   ArenaNodeDefDate,
@@ -237,6 +247,7 @@ export type {
   ArenaRecordExpressionEvaluationContext,
   ArenaRecordService,
   ArenaRecordStep,
+  ArenaRecordSummary,
   ArenaRecordUpdateOptions,
   ArenaRecordValidatorParams,
   ArenaSortedAttributesValidatorParams,
@@ -280,6 +291,7 @@ export type {
   ArenaSurveyRefData,
   ArenaSurveySecurity,
   ArenaSurveyService,
+  ArenaSurveySummary,
 } from './survey'
 
 export { Taxa, Taxonomies, TaxonomyFactory, TaxonFactory, TaxonGenerator, VernacularNameFactory } from './taxonomy'
@@ -315,7 +327,13 @@ export {
   Versions,
 } from './utils'
 
-export type { ArenaFileProcessorConstructorArgs, ArenaMutationOptions, ArenaParsedVersion } from './utils'
+export type {
+  ArenaFileProcessorChunk,
+  ArenaFileProcessorConstructorArgs,
+  ArenaFileProcessorUriChunk,
+  ArenaMutationOptions,
+  ArenaParsedVersion,
+} from './utils'
 
 export {
   FieldValidators,

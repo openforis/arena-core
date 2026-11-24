@@ -22,7 +22,11 @@ export type { ArenaNodeDefBoolean, ArenaNodeDefBooleanProps } from './types/bool
 
 export type { ArenaNodeDefCode, ArenaNodeDefCodeLayout, ArenaNodeDefCodeProps } from './types/code'
 
-export type { ArenaNodeDefCoordinate, ArenaNodeDefCoordinateProps } from './types/coordinate'
+export type {
+  ArenaCoordinateAdditionalField,
+  ArenaNodeDefCoordinate,
+  ArenaNodeDefCoordinateProps,
+} from './types/coordinate'
 
 export type { ArenaNodeDefDate } from './types/date'
 
