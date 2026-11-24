@@ -1,7 +1,7 @@
 import { describe, test, expect } from '@jest/globals'
 
 import { NodeDefFactory } from './factory'
-import { NodeDefType } from './nodeDef'
+import { ArenaNodeDefProps, NodeDefType } from './nodeDef'
 import { NodeDefs } from './nodeDefs'
 import { ArenaNodeDefFile, ArenaNodeDefFileProps, NodeDefFileType } from './types/file'
 import { ArenaNodeDefGeo, ArenaNodeDefGeoProps } from './types/geo'
@@ -87,5 +87,29 @@ describe('NodeDefs type guards', () => {
       // no cast needed to access time specific props
       expect(NodeDefs.isSecondsIncluded(nodeDef)).toBe(false)
     }
+  })
+})
+
+describe('NodeDefs code and taxon getters', () => {
+  test('read the props of code and taxon node defs without casts', () => {
+    const codeDef = NodeDefFactory.createInstance({
+      type: NodeDefType.code,
+      props: { categoryUuid: 'category-uuid', parentCodeDefUuid: 'parent-code-def-uuid' } as ArenaNodeDefProps,
+    })
+    expect(NodeDefs.getCategoryUuid(codeDef)).toBe('category-uuid')
+    expect(NodeDefs.getParentCodeDefUuid(codeDef)).toBe('parent-code-def-uuid')
+
+    const taxonDef = NodeDefFactory.createInstance({
+      type: NodeDefType.taxon,
+      props: { taxonomyUuid: 'taxonomy-uuid' } as ArenaNodeDefProps,
+    })
+    expect(NodeDefs.getTaxonomyUuid(taxonDef)).toBe('taxonomy-uuid')
+  })
+
+  test('return undefined for node defs of other types', () => {
+    const textDef = NodeDefFactory.createInstance({ type: NodeDefType.text })
+    expect(NodeDefs.getCategoryUuid(textDef)).toBeUndefined()
+    expect(NodeDefs.getParentCodeDefUuid(textDef)).toBeUndefined()
+    expect(NodeDefs.getTaxonomyUuid(textDef)).toBeUndefined()
   })
 })

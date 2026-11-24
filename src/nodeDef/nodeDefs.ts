@@ -146,8 +146,10 @@ const getVisibleIf = (nodeDef: ArenaAnyNodeDef): ArenaNodeDefExpression[] => nod
 const isAlwaysVisible = (nodeDef: ArenaAnyNodeDef): boolean => getVisibleIf(nodeDef).length === 0
 
 // code
-const getCategoryUuid = (nodeDef: ArenaNodeDefCode): string | undefined => nodeDef.props.categoryUuid
-const getParentCodeDefUuid = (nodeDef: ArenaNodeDefCode): string | undefined => nodeDef.props.parentCodeDefUuid
+const getCategoryUuid = (nodeDef: ArenaAnyNodeDef): string | undefined =>
+  isCode(nodeDef) ? nodeDef.props.categoryUuid : undefined
+const getParentCodeDefUuid = (nodeDef: ArenaAnyNodeDef): string | undefined =>
+  isCode(nodeDef) ? nodeDef.props.parentCodeDefUuid : undefined
 
 // coordinate
 const isAllowOnlyDeviceCoordinate = (nodeDef: ArenaNodeDefCoordinate): boolean =>
@@ -182,7 +184,8 @@ const isPositionTracking = (nodeDef: ArenaNodeDefGeo): boolean => !!nodeDef.prop
 const isSecondsIncluded = (nodeDef: ArenaNodeDefTime): boolean => !!nodeDef.props.includeSeconds
 
 // taxon
-const getTaxonomyUuid = (nodeDef: ArenaNodeDefTaxon): string | undefined => nodeDef.props.taxonomyUuid
+const getTaxonomyUuid = (nodeDef: ArenaAnyNodeDef): string | undefined =>
+  isTaxon(nodeDef) ? nodeDef.props.taxonomyUuid : undefined
 
 const isVernacularNameSelectionKept = (nodeDef: ArenaNodeDefTaxon): boolean =>
   !!nodeDef.props.vernacularNameSelectionKept
