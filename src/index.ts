@@ -291,6 +291,7 @@ export type {
   ArenaSurveyRefData,
   ArenaSurveySecurity,
   ArenaSurveyService,
+  ArenaSurveyOrSummary,
   ArenaSurveySummary,
 } from './survey'
 

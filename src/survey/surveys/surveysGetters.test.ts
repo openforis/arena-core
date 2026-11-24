@@ -2,7 +2,8 @@ import { describe, test, expect } from '@jest/globals'
 
 import { SurveyBuilder, SurveyObjectBuilders } from '../../tests/builder/surveyBuilder'
 import { createTestAdminUser } from '../../tests/data'
-import { ArenaSurvey } from '../survey'
+import { ArenaSurvey, SurveySecurityProp } from '../survey'
+import { ArenaSurveySummary } from '../surveySummary'
 import { Surveys } from '.'
 
 import { ArenaAreaOfInterestDescriptor } from '../../geo'
@@ -16,6 +17,23 @@ const buildSurvey = async (props: Partial<ArenaSurvey['props']> = {}): Promise<A
 }
 
 describe('Surveys getters', () => {
+  test('props getters accept a survey summary', async () => {
+    const {
+      nodeDefs: _nodeDefs,
+      authGroups: _authGroups,
+      ...survey
+    } = await buildSurvey({
+      name: 'survey_name',
+      languages: [LanguageCode.en, LanguageCode.fr],
+      labels: { en: 'Survey' },
+      security: { [SurveySecurityProp.visibleInMobile]: true },
+    })
+    const summary: ArenaSurveySummary = { ...survey, defaultLabel: 'Survey' }
+    expect(Surveys.getDefaultLanguage(summary)).toBe(LanguageCode.en)
+    expect(Surveys.getLabelOrName()(summary)).toBe('Survey')
+    expect(Surveys.isVisibleInMobile(summary)).toBe(true)
+  })
+
   test('isKeepNonApplicableValues is false by default', async () => {
     expect(Surveys.isKeepNonApplicableValues(await buildSurvey())).toBe(false)
   })

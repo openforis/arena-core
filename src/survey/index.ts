@@ -28,7 +28,7 @@ export {
   surveySecurityDefaults,
 } from './survey'
 
-export type { ArenaSurveySummary } from './surveySummary'
+export type { ArenaSurveyOrSummary, ArenaSurveySummary } from './surveySummary'
 
 export { Surveys } from './surveys'
 
