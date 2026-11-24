@@ -7,17 +7,18 @@ import { ArenaSRS, ArenaSRSIndex } from '../../srs'
 import { ArenaTaxonomy } from '../../taxonomy'
 import { Arrays, Objects } from '../../utils'
 import { ArenaSurvey } from '../survey'
+import type { ArenaSurveyOrSummary } from '../surveySummary'
 
-export const getName = (survey: ArenaSurvey): string => survey.props.name
+export const getName = (survey: ArenaSurveyOrSummary): string => survey.props.name
 
-export const getLanguages = (survey: ArenaSurvey): LanguageCode[] => survey.props.languages
+export const getLanguages = (survey: ArenaSurveyOrSummary): LanguageCode[] => survey.props.languages
 
-export const getDefaultLanguage = (survey: ArenaSurvey): LanguageCode => getLanguages(survey)[0]
+export const getDefaultLanguage = (survey: ArenaSurveyOrSummary): LanguageCode => getLanguages(survey)[0]
 
 const getMultilangPropValue =
   (prop: 'labels' | 'descriptions' | 'fieldManualLinks') =>
   (langCode?: LanguageCode) =>
-  (survey: ArenaSurvey): string | undefined => {
+  (survey: ArenaSurveyOrSummary): string | undefined => {
     const languageCode = langCode ?? getDefaultLanguage(survey)
     return survey.props[prop]?.[languageCode]
   }
@@ -31,7 +32,7 @@ export const getFieldManualLink = getMultilangPropValue('fieldManualLinks')
  */
 export const getLabelOrName =
   (langCode?: LanguageCode) =>
-  (survey: ArenaSurvey): string =>
+  (survey: ArenaSurveyOrSummary): string =>
     getLabelOrDefault(survey.props.labels, langCode ?? getDefaultLanguage(survey), getName(survey))
 
 export const getCategoryByName = (params: { survey: ArenaSurvey; categoryName: string }): ArenaCategory | undefined => {
@@ -58,17 +59,17 @@ export const getTaxonomyByUuid = (params: { survey: ArenaSurvey; taxonomyUuid: s
   return survey.taxonomies?.[taxonomyUuid]
 }
 
-export const getCycleKeys = (survey: ArenaSurvey): string[] => {
+export const getCycleKeys = (survey: ArenaSurveyOrSummary): string[] => {
   const cycles = survey.props?.cycles ?? {}
   return Object.keys(cycles)
 }
 
-export const getLastCycleKey = (survey: ArenaSurvey): string => Arrays.last(getCycleKeys(survey)) as string
+export const getLastCycleKey = (survey: ArenaSurveyOrSummary): string => Arrays.last(getCycleKeys(survey)) as string
 
-export const isKeepNonApplicableValues = (survey: ArenaSurvey): boolean =>
+export const isKeepNonApplicableValues = (survey: ArenaSurveyOrSummary): boolean =>
   survey?.props?.keepNonApplicableValues === true
 
-export const getDefaultCycleKey = (survey: ArenaSurvey) => {
+export const getDefaultCycleKey = (survey: ArenaSurveyOrSummary) => {
   const defaultCycleKey = survey.props?.defaultCycleKey
   const lastCycleKey = getLastCycleKey(survey)
   return Objects.isEmpty(defaultCycleKey) || Number(defaultCycleKey) > Number(lastCycleKey)
@@ -76,13 +77,13 @@ export const getDefaultCycleKey = (survey: ArenaSurvey) => {
     : defaultCycleKey
 }
 
-export const getSRSs = (survey: ArenaSurvey): ArenaSRS[] =>
+export const getSRSs = (survey: ArenaSurveyOrSummary): ArenaSRS[] =>
   survey.props?.srs ??
   // backwards compatibility with Arena: srs stored in info in UI
   (survey as any).info?.props?.srs ??
   []
 
-export const getSRSIndex = (survey: ArenaSurvey): ArenaSRSIndex =>
+export const getSRSIndex = (survey: ArenaSurveyOrSummary): ArenaSRSIndex =>
   getSRSs(survey).reduce((acc: ArenaSRSIndex, srs) => {
     acc[srs.code] = srs
     return acc
@@ -90,17 +91,17 @@ export const getSRSIndex = (survey: ArenaSurvey): ArenaSRSIndex =>
 
 export const getSRSByCode =
   (code: string) =>
-  (survey: ArenaSurvey): ArenaSRS | undefined =>
+  (survey: ArenaSurveyOrSummary): ArenaSRS | undefined =>
     getSRSIndex(survey)[code]
 
-export const getAreasOfInterest = (survey: ArenaSurvey): ArenaAreaOfInterestDescriptor[] =>
+export const getAreasOfInterest = (survey: ArenaSurveyOrSummary): ArenaAreaOfInterestDescriptor[] =>
   survey?.props?.areasOfInterest ??
   // backwards compatibility with Arena: survey info props stored in info
   (survey as any)?.info?.props?.areasOfInterest ??
   []
 
 export const getAreaOfInterestByName = (params: {
-  survey: ArenaSurvey
+  survey: ArenaSurveyOrSummary
   name: string
 }): ArenaAreaOfInterestDescriptor | undefined =>
   getAreasOfInterest(params.survey).find((areaOfInterest) => areaOfInterest.name === params.name)

@@ -12,3 +12,8 @@ export type ArenaSurveySummary = Omit<
   defaultLabel?: string
   ownerName?: string
 }
+
+/**
+ * A full survey or a survey summary: accepted by the getters that only read the survey props.
+ */
+export type ArenaSurveyOrSummary = ArenaSurvey | ArenaSurveySummary
