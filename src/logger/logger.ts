@@ -7,11 +7,11 @@ export interface ArenaLogger {
 
   isErrorEnabled(): boolean
 
-  debug(...msgs: any[]): void
+  debug(...msgs: unknown[]): void
 
-  info(...msgs: any[]): void
+  info(...msgs: unknown[]): void
 
-  warn(...msgs: any[]): void
+  warn(...msgs: unknown[]): void
 
-  error(...msgs: any[]): void
+  error(...msgs: unknown[]): void
 }

@@ -44,9 +44,11 @@ describe('Numbers.formatDecimal', () => {
     expect(Numbers.formatDecimal(1234.5678, 0)).toBe('1235')
   })
 
-  test('null or NaN: null', () => {
-    expect(Numbers.formatDecimal(null as unknown as number)).toBeNull()
+  test('null, undefined or NaN: null', () => {
+    expect(Numbers.formatDecimal(null)).toBeNull()
+    expect(Numbers.formatDecimal(undefined)).toBeNull()
     expect(Numbers.formatDecimal(Number.NaN)).toBeNull()
+    expect(Numbers.formatInteger(undefined)).toBeNull()
   })
 })
 

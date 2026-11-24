@@ -1,12 +1,13 @@
 /**
  * Extracts the value in the specified path from the specified object.
  *
+ * @template T - Expected type of the value.
  * @param {array|string} path - Array of path parts or string with parts concatenated with dots.
  * @returns {any} Value at the specified path.
  */
 export const path =
-  (path: Array<string> | string) =>
-  (obj: any): any => {
+  <T = any>(path: Array<string> | string) =>
+  (obj: any): T | null | undefined => {
     if (!obj) return null
 
     const parts = Array.isArray(path) ? path : path.split('.')

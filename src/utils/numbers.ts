@@ -42,10 +42,10 @@ const isInteger = (value: any): boolean => {
 }
 
 /**
- * Formats the given value to the specified fixed dicimal digits.
+ * Formats the given value to the specified fixed decimal digits (null if the value is null, undefined or NaN).
  */
-const formatDecimal = (value: number, decimalDigits = Number.NaN) => {
-  if (Number.isNaN(value) || value === null) return null
+const formatDecimal = (value: number | null | undefined, decimalDigits = Number.NaN): string | null => {
+  if (value === null || value === undefined || Number.isNaN(value)) return null
   const num = new BigNumber(value)
 
   if (decimalDigits > 0) {
@@ -63,10 +63,10 @@ const formatDecimal = (value: number, decimalDigits = Number.NaN) => {
 /**
  * Formats the given value to a rounded integer.
  *
- * @param {!number} value - The value to format.
- * @returns {string} - The formatted value or null if the value was null.
+ * @param {number} value - The value to format.
+ * @returns {string} - The formatted value or null if the value was null, undefined or NaN.
  */
-const formatInteger = (value: number): string | null => formatDecimal(value, 0)
+const formatInteger = (value: number | null | undefined): string | null => formatDecimal(value, 0)
 
 const limit =
   ({ minValue = Number.NaN, maxValue = Number.NaN }) =>

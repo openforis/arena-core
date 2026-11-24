@@ -8,3 +8,6 @@ export interface ArenaNodeDefCoordinateProps extends ArenaNodeDefProps {
 }
 
 export type ArenaNodeDefCoordinate = ArenaNodeDef<NodeDefType.coordinate, ArenaNodeDefCoordinateProps>
+
+/** Optional fields of a coordinate value, included according to the node def props. */
+export type ArenaCoordinateAdditionalField = 'accuracy' | 'altitude' | 'altitudeAccuracy'
