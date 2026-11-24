@@ -3,7 +3,11 @@ export { Dates, DateFormats, UnitOfTime } from './dates'
 export { FileNames } from './fileNames'
 export { FileProcessor } from './fileProcessor'
 export type { ArenaMutationOptions } from './mutationOptions'
-export type { ArenaFileProcessorConstructorArgs } from './fileProcessor'
+export type {
+  ArenaFileProcessorChunk,
+  ArenaFileProcessorConstructorArgs,
+  ArenaFileProcessorUriChunk,
+} from './fileProcessor'
 export { Numbers } from './numbers'
 export { Objects } from './_objects'
 export { Promises } from './promises'

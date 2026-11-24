@@ -1,18 +1,31 @@
 import { RetryProcessor } from './retryProcessor'
 
-type ChunkProcessor = (args: {
+/**
+ * Chunk written to a temporary file, in the form accepted by React Native FormData.
+ */
+export type ArenaFileProcessorUriChunk = { uri: string; type: string; name: string }
+
+export type ArenaFileProcessorChunk = Blob | string | Uint8Array | ArenaFileProcessorUriChunk
+
+type DefaultChunk = Blob | string | Uint8Array
+
+type ChunkProcessor<C, R> = (args: {
   chunk: number
-  content: Blob | string | Uint8Array
+  content: C
   totalChunks: number
   totalFileSize: number
-}) => Promise<any>
+}) => Promise<R>
 
-export type ArenaFileProcessorConstructorArgs = {
+/**
+ * C: type of the chunks extracted from the file, R: result of the chunk processor.
+ */
+export type ArenaFileProcessorConstructorArgs<C extends ArenaFileProcessorChunk = DefaultChunk, R = any> = {
   file?: File
   filePath?: string
-  chunkProcessor: ChunkProcessor
+  chunkProcessor: ChunkProcessor<C, R>
   onError?: (error: Error) => void
-  onComplete?: (result: any) => void
+  // result of the last chunk (undefined for empty files)
+  onComplete?: (result?: R) => void
   chunkSize?: number
   maxTryings?: number
   /**
@@ -21,19 +34,19 @@ export type ArenaFileProcessorConstructorArgs = {
   retryDelay?: number
 }
 
-export class FileProcessor {
+export class FileProcessor<C extends ArenaFileProcessorChunk = DefaultChunk, R = any> {
   static readonly defaultChunkSize = 1024 * 1024 * 10 // 10MB
   static readonly defaultMaxTryings = 5
   static readonly defaultRetryDelay = 1000 // 1s, then 2s, 4s...
 
   private readonly file?: File
-  private readonly filePath?: string
-  private readonly chunkProcessor: ChunkProcessor
-  private readonly chunkSize: number
+  protected readonly filePath?: string
+  private readonly chunkProcessor: ChunkProcessor<C, R>
+  protected readonly chunkSize: number
   private readonly maxTryings: number
   private readonly retryDelay: number
   private readonly onError?: (error: Error) => void
-  private readonly onComplete?: (result?: any) => void
+  private readonly onComplete?: (result?: R) => void
 
   // State properties
   protected totalFileSize: number = 0
@@ -45,7 +58,7 @@ export class FileProcessor {
   protected completed: boolean = false
   // incremented when a processing run is stopped: callbacks of the chunks of previous runs are ignored
   private runId: number = 0
-  private retryProcessor?: RetryProcessor<any>
+  private retryProcessor?: RetryProcessor<R>
 
   constructor({
     file,
@@ -56,7 +69,7 @@ export class FileProcessor {
     chunkSize = FileProcessor.defaultChunkSize,
     maxTryings = FileProcessor.defaultMaxTryings,
     retryDelay = FileProcessor.defaultRetryDelay,
-  }: ArenaFileProcessorConstructorArgs) {
+  }: ArenaFileProcessorConstructorArgs<C, R>) {
     this.file = file
     this.filePath = filePath
     this.chunkProcessor = chunkProcessor
@@ -97,7 +110,8 @@ export class FileProcessor {
     this.onError?.(error)
   }
 
-  protected extractCurrentFileChunk(): Promise<Blob | string | Uint8Array> {
+  // subclasses using another chunk type (e.g. reading from filePath) override it
+  protected extractCurrentFileChunk(): Promise<C> {
     const { file, currentChunkNumber, totalChunks, chunkSize } = this
     if (!file) {
       return Promise.reject(new Error('File property not initialized'))
@@ -106,7 +120,7 @@ export class FileProcessor {
       file.slice(
         (currentChunkNumber - 1) * chunkSize,
         currentChunkNumber === totalChunks ? undefined : currentChunkNumber * chunkSize
-      )
+      ) as C
     )
   }
 
@@ -118,7 +132,7 @@ export class FileProcessor {
     this.extractCurrentFileChunk()
       .then((content) => {
         if (isStale()) return
-        const retryProcessor = new RetryProcessor<any>({
+        const retryProcessor = new RetryProcessor<R>({
           processor: () => chunkProcessor({ chunk: currentChunkNumber, totalFileSize, totalChunks, content }),
           onSuccess: (chunkResult) => {
             if (isStale()) return
