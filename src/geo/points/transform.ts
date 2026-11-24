@@ -30,7 +30,7 @@ const getConverter = (wktFrom: string, wktTo: string): Converter => {
  * @throws {SystemError} `geo.pointNotFilled`, `geo.srsNotFound` (with the `code` param) or `geo.transformFailed`.
  */
 export const transformOrThrow = (
-  point: ArenaPoint,
+  point: ArenaPoint | null | undefined,
   srsCodeTo: string,
   srsIndex: ArenaSRSIndex = DEFAULT_SRS_INDEX
 ): ArenaPoint => {
@@ -72,7 +72,7 @@ export const transformOrThrow = (
  * @returns The transformed point, or null if the point is not filled, an SRS is unknown or the transformation fails.
  */
 export const transform = (
-  point: ArenaPoint,
+  point: ArenaPoint | null | undefined,
   srsCodeTo: string,
   srsIndex: ArenaSRSIndex = DEFAULT_SRS_INDEX
 ): ArenaPoint | null => {

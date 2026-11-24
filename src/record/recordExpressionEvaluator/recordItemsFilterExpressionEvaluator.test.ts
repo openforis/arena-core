@@ -91,4 +91,12 @@ describe('RecordItemFilterExpressionEvaluator', () => {
       }
     })
   })
+
+  test('getCategoryItems with a null parent item uuid returns the items of the first level', () => {
+    const nodeDef = Surveys.getNodeDefByName({ survey, name: 'cluster_region' }) as ArenaNodeDefCode
+    const { categoryUuid } = nodeDef.props
+    const items = Surveys.getCategoryItems({ survey, categoryUuid, parentItemUuid: null })
+    expect(items.map((item) => item.props.code)).toEqual(['1', '2', '3'])
+    expect(Surveys.getCategoryItems({ survey, categoryUuid })).toEqual(items)
+  })
 })

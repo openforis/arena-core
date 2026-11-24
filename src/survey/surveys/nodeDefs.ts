@@ -480,13 +480,13 @@ export const getDependentEnumeratedEntityDefs = (params: {
 export const getNodeDefKeys = (params: {
   survey: ArenaSurvey
   nodeDef: ArenaAnyNodeDef
-  cycle?: string
+  cycle?: string | null
 }): ArenaAnyNodeDef[] => {
   const { survey, cycle, nodeDef } = params
 
   return getDescendantsInSingleEntities({
     survey,
-    cycle,
+    cycle: cycle ?? undefined,
     nodeDef,
     predicate: (visitedNodeDef) =>
       NodeDefs.isKey(visitedNodeDef) &&
@@ -495,7 +495,7 @@ export const getNodeDefKeys = (params: {
   })
 }
 
-export const getRootKeys = (params: { survey: ArenaSurvey; cycle?: string }) => {
+export const getRootKeys = (params: { survey: ArenaSurvey; cycle?: string | null }) => {
   const { survey, cycle } = params
   const rootDef = getNodeDefRoot({ survey })
   return getNodeDefKeys({ survey, nodeDef: rootDef, cycle })
