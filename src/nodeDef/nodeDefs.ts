@@ -16,7 +16,7 @@ import {
 } from './nodeDef'
 import { ArenaNodeDefBoolean } from './types/boolean'
 import { ArenaNodeDefCode } from './types/code'
-import { ArenaNodeDefCoordinate } from './types/coordinate'
+import { ArenaCoordinateAdditionalField, ArenaNodeDefCoordinate } from './types/coordinate'
 import { ArenaNodeDefDate } from './types/date'
 import { ArenaNodeDefDecimal } from './types/decimal'
 import {
@@ -153,8 +153,8 @@ const getParentCodeDefUuid = (nodeDef: ArenaNodeDefCode): string | undefined => 
 const isAllowOnlyDeviceCoordinate = (nodeDef: ArenaNodeDefCoordinate): boolean =>
   !!nodeDef.props.allowOnlyDeviceCoordinate
 
-const getCoordinateAdditionalFields = (nodeDef: ArenaNodeDefCoordinate): string[] => {
-  const result = []
+const getCoordinateAdditionalFields = (nodeDef: ArenaNodeDefCoordinate): ArenaCoordinateAdditionalField[] => {
+  const result: ArenaCoordinateAdditionalField[] = []
   if (nodeDef.props.includeAccuracy) result.push(ValuePropsCoordinate[ValuePropsCoordinate.accuracy])
   if (nodeDef.props.includeAltitude) result.push(ValuePropsCoordinate[ValuePropsCoordinate.altitude])
   if (nodeDef.props.includeAltitudeAccuracy) result.push(ValuePropsCoordinate[ValuePropsCoordinate.altitudeAccuracy])

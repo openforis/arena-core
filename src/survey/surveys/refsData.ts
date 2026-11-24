@@ -17,9 +17,10 @@ const nullParentItemUuid = 'null'
 export const getCategoryItems = (params: {
   survey: ArenaSurvey
   categoryUuid: string
-  parentItemUuid?: string
+  parentItemUuid?: string | null
 }): ArenaCategoryItem[] => {
-  const { survey, categoryUuid, parentItemUuid = nullParentItemUuid } = params
+  const { survey, categoryUuid } = params
+  const parentItemUuid = params.parentItemUuid ?? nullParentItemUuid
   const itemUuids: string[] = Object.values(
     survey.refData?.categoryItemUuidIndex?.[categoryUuid]?.[parentItemUuid] ?? {}
   )

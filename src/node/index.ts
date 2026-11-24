@@ -5,9 +5,11 @@ export { RecordNodeKeys, RecordNodeMetaKeys } from './node'
 export type { ArenaRecordNodePointer } from './nodePointer'
 
 export type {
+  ArenaRecordNodeValue,
   ArenaRecordNodeValueCode,
   ArenaRecordNodeValueCoordinate,
   ArenaRecordNodeValueFile,
+  ArenaRecordNodeValueGeo,
   ArenaRecordNodeValueTaxon,
 } from './nodeValue'
 

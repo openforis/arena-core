@@ -12,10 +12,10 @@ const POINT_REGEX = new RegExp(String.raw`SRID=((EPSG:)?(\w+));POINT\((${NUMBER_
  * - SRID=4326;POINT(12 41)
  * - SRID=4326;POINT(1e-7 41).
  *
- * @param {!(string | object)} value - The point to parse. It can be a string or an object.
- * @returns {ArenaPoint} - The parsed Point object.
+ * @param {unknown} value - The point to parse. It can be a string or an object.
+ * @returns {ArenaPoint} - The parsed Point object, or null if the value is empty or not a point.
  */
-export const parse = (value: string | object): ArenaPoint | null => {
+export const parse = (value: unknown): ArenaPoint | null => {
   if (!value) return null
 
   if (typeof value === 'object') return value as ArenaPoint

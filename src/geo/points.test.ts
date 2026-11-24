@@ -58,6 +58,12 @@ describe('Points test', () => {
       expect(parsedToString).toBe(pointString)
     }
   })
+  test('parse values that are not points', () => {
+    expect(Points.parse(null)).toBeNull()
+    expect(Points.parse(undefined)).toBeNull()
+    expect(Points.parse('')).toBeNull()
+    expect(Points.parse(12)).toBeNull()
+  })
   test('parse coordinates in exponent notation', () => {
     expect(Points.parse('SRID=4326;POINT(1e-7 -2.5E+21)')).toStrictEqual(
       PointFactory.createInstance({ srs: '4326', x: 1e-7, y: -2.5e21 })
@@ -143,6 +149,16 @@ describe('Points.transform', () => {
       expect(transformedBack?.x).toBeCloseTo(12.5, 6)
       expect(transformedBack?.y).toBeCloseTo(41.9, 6)
     }
+  })
+
+  test('returns null for a null or undefined point', () => {
+    expect(Points.transform(null, utm33N.code, srsIndex)).toBeNull()
+    expect(Points.toLatLong(undefined)).toBeNull()
+  })
+
+  test('toLatLong uses the default SRS index', () => {
+    const point = PointFactory.createInstance({ x: 12.5, y: 41.9 })
+    expect(Points.toLatLong(point)).toBe(point)
   })
 
   test('returns null for an unknown SRS', () => {
