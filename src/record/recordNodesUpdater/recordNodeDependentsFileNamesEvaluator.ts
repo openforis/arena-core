@@ -90,8 +90,7 @@ const updateFileNamesInNodes = async (params: {
 
   for (const node of nodes) {
     if (!RecordNodes.isValueBlank(node)) {
-      // sequential: each iteration updates the record
-      await updateFileNameInNode({
+      const updateParams = {
         user,
         survey,
         updateResult,
@@ -99,7 +98,9 @@ const updateFileNamesInNodes = async (params: {
         nodeDef: nodeDef as ArenaNodeDefFile,
         node,
         dateModified,
-      }) // NOSONAR
+      }
+      // sequential: each iteration updates the record
+      await updateFileNameInNode(updateParams) // NOSONAR
     }
   }
 }
