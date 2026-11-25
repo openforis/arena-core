@@ -81,15 +81,16 @@ describe('Record nodes updater - dependent code attributes', () => {
       survey,
       record: recordUpdated,
       nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+      dateModified: '2100-01-01T00:00:00.000Z',
     })
     expect(updateResult).not.toBeNull()
 
-    // check nodes being updated
+    // check nodes being updated (root entity updated in its date modified)
     expect(
       Object.values(updateResult.nodes)
         .map((updatedNode) => Surveys.getNodeDefByUuid({ survey, uuid: updatedNode.nodeDefUuid }).props.name)
         .sort()
-    ).toEqual(['dependent_code', 'parent_code'])
+    ).toEqual(['dependent_code', 'parent_code', 'root_entity'])
 
     // check that dependent node value has been reset
     const dependentNodeUpdated = TestUtils.getNodeByPath({

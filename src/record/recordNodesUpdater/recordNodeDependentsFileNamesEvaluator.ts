@@ -73,8 +73,9 @@ const updateFileNamesInNodes = async (params: {
   nodePointer: ArenaRecordNodePointer
   updateResult: RecordUpdateResult
   sideEffect?: boolean
+  dateModified?: string
 }): Promise<void> => {
-  const { user, survey, nodePointer, updateResult, sideEffect = false } = params
+  const { user, survey, nodePointer, updateResult, sideEffect = false, dateModified } = params
 
   const { nodeCtx, nodeDef } = nodePointer
 
@@ -90,7 +91,15 @@ const updateFileNamesInNodes = async (params: {
   for (const node of nodes) {
     if (!RecordNodes.isValueBlank(node)) {
       // sequential: each iteration updates the record
-      await updateFileNameInNode({ user, survey, updateResult, sideEffect, nodeDef: nodeDef as ArenaNodeDefFile, node }) // NOSONAR
+      await updateFileNameInNode({
+        user,
+        survey,
+        updateResult,
+        sideEffect,
+        nodeDef: nodeDef as ArenaNodeDefFile,
+        node,
+        dateModified,
+      }) // NOSONAR
     }
   }
 }
@@ -98,7 +107,7 @@ const updateFileNamesInNodes = async (params: {
 export const updateSelfAndDependentsFileNames = async (
   params: RecordNodeDependentsUpdateParams
 ): Promise<RecordUpdateResult> => {
-  const { user, survey, record, node, sideEffect = false } = params
+  const { user, survey, record, node, sideEffect = false, dateModified } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -114,7 +123,7 @@ export const updateSelfAndDependentsFileNames = async (
   // 2. update expr to node and dependent nodes
   for (const nodePointer of nodePointersToUpdate) {
     // sequential: each iteration updates the record
-    await updateFileNamesInNodes({ user, survey, nodePointer, updateResult, sideEffect }) // NOSONAR
+    await updateFileNamesInNodes({ user, survey, nodePointer, updateResult, sideEffect, dateModified }) // NOSONAR
   }
   return updateResult
 }
@@ -126,8 +135,9 @@ const updateFileNameInNode = async (params: {
   sideEffect: boolean
   nodeDef: ArenaNodeDefFile
   node: ArenaRecordNode
+  dateModified?: string
 }): Promise<void> => {
-  const { user, survey, updateResult, sideEffect, node, nodeDef } = params
+  const { user, survey, updateResult, sideEffect, node, nodeDef, dateModified } = params
   const expressionToEvaluate = NodeDefs.getFileNameExpression(nodeDef)
   try {
     const fileNameCalculated = await calculateFileName({ user, survey, record: updateResult.record, node })
@@ -136,7 +146,7 @@ const updateFileNameInNode = async (params: {
       const nodeUpdated = RecordNodes.mergeNodes(node, {
         value: { [RecordNodeValues.ValuePropsFile.fileNameCalculated]: fileNameCalculated },
         updated: true,
-        dateModified: Dates.nowFormattedForStorage(),
+        dateModified: dateModified ?? Dates.nowFormattedForStorage(),
       })
       updateResult.addNode(nodeUpdated, { sideEffect })
     }

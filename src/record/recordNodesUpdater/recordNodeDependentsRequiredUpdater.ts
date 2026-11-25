@@ -35,7 +35,7 @@ export const evaluateRequiredIf = async (
 export const updateSelfAndDependentsRequired = async (
   params: RecordNodeDependentsUpdateParams
 ): Promise<RecordUpdateResult> => {
-  const { survey, record, node, sideEffect = false } = params
+  const { survey, record, node, sideEffect = false, dateModified } = params
   const updateResult = new RecordUpdateResult({ record })
 
   const nodePointersToUpdate = getDependentNodePointersByType({
@@ -55,7 +55,7 @@ export const updateSelfAndDependentsRequired = async (
     const value = await evaluateRequiredIf({ ...params, record: updateResult.record, nodeCtx, nodeDef }) // NOSONAR
     if (valuePrev === value) continue
 
-    const nodeCtxUpdated = RecordNodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect })
+    const nodeCtxUpdated = RecordNodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect, dateModified })
     updateResult.addNode(nodeCtxUpdated, { sideEffect })
   }
   return updateResult

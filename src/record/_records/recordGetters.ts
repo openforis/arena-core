@@ -1,3 +1,4 @@
+import { ArenaAppInfo } from '../../app'
 import { ArenaDictionary, TraverseMethod } from '../../common'
 import { SystemError, SystemErrorKeys } from '../../error'
 import { ArenaRecordNode, ArenaRecordNodePointer, RecordNodes, ArenaRecordNodesMap } from '../../node'
@@ -20,6 +21,29 @@ import { RecordNodesIndexUpdater } from './recordNodesIndexUpdater'
 import { NodeDefSelfReferences } from './nodeDefSelfReferences'
 
 export const getCycle = (record: ArenaRecord): string => record.cycle ?? defaultCycle
+
+/**
+ * Returns the info about the app that updated the record last (or the one that created it, if never updated with another app).
+ */
+export const getAppInfoLast = (record: ArenaRecord): ArenaAppInfo | undefined =>
+  record.info?.updatedWith ?? record.info?.createdWith
+
+/**
+ * Returns true if the specified app info (id, platform or version) differs from the one of the app that updated the record last.
+ * Returns false if no app info is specified (e.g. update not done in an app).
+ */
+export const isAppInfoChanged =
+  (appInfo: ArenaAppInfo | undefined) =>
+  (record: ArenaRecord): boolean => {
+    if (!appInfo) return false
+    const appInfoLast = getAppInfoLast(record)
+    return (
+      !appInfoLast ||
+      appInfoLast.appId !== appInfo.appId ||
+      (appInfoLast.platform ?? null) !== (appInfo.platform ?? null) ||
+      appInfoLast.version !== appInfo.version
+    )
+  }
 
 export const getNodes = (record: ArenaRecord): ArenaDictionary<ArenaRecordNode> => record.nodes ?? {}
 

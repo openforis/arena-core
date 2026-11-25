@@ -142,6 +142,7 @@ export type {
   ArenaRecordNodePointer,
   ArenaRecordNodeRefData,
   ArenaRecordNodesMap,
+  ArenaRecordNodeUpdateOptions,
   ArenaRecordNodeValue,
   ArenaRecordNodeValueCode,
   ArenaRecordNodeValueCoordinate,

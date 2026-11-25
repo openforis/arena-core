@@ -1,7 +1,6 @@
 import * as SurveyNodeDefs from './nodeDefs'
 import {
   ArenaAnyNodeDef,
-  ArenaNodeDef,
   ArenaNodeDefCode,
   ArenaNodeDefEntity,
   ArenaNodeDefExpression,
@@ -10,15 +9,25 @@ import {
   NodeDefType,
 } from '../../nodeDef'
 import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
+import { findFunctionCallNames } from '../../expression/javascript/parser/functionCallNamesFinder'
 
 import { ArenaSurvey, ArenaSurveyDependencyGraph, SurveyDependencyType } from '../survey'
 import { Arrays, Objects } from '../../utils'
 import { NodeDefExpressionFactory } from '../../nodeDef/nodeDef'
-import { ArenaDictionary } from '../../common'
 
-const functionsRequiringOnUpdateDependency = ['recordDateLastModified']
+// dependency types stored as dictionary of booleans (node def uuid => true), not as dependents of a node def
+const booleanDependencyTypes = new Set<SurveyDependencyType>([
+  SurveyDependencyType.onUpdate,
+  SurveyDependencyType.appInfo,
+])
+
+const functionNamesByBooleanDependencyType: { [key: string]: string[] } = {
+  [SurveyDependencyType.onUpdate]: ['recordDateLastModified'],
+  [SurveyDependencyType.appInfo]: ['appId', 'appPlatform', 'appVersion'],
+}
 
 const isContextParentByDependencyType = {
+  [SurveyDependencyType.appInfo]: true,
   [SurveyDependencyType.applicable]: true,
   [SurveyDependencyType.defaultValues]: true,
   [SurveyDependencyType.editable]: true,
@@ -27,6 +36,7 @@ const isContextParentByDependencyType = {
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: true,
   [SurveyDependencyType.minCount]: true,
+  [SurveyDependencyType.nodeDates]: true,
   [SurveyDependencyType.onUpdate]: true,
   [SurveyDependencyType.parentCode]: false,
   [SurveyDependencyType.required]: true,
@@ -35,6 +45,7 @@ const isContextParentByDependencyType = {
 }
 
 const selfReferenceAllowedByDependencyType = {
+  [SurveyDependencyType.appInfo]: false,
   [SurveyDependencyType.applicable]: false,
   [SurveyDependencyType.defaultValues]: false,
   [SurveyDependencyType.editable]: false,
@@ -43,6 +54,7 @@ const selfReferenceAllowedByDependencyType = {
   [SurveyDependencyType.formula]: false,
   [SurveyDependencyType.maxCount]: false,
   [SurveyDependencyType.minCount]: false,
+  [SurveyDependencyType.nodeDates]: false,
   [SurveyDependencyType.onUpdate]: false,
   [SurveyDependencyType.parentCode]: false,
   [SurveyDependencyType.required]: false,
@@ -51,6 +63,7 @@ const selfReferenceAllowedByDependencyType = {
 }
 
 const newDependencyGraph = () => ({
+  [SurveyDependencyType.appInfo]: {},
   [SurveyDependencyType.applicable]: {},
   [SurveyDependencyType.defaultValues]: {},
   [SurveyDependencyType.editable]: {},
@@ -59,6 +72,7 @@ const newDependencyGraph = () => ({
   [SurveyDependencyType.formula]: {},
   [SurveyDependencyType.maxCount]: {},
   [SurveyDependencyType.minCount]: {},
+  [SurveyDependencyType.nodeDates]: {},
   [SurveyDependencyType.onUpdate]: {},
   [SurveyDependencyType.parentCode]: {},
   [SurveyDependencyType.required]: {},
@@ -75,7 +89,7 @@ const getDependencies = (params: {
   nodeDefUuid: string
 }): Array<string> => {
   const { graphs, type, nodeDefUuid } = params
-  return type === SurveyDependencyType.onUpdate ? [] : ((graphs?.[type]?.[nodeDefUuid] ?? []) as string[])
+  return booleanDependencyTypes.has(type) ? [] : ((graphs?.[type]?.[nodeDefUuid] ?? []) as string[])
 }
 
 export const getNodeDefDependents = (params: {
@@ -101,12 +115,28 @@ export const getNodeDefDependents = (params: {
   return dependentUuids.size > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: [...dependentUuids] }) : []
 }
 
-export const getOnUpdateDependents = (params: { survey: ArenaSurvey }) => {
-  const { survey } = params
+const getBooleanDependencyTypeDependents = (params: {
+  survey: ArenaSurvey
+  dependencyType: SurveyDependencyType
+}): ArenaAnyNodeDef[] => {
+  const { survey, dependencyType } = params
   const dependencyGraph = getDependencyGraph(survey)
-  const sourceDefUuids = Object.keys(dependencyGraph[SurveyDependencyType.onUpdate] ?? {})
+  const sourceDefUuids = Object.keys(dependencyGraph[dependencyType] ?? {})
   return sourceDefUuids.length > 0 ? SurveyNodeDefs.findNodeDefsByUuids({ survey, uuids: sourceDefUuids }) : []
 }
+
+/**
+ * Returns the node defs to be evaluated again on every record update (their expressions use e.g. recordDateLastModified).
+ */
+export const getOnUpdateDependents = (params: { survey: ArenaSurvey }): ArenaAnyNodeDef[] =>
+  getBooleanDependencyTypeDependents({ survey: params.survey, dependencyType: SurveyDependencyType.onUpdate })
+
+/**
+ * Returns the node defs to be evaluated again when a record is updated with a different app
+ * (their expressions use the app info functions: appId, appPlatform, appVersion).
+ */
+export const getAppInfoDependents = (params: { survey: ArenaSurvey }): ArenaAnyNodeDef[] =>
+  getBooleanDependencyTypeDependents({ survey: params.survey, dependencyType: SurveyDependencyType.appInfo })
 
 // UPDATE
 
@@ -142,42 +172,46 @@ const addDependencies = async (params: {
   const isContextParent = isContextParentByDependencyType[type]
   const selfReferenceAllowed = selfReferenceAllowedByDependencyType[type]
 
-  const findReferencedNodeDefs = async (
-    expression: string | undefined
-  ): Promise<{ [key: string]: ArenaAnyNodeDef }> => {
-    if (!expression) return {}
+  const referencedNodeDefUuids = new Set<string>()
+  const nodeDateReferencedNodeDefUuids = new Set<string>()
 
-    const referencedNodeDefUuids = await new NodeDefExpressionEvaluator().findReferencedNodeDefUuids({
+  const findReferencedNodeDefs = async (expression: string | undefined): Promise<void> => {
+    if (!expression) return
+
+    const result = await new NodeDefExpressionEvaluator().findReferencedNodeDefUuidsWithNodeDates({
       expression,
       survey,
       nodeDef,
       isContextParent,
       selfReferenceAllowed,
     })
-    const referencedNodeDefsByUuid: ArenaDictionary<ArenaNodeDef<any>> = {}
-    for (const uuid of referencedNodeDefUuids) {
-      referencedNodeDefsByUuid[uuid] = SurveyNodeDefs.getNodeDefByUuid({ survey, uuid })
-    }
-    return referencedNodeDefsByUuid
+    result.referencedNodeDefUuids.forEach((uuid) => referencedNodeDefUuids.add(uuid))
+    result.nodeDateReferencedNodeDefUuids.forEach((uuid) => nodeDateReferencedNodeDefUuids.add(uuid))
   }
 
-  const referencedNodeDefsArray = await Promise.all(
+  await Promise.all(
     expressions.flatMap((nodeDefExpr) => [
       findReferencedNodeDefs(nodeDefExpr.expression),
       findReferencedNodeDefs(nodeDefExpr.applyIf),
     ])
   )
-  const referencedNodeDefs: ArenaDictionary<ArenaNodeDef<any>> = Object.assign({}, ...referencedNodeDefsArray)
 
-  for (const nodeDefRef of Object.values(referencedNodeDefs)) {
-    graphsUpdated = addDependency({
-      graphs: graphsUpdated,
-      type,
-      nodeDefUuid: nodeDefRef.uuid,
-      nodeDefDepUuid: nodeDef.uuid,
-      sideEffect,
-    })
+  const addGraphDependencies = (dependencyType: SurveyDependencyType, sourceDefUuids: Set<string>): void => {
+    for (const sourceDefUuid of sourceDefUuids) {
+      // the referenced node def must exist
+      const sourceDef = SurveyNodeDefs.getNodeDefByUuid({ survey, uuid: sourceDefUuid })
+      graphsUpdated = addDependency({
+        graphs: graphsUpdated,
+        type: dependencyType,
+        nodeDefUuid: sourceDef.uuid,
+        nodeDefDepUuid: nodeDef.uuid,
+        sideEffect,
+      })
+    }
   }
+  addGraphDependencies(type, referencedNodeDefUuids)
+  // entities whose nodes dates are used in the expressions (nodeDateCreated, nodeDateModified)
+  addGraphDependencies(SurveyDependencyType.nodeDates, nodeDateReferencedNodeDefUuids)
 
   return graphsUpdated
 }
@@ -200,20 +234,22 @@ export const addNodeDefDependencies = async (params: {
       graphs: graphsUpdated,
       sideEffect,
     })
-    // add onUpdate dependencies
-    if (
-      expressions.some((expression) =>
-        functionsRequiringOnUpdateDependency.some(
-          (functionName) => expression.applyIf?.includes(functionName) || expression.expression?.includes(functionName)
-        )
-      )
-    ) {
-      _graphUpdated = Objects.assocPath({
-        obj: _graphUpdated,
-        path: [SurveyDependencyType.onUpdate, nodeDef.uuid],
-        value: true,
-        sideEffect,
-      })
+    // add boolean (onUpdate, appInfo) dependencies
+    const calledFunctionNames = new Set(
+      expressions.flatMap((expression) => [
+        ...findFunctionCallNames(expression.expression),
+        ...findFunctionCallNames(expression.applyIf),
+      ])
+    )
+    for (const [booleanDependencyType, functionNames] of Object.entries(functionNamesByBooleanDependencyType)) {
+      if (functionNames.some((functionName) => calledFunctionNames.has(functionName))) {
+        _graphUpdated = Objects.assocPath({
+          obj: _graphUpdated,
+          path: [booleanDependencyType, nodeDef.uuid],
+          value: true,
+          sideEffect,
+        })
+      }
     }
     return _graphUpdated
   }
@@ -282,7 +318,7 @@ const _removeNodeDefDependenciesOfType = (params: {
   // dissoc nodeDefUuid dependency as dependent
   graphUpdated = Objects.dissoc({ obj: graphUpdated, prop: nodeDefUuid })
 
-  if (dependencyType !== SurveyDependencyType.onUpdate) {
+  if (!booleanDependencyTypes.has(dependencyType)) {
     // dissoc nodeDefUuid dependency from sources (if any)
     for (const [key, dependentUuids] of Object.entries(graphUpdated)) {
       graphUpdated[key] = Arrays.removeItem(nodeDefUuid)(dependentUuids as string[])

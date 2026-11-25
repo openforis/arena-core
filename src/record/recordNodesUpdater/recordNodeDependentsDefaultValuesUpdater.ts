@@ -53,14 +53,16 @@ const updateDefaultValueInNode = (params: {
   nodeDef: ArenaNodeDef<any>
   exprValue: any
   sideEffect: boolean
+  dateModified?: string
 }): void => {
-  const { survey, updateResult, nodeToUpdate, nodeDef, exprValue, sideEffect } = params
+  const { survey, updateResult, nodeToUpdate, nodeDef, exprValue, sideEffect, dateModified: dateModifiedParam } = params
+  const dateModified = dateModifiedParam ?? Dates.nowFormattedForStorage()
   if (shouldResetDefaultValue({ survey, record: updateResult.record, node: nodeToUpdate })) {
     const nodeUpdated = RecordNodes.mergeNodes(nodeToUpdate, {
       value: null,
       meta: { defaultValueApplied: false },
       updated: true,
-      dateModified: Dates.nowFormattedForStorage(),
+      dateModified,
     })
     updateResult.addNode(nodeUpdated, { sideEffect })
     return
@@ -82,7 +84,7 @@ const updateDefaultValueInNode = (params: {
     ...RecordNodes.mergeNodes(nodeToUpdate, {
       meta: { defaultValueApplied },
       updated: true,
-      dateModified: Dates.nowFormattedForStorage(),
+      dateModified,
     }),
     value: exprValue,
   }
@@ -155,7 +157,15 @@ const updateDefaultValuesInNodes = async (
     }
   }
   for (const nodeToUpdate of nodesToUpdate) {
-    updateDefaultValueInNode({ survey, updateResult, nodeToUpdate, nodeDef, exprValue, sideEffect })
+    updateDefaultValueInNode({
+      survey,
+      updateResult,
+      nodeToUpdate,
+      nodeDef,
+      exprValue,
+      sideEffect,
+      dateModified: params.dateModified,
+    })
   }
 }
 

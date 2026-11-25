@@ -5,7 +5,7 @@ import { ArenaExpressionFunctions } from '../expression'
 import { ExtraProps } from '../extraProp/extraProps'
 import { ArenaAreaOfInterest, ArenaPoint, Points } from '../geo'
 import { LanguagesISO639part2 } from '../language'
-import { ArenaAnyNodeDef } from '../nodeDef'
+import { ArenaAnyNodeDef, NodeDefs } from '../nodeDef'
 import { ArenaRecord } from '../record'
 import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 import { getCategoryItemByCodePaths, getTaxonByCode } from '../survey/surveys/refsData'
@@ -116,18 +116,20 @@ const distanceToAreaOfInterestBoundary = async (params: {
 
 /**
  * Node date functions (nodeDateCreated, nodeDateModified) at node def level:
- * the node def passed as argument is a dependency of the expression
- * (its nodes date modified changes when any of their descendants is updated).
+ * the node def passed as argument is a dependency of the expression.
+ * Attributes are referenced like in any other expression (their date modified changes with their value);
+ * entities are referenced in the nodeDates dependency graph (their date modified changes when any of their descendants is modified).
  */
 const nodeDateExecutor =
   (context: NodeDefExpressionContext) =>
   (nodeDef: ArenaAnyNodeDef | null): null => {
     if (!nodeDef?.uuid) return null
-    const { nodeDefCurrent, selfReferenceAllowed, referencedNodeDefUuids } = context
+    const { nodeDefCurrent, selfReferenceAllowed, referencedNodeDefUuids, nodeDateReferencedNodeDefUuids } = context
     if (!selfReferenceAllowed && nodeDef.uuid === nodeDefCurrent?.uuid) {
       throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: nodeDef.props?.name })
     }
-    referencedNodeDefUuids?.add(nodeDef.uuid)
+    const uuids = NodeDefs.isEntity(nodeDef) ? nodeDateReferencedNodeDefUuids : referencedNodeDefUuids
+    uuids?.add(nodeDef.uuid)
     return null
   }
 

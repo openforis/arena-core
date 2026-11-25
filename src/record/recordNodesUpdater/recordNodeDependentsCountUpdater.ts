@@ -14,7 +14,7 @@ export const updateDependentsCount = async (
     countType: NodeDefCountType
   }
 ): Promise<RecordUpdateResult> => {
-  const { survey, record, node, countType, sideEffect = false } = params
+  const { survey, record, node, countType, sideEffect = false, dateModified } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -57,7 +57,13 @@ export const updateDependentsCount = async (
       // count changed
 
       // 5. update node and add it to nodes updated
-      const nodeCtxUpdated = RecordNodes.assocChildrenCount({ node: nodeCtx, nodeDefUuid, count, countType })
+      const nodeCtxUpdated = RecordNodes.assocChildrenCount({
+        node: nodeCtx,
+        nodeDefUuid,
+        count,
+        countType,
+        dateModified,
+      })
       updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
     }
   }

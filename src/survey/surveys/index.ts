@@ -3,6 +3,7 @@ import {
   buildAndAssocDependencyGraph,
   getNodeDefDependents,
   getOnUpdateDependents,
+  getAppInfoDependents,
   removeNodeDefDependencies,
 } from './dependencies'
 
@@ -168,6 +169,7 @@ export const Surveys = {
   addNodeDefDependencies,
   getNodeDefDependents,
   getOnUpdateDependents,
+  getAppInfoDependents,
   removeNodeDefDependencies,
 
   // index

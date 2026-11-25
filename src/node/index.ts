@@ -16,6 +16,7 @@ export type {
 export { RecordNodeFactory } from './factory'
 
 export { RecordNodes } from './nodes'
+export type { ArenaRecordNodeUpdateOptions } from './nodes'
 
 export { RecordNodeValueFormatter } from './nodeValueFormatter'
 
