@@ -15,4 +15,14 @@ describe('RecordNodeValueFormatter', () => {
     })
     expect(formatted).toBe('a, b')
   })
+
+  test('returns an empty string for empty values and the raw value for types without a formatter', () => {
+    const survey = {} as ArenaSurvey
+    const integerDef = NodeDefFactory.createInstance({ type: NodeDefType.integer, props: { name: 'integer' } })
+    expect(RecordNodeValueFormatter.format({ survey, cycle: '0', nodeDef: integerDef, value: null })).toBe('')
+    expect(RecordNodeValueFormatter.format({ survey, cycle: '0', nodeDef: integerDef, value: 12 })).toBe('12')
+
+    const booleanDef = NodeDefFactory.createInstance({ type: NodeDefType.boolean, props: { name: 'boolean' } })
+    expect(RecordNodeValueFormatter.format({ survey, cycle: '0', nodeDef: booleanDef, value: true })).toBe(true)
+  })
 })
