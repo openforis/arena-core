@@ -10,7 +10,7 @@ import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
 import { RecordExpressionValueConverter } from './recordExpressionValueConverter'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
-import { throwError } from './recordNodesDependentsUpdaterCommons'
+import { isAppInfoMissing, throwError } from './recordNodesDependentsUpdaterCommons'
 import { expressionUsesThis } from '../../expression/javascript/parser/expressionNodesFinder'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -102,7 +102,7 @@ const updateDefaultValuesInNodes = async (
 
   const { nodeCtx, nodeDef } = nodePointer
 
-  if (nodeCtx.deleted) return
+  if (nodeCtx.deleted || isAppInfoMissing({ survey, appInfo: params.appInfo, nodeDef })) return
 
   const { record } = updateResult
 

@@ -41,6 +41,7 @@ describe('RecordUpdater - app info dependents', () => {
         textDef('app_version_editable').defaultValue('appVersion()'),
         textDef('app_version_one_time').readOnly().defaultValue('appVersion()').defaultValueEvaluatedOnlyOneTime(),
         textDef('app_version_note'),
+        textDef('app_id_identifier').readOnly().defaultValue('appId() + "-" + identifier'),
         textDef('not_app_info_dependent').readOnly().defaultValue('app_version_note')
       )
     ).build()
@@ -50,7 +51,13 @@ describe('RecordUpdater - app info dependents', () => {
     const names = Surveys.getAppInfoDependents({ survey })
       .map((nodeDef) => nodeDef.props.name)
       .sort()
-    expect(names).toEqual(['app_id', 'app_platform', 'app_version_editable', 'app_version_one_time'])
+    expect(names).toEqual([
+      'app_id',
+      'app_id_identifier',
+      'app_platform',
+      'app_version_editable',
+      'app_version_one_time',
+    ])
   })
 
   test('expressions evaluated when the record is created', async () => {
@@ -144,10 +151,37 @@ describe('RecordUpdater - app info dependents', () => {
     expect(recordUpdated.info?.modifiedWith).toEqual(appInfoWeb)
   })
 
+  test('update without app info (e.g. server job): values kept', async () => {
+    const record = await createRecord(appInfoMobile)
+    const identifier = TestUtils.getNodeByPath({ survey, record, path: 'root_entity.identifier' })
+    const { record: recordWithIdentifier } = await RecordUpdater.updateAttributeValue({
+      user,
+      survey,
+      record,
+      attributeUuid: identifier.uuid,
+      value: 1,
+      appInfo: appInfoMobile,
+    })
+    expect(getValue(recordWithIdentifier, 'app_id_identifier')).toBe('am-1')
+
+    // app_id_identifier is a dependent of identifier, but it is not evaluated without app info
+    const { record: recordUpdated } = await RecordUpdater.updateAttributeValue({
+      user,
+      survey,
+      record: recordWithIdentifier,
+      attributeUuid: identifier.uuid,
+      value: 2,
+    })
+    expect(getValue(recordUpdated, 'identifier')).toBe(2)
+    expect(getValue(recordUpdated, 'app_id_identifier')).toBe('am-1')
+    expect(getValue(recordUpdated, 'app_id')).toBe('am')
+  })
+
   test('record created without app info: expressions evaluated when opened in an app', async () => {
     const recordNew = RecordFactory.createInstance({ surveyUuid: survey.uuid, user })
     const record = (await RecordUpdater.createRootEntity({ user, survey, record: recordNew })).record
-    expect(getValue(record, 'app_id')).toBeNull()
+    // not evaluated without app info
+    expect(getValue(record, 'app_id')).toBeFalsy()
 
     const { record: recordUpdated } = await RecordUpdater.updateAppInfoDependents({
       user,

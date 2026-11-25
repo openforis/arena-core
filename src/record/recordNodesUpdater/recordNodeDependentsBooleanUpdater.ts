@@ -2,7 +2,7 @@ import { ArenaRecordNode, ArenaRecordNodePointer, ArenaRecordNodeUpdateOptions }
 import { ArenaNodeDefExpression } from '../../nodeDef'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { getDependentNodePointersByType, getNodeCurrent } from './recordNodesDependentsUpdaterCommons'
+import { getDependentNodePointersByType, getNodeCurrent, isAppInfoMissing } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -39,6 +39,9 @@ export const calculateBooleanValueNext = async ({
 }): Promise<boolean | undefined> => {
   const { nodeDef: nodeDefNodePointer } = nodePointer
   const { uuid: nodeDefUuid } = nodeDefNodePointer
+
+  if (isAppInfoMissing({ survey: params.survey, appInfo: params.appInfo, nodeDef: nodeDefNodePointer }))
+    return undefined
 
   const valuePrev = getValuePrev(nodeCtx, nodeDefUuid)
   const expressionsToEvaluate = getExpressions(nodePointer)
