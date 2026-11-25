@@ -2,7 +2,7 @@ import { ArenaRecordNode, ArenaRecordNodePointer, ArenaRecordNodeUpdateOptions }
 import { ArenaNodeDefExpression } from '../../nodeDef'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
+import { getDependentNodePointersByType, getNodeCurrent } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -56,6 +56,7 @@ export const calculateBooleanValueNext = async ({
     ...params,
     record: updateResult.record,
     nodeCtx,
+    nodeCurrent: getNodeCurrent({ record: updateResult.record, nodeCtx, nodeDef: nodeDefNodePointer }),
     expressions: expressionsToEvaluate,
   })
   return exprEval?.value || false

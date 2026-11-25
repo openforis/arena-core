@@ -22,9 +22,15 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Are
     })
   }
 
+  /**
+   * Evaluates the expression in the context of the specified node (the node itself if entity, its parent if attribute).
+   * @param params.nodeCurrent - Node referenced by "this" (default: the specified node); when evaluating the expressions
+   * of a node def in the context of its parent entity, it's the node of the node def (null if not available).
+   */
   async evalExpression(
     params: ExpressionEvaluateParams & {
       node: ArenaRecordNode
+      nodeCurrent?: ArenaRecordNode | null
       query: string
       item?: ArenaCategoryItem | ArenaTaxon
     }
@@ -33,10 +39,11 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Are
     const nodeDef = Surveys.getNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
     const nodeContext = NodeDefs.isEntity(nodeDef) ? node : Records.getParent(node)(record)
     if (!nodeContext) return null
+    const nodeCurrent = params.nodeCurrent === undefined ? node : (params.nodeCurrent ?? undefined)
     const context: ArenaRecordExpressionContext = {
       ...params,
       nodeContext,
-      nodeCurrent: node,
+      nodeCurrent,
       object: nodeContext,
       item,
     }
@@ -46,6 +53,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Are
   private async _getApplicableExpressions(
     params: ExpressionEvaluateParams & {
       nodeCtx: ArenaRecordNode
+      nodeCurrent?: ArenaRecordNode | null
       expressions: ArenaNodeDefExpression[]
       stopAtFirstFound?: boolean
     }
@@ -73,6 +81,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Are
   async evalApplicableExpressions(
     params: ExpressionEvaluateParams & {
       nodeCtx: ArenaRecordNode
+      nodeCurrent?: ArenaRecordNode | null
       expressions: ArenaNodeDefExpression[]
       stopAtFirstFound?: boolean
     }
@@ -91,6 +100,7 @@ export class RecordExpressionEvaluator extends JavascriptExpressionEvaluator<Are
   async evalApplicableExpression(
     params: ExpressionEvaluateParams & {
       nodeCtx: ArenaRecordNode
+      nodeCurrent?: ArenaRecordNode | null
       expressions: ArenaNodeDefExpression[]
     }
   ): Promise<{ expression: ArenaNodeDefExpression; value: any } | null> {

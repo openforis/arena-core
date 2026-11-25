@@ -5,7 +5,7 @@ import { SurveyDependencyType } from '../../survey/survey'
 import { getNodesByDefUuid } from '../_records/recordGetters'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { ArenaRecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
-import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
+import { getDependentNodePointersByType, getNodeCurrent } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -20,10 +20,11 @@ export const evaluateRequiredIf = async (
     nodeDef: ArenaAnyNodeDef
   }
 ): Promise<boolean> => {
-  const { nodeCtx, nodeDef } = params
+  const { record, nodeCtx, nodeDef } = params
   const exprEval = await expressionEvaluator.evalApplicableExpression({
     ...params,
     nodeCtx,
+    nodeCurrent: getNodeCurrent({ record, nodeCtx, nodeDef }),
     expressions: NodeDefs.getRequiredIf(nodeDef),
   })
   return !!exprEval?.value

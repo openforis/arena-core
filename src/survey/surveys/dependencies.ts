@@ -9,7 +9,7 @@ import {
   NodeDefType,
 } from '../../nodeDef'
 import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
-import { findFunctionCallNames } from '../../expression/javascript/parser/functionCallNamesFinder'
+import { findFunctionCallNames } from '../../expression/javascript/parser/expressionNodesFinder'
 
 import { ArenaSurvey, ArenaSurveyDependencyGraph, SurveyDependencyType } from '../survey'
 import { Arrays, Objects } from '../../utils'

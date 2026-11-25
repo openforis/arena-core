@@ -39,7 +39,14 @@ export const updateDependentsCount = async (
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
-    const evaluateParams = { ...params, record: updateResult.record, nodeCtx, expressions: expressionsToEvaluate }
+    const evaluateParams = {
+      ...params,
+      record: updateResult.record,
+      nodeCtx,
+      // count expressions are defined on multiple node defs: "this" is not determined
+      nodeCurrent: null,
+      expressions: expressionsToEvaluate,
+    }
     const countResult = await expressionEvaluator.evalApplicableExpression(evaluateParams) // NOSONAR
 
     const count = Number(countResult?.value)

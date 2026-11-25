@@ -58,11 +58,11 @@ describe('RecordUpdater - node dates', () => {
           'plot',
           integerDef('plot_id').key(),
           textDef('plot_notes'),
-          textDef('plot_last_modified').readOnly().defaultValue('nodeDateModified(plot)'),
+          textDef('plot_last_modified').readOnly().defaultValue('nodeDateModified(parent(this))'),
           textDef('plot_notes_last_modified').readOnly().defaultValue('nodeDateModified(plot_notes)'),
-          textDef('plot_created').readOnly().defaultValue('nodeDateCreated(plot)')
+          textDef('plot_created').readOnly().defaultValue('nodeDateCreated(parent(this))')
         ).multiple(),
-        textDef('record_last_modified').readOnly().defaultValue('nodeDateModified(root_entity)')
+        textDef('record_last_modified').readOnly().defaultValue('nodeDateModified(parent(this))')
       )
     ).build()
   }, 10000)
