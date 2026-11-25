@@ -69,6 +69,7 @@ describe('Expression functions: app info and node dates', () => {
   test.each([
     { query: 'appId()', expected: 'am' },
     { query: 'appVersion()', expected: '1.2.3' },
+    { query: 'appIdLabel()', expected: 'Arena Mobile' },
     { query: 'appPlatform()', expected: 'ios' },
   ])('$query', async ({ query, expected }) => {
     expect(await evaluate({ query, attributePath: 'root_entity.identifier', appInfo })).toBe(expected)

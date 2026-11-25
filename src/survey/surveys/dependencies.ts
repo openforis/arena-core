@@ -23,7 +23,7 @@ const booleanDependencyTypes = new Set<SurveyDependencyType>([
 
 const functionNamesByBooleanDependencyType: { [key: string]: string[] } = {
   [SurveyDependencyType.onUpdate]: ['recordDateLastModified'],
-  [SurveyDependencyType.appInfo]: ['appId', 'appPlatform', 'appVersion'],
+  [SurveyDependencyType.appInfo]: ['appId', 'appIdLabel', 'appPlatform', 'appVersion'],
 }
 
 const isContextParentByDependencyType = {
@@ -133,7 +133,7 @@ export const getOnUpdateDependents = (params: { survey: ArenaSurvey }): ArenaAny
 
 /**
  * Returns the node defs to be evaluated again when a record is updated with a different app
- * (their expressions use the app info functions: appId, appPlatform, appVersion).
+ * (their expressions use the app info functions: appId, appIdLabel, appPlatform, appVersion).
  */
 export const getAppInfoDependents = (params: { survey: ArenaSurvey }): ArenaAnyNodeDef[] =>
   getBooleanDependencyTypeDependents({ survey: params.survey, dependencyType: SurveyDependencyType.appInfo })

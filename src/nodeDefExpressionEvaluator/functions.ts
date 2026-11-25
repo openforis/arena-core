@@ -1,3 +1,4 @@
+import { AppInfos } from '../app/appInfos'
 import { Users } from '../auth'
 import { ArenaCategoryItem } from '../category'
 import { SystemError, SystemErrorKeys } from '../error'
@@ -150,6 +151,11 @@ export const nodeDefExpressionFunctions: ArenaExpressionFunctions<NodeDefExpress
     minArity: 0,
     maxArity: 0,
     executor: (context: NodeDefExpressionContext) => () => context.appInfo?.appId ?? null,
+  },
+  appIdLabel: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: NodeDefExpressionContext) => () => AppInfos.getLabel(context.appInfo) ?? null,
   },
   appPlatform: {
     minArity: 0,

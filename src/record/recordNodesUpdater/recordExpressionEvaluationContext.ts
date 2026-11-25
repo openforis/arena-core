@@ -15,7 +15,7 @@ export interface ArenaRecordExpressionEvaluationContext {
   timezoneOffset?: number
   lang?: LanguageCode
   /**
-   * Info about the app running the update: expressions using the app info functions (appId, appVersion, appPlatform)
+   * Info about the app running the update: expressions using the app info functions (appId, appIdLabel, appVersion, appPlatform)
    * are evaluated again when the record is updated with a different app (see RecordUpdater.updateAppInfoDependents)
    */
   appInfo?: ArenaAppInfo

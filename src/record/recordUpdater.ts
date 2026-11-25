@@ -268,7 +268,7 @@ const deleteNode = async (params: ArenaRecordNodesUpdateParams & { nodeUuid: str
 }
 
 /**
- * Evaluates again the expressions using the app info functions (appId, appPlatform, appVersion)
+ * Evaluates again the expressions using the app info functions (appId, appIdLabel, appPlatform, appVersion)
  * if the record is being edited with an app different from the one that updated it last
  * (different app id, platform or version, see Records.isAppInfoChanged); does nothing otherwise.
  * To be called when the record is opened for editing (the same check is done in every record update).

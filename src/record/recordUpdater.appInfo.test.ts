@@ -37,6 +37,7 @@ describe('RecordUpdater - app info dependents', () => {
         'root_entity',
         integerDef('identifier').key(),
         textDef('app_id').readOnly().defaultValue('appId()'),
+        textDef('app_id_label').readOnly().defaultValue('appIdLabel()'),
         textDef('app_platform').readOnly().defaultValue('appPlatform()'),
         textDef('app_version_editable').defaultValue('appVersion()'),
         textDef('app_version_one_time').readOnly().defaultValue('appVersion()').defaultValueEvaluatedOnlyOneTime(),
@@ -54,6 +55,7 @@ describe('RecordUpdater - app info dependents', () => {
     expect(names).toEqual([
       'app_id',
       'app_id_identifier',
+      'app_id_label',
       'app_platform',
       'app_version_editable',
       'app_version_one_time',
@@ -63,6 +65,7 @@ describe('RecordUpdater - app info dependents', () => {
   test('expressions evaluated when the record is created', async () => {
     const record = await createRecord(appInfoMobile)
     expect(getValue(record, 'app_id')).toBe('am')
+    expect(getValue(record, 'app_id_label')).toBe('Arena Mobile')
     expect(getValue(record, 'app_platform')).toBe('android')
     expect(getValue(record, 'app_version_editable')).toBe('1.0.0')
     expect(getValue(record, 'app_version_one_time')).toBe('1.0.0')
@@ -95,6 +98,7 @@ describe('RecordUpdater - app info dependents', () => {
       appInfo: appInfoWeb,
     })
     expect(getValue(recordUpdated, 'app_id')).toBe('arena')
+    expect(getValue(recordUpdated, 'app_id_label')).toBe('Arena')
     expect(getValue(recordUpdated, 'app_platform')).toBe('web')
     // default value applied (not modified by the user): evaluated again
     expect(getValue(recordUpdated, 'app_version_editable')).toBe('2.0.0')

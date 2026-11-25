@@ -20,7 +20,7 @@ export const getNodeCurrent = (params: {
 }
 
 /**
- * Returns true if the expressions of the node def use the app info functions (appId, appPlatform, appVersion)
+ * Returns true if the expressions of the node def use the app info functions (appId, appIdLabel, appPlatform, appVersion)
  * but the app info is not available (e.g. update done by a server job): they must not be evaluated
  * (they would return null), the current values are kept.
  */

@@ -14,7 +14,7 @@ export interface ArenaExpressionContext {
    */
   lang?: LanguageCode
   /**
-   * info about the app running the evaluation (used by the appId, appVersion and appPlatform expression functions)
+   * info about the app running the evaluation (used by the appId, appIdLabel, appVersion and appPlatform expression functions)
    */
   appInfo?: ArenaAppInfo
 }

@@ -1,4 +1,5 @@
 export type { ArenaAppInfo, ArenaAppPlatform } from './app'
+export { AppInfos } from './app'
 
 export {
   Authorizer,
