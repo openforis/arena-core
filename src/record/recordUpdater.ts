@@ -118,7 +118,8 @@ const createRootEntity = async (
 const updateAttributeValue = async (
   params: ArenaRecordNodesUpdateParams & {
     attributeUuid: string
-    value: any
+    // its shape depends on the attribute type (see ArenaRecordNodeValue)
+    value: unknown
   }
 ): Promise<RecordUpdateResult> => {
   const { attributeUuid, record, value, dateModified = Dates.nowFormattedForStorage(), sideEffect = false } = params

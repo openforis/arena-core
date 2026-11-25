@@ -35,7 +35,7 @@ export interface ArenaNodeDefEntityLayout extends ArenaNodeDefLayout {
   indexChildren?: string[] // sorted children pages uuids
   layoutChildren?: ArenaNodeDefEntityLayoutChildItem[]
   pageUuid?: string
-  renderType: NodeDefEntityRenderType
+  renderType?: NodeDefEntityRenderType
 }
 
 export type ArenaNodeDefEntity = ArenaNodeDef<NodeDefType.entity, ArenaNodeDefEntityProps>
