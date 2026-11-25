@@ -52,7 +52,7 @@ const updateDescendantsApplicability = ({
   params: RecordNodeDependentsUpdateParams
   recordUpdateOptions: ArenaRecordUpdateOptions
 }): void => {
-  const { survey, sideEffect = false, clearNonApplicableValues = false } = params
+  const { survey, sideEffect = false, clearNonApplicableValues = false, dateModified } = params
 
   // only values entered by the user are reported as cleared (they need a confirmation)
   let userValuesCleared = false
@@ -70,7 +70,7 @@ const updateDescendantsApplicability = ({
       nodeDescendantCleared && !NodeDefs.isReadOnly(nodeDescendantDef) && RecordNodes.hasUserInputValue(nodeDescendant)
     // Clear value if becoming non-applicable and parameter is enabled
     const nodeDescendantUpdated = nodeDescendantCleared
-      ? RecordNodes.assocValue(nodeDescendant, null, { sideEffect })
+      ? RecordNodes.assocValue(nodeDescendant, null, { sideEffect, dateModified })
       : nodeDescendant
     nodesUpdated[nodeDescendantUpdated.uuid] = nodeDescendantUpdated
     if (userValueCleared) {
@@ -169,7 +169,9 @@ const updateNodePointerApplicability = async ({
   // Applicability changed
 
   // update node and add it to nodes updated
-  const nodeCtxUpdated = RecordNodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable)
+  const nodeCtxUpdated = RecordNodes.assocChildApplicability(nodeCtx, nodeDefUuid, applicable, {
+    dateModified: params.dateModified,
+  })
   updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
 
   let nodeCtxChildren = Records.getChildren(nodeCtx, nodeDefUuid)(updateResult.record)

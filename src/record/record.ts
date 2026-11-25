@@ -31,7 +31,7 @@ export interface RecordNodesIndex {
 
 export interface RecordInfo {
   createdWith?: ArenaAppInfo
-  updatedWith?: ArenaAppInfo
+  modifiedWith?: ArenaAppInfo
 }
 
 export interface ArenaRecord {

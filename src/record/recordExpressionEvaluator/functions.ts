@@ -35,6 +35,12 @@ const extractPreviousCycleValues = ({
   return Records.getChildren(prevCycleEntity, node.nodeDefUuid)(prevCycleRecord).map((prevNode) => prevNode.value)
 }
 
+// a single node is expected: node sets (arrays) are not supported
+const getSingleNode = (nodeOrNodeSet: unknown): ArenaRecordNode | null =>
+  nodeOrNodeSet && !Array.isArray(nodeOrNodeSet) && typeof nodeOrNodeSet === 'object'
+    ? (nodeOrNodeSet as ArenaRecordNode)
+    : null
+
 export const recordExpressionFunctions: ArenaExpressionFunctions<ArenaRecordExpressionContext> = {
   ...nodeDefExpressionFunctions,
   count: {
@@ -131,6 +137,18 @@ export const recordExpressionFunctions: ArenaExpressionFunctions<ArenaRecordExpr
       }
       return null
     },
+  },
+  nodeDateCreated: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (_context: ArenaRecordExpressionContext) => (node) => getSingleNode(node)?.dateCreated ?? null,
+  },
+  nodeDateModified: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: (_context: ArenaRecordExpressionContext) => (node) => getSingleNode(node)?.dateModified ?? null,
   },
   parent: {
     minArity: 1,

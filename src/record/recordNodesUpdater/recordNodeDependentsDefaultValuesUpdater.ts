@@ -10,7 +10,8 @@ import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { Records } from '../records'
 import { RecordExpressionValueConverter } from './recordExpressionValueConverter'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
-import { throwError } from './recordNodesDependentsUpdaterCommons'
+import { isAppInfoMissing, throwError } from './recordNodesDependentsUpdaterCommons'
+import { expressionUsesThis } from '../../expression/javascript/parser/expressionNodesFinder'
 import { RecordUpdateResult } from './recordUpdateResult'
 
 const expressionEvaluator = new RecordExpressionEvaluator()
@@ -53,14 +54,16 @@ const updateDefaultValueInNode = (params: {
   nodeDef: ArenaNodeDef<any>
   exprValue: any
   sideEffect: boolean
+  dateModified?: string
 }): void => {
-  const { survey, updateResult, nodeToUpdate, nodeDef, exprValue, sideEffect } = params
+  const { survey, updateResult, nodeToUpdate, nodeDef, exprValue, sideEffect, dateModified: dateModifiedParam } = params
+  const dateModified = dateModifiedParam ?? Dates.nowFormattedForStorage()
   if (shouldResetDefaultValue({ survey, record: updateResult.record, node: nodeToUpdate })) {
     const nodeUpdated = RecordNodes.mergeNodes(nodeToUpdate, {
       value: null,
       meta: { defaultValueApplied: false },
       updated: true,
-      dateModified: Dates.nowFormattedForStorage(),
+      dateModified,
     })
     updateResult.addNode(nodeUpdated, { sideEffect })
     return
@@ -82,7 +85,7 @@ const updateDefaultValueInNode = (params: {
     ...RecordNodes.mergeNodes(nodeToUpdate, {
       meta: { defaultValueApplied },
       updated: true,
-      dateModified: Dates.nowFormattedForStorage(),
+      dateModified,
     }),
     value: exprValue,
   }
@@ -99,14 +102,27 @@ const updateDefaultValuesInNodes = async (
 
   const { nodeCtx, nodeDef } = nodePointer
 
-  if (nodeCtx.deleted) return
+  if (nodeCtx.deleted || isAppInfoMissing({ survey, appInfo: params.appInfo, nodeDef })) return
 
   const { record } = updateResult
 
-  let nodesToUpdate: ArenaRecordNode[] = []
   const dependentNodes = RecordNodePointers.getNodesFromNodePointers({ record, nodePointers: [nodePointer] })
-  let exprValue: any = null
   const expressionsToEvaluate = NodeDefs.getDefaultValues(nodeDef)
+
+  const updateNodes = (nodesToUpdate: ArenaRecordNode[], exprValue: any): void => {
+    for (const nodeToUpdate of nodesToUpdate) {
+      updateDefaultValueInNode({
+        survey,
+        updateResult,
+        nodeToUpdate,
+        nodeDef,
+        exprValue,
+        sideEffect,
+        dateModified: params.dateModified,
+      })
+    }
+  }
+
   if (expressionsToEvaluate.length === 0) {
     if (Surveys.isNodeDefEnumerator({ survey, nodeDef })) {
       // if node def is enumerator, its default value is generated using the category items, not with default value expressions
@@ -114,25 +130,26 @@ const updateDefaultValuesInNodes = async (
       return
     }
     // no default expressions to evaluate; check if there are dependent nodes with default value applied, as their default value should be removed
-    nodesToUpdate = dependentNodes.filter(RecordNodes.isDefaultValueApplied)
-    if (nodesToUpdate.length === 0) {
-      // no default expressions to evaluate and no nodes with default value applied, therefore no update needed
-      return
-    }
-  } else {
-    // if there are default value expressions, all dependent nodes should be evaluated, as their default value could change
-    nodesToUpdate = dependentNodes
+    // (if there are none, no update is needed)
+    updateNodes(dependentNodes.filter(RecordNodes.isDefaultValueApplied), null)
+    return
+  }
+
+  // if there are default value expressions, all dependent nodes should be evaluated, as their default value could change
+  if (dependentNodes.length === 0) return
+
+  const evaluateDefaultValue = async (nodeCurrent: ArenaRecordNode | null): Promise<any> => {
     try {
-      // 1. evaluate applicable default value expression
+      // evaluate applicable default value expression
       const exprEval = await expressionEvaluator.evalApplicableExpression({
         ...params,
         record,
         nodeCtx,
+        nodeCurrent,
         expressions: expressionsToEvaluate,
       })
-
       const exprEvalValue = exprEval?.value
-      exprValue = Objects.isEmpty(exprEvalValue)
+      return Objects.isEmpty(exprEvalValue)
         ? null
         : await RecordExpressionValueConverter.toNodeValue({
             survey,
@@ -144,7 +161,7 @@ const updateDefaultValuesInNodes = async (
             categoryItemProvider,
           })
     } catch (error) {
-      throwError({
+      return throwError({
         error,
         errorKey: SystemErrorKeys.record.updateSelfAndDependentsDefaultValues,
         expressionType: SurveyDependencyType.defaultValues,
@@ -154,8 +171,21 @@ const updateDefaultValuesInNodes = async (
       })
     }
   }
-  for (const nodeToUpdate of nodesToUpdate) {
-    updateDefaultValueInNode({ survey, updateResult, nodeToUpdate, nodeDef, exprValue, sideEffect })
+
+  const usesThis = expressionsToEvaluate.some(
+    (expression) => expressionUsesThis(expression.expression) || expressionUsesThis(expression.applyIf)
+  )
+  if (NodeDefs.isMultiple(nodeDef) && usesThis) {
+    // "this" refers to each node: evaluate the expressions for every node
+    for (const dependentNode of dependentNodes) {
+      // sequential: each iteration updates the record
+      const exprValue = await evaluateDefaultValue(dependentNode) // NOSONAR
+      updateNodes([dependentNode], exprValue)
+    }
+  } else {
+    // the same value applies to all the nodes ("this" is the node itself, if the node def is single)
+    const exprValue = await evaluateDefaultValue(NodeDefs.isMultiple(nodeDef) ? null : (dependentNodes[0] ?? null))
+    updateNodes(dependentNodes, exprValue)
   }
 }
 

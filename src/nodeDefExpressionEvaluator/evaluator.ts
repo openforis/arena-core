@@ -30,7 +30,8 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
 
   async _eval(
     params: ExpressionEvaluatorParams,
-    referencedNodeDefUuids: Set<string> = new Set()
+    referencedNodeDefUuids: Set<string> = new Set(),
+    nodeDateReferencedNodeDefUuids: Set<string> = new Set()
   ): Promise<{ result: any; referencedNodeDefUuids: Set<string> }> {
     const {
       expression,
@@ -52,6 +53,7 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
       object: nodeDef,
       selfReferenceAllowed,
       referencedNodeDefUuids,
+      nodeDateReferencedNodeDefUuids,
       itemsFilter,
     }
     const result = await this.evaluate(expression, context)
@@ -71,6 +73,23 @@ export class NodeDefExpressionEvaluator extends JavascriptExpressionEvaluator<No
       // invalid expression (reported by the expression validator): keep the references found so far
     }
     return referencedNodeDefUuids
+  }
+
+  /**
+   * Finds the node defs referenced by the expression (see findReferencedNodeDefUuids) and the entity defs
+   * whose nodes dates are used in it (nodeDateCreated, nodeDateModified functions).
+   */
+  async findReferencedNodeDefUuidsWithNodeDates(
+    params: ExpressionEvaluatorParams
+  ): Promise<{ referencedNodeDefUuids: Set<string>; nodeDateReferencedNodeDefUuids: Set<string> }> {
+    const referencedNodeDefUuids: Set<string> = new Set()
+    const nodeDateReferencedNodeDefUuids: Set<string> = new Set()
+    try {
+      await this._eval(params, referencedNodeDefUuids, nodeDateReferencedNodeDefUuids)
+    } catch {
+      // invalid expression (reported by the expression validator): keep the references found so far
+    }
+    return { referencedNodeDefUuids, nodeDateReferencedNodeDefUuids }
   }
 
   async evalExpression(params: ExpressionEvaluatorParams): Promise<any> {

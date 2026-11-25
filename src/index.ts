@@ -1,4 +1,5 @@
-export type { ArenaAppInfo } from './app'
+export type { ArenaAppInfo, ArenaAppPlatform } from './app'
+export { AppInfos } from './app'
 
 export {
   Authorizer,
@@ -142,6 +143,7 @@ export type {
   ArenaRecordNodePointer,
   ArenaRecordNodeRefData,
   ArenaRecordNodesMap,
+  ArenaRecordNodeUpdateOptions,
   ArenaRecordNodeValue,
   ArenaRecordNodeValueCode,
   ArenaRecordNodeValueCoordinate,
