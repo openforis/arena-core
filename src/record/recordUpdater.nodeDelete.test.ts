@@ -102,10 +102,17 @@ describe('RecordUpdater - node delete', () => {
     const nodeToDeletePath = 'root_entity.mult_entity[1]'
     const nodeToDelete = TestUtils.getNodeByPath({ survey, record, path: nodeToDeletePath })
 
-    const updateResult = await RecordUpdater.deleteNode({ user, survey, record, nodeUuid: nodeToDelete.uuid })
+    const dateModified = '2100-01-01T00:00:00.000Z'
+    const updateResult = await RecordUpdater.deleteNode({
+      user,
+      survey,
+      record,
+      nodeUuid: nodeToDelete.uuid,
+      dateModified,
+    })
     const { nodes: nodesUpdated, record: recordUpdated } = updateResult
 
-    // check updated nodes (including deleted ones)
+    // check updated nodes (including deleted ones and the ancestors, updated in their date modified)
     const nodesUpdatedNames = Object.values(nodesUpdated).map(TestUtils.getNodeName({ survey })).sort()
     expect(nodesUpdatedNames).toEqual([
       'mult_entity',
@@ -113,7 +120,9 @@ describe('RecordUpdater - node delete', () => {
       'mult_entity_attr_sum',
       'mult_entity_count',
       'mult_entity_id',
+      'root_entity',
     ])
+    expect(Records.getRoot(recordUpdated)?.dateModified).toEqual(dateModified)
 
     // check dependent read-only attribute updated
     const multipleEntityCountNodeUpdated = TestUtils.getNodeByPath({
@@ -380,11 +389,12 @@ describe('RecordUpdater - node delete', () => {
       record,
       nodeUuid: nodeToDelete.uuid,
       sideEffect: true,
+      dateModified: '2100-01-01T00:00:00.000Z',
     })
 
     const getNames = (nodesMap: object) => Object.values(nodesMap).map(TestUtils.getNodeName({ survey })).sort()
     expect(getNames(nodesDeleted)).toEqual(['mult_entity', 'mult_entity_id'])
-    expect(getNames(nodes)).toEqual(['mult_entity', 'mult_entity_count', 'mult_entity_id'])
+    expect(getNames(nodes)).toEqual(['mult_entity', 'mult_entity_count', 'mult_entity_id', 'root_entity'])
     expect(
       TestUtils.getNodeByPath({ survey, record: recordUpdated, path: 'root_entity.mult_entity_count' }).value
     ).toBe(1)

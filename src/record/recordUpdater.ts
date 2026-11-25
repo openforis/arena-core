@@ -42,12 +42,44 @@ const getDependentValidationNodePointers = (params: {
   return Array.from(uniquePointersByKey.values())
 }
 
+/**
+ * If the record is being updated with an app different from the one that updated it last (see Records.isAppInfoChanged),
+ * stores the app info in the record (info.modifiedWith) and returns the nodes whose expressions use the app info functions,
+ * so they will be evaluated again.
+ */
+const _updateAppInfo = (
+  params: ArenaRecordNodesUpdateParams
+): { record: ArenaRecord; appInfoDependentNodes: ArenaRecordNodesMap } => {
+  const { survey, record, appInfo, sideEffect = false } = params
+  if (!appInfo || !Records.isAppInfoChanged(appInfo)(record)) {
+    return { record, appInfoDependentNodes: {} }
+  }
+  const recordUpdated = sideEffect ? record : { ...record }
+  recordUpdated.info = { ...recordUpdated.info, modifiedWith: appInfo }
+
+  const appInfoDependentNodes: ArenaRecordNodesMap = {}
+  for (const nodeDef of Surveys.getAppInfoDependents({ survey })) {
+    for (const node of Records.getNodesByDefUuid(nodeDef.uuid)(recordUpdated)) {
+      appInfoDependentNodes[node.uuid] = node
+    }
+  }
+  return { record: recordUpdated, appInfoDependentNodes }
+}
+
 const _onRecordNodesCreateOrUpdate = async (
-  params: ArenaRecordNodesUpdateParams & {
+  paramsIn: ArenaRecordNodesUpdateParams & {
     nodes: ArenaDictionary<ArenaRecordNode>
     additionalNodesToValidate?: ArenaRecordNodesMap
   }
 ): Promise<RecordUpdateResult> => {
+  const { record: recordWithAppInfo, appInfoDependentNodes } = _updateAppInfo(paramsIn)
+  const params = {
+    ...paramsIn,
+    // the same date modified is used for all the nodes modified in this update
+    dateModified: paramsIn.dateModified ?? Dates.nowFormattedForStorage(),
+    record: recordWithAppInfo,
+  }
+
   const {
     user,
     survey,
@@ -55,11 +87,21 @@ const _onRecordNodesCreateOrUpdate = async (
     taxonProvider,
     areaOfInterestProvider,
     additionalNodesToValidate,
-    dateModified = Dates.nowFormattedForStorage(),
+    dateModified,
   } = params
 
-  const updateResult = await RecordNodesUpdater.updateNodesDependents(params)
-  const { nodes: updatedNodes, record: updatedRecord } = updateResult
+  const updateResult = await RecordNodesUpdater.updateNodesDependents({
+    ...params,
+    nodesToEvaluate: appInfoDependentNodes,
+  })
+  const { record: updatedRecord, dateModifiedOnlyNodeUuids } = updateResult
+  // nodes updated only in their date modified (ancestors of the modified nodes) are not validated again
+  const updatedNodes: ArenaRecordNodesMap = {}
+  for (const [nodeUuid, node] of Object.entries(updateResult.nodes)) {
+    if (!dateModifiedOnlyNodeUuids.has(nodeUuid)) {
+      updatedNodes[nodeUuid] = node
+    }
+  }
 
   const dependentValidationNodePointers = getDependentValidationNodePointers({
     survey,
@@ -93,13 +135,22 @@ const _onRecordNodesCreateOrUpdate = async (
   return updateResult
 }
 
-const createDescendants = async (params: ArenaRecordNodeCreateParams): Promise<RecordUpdateResult> => {
+/**
+ * Returns the params with the date modified set (now, if not specified): the same date modified is used
+ * for all the nodes modified in a record update.
+ */
+const withDateModified = <P extends { dateModified?: string }>(params: P): P =>
+  params.dateModified ? params : { ...params, dateModified: Dates.nowFormattedForStorage() }
+
+const createDescendants = async (paramsIn: ArenaRecordNodeCreateParams): Promise<RecordUpdateResult> => {
+  const params = withDateModified(paramsIn)
   const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.addDescendants(params)
 
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
 }
 
-const createNodeAndDescendants = async (params: ArenaRecordNodeCreateParams): Promise<RecordUpdateResult> => {
+const createNodeAndDescendants = async (paramsIn: ArenaRecordNodeCreateParams): Promise<RecordUpdateResult> => {
+  const params = withDateModified(paramsIn)
   const { record: updatedRecord, nodes: createdNodes } = await RecordNodesUpdater.addNodeAndDescendants(params)
 
   return _onRecordNodesCreateOrUpdate({ ...params, record: updatedRecord, nodes: createdNodes })
@@ -136,7 +187,7 @@ const updateAttributeValue = async (
 
   const _record = Records.addNode(attributeUpdated, { sideEffect })(record)
 
-  return _onRecordNodesCreateOrUpdate({ ...params, record: _record, nodes: nodesUpdated })
+  return _onRecordNodesCreateOrUpdate({ ...params, dateModified, record: _record, nodes: nodesUpdated })
 }
 
 /**
@@ -202,7 +253,7 @@ const deleteNodes = async (
   const { record, nodesDeleted } = updateResult
 
   const result = await _onRecordNodesCreateOrUpdate({
-    ...params,
+    ...withDateModified(params),
     record,
     nodes: nodesDeleted,
     additionalNodesToValidate: siblingKeyOrUniqueAttributes,
@@ -216,6 +267,20 @@ const deleteNode = async (params: ArenaRecordNodesUpdateParams & { nodeUuid: str
   return deleteNodes({ ...params, nodeUuids: [nodeUuid] })
 }
 
+/**
+ * Evaluates again the expressions using the app info functions (appId, appIdLabel, appPlatform, appVersion)
+ * if the record is being edited with an app different from the one that updated it last
+ * (different app id, platform or version, see Records.isAppInfoChanged); does nothing otherwise.
+ * To be called when the record is opened for editing (the same check is done in every record update).
+ */
+const updateAppInfoDependents = async (params: ArenaRecordNodesUpdateParams): Promise<RecordUpdateResult> => {
+  const { record, appInfo } = params
+  if (!Records.isAppInfoChanged(appInfo)(record)) {
+    return new RecordUpdateResult({ record })
+  }
+  return _onRecordNodesCreateOrUpdate({ ...withDateModified(params), nodes: {} })
+}
+
 export const RecordUpdater = {
   /** Creates the descendants of a node and updates dependents (applicability, default values, calculations...) and validation */
   createDescendants,
@@ -227,4 +292,5 @@ export const RecordUpdater = {
   deleteNode,
   /** Deletes the nodes and their descendants and updates dependents (applicability, default values, calculations...) and validation */
   deleteNodes,
+  updateAppInfoDependents,
 }

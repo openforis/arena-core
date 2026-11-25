@@ -4,6 +4,20 @@ import { Dates, Objects } from '../utils'
 import { ArenaMutationOptions } from '../utils/mutationOptions'
 import { ArenaRecordNode } from './node'
 
+/**
+ * Options of the node update functions.
+ */
+export interface ArenaRecordNodeUpdateOptions extends ArenaMutationOptions {
+  /**
+   * Date of the modification (formatted for storage); the same date is used for all the nodes modified in the same record update.
+   * @default now
+   */
+  dateModified?: string
+}
+
+const getDateModified = (options?: ArenaRecordNodeUpdateOptions): string =>
+  options?.dateModified ?? Dates.nowFormattedForStorage()
+
 const isRoot = (node: ArenaRecordNode): boolean => !node.parentUuid
 
 const areEqual = (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): boolean => nodeA.uuid === nodeB.uuid
@@ -71,7 +85,12 @@ const isValueNotBlank = (node: ArenaRecordNode): boolean => Objects.isNotEmpty(n
 const hasUserInputValue = (node: ArenaRecordNode): boolean =>
   node && !isValueBlank(node) && !isDefaultValueApplied(node) && !isQualifierValueApplied(node)
 
-const assocChildApplicability = (node: ArenaRecordNode, nodeDefUuid: string, applicable: boolean): ArenaRecordNode => {
+const assocChildApplicability = (
+  node: ArenaRecordNode,
+  nodeDefUuid: string,
+  applicable: boolean,
+  options?: Omit<ArenaRecordNodeUpdateOptions, 'sideEffect'>
+): ArenaRecordNode => {
   const childApplicability = { ...node.meta?.childApplicability }
   if (!applicable) {
     childApplicability[nodeDefUuid] = applicable
@@ -82,7 +101,7 @@ const assocChildApplicability = (node: ArenaRecordNode, nodeDefUuid: string, app
     ...node,
     meta: { ...node.meta, childApplicability },
     updated: true,
-    dateModified: Dates.nowFormattedForStorage(),
+    dateModified: getDateModified(options),
   }
 }
 
@@ -104,6 +123,7 @@ const updateMetaDictionary = ({
   propValue,
   defaultValue = true,
   sideEffect,
+  dateModified,
 }: {
   node: ArenaRecordNode
   nodeDefUuid: string
@@ -111,6 +131,7 @@ const updateMetaDictionary = ({
   propValue: boolean
   defaultValue?: boolean
   sideEffect: boolean
+  dateModified?: string
 }): ArenaRecordNode => {
   const nodeUpdated = sideEffect ? node : { ...node }
   const metaOriginal = nodeUpdated.meta ?? {}
@@ -126,7 +147,7 @@ const updateMetaDictionary = ({
   meta[propName] = dictionary
   nodeUpdated.meta = meta
   nodeUpdated.updated = true
-  nodeUpdated.dateModified = Dates.nowFormattedForStorage()
+  nodeUpdated.dateModified = getDateModified({ dateModified })
   return nodeUpdated
 }
 
@@ -134,19 +155,19 @@ function assocChildEditable(
   node: ArenaRecordNode,
   nodeDefUuid: string,
   editable: boolean,
-  options?: ArenaMutationOptions
+  options?: ArenaRecordNodeUpdateOptions
 ): ArenaRecordNode {
-  const { sideEffect = false } = options ?? {}
-  return updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect })
+  const { sideEffect = false, dateModified } = options ?? {}
+  return updateMetaDictionary({ node, nodeDefUuid, propName: 'cEdit', propValue: editable, sideEffect, dateModified })
 }
 
 const assocChildRequired = (
   node: ArenaRecordNode,
   nodeDefUuid: string,
   required: boolean,
-  options?: ArenaMutationOptions
+  options?: ArenaRecordNodeUpdateOptions
 ): ArenaRecordNode => {
-  const { sideEffect = false } = options ?? {}
+  const { sideEffect = false, dateModified } = options ?? {}
   return updateMetaDictionary({
     node,
     nodeDefUuid,
@@ -154,6 +175,7 @@ const assocChildRequired = (
     propValue: required,
     defaultValue: false,
     sideEffect,
+    dateModified,
   })
 }
 
@@ -161,10 +183,10 @@ function assocChildVisible(
   node: ArenaRecordNode,
   nodeDefUuid: string,
   visible: boolean,
-  options?: ArenaMutationOptions
+  options?: ArenaRecordNodeUpdateOptions
 ): ArenaRecordNode {
-  const { sideEffect = false } = options ?? {}
-  return updateMetaDictionary({ node, nodeDefUuid, propName: 'cVis', propValue: visible, sideEffect })
+  const { sideEffect = false, dateModified } = options ?? {}
+  return updateMetaDictionary({ node, nodeDefUuid, propName: 'cVis', propValue: visible, sideEffect, dateModified })
 }
 
 const assocChildrenCount = (params: {
@@ -172,8 +194,9 @@ const assocChildrenCount = (params: {
   nodeDefUuid: string
   count: number
   countType: NodeDefCountType
+  dateModified?: string
 }): ArenaRecordNode => {
-  const { node, nodeDefUuid, count, countType } = params
+  const { node, nodeDefUuid, count, countType, dateModified } = params
   const countIndex = {
     ...(countType === NodeDefCountType.max ? node.meta?.childrenMaxCount : node.meta?.childrenMinCount),
   }
@@ -192,7 +215,7 @@ const assocChildrenCount = (params: {
     ...node,
     meta: metaUpdated,
     updated: true,
-    dateModified: Dates.nowFormattedForStorage(),
+    dateModified: getDateModified({ dateModified }),
   }
 }
 
@@ -200,12 +223,14 @@ const assocChildrenMaxCount = (params: {
   node: ArenaRecordNode
   nodeDefUuid: string
   count: number
+  dateModified?: string
 }): ArenaRecordNode => assocChildrenCount({ ...params, countType: NodeDefCountType.max })
 
 const assocChildrenMinCount = (params: {
   node: ArenaRecordNode
   nodeDefUuid: string
   count: number
+  dateModified?: string
 }): ArenaRecordNode => assocChildrenCount({ ...params, countType: NodeDefCountType.min })
 
 const clearStatusFlagsInPlace = (node: ArenaRecordNode): ArenaRecordNode => {
@@ -229,12 +254,12 @@ const removeStatusFlags = ({
   sideEffect?: boolean
 }): ArenaRecordNode => (sideEffect ? clearStatusFlagsInPlace(node) : omitStatusFlags(node))
 
-function assocValue(node: ArenaRecordNode, value: any, options?: ArenaMutationOptions): ArenaRecordNode {
+function assocValue(node: ArenaRecordNode, value: any, options?: ArenaRecordNodeUpdateOptions): ArenaRecordNode {
   const { sideEffect = false } = options ?? {}
   const nodeUpdated = sideEffect ? node : { ...node }
   nodeUpdated.value = value
   nodeUpdated.updated = true
-  nodeUpdated.dateModified = Dates.nowFormattedForStorage()
+  nodeUpdated.dateModified = getDateModified(options)
   if (isDefaultValueApplied(nodeUpdated) || isQualifierValueApplied(nodeUpdated)) {
     // reset defaultValueApplied and qualifierValueApplied flags
     const metaOriginal = nodeUpdated.meta ?? {}

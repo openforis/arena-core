@@ -1,9 +1,8 @@
-import { ArenaRecordNode, ArenaRecordNodePointer } from '../../node'
+import { ArenaRecordNode, ArenaRecordNodePointer, ArenaRecordNodeUpdateOptions } from '../../node'
 import { ArenaNodeDefExpression } from '../../nodeDef'
-import { ArenaMutationOptions } from '../../utils/mutationOptions'
 import { SurveyDependencyType } from '../../survey/survey'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
-import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
+import { getDependentNodePointersByType, getNodeCurrent, isAppInfoMissing } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -18,7 +17,7 @@ type UpdateSelfAndDependentsBooleanParams = {
     nodeCtx: ArenaRecordNode,
     nodeDefUuid: string,
     value: boolean,
-    options: ArenaMutationOptions
+    options: ArenaRecordNodeUpdateOptions
   ) => ArenaRecordNode
   includeNewEntitySelf?: boolean
 }
@@ -41,6 +40,9 @@ export const calculateBooleanValueNext = async ({
   const { nodeDef: nodeDefNodePointer } = nodePointer
   const { uuid: nodeDefUuid } = nodeDefNodePointer
 
+  if (isAppInfoMissing({ survey: params.survey, appInfo: params.appInfo, nodeDef: nodeDefNodePointer }))
+    return undefined
+
   const valuePrev = getValuePrev(nodeCtx, nodeDefUuid)
   const expressionsToEvaluate = getExpressions(nodePointer)
   if (expressionsToEvaluate.length === 0) {
@@ -57,6 +59,7 @@ export const calculateBooleanValueNext = async ({
     ...params,
     record: updateResult.record,
     nodeCtx,
+    nodeCurrent: getNodeCurrent({ record: updateResult.record, nodeCtx, nodeDef: nodeDefNodePointer }),
     expressions: expressionsToEvaluate,
   })
   return exprEval?.value || false
@@ -70,7 +73,7 @@ export const updateSelfAndDependentsBoolean = async ({
   assocValue,
   includeNewEntitySelf = true,
 }: UpdateSelfAndDependentsBooleanParams): Promise<RecordUpdateResult> => {
-  const { survey, record, node, sideEffect = false } = params
+  const { survey, record, node, sideEffect = false, dateModified } = params
   const updateResult = new RecordUpdateResult({ record })
 
   const nodePointersToUpdate = getDependentNodePointersByType({
@@ -100,7 +103,7 @@ export const updateSelfAndDependentsBoolean = async ({
       continue
     }
 
-    const nodeCtxUpdated = assocValue(nodeCtx, nodeDefUuid, value, { sideEffect })
+    const nodeCtxUpdated = assocValue(nodeCtx, nodeDefUuid, value, { sideEffect, dateModified })
     updateResult.addNode(nodeCtxUpdated, { sideEffect })
   }
 

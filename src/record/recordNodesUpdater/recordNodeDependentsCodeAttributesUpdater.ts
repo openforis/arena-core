@@ -48,7 +48,7 @@ const isDependentCodeAttributeValueStillValid = async (
 }
 
 export const updateDependentCodeAttributes = async (params: RecordNodeDependentsUpdateParams) => {
-  const { survey, record, node, categoryItemProvider, sideEffect = false } = params
+  const { survey, record, node, categoryItemProvider, sideEffect = false, dateModified } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -88,7 +88,7 @@ export const updateDependentCodeAttributes = async (params: RecordNodeDependents
       ...dependentCodeAttribute,
       value: null,
       updated: true,
-      dateModified: Dates.nowFormattedForStorage(),
+      dateModified: dateModified ?? Dates.nowFormattedForStorage(),
     }
     updateResult.addNode(nodeUpdated, recordUpdateOptions)
     updateResult.addClearedDefUuid(nodeUpdated.nodeDefUuid)

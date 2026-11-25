@@ -123,8 +123,12 @@ describe('Record nodes updater - dependents count updater', () => {
       survey,
       record: Records.addNode(sourceNodeUpdated)(record),
       nodes: { [sourceNode.uuid]: sourceNodeUpdated },
+      dateModified: '2100-01-01T00:00:00.000Z',
     })
 
-    expect(updateResult.nodes[Records.getRoot(record)!.uuid]).toBeUndefined()
+    // root entity updated only in its date modified (a descendant has been modified)
+    const rootUuid = Records.getRoot(record)!.uuid
+    expect(updateResult.dateModifiedOnlyNodeUuids.has(rootUuid)).toBe(true)
+    expect(updateResult.nodes[rootUuid].meta?.childrenMinCount).toEqual(Records.getRoot(record)!.meta?.childrenMinCount)
   })
 })

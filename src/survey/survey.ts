@@ -29,6 +29,8 @@ export enum SurveyDependencyType {
   validations = 'validations',
   visible = 'visible',
   onUpdate = 'onUpdate', // dependencies updated on every record update, stored as dictionary of booleans
+  appInfo = 'appInfo', // dependencies updated when the record is updated with a different app, stored as dictionary of booleans
+  nodeDates = 'nodeDates', // entity def => node defs whose expressions use its nodes dates (nodeDateCreated, nodeDateModified)
 }
 
 export type ArenaSurveyDependencyGraph = {

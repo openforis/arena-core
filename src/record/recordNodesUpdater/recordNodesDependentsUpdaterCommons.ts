@@ -5,6 +5,34 @@ import { ArenaSurvey, SurveyDependencyType, Surveys } from '../../survey'
 import { ArenaRecord } from '../record'
 import { Records } from '../records'
 
+/**
+ * Returns the node referenced by "this" when evaluating the expressions of a node def in the context of its parent entity:
+ * the node of the node def, if single; null if the node def is multiple (the node is not determined) or the node doesn't exist.
+ */
+export const getNodeCurrent = (params: {
+  record: ArenaRecord
+  nodeCtx: ArenaRecordNode
+  nodeDef: ArenaAnyNodeDef
+}): ArenaRecordNode | null => {
+  const { record, nodeCtx, nodeDef } = params
+  if (NodeDefs.isMultiple(nodeDef)) return null
+  return Records.getChildren(nodeCtx, nodeDef.uuid)(record)[0] ?? null
+}
+
+/**
+ * Returns true if the expressions of the node def use the app info functions (appId, appIdLabel, appPlatform, appVersion)
+ * but the app info is not available (e.g. update done by a server job): they must not be evaluated
+ * (they would return null), the current values are kept.
+ */
+export const isAppInfoMissing = (params: {
+  survey: ArenaSurvey
+  appInfo?: unknown
+  nodeDef: ArenaAnyNodeDef
+}): boolean => {
+  const { survey, appInfo, nodeDef } = params
+  return !appInfo && !!survey.dependencyGraph?.[SurveyDependencyType.appInfo]?.[nodeDef.uuid]
+}
+
 export const throwError = (params: {
   error: any
   errorKey: string
