@@ -5,6 +5,7 @@ import { ArenaExpressionFunctions } from '../expression'
 import { ExtraProps } from '../extraProp/extraProps'
 import { ArenaAreaOfInterest, ArenaPoint, Points } from '../geo'
 import { LanguagesISO639part2 } from '../language'
+import { ArenaAnyNodeDef } from '../nodeDef'
 import { ArenaRecord } from '../record'
 import { getNodeDefParent } from '../survey/surveys/nodeDefs'
 import { getCategoryItemByCodePaths, getTaxonByCode } from '../survey/surveys/refsData'
@@ -17,6 +18,7 @@ import {
 } from '../survey/surveys/surveysGetters'
 import { ArenaTaxon } from '../taxonomy'
 import { Dates, Numbers, Objects } from '../utils'
+import { ValidatorErrorKeys } from '../validation/validatorErrorKeys'
 import { NodeDefExpressionContext } from './context'
 
 const sampleGeoJsonPolygon = {
@@ -112,6 +114,23 @@ const distanceToAreaOfInterestBoundary = async (params: {
   return Points.distanceToPolygonBoundary(point, areaOfInterest, getSRSIndex(context.survey))
 }
 
+/**
+ * Node date functions (nodeDateCreated, nodeDateModified) at node def level:
+ * the node def passed as argument is a dependency of the expression
+ * (its nodes date modified changes when any of their descendants is updated).
+ */
+const nodeDateExecutor =
+  (context: NodeDefExpressionContext) =>
+  (nodeDef: ArenaAnyNodeDef | null): null => {
+    if (!nodeDef?.uuid) return null
+    const { nodeDefCurrent, selfReferenceAllowed, referencedNodeDefUuids } = context
+    if (!selfReferenceAllowed && nodeDef.uuid === nodeDefCurrent?.uuid) {
+      throw new SystemError(ValidatorErrorKeys.expressions.cannotUseCurrentNode, { name: nodeDef.props?.name })
+    }
+    referencedNodeDefUuids?.add(nodeDef.uuid)
+    return null
+  }
+
 const geoDistanceExecutor =
   (context: NodeDefExpressionContext) =>
   (coordinateFrom: ArenaPoint | string, coordinateTo: ArenaPoint | string): number | null => {
@@ -125,6 +144,21 @@ const geoDistanceExecutor =
   }
 
 export const nodeDefExpressionFunctions: ArenaExpressionFunctions<NodeDefExpressionContext> = {
+  appId: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: NodeDefExpressionContext) => () => context.appInfo?.appId ?? null,
+  },
+  appPlatform: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: NodeDefExpressionContext) => () => context.appInfo?.platform ?? null,
+  },
+  appVersion: {
+    minArity: 0,
+    maxArity: 0,
+    executor: (context: NodeDefExpressionContext) => () => context.appInfo?.version ?? null,
+  },
   categoryItemProp: {
     minArity: 3,
     executor:
@@ -267,6 +301,18 @@ export const nodeDefExpressionFunctions: ArenaExpressionFunctions<NodeDefExpress
     maxArity: 1,
     evaluateArgsToNodes: true,
     executor: emptyExecutor,
+  },
+  nodeDateCreated: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: nodeDateExecutor,
+  },
+  nodeDateModified: {
+    minArity: 1,
+    maxArity: 1,
+    evaluateArgsToNodes: true,
+    executor: nodeDateExecutor,
   },
   now: {
     minArity: 0,

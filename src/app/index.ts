@@ -1,1 +1,1 @@
-export type { ArenaAppInfo } from './appInfo'
+export type { ArenaAppInfo, ArenaAppPlatform } from './appInfo'
