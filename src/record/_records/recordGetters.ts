@@ -26,7 +26,7 @@ export const getCycle = (record: ArenaRecord): string => record.cycle ?? default
  * Returns the info about the app that updated the record last (or the one that created it, if never updated with another app).
  */
 export const getAppInfoLast = (record: ArenaRecord): ArenaAppInfo | undefined =>
-  record.info?.updatedWith ?? record.info?.createdWith
+  record.info?.modifiedWith ?? record.info?.createdWith
 
 /**
  * Returns true if the specified app info (id, platform or version) differs from the one of the app that updated the record last.

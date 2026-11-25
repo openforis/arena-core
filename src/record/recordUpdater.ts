@@ -44,7 +44,7 @@ const getDependentValidationNodePointers = (params: {
 
 /**
  * If the record is being updated with an app different from the one that updated it last (see Records.isAppInfoChanged),
- * stores the app info in the record (info.updatedWith) and returns the nodes whose expressions use the app info functions,
+ * stores the app info in the record (info.modifiedWith) and returns the nodes whose expressions use the app info functions,
  * so they will be evaluated again.
  */
 const _updateAppInfo = (
@@ -55,7 +55,7 @@ const _updateAppInfo = (
     return { record, appInfoDependentNodes: {} }
   }
   const recordUpdated = sideEffect ? record : { ...record }
-  recordUpdated.info = { ...recordUpdated.info, updatedWith: appInfo }
+  recordUpdated.info = { ...recordUpdated.info, modifiedWith: appInfo }
 
   const appInfoDependentNodes: ArenaRecordNodesMap = {}
   for (const nodeDef of Surveys.getAppInfoDependents({ survey })) {

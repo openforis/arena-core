@@ -16,7 +16,7 @@ import { NodeDefExpressionEvaluator } from '../../nodeDefExpressionEvaluator'
 const { entityDef, integerDef, textDef } = SurveyObjectBuilders
 const { entity, attribute } = RecordNodeBuilders
 
-const appInfo: ArenaAppInfo = { appId: 'arena-mobile', version: '1.2.3', platform: 'ios' }
+const appInfo: ArenaAppInfo = { appId: 'am', version: '1.2.3', platform: 'ios' }
 
 let user: ArenaUser
 let survey: ArenaSurvey
@@ -67,7 +67,7 @@ describe('Expression functions: app info and node dates', () => {
   })
 
   test.each([
-    { query: 'appId()', expected: 'arena-mobile' },
+    { query: 'appId()', expected: 'am' },
     { query: 'appVersion()', expected: '1.2.3' },
     { query: 'appPlatform()', expected: 'ios' },
   ])('$query', async ({ query, expected }) => {

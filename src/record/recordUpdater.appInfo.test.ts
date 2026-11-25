@@ -13,7 +13,7 @@ import { Records } from './records'
 
 const { entityDef, integerDef, textDef } = SurveyObjectBuilders
 
-const appInfoMobile: ArenaAppInfo = { appId: 'arena-mobile', version: '1.0.0', platform: 'android' }
+const appInfoMobile: ArenaAppInfo = { appId: 'am', version: '1.0.0', platform: 'android' }
 const appInfoMobileUpdated: ArenaAppInfo = { ...appInfoMobile, version: '1.1.0' }
 const appInfoWeb: ArenaAppInfo = { appId: 'arena', version: '2.0.0', platform: 'web' }
 
@@ -55,7 +55,7 @@ describe('RecordUpdater - app info dependents', () => {
 
   test('expressions evaluated when the record is created', async () => {
     const record = await createRecord(appInfoMobile)
-    expect(getValue(record, 'app_id')).toBe('arena-mobile')
+    expect(getValue(record, 'app_id')).toBe('am')
     expect(getValue(record, 'app_platform')).toBe('android')
     expect(getValue(record, 'app_version_editable')).toBe('1.0.0')
     expect(getValue(record, 'app_version_one_time')).toBe('1.0.0')
@@ -95,12 +95,12 @@ describe('RecordUpdater - app info dependents', () => {
     expect(getValue(recordUpdated, 'app_version_one_time')).toBe('1.0.0')
 
     expect(recordUpdated.info?.createdWith).toEqual(appInfoMobile)
-    expect(recordUpdated.info?.updatedWith).toEqual(appInfoWeb)
+    expect(recordUpdated.info?.modifiedWith).toEqual(appInfoWeb)
     expect(Records.getAppInfoLast(recordUpdated)).toEqual(appInfoWeb)
     expect(Records.isAppInfoChanged(appInfoWeb)(recordUpdated)).toBe(false)
     // the record passed is not modified
-    expect(record.info?.updatedWith).toBeUndefined()
-    expect(getValue(record, 'app_id')).toBe('arena-mobile')
+    expect(record.info?.modifiedWith).toBeUndefined()
+    expect(getValue(record, 'app_id')).toBe('am')
   })
 
   test('record opened after an app update: values entered by the user kept', async () => {
@@ -125,7 +125,7 @@ describe('RecordUpdater - app info dependents', () => {
     })
     expect(getValue(recordUpdated, 'app_version_editable')).toBe('custom')
     expect(getValue(recordUpdated, 'app_version_one_time')).toBe('1.0.0')
-    expect(recordUpdated.info?.updatedWith).toEqual(appInfoMobileUpdated)
+    expect(recordUpdated.info?.modifiedWith).toEqual(appInfoMobileUpdated)
   })
 
   test('record updated in another platform (without updateAppInfoDependents): expressions evaluated again', async () => {
@@ -141,7 +141,7 @@ describe('RecordUpdater - app info dependents', () => {
     })
     expect(getValue(recordUpdated, 'identifier')).toBe(1)
     expect(getValue(recordUpdated, 'app_platform')).toBe('web')
-    expect(recordUpdated.info?.updatedWith).toEqual(appInfoWeb)
+    expect(recordUpdated.info?.modifiedWith).toEqual(appInfoWeb)
   })
 
   test('record created without app info: expressions evaluated when opened in an app', async () => {
@@ -155,7 +155,7 @@ describe('RecordUpdater - app info dependents', () => {
       record,
       appInfo: appInfoMobile,
     })
-    expect(getValue(recordUpdated, 'app_id')).toBe('arena-mobile')
-    expect(recordUpdated.info?.updatedWith).toEqual(appInfoMobile)
+    expect(getValue(recordUpdated, 'app_id')).toBe('am')
+    expect(recordUpdated.info?.modifiedWith).toEqual(appInfoMobile)
   })
 })
