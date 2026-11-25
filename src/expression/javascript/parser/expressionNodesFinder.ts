@@ -1,4 +1,5 @@
 import { ArenaAnyExpressionNode, ExpressionNodeType } from '../../node'
+import { LRUCache } from '../../../utils/lruCache'
 import { JavascriptExpressionParser } from './parser'
 
 const parser = new JavascriptExpressionParser()
@@ -50,22 +51,20 @@ export const findFunctionCallNames = (expression: string | undefined | null): Se
   return names
 }
 
-const usesThisCache = new Map<string, boolean>()
+const usesThisCache = new LRUCache<string, boolean>(1000)
 
 /**
- * Returns true if the specified expression uses the "this" keyword (results are cached by expression).
+ * Returns true if the specified expression uses the "this" keyword (results are cached by expression, up to 1000).
  * @param expression - The expression to search in.
  * @returns True if "this" is used in the expression.
  */
 export const expressionUsesThis = (expression: string | undefined | null): boolean => {
   if (!expression) return false
-  let result = usesThisCache.get(expression)
-  if (result === undefined) {
-    result = false
+  return usesThisCache.getOrCompute(expression, () => {
+    let result = false
     visitExpression(expression, (expressionNode) => {
       if (expressionNode.type === ExpressionNodeType.This) result = true
     })
-    usesThisCache.set(expression, result)
-  }
-  return result
+    return result
+  })
 }
