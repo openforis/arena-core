@@ -9,6 +9,11 @@ export class RecordUpdateResult {
   nodes: ArenaRecordNodesMap
   nodesDeleted: ArenaRecordNodesMap
   clearedDefUuids: Set<string>
+  /**
+   * Uuids of the nodes (ancestor entities) updated only in their date modified (because a descendant has been modified):
+   * to be persisted, but not to be validated again.
+   */
+  dateModifiedOnlyNodeUuids: Set<string>
   validation?: ArenaValidation
 
   constructor(params: {
@@ -22,6 +27,7 @@ export class RecordUpdateResult {
     this.nodes = params.nodes ?? {}
     this.nodesDeleted = params.nodesDeleted ?? {}
     this.clearedDefUuids = params.clearedDefUuids ?? new Set<string>()
+    this.dateModifiedOnlyNodeUuids = new Set<string>()
     this.validation = params.validation
   }
 
@@ -57,6 +63,15 @@ export class RecordUpdateResult {
     Object.assign(this.nodesDeleted, recordUpdateResult.nodesDeleted)
     for (const nodeDefUuid of recordUpdateResult.clearedDefUuids) {
       this.addClearedDefUuid(nodeDefUuid)
+    }
+    for (const nodeUuid of Object.keys(recordUpdateResult.nodes)) {
+      // node updated in the merged result: not only in its date modified anymore
+      if (!recordUpdateResult.dateModifiedOnlyNodeUuids.has(nodeUuid)) {
+        this.dateModifiedOnlyNodeUuids.delete(nodeUuid)
+      }
+    }
+    for (const nodeUuid of recordUpdateResult.dateModifiedOnlyNodeUuids) {
+      this.dateModifiedOnlyNodeUuids.add(nodeUuid)
     }
     return this
   }

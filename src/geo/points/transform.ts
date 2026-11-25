@@ -1,6 +1,7 @@
 import proj4, { type Converter } from 'proj4'
 
 import { SystemError, SystemErrorKeys } from '../../error'
+import { LRUCache } from '../../utils/lruCache'
 import { DEFAULT_SRS_INDEX, ArenaSRSIndex } from '../../srs'
 import { ArenaPoint } from '../point'
 import { PointFactory } from '../pointFactory'
@@ -8,17 +9,10 @@ import { isFilled } from './isFilled'
 import { getSrs } from './getSrs'
 
 // proj4 parses both WKT strings every time it is called with them: cache the converters by WKT pair
-const convertersCache = new Map<string, Converter>()
+const convertersCache = new LRUCache<string, Converter>(100)
 
-const getConverter = (wktFrom: string, wktTo: string): Converter => {
-  const key = `${wktFrom}\n${wktTo}`
-  let converter = convertersCache.get(key)
-  if (!converter) {
-    converter = proj4(wktFrom, wktTo)
-    convertersCache.set(key, converter)
-  }
-  return converter
-}
+const getConverter = (wktFrom: string, wktTo: string): Converter =>
+  convertersCache.getOrCompute(`${wktFrom}\n${wktTo}`, () => proj4(wktFrom, wktTo))
 
 /**
  * Transforms the specified point from one SRS into another, throwing a SystemError with the reason when it cannot.
@@ -30,7 +24,7 @@ const getConverter = (wktFrom: string, wktTo: string): Converter => {
  * @throws {SystemError} `geo.pointNotFilled`, `geo.srsNotFound` (with the `code` param) or `geo.transformFailed`.
  */
 export const transformOrThrow = (
-  point: ArenaPoint,
+  point: ArenaPoint | null | undefined,
   srsCodeTo: string,
   srsIndex: ArenaSRSIndex = DEFAULT_SRS_INDEX
 ): ArenaPoint => {
@@ -72,7 +66,7 @@ export const transformOrThrow = (
  * @returns The transformed point, or null if the point is not filled, an SRS is unknown or the transformation fails.
  */
 export const transform = (
-  point: ArenaPoint,
+  point: ArenaPoint | null | undefined,
   srsCodeTo: string,
   srsIndex: ArenaSRSIndex = DEFAULT_SRS_INDEX
 ): ArenaPoint | null => {

@@ -1,4 +1,6 @@
 import {
+  getAppInfoLast,
+  isAppInfoChanged,
   getCycle,
   getRoot,
   getNodes,
@@ -66,6 +68,8 @@ import { removeNode, removeNodes } from './recordNodesUpdater/recordNodesDeleter
 
 export const Records = {
   // READ
+  getAppInfoLast,
+  isAppInfoChanged,
   getCycle,
   getRoot,
   getNodes,

@@ -28,6 +28,8 @@ export {
   surveySecurityDefaults,
 } from './survey'
 
+export type { ArenaSurveyOrSummary, ArenaSurveySummary } from './surveySummary'
+
 export { Surveys } from './surveys'
 
 export { SurveyFactory } from './factory'

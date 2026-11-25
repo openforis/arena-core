@@ -184,7 +184,7 @@ The codebase follows a hierarchical domain model centered around surveys and dat
 - Type-aware rules (`no-floating-promises`, `no-misused-promises`, `only-throw-error`) use `tsconfig.test.json`, so test files are linted with type information too
 - Unused vars/args starting with `_` are allowed
 - `@typescript-eslint/no-explicit-any` is OFF
-- The codebase consistently uses `export type { ... }` for type-only exports (see `src/index.ts`), even though the `no-explicit-type-exports` plugin that used to enforce it is currently disabled in `eslint.config.mjs` pending ESLint 10 compatibility — keep following the convention regardless
+- The codebase consistently uses `export type { ... }` for type-only exports (see `src/index.ts`), even though the `eslint-plugin-no-explicit-type-exports` plugin that used to enforce it was removed because it is not compatible with ESLint 10 — keep following the convention regardless
 - ESLint is the only linter in use
 
 ## Package Publishing

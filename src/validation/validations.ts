@@ -16,7 +16,7 @@ const hasValidation = (obj: any): boolean => !!obj?.validation
 
 const getValidation = (obj: any): ArenaValidation => obj?.validation || ValidationFactory.createInstance()
 
-const getFieldValidations = (validation: ArenaValidation): ArenaValidationFields => validation?.fields ?? {}
+const getFieldValidations = (validation?: ArenaValidation | null): ArenaValidationFields => validation?.fields ?? {}
 
 const getFieldValidationUnsafe =
   (field: string | number) =>
@@ -52,27 +52,27 @@ const getFieldValidationsByFields =
     return result
   }
 
-const getErrors = (validation: ArenaValidation): ArenaValidationResult[] => validation?.errors ?? []
+const getErrors = (validation?: ArenaValidation | null): ArenaValidationResult[] => validation?.errors ?? []
 
-const getWarnings = (validation: ArenaValidation): ArenaValidationResult[] => validation?.warnings ?? []
+const getWarnings = (validation?: ArenaValidation | null): ArenaValidationResult[] => validation?.warnings ?? []
 
-const hasErrors = (validation: ArenaValidation): boolean => {
+const hasErrors = (validation?: ArenaValidation | null): boolean => {
   const errors = getErrors(validation)
   return !Objects.isEmpty(errors) || Object.values(getFieldValidations(validation)).some(hasErrors)
 }
 
-const hasWarnings = (validation: ArenaValidation): boolean => {
+const hasWarnings = (validation?: ArenaValidation | null): boolean => {
   const warnings = getWarnings(validation)
   return !Objects.isEmpty(warnings) || Object.values(getFieldValidations(validation)).some(hasWarnings)
 }
 
-const isValid = (validation: ArenaValidation): boolean => Objects.isEmpty(validation) || validation.valid
-const isNotValid = (validation: ArenaValidation): boolean => !isValid(validation)
+const isValid = (validation?: ArenaValidation | null): boolean => Objects.isEmpty(validation) || !!validation?.valid
+const isNotValid = (validation?: ArenaValidation | null): boolean => !isValid(validation)
 const isObjValid = (obj: object): boolean => isValid(getValidation(obj))
 
-const getCounts = (validation: ArenaValidation): ArenaValidationCounts | undefined => validation?.counts
-const getErrorsCount = (validation: ArenaValidation): number => getCounts(validation)?.errors ?? 0
-const getWarningsCount = (validation: ArenaValidation): number => getCounts(validation)?.warnings ?? 0
+const getCounts = (validation?: ArenaValidation | null): ArenaValidationCounts | undefined => validation?.counts
+const getErrorsCount = (validation?: ArenaValidation | null): number => getCounts(validation)?.errors ?? 0
+const getWarningsCount = (validation?: ArenaValidation | null): number => getCounts(validation)?.warnings ?? 0
 
 /**
  * Creates a validation object like ValidationFactory.createInstance does, but without checking again

@@ -1,3 +1,4 @@
+import { ArenaAppInfo } from '../../app'
 import { ArenaUser } from '../../auth'
 import { LanguageCode } from '../../language'
 import { ArenaAreaOfInterestProvider } from '../../nodeDefExpressionEvaluator/areaOfInterestProvider'
@@ -13,6 +14,11 @@ export interface ArenaRecordExpressionEvaluationContext {
   prevCycleRecord?: ArenaRecord
   timezoneOffset?: number
   lang?: LanguageCode
+  /**
+   * Info about the app running the update: expressions using the app info functions (appId, appIdLabel, appVersion, appPlatform)
+   * are evaluated again when the record is updated with a different app (see RecordUpdater.updateAppInfoDependents)
+   */
+  appInfo?: ArenaAppInfo
   categoryItemProvider?: ArenaCategoryItemProvider
   taxonProvider?: ArenaTaxonProvider
   areaOfInterestProvider?: ArenaAreaOfInterestProvider
@@ -32,6 +38,7 @@ const evaluationParamsKeysMap: { [key in keyof RecordExpressionEvaluationParams]
   prevCycleRecord: true,
   timezoneOffset: true,
   lang: true,
+  appInfo: true,
   categoryItemProvider: true,
   taxonProvider: true,
   areaOfInterestProvider: true,

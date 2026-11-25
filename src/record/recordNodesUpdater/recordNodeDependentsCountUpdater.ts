@@ -14,7 +14,7 @@ export const updateDependentsCount = async (
     countType: NodeDefCountType
   }
 ): Promise<RecordUpdateResult> => {
-  const { survey, record, node, countType, sideEffect = false } = params
+  const { survey, record, node, countType, sideEffect = false, dateModified } = params
 
   const updateResult = new RecordUpdateResult({ record })
 
@@ -39,7 +39,14 @@ export const updateDependentsCount = async (
     // nodeCtx could have been updated in a previous iteration
     const nodeCtx = updateResult.getNodeByUuid(nodeCtxUuid) ?? nodeCtxNodePointer
 
-    const evaluateParams = { ...params, record: updateResult.record, nodeCtx, expressions: expressionsToEvaluate }
+    const evaluateParams = {
+      ...params,
+      record: updateResult.record,
+      nodeCtx,
+      // count expressions are defined on multiple node defs: "this" is not determined
+      nodeCurrent: null,
+      expressions: expressionsToEvaluate,
+    }
     const countResult = await expressionEvaluator.evalApplicableExpression(evaluateParams) // NOSONAR
 
     const count = Number(countResult?.value)
@@ -57,7 +64,13 @@ export const updateDependentsCount = async (
       // count changed
 
       // 5. update node and add it to nodes updated
-      const nodeCtxUpdated = RecordNodes.assocChildrenCount({ node: nodeCtx, nodeDefUuid, count, countType })
+      const nodeCtxUpdated = RecordNodes.assocChildrenCount({
+        node: nodeCtx,
+        nodeDefUuid,
+        count,
+        countType,
+        dateModified,
+      })
       updateResult.addNode(nodeCtxUpdated, recordUpdateOptions)
     }
   }

@@ -1,10 +1,17 @@
-import { Queue } from '../../utils'
+import { Dates, Queue } from '../../utils'
 
 import { ArenaDictionary } from '../../common'
-import { ArenaRecordNode } from '../../node'
-import { NodeDefCountType } from '../../nodeDef'
-import { Surveys } from '../../survey'
-import { getNodesByDefUuid } from '../_records/recordGetters'
+import { ArenaRecordNode, ArenaRecordNodesMap, RecordNodes } from '../../node'
+import { NodeDefCountType, NodeDefs } from '../../nodeDef'
+import { ArenaSurvey, SurveyDependencyType, Surveys } from '../../survey'
+import {
+  getDependentNodePointers,
+  getDescendantsOrSelf,
+  getNodeByUuid,
+  getNodesByDefUuid,
+} from '../_records/recordGetters'
+import { RecordNodePointers } from '../nodePointers'
+import { ArenaRecord } from '../record'
 import { updateSelfAndDependentsApplicable } from './recordNodeDependentsApplicableUpdater'
 import { updateDependentCodeAttributes } from './recordNodeDependentsCodeAttributesUpdater'
 import { updateDependentsCount } from './recordNodeDependentsCountUpdater'
@@ -45,12 +52,99 @@ const dependentsUpdaters: RecordNodeDependentsUpdater[] = [
   updateSelfAndDependentsFileNames,
 ]
 
+/**
+ * True if the node modification changes the date modified of its ancestors:
+ * nodes created or deleted, and attributes (whose value changed); entities updated only in their meta
+ * (e.g. children applicability) are excluded.
+ */
+const isModificationPropagatedToAncestors = (survey: ArenaSurvey, node: ArenaRecordNode): boolean => {
+  if (node.created || node.deleted) return true
+  const nodeDef = Surveys.findNodeDefByUuid({ survey, uuid: node.nodeDefUuid })
+  return !!nodeDef && !NodeDefs.isEntity(nodeDef)
+}
+
+/**
+ * Sets the date modified of the ancestors of the specified node (if not set already).
+ * @returns The ancestors updated.
+ */
+const updateAncestorsDateModified = (params: {
+  node: ArenaRecordNode
+  updateResult: RecordUpdateResult
+  dateModified: string
+  sideEffect: boolean
+}): ArenaRecordNode[] => {
+  const { node, updateResult, dateModified, sideEffect } = params
+  const ancestorsUpdated: ArenaRecordNode[] = []
+  for (const ancestorUuid of RecordNodes.getHierarchy(node)) {
+    const ancestor = updateResult.getNodeByUuid(ancestorUuid) ?? getNodeByUuid(ancestorUuid)(updateResult.record)
+    if (!ancestor || ancestor.deleted || ancestor.dateModified === dateModified) continue
+
+    const ancestorAlreadyUpdated = !!updateResult.getNodeByUuid(ancestorUuid)
+    const ancestorUpdated = sideEffect ? ancestor : { ...ancestor }
+    ancestorUpdated.dateModified = dateModified
+    ancestorUpdated.updated = true
+    updateResult.addNode(ancestorUpdated, { sideEffect })
+    if (!ancestorAlreadyUpdated) {
+      updateResult.dateModifiedOnlyNodeUuids.add(ancestorUuid)
+    }
+    ancestorsUpdated.push(ancestorUpdated)
+  }
+  return ancestorsUpdated
+}
+
+/**
+ * Returns the nodes whose expressions use the dates of the specified entity (nodeDateCreated, nodeDateModified),
+ * e.g. the attributes in the entity with the expression "nodeDateModified(parent(this))".
+ */
+const getNodeDatesDependentNodes = (params: {
+  survey: ArenaSurvey
+  record: ArenaRecord
+  entity: ArenaRecordNode
+}): ArenaRecordNode[] => {
+  const { survey, record, entity } = params
+  const dependentDefs = Surveys.getNodeDefDependents({
+    survey,
+    nodeDefUuid: entity.nodeDefUuid,
+    dependencyType: SurveyDependencyType.nodeDates,
+  })
+  if (dependentDefs.length === 0) return []
+
+  const result: ArenaRecordNode[] = []
+  for (const dependentDef of dependentDefs) {
+    if (dependentDef.meta.h.includes(entity.nodeDefUuid)) {
+      // dependent def is a descendant of the entity def: only the dependent nodes in the entity are affected
+      result.push(...getDescendantsOrSelf(entity, dependentDef)(record))
+    } else {
+      const nodePointers = getDependentNodePointers(
+        survey,
+        entity,
+        SurveyDependencyType.nodeDates,
+        false,
+        (nodePointer) => nodePointer.nodeDef.uuid === dependentDef.uuid
+      )(record)
+      result.push(...RecordNodePointers.getNodesFromNodePointers({ record, nodePointers }))
+    }
+  }
+  return result
+}
+
+/**
+ * Updates the dependents of the specified nodes (applicability, default values, calculations, etc.).
+ * The date modified of the ancestors of the modified nodes is updated too (see isModificationPropagatedToAncestors).
+ * @param params.nodes - Nodes created, updated or deleted.
+ * @param params.nodesToEvaluate - Nodes not modified whose dependents must be updated (e.g. the app info dependents).
+ */
 export const updateNodesDependents = async (
-  params: ArenaRecordNodesUpdateParams & { nodes: ArenaDictionary<ArenaRecordNode> }
+  params: ArenaRecordNodesUpdateParams & {
+    nodes: ArenaDictionary<ArenaRecordNode>
+    nodesToEvaluate?: ArenaRecordNodesMap
+  }
 ): Promise<RecordUpdateResult> => {
-  const { survey, record, nodes } = params
+  const { survey, record, nodes, nodesToEvaluate, sideEffect = false } = params
+  // the same date modified is used for all the nodes modified (it lets the propagation to the ancestors end)
+  const dateModified = params.dateModified ?? Dates.nowFormattedForStorage()
   // always copy: the nodes passed (e.g. the deleted nodes) must not collect the dependent nodes visited
-  const initialNodesToVisit = { ...nodes }
+  const initialNodesToVisit = { ...nodesToEvaluate, ...nodes }
 
   // include onUpdate dependents (always included in every record update)
   const onUpdateDependentDefs = Surveys.getOnUpdateDependents({ survey })
@@ -67,11 +161,44 @@ export const updateNodesDependents = async (
 
   const createNodeUpdateParams = (node: ArenaRecordNode): RecordNodeDependentsUpdateParams => ({
     ...params,
+    dateModified,
     record: updateResult.record, // updateResult.record changes at every step (when sideEffect=false)
     node,
   })
 
   const nodeUuidsToVisit = new Queue(Object.keys(initialNodesToVisit))
+
+  const hasNodeDatesDependencies =
+    Object.keys(survey.dependencyGraph?.[SurveyDependencyType.nodeDates] ?? {}).length > 0
+
+  // the dependents of the entities whose date modified changed (e.g. "nodeDateModified(parent(this))") are visited
+  // as sources ("self" evaluation): the entities themselves are not visited, they are not modified in their content
+  const visitNodeDatesDependents = (entities: ArenaRecordNode[]): void => {
+    if (!hasNodeDatesDependencies) return
+    for (const entity of entities) {
+      for (const dependentNode of getNodeDatesDependentNodes({ survey, record: updateResult.record, entity })) {
+        // included in the result (like the onUpdate dependents) so their validation is updated too
+        updateResult.nodes[dependentNode.uuid] ??= dependentNode
+        nodeUuidsToVisit.enqueue(dependentNode.uuid)
+      }
+    }
+  }
+
+  const updateAncestorsOfModifiedNodes = (modifiedNodes: ArenaRecordNode[]): void => {
+    const entitiesUpdated: ArenaRecordNode[] = []
+    for (const modifiedNode of modifiedNodes) {
+      if (isModificationPropagatedToAncestors(survey, modifiedNode)) {
+        entitiesUpdated.push(
+          ...updateAncestorsDateModified({ node: modifiedNode, updateResult, dateModified, sideEffect })
+        )
+      } else if (!modifiedNode.deleted) {
+        // entity updated in its meta (e.g. children applicability): its date modified changed
+        entitiesUpdated.push(modifiedNode)
+      }
+    }
+    visitNodeDatesDependents(entitiesUpdated)
+  }
+  updateAncestorsOfModifiedNodes(Object.values(nodes))
 
   // Avoid loops: visit the same node maximum 2 times (the second time the applicability could have been changed)
   const visitedCountByUuid: ArenaDictionary<number> = {}
@@ -93,6 +220,7 @@ export const updateNodesDependents = async (
 
       // Mark updated nodes to visit
       nodeUuidsToVisit.enqueueItems(Object.keys(nodesUpdatedCurrent))
+      updateAncestorsOfModifiedNodes(Object.values(nodesUpdatedCurrent))
 
       // Mark node as visited
       visitedCountByUuid[nodeUuid] = visitedCount + 1

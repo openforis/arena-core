@@ -3,6 +3,7 @@ import { ArenaExpressionEvaluator } from '../evaluator'
 import { ArenaExpressionFunctions } from '../function'
 import { ArenaExpressionNode, ArenaExpressionNodeEvaluatorConstructor, ExpressionNodeType } from '../node'
 import { SystemError, SystemErrorKeys } from '../../error'
+import { LRUCache } from '../../utils/lruCache'
 
 import { functionsDefault } from './functionsDefault'
 import { ArrayEvaluator } from './node/array'
@@ -38,23 +39,11 @@ const defaultEvaluators = {
 
 // Parsed expressions cache: the same expressions are evaluated many times (e.g. for every node during a record update).
 // The cached expression nodes are shared, so evaluators must never modify them.
-const PARSED_EXPRESSIONS_CACHE_MAX_SIZE = 1000
-const parsedExpressionsCache = new Map<string, ArenaExpressionNode<ExpressionNodeType>>()
+const parsedExpressionsCache = new LRUCache<string, ArenaExpressionNode<ExpressionNodeType>>(1000)
 const expressionParser = new JavascriptExpressionParser()
 
-export const parseExpression = (expression: string): ArenaExpressionNode<ExpressionNodeType> => {
-  let expressionNode = parsedExpressionsCache.get(expression)
-  if (!expressionNode) {
-    expressionNode = expressionParser.parse(expression)
-    if (parsedExpressionsCache.size >= PARSED_EXPRESSIONS_CACHE_MAX_SIZE) {
-      // evict the oldest entry (Map keeps insertion order)
-      const oldestExpression = parsedExpressionsCache.keys().next().value
-      if (oldestExpression !== undefined) parsedExpressionsCache.delete(oldestExpression)
-    }
-    parsedExpressionsCache.set(expression, expressionNode)
-  }
-  return expressionNode
-}
+export const parseExpression = (expression: string): ArenaExpressionNode<ExpressionNodeType> =>
+  parsedExpressionsCache.getOrCompute(expression, () => expressionParser.parse(expression))
 
 export class JavascriptExpressionEvaluator<C extends ArenaExpressionContext> implements ArenaExpressionEvaluator<C> {
   functions: ArenaExpressionFunctions<C>

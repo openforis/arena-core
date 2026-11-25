@@ -5,7 +5,7 @@ import { SurveyDependencyType } from '../../survey/survey'
 import { getNodesByDefUuid } from '../_records/recordGetters'
 import { RecordExpressionEvaluator } from '../recordExpressionEvaluator'
 import { ArenaRecordExpressionEvaluationContext } from './recordExpressionEvaluationContext'
-import { getDependentNodePointersByType } from './recordNodesDependentsUpdaterCommons'
+import { getDependentNodePointersByType, getNodeCurrent } from './recordNodesDependentsUpdaterCommons'
 import { RecordNodeDependentsUpdateParams } from './recordNodeDependentsUpdateParams'
 import { RecordUpdateResult } from './recordUpdateResult'
 
@@ -20,10 +20,11 @@ export const evaluateRequiredIf = async (
     nodeDef: ArenaAnyNodeDef
   }
 ): Promise<boolean> => {
-  const { nodeCtx, nodeDef } = params
+  const { record, nodeCtx, nodeDef } = params
   const exprEval = await expressionEvaluator.evalApplicableExpression({
     ...params,
     nodeCtx,
+    nodeCurrent: getNodeCurrent({ record, nodeCtx, nodeDef }),
     expressions: NodeDefs.getRequiredIf(nodeDef),
   })
   return !!exprEval?.value
@@ -35,7 +36,7 @@ export const evaluateRequiredIf = async (
 export const updateSelfAndDependentsRequired = async (
   params: RecordNodeDependentsUpdateParams
 ): Promise<RecordUpdateResult> => {
-  const { survey, record, node, sideEffect = false } = params
+  const { survey, record, node, sideEffect = false, dateModified } = params
   const updateResult = new RecordUpdateResult({ record })
 
   const nodePointersToUpdate = getDependentNodePointersByType({
@@ -55,7 +56,7 @@ export const updateSelfAndDependentsRequired = async (
     const value = await evaluateRequiredIf({ ...params, record: updateResult.record, nodeCtx, nodeDef }) // NOSONAR
     if (valuePrev === value) continue
 
-    const nodeCtxUpdated = RecordNodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect })
+    const nodeCtxUpdated = RecordNodes.assocChildRequired(nodeCtx, nodeDef.uuid, value, { sideEffect, dateModified })
     updateResult.addNode(nodeCtxUpdated, { sideEffect })
   }
   return updateResult

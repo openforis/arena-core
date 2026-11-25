@@ -15,6 +15,10 @@ export interface NodeDefExpressionContext extends ArenaExpressionContext {
    * Unique UUIDs of node definitions being visited during expression evaluation.
    */
   referencedNodeDefUuids?: Set<string>
+  /**
+   * Unique UUIDs of entity definitions whose nodes dates are used in the expression (nodeDateCreated, nodeDateModified).
+   */
+  nodeDateReferencedNodeDefUuids?: Set<string>
   selfReferenceAllowed?: boolean
   // true when the expression is used to filter code or taxon items
   itemsFilter?: boolean

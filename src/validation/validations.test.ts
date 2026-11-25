@@ -148,6 +148,13 @@ describe('Validations', () => {
     test('getWarnings returns empty array when no warnings', () => {
       expect(Validations.getWarnings(makeValidation())).toEqual([])
     })
+
+    test('getErrors / getWarnings return empty arrays for a null or undefined validation', () => {
+      expect(Validations.getErrors(null)).toEqual([])
+      expect(Validations.getWarnings(undefined)).toEqual([])
+      expect(Validations.hasErrors(null)).toBe(false)
+      expect(Validations.hasWarnings(undefined)).toBe(false)
+    })
   })
 
   // ── hasErrors / hasWarnings ────────────────────────────────────────────────
@@ -191,6 +198,12 @@ describe('Validations', () => {
   describe('isValid / isNotValid / isObjValid', () => {
     test('isValid returns true for a valid validation', () => {
       expect(Validations.isValid(makeValidation({ valid: true }))).toBe(true)
+    })
+
+    test('isValid returns true for a null or undefined validation', () => {
+      expect(Validations.isValid(null)).toBe(true)
+      expect(Validations.isValid(undefined)).toBe(true)
+      expect(Validations.isNotValid(null)).toBe(false)
     })
 
     test('isValid returns false for an invalid validation', () => {
@@ -269,6 +282,12 @@ describe('Validations', () => {
   describe('getCounts / getErrorsCount / getWarningsCount', () => {
     test('getErrorsCount returns 0 when counts are absent', () => {
       expect(Validations.getErrorsCount(makeValidation())).toBe(0)
+    })
+
+    test('counts of a null or undefined validation', () => {
+      expect(Validations.getCounts(null)).toBeUndefined()
+      expect(Validations.getErrorsCount(null)).toBe(0)
+      expect(Validations.getWarningsCount(undefined)).toBe(0)
     })
 
     test('getWarningsCount returns 0 when counts are absent', () => {

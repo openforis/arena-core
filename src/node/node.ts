@@ -57,7 +57,7 @@ export interface ArenaRecordNodeRefData {
   taxon?: ArenaTaxon
 }
 
-export interface ArenaRecordNode {
+export interface ArenaRecordNode<V = any> {
   dateCreated?: string
   dateModified?: string
   id?: number
@@ -67,7 +67,7 @@ export interface ArenaRecordNode {
   recordUuid: string
   refData?: ArenaRecordNodeRefData
   uuid: string
-  value?: any
+  value?: V
   placeholder?: boolean
   surveyUuid?: string
 

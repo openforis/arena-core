@@ -50,9 +50,11 @@ describe('Record nodes updater - default values', () => {
       survey,
       record: recordUpdated,
       nodes: { [nodeToUpdate.uuid]: nodeUpdated },
+      dateModified: '2100-01-01T00:00:00.000Z',
     })
     expect(updateResult).not.toBeNull()
-    expect(Object.values(updateResult.nodes)).toHaveLength(2)
+    // updated attribute, dependent attribute and root entity (date modified)
+    expect(Object.values(updateResult.nodes)).toHaveLength(3)
 
     const dependentNode = TestUtils.getNodeByPath({
       survey,
