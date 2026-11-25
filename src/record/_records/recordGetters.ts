@@ -37,8 +37,8 @@ export const isAppInfoChanged =
   (record: ArenaRecord): boolean => {
     if (!appInfo) return false
     const appInfoLast = getAppInfoLast(record)
+    if (!appInfoLast) return true
     return (
-      !appInfoLast ||
       appInfoLast.appId !== appInfo.appId ||
       (appInfoLast.platform ?? null) !== (appInfo.platform ?? null) ||
       appInfoLast.version !== appInfo.version
