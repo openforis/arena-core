@@ -35,7 +35,9 @@ export const addNodes =
       // store the index even with no nodes to add: it could have just been built, avoid building it again
       recordUpdated._nodesIndex =
         Object.keys(nodesToIndex).length > 0
-          ? RecordNodesIndexUpdater.addNodes(nodesToIndex, { sideEffect, sortNodes })(index)
+          ? RecordNodesIndexUpdater.addNodes(nodesToIndex, { sideEffect, sortNodes, allNodes: recordUpdated.nodes })(
+              index
+            )
           : index
     }
     return recordUpdated

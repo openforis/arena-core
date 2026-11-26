@@ -1,7 +1,7 @@
 import { Dates, Queue } from '../../utils'
 
 import { ArenaDictionary } from '../../common'
-import { ArenaRecordNode, ArenaRecordNodesMap, RecordNodes } from '../../node'
+import { ArenaRecordNode, ArenaRecordNodesMap } from '../../node'
 import { NodeDefCountType, NodeDefs } from '../../nodeDef'
 import { ArenaSurvey, SurveyDependencyType, Surveys } from '../../survey'
 import {
@@ -75,9 +75,16 @@ const updateAncestorsDateModified = (params: {
 }): ArenaRecordNode[] => {
   const { node, updateResult, dateModified, sideEffect } = params
   const ancestorsUpdated: ArenaRecordNode[] = []
-  for (const ancestorUuid of RecordNodes.getHierarchy(node)) {
+  // ancestors found going up the parent uuids, in the update result or in the record
+  let ancestorUuid = node.parentUuid
+  while (ancestorUuid) {
     const ancestor = updateResult.getNodeByUuid(ancestorUuid) ?? getNodeByUuid(ancestorUuid)(updateResult.record)
-    if (!ancestor || ancestor.deleted || ancestor.dateModified === dateModified) continue
+    if (!ancestor) break
+    const parentUuid = ancestor.parentUuid
+    if (ancestor.deleted || ancestor.dateModified === dateModified) {
+      ancestorUuid = parentUuid
+      continue
+    }
 
     const ancestorAlreadyUpdated = !!updateResult.getNodeByUuid(ancestorUuid)
     const ancestorUpdated = sideEffect ? ancestor : { ...ancestor }
@@ -88,6 +95,7 @@ const updateAncestorsDateModified = (params: {
       updateResult.dateModifiedOnlyNodeUuids.add(ancestorUuid)
     }
     ancestorsUpdated.push(ancestorUpdated)
+    ancestorUuid = parentUuid
   }
   return ancestorsUpdated
 }

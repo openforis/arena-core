@@ -19,9 +19,7 @@ export const RecordNodeFactory: ArenaFactory<ArenaRecordNode, NodeFactoryParams>
       created: true,
       dateCreated: now,
       dateModified: now,
-      meta: {
-        h: [...(parentNode?.meta?.h ?? []), ...(parentNode?.uuid ? [parentNode?.uuid] : [])],
-      },
+      meta: {},
       nodeDefUuid,
       parentUuid: parentNode?.uuid,
       recordUuid,
