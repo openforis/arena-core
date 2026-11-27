@@ -4,7 +4,7 @@
     "name": "OpenForis",
     "email": "openforis.arena@gmail.com"
   },
-  "version": "3.2.4",
+  "version": "3.2.5",
   "description": "Arena core module",
   "repository": {
     "type": "git",
@@ -23,11 +23,11 @@
   "devDependencies": {
     "@jest/globals": "^30.5.2",
     "@types/jest": "^30.0.0",
-    "@types/node": "^26.6.6",
-    "@typescript-eslint/eslint-plugin": "^8.73.0",
-    "@typescript-eslint/parser": "^8.73.0",
+    "@types/node": "^26.6.11",
+    "@typescript-eslint/eslint-plugin": "^8.74.0",
+    "@typescript-eslint/parser": "^8.74.0",
     "@typescript/native": "npm:typescript@7.0.2",
-    "eslint": "^10.15.0",
+    "eslint": "^10.16.0",
     "husky": "^9.1.7",
     "jest": "^30.5.2",
     "lint-staged": "^17.6.2",
@@ -35,7 +35,7 @@
     "prettier": "^3.10.1",
     "ts-jest": "^29.4.15",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "typescript-eslint": "^8.73.0"
+    "typescript-eslint": "^8.74.0"
   },
   "dependencies": {
     "@jsep-plugin/regex": "^1.1.0",
@@ -79,10 +79,10 @@
     "registry": "https://npm.pkg.github.com"
   },
   "resolutions": {
-    "@jest/reporters/glob": "^14.0.4",
-    "jest-config/glob": "^14.0.4",
-    "jest-runtime/glob": "^14.0.4",
-    "test-exclude/glob": "^14.0.4",
-    "test-exclude/minimatch": "^11.0.5"
+    "@jest/reporters/glob": "^14.0.6",
+    "jest-config/glob": "^14.0.6",
+    "jest-runtime/glob": "^14.0.6",
+    "test-exclude/glob": "^14.0.6",
+    "test-exclude/minimatch": "^11.0.9"
   }
 }
