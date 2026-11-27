@@ -9,6 +9,7 @@ import { RecordFixer } from './recordFixer'
 import { RecordUpdateResult } from './recordNodesUpdater'
 import { RecordValidations } from './recordValidations'
 import { Records } from './records'
+import * as RecordNodesHierarchy from './_records/recordNodesHierarchy'
 
 type OldUuidToNewUuidMap = {
   [key: string]: string
@@ -24,10 +25,10 @@ const assignNewUuidsToNodes = (params: {
   const newNodeUuidsByOldUuid: OldUuidToNewUuidMap = {}
   const newFileUuidsByOldUuid: OldUuidToNewUuidMap = {}
 
-  // sort nodes before removing the id, to preserve their hierarchy (faster than comparing each meta.h property)
+  // sort nodes by depth before removing the id, to preserve their hierarchy
+  const getDepth = RecordNodesHierarchy.createNodeDepthGetter(record.nodes ?? {})
   const nodesArray = Records.getNodesArray(record).sort(
-    (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): number =>
-      RecordNodes.getHierarchy(nodeA).length - RecordNodes.getHierarchy(nodeB).length
+    (nodeA: ArenaRecordNode, nodeB: ArenaRecordNode): number => getDepth(nodeA) - getDepth(nodeB)
   )
 
   const recordUpdated = sideEffect ? record : { ...record }
@@ -53,20 +54,10 @@ const assignNewUuidsToNodes = (params: {
     delete nodeUpdated.id
     nodeUpdated.created = true // this flag will be used by the RDB generator)
 
-    // update internal node uuids, meta hierarchy, file uuid (if any)
+    // update internal node uuids, code hierarchy, file uuid (if any)
     const parentUuid = node.parentUuid
     if (parentUuid) {
       nodeUpdated.parentUuid = newNodeUuidsByOldUuid[parentUuid]
-    }
-    const hierarchy = node.meta?.h ?? []
-    if (hierarchy.length > 0) {
-      const hierarchyUpdated = hierarchy.map((ancestorUuid) => newNodeUuidsByOldUuid[ancestorUuid])
-      nodeUpdated = Objects.assocPath({
-        obj: nodeUpdated,
-        path: [RecordNodeKeys.meta, RecordNodeMetaKeys.h],
-        value: hierarchyUpdated,
-        sideEffect,
-      })
     }
     const hierarchyCode = RecordNodes.getHierarchyCode(node)
     if (hierarchyCode.length > 0) {
